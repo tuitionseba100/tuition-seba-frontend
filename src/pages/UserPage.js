@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Button, Table } from 'react-bootstrap';
 import axios from 'axios';
+import NavBarPage from './NavbarPage';
 
 const UserPage = () => {
     const [userList, setUserList] = useState([]);
@@ -29,6 +30,9 @@ const UserPage = () => {
 
     return (
         <div>
+            <header>
+                <NavBarPage></NavBarPage>
+            </header>
             <h2>User List</h2>
             <Table striped bordered hover>
                 <thead>

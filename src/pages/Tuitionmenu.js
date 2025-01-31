@@ -19,6 +19,7 @@ const TuitionPage = () => {
         medium: '',
         subject: '',
         time: '',
+        day: '',
         salary: '',
         location: '',
         guardianNumber: '',
@@ -125,6 +126,7 @@ const TuitionPage = () => {
                         <th>Class</th>
                         <th>Medium</th>
                         <th>Subject</th>
+                        <th>Day</th>
                         <th>Time</th>
                         <th>Salary</th>
                         <th>Location</th>
@@ -145,6 +147,7 @@ const TuitionPage = () => {
                             <td>{tuition.medium}</td>
                             <td>{tuition.subject}</td>
                             <td>{tuition.time}</td>
+                            <td>{tuition.day}</td>
                             <td>{tuition.salary}</td>
                             <td>{tuition.location}</td>
                             <td>{tuition.guardianNumber}</td>
@@ -260,7 +263,18 @@ const TuitionPage = () => {
                         </Row>
 
                         <Row>
-                            <Col md={6}>
+                            <Col md={4}>
+                                <Form.Group controlId="day">
+                                    <Form.Label>Day</Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        value={tuitionData.day}
+                                        onChange={(e) => setTuitionData({ ...tuitionData, day: e.target.value })}
+                                        required
+                                    />
+                                </Form.Group>
+                            </Col>
+                            <Col md={4}>
                                 <Form.Group controlId="time">
                                     <Form.Label>Time</Form.Label>
                                     <Form.Control
@@ -271,7 +285,7 @@ const TuitionPage = () => {
                                     />
                                 </Form.Group>
                             </Col>
-                            <Col md={6}>
+                            <Col md={4}>
                                 <Form.Group controlId="salary">
                                     <Form.Label>Salary</Form.Label>
                                     <Form.Control

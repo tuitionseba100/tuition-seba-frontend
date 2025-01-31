@@ -297,20 +297,6 @@ const TuitionPage = () => {
                                 </Form.Group>
                             </Col>
                             <Col md={6}>
-                                <Form.Group controlId="guardianNumber">
-                                    <Form.Label>Guardian Number</Form.Label>
-                                    <Form.Control
-                                        type="text"
-                                        value={tuitionData.guardianNumber}
-                                        onChange={(e) => setTuitionData({ ...tuitionData, guardianNumber: e.target.value })}
-                                        required
-                                    />
-                                </Form.Group>
-                            </Col>
-                        </Row>
-
-                        <Row>
-                            <Col md={6}>
                                 <Form.Group controlId="joining">
                                     <Form.Label>Joining Date</Form.Label>
                                     <Form.Control
@@ -321,6 +307,21 @@ const TuitionPage = () => {
                                     />
                                 </Form.Group>
                             </Col>
+                        </Row>
+
+                        <Row>
+                            <Col md={6}>
+                                <Form.Group controlId="guardianNumber">
+                                    <Form.Label>Guardian Number</Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        value={tuitionData.guardianNumber}
+                                        onChange={(e) => setTuitionData({ ...tuitionData, guardianNumber: e.target.value })}
+                                        required
+                                    />
+                                </Form.Group>
+                            </Col>
+
                             <Col md={6}>
                                 <Form.Group controlId="status">
                                     <Form.Label>Status</Form.Label>

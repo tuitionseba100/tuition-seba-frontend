@@ -171,18 +171,6 @@ const TuitionPage = () => {
                     <Form>
                         <Row>
                             <Col md={4}>
-                                <Form.Group controlId="tuitionCode">
-                                    <Form.Label>Tuition Code</Form.Label>
-                                    <Form.Control
-                                        type="text"
-                                        value={tuitionData.tuitionCode}
-                                        onChange={(e) => setTuitionData({ ...tuitionData, tuitionCode: e.target.value })}
-                                        required
-                                    />
-                                </Form.Group>
-                            </Col>
-
-                            <Col md={4}>
                                 <Form.Group controlId="isPublish">
                                     <Form.Label>Publish</Form.Label>
                                     <Form.Control
@@ -193,6 +181,18 @@ const TuitionPage = () => {
                                         <option value="Yes">Yes</option>
                                         <option value="No">No</option>
                                     </Form.Control>
+                                </Form.Group>
+                            </Col>
+
+                            <Col md={4}>
+                                <Form.Group controlId="tuitionCode">
+                                    <Form.Label>Tuition Code</Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        value={tuitionData.tuitionCode}
+                                        onChange={(e) => setTuitionData({ ...tuitionData, tuitionCode: e.target.value })}
+                                        required
+                                    />
                                 </Form.Group>
                             </Col>
 

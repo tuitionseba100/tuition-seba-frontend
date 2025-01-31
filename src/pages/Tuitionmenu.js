@@ -12,6 +12,7 @@ const TuitionPage = () => {
     const [editingId, setEditingId] = useState(null);
     const [tuitionData, setTuitionData] = useState({
         tuitionCode: '',
+        isPublish: true,
         wantedTeacher: '',
         student: '',
         class: '',
@@ -21,9 +22,10 @@ const TuitionPage = () => {
         salary: '',
         location: '',
         guardianNumber: '',
+        status: '',
         joining: ''
     });
-    const [searchQuery, setSearchQuery] = useState(''); // Search query for filtering tuition records
+    const [searchQuery, setSearchQuery] = useState('');
 
     useEffect(() => {
         fetchTuitionRecords();
@@ -46,7 +48,7 @@ const TuitionPage = () => {
         try {
             const response = await axios.get('https://tuition-seba-backend.onrender.com/api/tuition/all');
             setTuitionList(response.data);
-            setFilteredTuitionList(response.data); // Initialize filtered list
+            setFilteredTuitionList(response.data);
         } catch (err) {
             console.error('Error fetching tuition records:', err);
             toast.error("Failed to load tuition records.");
@@ -54,12 +56,16 @@ const TuitionPage = () => {
     };
 
     const handleSaveTuition = async () => {
+        const updatedTuitionData = {
+            ...tuitionData,
+            status: tuitionData.status ? tuitionData.status : "available"
+        };
         try {
             if (editingId) {
-                await axios.put(`https://tuition-seba-backend.onrender.com/api/tuition/edit/${editingId}`, tuitionData);
+                await axios.put(`https://tuition-seba-backend.onrender.com/api/tuition/edit/${editingId}`, updatedTuitionData);
                 toast.success("Tuition record updated successfully!");
             } else {
-                await axios.post('https://tuition-seba-backend.onrender.com/api/tuition/add', tuitionData);
+                await axios.post('https://tuition-seba-backend.onrender.com/api/tuition/add', updatedTuitionData);
                 toast.success("Tuition record created successfully!");
             }
             setShowModal(false);
@@ -112,6 +118,8 @@ const TuitionPage = () => {
                 <thead className="table-primary">
                     <tr>
                         <th>Tuition Code</th>
+                        <th>isPublished</th>
+                        <th>Status</th>
                         <th>Teacher</th>
                         <th>Student</th>
                         <th>Class</th>
@@ -129,6 +137,8 @@ const TuitionPage = () => {
                     {filteredTuitionList.map((tuition) => (
                         <tr key={tuition._id}>
                             <td>{tuition.tuitionCode}</td>
+                            <td>{tuition.isPublish ? "Yes" : "No"}</td>
+                            <td>{tuition.status}</td>
                             <td>{tuition.wantedTeacher}</td>
                             <td>{tuition.student}</td>
                             <td>{tuition.class}</td>
@@ -160,7 +170,7 @@ const TuitionPage = () => {
                 <Modal.Body>
                     <Form>
                         <Row>
-                            <Col md={6}>
+                            <Col md={4}>
                                 <Form.Group controlId="tuitionCode">
                                     <Form.Label>Tuition Code</Form.Label>
                                     <Form.Control
@@ -171,7 +181,22 @@ const TuitionPage = () => {
                                     />
                                 </Form.Group>
                             </Col>
-                            <Col md={6}>
+
+                            <Col md={4}>
+                                <Form.Group controlId="isPublish">
+                                    <Form.Label>Publish</Form.Label>
+                                    <Form.Control
+                                        as="select"
+                                        value={tuitionData.isPublish ? "Yes" : "No"} // Set the initial value based on isPublish
+                                        onChange={(e) => setTuitionData({ ...tuitionData, isPublish: e.target.value === "Yes" })}
+                                    >
+                                        <option value="Yes">Yes</option>
+                                        <option value="No">No</option>
+                                    </Form.Control>
+                                </Form.Group>
+                            </Col>
+
+                            <Col md={4}>
                                 <Form.Group controlId="wantedTeacher">
                                     <Form.Label>Wanted Teacher</Form.Label>
                                     <Form.Control
@@ -285,7 +310,7 @@ const TuitionPage = () => {
                         </Row>
 
                         <Row>
-                            <Col md={12}>
+                            <Col md={6}>
                                 <Form.Group controlId="joining">
                                     <Form.Label>Joining Date</Form.Label>
                                     <Form.Control
@@ -296,12 +321,29 @@ const TuitionPage = () => {
                                     />
                                 </Form.Group>
                             </Col>
+                            <Col md={6}>
+                                <Form.Group controlId="status">
+                                    <Form.Label>Status</Form.Label>
+                                    <Form.Control
+                                        as="select"
+                                        value={tuitionData.status}
+                                        onChange={(e) => setTuitionData({ ...tuitionData, status: e.target.value })}
+                                        required
+                                    >
+                                        <option value="available">Available</option>
+                                        <option value="given number">Given Number</option>
+                                        <option value="demo class running">Demo Class Running</option>
+                                        <option value="confirm">Confirm</option>
+                                        <option value="cancel">Cancel</option>
+                                    </Form.Control>
+                                </Form.Group>
+                            </Col>
                         </Row>
                     </Form>
                 </Modal.Body>
                 <Modal.Footer>
                     <Button variant="secondary" onClick={() => setShowModal(false)}>Close</Button>
-                    <Button variant="primary" onClick={handleSaveTuition}>Save Changes</Button>
+                    <Button variant="primary" onClick={handleSaveTuition}>Save</Button>
                 </Modal.Footer>
             </Modal>
 

@@ -11,7 +11,7 @@ const UserPage = () => {
 
     const fetchUsers = async () => {
         try {
-            const response = await axios.get('http://localhost:5000/api/user');
+            const response = await axios.get('https://tuition-seba-backend.onrender.com/api/user');
             setUserList(response.data);
         } catch (err) {
             console.error('Error fetching users:', err);
@@ -20,7 +20,7 @@ const UserPage = () => {
 
     const handleDeleteUser = async (id) => {
         try {
-            await axios.delete(`http://localhost:5000/api/user/delete/${id}`);
+            await axios.delete(`https://tuition-seba-backend.onrender.com/api/user/delete/${id}`);
             fetchUsers();
         } catch (err) {
             console.error('Error deleting user:', err);

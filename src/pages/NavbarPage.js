@@ -15,9 +15,12 @@ const Navbar = () => {
                         <li className="nav-item">
                             <Link className="nav-link" to="/tuition">Tuitions</Link>
                         </li>
-                        <li className="nav-item">
-                            <Link className="nav-link" to="/user">Users</Link>
-                        </li>
+                        {localStorage.getItem('role') === 'superadmin' && (
+                            <li className="nav-item">
+                                <Link className="nav-link" to="/user">Users</Link>
+                            </li>
+                        )}
+
                     </ul>
                 </div>
             </div>

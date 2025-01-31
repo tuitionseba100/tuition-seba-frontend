@@ -51,6 +51,7 @@ const TuitionPage = () => {
             const response = await axios.get('https://tuition-seba-backend.onrender.com/api/tuition/all');
             setTuitionList(response.data);
             setFilteredTuitionList(response.data);
+            console.log(localStorage.getItem('token'));
         } catch (err) {
             console.error('Error fetching tuition records:', err);
             toast.error("Failed to load tuition records.");

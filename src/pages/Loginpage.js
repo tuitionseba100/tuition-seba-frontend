@@ -25,7 +25,9 @@ const Login = () => {
                 username: values.username,
                 password: values.password,
             });
-            localStorage.setItem('token', response.data.token); // Store token
+            console.log(response);
+            localStorage.setItem('token', response.data.token);
+            localStorage.setItem('role', response.data.role);// Store token
             navigate('/tuition');
         } catch (err) {
             setError('Invalid username or password');

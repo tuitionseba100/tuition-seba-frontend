@@ -7,16 +7,19 @@ import PrivateRoute from './pages/PrivateRoute'; // Import PrivateRoute
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 const App = () => {
+  console.log('Role from localStorage:', localStorage.getItem('role'));
   return (
     <Router>
       <Routes>
         <Route path="/" element={<Navigate to="/login" />} />
         <Route path="/login" element={<Loginpage />} />
 
-        {/* Protect routes using PrivateRoute */}
         <Route element={<PrivateRoute />}>
           <Route path="/tuition" element={<Tuitionmenu />} />
-          <Route path="/user" element={<UserPage />} />
+
+          {localStorage.getItem('role') === 'superadmin' && (
+            <Route path="/user" element={<UserPage />} />
+          )}
         </Route>
       </Routes>
     </Router>
@@ -24,3 +27,4 @@ const App = () => {
 };
 
 export default App;
+

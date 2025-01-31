@@ -146,8 +146,8 @@ const TuitionPage = () => {
                             <td>{tuition.class}</td>
                             <td>{tuition.medium}</td>
                             <td>{tuition.subject}</td>
-                            <td>{tuition.time}</td>
                             <td>{tuition.day}</td>
+                            <td>{tuition.time}</td>
                             <td>{tuition.salary}</td>
                             <td>{tuition.location}</td>
                             <td>{tuition.guardianNumber}</td>

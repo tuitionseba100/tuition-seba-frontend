@@ -1,8 +1,18 @@
 import React from 'react';
-import { Link } from 'react-router-dom'; // Import Link for routing
+import { Link, useNavigate } from 'react-router-dom'; // Import Link and useNavigate for routing
 import 'bootstrap/dist/css/bootstrap.min.css'; // Import Bootstrap
 
 const Navbar = () => {
+    const navigate = useNavigate();
+    const handleLogout = () => {
+        // Remove token and role from localStorage
+        localStorage.removeItem('token');
+        localStorage.removeItem('role');
+
+        // Redirect to login page
+        navigate('/login');
+    };
+
     return (
         <nav className="navbar navbar-expand-lg navbar-dark bg-primary">
             <div className="container">
@@ -20,7 +30,12 @@ const Navbar = () => {
                                 <Link className="nav-link" to="/user">Users</Link>
                             </li>
                         )}
-
+                        {/* Add logout button */}
+                        <li className="nav-item">
+                            <button onClick={handleLogout} className="nav-link btn btn-link">
+                                Logout
+                            </button>
+                        </li>
                     </ul>
                 </div>
             </div>

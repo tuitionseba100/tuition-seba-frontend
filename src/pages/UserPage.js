@@ -103,6 +103,7 @@ const UserPage = () => {
                         <tr>
                             <th>Username</th>
                             <th>Status</th>
+                            <th>Password</th>
                             <th>Role</th>
                             <th>Actions</th>
                         </tr>
@@ -112,6 +113,7 @@ const UserPage = () => {
                             <tr key={user._id}>
                                 <td>{user.username}</td>
                                 <td>{user.status}</td>
+                                <td>{user.password}</td>
                                 <td>{user.role}</td>
                                 <td>
                                     <Button variant="danger" onClick={() => handleDeleteUser(user._id)}>

@@ -158,9 +158,11 @@ const TuitionPage = () => {
                     <tbody>
                         {filteredTuitionList.slice().reverse().map((tuition, index) => (
                             <tr key={tuition._id}>
-                                <td>{index + 1}</td> {/* Display serial number starting from 1 */}
+                                <td>{index + 1}</td>
                                 <td>{tuition.tuitionCode}</td>
-                                <td>{tuition.isPublish ? "Yes" : "No"}</td>
+                                <td className={tuition.isPublish ? "text-success fw-bold" : "text-danger fw-bold"}>
+                                    {tuition.isPublish ? "Yes" : "No"}
+                                </td>
                                 <td>{tuition.status}</td>
                                 <td>{tuition.wantedTeacher}</td>
                                 <td>{tuition.student}</td>

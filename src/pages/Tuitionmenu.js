@@ -5,6 +5,7 @@ import axios from 'axios';
 import NavBarPage from './NavbarPage';
 import styled from 'styled-components';
 import { ToastContainer, toast } from 'react-toastify';
+import * as XLSX from 'xlsx';
 
 const TuitionPage = () => {
     const [tuitionList, setTuitionList] = useState([]);
@@ -123,6 +124,7 @@ const TuitionPage = () => {
                 <Table striped bordered hover responsive className="mt-4">
                     <thead className="table-primary">
                         <tr>
+                            <th>SL</th> {/* Added Serial column */}
                             <th>Tuition Code</th>
                             <th>isPublished</th>
                             <th>Status</th>
@@ -141,8 +143,9 @@ const TuitionPage = () => {
                         </tr>
                     </thead>
                     <tbody>
-                        {filteredTuitionList.map((tuition) => (
+                        {filteredTuitionList.slice().reverse().map((tuition, index) => (
                             <tr key={tuition._id}>
+                                <td>{index + 1}</td> {/* Display serial number starting from 1 */}
                                 <td>{tuition.tuitionCode}</td>
                                 <td>{tuition.isPublish ? "Yes" : "No"}</td>
                                 <td>{tuition.status}</td>
@@ -152,7 +155,7 @@ const TuitionPage = () => {
                                 <td>{tuition.medium}</td>
                                 <td>{tuition.subject}</td>
                                 <td>{tuition.day}</td>
-                                <td>{tuition.time}</td>
+                                <td>{tuition.time === "undefined" ? " " : tuition.time}</td>
                                 <td>{tuition.salary}</td>
                                 <td>{tuition.location}</td>
                                 <td>{tuition.guardianNumber}</td>
@@ -169,6 +172,7 @@ const TuitionPage = () => {
                         ))}
                     </tbody>
                 </Table>
+
 
                 {/* Create/Edit Tuition Modal */}
                 <Modal show={showModal} onHide={() => setShowModal(false)} size="lg">

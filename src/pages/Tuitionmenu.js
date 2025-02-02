@@ -12,6 +12,7 @@ const TuitionPage = () => {
     const [filteredTuitionList, setFilteredTuitionList] = useState([]);
     const [showModal, setShowModal] = useState(false);
     const [editingId, setEditingId] = useState(null);
+    const [publishFilter, setPublishFilter] = useState('');
     const [tuitionData, setTuitionData] = useState({
         tuitionCode: '',
         isPublish: true,
@@ -35,17 +36,19 @@ const TuitionPage = () => {
     }, []);
 
     useEffect(() => {
-        // Filter the tuition list based on search query
+        let filteredData = tuitionList;
         if (searchQuery) {
-            const filteredData = tuitionList.filter(tuition =>
+            filteredData = filteredData.filter(tuition =>
                 tuition.tuitionCode.toLowerCase().includes(searchQuery.toLowerCase()) ||
                 tuition.guardianNumber.toLowerCase().includes(searchQuery.toLowerCase())
             );
-            setFilteredTuitionList(filteredData);
-        } else {
-            setFilteredTuitionList(tuitionList);
         }
-    }, [searchQuery, tuitionList]);
+        if (publishFilter) {
+            const isPublished = publishFilter === "Yes";
+            filteredData = filteredData.filter(tuition => tuition.isPublish === isPublished);
+        }
+        setFilteredTuitionList(filteredData);
+    }, [searchQuery, publishFilter, tuitionList]);
 
     const fetchTuitionRecords = async () => {
         try {
@@ -111,7 +114,8 @@ const TuitionPage = () => {
 
                 {/* Search bar */}
                 <Row className="mb-3">
-                    <Col md={6}>
+                    <Col md={4}>
+                        <Form.Label className="fw-bold">Search (Tuition code or guardian number)</Form.Label>
                         <Form.Control
                             type="text"
                             placeholder="Search by Tuition Code or Guardian Number"
@@ -119,7 +123,16 @@ const TuitionPage = () => {
                             onChange={(e) => setSearchQuery(e.target.value)}
                         />
                     </Col>
+                    <Col md={3}>
+                        <Form.Label className="fw-bold">Publish Status</Form.Label>
+                        <Form.Select value={publishFilter} onChange={(e) => setPublishFilter(e.target.value)}>
+                            <option value="">All</option>
+                            <option value="Yes">Yes</option>
+                            <option value="No">No</option>
+                        </Form.Select>
+                    </Col>
                 </Row>
+
 
                 <Table striped bordered hover responsive className="mt-4">
                     <thead className="table-primary">

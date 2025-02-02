@@ -90,15 +90,22 @@ const TuitionPage = () => {
     };
 
     const handleDeleteTuition = async (id) => {
-        try {
-            await axios.delete(`https://tuition-seba-backend.onrender.com/api/tuition/delete/${id}`);
-            toast.success("Tuition record deleted successfully!");
-            fetchTuitionRecords();
-        } catch (err) {
-            console.error('Error deleting tuition record:', err);
-            toast.error("Error deleting tuition record.");
+        const confirmDelete = window.confirm("Are you sure you want to delete this tuition record?");
+
+        if (confirmDelete) {
+            try {
+                await axios.delete(`https://tuition-seba-backend.onrender.com/api/tuition/delete/${id}`);
+                toast.success("Tuition record deleted successfully!");
+                fetchTuitionRecords();
+            } catch (err) {
+                console.error('Error deleting tuition record:', err);
+                toast.error("Error deleting tuition record.");
+            }
+        } else {
+            toast.info("Deletion canceled");
         }
     };
+
 
     return (
         <>

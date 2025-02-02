@@ -141,7 +141,7 @@ const TuitionPage = () => {
                 </Row>
 
 
-                <Table striped bordered hover responsive className="mt-4">
+                <Table striped bordered hover responsive="lg" className="mt-4">
                     <thead className="table-primary">
                         <tr>
                             <th>SL</th> {/* Added Serial column */}

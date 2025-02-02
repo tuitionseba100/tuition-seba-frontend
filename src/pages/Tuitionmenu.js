@@ -163,7 +163,19 @@ const TuitionPage = () => {
                                 <td className={tuition.isPublish ? "text-success fw-bold" : "text-danger fw-bold"}>
                                     {tuition.isPublish ? "Yes" : "No"}
                                 </td>
-                                <td>{tuition.status}</td>
+                                <td>
+                                    <span
+                                        className={`badge 
+            ${tuition.status === "available" ? "bg-success" : ""}
+            ${tuition.status === "given number" ? "bg-primary" : ""}
+            ${tuition.status === "demo class running" ? "bg-warning" : ""}
+            ${tuition.status === "confirm" ? "bg-info" : ""}
+            ${tuition.status === "cancel" ? "bg-danger" : ""}`}
+                                    >
+                                        {tuition.status}
+                                    </span>
+                                </td>
+
                                 <td>{tuition.wantedTeacher}</td>
                                 <td>{tuition.student}</td>
                                 <td>{tuition.class}</td>

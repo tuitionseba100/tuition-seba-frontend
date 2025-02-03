@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Button, Table, Modal, Form, Row, Col, Card } from 'react-bootstrap';
-import { FaEdit, FaTrashAlt } from 'react-icons/fa'; // React Icons
+import { FaEdit, FaTrashAlt, FaShareAlt } from 'react-icons/fa'; // React Icons
 import axios from 'axios';
 import NavBarPage from './NavbarPage';
 import styled from 'styled-components';
@@ -110,6 +110,13 @@ const TuitionPage = () => {
         } else {
             toast.info("Deletion canceled");
         }
+    };
+
+    const handleShare = (tuition) => {
+        const phoneNumber = '01999999';
+        const message = `Hello, I have a tuition record for you: Tuition Code: ${tuition.tuitionCode}, Teacher: ${tuition.wantedTeacher}, Student: ${tuition.student}, Status: ${tuition.status}.`; // Customize this message
+        const url = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
+        window.open(url, '_blank');
     };
 
     return (
@@ -223,8 +230,11 @@ const TuitionPage = () => {
                                                 <Button variant="warning" onClick={() => handleEditTuition(tuition)} className="mr-2">
                                                     <FaEdit />
                                                 </Button>
-                                                <Button variant="danger" onClick={() => handleDeleteTuition(tuition._id)}>
+                                                <Button onClick={() => handleDeleteTuition(tuition._id)}>
                                                     <FaTrashAlt />
+                                                </Button>
+                                                <Button variant="success" onClick={() => handleShare(tuition)}>
+                                                    <FaShareAlt /> Share
                                                 </Button>
                                             </td>
                                         </tr>

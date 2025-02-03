@@ -164,7 +164,6 @@ const TuitionPage = () => {
                                         <th>SL</th>
                                         <th>Tuition Code</th>
                                         <th>Pulished?</th>
-                                        <th>Emergency?</th>
                                         <th>Status</th>
                                         <th>Teacher</th>
                                         <th>Student</th>
@@ -179,6 +178,7 @@ const TuitionPage = () => {
                                         <th>Teacher No.</th>
                                         <th>Joining Date</th>
                                         <th>Comment</th>
+                                        <th>Emergency?</th>
                                         <th>Actions</th>
                                     </tr>
                                 </thead>
@@ -189,9 +189,6 @@ const TuitionPage = () => {
                                             <td>{tuition.tuitionCode}</td>
                                             <td className={tuition.isPublish ? "text-success fw-bold" : "text-danger fw-bold"}>
                                                 {tuition.isPublish ? "Yes" : "No"}
-                                            </td>
-                                            <td className={tuition.isUrgent ? "text-success fw-bold" : "text-danger fw-bold"}>
-                                                {tuition.isUrgent ? "Yes" : "No"}
                                             </td>
                                             <td>
                                                 <span
@@ -219,6 +216,9 @@ const TuitionPage = () => {
                                             <td>{tuition.tutorNumber}</td>
                                             <td>{tuition.joining}</td>
                                             <td>{tuition.note}</td>
+                                            <td className={tuition.isUrgent ? "text-success fw-bold" : "text-danger fw-bold"}>
+                                                {tuition.isUrgent ? "Yes" : "No"}
+                                            </td>
                                             <td>
                                                 <Button variant="warning" onClick={() => handleEditTuition(tuition)} className="mr-2">
                                                     <FaEdit />

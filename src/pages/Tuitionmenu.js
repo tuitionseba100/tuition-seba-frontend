@@ -247,7 +247,7 @@ const TuitionPage = () => {
                                                     <FaTrashAlt />
                                                 </Button>
                                                 <Button variant="success" onClick={() => handleShare(tuition)}>
-                                                    <FaShareAlt /> Share
+                                                    <FaShareAlt />
                                                 </Button>
                                             </td>
                                         </tr>

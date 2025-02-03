@@ -5,6 +5,8 @@ import axios from 'axios';
 import NavBarPage from './NavbarPage';
 import styled from 'styled-components';
 import { ToastContainer, toast } from 'react-toastify';
+import { Spinner } from 'react-bootstrap';
+
 
 const TuitionPage = () => {
     const [tuitionList, setTuitionList] = useState([]);
@@ -32,6 +34,7 @@ const TuitionPage = () => {
         joining: ''
     });
     const [searchQuery, setSearchQuery] = useState('');
+    const [loading, setLoading] = useState(false);
 
     useEffect(() => {
         fetchTuitionRecords();
@@ -57,6 +60,7 @@ const TuitionPage = () => {
     }, [searchQuery, publishFilter, urgentFilter, tuitionList]);
 
     const fetchTuitionRecords = async () => {
+        setLoading(true);
         try {
             const response = await axios.get('https://tuition-seba-backend.onrender.com/api/tuition/all');
             setTuitionList(response.data);
@@ -66,6 +70,7 @@ const TuitionPage = () => {
             console.error('Error fetching tuition records:', err);
             toast.error("Failed to load tuition records.");
         }
+        setLoading(false);
     };
 
     const handleSaveTuition = async () => {
@@ -204,57 +209,67 @@ const TuitionPage = () => {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {filteredTuitionList.slice().reverse().map((tuition, index) => (
-                                        <tr key={tuition._id}>
-                                            <td>{index + 1}</td>
-                                            <td>{tuition.tuitionCode}</td>
-                                            <td className={tuition.isPublish ? "text-success fw-bold" : "text-danger fw-bold"}>
-                                                {tuition.isPublish ? "Yes" : "No"}
+                                    {loading ? (
+                                        <tr>
+                                            <td colSpan="20" className="text-center">
+                                                <div className="d-flex justify-content-center align-items-center" style={{ position: 'absolute', top: '90%', left: '50%', transform: 'translate(-50%, -50%)', width: '100vw', height: '100vh' }}>
+                                                    <Spinner animation="border" variant="primary" size="lg" />
+                                                </div>
                                             </td>
-                                            <td>
-                                                <span
-                                                    className={`badge 
-            ${tuition.status === "available" ? "bg-success" : ""}
-            ${tuition.status === "given number" ? "bg-primary" : ""}
-            ${tuition.status === "demo class running" ? "bg-warning" : ""}
-            ${tuition.status === "confirm" ? "bg-info" : ""}
-            ${tuition.status === "cancel" ? "bg-danger" : ""}`}
-                                                >
-                                                    {tuition.status}
-                                                </span>
-                                            </td>
-
-                                            <td>{tuition.wantedTeacher}</td>
-                                            <td>{tuition.student}</td>
-                                            <td>{tuition.class}</td>
-                                            <td>{tuition.medium}</td>
-                                            <td>{tuition.subject}</td>
-                                            <td>{tuition.day}</td>
-                                            <td>{tuition.time === "undefined" ? " " : tuition.time}</td>
-                                            <td>{tuition.salary}</td>
-                                            <td>{tuition.location}</td>
-                                            <td>{tuition.guardianNumber}</td>
-                                            <td>{tuition.tutorNumber}</td>
-                                            <td>{tuition.joining}</td>
-                                            <td>{tuition.note}</td>
-                                            <td className={tuition.isUrgent ? "text-success fw-bold" : "text-danger fw-bold"}>
-                                                {tuition.isUrgent ? "Yes" : "No"}
-                                            </td>
-                                            <td style={{ display: 'flex', justifyContent: 'flex-start', gap: '8px' }}>
-                                                <Button variant="warning" onClick={() => handleEditTuition(tuition)} className="mr-2">
-                                                    <FaEdit />
-                                                </Button>
-                                                <Button variant="danger" onClick={() => handleDeleteTuition(tuition._id)}>
-                                                    <FaTrashAlt />
-                                                </Button>
-                                                <Button variant="success" onClick={() => handleShare(tuition)}>
-                                                    <FaWhatsapp />
-                                                </Button>
-                                            </td>
-
                                         </tr>
-                                    ))}
+                                    ) : (
+                                        filteredTuitionList.slice().reverse().map((tuition, index) => (
+                                            <tr key={tuition._id}>
+                                                <td>{index + 1}</td>
+                                                <td>{tuition.tuitionCode}</td>
+                                                <td className={tuition.isPublish ? "text-success fw-bold" : "text-danger fw-bold"}>
+                                                    {tuition.isPublish ? "Yes" : "No"}
+                                                </td>
+                                                <td>
+                                                    <span
+                                                        className={`badge 
+                            ${tuition.status === "available" ? "bg-success" : ""}
+                            ${tuition.status === "given number" ? "bg-primary" : ""}
+                            ${tuition.status === "demo class running" ? "bg-warning" : ""}
+                            ${tuition.status === "confirm" ? "bg-info" : ""}
+                            ${tuition.status === "cancel" ? "bg-danger" : ""}`}
+                                                    >
+                                                        {tuition.status}
+                                                    </span>
+                                                </td>
+
+                                                <td>{tuition.wantedTeacher}</td>
+                                                <td>{tuition.student}</td>
+                                                <td>{tuition.class}</td>
+                                                <td>{tuition.medium}</td>
+                                                <td>{tuition.subject}</td>
+                                                <td>{tuition.day}</td>
+                                                <td>{tuition.time === "undefined" ? " " : tuition.time}</td>
+                                                <td>{tuition.salary}</td>
+                                                <td>{tuition.location}</td>
+                                                <td>{tuition.guardianNumber}</td>
+                                                <td>{tuition.tutorNumber}</td>
+                                                <td>{tuition.joining}</td>
+                                                <td>{tuition.note}</td>
+                                                <td className={tuition.isUrgent ? "text-success fw-bold" : "text-danger fw-bold"}>
+                                                    {tuition.isUrgent ? "Yes" : "No"}
+                                                </td>
+                                                <td style={{ display: 'flex', justifyContent: 'flex-start', gap: '8px' }}>
+                                                    <Button variant="warning" onClick={() => handleEditTuition(tuition)} className="mr-2">
+                                                        <FaEdit />
+                                                    </Button>
+                                                    <Button variant="danger" onClick={() => handleDeleteTuition(tuition._id)}>
+                                                        <FaTrashAlt />
+                                                    </Button>
+                                                    <Button variant="success" onClick={() => handleShare(tuition)}>
+                                                        <FaWhatsapp />
+                                                    </Button>
+                                                </td>
+                                            </tr>
+                                        ))
+                                    )}
                                 </tbody>
+
                             </Table>
                         </div>
                     </Card.Body>

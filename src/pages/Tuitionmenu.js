@@ -113,7 +113,7 @@ const TuitionPage = () => {
     };
 
     const handleShare = (tuitionDetails) => {
-        const phoneNumber = '01540376020';
+        const phoneNumber = '+8801540376020';
         const message = `*Tuition Code:* ${tuitionDetails.tuitionCode}%0A` +
             `*Wanted Teacher:* ${tuitionDetails.wantedTeacher}%0A` +
             `*Number of Students:* ${tuitionDetails.student}%0A` +
@@ -239,15 +239,15 @@ const TuitionPage = () => {
                                             <td className={tuition.isUrgent ? "text-success fw-bold" : "text-danger fw-bold"}>
                                                 {tuition.isUrgent ? "Yes" : "No"}
                                             </td>
-                                            <td>
-                                                <Button variant="link" onClick={() => handleEditTuition(tuition)} className="mr-2 p-0">
-                                                    <FaEdit style={{ color: '#007bff' }} />
+                                            <td style={{ display: 'flex', justifyContent: 'flex-start', gap: '8px' }}>
+                                                <Button variant="warning" onClick={() => handleEditTuition(tuition)} className="mr-2">
+                                                    <FaEdit />
                                                 </Button>
-                                                <Button variant="link" onClick={() => handleDeleteTuition(tuition._id)} className="p-0">
-                                                    <FaTrashAlt style={{ color: '#dc3545' }} />
+                                                <Button variant="danger" onClick={() => handleDeleteTuition(tuition._id)}>
+                                                    <FaTrashAlt />
                                                 </Button>
-                                                <Button variant="link" onClick={() => handleShare(tuition)} className="p-0">
-                                                    <FaShareAlt style={{ color: '#28a745' }} />
+                                                <Button variant="success" onClick={() => handleShare(tuition)}>
+                                                    <FaShareAlt />
                                                 </Button>
                                             </td>
 

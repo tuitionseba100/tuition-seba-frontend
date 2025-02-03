@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Button, Table, Modal, Form, Row, Col } from 'react-bootstrap';
+import { Button, Table, Modal, Form, Row, Col, Card } from 'react-bootstrap';
 import { FaEdit, FaTrashAlt } from 'react-icons/fa'; // React Icons
 import axios from 'axios';
 import NavBarPage from './NavbarPage';
 import styled from 'styled-components';
 import { ToastContainer, toast } from 'react-toastify';
-import * as XLSX from 'xlsx';
 
 const TuitionPage = () => {
     const [tuitionList, setTuitionList] = useState([]);
@@ -13,9 +12,11 @@ const TuitionPage = () => {
     const [showModal, setShowModal] = useState(false);
     const [editingId, setEditingId] = useState(null);
     const [publishFilter, setPublishFilter] = useState('');
+    const [urgentFilter, setUrgentFilter] = useState('');
     const [tuitionData, setTuitionData] = useState({
         tuitionCode: '',
         isPublish: true,
+        isUrgent: false,
         wantedTeacher: '',
         student: '',
         class: '',
@@ -27,6 +28,7 @@ const TuitionPage = () => {
         location: '',
         guardianNumber: '',
         status: '',
+        tutorNumber: '',
         joining: ''
     });
     const [searchQuery, setSearchQuery] = useState('');
@@ -47,8 +49,12 @@ const TuitionPage = () => {
             const isPublished = publishFilter === "Yes";
             filteredData = filteredData.filter(tuition => tuition.isPublish === isPublished);
         }
+        if (urgentFilter) {
+            const isUrgent = urgentFilter === "Yes";
+            filteredData = filteredData.filter(tuition => tuition.isUrgent === isUrgent);
+        }
         setFilteredTuitionList(filteredData);
-    }, [searchQuery, publishFilter, tuitionList]);
+    }, [searchQuery, publishFilter, urgentFilter, tuitionList]);
 
     const fetchTuitionRecords = async () => {
         try {
@@ -106,14 +112,13 @@ const TuitionPage = () => {
         }
     };
 
-
     return (
         <>
             <NavBarPage />
             <Container>
 
                 <Header>
-                    <h2 className='fw-bold text-primary'>Tuition Dashboard</h2>
+                    <h2 className='text-primary fw-bold'>Tuition Dashboard</h2>
                     <Button variant="primary" onClick={() => { setShowModal(true); setEditingId(null); setTuitionData({ tuitionCode: '', wantedTeacher: '', student: '', class: '', medium: '', subject: '', time: '', salary: '', location: '', guardianNumber: '', joining: '' }) }}>
                         Create Tuition
                     </Button>
@@ -138,75 +143,97 @@ const TuitionPage = () => {
                             <option value="No">No</option>
                         </Form.Select>
                     </Col>
+                    {/* Add Urgent filter */}
+                    <Col md={3}>
+                        <Form.Label className="fw-bold">Emergency Status</Form.Label>
+                        <Form.Select value={urgentFilter} onChange={(e) => setUrgentFilter(e.target.value)}>
+                            <option value="">All</option>
+                            <option value="Yes">Urgent</option>
+                            <option value="No">Not Urgent</option>
+                        </Form.Select>
+                    </Col>
                 </Row>
 
-
-                <Table striped bordered hover responsive="lg" className="mt-4">
-                    <thead className="table-primary">
-                        <tr>
-                            <th>SL</th> {/* Added Serial column */}
-                            <th>Tuition Code</th>
-                            <th>isPublished</th>
-                            <th>Status</th>
-                            <th>Teacher</th>
-                            <th>Student</th>
-                            <th>Class</th>
-                            <th>Medium</th>
-                            <th>Subject</th>
-                            <th>Day</th>
-                            <th>Time</th>
-                            <th>Salary</th>
-                            <th>Location</th>
-                            <th>Guardian No.</th>
-                            <th>Joining Date</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {filteredTuitionList.slice().reverse().map((tuition, index) => (
-                            <tr key={tuition._id}>
-                                <td>{index + 1}</td>
-                                <td>{tuition.tuitionCode}</td>
-                                <td className={tuition.isPublish ? "text-success fw-bold" : "text-danger fw-bold"}>
-                                    {tuition.isPublish ? "Yes" : "No"}
-                                </td>
-                                <td>
-                                    <span
-                                        className={`badge 
+                <Card className="mt-4">
+                    <Card.Body>
+                        <Card.Title>Tuition Records</Card.Title>
+                        <div style={{ maxHeight: "600px", overflowY: "auto" }}>
+                            <Table striped bordered hover responsive="lg">
+                                <thead className="table-primary">
+                                    <tr>
+                                        <th>SL</th>
+                                        <th>Tuition Code</th>
+                                        <th>Pulished?</th>
+                                        <th>Emergency?</th>
+                                        <th>Status</th>
+                                        <th>Teacher</th>
+                                        <th>Student</th>
+                                        <th>Class</th>
+                                        <th>Medium</th>
+                                        <th>Subject</th>
+                                        <th>Day</th>
+                                        <th>Time</th>
+                                        <th>Salary</th>
+                                        <th>Location</th>
+                                        <th>Guardian No.</th>
+                                        <th>Teacher No.</th>
+                                        <th>Joining Date</th>
+                                        <th>Comment</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {filteredTuitionList.slice().reverse().map((tuition, index) => (
+                                        <tr key={tuition._id}>
+                                            <td>{index + 1}</td>
+                                            <td>{tuition.tuitionCode}</td>
+                                            <td className={tuition.isPublish ? "text-success fw-bold" : "text-danger fw-bold"}>
+                                                {tuition.isPublish ? "Yes" : "No"}
+                                            </td>
+                                            <td className={tuition.isUrgent ? "text-success fw-bold" : "text-danger fw-bold"}>
+                                                {tuition.isUrgent ? "Yes" : "No"}
+                                            </td>
+                                            <td>
+                                                <span
+                                                    className={`badge 
             ${tuition.status === "available" ? "bg-success" : ""}
             ${tuition.status === "given number" ? "bg-primary" : ""}
             ${tuition.status === "demo class running" ? "bg-warning" : ""}
             ${tuition.status === "confirm" ? "bg-info" : ""}
             ${tuition.status === "cancel" ? "bg-danger" : ""}`}
-                                    >
-                                        {tuition.status}
-                                    </span>
-                                </td>
+                                                >
+                                                    {tuition.status}
+                                                </span>
+                                            </td>
 
-                                <td>{tuition.wantedTeacher}</td>
-                                <td>{tuition.student}</td>
-                                <td>{tuition.class}</td>
-                                <td>{tuition.medium}</td>
-                                <td>{tuition.subject}</td>
-                                <td>{tuition.day}</td>
-                                <td>{tuition.time === "undefined" ? " " : tuition.time}</td>
-                                <td>{tuition.salary}</td>
-                                <td>{tuition.location}</td>
-                                <td>{tuition.guardianNumber}</td>
-                                <td>{tuition.joining}</td>
-                                <td>
-                                    <Button variant="warning" onClick={() => handleEditTuition(tuition)} className="mr-2">
-                                        <FaEdit />
-                                    </Button>
-                                    <Button variant="danger" onClick={() => handleDeleteTuition(tuition._id)}>
-                                        <FaTrashAlt />
-                                    </Button>
-                                </td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </Table>
-
+                                            <td>{tuition.wantedTeacher}</td>
+                                            <td>{tuition.student}</td>
+                                            <td>{tuition.class}</td>
+                                            <td>{tuition.medium}</td>
+                                            <td>{tuition.subject}</td>
+                                            <td>{tuition.day}</td>
+                                            <td>{tuition.time === "undefined" ? " " : tuition.time}</td>
+                                            <td>{tuition.salary}</td>
+                                            <td>{tuition.location}</td>
+                                            <td>{tuition.guardianNumber}</td>
+                                            <td>{tuition.tutorNumber}</td>
+                                            <td>{tuition.joining}</td>
+                                            <td>{tuition.note}</td>
+                                            <td>
+                                                <Button variant="warning" onClick={() => handleEditTuition(tuition)} className="mr-2">
+                                                    <FaEdit />
+                                                </Button>
+                                                <Button variant="danger" onClick={() => handleDeleteTuition(tuition._id)}>
+                                                    <FaTrashAlt />
+                                                </Button>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </Table>
+                        </div>
+                    </Card.Body>
+                </Card>
 
                 {/* Create/Edit Tuition Modal */}
                 <Modal show={showModal} onHide={() => setShowModal(false)} size="lg">
@@ -221,7 +248,7 @@ const TuitionPage = () => {
                                         <Form.Label>Publish</Form.Label>
                                         <Form.Control
                                             as="select"
-                                            value={tuitionData.isPublish ? "Yes" : "No"} // Set the initial value based on isPublish
+                                            value={tuitionData.isPublish ? "Yes" : "No"}
                                             onChange={(e) => setTuitionData({ ...tuitionData, isPublish: e.target.value === "Yes" })}
                                         >
                                             <option value="Yes">Yes</option>
@@ -396,6 +423,47 @@ const TuitionPage = () => {
                                         </Form.Control>
                                     </Form.Group>
                                 </Col>
+                            </Row>
+
+                            <Row>
+                                <Col md={6}>
+                                    <Form.Group controlId="tutorNumber">
+                                        <Form.Label>Teacher Number</Form.Label>
+                                        <Form.Control
+                                            type="text"
+                                            value={tuitionData.tutorNumber}
+                                            onChange={(e) => setTuitionData({ ...tuitionData, tutorNumber: e.target.value })}
+                                            required
+                                        />
+                                    </Form.Group>
+                                </Col>
+                                <Col md={6}>
+                                    <Form.Group controlId="note">
+                                        <Form.Label>Note</Form.Label>
+                                        <Form.Control
+                                            type="text"
+                                            value={tuitionData.note}
+                                            onChange={(e) => setTuitionData({ ...tuitionData, note: e.target.value })}
+                                            required
+                                        />
+                                    </Form.Group>
+                                </Col>
+                            </Row>
+
+                            <Row>
+                                <Col md={4}>
+                                    <Form.Group controlId="isUrgent">
+                                        <Form.Label>Is Emergency?</Form.Label>
+                                        <Form.Check
+                                            type="switch"
+                                            id="isUrgentSwitch"
+                                            label={tuitionData.isUrgent ? "Yes" : "No"}
+                                            checked={tuitionData.isUrgent}
+                                            onChange={(e) => setTuitionData({ ...tuitionData, isUrgent: e.target.checked })}
+                                        />
+                                    </Form.Group>
+                                </Col>
+
                             </Row>
                         </Form>
                     </Modal.Body>

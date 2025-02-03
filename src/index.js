@@ -3,6 +3,9 @@ import React from 'react';
 import ReactDOM from 'react-dom/client'; // Notice the change to 'react-dom/client'
 import App from './App';
 import 'react-toastify/dist/ReactToastify.css'; // for toast notifications
+import "@fontsource/poppins";
+import "./index.css";
+
 
 
 const root = ReactDOM.createRoot(document.getElementById('root')); // Create the root

@@ -439,7 +439,7 @@ const TuitionPage = () => {
                                 </Col>
                                 <Col md={6}>
                                     <Form.Group controlId="note">
-                                        <Form.Label>Note</Form.Label>
+                                        <Form.Label>Comment</Form.Label>
                                         <Form.Control
                                             type="text"
                                             value={tuitionData.note}

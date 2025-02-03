@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Button, Table, Modal, Form, Row, Col, Card } from 'react-bootstrap';
-import { FaEdit, FaTrashAlt, FaShareAlt } from 'react-icons/fa'; // React Icons
+import { FaEdit, FaTrashAlt, FaWhatsapp } from 'react-icons/fa'; // React Icons
 import axios from 'axios';
 import NavBarPage from './NavbarPage';
 import styled from 'styled-components';
@@ -247,7 +247,7 @@ const TuitionPage = () => {
                                                     <FaTrashAlt />
                                                 </Button>
                                                 <Button variant="success" onClick={() => handleShare(tuition)}>
-                                                    <FaShareAlt />
+                                                    <FaWhatsapp />
                                                 </Button>
                                             </td>
 

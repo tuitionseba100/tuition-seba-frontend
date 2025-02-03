@@ -278,14 +278,14 @@ const TuitionPage = () => {
                 {/* Create/Edit Tuition Modal */}
                 <Modal show={showModal} onHide={() => setShowModal(false)} size="lg">
                     <Modal.Header closeButton>
-                        <Modal.Title>{editingId ? "Edit Tuition" : "Create Tuition"}</Modal.Title>
+                        <Modal.Title className="fw-bold">{editingId ? "Edit Tuition" : "Create Tuition"}</Modal.Title>
                     </Modal.Header>
                     <Modal.Body>
                         <Form>
                             <Row>
                                 <Col md={4}>
                                     <Form.Group controlId="isPublish">
-                                        <Form.Label>Publish</Form.Label>
+                                        <Form.Label className="fw-bold">Publish</Form.Label>
                                         <Form.Control
                                             as="select"
                                             value={tuitionData.isPublish ? "Yes" : "No"}
@@ -299,7 +299,7 @@ const TuitionPage = () => {
 
                                 <Col md={4}>
                                     <Form.Group controlId="tuitionCode">
-                                        <Form.Label>Tuition Code</Form.Label>
+                                        <Form.Label className="fw-bold">Tuition Code</Form.Label>
                                         <Form.Control
                                             type="text"
                                             value={tuitionData.tuitionCode}
@@ -311,7 +311,7 @@ const TuitionPage = () => {
 
                                 <Col md={4}>
                                     <Form.Group controlId="wantedTeacher">
-                                        <Form.Label>Wanted Teacher</Form.Label>
+                                        <Form.Label className="fw-bold">Wanted Teacher</Form.Label>
                                         <Form.Control
                                             type="text"
                                             value={tuitionData.wantedTeacher}
@@ -325,7 +325,7 @@ const TuitionPage = () => {
                             <Row>
                                 <Col md={6}>
                                     <Form.Group controlId="student">
-                                        <Form.Label>Student</Form.Label>
+                                        <Form.Label className="fw-bold">Student</Form.Label>
                                         <Form.Control
                                             type="text"
                                             value={tuitionData.student}
@@ -336,7 +336,7 @@ const TuitionPage = () => {
                                 </Col>
                                 <Col md={6}>
                                     <Form.Group controlId="class">
-                                        <Form.Label>Class</Form.Label>
+                                        <Form.Label className="fw-bold">Class</Form.Label>
                                         <Form.Control
                                             type="text"
                                             value={tuitionData.class}
@@ -350,7 +350,7 @@ const TuitionPage = () => {
                             <Row>
                                 <Col md={6}>
                                     <Form.Group controlId="medium">
-                                        <Form.Label>Medium</Form.Label>
+                                        <Form.Label className="fw-bold">Medium</Form.Label>
                                         <Form.Control
                                             type="text"
                                             value={tuitionData.medium}
@@ -361,7 +361,7 @@ const TuitionPage = () => {
                                 </Col>
                                 <Col md={6}>
                                     <Form.Group controlId="subject">
-                                        <Form.Label>Subject</Form.Label>
+                                        <Form.Label className="fw-bold">Subject</Form.Label>
                                         <Form.Control
                                             type="text"
                                             value={tuitionData.subject}
@@ -375,7 +375,7 @@ const TuitionPage = () => {
                             <Row>
                                 <Col md={4}>
                                     <Form.Group controlId="day">
-                                        <Form.Label>Day</Form.Label>
+                                        <Form.Label className="fw-bold">Day</Form.Label>
                                         <Form.Control
                                             type="text"
                                             value={tuitionData.day}
@@ -386,7 +386,7 @@ const TuitionPage = () => {
                                 </Col>
                                 <Col md={4}>
                                     <Form.Group controlId="time">
-                                        <Form.Label>Time</Form.Label>
+                                        <Form.Label className="fw-bold">Time</Form.Label>
                                         <Form.Control
                                             type="text"
                                             value={tuitionData.time}
@@ -397,7 +397,7 @@ const TuitionPage = () => {
                                 </Col>
                                 <Col md={4}>
                                     <Form.Group controlId="salary">
-                                        <Form.Label>Salary</Form.Label>
+                                        <Form.Label className="fw-bold">Salary</Form.Label>
                                         <Form.Control
                                             type="text"
                                             value={tuitionData.salary}
@@ -411,7 +411,7 @@ const TuitionPage = () => {
                             <Row>
                                 <Col md={6}>
                                     <Form.Group controlId="location">
-                                        <Form.Label>Location</Form.Label>
+                                        <Form.Label className="fw-bold">Location</Form.Label>
                                         <Form.Control
                                             type="text"
                                             value={tuitionData.location}
@@ -422,7 +422,7 @@ const TuitionPage = () => {
                                 </Col>
                                 <Col md={6}>
                                     <Form.Group controlId="joining">
-                                        <Form.Label>Joining Date</Form.Label>
+                                        <Form.Label className="fw-bold">Joining Date</Form.Label>
                                         <Form.Control
                                             type="text"
                                             value={tuitionData.joining}
@@ -436,7 +436,7 @@ const TuitionPage = () => {
                             <Row>
                                 <Col md={6}>
                                     <Form.Group controlId="guardianNumber">
-                                        <Form.Label>Guardian Number</Form.Label>
+                                        <Form.Label className="fw-bold">Guardian Number</Form.Label>
                                         <Form.Control
                                             type="text"
                                             value={tuitionData.guardianNumber}
@@ -448,7 +448,7 @@ const TuitionPage = () => {
 
                                 <Col md={6}>
                                     <Form.Group controlId="status">
-                                        <Form.Label>Status</Form.Label>
+                                        <Form.Label className="fw-bold">Status</Form.Label>
                                         <Form.Control
                                             as="select"
                                             value={tuitionData.status}
@@ -468,7 +468,7 @@ const TuitionPage = () => {
                             <Row>
                                 <Col md={6}>
                                     <Form.Group controlId="tutorNumber">
-                                        <Form.Label>Teacher Number</Form.Label>
+                                        <Form.Label className="fw-bold">Teacher Number</Form.Label>
                                         <Form.Control
                                             type="text"
                                             value={tuitionData.tutorNumber}
@@ -479,7 +479,7 @@ const TuitionPage = () => {
                                 </Col>
                                 <Col md={6}>
                                     <Form.Group controlId="note">
-                                        <Form.Label>Comment</Form.Label>
+                                        <Form.Label className="fw-bold">Comment</Form.Label>
                                         <Form.Control
                                             type="text"
                                             value={tuitionData.note}
@@ -493,7 +493,7 @@ const TuitionPage = () => {
                             <Row>
                                 <Col md={4}>
                                     <Form.Group controlId="isUrgent">
-                                        <Form.Label>Is Emergency?</Form.Label>
+                                        <Form.Label className="fw-bold">Is Emergency?</Form.Label>
                                         <Form.Check
                                             type="switch"
                                             id="isUrgentSwitch"

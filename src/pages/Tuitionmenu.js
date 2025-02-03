@@ -112,9 +112,22 @@ const TuitionPage = () => {
         }
     };
 
-    const handleShare = (tuition) => {
-        const phoneNumber = '01999999';
-        const message = `Hello, I have a tuition record for you: Tuition Code: ${tuition.tuitionCode}, Teacher: ${tuition.wantedTeacher}, Student: ${tuition.student}, Status: ${tuition.status}.`; // Customize this message
+    const handleShare = (tuitionDetails) => {
+        const phoneNumber = '01540376020';
+        const message = `*Tuition Code:* ${tuitionDetails.tuitionCode}%0A` +
+            `*Wanted Teacher:* ${tuitionDetails.wantedTeacher}%0A` +
+            `*Number of Students:* ${tuitionDetails.student}%0A` +
+            `*Class:* ${tuitionDetails.class}%0A` +
+            `*Medium:* ${tuitionDetails.medium}%0A` +
+            `*Subject:* ${tuitionDetails.subject}%0A` +
+            `*Day:* ${tuitionDetails.day}%0A` +
+            `*Time:* ${tuitionDetails.time}%0A` +
+            `*Salary:* ${tuitionDetails.salary}%0A` +
+            `*Location:* ${tuitionDetails.location}%0A` +
+            `*Joining:* ${tuitionDetails.joining}%0A%0A` +
+            `Visit our website: www.tuitionsebaforum.com%0A` +
+            `Whatsapp: ${phoneNumber}`.trim();
+
         const url = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
         window.open(url, '_blank');
     };
@@ -230,7 +243,7 @@ const TuitionPage = () => {
                                                 <Button variant="warning" onClick={() => handleEditTuition(tuition)} className="mr-2">
                                                     <FaEdit />
                                                 </Button>
-                                                <Button onClick={() => handleDeleteTuition(tuition._id)}>
+                                                <Button variant="danger" onClick={() => handleDeleteTuition(tuition._id)}>
                                                     <FaTrashAlt />
                                                 </Button>
                                                 <Button variant="success" onClick={() => handleShare(tuition)}>

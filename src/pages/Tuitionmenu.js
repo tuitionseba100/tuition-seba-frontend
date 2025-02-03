@@ -128,7 +128,7 @@ const TuitionPage = () => {
             `Visit our website: www.tuitionsebaforum.com\n\n` +
             `Whatsapp: ${phoneNumber}`;
 
-        const url = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
+        const url = `https://wa.me/?text=${encodeURIComponent(message)}`;
         window.open(url, '_blank');
     };
 

@@ -156,7 +156,7 @@ const TuitionPage = () => {
 
                 <Card className="mt-4">
                     <Card.Body>
-                        <Card.Title>Tuition Records</Card.Title>
+                        <Card.Title>Tuition List</Card.Title>
                         <div style={{ maxHeight: "600px", overflowY: "auto" }}>
                             <Table striped bordered hover responsive="lg">
                                 <thead className="table-primary">

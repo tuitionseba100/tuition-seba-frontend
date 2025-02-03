@@ -240,16 +240,17 @@ const TuitionPage = () => {
                                                 {tuition.isUrgent ? "Yes" : "No"}
                                             </td>
                                             <td>
-                                                <Button variant="warning" onClick={() => handleEditTuition(tuition)} className="mr-2">
-                                                    <FaEdit />
+                                                <Button variant="link" onClick={() => handleEditTuition(tuition)} className="mr-2 p-0">
+                                                    <FaEdit style={{ color: '#007bff' }} />
                                                 </Button>
-                                                <Button variant="danger" onClick={() => handleDeleteTuition(tuition._id)}>
-                                                    <FaTrashAlt />
+                                                <Button variant="link" onClick={() => handleDeleteTuition(tuition._id)} className="p-0">
+                                                    <FaTrashAlt style={{ color: '#dc3545' }} />
                                                 </Button>
-                                                <Button variant="success" onClick={() => handleShare(tuition)}>
-                                                    <FaShareAlt />
+                                                <Button variant="link" onClick={() => handleShare(tuition)} className="p-0">
+                                                    <FaShareAlt style={{ color: '#28a745' }} />
                                                 </Button>
                                             </td>
+
                                         </tr>
                                     ))}
                                 </tbody>

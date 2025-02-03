@@ -114,23 +114,24 @@ const TuitionPage = () => {
 
     const handleShare = (tuitionDetails) => {
         const phoneNumber = '+8801540376020';
-        const message = `Tuition Code: ${tuitionDetails.tuitionCode}%0A` +
-            `Wanted Teacher: ${tuitionDetails.wantedTeacher}%0A` +
-            `Number of Students: ${tuitionDetails.student}%0A` +
-            `Class: ${tuitionDetails.class}%0A` +
-            `Medium: ${tuitionDetails.medium}%0A` +
-            `Subject: ${tuitionDetails.subject}%0A` +
-            `Day: ${tuitionDetails.day}%0A` +
-            `Time: ${tuitionDetails.time}%0A` +
-            `Salary: ${tuitionDetails.salary}%0A` +
-            `Location: ${tuitionDetails.location}%0A` +
-            `Joining: ${tuitionDetails.joining}%0A%0A` +
-            `Visit our website: www.tuitionsebaforum.com%0A%0A` +
-            `Whatsapp: ${phoneNumber}`.trim();
+        const message = `Tuition Code: ${tuitionDetails.tuitionCode}\n` +
+            `Wanted Teacher: ${tuitionDetails.wantedTeacher}\n` +
+            `Number of Students: ${tuitionDetails.student}\n` +
+            `Class: ${tuitionDetails.class}\n` +
+            `Medium: ${tuitionDetails.medium}\n` +
+            `Subject: ${tuitionDetails.subject}\n` +
+            `Day: ${tuitionDetails.day}\n` +
+            `Time: ${tuitionDetails.time}\n` +
+            `Salary: ${tuitionDetails.salary}\n` +
+            `Location: ${tuitionDetails.location}\n` +
+            `Joining: ${tuitionDetails.joining}\n\n` +
+            `Visit our website: www.tuitionsebaforum.com\n\n` +
+            `Whatsapp: ${phoneNumber}`;
 
         const url = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
         window.open(url, '_blank');
     };
+
 
     return (
         <>

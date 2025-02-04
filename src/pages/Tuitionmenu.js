@@ -33,7 +33,8 @@ const TuitionPage = () => {
         tutorNumber: '',
         joining: ''
     });
-    const [searchQuery, setSearchQuery] = useState('');
+    const [tuitionCodeSearchQuery, setTuitionCodeSearchQuery] = useState('');
+    const [gurdianNoSearchQuery, setGurdianNoSearchQuery] = useState('');
     const [loading, setLoading] = useState(false);
     const [statusFilter, setStatusFilter] = useState('');
 
@@ -43,10 +44,14 @@ const TuitionPage = () => {
 
     useEffect(() => {
         let filteredData = tuitionList;
-        if (searchQuery) {
+        if (tuitionCodeSearchQuery) {
             filteredData = filteredData.filter(tuition =>
-                tuition.tuitionCode.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                tuition.guardianNumber.toLowerCase().includes(searchQuery.toLowerCase())
+                tuition.tuitionCode.toLowerCase().includes(tuitionCodeSearchQuery.toLowerCase())
+            );
+        }
+        if (gurdianNoSearchQuery) {
+            filteredData = filteredData.filter(tuition =>
+                tuition.guardianNumber.toLowerCase().includes(gurdianNoSearchQuery.toLowerCase())
             );
         }
         if (publishFilter) {
@@ -61,7 +66,7 @@ const TuitionPage = () => {
             filteredData = filteredData.filter(tuition => tuition.status === statusFilter);
         }
         setFilteredTuitionList(filteredData);
-    }, [searchQuery, publishFilter, urgentFilter, statusFilter, tuitionList]);
+    }, [tuitionCodeSearchQuery, gurdianNoSearchQuery, publishFilter, urgentFilter, statusFilter, tuitionList]);
 
     const fetchTuitionRecords = async () => {
         setLoading(true);
@@ -156,13 +161,22 @@ const TuitionPage = () => {
 
                 {/* Search bar */}
                 <Row className="mb-3">
-                    <Col md={3}>
-                        <Form.Label className="fw-bold">Search (Tuition code or guardian number)</Form.Label>
+                    <Col md={2}>
+                        <Form.Label className="fw-bold">Search (Tuition Code)</Form.Label>
                         <Form.Control
                             type="text"
-                            placeholder="Search by Tuition Code or Guardian Number"
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
+                            placeholder="Search by Tuition Code"
+                            value={tuitionCodeSearchQuery}
+                            onChange={(e) => setTuitionCodeSearchQuery(e.target.value)}
+                        />
+                    </Col>
+                    <Col md={3}>
+                        <Form.Label className="fw-bold">Search (Gurdian Number)</Form.Label>
+                        <Form.Control
+                            type="text"
+                            placeholder="Search by Gurdian Number"
+                            value={gurdianNoSearchQuery}
+                            onChange={(e) => setGurdianNoSearchQuery(e.target.value)}
                         />
                     </Col>
                     <Col md={3}>
@@ -174,7 +188,7 @@ const TuitionPage = () => {
                         </Form.Select>
                     </Col>
                     {/* Add Urgent filter */}
-                    <Col md={3}>
+                    <Col md={2}>
                         <Form.Label className="fw-bold">Emergency Status</Form.Label>
                         <Form.Select value={urgentFilter} onChange={(e) => setUrgentFilter(e.target.value)}>
                             <option value="">All</option>
@@ -183,7 +197,7 @@ const TuitionPage = () => {
                         </Form.Select>
                     </Col>
 
-                    <Col md={3}>
+                    <Col md={2}>
                         <Form.Label className="fw-bold">Status</Form.Label>
                         <Form.Select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
                             <option value="">All</option>

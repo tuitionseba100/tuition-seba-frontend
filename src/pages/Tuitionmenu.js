@@ -89,7 +89,7 @@ const TuitionPage = () => {
         'Katghor', 'Oxyzen', 'Still Mill Bazar', 'Bondartila', 'Freeport', 'Saltgola Crossing', 'Customs', 'Barek Building',
         'Agrabad', 'Boropol', 'Halishohor', 'Dewanhat', 'Noya bazar', 'Madarbari', 'Lalkhan Bazar', 'Wasa',
         'Dampara', 'Ak khan', 'Khulsi', 'Kajir Dewri', 'Alongkar', 'Andorkilla', 'Jamal khan', 'Panchlish',
-        'New Market', 'Bayezid', '2 No Gate', 'Sholosohor', 'Muradpur', 'Chakbazar', 'Baddarhat', 'Rahattarpul',
+        'New Market', 'Bayezid', '2 No Gate', 'Sholosohor', 'Muradpur', 'Chakbazar', 'Baddarhat', 'Rahattarpul', 'GEC',
         'Aturar Depo', 'Kaptai Rastahar Matha', 'Chandgao', 'Baluchora', 'Kalamia Bazar', 'Akbor Shah', 'City Gate'
     ];
 
@@ -477,9 +477,24 @@ const TuitionPage = () => {
                                             placeholder="Enter area"
                                         />
                                         {areaSuggestions.length > 0 && (
-                                            <ul style={{ listStyleType: "none", padding: 0, margin: 0, border: "1px solid #ccc", position: "absolute", background: "white", zIndex: 1000 }}>
+                                            <ul style={{
+                                                listStyleType: "none",
+                                                padding: "5px",
+                                                margin: 0,
+                                                border: "1px solid #ccc",
+                                                position: "absolute",
+                                                background: "white",
+                                                zIndex: 1000,
+                                                width: "100%",
+                                                maxHeight: "150px",
+                                                overflowY: "auto"
+                                            }}>
                                                 {areaSuggestions.map((area, index) => (
-                                                    <li key={index} onClick={() => handleSelectArea(area)} style={{ padding: "5px", cursor: "pointer" }}>
+                                                    <li key={index} onClick={() => handleSelectArea(area)} style={{
+                                                        padding: "5px",
+                                                        cursor: "pointer",
+                                                        borderBottom: "1px solid #eee"
+                                                    }}>
                                                         {area}
                                                     </li>
                                                 ))}
@@ -487,6 +502,7 @@ const TuitionPage = () => {
                                         )}
                                     </Form.Group>
                                 </Col>
+
                             </Row>
 
                             <Row>

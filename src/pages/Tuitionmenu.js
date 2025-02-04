@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Button, Table, Modal, Form, Row, Col, Card } from 'react-bootstrap';
 import { FaEdit, FaTrashAlt, FaWhatsapp } from 'react-icons/fa'; // React Icons
 import axios from 'axios';
@@ -39,6 +39,7 @@ const TuitionPage = () => {
     const [loading, setLoading] = useState(false);
     const [statusFilter, setStatusFilter] = useState('');
     const [areaSuggestions, setAreaSuggestions] = useState([]);
+    const inputRef = useRef(null);
 
 
     useEffect(() => {
@@ -476,6 +477,8 @@ const TuitionPage = () => {
                                             type="text"
                                             value={tuitionData.area}
                                             onChange={handleAreaChange}
+                                            placeholder="Enter area"
+                                            ref={inputRef} // Attach the ref to the input
                                         />
                                         {areaSuggestions.length > 0 && (
                                             <ul style={{
@@ -486,9 +489,9 @@ const TuitionPage = () => {
                                                 position: "absolute",
                                                 background: "white",
                                                 zIndex: 1000,
-                                                width: "100%",
-                                                maxHeight: "150px",
-                                                overflowY: "auto",
+                                                width: inputRef.current ? `${inputRef.current.offsetWidth}px` : 'auto', // Match input width
+                                                maxHeight: "150px", // Show scrollbar if more than 5 items
+                                                overflowY: "auto", // Enable vertical scrolling
                                                 boxSizing: "border-box",
                                             }}>
                                                 {areaSuggestions.map((area, index) => (
@@ -504,7 +507,6 @@ const TuitionPage = () => {
                                         )}
                                     </Form.Group>
                                 </Col>
-
 
                             </Row>
 

@@ -476,7 +476,6 @@ const TuitionPage = () => {
                                             type="text"
                                             value={tuitionData.area}
                                             onChange={handleAreaChange}
-                                            placeholder="Enter area"
                                         />
                                         {areaSuggestions.length > 0 && (
                                             <ul style={{
@@ -489,7 +488,8 @@ const TuitionPage = () => {
                                                 zIndex: 1000,
                                                 width: "100%",
                                                 maxHeight: "150px",
-                                                overflowY: "auto"
+                                                overflowY: "auto",
+                                                boxSizing: "border-box",
                                             }}>
                                                 {areaSuggestions.map((area, index) => (
                                                     <li key={index} onClick={() => handleSelectArea(area)} style={{
@@ -504,6 +504,7 @@ const TuitionPage = () => {
                                         )}
                                     </Form.Group>
                                 </Col>
+
 
                             </Row>
 

@@ -477,7 +477,6 @@ const TuitionPage = () => {
                                             type="text"
                                             value={tuitionData.area}
                                             onChange={handleAreaChange}
-                                            placeholder="Enter area"
                                             ref={inputRef} // Attach the ref to the input
                                         />
                                         {areaSuggestions.length > 0 && (

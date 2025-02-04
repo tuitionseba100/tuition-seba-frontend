@@ -35,6 +35,7 @@ const TuitionPage = () => {
     });
     const [searchQuery, setSearchQuery] = useState('');
     const [loading, setLoading] = useState(false);
+    const [statusFilter, setStatusFilter] = useState('');
 
     useEffect(() => {
         fetchTuitionRecords();
@@ -56,8 +57,11 @@ const TuitionPage = () => {
             const isUrgent = urgentFilter === "Yes";
             filteredData = filteredData.filter(tuition => tuition.isUrgent === isUrgent);
         }
+        if (statusFilter) {
+            filteredData = filteredData.filter(tuition => tuition.status === statusFilter);
+        }
         setFilteredTuitionList(filteredData);
-    }, [searchQuery, publishFilter, urgentFilter, tuitionList]);
+    }, [searchQuery, publishFilter, urgentFilter, statusFilter, tuitionList]);
 
     const fetchTuitionRecords = async () => {
         setLoading(true);
@@ -178,6 +182,19 @@ const TuitionPage = () => {
                             <option value="No">Not Urgent</option>
                         </Form.Select>
                     </Col>
+
+                    <Col md={3}>
+                        <Form.Label className="fw-bold">Status</Form.Label>
+                        <Form.Select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
+                            <option value="">All</option>
+                            <option value="available">Available</option>
+                            <option value="given number">Given Number</option>
+                            <option value="demo class running">Demo Class Running</option>
+                            <option value="confirm">Confirm</option>
+                            <option value="cancel">Cancel</option>
+                        </Form.Select>
+                    </Col>
+
                 </Row>
 
                 <Card className="mt-4">

@@ -260,6 +260,7 @@ const TuitionPage = () => {
                                         <th>Time</th>
                                         <th>Salary</th>
                                         <th>Location</th>
+                                        <th>Area</th>
                                         <th>Guardian No.</th>
                                         <th>Teacher No.</th>
                                         <th>Joining Date</th>
@@ -307,6 +308,7 @@ const TuitionPage = () => {
                                                 <td>{tuition.time === "undefined" ? " " : tuition.time}</td>
                                                 <td>{tuition.salary}</td>
                                                 <td>{tuition.location}</td>
+                                                <td>{tuition.area}</td>
                                                 <td>{tuition.guardianNumber}</td>
                                                 <td>{tuition.tutorNumber}</td>
                                                 <td>{tuition.joining}</td>

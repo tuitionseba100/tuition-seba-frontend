@@ -156,7 +156,7 @@ const TuitionPage = () => {
 
                 {/* Search bar */}
                 <Row className="mb-3">
-                    <Col md={4}>
+                    <Col md={3}>
                         <Form.Label className="fw-bold">Search (Tuition code or guardian number)</Form.Label>
                         <Form.Control
                             type="text"

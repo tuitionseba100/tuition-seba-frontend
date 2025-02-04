@@ -28,6 +28,7 @@ const TuitionPage = () => {
         day: '',
         salary: '',
         location: '',
+        area: '',
         guardianNumber: '',
         status: '',
         tutorNumber: '',
@@ -37,6 +38,8 @@ const TuitionPage = () => {
     const [gurdianNoSearchQuery, setGurdianNoSearchQuery] = useState('');
     const [loading, setLoading] = useState(false);
     const [statusFilter, setStatusFilter] = useState('');
+    const [areaSuggestions, setAreaSuggestions] = useState([]);
+
 
     useEffect(() => {
         fetchTuitionRecords();
@@ -81,6 +84,14 @@ const TuitionPage = () => {
         }
         setLoading(false);
     };
+
+    const locations = [
+        'Katghor', 'Oxyzen', 'Still Mill Bazar', 'Bondartila', 'Freeport', 'Saltgola Crossing', 'Customs', 'Barek Building',
+        'Agrabad', 'Boropol', 'Halishohor', 'Dewanhat', 'Noya bazar', 'Madarbari', 'Lalkhan Bazar', 'Wasa',
+        'Dampara', 'Ak khan', 'Khulsi', 'Kajir Dewri', 'Alongkar', 'Andorkilla', 'Jamal khan', 'Panchlish',
+        'New Market', 'Bayezid', '2 No Gate', 'Sholosohor', 'Muradpur', 'Chakbazar', 'Baddarhat', 'Rahattarpul',
+        'Aturar Depo', 'Kaptai Rastahar Matha', 'Chandgao', 'Baluchora', 'Kalamia Bazar', 'Akbor Shah', 'City Gate'
+    ];
 
     const handleSaveTuition = async () => {
         const updatedTuitionData = {
@@ -146,6 +157,24 @@ const TuitionPage = () => {
         window.open(url, '_blank');
     };
 
+    const handleAreaChange = (e) => {
+        const input = e.target.value;
+        setTuitionData({ ...tuitionData, area: input });
+
+        if (input.length > 0) {
+            const filteredLocations = locations.filter(loc =>
+                loc.toLowerCase().includes(input.toLowerCase())
+            );
+            setAreaSuggestions(filteredLocations);
+        } else {
+            setAreaSuggestions([]);
+        }
+    };
+
+    const handleSelectArea = (selectedArea) => {
+        setTuitionData({ ...tuitionData, area: selectedArea });
+        setAreaSuggestions([]);
+    };
 
     return (
         <>
@@ -354,7 +383,7 @@ const TuitionPage = () => {
                             </Row>
 
                             <Row>
-                                <Col md={6}>
+                                <Col md={4}>
                                     <Form.Group controlId="student">
                                         <Form.Label className="fw-bold">Student</Form.Label>
                                         <Form.Control
@@ -365,7 +394,7 @@ const TuitionPage = () => {
                                         />
                                     </Form.Group>
                                 </Col>
-                                <Col md={6}>
+                                <Col md={4}>
                                     <Form.Group controlId="class">
                                         <Form.Label className="fw-bold">Class</Form.Label>
                                         <Form.Control
@@ -376,10 +405,7 @@ const TuitionPage = () => {
                                         />
                                     </Form.Group>
                                 </Col>
-                            </Row>
-
-                            <Row>
-                                <Col md={6}>
+                                <Col md={4}>
                                     <Form.Group controlId="medium">
                                         <Form.Label className="fw-bold">Medium</Form.Label>
                                         <Form.Control
@@ -390,7 +416,10 @@ const TuitionPage = () => {
                                         />
                                     </Form.Group>
                                 </Col>
-                                <Col md={6}>
+                            </Row>
+
+                            <Row>
+                                <Col md={4}>
                                     <Form.Group controlId="subject">
                                         <Form.Label className="fw-bold">Subject</Form.Label>
                                         <Form.Control
@@ -401,9 +430,6 @@ const TuitionPage = () => {
                                         />
                                     </Form.Group>
                                 </Col>
-                            </Row>
-
-                            <Row>
                                 <Col md={4}>
                                     <Form.Group controlId="day">
                                         <Form.Label className="fw-bold">Day</Form.Label>
@@ -426,7 +452,11 @@ const TuitionPage = () => {
                                         />
                                     </Form.Group>
                                 </Col>
-                                <Col md={4}>
+                            </Row>
+
+                            <Row>
+
+                                <Col md={6}>
                                     <Form.Group controlId="salary">
                                         <Form.Label className="fw-bold">Salary</Form.Label>
                                         <Form.Control
@@ -435,6 +465,26 @@ const TuitionPage = () => {
                                             onChange={(e) => setTuitionData({ ...tuitionData, salary: e.target.value })}
                                             required
                                         />
+                                    </Form.Group>
+                                </Col>
+                                <Col md={6}>
+                                    <Form.Group controlId="area">
+                                        <Form.Label className="fw-bold">Area</Form.Label>
+                                        <Form.Control
+                                            type="text"
+                                            value={tuitionData.area}
+                                            onChange={handleAreaChange}
+                                            placeholder="Enter area"
+                                        />
+                                        {areaSuggestions.length > 0 && (
+                                            <ul style={{ listStyleType: "none", padding: 0, margin: 0, border: "1px solid #ccc", position: "absolute", background: "white", zIndex: 1000 }}>
+                                                {areaSuggestions.map((area, index) => (
+                                                    <li key={index} onClick={() => handleSelectArea(area)} style={{ padding: "5px", cursor: "pointer" }}>
+                                                        {area}
+                                                    </li>
+                                                ))}
+                                            </ul>
+                                        )}
                                     </Form.Group>
                                 </Col>
                             </Row>

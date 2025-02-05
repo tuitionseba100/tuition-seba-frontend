@@ -540,7 +540,7 @@ const TuitionPage = () => {
                             </Row>
 
                             <Row>
-                                {userRole === "superadmin" && !editingId && (
+                                {(userRole === "superadmin" || (!editingId && userRole !== "superadmin")) && (
                                     <Col md={6}>
                                         <Form.Group controlId="guardianNumber">
                                             <Form.Label className="fw-bold">Guardian Number</Form.Label>
@@ -553,7 +553,6 @@ const TuitionPage = () => {
                                         </Form.Group>
                                     </Col>
                                 )}
-
 
                                 <Col md={6}>
                                     <Form.Group controlId="status">

@@ -25,7 +25,6 @@ const Login = () => {
                 username: values.username,
                 password: values.password,
             });
-            console.log(response);
             localStorage.setItem('token', response.data.token);
             localStorage.setItem('role', response.data.role);// Store token
             navigate('/tuition');

@@ -40,6 +40,7 @@ const TuitionPage = () => {
     const [statusFilter, setStatusFilter] = useState('');
     const [areaSuggestions, setAreaSuggestions] = useState([]);
     const inputRef = useRef(null);
+    const userRole = localStorage.getItem('role');
 
 
     useEffect(() => {
@@ -200,15 +201,19 @@ const TuitionPage = () => {
                             onChange={(e) => setTuitionCodeSearchQuery(e.target.value)}
                         />
                     </Col>
-                    <Col md={3}>
-                        <Form.Label className="fw-bold">Search (Gurdian Number)</Form.Label>
-                        <Form.Control
-                            type="text"
-                            placeholder="Search by Gurdian Number"
-                            value={gurdianNoSearchQuery}
-                            onChange={(e) => setGurdianNoSearchQuery(e.target.value)}
-                        />
-                    </Col>
+
+                    {userRole === "superadmin" && (
+                        <Col md={3}>
+                            <Form.Label className="fw-bold">Search (Guardian Number)</Form.Label>
+                            <Form.Control
+                                type="text"
+                                placeholder="Search by Guardian Number"
+                                value={gurdianNoSearchQuery}
+                                onChange={(e) => setGurdianNoSearchQuery(e.target.value)}
+                            />
+                        </Col>
+                    )}
+
                     <Col md={3}>
                         <Form.Label className="fw-bold">Publish Status</Form.Label>
                         <Form.Select value={publishFilter} onChange={(e) => setPublishFilter(e.target.value)}>
@@ -262,7 +267,7 @@ const TuitionPage = () => {
                                         <th>Salary</th>
                                         <th>Location</th>
                                         <th>Area</th>
-                                        <th>Guardian No.</th>
+                                        {userRole === "superadmin" && <th>Guardian No.</th>}
                                         <th>Teacher No.</th>
                                         <th>Joining Date</th>
                                         <th>Comment</th>
@@ -310,7 +315,7 @@ const TuitionPage = () => {
                                                 <td>{tuition.salary}</td>
                                                 <td>{tuition.location}</td>
                                                 <td>{tuition.area ? tuition.area : ""}</td>
-                                                <td>{tuition.guardianNumber}</td>
+                                                {userRole === "superadmin" && <td>{tuition.guardianNumber}</td>}
                                                 <td>{tuition.tutorNumber}</td>
                                                 <td>{tuition.joining}</td>
                                                 <td>{tuition.note}</td>
@@ -535,17 +540,20 @@ const TuitionPage = () => {
                             </Row>
 
                             <Row>
-                                <Col md={6}>
-                                    <Form.Group controlId="guardianNumber">
-                                        <Form.Label className="fw-bold">Guardian Number</Form.Label>
-                                        <Form.Control
-                                            type="text"
-                                            value={tuitionData.guardianNumber}
-                                            onChange={(e) => setTuitionData({ ...tuitionData, guardianNumber: e.target.value })}
-                                            required
-                                        />
-                                    </Form.Group>
-                                </Col>
+                                {userRole === "superadmin" && (
+                                    <Col md={6}>
+                                        <Form.Group controlId="guardianNumber">
+                                            <Form.Label className="fw-bold">Guardian Number</Form.Label>
+                                            <Form.Control
+                                                type="text"
+                                                value={tuitionData.guardianNumber}
+                                                onChange={(e) => setTuitionData({ ...tuitionData, guardianNumber: e.target.value })}
+                                                required
+                                            />
+                                        </Form.Group>
+                                    </Col>
+                                )}
+
 
                                 <Col md={6}>
                                     <Form.Group controlId="status">

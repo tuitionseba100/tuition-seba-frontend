@@ -41,6 +41,15 @@ const TuitionPage = () => {
     const [areaSuggestions, setAreaSuggestions] = useState([]);
     const inputRef = useRef(null);
     const userRole = localStorage.getItem('role');
+    const [publishCount, setPublishCount] = useState(0);
+    const [statusCounts, setStatusCounts] = useState({
+        available: 0,
+        givenNumber: 0,
+        demoClassRunning: 0,
+        confirm: 0,
+        cancel: 0
+    });
+
 
 
     useEffect(() => {
@@ -70,6 +79,21 @@ const TuitionPage = () => {
         if (statusFilter) {
             filteredData = filteredData.filter(tuition => tuition.status === statusFilter);
         }
+
+        const publishCount = filteredData.filter(tuition => tuition.isPublish === true).length;
+        setPublishCount(publishCount);
+
+        const statusCounts = filteredData.reduce((counts, tuition) => {
+            if (tuition.status === 'available') counts.available++;
+            if (tuition.status === 'given number') counts.givenNumber++;
+            if (tuition.status === 'demo class running') counts.demoClassRunning++;
+            if (tuition.status === 'confirm') counts.confirm++;
+            if (tuition.status === 'cancel') counts.cancel++;
+            return counts;
+        }, { available: 0, givenNumber: 0, demoClassRunning: 0, confirm: 0, cancel: 0 });
+
+        setStatusCounts(statusCounts);
+
         setFilteredTuitionList(filteredData);
     }, [tuitionCodeSearchQuery, gurdianNoSearchQuery, publishFilter, urgentFilter, statusFilter, tuitionList]);
 
@@ -189,9 +213,63 @@ const TuitionPage = () => {
                         Create Tuition
                     </Button>
                 </Header>
+                <Card className="mt-4">
+                    <Card.Body>
+                        <div className="row text-center">
+                            <div className="col-6 col-sm-4 col-md-2 mb-3">
+                                <div className="card p-3 shadow border-primary">
+                                    <div className="d-flex flex-column align-items-center">
+                                        <span className="text-primary" style={{ fontWeight: 'bolder' }}>Published</span>
+                                        <span>{publishCount}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="col-6 col-sm-4 col-md-2 mb-3">
+                                <div className="card p-3 shadow border-primary">
+                                    <div className="d-flex flex-column align-items-center">
+                                        <span className="text-primary" style={{ fontWeight: 'bolder' }}>Available</span>
+                                        <span>{statusCounts.available}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="col-6 col-sm-4 col-md-2 mb-3">
+                                <div className="card p-3 shadow border-primary">
+                                    <div className="d-flex flex-column align-items-center">
+                                        <span className="text-primary" style={{ fontWeight: 'bolder' }}>Given Number</span>
+                                        <span>{statusCounts.givenNumber}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="col-6 col-sm-4 col-md-2 mb-3">
+                                <div className="card p-3 shadow border-primary">
+                                    <div className="d-flex flex-column align-items-center">
+                                        <span className="text-primary" style={{ fontWeight: 'bolder' }}>Demo Class Running</span>
+                                        <span>{statusCounts.demoClassRunning}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="col-6 col-sm-4 col-md-2 mb-3">
+                                <div className="card p-3 shadow border-primary">
+                                    <div className="d-flex flex-column align-items-center">
+                                        <span className="text-primary" style={{ fontWeight: 'bolder' }}>Confirm</span>
+                                        <span>{statusCounts.confirm}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="col-6 col-sm-4 col-md-2 mb-3">
+                                <div className="card p-3 shadow border-primary">
+                                    <div className="d-flex flex-column align-items-center">
+                                        <span className="text-primary" style={{ fontWeight: 'bolder' }}>Cancel</span>
+                                        <span>{statusCounts.cancel}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </Card.Body>
+                </Card>
 
                 {/* Search bar */}
-                <Row className="mb-3">
+                <Row className="mt-2 mb-3">
                     <Col md={2}>
                         <Form.Label className="fw-bold">Search (Tuition Code)</Form.Label>
                         <Form.Control
@@ -348,7 +426,9 @@ const TuitionPage = () => {
                     <Modal.Header closeButton>
                         <Modal.Title className="fw-bold">{editingId ? "Edit Tuition" : "Create Tuition"}</Modal.Title>
                     </Modal.Header>
+
                     <Modal.Body>
+
                         <Form>
                             <Row>
                                 <Col md={4}>

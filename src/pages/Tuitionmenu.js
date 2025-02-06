@@ -165,6 +165,7 @@ const TuitionPage = () => {
 
     const handleShare = (tuitionDetails) => {
         const phoneNumber = '+8801540376020';
+        const area = tuitionDetails.area ? tuitionDetails.area : '';
         const message = `Tuition Code: ${tuitionDetails.tuitionCode}\n` +
             `Wanted Teacher: ${tuitionDetails.wantedTeacher}\n` +
             `Number of Students: ${tuitionDetails.student}\n` +
@@ -174,7 +175,7 @@ const TuitionPage = () => {
             `Day: ${tuitionDetails.day}\n` +
             `Time: ${tuitionDetails.time}\n` +
             `Salary: ${tuitionDetails.salary}\n` +
-            `Location: ${tuitionDetails.location}\n` +
+            `Location: ${tuitionDetails.location}, ${area}\n` +
             `Joining: ${tuitionDetails.joining}\n\n` +
             `Visit our website: www.tuitionsebaforum.com\n\n` +
             `Whatsapp: ${phoneNumber}`;

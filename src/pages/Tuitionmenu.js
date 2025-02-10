@@ -203,6 +203,15 @@ const TuitionPage = () => {
         setAreaSuggestions([]);
     };
 
+    const handleResetFilters = () => {
+        setTuitionCodeSearchQuery('');
+        setGurdianNoSearchQuery('');
+        setPublishFilter('');
+        setUrgentFilter('');
+        setStatusFilter('');
+        setFilteredTuitionList(tuitionList);
+    };
+
     return (
         <>
             <NavBarPage />
@@ -265,6 +274,7 @@ const TuitionPage = () => {
                                     </div>
                                 </div>
                             </div>
+
                         </div>
                     </Card.Body>
                 </Card>
@@ -282,7 +292,7 @@ const TuitionPage = () => {
                     </Col>
 
                     {userRole === "superadmin" && (
-                        <Col md={3}>
+                        <Col md={2}>
                             <Form.Label className="fw-bold">Search (Guardian Number)</Form.Label>
                             <Form.Control
                                 type="text"
@@ -293,7 +303,7 @@ const TuitionPage = () => {
                         </Col>
                     )}
 
-                    <Col md={3}>
+                    <Col md={2}>
                         <Form.Label className="fw-bold">Publish Status</Form.Label>
                         <Form.Select value={publishFilter} onChange={(e) => setPublishFilter(e.target.value)}>
                             <option value="">All</option>
@@ -321,6 +331,12 @@ const TuitionPage = () => {
                             <option value="confirm">Confirm</option>
                             <option value="cancel">Cancel</option>
                         </Form.Select>
+                    </Col>
+
+                    <Col md={2} className="d-flex align-items-end">
+                        <Button variant="danger" onClick={handleResetFilters} className="w-100">
+                            Reset Filters
+                        </Button>
                     </Col>
 
                 </Row>

@@ -100,7 +100,7 @@ const TuitionPage = () => {
     const fetchTuitionRecords = async () => {
         setLoading(true);
         try {
-            const response = await axios.get('https://tuition-seba-backend.onrender.com/api/tuition/all');
+            const response = await axios.get('https://tuition-seba-backend-1.onrender.com/api/tuition/all');
             setTuitionList(response.data);
             setFilteredTuitionList(response.data);
             console.log(localStorage.getItem('token'));
@@ -126,10 +126,10 @@ const TuitionPage = () => {
         };
         try {
             if (editingId) {
-                await axios.put(`https://tuition-seba-backend.onrender.com/api/tuition/edit/${editingId}`, updatedTuitionData);
+                await axios.put(`https://tuition-seba-backend-1.onrender.com/api/tuition/edit/${editingId}`, updatedTuitionData);
                 toast.success("Tuition record updated successfully!");
             } else {
-                await axios.post('https://tuition-seba-backend.onrender.com/api/tuition/add', updatedTuitionData);
+                await axios.post('https://tuition-seba-backend-1.onrender.com/api/tuition/add', updatedTuitionData);
                 toast.success("Tuition record created successfully!");
             }
             setShowModal(false);
@@ -151,7 +151,7 @@ const TuitionPage = () => {
 
         if (confirmDelete) {
             try {
-                await axios.delete(`https://tuition-seba-backend.onrender.com/api/tuition/delete/${id}`);
+                await axios.delete(`https://tuition-seba-backend-1.onrender.com/api/tuition/delete/${id}`);
                 toast.success("Tuition record deleted successfully!");
                 fetchTuitionRecords();
             } catch (err) {

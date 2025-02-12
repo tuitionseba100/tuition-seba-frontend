@@ -21,7 +21,7 @@ const Login = () => {
 
     const handleLogin = async (values) => {
         try {
-            const response = await axios.post('https://tuition-seba-backend.onrender.com/api/user/login', {
+            const response = await axios.post('https://tuition-seba-backend-1.onrender.com/api/user/login', {
                 username: values.username,
                 password: values.password,
             });

@@ -22,7 +22,7 @@ const UserPage = () => {
         setLoading(true);
         setError(null);
         try {
-            const response = await axios.get('https://tuition-seba-backend.onrender.com/api/user/users');
+            const response = await axios.get('https://tuition-seba-backend-1.onrender.com/api/user/users');
             setUserList(response.data);
         } catch (err) {
             setError('Error fetching users');
@@ -38,7 +38,7 @@ const UserPage = () => {
         setLoading(true);
         setError(null);
         try {
-            await axios.delete(`https://tuition-seba-backend.onrender.com/api/user/delete/${id}`);
+            await axios.delete(`https://tuition-seba-backend-1.onrender.com/api/user/delete/${id}`);
             fetchUsers(); // Refresh the user list after deleting
             toast.success('User deleted successfully'); // Toastify success
         } catch (err) {
@@ -73,7 +73,7 @@ const UserPage = () => {
         setError(null);
         try {
             console.log(newUser);
-            await axios.post('https://tuition-seba-backend.onrender.com/api/user/register', newUser);
+            await axios.post('https://tuition-seba-backend-1.onrender.com/api/user/register', newUser);
             fetchUsers(); // Refresh the user list after adding
             handleCloseModal(); // Close the modal
             toast.success('User added successfully'); // Toastify success

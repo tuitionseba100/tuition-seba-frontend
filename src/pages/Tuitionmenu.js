@@ -6,6 +6,7 @@ import NavBarPage from './NavbarPage';
 import styled from 'styled-components';
 import { ToastContainer, toast } from 'react-toastify';
 import { Spinner } from 'react-bootstrap';
+import * as XLSX from 'xlsx';
 
 
 const TuitionPage = () => {
@@ -110,6 +111,69 @@ const TuitionPage = () => {
         }
         setLoading(false);
     };
+
+    const handleExportToExcel = () => {
+        // Get the current date and time
+        const now = new Date();
+        const formattedDate = now.toLocaleDateString().replace(/\//g, '-');
+        const formattedTime = now.toLocaleTimeString().replace(/:/g, '-');
+
+        const fileName = `TuitionList_${formattedDate}_${formattedTime}`;
+
+        const tableHeaders = [
+            "Tuition Code", "Published", "Urgent", "Wanted Teacher", "Student", "Class",
+            "Medium", "Subject", "Time", "Day", "Salary", "Location", "Area",
+            "Guardian Number", "Status", "Tutor Number", "Joining"
+        ];
+
+        const tableData = filteredTuitionList.map(tuition => [
+            String(tuition.tuitionCode ?? ""),
+            tuition.isPublish ? 'Yes' : 'No',
+            tuition.isUrgent ? 'Yes' : 'No',
+            String(tuition.wantedTeacher ?? ""),
+            String(tuition.student ?? ""),
+            String(tuition.class ?? ""),
+            String(tuition.medium ?? ""),
+            String(tuition.subject ?? ""),
+            String(tuition.time ?? "").replace("undefined", ""),
+            String(tuition.day ?? ""),
+            String(tuition.salary ?? ""),
+            String(tuition.location ?? ""),
+            String(tuition.area ?? ""),
+            String(tuition.guardianNumber ?? ""),
+            String(tuition.status ?? ""),
+            String(tuition.tutorNumber ?? ""),
+            String(tuition.joining ?? "")
+        ]);
+
+        const worksheet = XLSX.utils.aoa_to_sheet([tableHeaders, ...tableData]);
+
+        worksheet['!cols'] = [
+            { wpx: 100 },  // Tuition Code
+            { wpx: 50 },   // Published
+            { wpx: 50 },   // Urgent
+            { wpx: 150 },  // Wanted Teacher
+            { wpx: 100 },  // Student
+            { wpx: 50 },   // Class
+            { wpx: 80 },   // Medium
+            { wpx: 100 },  // Subject
+            { wpx: 50 },   // Time
+            { wpx: 50 },   // Day
+            { wpx: 70 },   // Salary
+            { wpx: 100 },  // Location
+            { wpx: 80 },   // Area
+            { wpx: 100 },  // Guardian Number
+            { wpx: 70 },   // Status
+            { wpx: 100 },  // Tutor Number
+            { wpx: 70 }    // Joining
+        ];
+
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, "Tuitions");
+
+        XLSX.writeFile(workbook, `${fileName}.xlsx`);
+    };
+
 
     const locations = [
         'Katghor', 'Oxyzen', 'Still Mill Bazar', 'Bondartila', 'Freeport', 'Saltgola Crossing', 'Customs', 'Barek Building',
@@ -340,6 +404,9 @@ const TuitionPage = () => {
                     </Col>
 
                 </Row>
+                <Button variant="success" className="mb-3" onClick={handleExportToExcel}>
+                    Export to Excel
+                </Button>
 
                 <Card className="mt-4">
                     <Card.Body>

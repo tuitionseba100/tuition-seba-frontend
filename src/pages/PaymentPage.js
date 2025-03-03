@@ -165,6 +165,11 @@ const PaymentPage = () => {
     };
 
     const handleSavePayment = async () => {
+        if (!paymentData.tuitionId || paymentData.tuitionId.trim() === '') {
+            toast.error("Please select a tuition code.");
+            return;
+        }
+
         const selectedTuition = tuitionList.find(tuition => tuition._id === paymentData.tuitionId);
         const updatedPaymentData = {
             ...paymentData,

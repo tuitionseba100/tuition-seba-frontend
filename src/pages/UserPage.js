@@ -11,7 +11,7 @@ const UserPage = () => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const [showModal, setShowModal] = useState(false);
-    const [newUser, setNewUser] = useState({ username: '', password: '', role: 'admin' }); // Added role field
+    const [newUser, setNewUser] = useState({ username: '', password: '', role: 'admin' });
 
     useEffect(() => {
         fetchUsers();
@@ -50,36 +50,32 @@ const UserPage = () => {
         }
     };
 
-    // Handle modal open
     const handleOpenModal = () => {
         setShowModal(true);
     };
 
-    // Handle modal close
     const handleCloseModal = () => {
         setShowModal(false);
-        setNewUser({ username: '', password: '', role: 'admin' }); // Reset role to 'admin'
+        setNewUser({ username: '', password: '', role: 'admin' });
     };
 
-    // Handle form input change for new user
     const handleInputChange = (e) => {
         const { name, value } = e.target;
         setNewUser({ ...newUser, [name]: value });
     };
 
-    // Handle saving new user
     const handleSaveUser = async () => {
         setLoading(true);
         setError(null);
         try {
             console.log(newUser);
             await axios.post('https://tuition-seba-backend-1.onrender.com/api/user/register', newUser);
-            fetchUsers(); // Refresh the user list after adding
-            handleCloseModal(); // Close the modal
-            toast.success('User added successfully'); // Toastify success
+            fetchUsers();
+            handleCloseModal();
+            toast.success('User added successfully');
         } catch (err) {
             setError('Error adding user');
-            toast.error('Error adding user'); // Toastify error
+            toast.error('Error adding user');
             console.error('Error adding user:', err);
         } finally {
             setLoading(false);

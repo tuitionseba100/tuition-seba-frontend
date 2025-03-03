@@ -37,6 +37,7 @@ const TuitionPage = () => {
     });
     const [tuitionCodeSearchQuery, setTuitionCodeSearchQuery] = useState('');
     const [gurdianNoSearchQuery, setGurdianNoSearchQuery] = useState('');
+    const [teacherNoSearchQuery, setTeacherNoSearchQuery] = useState('');
     const [loading, setLoading] = useState(false);
     const [statusFilter, setStatusFilter] = useState('');
     const [areaSuggestions, setAreaSuggestions] = useState([]);
@@ -50,8 +51,6 @@ const TuitionPage = () => {
         confirm: 0,
         cancel: 0
     });
-
-
 
     useEffect(() => {
         fetchTuitionRecords();
@@ -67,6 +66,11 @@ const TuitionPage = () => {
         if (gurdianNoSearchQuery) {
             filteredData = filteredData.filter(tuition =>
                 tuition.guardianNumber.toLowerCase().includes(gurdianNoSearchQuery.toLowerCase())
+            );
+        }
+        if (teacherNoSearchQuery) {
+            filteredData = filteredData.filter(tuition =>
+                String(tuition.tutorNumber).trim().toLowerCase().includes(String(teacherNoSearchQuery).trim().toLowerCase())
             );
         }
         if (publishFilter) {
@@ -96,7 +100,7 @@ const TuitionPage = () => {
         setStatusCounts(statusCounts);
 
         setFilteredTuitionList(filteredData);
-    }, [tuitionCodeSearchQuery, gurdianNoSearchQuery, publishFilter, urgentFilter, statusFilter, tuitionList]);
+    }, [tuitionCodeSearchQuery, gurdianNoSearchQuery, teacherNoSearchQuery, publishFilter, urgentFilter, statusFilter, tuitionList]);
 
     const fetchTuitionRecords = async () => {
         setLoading(true);
@@ -113,7 +117,6 @@ const TuitionPage = () => {
     };
 
     const handleExportToExcel = () => {
-        // Get the current date and time
         const now = new Date();
         const formattedDate = now.toLocaleDateString().replace(/\//g, '-');
         const formattedTime = now.toLocaleTimeString().replace(/:/g, '-');
@@ -173,7 +176,6 @@ const TuitionPage = () => {
 
         XLSX.writeFile(workbook, `${fileName}.xlsx`);
     };
-
 
     const locations = [
         'Katghor', 'Oxyzen', 'Still Mill Bazar', 'Bondartila', 'Freeport', 'Saltgola Crossing', 'Customs', 'Barek Building',
@@ -270,6 +272,7 @@ const TuitionPage = () => {
     const handleResetFilters = () => {
         setTuitionCodeSearchQuery('');
         setGurdianNoSearchQuery('');
+        setTeacherNoSearchQuery('');
         setPublishFilter('');
         setUrgentFilter('');
         setStatusFilter('');
@@ -368,6 +371,16 @@ const TuitionPage = () => {
                     )}
 
                     <Col md={2}>
+                        <Form.Label className="fw-bold">Search (Teacher Number)</Form.Label>
+                        <Form.Control
+                            type="text"
+                            placeholder="Search by Teacher Number"
+                            value={teacherNoSearchQuery}
+                            onChange={(e) => setTeacherNoSearchQuery(e.target.value)}
+                        />
+                    </Col>
+
+                    <Col md={1}>
                         <Form.Label className="fw-bold">Publish Status</Form.Label>
                         <Form.Select value={publishFilter} onChange={(e) => setPublishFilter(e.target.value)}>
                             <option value="">All</option>
@@ -376,7 +389,7 @@ const TuitionPage = () => {
                         </Form.Select>
                     </Col>
                     {/* Add Urgent filter */}
-                    <Col md={2}>
+                    <Col md={1}>
                         <Form.Label className="fw-bold">Emergency Status</Form.Label>
                         <Form.Select value={urgentFilter} onChange={(e) => setUrgentFilter(e.target.value)}>
                             <option value="">All</option>
@@ -397,7 +410,7 @@ const TuitionPage = () => {
                         </Form.Select>
                     </Col>
 
-                    <Col md={2} className="d-flex align-items-end">
+                    <Col md={1} className="d-flex align-items-end">
                         <Button variant="danger" onClick={handleResetFilters} className="w-100">
                             Reset Filters
                         </Button>

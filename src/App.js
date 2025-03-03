@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-d
 import Loginpage from './pages/Loginpage';
 import Tuitionmenu from './pages/Tuitionmenu';
 import UserPage from './pages/UserPage';
+import PaymentPage from './pages/PaymentPage';
 import PrivateRoute from './pages/PrivateRoute'; // Import PrivateRoute
 import 'bootstrap/dist/css/bootstrap.min.css';
 
@@ -15,7 +16,7 @@ const App = () => {
 
         <Route element={<PrivateRoute />}>
           <Route path="/tuition" element={<Tuitionmenu />} />
-
+          <Route path="/payment" element={<PaymentPage />} />
           <Route element={<PrivateRoute role="superadmin" />}>
             <Route path="/user" element={<UserPage />} />
           </Route>

@@ -31,6 +31,7 @@ const PaymentPage = () => {
     const [tuitionCodeSearchQuery, setTuitionCodeSearchQuery] = useState('');
     const [teacherNumberSearchQuery, setTeacherNumberSearchQuery] = useState('');
     const [paymentNumberSearchQuery, setPaymentNumberSearchQuery] = useState('');
+    const [tIdSearchQuery, setTIdSearchQuery] = useState('');
     const [tuitionList, setTuitionList] = useState([]);
     const [totalPaymentTK, setTotalPaymentTK] = useState(0);
     const [totalPaymentsCount, setTotalPaymentsCount] = useState(0);
@@ -47,17 +48,25 @@ const PaymentPage = () => {
         let filteredData = paymentList;
         if (tuitionCodeSearchQuery) {
             filteredData = filteredData.filter(payment =>
-                payment.tuitionCode.toLowerCase().includes(tuitionCodeSearchQuery.toLowerCase())
+                String(payment.tuitionCode).toLowerCase().includes(String(tuitionCodeSearchQuery).toLowerCase())
             );
         }
+
         if (teacherNumberSearchQuery) {
             filteredData = filteredData.filter(tuition =>
-                tuition.tutorNumber.toLowerCase().includes(teacherNumberSearchQuery.toLowerCase())
+                String(tuition.tutorNumber).toLowerCase().includes(String(teacherNumberSearchQuery).toLowerCase())
             );
         }
+
         if (paymentNumberSearchQuery) {
             filteredData = filteredData.filter(tuition =>
-                tuition.paymentNumber.toLowerCase().includes(paymentNumberSearchQuery.toLowerCase())
+                String(tuition.paymentNumber).toLowerCase().includes(String(paymentNumberSearchQuery).toLowerCase())
+            );
+        }
+
+        if (tIdSearchQuery) {
+            filteredData = filteredData.filter(tuition =>
+                String(tuition.transactionId).toLowerCase().includes(String(tIdSearchQuery).toLowerCase())
             );
         }
 
@@ -73,7 +82,7 @@ const PaymentPage = () => {
         setTotalPaymentTKToday(totalTkToday);
 
         setFilteredPaymentList(filteredData);
-    }, [tuitionCodeSearchQuery, teacherNumberSearchQuery, paymentNumberSearchQuery, paymentList]);
+    }, [tuitionCodeSearchQuery, teacherNumberSearchQuery, paymentNumberSearchQuery, tIdSearchQuery, paymentList]);
 
     const fetchTuitions = async () => {
         try {
@@ -205,6 +214,7 @@ const PaymentPage = () => {
         setTuitionCodeSearchQuery('');
         setTeacherNumberSearchQuery('');
         setPaymentNumberSearchQuery('');
+        setTIdSearchQuery('');
         setFilteredPaymentList(paymentList);
     };
 
@@ -290,6 +300,16 @@ const PaymentPage = () => {
                             placeholder="Search by Payment Number"
                             value={paymentNumberSearchQuery}
                             onChange={(e) => setPaymentNumberSearchQuery(e.target.value)}
+                        />
+                    </Col>
+
+                    <Col md={2}>
+                        <Form.Label className="fw-bold">Search (Transaction ID)</Form.Label>
+                        <Form.Control
+                            type="text"
+                            placeholder="Search by Transaction ID"
+                            value={tIdSearchQuery}
+                            onChange={(e) => setTIdSearchQuery(e.target.value)}
                         />
                     </Col>
 

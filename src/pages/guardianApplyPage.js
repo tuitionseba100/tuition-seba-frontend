@@ -318,7 +318,7 @@ const GuardianApplyPage = () => {
                                         <th>Student Class</th>
                                         <th>Teacher Gender</th>
                                         <th>Teacher Characteristics</th>
-                                        <th>Comment(Agent)</th>
+                                        <th>Comment (Agent)</th>
                                         <th>Actions</th>
                                     </tr>
                                 </thead>

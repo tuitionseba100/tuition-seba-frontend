@@ -538,6 +538,7 @@ const PaymentPage = () => {
                                             onChange={(e) => setPaymentData({ ...paymentData, paymentStatus: e.target.value })}
                                             required
                                         >
+                                            <option value="">Select Payment Status</option>
                                             <option value="pending payment">Pending Payment</option>
                                             <option value="pending due">Pending Due</option>
                                             <option value="fully paid">Fully Paid</option>

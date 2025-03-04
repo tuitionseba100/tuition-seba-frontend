@@ -29,6 +29,7 @@ const PaymentPage = () => {
         comment: '',
     });
     const [loading, setLoading] = useState(false);
+    const [statusFilter, setStatusFilter] = useState('');
     const [tuitionCodeSearchQuery, setTuitionCodeSearchQuery] = useState('');
     const [teacherNumberSearchQuery, setTeacherNumberSearchQuery] = useState('');
     const [paymentNumberSearchQuery, setPaymentNumberSearchQuery] = useState('');
@@ -47,6 +48,10 @@ const PaymentPage = () => {
 
     useEffect(() => {
         let filteredData = paymentList;
+        if (statusFilter) {
+            filteredData = filteredData.filter(payment => payment.paymentStatus === statusFilter);
+        }
+
         if (tuitionCodeSearchQuery) {
             filteredData = filteredData.filter(payment =>
                 String(payment.tuitionCode).toLowerCase().includes(String(tuitionCodeSearchQuery).toLowerCase())
@@ -82,7 +87,7 @@ const PaymentPage = () => {
         setTotalDuesCount(totalDuesCount);
 
         setFilteredPaymentList(filteredData);
-    }, [tuitionCodeSearchQuery, teacherNumberSearchQuery, paymentNumberSearchQuery, paymentList]);
+    }, [statusFilter, tuitionCodeSearchQuery, teacherNumberSearchQuery, paymentNumberSearchQuery, paymentList]);
 
     const fetchTuitions = async () => {
         try {
@@ -294,6 +299,16 @@ const PaymentPage = () => {
 
                 {/* Search bar */}
                 <Row className="mt-2 mb-3">
+                    <Col md={2}>
+                        <Form.Label className="fw-bold">Payment Status</Form.Label>
+                        <Form.Select value={statusFilter} onChange={(e) => statusFilter(e.target.value)}>
+                            <option value="">All</option>
+                            <option value="pending payment">Pending Payment</option>
+                            <option value="pending due">Pending Due</option>
+                            <option value="fully paid">Fully Paid</option>
+                        </Form.Select>
+                    </Col>
+
                     <Col md={2}>
                         <Form.Label className="fw-bold">Search (Tuition Code)</Form.Label>
                         <Form.Control

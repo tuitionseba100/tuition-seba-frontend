@@ -25,7 +25,7 @@ const PaymentPage = () => {
         paymentType: '',
         receivedTk: '',
         duePayment: '',
-        status: '',
+        paymentStatus: '',
         comment: '',
     });
     const [loading, setLoading] = useState(false);
@@ -127,11 +127,12 @@ const PaymentPage = () => {
         const fileName = `Payment List_${formattedDate}_${formattedTime}`;
 
         const tableHeaders = [
-            "Tuition Code", "Payment Received Date", "Due Payment Date", "Teacher Name", "Teacher Number", "Payment Number", "Payment Type", "Received TK", "Due TK", "Comment"
+            "Tuition Code", "Status", "Payment Received Date", "Due Payment Date", "Teacher Name", "Teacher Number", "Payment Number", "Payment Type", "Received TK", "Due TK", "Comment"
         ];
 
         const tableData = filteredPaymentList.map(payment => [
             String(payment.tuitionCode ?? ""),
+            String(payment.paymentStatus ?? ""),
             payment.paymentReceivedDate ? formatDate(payment.paymentReceivedDate) : "",
             payment.duePayDate ? formatDate(payment.duePayDate) : "",
             String(payment.tutorName ?? ""),
@@ -373,12 +374,12 @@ const PaymentPage = () => {
                                                 <td>
                                                     <span
                                                         className={`badge 
-                                                            ${payment.status === "pending payment" ? "bg-danger" : ""}  
-                                                            ${payment.status === "pending due" ? "bg-info text-dark" : ""}  
-                                                            ${payment.status === "fully paid" ? "bg-success" : ""}
+                                                            ${payment.paymentStatus === "pending payment" ? "bg-danger" : ""}  
+                                                            ${payment.paymentStatus === "pending due" ? "bg-info text-dark" : ""}  
+                                                            ${payment.paymentStatus === "fully paid" ? "bg-success" : ""}
                                                             `}
                                                     >
-                                                        {payment.status}
+                                                        {payment.paymentStatus}
                                                     </span>
                                                 </td>
                                                 <td>{payment.paymentReceivedDate ? formatDate(payment.paymentReceivedDate) : ''}</td>
@@ -529,12 +530,12 @@ const PaymentPage = () => {
 
                             <Row>
                                 <Col md={6}>
-                                    <Form.Group controlId="status">
+                                    <Form.Group controlId="paymentStatus">
                                         <Form.Label className="fw-bold">Payment Status</Form.Label>
                                         <Form.Control
                                             as="select"
-                                            value={paymentData.status}
-                                            onChange={(e) => setPaymentData({ ...paymentData, status: e.target.value })}
+                                            value={paymentData.paymentStatus}
+                                            onChange={(e) => setPaymentData({ ...paymentData, paymentStatus: e.target.value })}
                                             required
                                         >
                                             <option value="pending payment">Pending Payment</option>

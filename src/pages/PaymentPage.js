@@ -37,6 +37,7 @@ const PaymentPage = () => {
     const [totalPaymentTKToday, setTotalPaymentTKToday] = useState(0);
     const [totalPaymentsTodayCount, setTotalPaymentsTodayCount] = useState(0);
     const [totalDues, setTotalDues] = useState(0);
+    const [totalDuesCount, setTotalDuesCount] = useState(0);
 
     useEffect(() => {
         fetchPaymentRecords();
@@ -69,12 +70,15 @@ const PaymentPage = () => {
         const totalTkToday = filteredData.filter(payment => new Date(payment.paymentReceivedDate).toDateString() === new Date().toDateString())
             .reduce((sum, payment) => sum + parseFloat(payment.receivedTk || 0), 0);
         const totalDues = filteredData.reduce((sum, payment) => sum + parseFloat(payment.duePayment || 0), 0);
+        const totalDuesCount = filteredData.filter(payment => parseFloat(payment.duePayment || 0) > 0).length;
+
 
         setTotalPaymentsCount(totalCount);
         setTotalPaymentTK(totalTk);
         setTotalPaymentsTodayCount(totalCountToday);
         setTotalPaymentTKToday(totalTkToday);
         setTotalDues(totalDues);
+        setTotalDuesCount(totalDuesCount);
 
         setFilteredPaymentList(filteredData);
     }, [tuitionCodeSearchQuery, teacherNumberSearchQuery, paymentNumberSearchQuery, paymentList]);
@@ -262,6 +266,14 @@ const PaymentPage = () => {
                                     <div className="d-flex flex-column align-items-center">
                                         <span className="text-primary" style={{ fontWeight: 'bolder' }}>Total Payments(TK) Today</span>
                                         <span>TK. {totalPaymentTKToday}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="col-6 col-sm-4 col-md-2 mb-3">
+                                <div className="card p-3 shadow border-primary">
+                                    <div className="d-flex flex-column align-items-center">
+                                        <span className="text-primary" style={{ fontWeight: 'bolder' }}>Total Dues Count</span>
+                                        <span>{totalDuesCount}</span>
                                     </div>
                                 </div>
                             </div>

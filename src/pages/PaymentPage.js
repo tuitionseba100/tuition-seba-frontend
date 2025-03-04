@@ -36,7 +36,7 @@ const PaymentPage = () => {
     const [totalPaymentsCount, setTotalPaymentsCount] = useState(0);
     const [totalPaymentTKToday, setTotalPaymentTKToday] = useState(0);
     const [totalPaymentsTodayCount, setTotalPaymentsTodayCount] = useState(0);
-
+    const [totalDues, setTotalDues] = useState(0);
 
     useEffect(() => {
         fetchPaymentRecords();
@@ -68,11 +68,13 @@ const PaymentPage = () => {
         const totalCountToday = filteredData.filter(payment => new Date(payment.paymentReceivedDate).toDateString() === new Date().toDateString()).length;
         const totalTkToday = filteredData.filter(payment => new Date(payment.paymentReceivedDate).toDateString() === new Date().toDateString())
             .reduce((sum, payment) => sum + parseFloat(payment.receivedTk || 0), 0);
+        const totalDues = filteredData.reduce((sum, payment) => sum + parseFloat(payment.duePayment || 0), 0);
 
         setTotalPaymentsCount(totalCount);
         setTotalPaymentTK(totalTk);
         setTotalPaymentsTodayCount(totalCountToday);
         setTotalPaymentTKToday(totalTkToday);
+        setTotalDues(totalDues);
 
         setFilteredPaymentList(filteredData);
     }, [tuitionCodeSearchQuery, teacherNumberSearchQuery, paymentNumberSearchQuery, paymentList]);
@@ -231,7 +233,7 @@ const PaymentPage = () => {
                 <Card className="mt-4">
                     <Card.Body>
                         <div className="row text-center">
-                            <div className="col-6 col-sm-4 col-md-3 mb-3">
+                            <div className="col-6 col-sm-4 col-md-2 mb-3">
                                 <div className="card p-3 shadow border-primary">
                                     <div className="d-flex flex-column align-items-center">
                                         <span className="text-primary" style={{ fontWeight: 'bolder' }}>Total payments Count</span>
@@ -239,7 +241,7 @@ const PaymentPage = () => {
                                     </div>
                                 </div>
                             </div>
-                            <div className="col-6 col-sm-4 col-md-3 mb-3">
+                            <div className="col-6 col-sm-4 col-md-2 mb-3">
                                 <div className="card p-3 shadow border-primary">
                                     <div className="d-flex flex-column align-items-center">
                                         <span className="text-primary" style={{ fontWeight: 'bolder' }}>Total Payments(TK)</span>
@@ -247,7 +249,7 @@ const PaymentPage = () => {
                                     </div>
                                 </div>
                             </div>
-                            <div className="col-6 col-sm-4 col-md-3 mb-3">
+                            <div className="col-6 col-sm-4 col-md-2 mb-3">
                                 <div className="card p-3 shadow border-primary">
                                     <div className="d-flex flex-column align-items-center">
                                         <span className="text-primary" style={{ fontWeight: 'bolder' }}>Total Payments Count Today</span>
@@ -255,11 +257,19 @@ const PaymentPage = () => {
                                     </div>
                                 </div>
                             </div>
-                            <div className="col-6 col-sm-4 col-md-3 mb-3">
+                            <div className="col-6 col-sm-4 col-md-2 mb-3">
                                 <div className="card p-3 shadow border-primary">
                                     <div className="d-flex flex-column align-items-center">
                                         <span className="text-primary" style={{ fontWeight: 'bolder' }}>Total Payments(TK) Today</span>
                                         <span>TK. {totalPaymentTKToday}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="col-6 col-sm-4 col-md-2 mb-3">
+                                <div className="card p-3 shadow border-primary">
+                                    <div className="d-flex flex-column align-items-center">
+                                        <span className="text-primary" style={{ fontWeight: 'bolder' }}>Total Dues(TK)</span>
+                                        <span>TK. {totalDues}</span>
                                     </div>
                                 </div>
                             </div>

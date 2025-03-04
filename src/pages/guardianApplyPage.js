@@ -21,6 +21,7 @@ const GuardianApplyPage = () => {
     const [showStatusModal, setShowStatusModal] = useState(false);
     const [selectedRecord, setSelectedRecord] = useState(null);
     const [newStatus, setNewStatus] = useState('');
+    const [newComment, setNewComment] = useState('');
 
     const statusOptions = [
         'pending',
@@ -93,7 +94,7 @@ const GuardianApplyPage = () => {
         const fileName = `Guardian Apply List_${formattedDate}_${formattedTime}`;
 
         const tableHeaders = [
-            "Guardian Name", "Status", "Applied Date", "Phone No.", "Address", "Student Class", "Teacher Gender", "Characteristics"
+            "Guardian Name", "Status", "Applied Date", "Phone No.", "Address", "Student Class", "Teacher Gender", "Characteristics", "Comment"
         ];
 
         const tableData = filteredApplyList.map(data => [
@@ -105,6 +106,7 @@ const GuardianApplyPage = () => {
             String(data.studentClass ?? ""),
             String(data.teacherGender ?? ""),
             String(data.characteristics ?? ""),
+            String(data.comment ?? ""),
         ]);
 
         const worksheet = XLSX.utils.aoa_to_sheet([tableHeaders, ...tableData]);
@@ -117,6 +119,7 @@ const GuardianApplyPage = () => {
             { wpx: 120 },
             { wpx: 120 },
             { wpx: 200 },
+            { wpx: 120 },
         ];
 
         const workbook = XLSX.utils.book_new();
@@ -131,7 +134,7 @@ const GuardianApplyPage = () => {
             return;
         }
 
-        if (selectedRecord.status === newStatus) {
+        if (selectedRecord.status === newStatus && selectedRecord.comment === newComment) {
             toast.info("No changes detected. Nothing to update!");
             return;
         }
@@ -139,14 +142,14 @@ const GuardianApplyPage = () => {
         try {
             const response = await axios.put(
                 `https://tuition-seba-backend-1.onrender.com/api/guardianApply/update-status/${selectedRecord._id}`,
-                { status: newStatus }
+                { status: newStatus, comment: newComment }
             );
 
             fetchRecords();
-
             setShowStatusModal(false);
             setSelectedRecord(null);
             setNewStatus('');
+            setNewComment('');
 
             toast.success("Status updated successfully!");
         } catch (err) {
@@ -158,6 +161,7 @@ const GuardianApplyPage = () => {
     const openStatusUpdateModal = (record) => {
         setSelectedRecord(record);
         setNewStatus(record.status || '');
+        setNewComment(record.comment || '');
         setShowStatusModal(true);
     };
 
@@ -314,6 +318,7 @@ const GuardianApplyPage = () => {
                                         <th>Student Class</th>
                                         <th>Teacher Gender</th>
                                         <th>Teacher Characteristics</th>
+                                        <th>Comment(Agent)</th>
                                         <th>Actions</th>
                                     </tr>
                                 </thead>
@@ -353,6 +358,7 @@ const GuardianApplyPage = () => {
                                                 <td>{rowData.studentClass}</td>
                                                 <td>{rowData.teacherGender}</td>
                                                 <td>{rowData.characteristics}</td>
+                                                <td>{rowData.comment}</td>
                                                 <td style={{ display: 'flex', justifyContent: 'flex-start', gap: '8px' }}>
                                                     <OverlayTrigger
                                                         placement="top"
@@ -423,6 +429,16 @@ const GuardianApplyPage = () => {
                                         </option>
                                     ))}
                                 </Form.Select>
+                            </Form.Group>
+                            <Form.Group className="mt-3">
+                                <Form.Label className="fw-bold">Comment</Form.Label>
+                                <Form.Control
+                                    as="textarea"
+                                    rows={3}
+                                    value={newComment}
+                                    onChange={(e) => setNewComment(e.target.value)}
+                                    placeholder="Enter comment"
+                                />
                             </Form.Group>
                         </div>
                     </Modal.Body>

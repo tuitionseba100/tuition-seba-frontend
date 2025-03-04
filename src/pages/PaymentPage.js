@@ -494,7 +494,7 @@ const PaymentPage = () => {
                                 </Col>
                                 <Col md={4}>
                                     <Form.Group controlId="duePayDate">
-                                        <Form.Label className="fw-bold">Payment Received Date</Form.Label>
+                                        <Form.Label className="fw-bold">Due Payment Date</Form.Label>
                                         <Form.Control
                                             type="datetime-local"
                                             value={paymentData.duePayDate ? new Date(new Date(paymentData.duePayDate).getTime() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16) : ''}

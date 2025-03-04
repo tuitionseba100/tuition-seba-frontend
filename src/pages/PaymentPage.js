@@ -131,8 +131,8 @@ const PaymentPage = () => {
 
         const tableData = filteredPaymentList.map(payment => [
             String(payment.tuitionCode ?? ""),
-            formatDate(payment.paymentReceivedDate ?? ""),
-            formatDate(payment.duePayDate ?? ""),
+            payment.paymentReceivedDate ? formatDate(payment.paymentReceivedDate) : "",
+            payment.duePayDate ? formatDate(payment.duePayDate) : "",
             String(payment.tutorName ?? ""),
             String(payment.tutorNumber ?? ""),
             String(payment.paymentNumber ?? ""),

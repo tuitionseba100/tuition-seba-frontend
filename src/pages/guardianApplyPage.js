@@ -25,9 +25,8 @@ const GuardianApplyPage = () => {
 
     const statusOptions = [
         'pending',
-        'called',
-        'no response',
-        'interested',
+        'called (interested)',
+        'called (no response)',
         'meeting scheduled',
         'meeting done',
         'confirmed',
@@ -261,9 +260,8 @@ const GuardianApplyPage = () => {
                         <Form.Select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
                             <option value="">All</option>
                             <option value="pending">Pending</option>
-                            <option value="called">Called</option>
-                            <option value="no response">No Response</option>
-                            <option value="interested">Interested</option>
+                            <option value="called (interested)">Called (Interested)</option>
+                            <option value="called (no response)">Called (No Response)</option>
                             <option value="meeting scheduled">Meeting Scheduled</option>
                             <option value="meeting done">Meeting Done</option>
                             <option value="confirmed">Confirmed</option>
@@ -341,9 +339,8 @@ const GuardianApplyPage = () => {
                                                     <span
                                                         className={`badge 
                                                             ${rowData.status === "pending" ? "bg-warning text-dark" : ""}  
-                                                            ${rowData.status === "called" ? "bg-info text-dark" : ""}  
-                                                            ${rowData.status === "no response" ? "bg-secondary text-light" : ""}  
-                                                            ${rowData.status === "interested" ? "bg-primary text-light" : ""}  
+                                                            ${rowData.status === "called (interested)" ? "bg-primary text-light" : ""}  
+                                                            ${rowData.status === "called (no response)" ? "bg-secondary text-light" : ""}  
                                                             ${rowData.status === "meeting scheduled" ? "bg-info text-dark" : ""}  
                                                             ${rowData.status === "meeting done" ? "bg-success text-light" : ""}  
                                                             ${rowData.status === "confirmed" ? "bg-success" : ""}  

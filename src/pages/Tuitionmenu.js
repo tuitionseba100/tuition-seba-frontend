@@ -404,6 +404,7 @@ const TuitionPage = () => {
                             <option value="">All</option>
                             <option value="available">Available</option>
                             <option value="given number">Given Number</option>
+                            <option value="guardian meet">Guardian Meet</option>
                             <option value="demo class running">Demo Class Running</option>
                             <option value="confirm">Confirm</option>
                             <option value="cancel">Cancel</option>
@@ -472,6 +473,7 @@ const TuitionPage = () => {
                                                         className={`badge 
                             ${tuition.status === "available" ? "bg-success" : ""}
                             ${tuition.status === "given number" ? "bg-primary" : ""}
+                            ${tuition.status === "guardian meet" ? "bg-secondary" : ""}
                             ${tuition.status === "demo class running" ? "bg-warning" : ""}
                             ${tuition.status === "confirm" ? "bg-info" : ""}
                             ${tuition.status === "cancel" ? "bg-danger" : ""}`}
@@ -742,6 +744,7 @@ const TuitionPage = () => {
                                         >
                                             <option value="available">Available</option>
                                             <option value="given number">Given Number</option>
+                                            <option value="guardian meet">Guardian Meet</option>
                                             <option value="demo class running">Demo Class Running</option>
                                             <option value="confirm">Confirm</option>
                                             <option value="cancel">Cancel</option>

@@ -89,13 +89,13 @@ const GuardianApplyPage = () => {
         const worksheet = XLSX.utils.aoa_to_sheet([tableHeaders, ...tableData]);
 
         worksheet['!cols'] = [
-            { wpx: 90 },
+            { wpx: 140 },
             { wpx: 140 },
             { wpx: 140 },
             { wpx: 140 },
             { wpx: 120 },
             { wpx: 120 },
-            { wpx: 140 },
+            { wpx: 200 },
         ];
 
         const workbook = XLSX.utils.book_new();

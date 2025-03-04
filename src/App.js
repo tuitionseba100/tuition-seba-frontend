@@ -6,6 +6,7 @@ import UserPage from './pages/UserPage';
 import PaymentPage from './pages/PaymentPage';
 import PrivateRoute from './pages/PrivateRoute'; // Import PrivateRoute
 import 'bootstrap/dist/css/bootstrap.min.css';
+import GuardianApplyPage from './pages/guardianApplyPage';
 
 const App = () => {
   return (
@@ -17,6 +18,7 @@ const App = () => {
         <Route element={<PrivateRoute />}>
           <Route path="/tuition" element={<Tuitionmenu />} />
           <Route path="/payment" element={<PaymentPage />} />
+          <Route path="/guardianApply" element={<GuardianApplyPage />} />
           <Route element={<PrivateRoute role="superadmin" />}>
             <Route path="/user" element={<UserPage />} />
           </Route>

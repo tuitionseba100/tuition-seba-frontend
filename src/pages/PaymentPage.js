@@ -18,11 +18,11 @@ const PaymentPage = () => {
         tuitionCode: '',
         tuitionId: '',
         paymentReceivedDate: '',
+        duePayDate: '',
         tutorName: '',
         tutorNumber: '',
         paymentNumber: '',
         paymentType: '',
-        transactionId: '',
         receivedTk: '',
         duePayment: '',
         comment: '',
@@ -31,7 +31,6 @@ const PaymentPage = () => {
     const [tuitionCodeSearchQuery, setTuitionCodeSearchQuery] = useState('');
     const [teacherNumberSearchQuery, setTeacherNumberSearchQuery] = useState('');
     const [paymentNumberSearchQuery, setPaymentNumberSearchQuery] = useState('');
-    const [tIdSearchQuery, setTIdSearchQuery] = useState('');
     const [tuitionList, setTuitionList] = useState([]);
     const [totalPaymentTK, setTotalPaymentTK] = useState(0);
     const [totalPaymentsCount, setTotalPaymentsCount] = useState(0);
@@ -64,12 +63,6 @@ const PaymentPage = () => {
             );
         }
 
-        if (tIdSearchQuery) {
-            filteredData = filteredData.filter(tuition =>
-                String(tuition.transactionId).toLowerCase().includes(String(tIdSearchQuery).toLowerCase())
-            );
-        }
-
         const totalCount = filteredData.length;
         const totalTk = filteredData.reduce((sum, payment) => sum + parseFloat(payment.receivedTk || 0), 0);
         const totalCountToday = filteredData.filter(payment => new Date(payment.paymentReceivedDate).toDateString() === new Date().toDateString()).length;
@@ -82,7 +75,7 @@ const PaymentPage = () => {
         setTotalPaymentTKToday(totalTkToday);
 
         setFilteredPaymentList(filteredData);
-    }, [tuitionCodeSearchQuery, teacherNumberSearchQuery, paymentNumberSearchQuery, tIdSearchQuery, paymentList]);
+    }, [tuitionCodeSearchQuery, teacherNumberSearchQuery, paymentNumberSearchQuery, paymentList]);
 
     const fetchTuitions = async () => {
         try {
@@ -127,17 +120,17 @@ const PaymentPage = () => {
         const fileName = `Payment List_${formattedDate}_${formattedTime}`;
 
         const tableHeaders = [
-            "Tuition Code", "Payment Received Date", "Teacher Name", "Teacher Number", "Payment Number", "Payment Type", "Transaction Id", "Received TK", "Due TK", "Comment"
+            "Tuition Code", "Payment Received Date", "Due Payment Date", "Teacher Name", "Teacher Number", "Payment Number", "Payment Type", "Received TK", "Due TK", "Comment"
         ];
 
         const tableData = filteredPaymentList.map(payment => [
             String(payment.tuitionCode ?? ""),
             formatDate(payment.paymentReceivedDate ?? ""),
+            formatDate(payment.duePayDate ?? ""),
             String(payment.tutorName ?? ""),
             String(payment.tutorNumber ?? ""),
             String(payment.paymentNumber ?? ""),
             String(payment.paymentType ?? ""),
-            String(payment.transactionId ?? ""),
             String(payment.receivedTk ?? ""),
             String(payment.duePayment ?? ""),
             String(payment.comment ?? ""),
@@ -148,11 +141,11 @@ const PaymentPage = () => {
         worksheet['!cols'] = [
             { wpx: 90 },  // Tuition Code
             { wpx: 140 },   // date
-            { wpx: 90 },   // name
+            { wpx: 140 },   // name
             { wpx: 100 },  // number
             { wpx: 100 },  //number
             { wpx: 100 },   // type
-            { wpx: 80 },    // id
+            { wpx: 100 },    // id
             { wpx: 80 },
             { wpx: 80 },
             { wpx: 140 },
@@ -219,7 +212,6 @@ const PaymentPage = () => {
         setTuitionCodeSearchQuery('');
         setTeacherNumberSearchQuery('');
         setPaymentNumberSearchQuery('');
-        setTIdSearchQuery('');
         setFilteredPaymentList(paymentList);
     };
 
@@ -308,16 +300,6 @@ const PaymentPage = () => {
                         />
                     </Col>
 
-                    <Col md={2}>
-                        <Form.Label className="fw-bold">Search (Transaction ID)</Form.Label>
-                        <Form.Control
-                            type="text"
-                            placeholder="Search by Transaction ID"
-                            value={tIdSearchQuery}
-                            onChange={(e) => setTIdSearchQuery(e.target.value)}
-                        />
-                    </Col>
-
                     <Col md={2} className="d-flex align-items-end">
                         <Button variant="danger" onClick={handleResetFilters} className="w-100">
                             Reset Filters
@@ -339,11 +321,11 @@ const PaymentPage = () => {
                                         <th>SL</th>
                                         <th>Tuition Code</th>
                                         <th>Payment Received Date</th>
+                                        <th>Due Payment Date</th>
                                         <th>Teacher Name</th>
                                         <th>Teacher Number</th>
                                         <th>Payment Number</th>
                                         <th>Payment Type</th>
-                                        <th>Transaction Id</th>
                                         <th>Received TK</th>
                                         <th>Due TK</th>
                                         <th>Comment</th>
@@ -365,11 +347,11 @@ const PaymentPage = () => {
                                                 <td>{index + 1}</td>
                                                 <td>{payment.tuitionCode}</td>
                                                 <td>{payment.paymentReceivedDate ? formatDate(payment.paymentReceivedDate) : ''}</td>
+                                                <td>{payment.duePayDate ? formatDate(payment.duePayDate) : ''}</td>
                                                 <td>{payment.tutorName}</td>
                                                 <td>{payment.tutorNumber}</td>
                                                 <td>{payment.paymentNumber}</td>
                                                 <td>{payment.paymentType}</td>
-                                                <td>{payment.transactionId}</td>
                                                 <td>{payment.receivedTk}</td>
                                                 <td>{payment.duePayment}</td>
                                                 <td>{payment.comment}</td>
@@ -484,17 +466,7 @@ const PaymentPage = () => {
                                         />
                                     </Form.Group>
                                 </Col>
-                                <Col md={4}>
-                                    <Form.Group controlId="transactionId">
-                                        <Form.Label className="fw-bold">Transaction Id</Form.Label>
-                                        <Form.Control
-                                            type="text"
-                                            value={paymentData.transactionId}
-                                            onChange={(e) => setPaymentData({ ...paymentData, transactionId: e.target.value })}
-                                            required
-                                        />
-                                    </Form.Group>
-                                </Col>
+
                                 <Col md={4}>
                                     <Form.Group controlId="receivedTk">
                                         <Form.Label className="fw-bold">Received Tk</Form.Label>
@@ -521,17 +493,31 @@ const PaymentPage = () => {
                                     </Form.Group>
                                 </Col>
                                 <Col md={4}>
+                                    <Form.Group controlId="duePayDate">
+                                        <Form.Label className="fw-bold">Payment Received Date</Form.Label>
+                                        <Form.Control
+                                            type="datetime-local"
+                                            value={paymentData.duePayDate ? new Date(new Date(paymentData.duePayDate).getTime() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16) : ''}
+                                            onChange={(e) => setPaymentData({ ...paymentData, duePayDate: e.target.value })}
+                                            required
+                                        />
+
+                                    </Form.Group>
+                                </Col>
+                            </Row>
+                            <Row>
+                                <Col md={4}>
                                     <Form.Group controlId="comment">
                                         <Form.Label className="fw-bold">Comment</Form.Label>
                                         <Form.Control
-                                            type="text"
+                                            as="textarea"
                                             value={paymentData.comment}
                                             onChange={(e) => setPaymentData({ ...paymentData, comment: e.target.value })}
                                             required
                                         />
                                     </Form.Group>
-                                </Col>
 
+                                </Col>
                             </Row>
                         </Form>
 

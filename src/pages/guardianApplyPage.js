@@ -110,7 +110,7 @@ const GuardianApplyPage = () => {
         if (confirmDelete) {
             try {
                 await axios.delete(`https://tuition-seba-backend-1.onrender.com/api/guardianApply/delete/${id}`);
-                toast.success("Eecord deleted successfully!");
+                toast.success("Record deleted successfully!");
                 fetchRecords();
             } catch (err) {
                 console.error('Error deleting record:', err);

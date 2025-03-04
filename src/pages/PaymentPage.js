@@ -25,6 +25,7 @@ const PaymentPage = () => {
         paymentType: '',
         receivedTk: '',
         duePayment: '',
+        status: '',
         comment: '',
     });
     const [loading, setLoading] = useState(false);
@@ -342,6 +343,7 @@ const PaymentPage = () => {
                                     <tr>
                                         <th>SL</th>
                                         <th>Tuition Code</th>
+                                        <th>Payment Status</th>
                                         <th>Payment Received Date</th>
                                         <th>Due Payment Date</th>
                                         <th>Teacher Name</th>
@@ -368,6 +370,17 @@ const PaymentPage = () => {
                                             <tr key={payment._id}>
                                                 <td>{index + 1}</td>
                                                 <td>{payment.tuitionCode}</td>
+                                                <td>
+                                                    <span
+                                                        className={`badge 
+                                                            ${payment.status === "pending payment" ? "bg-danger" : ""}  
+                                                            ${payment.status === "pending due" ? "bg-info text-dark" : ""}  
+                                                            ${payment.status === "fully paid" ? "bg-success" : ""}
+                                                            `}
+                                                    >
+                                                        {payment.status}
+                                                    </span>
+                                                </td>
                                                 <td>{payment.paymentReceivedDate ? formatDate(payment.paymentReceivedDate) : ''}</td>
                                                 <td>{payment.duePayDate ? formatDate(payment.duePayDate) : ''}</td>
                                                 <td>{payment.tutorName}</td>
@@ -500,9 +513,7 @@ const PaymentPage = () => {
                                         />
                                     </Form.Group>
                                 </Col>
-                            </Row>
 
-                            <Row>
                                 <Col md={4}>
                                     <Form.Group controlId="duePayment">
                                         <Form.Label className="fw-bold">Due Payment</Form.Label>
@@ -512,6 +523,25 @@ const PaymentPage = () => {
                                             onChange={(e) => setPaymentData({ ...paymentData, duePayment: e.target.value })}
                                             required
                                         />
+                                    </Form.Group>
+                                </Col>
+                            </Row>
+
+                            <Row>
+                                <Col md={6}>
+                                    <Form.Group controlId="status">
+                                        <Form.Label className="fw-bold">Payment Status</Form.Label>
+                                        <Form.Control
+                                            as="select"
+                                            value={paymentData.status}
+                                            onChange={(e) => setPaymentData({ ...paymentData, status: e.target.value })}
+                                            required
+                                        >
+                                            <option value="pending payment">Pending Payment</option>
+                                            <option value="pending due">Pending Due</option>
+                                            <option value="fully paid">Fully Paid</option>
+
+                                        </Form.Control>
                                     </Form.Group>
                                 </Col>
                                 <Col md={4}>

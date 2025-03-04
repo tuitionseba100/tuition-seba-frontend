@@ -222,6 +222,7 @@ const PaymentPage = () => {
     };
 
     const handleResetFilters = () => {
+        setStatusFilter('');
         setTuitionCodeSearchQuery('');
         setTeacherNumberSearchQuery('');
         setPaymentNumberSearchQuery('');
@@ -301,7 +302,7 @@ const PaymentPage = () => {
                 <Row className="mt-2 mb-3">
                     <Col md={2}>
                         <Form.Label className="fw-bold">Payment Status</Form.Label>
-                        <Form.Select value={statusFilter} onChange={(e) => statusFilter(e.target.value)}>
+                        <Form.Select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
                             <option value="">All</option>
                             <option value="pending payment">Pending Payment</option>
                             <option value="pending due">Pending Due</option>

@@ -257,7 +257,7 @@ const GuardianApplyPage = () => {
                                             <tr key={rowData._id}>
                                                 <td>{index + 1}</td>
                                                 <td>{rowData.name}</td>
-                                                <td>{rowData.appliedDate ? formatDate(rowData.appliedDate) : ''}</td>
+                                                <td>{rowData.appliedAt ? formatDate(rowData.appliedAt) : ''}</td>
                                                 <td>{rowData.phone}</td>
                                                 <td>{rowData.address}</td>
                                                 <td>{rowData.studentClass}</td>

@@ -259,6 +259,7 @@ const GuardianApplyPage = () => {
                                                 <td>{rowData.name}</td>
                                                 <td>{rowData.appliedDate ? formatDate(rowData.appliedDate) : ''}</td>
                                                 <td>{rowData.phone}</td>
+                                                <td>{rowData.address}</td>
                                                 <td>{rowData.studentClass}</td>
                                                 <td>{rowData.teacherGender}</td>
                                                 <td>{rowData.characteristics}</td>

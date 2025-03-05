@@ -17,6 +17,12 @@ const GuardianApplyPage = () => {
     const [numberSearchQuery, setNumberSearchQuery] = useState('');
     const [statusFilter, setStatusFilter] = useState('');
     const [totalApply, setTotalApply] = useState(0);
+    const [totalPending, setTotalPending] = useState(0);
+    const [totalMeetingScheduled, setTotalMeetingScheduled] = useState(0);
+    const [totalConfirmed, setTotalConfirmed] = useState(0);
+    const [totalNotInterested, setTotalNotInterested] = useState(0);
+    const [totalNoResponse, setTotalNoResponse] = useState(0);
+
 
     const [showStatusModal, setShowStatusModal] = useState(false);
     const [selectedRecord, setSelectedRecord] = useState(null);
@@ -54,8 +60,18 @@ const GuardianApplyPage = () => {
             );
         }
         const totalApplyCount = filteredData.length;
+        const totalPending = filteredData.filter(item => item.status === 'pending').length;
+        const totalNoResponse = filteredData.filter(item => item.status === 'called (no response)').length;
+        const totalMeetingScheduled = filteredData.filter(item => item.status === 'meeting scheduled').length;
+        const totalConfirmed = filteredData.filter(item => item.status === 'confirmed').length;
+        const totalNotIntersted = filteredData.filter(item => item.status === 'not interested').length;
 
         setTotalApply(totalApplyCount);
+        setTotalPending(totalPending);
+        setTotalMeetingScheduled(totalMeetingScheduled);
+        setTotalConfirmed(totalConfirmed);
+        setTotalNotInterested(totalNotIntersted);
+        setTotalNoResponse(totalNoResponse);
 
         setFilteredApplyList(filteredData);
     }, [statusFilter, areaSearchQuery, numberSearchQuery, applyList]);
@@ -211,44 +227,43 @@ const GuardianApplyPage = () => {
                             <div className="col-6 col-sm-4 col-md-2 mb-3">
                                 <div className="card p-3 shadow border-primary">
                                     <div className="d-flex flex-column align-items-center">
-                                        <span className="text-primary" style={{ fontWeight: 'bolder' }}>--</span>
-                                        <span>--</span>
+                                        <span className="text-primary" style={{ fontWeight: 'bolder' }}>Total Pending</span>
+                                        <span>{totalPending}</span>
                                     </div>
                                 </div>
                             </div>
                             <div className="col-6 col-sm-4 col-md-2 mb-3">
                                 <div className="card p-3 shadow border-primary">
                                     <div className="d-flex flex-column align-items-center">
-                                        <span className="text-primary" style={{ fontWeight: 'bolder' }}>--</span>
-                                        <span>--</span>
+                                        <span className="text-primary" style={{ fontWeight: 'bolder' }}>Total No Response</span>
+                                        <span>{totalNoResponse}</span>
                                     </div>
                                 </div>
                             </div>
                             <div className="col-6 col-sm-4 col-md-2 mb-3">
                                 <div className="card p-3 shadow border-primary">
                                     <div className="d-flex flex-column align-items-center">
-                                        <span className="text-primary" style={{ fontWeight: 'bolder' }}>--</span>
-                                        <span>--</span>
+                                        <span className="text-primary" style={{ fontWeight: 'bolder' }}>Total Meeting Scheduled</span>
+                                        <span>{totalMeetingScheduled}</span>
                                     </div>
                                 </div>
                             </div>
                             <div className="col-6 col-sm-4 col-md-2 mb-3">
                                 <div className="card p-3 shadow border-primary">
                                     <div className="d-flex flex-column align-items-center">
-                                        <span className="text-primary" style={{ fontWeight: 'bolder' }}>--</span>
-                                        <span>--</span>
+                                        <span className="text-primary" style={{ fontWeight: 'bolder' }}>Total Confirmed</span>
+                                        <span>{totalConfirmed}</span>
                                     </div>
                                 </div>
                             </div>
                             <div className="col-6 col-sm-4 col-md-2 mb-3">
                                 <div className="card p-3 shadow border-primary">
                                     <div className="d-flex flex-column align-items-center">
-                                        <span className="text-primary" style={{ fontWeight: 'bolder' }}>--</span>
-                                        <span>--</span>
+                                        <span className="text-primary" style={{ fontWeight: 'bolder' }}>Total Not Interested</span>
+                                        <span>{totalNotInterested}</span>
                                     </div>
                                 </div>
                             </div>
-
                         </div>
                     </Card.Body>
                 </Card>

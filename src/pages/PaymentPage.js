@@ -368,7 +368,7 @@ const PaymentPage = () => {
 
                 </Row>
 
-                <div className='d-flex align-items-center justify-content-center mb-3'>
+                <div className='d-flex align-items-center justify-content-center'>
                     <h5 className='me-3 d-flex align-items-center'>
                         Due to be paid today: {dueTodayList.length}{' '}
                         <OverlayTrigger

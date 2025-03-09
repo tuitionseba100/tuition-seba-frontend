@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Button, Table, Modal, Form, Row, Col, Card } from 'react-bootstrap';
-import { FaEdit, FaTrashAlt } from 'react-icons/fa';
+import { FaEdit, FaTrashAlt, FaInfoCircle } from 'react-icons/fa';
 import axios from 'axios';
 import NavBarPage from './NavbarPage';
 import styled from 'styled-components';
@@ -8,6 +8,7 @@ import { ToastContainer, toast } from 'react-toastify';
 import { Spinner } from 'react-bootstrap';
 import * as XLSX from 'xlsx';
 import Select from 'react-select';
+import { Tooltip, OverlayTrigger } from 'react-bootstrap';
 
 const PaymentPage = () => {
     const [paymentList, setPaymentList] = useState([]);
@@ -40,6 +41,8 @@ const PaymentPage = () => {
     const [totalPaymentsTodayCount, setTotalPaymentsTodayCount] = useState(0);
     const [totalDues, setTotalDues] = useState(0);
     const [totalDuesCount, setTotalDuesCount] = useState(0);
+    const [dueTodayList, setDueTodayList] = useState([]);
+    const [showDueModal, setShowDueModal] = useState(false);
 
     useEffect(() => {
         fetchPaymentRecords();
@@ -104,12 +107,29 @@ const PaymentPage = () => {
         try {
             const response = await axios.get('https://tuition-seba-backend-1.onrender.com/api/payment/all');
             setPaymentList(response.data);
+            filterDuePayments(response.data);
             setFilteredPaymentList(response.data);
         } catch (err) {
             console.error('Error fetching payment records:', err);
             toast.error("Failed to load payment records.");
         }
         setLoading(false);
+    };
+
+    const filterDuePayments = (payments) => {
+        const today = new Date().toISOString().split('T')[0];
+
+        const dueToday = payments.filter(payment => {
+            if (!payment.duePayDate) return false;
+
+            const dueDateObj = new Date(payment.duePayDate);
+            if (isNaN(dueDateObj.getTime())) return false;
+
+            const dueDate = dueDateObj.toISOString().split('T')[0];
+            return dueDate === today;
+        });
+
+        setDueTodayList(dueToday);
     };
 
     const formatDate = (dateString) => {
@@ -347,6 +367,22 @@ const PaymentPage = () => {
                     </Col>
 
                 </Row>
+
+                <div className='d-flex align-items-center justify-content-center mb-3'>
+                    <h5 className='me-3 d-flex align-items-center'>
+                        Due to be paid today: {dueTodayList.length}{' '}
+                        <OverlayTrigger
+                            placement="top" // Position of the tooltip
+                            overlay={<Tooltip id="tooltip">Click to see details</Tooltip>}
+                        >
+                            <Button size='sm' onClick={() => setShowDueModal(true)} className='ms-2'>
+                                <FaInfoCircle />
+                            </Button>
+                        </OverlayTrigger>
+                    </h5>
+                </div>
+
+
                 <Button variant="success" className="mb-3" onClick={handleExportToExcel}>
                     Export to Excel
                 </Button>
@@ -596,6 +632,41 @@ const PaymentPage = () => {
                         <Button variant="secondary" onClick={() => setShowModal(false)}>Close</Button>
                         <Button variant="primary" onClick={handleSavePayment}>Save</Button>
                     </Modal.Footer>
+                </Modal>
+
+                {/* Due Payments Modal */}
+                <Modal show={showDueModal} onHide={() => setShowDueModal(false)}>
+                    <Modal.Header closeButton>
+                        <Modal.Title>Due Payments Today: {dueTodayList.length}{' '}</Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body>
+                        <Table striped bordered hover>
+                            <thead>
+                                <tr>
+                                    <th>Tuition Code</th>
+                                    <th>Due Tk</th>
+                                    <th>Teacher Name</th>
+                                    <th>Teacher Number</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {dueTodayList.length > 0 ? (
+                                    dueTodayList.map((payment, index) => (
+                                        <tr key={index}>
+                                            <td>{payment.tuitionCode}</td>
+                                            <td>{payment.duePayment}</td>
+                                            <td>{payment.tutorName}</td>
+                                            <td>{payment.tutorNumber}</td>
+                                        </tr>
+                                    ))
+                                ) : (
+                                    <tr>
+                                        <td colSpan='4' className='text-center'>No due payments for today</td>
+                                    </tr>
+                                )}
+                            </tbody>
+                        </Table>
+                    </Modal.Body>
                 </Modal>
 
                 <ToastContainer />

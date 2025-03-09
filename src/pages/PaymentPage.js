@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Button, Table, Modal, Form, Row, Col, Card } from 'react-bootstrap';
-import { FaEdit, FaTrashAlt, FaInfoCircle } from 'react-icons/fa';
+import { FaEdit, FaTrashAlt, FaInfoCircle, FaBell } from 'react-icons/fa';
 import axios from 'axios';
 import NavBarPage from './NavbarPage';
 import styled from 'styled-components';
@@ -635,27 +635,30 @@ const PaymentPage = () => {
                 </Modal>
 
                 {/* Due Payments Modal */}
-                <Modal show={showDueModal} onHide={() => setShowDueModal(false)}>
-                    <Modal.Header closeButton>
-                        <Modal.Title>Due Payments Today: {dueTodayList.length}{' '}</Modal.Title>
+                <Modal show={showDueModal} onHide={() => setShowDueModal(false)} centered size="lg">
+                    <Modal.Header closeButton className="bg-primary text-white">
+                        <Modal.Title className="w-100 text-center fw-bold">
+                            <FaBell className="text-warning" />
+                            <span className="ms-2">Due Payments Today: {dueTodayList.length}</span>
+                        </Modal.Title>
                     </Modal.Header>
-                    <Modal.Body>
-                        <Table striped bordered hover>
-                            <thead>
-                                <tr>
-                                    <th>Tuition Code</th>
-                                    <th>Due Tk</th>
-                                    <th>Teacher Name</th>
-                                    <th>Teacher Number</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {dueTodayList.length > 0 ? (
-                                    dueTodayList.map((payment, index) => (
-                                        <tr key={index}>
+                    <Modal.Body className="p-4 bg-light">
+                        {dueTodayList.length > 0 ? (
+                            <Table responsive striped bordered hover className="shadow-sm">
+                                <thead className="bg-dark text-white text-center">
+                                    <tr>
+                                        <th>Tuition Code</th>
+                                        <th>Due Tk</th>
+                                        <th>Teacher Name</th>
+                                        <th>Teacher Number</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {dueTodayList.map((payment, index) => (
+                                        <tr key={index} className="align-middle text-center">
                                             <td>{payment.tuitionCode}</td>
-                                            <td>{payment.duePayment}</td>
+                                            <td className="fw-bold text-danger">{payment.duePayment}</td>
                                             <td>{payment.tutorName}</td>
                                             <td>{payment.tutorNumber}</td>
                                             <td style={{ display: 'flex', justifyContent: 'flex-start', gap: '8px' }}>
@@ -667,16 +670,17 @@ const PaymentPage = () => {
                                                 </Button>
                                             </td>
                                         </tr>
-                                    ))
-                                ) : (
-                                    <tr>
-                                        <td colSpan='4' className='text-center'>No due payments for today</td>
-                                    </tr>
-                                )}
-                            </tbody>
-                        </Table>
+                                    ))}
+                                </tbody>
+                            </Table>
+                        ) : (
+                            <div className="text-center text-muted py-4">
+                                <h5>No due payments to be paid today</h5>
+                            </div>
+                        )}
                     </Modal.Body>
                 </Modal>
+
 
                 <ToastContainer />
             </Container>

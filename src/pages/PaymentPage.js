@@ -368,14 +368,15 @@ const PaymentPage = () => {
 
                 </Row>
 
-                <div className='d-flex align-items-center justify-content-center'>
-                    <h5 className='me-3 d-flex align-items-center'>
-                        Due to be paid today: {dueTodayList.length}{' '}
+                <div className="d-flex align-items-center justify-content-center">
+                    <h5 className="me-3 d-flex align-items-center gap-2">
+                        <FaBell className="text-primary" />
+                        <span>Due to be paid today: {dueTodayList.length}</span>
                         <OverlayTrigger
-                            placement="top" // Position of the tooltip
+                            placement="top"
                             overlay={<Tooltip id="tooltip">Click to see details</Tooltip>}
                         >
-                            <Button size='sm' onClick={() => setShowDueModal(true)} className='ms-2'>
+                            <Button size="sm" onClick={() => setShowDueModal(true)} className="ms-2">
                                 <FaInfoCircle />
                             </Button>
                         </OverlayTrigger>

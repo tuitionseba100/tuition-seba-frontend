@@ -647,6 +647,7 @@ const PaymentPage = () => {
                                     <th>Due Tk</th>
                                     <th>Teacher Name</th>
                                     <th>Teacher Number</th>
+                                    <th>Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -657,6 +658,14 @@ const PaymentPage = () => {
                                             <td>{payment.duePayment}</td>
                                             <td>{payment.tutorName}</td>
                                             <td>{payment.tutorNumber}</td>
+                                            <td style={{ display: 'flex', justifyContent: 'flex-start', gap: '8px' }}>
+                                                <Button variant="warning" onClick={() => handleEditPayment(payment)} className="mr-2">
+                                                    <FaEdit />
+                                                </Button>
+                                                <Button variant="danger" onClick={() => handleDeletePayment(payment._id)}>
+                                                    <FaTrashAlt />
+                                                </Button>
+                                            </td>
                                         </tr>
                                     ))
                                 ) : (

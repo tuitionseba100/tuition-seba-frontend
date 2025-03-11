@@ -498,10 +498,18 @@ const PaymentPage = () => {
                                         <Form.Label className="fw-bold">Payment Received Date</Form.Label>
                                         <Form.Control
                                             type="datetime-local"
-                                            value={paymentData.paymentReceivedDate ? new Date(new Date(paymentData.paymentReceivedDate).getTime() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16) : ''}
-                                            onChange={(e) => setPaymentData({ ...paymentData, paymentReceivedDate: e.target.value })}
+                                            value={paymentData.paymentReceivedDate
+                                                ? paymentData.paymentReceivedDate.slice(0, 16)
+                                                : ''
+                                            }
+                                            onChange={(e) => {
+                                                const localDate = new Date(e.target.value);
+                                                const utcDate = new Date(localDate.getTime() - localDate.getTimezoneOffset() * 60000);
+                                                setPaymentData({ ...paymentData, paymentReceivedDate: utcDate.toISOString() });
+                                            }}
                                             required
                                         />
+
 
                                     </Form.Group>
                                 </Col>
@@ -604,10 +612,15 @@ const PaymentPage = () => {
                                         <Form.Label className="fw-bold">Due Payment Date</Form.Label>
                                         <Form.Control
                                             type="datetime-local"
-                                            value={paymentData.duePayDate ? new Date(new Date(paymentData.duePayDate).getTime() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16) : ''}
-                                            onChange={(e) => setPaymentData({ ...paymentData, duePayDate: e.target.value })}
+                                            value={paymentData.duePayDate ? paymentData.duePayDate.slice(0, 16) : ''}
+                                            onChange={(e) => {
+                                                const localDate = new Date(e.target.value);
+                                                const utcDate = new Date(localDate.getTime() - localDate.getTimezoneOffset() * 60000);
+                                                setPaymentData({ ...paymentData, duePayDate: utcDate.toISOString() });
+                                            }}
                                             required
                                         />
+
 
                                     </Form.Group>
                                 </Col>

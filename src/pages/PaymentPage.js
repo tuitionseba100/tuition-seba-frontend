@@ -135,7 +135,7 @@ const PaymentPage = () => {
     const formatDate = (dateString) => {
         const date = new Date(dateString);
 
-        const optionsDate = { day: '2-digit', month: 'long', year: 'numeric' };
+        const optionsDate = { day: '2-digit', month: 'long', year: 'numeric', timeZone: 'UTC' };
         const optionsTime = { hour: '2-digit', minute: '2-digit', hour12: true, timeZone: 'UTC' };
 
         const formattedDate = new Intl.DateTimeFormat('en-GB', optionsDate).format(date);

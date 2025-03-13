@@ -411,7 +411,7 @@ const PaymentPage = () => {
                                         <th>Teacher Number</th>
                                         <th>Payment Number</th>
                                         <th>Payment Type</th>
-                                        <th>Received TK</th>
+                                        <th>Last Received TK</th>
                                         <th>Due TK</th>
                                         <th>Total Received TK</th>
                                         <th>Comment</th>

@@ -25,6 +25,7 @@ const PaymentPage = () => {
         paymentNumber: '',
         paymentType: '',
         receivedTk: '',
+        totalReceivedTk: '',
         duePayment: '',
         paymentStatus: '',
         comment: '',
@@ -74,7 +75,7 @@ const PaymentPage = () => {
         }
 
         const totalCount = filteredData.length;
-        const totalTk = filteredData.reduce((sum, payment) => sum + parseFloat(payment.receivedTk || 0), 0);
+        const totalTk = filteredData.reduce((sum, payment) => sum + parseFloat(payment.totalReceivedTk || 0), 0);
         const todayDateString = new Date().toISOString().split('T')[0];
 
         const totalCountToday = filteredData.filter(payment => {
@@ -137,6 +138,7 @@ const PaymentPage = () => {
 
         setDueTodayList(dueToday);
     };
+
 
     const formatDate = (dateString) => {
         const date = new Date(dateString);
@@ -481,7 +483,6 @@ const PaymentPage = () => {
 
                         <Form>
                             <Row>
-
                                 <Col md={6}>
                                     <Form.Group controlId="tuitionId">
                                         <Form.Label className="fw-bold">Tuition Code</Form.Label>
@@ -562,24 +563,23 @@ const PaymentPage = () => {
 
                             <Row>
                                 <Col md={4}>
-                                    <Form.Group controlId="paymentType">
-                                        <Form.Label className="fw-bold">Payment Type</Form.Label>
-                                        <Form.Control
-                                            type="text"
-                                            value={paymentData.paymentType}
-                                            onChange={(e) => setPaymentData({ ...paymentData, paymentType: e.target.value })}
-                                            required
-                                        />
-                                    </Form.Group>
-                                </Col>
-
-                                <Col md={4}>
                                     <Form.Group controlId="receivedTk">
                                         <Form.Label className="fw-bold">Received Tk</Form.Label>
                                         <Form.Control
-                                            type="number"
+                                            type="text"
                                             value={paymentData.receivedTk}
-                                            onChange={(e) => setPaymentData({ ...paymentData, receivedTk: e.target.value })}
+                                            onChange={(e) => {
+                                                setPaymentData({ ...paymentData, receivedTk: e.target.value });
+                                            }}
+                                            onBlur={() => {
+                                                const newReceivedTk = parseFloat(paymentData.receivedTk) || 0;
+                                                const prevTotalReceivedTk = parseFloat(paymentData.totalReceivedTk) || 0;
+
+                                                setPaymentData({
+                                                    ...paymentData,
+                                                    totalReceivedTk: (prevTotalReceivedTk + newReceivedTk).toString(),
+                                                });
+                                            }}
                                             required
                                         />
                                     </Form.Group>
@@ -596,10 +596,33 @@ const PaymentPage = () => {
                                         />
                                     </Form.Group>
                                 </Col>
+
+                                <Col md={4}>
+                                    <Form.Group controlId="totalReceivedTk">
+                                        <Form.Label className="fw-bold">Total Received</Form.Label>
+                                        <Form.Control
+                                            type="text"
+                                            value={paymentData.totalReceivedTk}
+                                            readOnly
+                                        />
+                                    </Form.Group>
+                                </Col>
                             </Row>
 
+
                             <Row>
-                                <Col md={6}>
+                                <Col md={4}>
+                                    <Form.Group controlId="paymentType">
+                                        <Form.Label className="fw-bold">Payment Type</Form.Label>
+                                        <Form.Control
+                                            type="text"
+                                            value={paymentData.paymentType}
+                                            onChange={(e) => setPaymentData({ ...paymentData, paymentType: e.target.value })}
+                                            required
+                                        />
+                                    </Form.Group>
+                                </Col>
+                                <Col md={4}>
                                     <Form.Group controlId="paymentStatus">
                                         <Form.Label className="fw-bold">Payment Status</Form.Label>
                                         <Form.Control

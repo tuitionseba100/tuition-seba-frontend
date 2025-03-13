@@ -88,7 +88,6 @@ const PaymentPage = () => {
         const totalDues = filteredData.reduce((sum, payment) => sum + parseFloat(payment.duePayment || 0), 0);
         const totalDuesCount = filteredData.filter(payment => parseFloat(payment.duePayment || 0) > 0).length;
 
-
         setTotalPaymentsCount(totalCount);
         setTotalPaymentTK(totalTk);
         setTotalPaymentsTodayCount(totalCountToday);
@@ -159,7 +158,7 @@ const PaymentPage = () => {
         const fileName = `Payment List_${formattedDate}_${formattedTime}`;
 
         const tableHeaders = [
-            "Tuition Code", "Status", "Payment Received Date", "Due Payment Date", "Teacher Name", "Teacher Number", "Payment Number", "Payment Type", "Received TK", "Due TK", "Comment"
+            "Tuition Code", "Status", "Payment Received Date", "Due Payment Date", "Teacher Name", "Teacher Number", "Payment Number", "Payment Type", "Received TK", "Due TK", "Total Received TK", "Comment"
         ];
 
         const tableData = filteredPaymentList.map(payment => [
@@ -173,6 +172,7 @@ const PaymentPage = () => {
             String(payment.paymentType ?? ""),
             String(payment.receivedTk ?? ""),
             String(payment.duePayment ?? ""),
+            String(payment.totalReceivedTk ?? ""),
             String(payment.comment ?? ""),
         ]);
 
@@ -413,6 +413,7 @@ const PaymentPage = () => {
                                         <th>Payment Type</th>
                                         <th>Received TK</th>
                                         <th>Due TK</th>
+                                        <th>Total Received TK</th>
                                         <th>Comment</th>
                                         <th>Actions</th>
                                     </tr>
@@ -450,6 +451,7 @@ const PaymentPage = () => {
                                                 <td>{payment.paymentType}</td>
                                                 <td>{payment.receivedTk}</td>
                                                 <td>{payment.duePayment}</td>
+                                                <td>{payment.totalReceivedTk}</td>
                                                 <td>{payment.comment}</td>
                                                 <td style={{ display: 'flex', justifyContent: 'flex-start', gap: '8px' }}>
                                                     <Button variant="warning" onClick={() => handleEditPayment(payment)} className="mr-2">

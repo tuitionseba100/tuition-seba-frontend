@@ -568,18 +568,7 @@ const PaymentPage = () => {
                                         <Form.Control
                                             type="text"
                                             value={paymentData.receivedTk}
-                                            onChange={(e) => {
-                                                setPaymentData({ ...paymentData, receivedTk: e.target.value });
-                                            }}
-                                            onBlur={() => {
-                                                const newReceivedTk = parseFloat(paymentData.receivedTk) || 0;
-                                                const prevTotalReceivedTk = parseFloat(paymentData.totalReceivedTk) || 0;
-
-                                                setPaymentData({
-                                                    ...paymentData,
-                                                    totalReceivedTk: (prevTotalReceivedTk + newReceivedTk).toString(),
-                                                });
-                                            }}
+                                            onChange={(e) => setPaymentData({ ...paymentData, receivedTk: e.target.value })}
                                             required
                                         />
                                     </Form.Group>
@@ -603,6 +592,7 @@ const PaymentPage = () => {
                                         <Form.Control
                                             type="text"
                                             value={paymentData.totalReceivedTk}
+                                            onChange={(e) => setPaymentData({ ...paymentData, totalReceivedTk: e.target.value })}
                                             required
                                         />
                                     </Form.Group>

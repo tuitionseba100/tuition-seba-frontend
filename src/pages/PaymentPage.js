@@ -603,7 +603,7 @@ const PaymentPage = () => {
                                         <Form.Control
                                             type="text"
                                             value={paymentData.totalReceivedTk}
-                                            readOnly
+                                            required
                                         />
                                     </Form.Group>
                                 </Col>

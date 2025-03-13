@@ -513,16 +513,19 @@ const PaymentPage = () => {
                                                 : ''
                                             }
                                             onChange={(e) => {
-                                                const localDate = new Date(e.target.value);
-                                                const utcDate = new Date(localDate.getTime() - localDate.getTimezoneOffset() * 60000);
-                                                setPaymentData({ ...paymentData, paymentReceivedDate: utcDate.toISOString() });
+                                                if (!e.target.value) {
+                                                    setPaymentData({ ...paymentData, paymentReceivedDate: '' });
+                                                } else {
+                                                    const localDate = new Date(e.target.value);
+                                                    const utcDate = new Date(localDate.getTime() - localDate.getTimezoneOffset() * 60000);
+                                                    setPaymentData({ ...paymentData, paymentReceivedDate: utcDate.toISOString() });
+                                                }
                                             }}
                                             required
                                         />
-
-
                                     </Form.Group>
                                 </Col>
+
                             </Row>
 
                             <Row>

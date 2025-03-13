@@ -75,8 +75,15 @@ const PaymentPage = () => {
 
         const totalCount = filteredData.length;
         const totalTk = filteredData.reduce((sum, payment) => sum + parseFloat(payment.receivedTk || 0), 0);
-        const totalCountToday = filteredData.filter(payment => new Date(payment.paymentReceivedDate).toDateString() === new Date().toDateString()).length;
-        const totalTkToday = filteredData.filter(payment => new Date(payment.paymentReceivedDate).toDateString() === new Date().toDateString())
+        const todayDateString = new Date().toISOString().split('T')[0];
+
+        const totalCountToday = filteredData.filter(payment => {
+            const paymentDateString = new Date(payment.paymentReceivedDate).toISOString().split('T')[0];
+            return paymentDateString === todayDateString;
+        }).length;
+
+        const totalTkToday = filteredData
+            .filter(payment => new Date(payment.paymentReceivedDate).toISOString().split('T')[0] === todayDateString)
             .reduce((sum, payment) => sum + parseFloat(payment.receivedTk || 0), 0);
         const totalDues = filteredData.reduce((sum, payment) => sum + parseFloat(payment.duePayment || 0), 0);
         const totalDuesCount = filteredData.filter(payment => parseFloat(payment.duePayment || 0) > 0).length;

@@ -629,6 +629,7 @@ const PaymentPage = () => {
                                         </Form.Control>
                                     </Form.Group>
                                 </Col>
+
                                 <Col md={4}>
                                     <Form.Group controlId="duePayDate">
                                         <Form.Label className="fw-bold">Due Payment Date</Form.Label>
@@ -636,16 +637,19 @@ const PaymentPage = () => {
                                             type="datetime-local"
                                             value={paymentData.duePayDate ? paymentData.duePayDate.slice(0, 16) : ''}
                                             onChange={(e) => {
-                                                const localDate = new Date(e.target.value);
-                                                const utcDate = new Date(localDate.getTime() - localDate.getTimezoneOffset() * 60000);
-                                                setPaymentData({ ...paymentData, duePayDate: utcDate.toISOString() });
+                                                if (!e.target.value) {
+                                                    setPaymentData({ ...paymentData, duePayDate: '' });
+                                                } else {
+                                                    const localDate = new Date(e.target.value);
+                                                    const utcDate = new Date(localDate.getTime() - localDate.getTimezoneOffset() * 60000);
+                                                    setPaymentData({ ...paymentData, duePayDate: utcDate.toISOString() });
+                                                }
                                             }}
                                             required
                                         />
-
-
                                     </Form.Group>
                                 </Col>
+
                             </Row>
                             <Row>
                                 <Col md={4}>

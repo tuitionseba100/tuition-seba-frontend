@@ -295,7 +295,7 @@ const TaskPage = () => {
                                                     <span
                                                         className={`badge 
                                                             ${task.status === "pending" ? "bg-danger" : ""}  
-                                                            ${task.task === "completed" ? "bg-success" : ""}
+                                                            ${task.status === "completed" ? "bg-success" : ""}
                                                             `}
                                                     >
                                                         {task.status}

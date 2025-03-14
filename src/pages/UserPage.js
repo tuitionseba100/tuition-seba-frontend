@@ -11,13 +11,12 @@ const UserPage = () => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const [showModal, setShowModal] = useState(false);
-    const [newUser, setNewUser] = useState({ username: '', password: '', role: 'admin' });
+    const [newUser, setNewUser] = useState({ username: '', password: '', name: '', role: 'admin' });
 
     useEffect(() => {
         fetchUsers();
     }, []);
 
-    // Fetch users with error handling
     const fetchUsers = async () => {
         setLoading(true);
         setError(null);
@@ -26,24 +25,23 @@ const UserPage = () => {
             setUserList(response.data);
         } catch (err) {
             setError('Error fetching users');
-            toast.error('Error fetching users'); // Toastify error
+            toast.error('Error fetching users');
             console.error('Error fetching users:', err);
         } finally {
             setLoading(false);
         }
     };
 
-    // Handle deleting user
     const handleDeleteUser = async (id) => {
         setLoading(true);
         setError(null);
         try {
             await axios.delete(`https://tuition-seba-backend-1.onrender.com/api/user/delete/${id}`);
-            fetchUsers(); // Refresh the user list after deleting
-            toast.success('User deleted successfully'); // Toastify success
+            fetchUsers();
+            toast.success('User deleted successfully');
         } catch (err) {
             setError('Error deleting user');
-            toast.error('Error deleting user'); // Toastify error
+            toast.error('Error deleting user');
             console.error('Error deleting user:', err);
         } finally {
             setLoading(false);
@@ -56,7 +54,7 @@ const UserPage = () => {
 
     const handleCloseModal = () => {
         setShowModal(false);
-        setNewUser({ username: '', password: '', role: 'admin' });
+        setNewUser({ username: '', password: '', name: '', role: 'admin' });
     };
 
     const handleInputChange = (e) => {
@@ -98,6 +96,7 @@ const UserPage = () => {
                     <thead className="table-primary">
                         <tr>
                             <th>Username</th>
+                            <th>Name</th>
                             <th>Status</th>
                             <th>Password</th>
                             <th>Role</th>
@@ -108,6 +107,7 @@ const UserPage = () => {
                         {userList.map((user) => (
                             <tr key={user._id}>
                                 <td>{user.username}</td>
+                                <td>{user.name}</td>
                                 <td>{user.status}</td>
                                 <td>{user.password}</td>
                                 <td>{user.role}</td>
@@ -135,6 +135,18 @@ const UserPage = () => {
                                     placeholder="Enter username"
                                     name="username"
                                     value={newUser.username}
+                                    onChange={handleInputChange}
+                                    className="rounded-pill"
+                                />
+                            </Form.Group>
+
+                            <Form.Group controlId="formName">
+                                <Form.Label>Name</Form.Label>
+                                <Form.Control
+                                    type="text"
+                                    placeholder="Enter name"
+                                    name="name"
+                                    value={newUser.name}
                                     onChange={handleInputChange}
                                     className="rounded-pill"
                                 />

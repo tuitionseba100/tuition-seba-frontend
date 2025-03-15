@@ -81,26 +81,34 @@ const AttendancePage = () => {
                         </tr>
                     </thead>
                     <tbody>
-                        {attendance.map((entry) => (
-                            <tr key={entry._id}>
-                                <td>{entry.userName}</td>
-                                <td>{entry.name}</td>
-                                <td>{new Date(entry.startTime).toLocaleString()}</td>
-                                <td>{entry.endTime ? new Date(entry.endTime).toLocaleString() : 'Running'}</td>
-                                <td>{entry.duration || 'N/A'}</td>
-                                {localStorage.getItem('role') === 'superadmin' && (
-                                    <td>
-                                        <Button
-                                            variant="danger"
-                                            size="sm"
-                                            onClick={() => deleteAttendance(entry._id)}
-                                        >
-                                            Delete
-                                        </Button>
-                                    </td>
-                                )}
+                        {attendance.length === 0 ? (
+                            <tr>
+                                <td colSpan={localStorage.getItem('role') === 'superadmin' ? 6 : 5} className="text-center">
+                                    No attendance record found
+                                </td>
                             </tr>
-                        ))}
+                        ) : (
+                            attendance.map((entry) => (
+                                <tr key={entry._id}>
+                                    <td>{entry.userName}</td>
+                                    <td>{entry.name}</td>
+                                    <td>{new Date(entry.startTime).toLocaleString()}</td>
+                                    <td>{entry.endTime ? new Date(entry.endTime).toLocaleString() : 'Running'}</td>
+                                    <td>{entry.duration || 'N/A'}</td>
+                                    {localStorage.getItem('role') === 'superadmin' && (
+                                        <td>
+                                            <Button
+                                                variant="danger"
+                                                size="sm"
+                                                onClick={() => deleteAttendance(entry._id)}
+                                            >
+                                                Delete
+                                            </Button>
+                                        </td>
+                                    )}
+                                </tr>
+                            ))
+                        )}
                     </tbody>
                 </Table>
 

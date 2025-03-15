@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Button, Table, Modal, Form } from 'react-bootstrap';
-import { FaTrashAlt } from 'react-icons/fa';
+import { FaTrashAlt, FaEdit } from 'react-icons/fa';
 import axios from 'axios';
 import NavBarPage from './NavbarPage';
-import styled from 'styled-components';
 import { ToastContainer, toast } from 'react-toastify';
 
 const UserPage = () => {
@@ -12,6 +11,7 @@ const UserPage = () => {
     const [error, setError] = useState(null);
     const [showModal, setShowModal] = useState(false);
     const [newUser, setNewUser] = useState({ username: '', password: '', name: '', role: 'admin' });
+    const [editingUser, setEditingUser] = useState(null);
 
     useEffect(() => {
         fetchUsers();
@@ -48,13 +48,21 @@ const UserPage = () => {
         }
     };
 
-    const handleOpenModal = () => {
+    const handleOpenModal = (user = null) => {
+        if (user) {
+            setEditingUser(user);
+            setNewUser({ username: user.username, password: user.password, name: user.name, role: user.role });
+        } else {
+            setEditingUser(null);
+            setNewUser({ username: '', password: '', name: '', role: 'admin' });
+        }
         setShowModal(true);
     };
 
     const handleCloseModal = () => {
         setShowModal(false);
         setNewUser({ username: '', password: '', name: '', role: 'admin' });
+        setEditingUser(null);
     };
 
     const handleInputChange = (e) => {
@@ -66,15 +74,21 @@ const UserPage = () => {
         setLoading(true);
         setError(null);
         try {
-            console.log(newUser);
-            await axios.post('https://tuition-seba-backend-1.onrender.com/api/user/register', newUser);
+            if (editingUser) {
+
+                await axios.put(`https://tuition-seba-backend-1.onrender.com/api/user/edit/${editingUser._id}`, newUser);
+                toast.success('User updated successfully');
+            } else {
+
+                await axios.post('https://tuition-seba-backend-1.onrender.com/api/user/register', newUser);
+                toast.success('User added successfully');
+            }
             fetchUsers();
             handleCloseModal();
-            toast.success('User added successfully');
         } catch (err) {
-            setError('Error adding user');
-            toast.error('Error adding user');
-            console.error('Error adding user:', err);
+            setError('Error saving user');
+            toast.error('Error saving user');
+            console.error('Error saving user:', err);
         } finally {
             setLoading(false);
         }
@@ -86,10 +100,9 @@ const UserPage = () => {
                 <NavBarPage />
             </header>
             <div className="container-fluid p-4" style={{ backgroundColor: '#f8f9fa' }}>
-
                 <div className="d-flex justify-content-between align-items-center">
                     <h2 className="mb-4">User List</h2>
-                    <Button variant="primary" onClick={handleOpenModal} className="btn btn-primary">Add New User</Button>
+                    <Button variant="primary" onClick={() => handleOpenModal()} className="btn btn-primary">Add New User</Button>
                 </div>
                 {loading && <p>Loading...</p>}
                 <Table striped bordered hover responsive className="mt-4">
@@ -111,9 +124,12 @@ const UserPage = () => {
                                 <td>{user.status}</td>
                                 <td>{user.password}</td>
                                 <td>{user.role}</td>
-                                <td>
+                                <td style={{ display: 'flex', justifyContent: 'flex-start', gap: '8px' }}>
                                     <Button variant="danger" onClick={() => handleDeleteUser(user._id)}>
                                         <FaTrashAlt />
+                                    </Button>
+                                    <Button variant="warning" onClick={() => handleOpenModal(user)} className="ml-2">
+                                        <FaEdit />
                                     </Button>
                                 </td>
                             </tr>
@@ -121,10 +137,10 @@ const UserPage = () => {
                     </tbody>
                 </Table>
 
-                {/* Modal for adding new user */}
+                {/* Modal for adding/editing user */}
                 <Modal show={showModal} onHide={handleCloseModal}>
                     <Modal.Header closeButton>
-                        <Modal.Title>Add New User</Modal.Title>
+                        <Modal.Title>{editingUser ? 'Edit User' : 'Add New User'}</Modal.Title>
                     </Modal.Header>
                     <Modal.Body>
                         <Form>
@@ -164,7 +180,6 @@ const UserPage = () => {
                                 />
                             </Form.Group>
 
-                            {/* Role dropdown */}
                             <Form.Group controlId="formRole" className="mt-3">
                                 <Form.Label>Role</Form.Label>
                                 <Form.Control
@@ -185,7 +200,7 @@ const UserPage = () => {
                             Close
                         </Button>
                         <Button variant="primary" onClick={handleSaveUser} className="rounded-pill">
-                            Save User
+                            {editingUser ? 'Update User' : 'Save User'}
                         </Button>
                     </Modal.Footer>
                 </Modal>

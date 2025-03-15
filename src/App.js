@@ -8,6 +8,7 @@ import PrivateRoute from './pages/PrivateRoute'; // Import PrivateRoute
 import 'bootstrap/dist/css/bootstrap.min.css';
 import GuardianApplyPage from './pages/guardianApplyPage';
 import TaskPage from './pages/TaskPage';
+import AttendancePage from './pages/AttendancePage';
 
 const App = () => {
   return (
@@ -24,6 +25,7 @@ const App = () => {
             <Route path="/user" element={<UserPage />} />
           </Route>
           <Route path="/task" element={<TaskPage />} />
+          <Route path="/attendance" element={<AttendancePage />} />
         </Route>
       </Routes>
     </Router>

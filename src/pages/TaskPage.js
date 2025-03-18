@@ -27,6 +27,7 @@ const TaskPage = () => {
     const [loading, setLoading] = useState(false);
     const [tuitionList, setTuitionList] = useState([]);
     const [userList, setUserList] = useState([]);
+    const token = localStorage.getItem('token');
 
     useEffect(() => {
         fetchTaskRecords();
@@ -58,7 +59,10 @@ const TaskPage = () => {
     const fetchTaskRecords = async () => {
         setLoading(true);
         try {
-            const response = await axios.get('https://tuition-seba-backend-1.onrender.com/api/taskData/all');
+            console.log(token);
+            const response = await axios.get('http://localhost:5000/api/taskData/all', {
+                headers: { Authorization: token },
+            });
             setTaskList(response.data);
             setFilteredTaskList(response.data);
         } catch (err) {

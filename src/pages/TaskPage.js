@@ -60,7 +60,7 @@ const TaskPage = () => {
         setLoading(true);
         try {
             console.log(token);
-            const response = await axios.get('http://localhost:5000/api/taskData/all', {
+            const response = await axios.get('https://tuition-seba-backend-1.onrender.com/api/taskData/all', {
                 headers: { Authorization: token },
             });
             setTaskList(response.data);

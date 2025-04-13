@@ -569,7 +569,7 @@ const PaymentPage = () => {
                                     <Form.Group controlId="receivedTk">
                                         <Form.Label className="fw-bold">Received Tk</Form.Label>
                                         <Form.Control
-                                            type="text"
+                                            type="number"
                                             value={paymentData.receivedTk}
                                             onChange={(e) => setPaymentData({ ...paymentData, receivedTk: e.target.value })}
                                             required
@@ -581,7 +581,7 @@ const PaymentPage = () => {
                                     <Form.Group controlId="duePayment">
                                         <Form.Label className="fw-bold">Due Payment</Form.Label>
                                         <Form.Control
-                                            type="text"
+                                            type="number"
                                             value={paymentData.duePayment}
                                             onChange={(e) => setPaymentData({ ...paymentData, duePayment: e.target.value })}
                                             required
@@ -593,7 +593,7 @@ const PaymentPage = () => {
                                     <Form.Group controlId="totalReceivedTk">
                                         <Form.Label className="fw-bold">Total Received</Form.Label>
                                         <Form.Control
-                                            type="text"
+                                            type="number"
                                             value={paymentData.totalReceivedTk}
                                             onChange={(e) => setPaymentData({ ...paymentData, totalReceivedTk: e.target.value })}
                                             required

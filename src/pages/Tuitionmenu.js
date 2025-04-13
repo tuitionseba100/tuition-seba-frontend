@@ -429,7 +429,7 @@ const TuitionPage = () => {
                                     <tr>
                                         <th>SL</th>
                                         <th>Tuition Code</th>
-                                        <th>Pulished?</th>
+                                        <th>Published?</th>
                                         <th>Status</th>
                                         <th>Teacher</th>
                                         <th>Student</th>

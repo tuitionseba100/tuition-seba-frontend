@@ -9,6 +9,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import GuardianApplyPage from './pages/guardianApplyPage';
 import TaskPage from './pages/TaskPage';
 import AttendancePage from './pages/AttendancePage';
+import TuitionApply from './pages/TuitionApplyPage';
 
 const App = () => {
   return (
@@ -26,6 +27,7 @@ const App = () => {
           </Route>
           <Route path="/task" element={<TaskPage />} />
           <Route path="/attendance" element={<AttendancePage />} />
+          <Route path="/tuitionApply" element={<TuitionApply />} />
         </Route>
       </Routes>
     </Router>

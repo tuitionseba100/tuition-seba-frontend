@@ -23,7 +23,6 @@ const GuardianApplyPage = () => {
     const [totalNotInterested, setTotalNotInterested] = useState(0);
     const [totalNoResponse, setTotalNoResponse] = useState(0);
 
-
     const [showStatusModal, setShowStatusModal] = useState(false);
     const [selectedRecord, setSelectedRecord] = useState(null);
     const [newStatus, setNewStatus] = useState('');

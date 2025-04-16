@@ -22,7 +22,8 @@ const TuitionPage = () => {
         institute: '',
         department: '',
         address: '',
-        comment: ''
+        comment: '',
+        commentForTeacher: ''
     });
     const [tuitionCodeSearchQuery, setTuitionCodeSearchQuery] = useState('');
     const [phoneSearchQuery, setPhoneSearchQuery] = useState('');
@@ -121,7 +122,7 @@ const TuitionPage = () => {
 
         const tableHeaders = [
             "Tuition Code", "Name", "Phone", "Institute", "Department", "Address",
-            "Status", "Comment", "Applied At"
+            "Status", "Comment", "Applied At", "Comment For Teacher"
         ];
 
         const tableData = filteredTuitionList.map(tuition => [
@@ -133,7 +134,8 @@ const TuitionPage = () => {
             String(tuition.address ?? ""),
             String(tuition.status ?? ""),
             String(tuition.comment ?? ""),
-            String(tuition.appliedAt ?? "")
+            String(tuition.appliedAt ?? ""),
+            String(tuition.commentForTeacher ?? "")
         ]);
 
         const worksheet = XLSX.utils.aoa_to_sheet([tableHeaders, ...tableData]);
@@ -230,7 +232,7 @@ const TuitionPage = () => {
 
                 <Header>
                     <h2 className='text-primary fw-bold'>Tuition Applications</h2>
-                    <Button variant="primary" onClick={() => { setShowModal(true); setEditingId(null); setTuitionData({ tuitionCode: '', name: '', phone: '', institute: '', department: '', address: '', status: '', comment: '' }) }}>
+                    <Button variant="primary" onClick={() => { setShowModal(true); setEditingId(null); setTuitionData({ tuitionCode: '', name: '', phone: '', institute: '', department: '', address: '', status: '', comment: '', commentForTeacher: '' }) }}>
                         Create Tuition Apply
                     </Button>
                 </Header>
@@ -368,6 +370,7 @@ const TuitionPage = () => {
                                         <th>Department</th>
                                         <th>Address</th>
                                         <th>Comment</th>
+                                        <th>Comment For Teacher</th>
                                         <th>Actions</th>
                                     </tr>
                                 </thead>
@@ -412,6 +415,7 @@ const TuitionPage = () => {
                                                 <td>{tuition.department}</td>
                                                 <td>{tuition.address}</td>
                                                 <td>{tuition.comment}</td>
+                                                <td>{tuition.commentForTeacher}</td>
                                                 <td style={{ display: 'flex', justifyContent: 'flex-start', gap: '8px' }}>
                                                     <Button variant="warning" onClick={() => handleEditTuition(tuition)} className="mr-2">
                                                         <FaEdit />
@@ -548,13 +552,24 @@ const TuitionPage = () => {
                             </Row>
 
                             <Row>
-                                <Col md={12}>
+                                <Col md={6}>
                                     <Form.Group controlId="comment">
                                         <Form.Label className="fw-bold">Comment</Form.Label>
                                         <Form.Control
                                             type="text"
                                             value={tuitionData.comment}
                                             onChange={(e) => setTuitionData({ ...tuitionData, comment: e.target.value })}
+                                            required
+                                        />
+                                    </Form.Group>
+                                </Col>
+                                <Col md={6}>
+                                    <Form.Group controlId="commentForTeacher">
+                                        <Form.Label className="fw-bold">Comment For Teacher</Form.Label>
+                                        <Form.Control
+                                            type="text"
+                                            value={tuitionData.commentForTeacher}
+                                            onChange={(e) => setTuitionData({ ...tuitionData, commentForTeacher: e.target.value })}
                                             required
                                         />
                                     </Form.Group>

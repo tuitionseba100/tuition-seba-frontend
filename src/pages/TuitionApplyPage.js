@@ -32,11 +32,11 @@ const TuitionPage = () => {
     const [statusFilter, setStatusFilter] = useState('');
     const [statusCounts, setStatusCounts] = useState({
         pending: 0,
+        calledInterested: 0,
         calledNoResponse: 0,
-        guardianMeet: 0,
-        demoClassRunning: 0,
-        assigned: 0,
-        cancel: 0
+        refertoBM: 0,
+        shortlisted: 0,
+        requestedForPayment: 0
     });
 
     useEffect(() => {
@@ -71,7 +71,7 @@ const TuitionPage = () => {
             if (tuition.status === 'pending') counts.pending++;
             if (tuition.status === 'called (interested)') counts.calledInterested++;
             if (tuition.status === 'called (no response)') counts.calledNoResponse++;
-            if (tuition.status === 'cancelled') counts.cancelled++;
+            if (tuition.status === 'refer to bm') counts.refertoBM++;
             if (tuition.status === 'shortlisted') counts.shortlisted++;
             if (tuition.status === 'requested for payment') counts.requestedForPayment++;
             return counts;
@@ -79,7 +79,7 @@ const TuitionPage = () => {
             pending: 0,
             calledInterested: 0,
             calledNoResponse: 0,
-            cancelled: 0,
+            refertoBM: 0,
             shortlisted: 0,
             requestedForPayment: 0
         });
@@ -238,6 +238,14 @@ const TuitionPage = () => {
                     <Card.Body>
                         <div className="row text-center">
                             <div className="col-6 col-sm-4 col-md-2 mb-3">
+                                <div className="card p-3 shadow border-dark">
+                                    <div className="d-flex flex-column align-items-center">
+                                        <span className="text-dark" style={{ fontWeight: 'bolder' }}>Total Applied</span>
+                                        <span>{filteredTuitionList.length}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="col-6 col-sm-4 col-md-2 mb-3">
                                 <div className="card p-3 shadow border-primary">
                                     <div className="d-flex flex-column align-items-center">
                                         <span className="text-primary" style={{ fontWeight: 'bolder' }}>Pending</span>
@@ -245,14 +253,7 @@ const TuitionPage = () => {
                                     </div>
                                 </div>
                             </div>
-                            <div className="col-6 col-sm-4 col-md-2 mb-3">
-                                <div className="card p-3 shadow border-primary">
-                                    <div className="d-flex flex-column align-items-center">
-                                        <span className="text-primary" style={{ fontWeight: 'bolder' }}>Called (Interested)</span>
-                                        <span>{statusCounts.calledInterested}</span>
-                                    </div>
-                                </div>
-                            </div>
+
                             <div className="col-6 col-sm-4 col-md-2 mb-3">
                                 <div className="card p-3 shadow border-primary">
                                     <div className="d-flex flex-column align-items-center">
@@ -261,14 +262,7 @@ const TuitionPage = () => {
                                     </div>
                                 </div>
                             </div>
-                            <div className="col-6 col-sm-4 col-md-2 mb-3">
-                                <div className="card p-3 shadow border-primary">
-                                    <div className="d-flex flex-column align-items-center">
-                                        <span className="text-primary" style={{ fontWeight: 'bolder' }}>Cancelled</span>
-                                        <span>{statusCounts.cancelled}</span>
-                                    </div>
-                                </div>
-                            </div>
+
                             <div className="col-6 col-sm-4 col-md-2 mb-3">
                                 <div className="card p-3 shadow border-primary">
                                     <div className="d-flex flex-column align-items-center">
@@ -285,9 +279,18 @@ const TuitionPage = () => {
                                     </div>
                                 </div>
                             </div>
+                            <div className="col-6 col-sm-4 col-md-2 mb-3">
+                                <div className="card p-3 shadow border-primary">
+                                    <div className="d-flex flex-column align-items-center">
+                                        <span className="text-primary" style={{ fontWeight: 'bolder' }}>Referred To BM</span>
+                                        <span>{statusCounts.refertoBM}</span>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </Card.Body>
                 </Card>
+
 
                 {/* Search bar */}
                 <Row className="mt-2 mb-3">
@@ -328,7 +331,7 @@ const TuitionPage = () => {
                             <option value="pending">Pending</option>
                             <option value="called (interested)">Called (Interested)</option>
                             <option value="called (no response)">Called (No Response)</option>
-                            <option value="cancelled">Cancelled</option>
+                            <option value="cancel">Cancelled</option>
                             <option value="shortlisted">Shortlisted</option>
                             <option value="requested for payment">Requested for Payment</option>
                             <option value="meeting at office">Meeting at Office</option>
@@ -388,7 +391,7 @@ const TuitionPage = () => {
                                                                 ${tuition.status === "pending" ? "bg-success" :
                                                                 tuition.status === "called (no response)" ? "bg-primary" :
                                                                     tuition.status === "called (interested)" ? "bg-info" :
-                                                                        tuition.status === "cancelled" ? "bg-danger" :
+                                                                        tuition.status === "cancel" ? "bg-danger" :
                                                                             tuition.status === "shortlisted" ? "bg-secondary" :
                                                                                 tuition.status === "requested for payment" ? "bg-warning text-dark" :
                                                                                     tuition.status === "meeting at office" ? "bg-dark" :
@@ -534,7 +537,7 @@ const TuitionPage = () => {
                                             <option value="called (no response)">Called (No Response)</option>
                                             <option value="cancel">Cancelled</option>
                                             <option value="shortlisted">Shortlisted</option>
-                                            <option value="request to payment">Requested for Payment</option>
+                                            <option value="requested for payment">Requested for Payment</option>
                                             <option value="meet to office">Meeting at Office</option>
                                             <option value="selected">Selected</option>
                                             <option value="refer to bm">Refer to BM</option>

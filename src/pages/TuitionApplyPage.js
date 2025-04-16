@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Button, Table, Modal, Form, Row, Col, Card } from 'react-bootstrap';
-import { FaEdit, FaTrashAlt, FaWhatsapp } from 'react-icons/fa'; // React Icons
+import { FaEdit, FaTrashAlt } from 'react-icons/fa'; // React Icons
 import axios from 'axios';
 import NavBarPage from './NavbarPage';
 import styled from 'styled-components';
@@ -69,13 +69,20 @@ const TuitionPage = () => {
 
         const statusCounts = filteredData.reduce((counts, tuition) => {
             if (tuition.status === 'pending') counts.pending++;
+            if (tuition.status === 'called (interested)') counts.calledInterested++;
             if (tuition.status === 'called (no response)') counts.calledNoResponse++;
-            if (tuition.status === 'guardian meet') counts.guardianMeet++;
-            if (tuition.status === 'demo class running') counts.demoClassRunning++;
-            if (tuition.status === 'assigned') counts.assigned++;
-            if (tuition.status === 'cancel') counts.cancel++;
+            if (tuition.status === 'cancelled') counts.cancelled++;
+            if (tuition.status === 'shortlisted') counts.shortlisted++;
+            if (tuition.status === 'requested for payment') counts.requestedForPayment++;
             return counts;
-        }, { pending: 0, calledNoResponse: 0, guardianMeet: 0, demoClassRunning: 0, assigned: 0, cancel: 0 });
+        }, {
+            pending: 0,
+            calledInterested: 0,
+            calledNoResponse: 0,
+            cancelled: 0,
+            shortlisted: 0,
+            requestedForPayment: 0
+        });
 
         setStatusCounts(statusCounts);
 
@@ -241,6 +248,14 @@ const TuitionPage = () => {
                             <div className="col-6 col-sm-4 col-md-2 mb-3">
                                 <div className="card p-3 shadow border-primary">
                                     <div className="d-flex flex-column align-items-center">
+                                        <span className="text-primary" style={{ fontWeight: 'bolder' }}>Called (Interested)</span>
+                                        <span>{statusCounts.calledInterested}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="col-6 col-sm-4 col-md-2 mb-3">
+                                <div className="card p-3 shadow border-primary">
+                                    <div className="d-flex flex-column align-items-center">
                                         <span className="text-primary" style={{ fontWeight: 'bolder' }}>Called (No Response)</span>
                                         <span>{statusCounts.calledNoResponse}</span>
                                     </div>
@@ -249,36 +264,27 @@ const TuitionPage = () => {
                             <div className="col-6 col-sm-4 col-md-2 mb-3">
                                 <div className="card p-3 shadow border-primary">
                                     <div className="d-flex flex-column align-items-center">
-                                        <span className="text-primary" style={{ fontWeight: 'bolder' }}>Guardian Meet</span>
-                                        <span>{statusCounts.guardianMeet}</span>
+                                        <span className="text-primary" style={{ fontWeight: 'bolder' }}>Cancelled</span>
+                                        <span>{statusCounts.cancelled}</span>
                                     </div>
                                 </div>
                             </div>
                             <div className="col-6 col-sm-4 col-md-2 mb-3">
                                 <div className="card p-3 shadow border-primary">
                                     <div className="d-flex flex-column align-items-center">
-                                        <span className="text-primary" style={{ fontWeight: 'bolder' }}>Demo Class Running</span>
-                                        <span>{statusCounts.demoClassRunning}</span>
+                                        <span className="text-primary" style={{ fontWeight: 'bolder' }}>Shortlisted</span>
+                                        <span>{statusCounts.shortlisted}</span>
                                     </div>
                                 </div>
                             </div>
                             <div className="col-6 col-sm-4 col-md-2 mb-3">
                                 <div className="card p-3 shadow border-primary">
                                     <div className="d-flex flex-column align-items-center">
-                                        <span className="text-primary" style={{ fontWeight: 'bolder' }}>Assigned</span>
-                                        <span>{statusCounts.assigned}</span>
+                                        <span className="text-primary" style={{ fontWeight: 'bolder' }}>Requested for Payment</span>
+                                        <span>{statusCounts.requestedForPayment}</span>
                                     </div>
                                 </div>
                             </div>
-                            <div className="col-6 col-sm-4 col-md-2 mb-3">
-                                <div className="card p-3 shadow border-primary">
-                                    <div className="d-flex flex-column align-items-center">
-                                        <span className="text-primary" style={{ fontWeight: 'bolder' }}>Cancel</span>
-                                        <span>{statusCounts.cancel}</span>
-                                    </div>
-                                </div>
-                            </div>
-
                         </div>
                     </Card.Body>
                 </Card>
@@ -320,16 +326,16 @@ const TuitionPage = () => {
                         <Form.Select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
                             <option value="">All</option>
                             <option value="pending">Pending</option>
-                            <option value="called (no response)">Called (No Response)</option>
                             <option value="called (interested)">Called (Interested)</option>
-                            <option value="guardian meet">Guardian Meet</option>
-                            <option value="demo class running">Demo Class Running</option>
-                            <option value="assigned">Assigned</option>
-                            <option value="confirm">Confirm</option>
-                            <option value="cancel">Cancelled</option>
+                            <option value="called (no response)">Called (No Response)</option>
+                            <option value="cancelled">Cancelled</option>
+                            <option value="shortlisted">Shortlisted</option>
+                            <option value="requested for payment">Requested for Payment</option>
+                            <option value="meeting at office">Meeting at Office</option>
+                            <option value="selected">Selected</option>
+                            <option value="refer to bm">Refer to BM</option>
                         </Form.Select>
                     </Col>
-
 
                     <Col md={1} className="d-flex align-items-end">
                         <Button variant="danger" onClick={handleResetFilters} className="w-100">
@@ -379,20 +385,23 @@ const TuitionPage = () => {
                                                 <td>
                                                     <span
                                                         className={`badge 
-                                                            ${tuition.status === "pending" ? "bg-success" : ""}
-                                                            ${tuition.status === "called (no response)" ? "bg-primary" : ""}
-                                                            ${tuition.status === "called (interested)" ? "bg-info" : ""}
-                                                            ${tuition.status === "guardian meet" ? "bg-dark" : ""}
-                                                            ${tuition.status === "demo class running" ? "bg-warning text-dark" : ""}
-                                                            ${tuition.status === "assigned" ? "bg-secondary" : ""}
-                                                            ${tuition.status === "confirm" ? "bg-success" : ""}
-                                                            ${tuition.status === "cancel" ? "bg-danger" : ""}                                                            
-                                                            `}
+                                                                ${tuition.status === "pending" ? "bg-success" :
+                                                                tuition.status === "called (no response)" ? "bg-primary" :
+                                                                    tuition.status === "called (interested)" ? "bg-info" :
+                                                                        tuition.status === "cancelled" ? "bg-danger" :
+                                                                            tuition.status === "shortlisted" ? "bg-secondary" :
+                                                                                tuition.status === "requested for payment" ? "bg-warning text-dark" :
+                                                                                    tuition.status === "meeting at office" ? "bg-dark" :
+                                                                                        tuition.status === "selected" ? "bg-success" :
+                                                                                            tuition.status === "refer to bm" ? "bg-info" :
+                                                                                                "bg-secondary"
+                                                            }
+                                                                `}
                                                     >
                                                         {tuition.status}
                                                     </span>
-
                                                 </td>
+
                                                 <td>{tuition.tuitionCode}</td>
                                                 <td>{tuition.name}</td>
                                                 <td>{tuition.phone}</td>
@@ -521,13 +530,14 @@ const TuitionPage = () => {
                                             required
                                         >
                                             <option value="pending">Pending</option>
-                                            <option value="called (no response)">Called (No Response)</option>
                                             <option value="called (interested)">Called (Interested)</option>
-                                            <option value="guardian meet">Guardian Meet</option>
-                                            <option value="demo class running">Demo Class Running</option>
-                                            <option value="assigned">Assigned</option>
-                                            <option value="confirm">Confirm</option>
-                                            <option value="cancel">Cancel</option>
+                                            <option value="called (no response)">Called (No Response)</option>
+                                            <option value="cancel">Cancelled</option>
+                                            <option value="shortlisted">Shortlisted</option>
+                                            <option value="request to payment">Requested for Payment</option>
+                                            <option value="meet to office">Meeting at Office</option>
+                                            <option value="selected">Selected</option>
+                                            <option value="refer to bm">Refer to BM</option>
 
                                         </Form.Control>
                                     </Form.Group>

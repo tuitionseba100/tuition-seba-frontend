@@ -336,7 +336,7 @@ const TuitionPage = () => {
                             <option value="cancel">Cancelled</option>
                             <option value="shortlisted">Shortlisted</option>
                             <option value="requested for payment">Requested for Payment</option>
-                            <option value="meeting at office">Meeting at Office</option>
+                            <option value="meet to office">Meeting at Office</option>
                             <option value="selected">Selected</option>
                             <option value="refer to bm">Refer to BM</option>
                         </Form.Select>
@@ -397,7 +397,7 @@ const TuitionPage = () => {
                                                                         tuition.status === "cancel" ? "bg-danger" :
                                                                             tuition.status === "shortlisted" ? "bg-secondary" :
                                                                                 tuition.status === "requested for payment" ? "bg-warning text-dark" :
-                                                                                    tuition.status === "meeting at office" ? "bg-dark" :
+                                                                                    tuition.status === "meet to office" ? "bg-dark" :
                                                                                         tuition.status === "selected" ? "bg-success" :
                                                                                             tuition.status === "refer to bm" ? "bg-info" :
                                                                                                 "bg-secondary"
@@ -542,7 +542,7 @@ const TuitionPage = () => {
                                             <option value="cancel">Cancelled</option>
                                             <option value="shortlisted">Shortlisted</option>
                                             <option value="requested for payment">Requested for Payment</option>
-                                            <option value="meet to office">Meeting at Office</option>
+                                            <option value="meet to office">Meet to office</option>
                                             <option value="selected">Selected</option>
                                             <option value="refer to bm">Refer to BM</option>
 

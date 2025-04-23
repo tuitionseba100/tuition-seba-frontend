@@ -9,7 +9,6 @@ import { Spinner } from 'react-bootstrap';
 import * as XLSX from 'xlsx';
 import Select from 'react-select';
 
-
 const TaskPage = () => {
     const [taskList, setTaskList] = useState([]);
     const [filteredTaskList, setFilteredTaskList] = useState([]);
@@ -17,6 +16,7 @@ const TaskPage = () => {
     const [editingId, setEditingId] = useState(null);
     const [statusFilter, setStatusFilter] = useState('');
     const [tuitionCodeSearchQuery, setTuitionCodeSearchQuery] = useState('');
+    const [employeeNameSearchQuery, setEmployeeNameSearchQuery] = useState('');
     const [taskData, setTaskData] = useState({
         tuitionCode: '',
         tuitionId: '',
@@ -82,6 +82,12 @@ const TaskPage = () => {
     useEffect(() => {
         let filteredData = taskList;
 
+        if (employeeNameSearchQuery) {
+            filteredData = filteredData.filter(task =>
+                String(task.employeeName).toLowerCase().includes(String(employeeNameSearchQuery).toLowerCase())
+            );
+        }
+
         if (statusFilter) {
             filteredData = filteredData.filter(task => task.status === statusFilter);
         }
@@ -119,7 +125,7 @@ const TaskPage = () => {
         setCompletedTodayCount(todayCompleted);
         setCompletedTaskCount(totalCompleted);
         setPendingTaskCount(totalPending);
-    }, [statusFilter, tuitionCodeSearchQuery, taskList]);
+    }, [employeeNameSearchQuery, statusFilter, tuitionCodeSearchQuery, taskList]);
 
     const formatDate = (dateString) => {
         const date = new Date(dateString);
@@ -299,6 +305,16 @@ const TaskPage = () => {
 
                 {/* Search bar */}
                 <Row className="mt-2 mb-3">
+                    <Col md={2}>
+                        <Form.Label className="fw-bold">Search (Employee Name)</Form.Label>
+                        <Form.Control
+                            type="text"
+                            placeholder="Search by Employee Name"
+                            value={employeeNameSearchQuery}
+                            onChange={(e) => setEmployeeNameSearchQuery(e.target.value)}
+                        />
+                    </Col>
+
                     <Col md={2}>
                         <Form.Label className="fw-bold">Search (Tuition Code)</Form.Label>
                         <Form.Control

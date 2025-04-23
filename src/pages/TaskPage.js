@@ -234,6 +234,9 @@ const TaskPage = () => {
     };
 
     const handleResetFilters = () => {
+        setStatusFilter('');
+        setTuitionCodeSearchQuery('');
+        setEmployeeNameSearchQuery('');
         setFilteredTaskList(taskList);
     };
 
@@ -241,7 +244,6 @@ const TaskPage = () => {
         <>
             <NavBarPage />
             <Container>
-
                 <Header>
                     <h2 className='text-primary fw-bold'>Task Dashboard</h2>
                     <Button variant="primary" onClick={() => { setShowModal(true); setEditingId(null); setTaskData({ employeeName: '', employeeId: '', tuitionCode: '', tuitionId: '', employeeRole: '', task: '', status: '', comment: '' }) }}>
@@ -314,9 +316,14 @@ const TaskPage = () => {
                             <CreatableSelect
                                 isClearable
                                 options={userList.map(user => ({ label: user.name, value: user.name }))}
-                                onChange={(newValue) => setEmployeeNameSearchQuery(newValue ? newValue.value : '')}
-                                onInputChange={(inputValue) => setEmployeeNameSearchQuery(inputValue)}
-                                value={employeeNameSearchQuery ? { label: employeeNameSearchQuery, value: employeeNameSearchQuery } : null}
+                                onChange={(newValue) =>
+                                    setEmployeeNameSearchQuery(newValue ? newValue.value : '')
+                                }
+                                value={
+                                    employeeNameSearchQuery
+                                        ? { label: employeeNameSearchQuery, value: employeeNameSearchQuery }
+                                        : null
+                                }
                                 placeholder="Search by employee name"
                                 styles={{
                                     menu: (provided) => ({
@@ -326,6 +333,7 @@ const TaskPage = () => {
                                     }),
                                 }}
                             />
+
                         </Col>
                     )}
 
@@ -347,6 +355,7 @@ const TaskPage = () => {
                             <option value="completed">Completed</option>
                         </Form.Select>
                     </Col>
+
                     <Col md={2} className="d-flex align-items-end">
                         <Button variant="danger" onClick={handleResetFilters} className="w-100">
                             Reset Filters

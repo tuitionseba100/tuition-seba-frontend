@@ -38,6 +38,7 @@ const TaskPage = () => {
     const [pendingTaskCount, setPendingTaskCount] = useState(0);
     const [completedTaskCount, setCompletedTaskCount] = useState(0);
     const [todayPendingTaskCount, setTodayPendingTaskCount] = useState(0);
+    const userRole = localStorage.getItem('role');
 
     useEffect(() => {
         fetchTaskRecords();
@@ -307,24 +308,26 @@ const TaskPage = () => {
 
                 {/* Search bar */}
                 <Row className="mt-2 mb-3">
-                    <Col md={2}>
-                        <Form.Label className="fw-bold">Search (Employee Name)</Form.Label>
-                        <CreatableSelect
-                            isClearable
-                            options={userList.map(user => ({ label: user.name, value: user.name }))}
-                            onChange={(newValue) => setEmployeeNameSearchQuery(newValue ? newValue.value : '')}
-                            onInputChange={(inputValue) => setEmployeeNameSearchQuery(inputValue)}
-                            value={employeeNameSearchQuery ? { label: employeeNameSearchQuery, value: employeeNameSearchQuery } : null}
-                            placeholder="Search by employee name"
-                            styles={{
-                                menu: (provided) => ({
-                                    ...provided,
-                                    zIndex: 9999,
-                                    position: 'absolute',
-                                }),
-                            }}
-                        />
-                    </Col>
+                    {userRole === 'superadmin' && (
+                        <Col md={2}>
+                            <Form.Label className="fw-bold">Search (Employee Name)</Form.Label>
+                            <CreatableSelect
+                                isClearable
+                                options={userList.map(user => ({ label: user.name, value: user.name }))}
+                                onChange={(newValue) => setEmployeeNameSearchQuery(newValue ? newValue.value : '')}
+                                onInputChange={(inputValue) => setEmployeeNameSearchQuery(inputValue)}
+                                value={employeeNameSearchQuery ? { label: employeeNameSearchQuery, value: employeeNameSearchQuery } : null}
+                                placeholder="Search by employee name"
+                                styles={{
+                                    menu: (provided) => ({
+                                        ...provided,
+                                        zIndex: 9999,
+                                        position: 'absolute',
+                                    }),
+                                }}
+                            />
+                        </Col>
+                    )}
 
                     <Col md={2}>
                         <Form.Label className="fw-bold">Search (Tuition Code)</Form.Label>

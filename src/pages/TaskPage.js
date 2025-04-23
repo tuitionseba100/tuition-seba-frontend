@@ -8,6 +8,8 @@ import { ToastContainer, toast } from 'react-toastify';
 import { Spinner } from 'react-bootstrap';
 import * as XLSX from 'xlsx';
 import Select from 'react-select';
+import CreatableSelect from 'react-select/creatable';
+
 
 const TaskPage = () => {
     const [taskList, setTaskList] = useState([]);
@@ -307,11 +309,20 @@ const TaskPage = () => {
                 <Row className="mt-2 mb-3">
                     <Col md={2}>
                         <Form.Label className="fw-bold">Search (Employee Name)</Form.Label>
-                        <Form.Control
-                            type="text"
-                            placeholder="Search by Employee Name"
-                            value={employeeNameSearchQuery}
-                            onChange={(e) => setEmployeeNameSearchQuery(e.target.value)}
+                        <CreatableSelect
+                            isClearable
+                            options={userList.map(user => ({ label: user.name, value: user.name }))}
+                            onChange={(newValue) => setEmployeeNameSearchQuery(newValue ? newValue.value : '')}
+                            onInputChange={(inputValue) => setEmployeeNameSearchQuery(inputValue)}
+                            value={employeeNameSearchQuery ? { label: employeeNameSearchQuery, value: employeeNameSearchQuery } : null}
+                            placeholder="Search by employee name"
+                            styles={{
+                                menu: (provided) => ({
+                                    ...provided,
+                                    zIndex: 9999,
+                                    position: 'absolute',
+                                }),
+                            }}
                         />
                     </Col>
 

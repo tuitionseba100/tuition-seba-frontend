@@ -8,13 +8,15 @@ import { ToastContainer, toast } from 'react-toastify';
 import { Spinner } from 'react-bootstrap';
 import * as XLSX from 'xlsx';
 import Select from 'react-select';
-import { Tooltip, OverlayTrigger } from 'react-bootstrap';
+
 
 const TaskPage = () => {
     const [taskList, setTaskList] = useState([]);
     const [filteredTaskList, setFilteredTaskList] = useState([]);
     const [showModal, setShowModal] = useState(false);
     const [editingId, setEditingId] = useState(null);
+    const [statusFilter, setStatusFilter] = useState('');
+    const [tuitionCodeSearchQuery, setTuitionCodeSearchQuery] = useState('');
     const [taskData, setTaskData] = useState({
         tuitionCode: '',
         tuitionId: '',
@@ -28,13 +30,18 @@ const TaskPage = () => {
     const [tuitionList, setTuitionList] = useState([]);
     const [userList, setUserList] = useState([]);
     const token = localStorage.getItem('token');
+    const [totalTaskCount, setTotalTaskCount] = useState(0);
+    const [todayTaskCount, setTodayTaskCount] = useState(0);
+    const [completedTodayCount, setCompletedTodayCount] = useState(0);
+    const [pendingTaskCount, setPendingTaskCount] = useState(0);
+    const [completedTaskCount, setCompletedTaskCount] = useState(0);
+    const [todayPendingTaskCount, setTodayPendingTaskCount] = useState(0);
 
     useEffect(() => {
         fetchTaskRecords();
         fetchTuitions();
         fetchUsers();
     }, []);
-
 
     const fetchTuitions = async () => {
         try {
@@ -71,6 +78,48 @@ const TaskPage = () => {
         }
         setLoading(false);
     };
+
+    useEffect(() => {
+        let filteredData = taskList;
+
+        if (statusFilter) {
+            filteredData = filteredData.filter(task => task.status === statusFilter);
+        }
+
+        if (tuitionCodeSearchQuery) {
+            filteredData = filteredData.filter(task =>
+                String(task.tuitionCode).toLowerCase().includes(String(tuitionCodeSearchQuery).toLowerCase())
+            );
+        }
+
+        const todayDate = new Date().toISOString().split('T')[0];
+
+        const total = filteredData.length;
+        const todayAssigned = filteredData.filter(task =>
+            new Date(task.createdAt).toISOString().split('T')[0] === todayDate
+        ).length;
+
+        const todayPending = filteredData.filter(task =>
+            task.status === 'pending' &&
+            new Date(task.createdAt).toISOString().split('T')[0] === todayDate
+        ).length;
+
+        const todayCompleted = filteredData.filter(task =>
+            task.status === 'completed' &&
+            new Date(task.createdAt).toISOString().split('T')[0] === todayDate
+        ).length;
+
+        const totalCompleted = filteredData.filter(task => task.status === 'completed').length;
+        const totalPending = filteredData.filter(task => task.status === 'pending').length;
+
+        setFilteredTaskList(filteredData);
+        setTotalTaskCount(total);
+        setTodayTaskCount(todayAssigned);
+        setTodayPendingTaskCount(todayPending);
+        setCompletedTodayCount(todayCompleted);
+        setCompletedTaskCount(totalCompleted);
+        setPendingTaskCount(totalPending);
+    }, [statusFilter, tuitionCodeSearchQuery, taskList]);
 
     const formatDate = (dateString) => {
         const date = new Date(dateString);
@@ -191,15 +240,14 @@ const TaskPage = () => {
                     </Button>
                 </Header>
 
-
                 <Card className="mt-4">
                     <Card.Body>
                         <div className="row text-center">
                             <div className="col-6 col-sm-4 col-md-2 mb-3">
                                 <div className="card p-3 shadow border-primary">
                                     <div className="d-flex flex-column align-items-center">
-                                        <span className="text-primary" style={{ fontWeight: 'bolder' }}>Total Task Count</span>
-                                        <span>0</span>
+                                        <span className="text-primary" style={{ fontWeight: 'bolder' }}>Total Task</span>
+                                        <span>{totalTaskCount}</span>
                                     </div>
                                 </div>
                             </div>
@@ -207,7 +255,17 @@ const TaskPage = () => {
                                 <div className="card p-3 shadow border-primary">
                                     <div className="d-flex flex-column align-items-center">
                                         <span className="text-primary" style={{ fontWeight: 'bolder' }}>Total Task Assigned Today</span>
-                                        <span>0</span>
+                                        <span>{todayTaskCount}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="col-6 col-sm-4 col-md-2 mb-3">
+                                <div className="card p-3 shadow border-primary">
+                                    <div className="d-flex flex-column align-items-center">
+                                        <span className="text-primary" style={{ fontWeight: 'bolder' }}>Total Task Pending Today</span>
+                                        <span>
+                                            {todayPendingTaskCount}
+                                        </span>
                                     </div>
                                 </div>
                             </div>
@@ -215,42 +273,50 @@ const TaskPage = () => {
                                 <div className="card p-3 shadow border-primary">
                                     <div className="d-flex flex-column align-items-center">
                                         <span className="text-primary" style={{ fontWeight: 'bolder' }}>Total Task Completed Today</span>
-                                        <span>0</span>
+                                        <span>{completedTodayCount}</span>
                                     </div>
                                 </div>
                             </div>
                             <div className="col-6 col-sm-4 col-md-2 mb-3">
                                 <div className="card p-3 shadow border-primary">
                                     <div className="d-flex flex-column align-items-center">
-                                        <span className="text-primary" style={{ fontWeight: 'bolder' }}>Total Task Remaining</span>
-                                        <span>0</span>
+                                        <span className="text-primary" style={{ fontWeight: 'bolder' }}>Total Task Pending</span>
+                                        <span>{pendingTaskCount}</span>
                                     </div>
                                 </div>
                             </div>
                             <div className="col-6 col-sm-4 col-md-2 mb-3">
                                 <div className="card p-3 shadow border-primary">
                                     <div className="d-flex flex-column align-items-center">
-                                        <span className="text-primary" style={{ fontWeight: 'bolder' }}>--</span>
-                                        <span>0</span>
+                                        <span className="text-primary" style={{ fontWeight: 'bolder' }}>Total Task Completed</span>
+                                        <span>{completedTaskCount}</span>
                                     </div>
                                 </div>
                             </div>
-                            <div className="col-6 col-sm-4 col-md-2 mb-3">
-                                <div className="card p-3 shadow border-primary">
-                                    <div className="d-flex flex-column align-items-center">
-                                        <span className="text-primary" style={{ fontWeight: 'bolder' }}>--</span>
-                                        <span>0</span>
-                                    </div>
-                                </div>
-                            </div>
-
                         </div>
                     </Card.Body>
                 </Card>
 
                 {/* Search bar */}
                 <Row className="mt-2 mb-3">
+                    <Col md={2}>
+                        <Form.Label className="fw-bold">Search (Tuition Code)</Form.Label>
+                        <Form.Control
+                            type="text"
+                            placeholder="Search by Tuition Code"
+                            value={tuitionCodeSearchQuery}
+                            onChange={(e) => setTuitionCodeSearchQuery(e.target.value)}
+                        />
+                    </Col>
 
+                    <Col md={2}>
+                        <Form.Label className="fw-bold">Status</Form.Label>
+                        <Form.Select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
+                            <option value="">All</option>
+                            <option value="pending">Pending</option>
+                            <option value="completed">Completed</option>
+                        </Form.Select>
+                    </Col>
                     <Col md={2} className="d-flex align-items-end">
                         <Button variant="danger" onClick={handleResetFilters} className="w-100">
                             Reset Filters

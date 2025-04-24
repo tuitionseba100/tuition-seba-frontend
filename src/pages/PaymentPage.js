@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button, Table, Modal, Form, Row, Col, Card } from 'react-bootstrap';
 import { FaEdit, FaTrashAlt, FaInfoCircle, FaBell } from 'react-icons/fa';
 import axios from 'axios';
@@ -139,7 +139,6 @@ const PaymentPage = () => {
         setDueTodayList(dueToday);
     };
 
-
     const formatDate = (dateString) => {
         const date = new Date(dateString);
 
@@ -270,7 +269,6 @@ const PaymentPage = () => {
                     </Button>
                 </Header>
 
-
                 <Card className="mt-4">
                     <Card.Body>
                         <div className="row text-center">
@@ -322,7 +320,6 @@ const PaymentPage = () => {
                                     </div>
                                 </div>
                             </div>
-
                         </div>
                     </Card.Body>
                 </Card>
@@ -374,7 +371,6 @@ const PaymentPage = () => {
                             Reset Filters
                         </Button>
                     </Col>
-
                 </Row>
 
                 <div className="d-flex align-items-center justify-content-center">
@@ -391,7 +387,6 @@ const PaymentPage = () => {
                         </OverlayTrigger>
                     </h5>
                 </div>
-
 
                 <Button variant="success" className="mb-3" onClick={handleExportToExcel}>
                     Export to Excel
@@ -525,7 +520,6 @@ const PaymentPage = () => {
                                         />
                                     </Form.Group>
                                 </Col>
-
                             </Row>
 
                             <Row>

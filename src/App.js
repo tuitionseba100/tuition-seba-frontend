@@ -10,6 +10,7 @@ import GuardianApplyPage from './pages/guardianApplyPage';
 import TaskPage from './pages/TaskPage';
 import AttendancePage from './pages/AttendancePage';
 import TuitionApply from './pages/TuitionApplyPage';
+import RefundPage from './pages/RefundPage';
 
 const App = () => {
   return (
@@ -21,6 +22,7 @@ const App = () => {
         <Route element={<PrivateRoute />}>
           <Route path="/tuition" element={<Tuitionmenu />} />
           <Route path="/payment" element={<PaymentPage />} />
+          <Route path="/refund" element={<RefundPage />} />
           <Route path="/guardianApply" element={<GuardianApplyPage />} />
           <Route element={<PrivateRoute role="superadmin" />}>
             <Route path="/user" element={<UserPage />} />

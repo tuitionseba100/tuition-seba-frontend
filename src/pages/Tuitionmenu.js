@@ -8,7 +8,6 @@ import { ToastContainer, toast } from 'react-toastify';
 import { Spinner } from 'react-bootstrap';
 import * as XLSX from 'xlsx';
 
-
 const TuitionPage = () => {
     const [tuitionList, setTuitionList] = useState([]);
     const [filteredTuitionList, setFilteredTuitionList] = useState([]);
@@ -22,6 +21,7 @@ const TuitionPage = () => {
         isUrgent: false,
         wantedTeacher: '',
         student: '',
+        institute: '',
         class: '',
         medium: '',
         subject: '',
@@ -432,6 +432,7 @@ const TuitionPage = () => {
                                         <th>Published?</th>
                                         <th>Status</th>
                                         <th>Teacher</th>
+                                        <th>Institute</th>
                                         <th>Student</th>
                                         <th>Class</th>
                                         <th>Medium</th>
@@ -481,6 +482,7 @@ const TuitionPage = () => {
                                                 </td>
 
                                                 <td>{tuition.wantedTeacher}</td>
+                                                <td>{tuition.institute}</td>
                                                 <td>{tuition.student}</td>
                                                 <td>{tuition.class}</td>
                                                 <td>{tuition.medium}</td>
@@ -575,6 +577,17 @@ const TuitionPage = () => {
                                             type="text"
                                             value={tuitionData.student}
                                             onChange={(e) => setTuitionData({ ...tuitionData, student: e.target.value })}
+                                            required
+                                        />
+                                    </Form.Group>
+                                </Col>
+                                <Col md={4}>
+                                    <Form.Group controlId="institute">
+                                        <Form.Label className="fw-bold">Institute</Form.Label>
+                                        <Form.Control
+                                            type="text"
+                                            value={tuitionData.institute}
+                                            onChange={(e) => setTuitionData({ ...tuitionData, institute: e.target.value })}
                                             required
                                         />
                                     </Form.Group>

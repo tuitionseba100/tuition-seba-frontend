@@ -124,7 +124,7 @@ const TuitionPage = () => {
         const fileName = `TuitionList_${formattedDate}_${formattedTime}`;
 
         const tableHeaders = [
-            "Tuition Code", "Published", "Urgent", "Wanted Teacher", "Student", "Class",
+            "Tuition Code", "Published", "Urgent", "Institute", "Wanted Teacher", "Student", "Class",
             "Medium", "Subject", "Time", "Day", "Salary", "Location", "Area",
             "Guardian Number", "Status", "Tutor Number", "Joining"
         ];
@@ -134,6 +134,7 @@ const TuitionPage = () => {
             tuition.isPublish ? 'Yes' : 'No',
             tuition.isUrgent ? 'Yes' : 'No',
             String(tuition.wantedTeacher ?? ""),
+            String(tuition.institute ?? ""),
             String(tuition.student ?? ""),
             String(tuition.class ?? ""),
             String(tuition.medium ?? ""),

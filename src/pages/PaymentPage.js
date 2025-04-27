@@ -44,7 +44,7 @@ const PaymentPage = () => {
     const [totalDuesCount, setTotalDuesCount] = useState(0);
     const [dueTodayList, setDueTodayList] = useState([]);
     const [showDueModal, setShowDueModal] = useState(false);
-    const token = localStorage.getItem('token');
+    const role = localStorage.getItem('role');
 
     useEffect(() => {
         fetchPaymentRecords();
@@ -285,7 +285,7 @@ const PaymentPage = () => {
                             <div className="col-6 col-sm-4 col-md-2 mb-3">
                                 <div className="card p-3 shadow border-primary">
                                     <div className="d-flex flex-column align-items-center">
-                                        {token === 'superadmin' ? (
+                                        {role === 'superadmin' ? (
                                             <>
                                                 <span className="text-primary" style={{ fontWeight: 'bolder' }}>Total Payments(TK)</span>
                                                 <span>TK. {totalPaymentTK}</span>
@@ -330,7 +330,7 @@ const PaymentPage = () => {
                             <div className="col-6 col-sm-4 col-md-2 mb-3">
                                 <div className="card p-3 shadow border-primary">
                                     <div className="d-flex flex-column align-items-center">
-                                        {token === 'superadmin' ? (
+                                        {role === 'superadmin' ? (
                                             <>
                                                 <span className="text-primary" style={{ fontWeight: 'bolder' }}>Total Dues(TK)</span>
                                                 <span>TK. {totalDues}</span>

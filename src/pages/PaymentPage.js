@@ -44,6 +44,7 @@ const PaymentPage = () => {
     const [totalDuesCount, setTotalDuesCount] = useState(0);
     const [dueTodayList, setDueTodayList] = useState([]);
     const [showDueModal, setShowDueModal] = useState(false);
+    const token = localStorage.getItem('token');
 
     useEffect(() => {
         fetchPaymentRecords();
@@ -280,14 +281,25 @@ const PaymentPage = () => {
                                     </div>
                                 </div>
                             </div>
+
                             <div className="col-6 col-sm-4 col-md-2 mb-3">
                                 <div className="card p-3 shadow border-primary">
                                     <div className="d-flex flex-column align-items-center">
-                                        <span className="text-primary" style={{ fontWeight: 'bolder' }}>Total Payments(TK)</span>
-                                        <span>TK. {totalPaymentTK}</span>
+                                        {token === 'superadmin' ? (
+                                            <>
+                                                <span className="text-primary" style={{ fontWeight: 'bolder' }}>Total Payments(TK)</span>
+                                                <span>TK. {totalPaymentTK}</span>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <span>&nbsp;</span>
+                                                <span>&nbsp;</span>
+                                            </>
+                                        )}
                                     </div>
                                 </div>
                             </div>
+
                             <div className="col-6 col-sm-4 col-md-2 mb-3">
                                 <div className="card p-3 shadow border-primary">
                                     <div className="d-flex flex-column align-items-center">
@@ -296,6 +308,7 @@ const PaymentPage = () => {
                                     </div>
                                 </div>
                             </div>
+
                             <div className="col-6 col-sm-4 col-md-2 mb-3">
                                 <div className="card p-3 shadow border-primary">
                                     <div className="d-flex flex-column align-items-center">
@@ -304,6 +317,7 @@ const PaymentPage = () => {
                                     </div>
                                 </div>
                             </div>
+
                             <div className="col-6 col-sm-4 col-md-2 mb-3">
                                 <div className="card p-3 shadow border-primary">
                                     <div className="d-flex flex-column align-items-center">
@@ -312,17 +326,29 @@ const PaymentPage = () => {
                                     </div>
                                 </div>
                             </div>
+
                             <div className="col-6 col-sm-4 col-md-2 mb-3">
                                 <div className="card p-3 shadow border-primary">
                                     <div className="d-flex flex-column align-items-center">
-                                        <span className="text-primary" style={{ fontWeight: 'bolder' }}>Total Dues(TK)</span>
-                                        <span>TK. {totalDues}</span>
+                                        {token === 'superadmin' ? (
+                                            <>
+                                                <span className="text-primary" style={{ fontWeight: 'bolder' }}>Total Dues(TK)</span>
+                                                <span>TK. {totalDues}</span>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <span>&nbsp;</span>
+                                                <span>&nbsp;</span>
+                                            </>
+                                        )}
                                     </div>
                                 </div>
                             </div>
+
                         </div>
                     </Card.Body>
                 </Card>
+
 
                 {/* Search bar */}
                 <Row className="mt-2 mb-3">

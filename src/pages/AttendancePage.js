@@ -4,6 +4,9 @@ import { Button, Table, Form, Row, Col } from 'react-bootstrap';
 import Select from 'react-select';
 import { ToastContainer, toast } from 'react-toastify';
 import NavBarPage from './NavbarPage';
+import { Modal } from 'react-bootstrap';
+import DatePicker from 'react-datepicker';
+import "react-datepicker/dist/react-datepicker.css"; // Import the styles
 
 const AttendancePage = () => {
     const [attendance, setAttendance] = useState([]);
@@ -12,6 +15,10 @@ const AttendancePage = () => {
     const [users, setUsers] = useState([]);
     const [userFilter, setUserFilter] = useState(null); // User filter state
     const token = localStorage.getItem('token');
+    const [showEditModal, setShowEditModal] = useState(false);
+    const [editingAttendance, setEditingAttendance] = useState(null);
+    const [editStartTime, setEditStartTime] = useState(new Date());
+    const [editEndTime, setEditEndTime] = useState(new Date());
 
     useEffect(() => {
         fetchAttendance();
@@ -79,6 +86,23 @@ const AttendancePage = () => {
         }
     };
 
+    const handleEditSubmit = async () => {
+        try {
+            await axios.put(`https://tuition-seba-backend-1.onrender.com/api/attendance/edit/${editingAttendance._id}`, {
+                startTime: editStartTime.toISOString(),
+                endTime: editEndTime ? editEndTime.toISOString() : '',
+            }, {
+                headers: { Authorization: token },
+            });
+
+            toast.success('Attendance record updated successfully');
+            setShowEditModal(false);
+            fetchAttendance();
+        } catch (error) {
+            toast.error(error.response?.data?.message || 'Error updating attendance');
+        }
+    };
+
     const applyFilter = () => {
         const now = new Date();
         let filtered = [...attendance];
@@ -107,6 +131,13 @@ const AttendancePage = () => {
         }
 
         setFilteredAttendance(filtered);
+    };
+
+    const openEditModal = (entry) => {
+        setEditingAttendance(entry);
+        setEditStartTime(new Date(entry.startTime));
+        setEditEndTime(entry.endTime ? new Date(entry.endTime) : null);
+        setShowEditModal(true);
     };
 
     const filterOptions = [
@@ -192,6 +223,9 @@ const AttendancePage = () => {
                                     <td>{entry.duration || 'N/A'}</td>
                                     {localStorage.getItem('role') === 'superadmin' && (
                                         <td>
+                                            <Button variant="primary" size="sm" className="me-2" onClick={() => openEditModal(entry)}>
+                                                Edit
+                                            </Button>
                                             <Button variant="danger" size="sm" onClick={() => deleteAttendance(entry._id)}>
                                                 Delete
                                             </Button>
@@ -202,6 +236,54 @@ const AttendancePage = () => {
                         )}
                     </tbody>
                 </Table>
+                {editingAttendance && (
+                    <Modal show={showEditModal} onHide={() => setShowEditModal(false)}>
+                        <Modal.Header closeButton>
+                            <Modal.Title>Edit Attendance</Modal.Title>
+                        </Modal.Header>
+                        <Modal.Body>
+                            <Form>
+                                <Form.Group className="mb-3">
+                                    <Form.Label>Username</Form.Label>
+                                    <Form.Control type="text" value={editingAttendance.userName} disabled />
+                                </Form.Group>
+
+                                <Form.Group className="mb-3">
+                                    <Form.Label>Name</Form.Label>
+                                    <Form.Control type="text" value={editingAttendance.name} disabled />
+                                </Form.Group>
+
+                                <Form.Group className="mb-3">
+                                    <Form.Label>Start Time</Form.Label>
+                                    <DatePicker
+                                        selected={editStartTime}
+                                        onChange={date => setEditStartTime(date)}
+                                        showTimeSelect
+                                        dateFormat="Pp"
+                                    />
+                                </Form.Group>
+
+                                <Form.Group className="mb-3">
+                                    <Form.Label>End Time</Form.Label>
+                                    <DatePicker
+                                        selected={editEndTime}
+                                        onChange={date => setEditEndTime(date)}
+                                        showTimeSelect
+                                        dateFormat="Pp"
+                                    />
+                                </Form.Group>
+                            </Form>
+                        </Modal.Body>
+                        <Modal.Footer>
+                            <Button variant="secondary" onClick={() => setShowEditModal(false)}>
+                                Cancel
+                            </Button>
+                            <Button variant="primary" onClick={handleEditSubmit}>
+                                Save Changes
+                            </Button>
+                        </Modal.Footer>
+                    </Modal>
+                )}
 
                 <ToastContainer />
             </div>

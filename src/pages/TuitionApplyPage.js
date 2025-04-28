@@ -333,6 +333,7 @@ const TuitionPage = () => {
                             <option value="pending">Pending</option>
                             <option value="called (interested)">Called (Interested)</option>
                             <option value="called (no response)">Called (No Response)</option>
+                            <option value="called (guardian no response)">Called Guardian(No Response)</option>
                             <option value="cancel">Cancelled</option>
                             <option value="shortlisted">Shortlisted</option>
                             <option value="requested for payment">Requested for Payment</option>
@@ -393,14 +394,15 @@ const TuitionPage = () => {
                                                         className={`badge 
                                                                 ${tuition.status === "pending" ? "bg-success" :
                                                                 tuition.status === "called (no response)" ? "bg-primary" :
-                                                                    tuition.status === "called (interested)" ? "bg-info" :
-                                                                        tuition.status === "cancel" ? "bg-danger" :
-                                                                            tuition.status === "shortlisted" ? "bg-secondary" :
-                                                                                tuition.status === "requested for payment" ? "bg-warning text-dark" :
-                                                                                    tuition.status === "meet to office" ? "bg-dark" :
-                                                                                        tuition.status === "selected" ? "bg-success" :
-                                                                                            tuition.status === "refer to bm" ? "bg-info" :
-                                                                                                "bg-secondary"
+                                                                    tuition.status === "called (guardian no response)" ? "bg-info" :
+                                                                        tuition.status === "called (interested)" ? "bg-info" :
+                                                                            tuition.status === "cancel" ? "bg-danger" :
+                                                                                tuition.status === "shortlisted" ? "bg-secondary" :
+                                                                                    tuition.status === "requested for payment" ? "bg-warning text-dark" :
+                                                                                        tuition.status === "meet to office" ? "bg-dark" :
+                                                                                            tuition.status === "selected" ? "bg-success" :
+                                                                                                tuition.status === "refer to bm" ? "bg-info" :
+                                                                                                    "bg-secondary"
                                                             }
                                                                 `}
                                                     >
@@ -539,6 +541,7 @@ const TuitionPage = () => {
                                             <option value="pending">Pending</option>
                                             <option value="called (interested)">Called (Interested)</option>
                                             <option value="called (no response)">Called (No Response)</option>
+                                            <option value="called (guardian no response)">Called Guardian(No Response)</option>
                                             <option value="cancel">Cancelled</option>
                                             <option value="shortlisted">Shortlisted</option>
                                             <option value="requested for payment">Requested for Payment</option>

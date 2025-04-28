@@ -13,6 +13,8 @@ import { Tooltip, OverlayTrigger } from 'react-bootstrap';
 const PaymentPage = () => {
     const [paymentList, setPaymentList] = useState([]);
     const [filteredPaymentList, setFilteredPaymentList] = useState([]);
+    const [teacherPaymentList, setTeacherPaymentList] = useState([]);
+    const [filteredTeacherPaymentList, setFilteredTeacherPaymentList] = useState([]);
     const [showModal, setShowModal] = useState(false);
     const [editingId, setEditingId] = useState(null);
     const [paymentData, setPaymentData] = useState({
@@ -35,9 +37,19 @@ const PaymentPage = () => {
     const [tuitionCodeSearchQuery, setTuitionCodeSearchQuery] = useState('');
     const [teacherNumberSearchQuery, setTeacherNumberSearchQuery] = useState('');
     const [paymentNumberSearchQuery, setPaymentNumberSearchQuery] = useState('');
+
+    const [teacherStatusFilter, setTeacherStatusFilter] = useState('');
+    const [teacherTuitionCodeSearchQuery, setTeacherTuitionCodeSearchQuery] = useState('');
+    const [teacherNumberTeacherSearchQuery, setTeacherNumberTeacherSearchQuery] = useState('');
+    const [teacherPaymentNumberSearchQuery, setTeacherPaymentNumberSearchQuery] = useState('');
+
     const [tuitionList, setTuitionList] = useState([]);
     const [totalPaymentTK, setTotalPaymentTK] = useState(0);
     const [totalPaymentsCount, setTotalPaymentsCount] = useState(0);
+    const [totalTeacherPaymentTK, setTotalTeacherPaymentTK] = useState(0);
+    const [totalTeacherPaymentsCount, setTotalTeacherPaymentsCount] = useState(0);
+    const [totalTeacherPaymentTKToday, setTotalTeacherPaymentTKToday] = useState(0);
+    const [totalTeacherPaymentsTodayCount, setTotalTeacherPaymentsTodayCount] = useState(0);
     const [totalPaymentTKToday, setTotalPaymentTKToday] = useState(0);
     const [totalPaymentsTodayCount, setTotalPaymentsTodayCount] = useState(0);
     const [totalDues, setTotalDues] = useState(0);
@@ -48,6 +60,7 @@ const PaymentPage = () => {
 
     useEffect(() => {
         fetchPaymentRecords();
+        fetchTeacherPaymentRecords();
         fetchTuitions();
     }, []);
 
@@ -100,6 +113,52 @@ const PaymentPage = () => {
         setFilteredPaymentList(filteredData);
     }, [statusFilter, tuitionCodeSearchQuery, teacherNumberSearchQuery, paymentNumberSearchQuery, paymentList]);
 
+    useEffect(() => {
+        let filteredTeacherData = teacherPaymentList;
+        if (teacherStatusFilter) {
+            filteredTeacherData = filteredTeacherData.filter(payment => payment.status === teacherStatusFilter);
+        }
+
+        if (teacherTuitionCodeSearchQuery) {
+            filteredTeacherData = filteredTeacherData.filter(payment =>
+                String(payment.tuitionCode).toLowerCase().includes(String(teacherTuitionCodeSearchQuery).toLowerCase())
+            );
+        }
+
+        if (teacherNumberTeacherSearchQuery) {
+            filteredTeacherData = filteredTeacherData.filter(tuition =>
+                String(tuition.personalPhone).toLowerCase().includes(String(teacherNumberTeacherSearchQuery).toLowerCase())
+            );
+        }
+
+        if (teacherPaymentNumberSearchQuery) {
+            filteredTeacherData = filteredTeacherData.filter(tuition =>
+                String(tuition.paymentNumber).toLowerCase().includes(String(teacherPaymentNumberSearchQuery).toLowerCase())
+            );
+        }
+
+        const totalCount = filteredTeacherData.length;
+        const totalTk = filteredTeacherData.reduce((sum, payment) => sum + parseFloat(payment.amount || 0), 0);
+        const todayDateString = new Date().toISOString().split('T')[0];
+
+        const totalCountToday = filteredTeacherData.filter(payment => {
+            const paymentDateString = new Date(payment.requestedAt).toISOString().split('T')[0];
+            return paymentDateString === todayDateString;
+        }).length;
+
+        const totalTkToday = filteredTeacherData
+            .filter(payment => new Date(payment.requestedAt).toISOString().split('T')[0] === todayDateString)
+            .reduce((sum, payment) => sum + parseFloat(payment.amount || 0), 0);
+
+
+        setTotalTeacherPaymentsCount(totalCount);
+        setTotalTeacherPaymentTK(totalTk);
+        setTotalTeacherPaymentsTodayCount(totalCountToday);
+        setTotalTeacherPaymentTKToday(totalTkToday);
+
+        setFilteredTeacherPaymentList(filteredTeacherData);
+    }, [teacherStatusFilter, teacherTuitionCodeSearchQuery, teacherNumberTeacherSearchQuery, teacherPaymentNumberSearchQuery, teacherPaymentList]);
+
     const fetchTuitions = async () => {
         try {
             const response = await axios.get('https://tuition-seba-backend-1.onrender.com/api/tuition/all');
@@ -117,6 +176,19 @@ const PaymentPage = () => {
             setPaymentList(response.data);
             filterDuePayments(response.data);
             setFilteredPaymentList(response.data);
+        } catch (err) {
+            console.error('Error fetching payment records:', err);
+            toast.error("Failed to load payment records.");
+        }
+        setLoading(false);
+    };
+
+    const fetchTeacherPaymentRecords = async () => {
+        setLoading(true);
+        try {
+            const response = await axios.get('https://tuition-seba-backend-1.onrender.com/api/teacherPayment/all');
+            setTeacherPaymentList(response.data);
+            setFilteredTeacherPaymentList(response.data);
         } catch (err) {
             console.error('Error fetching payment records:', err);
             toast.error("Failed to load payment records.");
@@ -250,12 +322,37 @@ const PaymentPage = () => {
         }
     };
 
+    const handleTeacherDeletePayment = async (id) => {
+        const confirmDelete = window.confirm("Are you sure you want to delete this payment record?");
+
+        if (confirmDelete) {
+            try {
+                await axios.delete(`https://tuition-seba-backend-1.onrender.com/api/teacherPayment/delete/${id}`);
+                toast.success("Payment record deleted successfully!");
+                fetchTeacherPaymentRecords();
+            } catch (err) {
+                console.error('Error deleting payment record:', err);
+                toast.error("Error deleting payment record.");
+            }
+        } else {
+            toast.info("Deletion canceled");
+        }
+    };
+
     const handleResetFilters = () => {
         setStatusFilter('');
         setTuitionCodeSearchQuery('');
         setTeacherNumberSearchQuery('');
         setPaymentNumberSearchQuery('');
         setFilteredPaymentList(paymentList);
+    };
+
+    const handleTeacherResetFilters = () => {
+        setTeacherStatusFilter('');
+        setTeacherTuitionCodeSearchQuery('');
+        setTeacherNumberTeacherSearchQuery('');
+        setTeacherPaymentNumberSearchQuery('');
+        setFilteredTeacherPaymentList(teacherPaymentList);
     };
 
     return (
@@ -348,7 +445,6 @@ const PaymentPage = () => {
                         </div>
                     </Card.Body>
                 </Card>
-
 
                 {/* Search bar */}
                 <Row className="mt-2 mb-3">
@@ -493,6 +589,203 @@ const PaymentPage = () => {
                         </div>
                     </Card.Body>
                 </Card>
+
+                <hr></hr>
+
+                <Header>
+                    <h2 className='text-primary fw-bold'>Teacher Payment Records</h2>
+                </Header>
+                <Card className="mt-4">
+                    <Card.Body>
+                        <div className="row text-center">
+                            <div className="col-6 col-sm-4 col-md-2 mb-3">
+                                <div className="card p-3 shadow border-primary">
+                                    <div className="d-flex flex-column align-items-center">
+                                        <span className="text-primary" style={{ fontWeight: 'bolder' }}>Total payments Count</span>
+                                        <span>{totalTeacherPaymentsCount}</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="col-6 col-sm-4 col-md-2 mb-3">
+                                <div className="card p-3 shadow border-primary">
+                                    <div className="d-flex flex-column align-items-center">
+                                        {role === 'superadmin' ? (
+                                            <>
+                                                <span className="text-primary" style={{ fontWeight: 'bolder' }}>Total Approved Payments(TK)</span>
+                                                <span>TK. {totalTeacherPaymentTK}</span>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <span>&nbsp;</span>
+                                                <span>&nbsp;</span>
+                                            </>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="col-6 col-sm-4 col-md-2 mb-3">
+                                <div className="card p-3 shadow border-primary">
+                                    <div className="d-flex flex-column align-items-center">
+                                        <span className="text-primary" style={{ fontWeight: 'bolder' }}>Total Payments Count Today</span>
+                                        <span>{totalTeacherPaymentsTodayCount}</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="col-6 col-sm-4 col-md-2 mb-3">
+                                <div className="card p-3 shadow border-primary">
+                                    <div className="d-flex flex-column align-items-center">
+                                        <span className="text-primary" style={{ fontWeight: 'bolder' }}>Total Payments(TK) Today</span>
+                                        <span>TK. {totalTeacherPaymentTKToday}</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="col-6 col-sm-4 col-md-2 mb-3">
+                                <div className="card p-3 shadow border-primary">
+                                    <div className="d-flex flex-column align-items-center">
+                                        <span className="text-primary" style={{ fontWeight: 'bolder' }}>--</span>
+                                        <span>--</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="col-6 col-sm-4 col-md-2 mb-3">
+                                <div className="card p-3 shadow border-primary">
+                                    <div className="d-flex flex-column align-items-center">
+                                        <span className="text-primary" style={{ fontWeight: 'bolder' }}>--</span>
+                                        <span>--</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </Card.Body>
+                </Card>
+
+                <Row className="mt-2 mb-3">
+                    <Col md={2}>
+                        <Form.Label className="fw-bold">Payment Status</Form.Label>
+                        <Form.Select value={teacherStatusFilter} onChange={(e) => setTeacherStatusFilter(e.target.value)}>
+                            <option value="">All</option>
+                            <option value="pending">Pending</option>
+                            <option value="pending due">Pending Due</option>
+                            <option value="fully paid">Fully Paid</option>
+                        </Form.Select>
+                    </Col>
+
+                    <Col md={2}>
+                        <Form.Label className="fw-bold">Search (Tuition Code)</Form.Label>
+                        <Form.Control
+                            type="text"
+                            placeholder="Search by Tuition Code"
+                            value={teacherTuitionCodeSearchQuery}
+                            onChange={(e) => setTeacherTuitionCodeSearchQuery(e.target.value)}
+                        />
+                    </Col>
+
+                    <Col md={2}>
+                        <Form.Label className="fw-bold">Search (Teacher Number)</Form.Label>
+                        <Form.Control
+                            type="text"
+                            placeholder="Search by Teacher Number"
+                            value={teacherNumberTeacherSearchQuery}
+                            onChange={(e) => setTeacherNumberTeacherSearchQuery(e.target.value)}
+                        />
+                    </Col>
+
+                    <Col md={2}>
+                        <Form.Label className="fw-bold">Search (Payment Number)</Form.Label>
+                        <Form.Control
+                            type="text"
+                            placeholder="Search by Payment Number"
+                            value={teacherPaymentNumberSearchQuery}
+                            onChange={(e) => setTeacherPaymentNumberSearchQuery(e.target.value)}
+                        />
+                    </Col>
+
+                    <Col md={2} className="d-flex align-items-end">
+                        <Button variant="danger" onClick={handleTeacherResetFilters} className="w-100">
+                            Reset Filters
+                        </Button>
+                    </Col>
+                </Row>
+
+                <Button variant="success" className="mb-3">
+                    Export to Excel
+                </Button>
+
+                <Card className="mt-4">
+                    <Card.Body>
+                        <Card.Title>Teacher Payment List</Card.Title>
+                        <div style={{ maxHeight: "600px", overflowY: "auto" }}>
+                            <Table striped bordered hover responsive="lg">
+                                <thead className="table-primary" style={{ position: "sticky", top: 0, zIndex: 2 }}>
+                                    <tr>
+                                        <th>SL</th>
+                                        <th>Tuition Code</th>
+                                        <th>Payment Status</th>
+                                        <th>Submiited At</th>
+                                        <th>Teacher Name</th>
+                                        <th>Teacher Number</th>
+                                        <th>Payment Number</th>
+                                        <th>Transaction ID</th>
+                                        <th>Payment Type</th>
+                                        <th>Amount</th>
+                                        <th>Comment</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {loading ? (
+                                        <tr>
+                                            <td colSpan="20" className="text-center">
+                                                <div className="d-flex justify-content-center align-items-center" style={{ position: 'absolute', top: '90%', left: '50%', transform: 'translate(-50%, -50%)', width: '100vw', height: '100vh' }}>
+                                                    <Spinner animation="border" variant="primary" size="lg" />
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    ) : (
+                                        filteredTeacherPaymentList.slice().reverse().map((payment, index) => (
+                                            <tr key={payment._id}>
+                                                <td>{index + 1}</td>
+                                                <td>{payment.tuitionCode}</td>
+                                                <td>
+                                                    <span
+                                                        className={`badge 
+                                                            ${payment.status === "pending" ? "bg-danger" : ""}  
+                                                            ${payment.status === "pending due" ? "bg-info text-dark" : ""}  
+                                                            ${payment.status === "fully paid" ? "bg-success" : ""}
+                                                            `}
+                                                    >
+                                                        {payment.status}
+                                                    </span>
+                                                </td>
+                                                <td>{payment.requestedAt ? formatDate(payment.requestedAt) : ''}</td>
+                                                <td>{payment.name}</td>
+                                                <td>{payment.personalPhone}</td>
+                                                <td>{payment.paymentNumber}</td>
+                                                <td>{payment.transactionId}</td>
+                                                <td>{payment.paymentType}</td>
+                                                <td>{payment.amount}</td>
+                                                <td>{payment.comment}</td>
+                                                <td style={{ display: 'flex', justifyContent: 'flex-start', gap: '8px' }}>
+                                                    <Button variant="danger" onClick={() => handleTeacherDeletePayment(payment._id)}>
+                                                        <FaTrashAlt />
+                                                    </Button>
+                                                </td>
+                                            </tr>
+                                        ))
+                                    )}
+                                </tbody>
+
+                            </Table>
+                        </div>
+                    </Card.Body>
+                </Card>
+
 
                 {/* Create/Edit Payment Modal */}
                 <Modal show={showModal} onHide={() => setShowModal(false)} size="lg">

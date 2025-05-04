@@ -19,6 +19,7 @@ const AttendancePage = () => {
     const [editingAttendance, setEditingAttendance] = useState(null);
     const [editStartTime, setEditStartTime] = useState(new Date());
     const [editEndTime, setEditEndTime] = useState(new Date());
+    const [searchTerm, setSearchTerm] = useState('');
 
     useEffect(() => {
         fetchAttendance();
@@ -27,7 +28,7 @@ const AttendancePage = () => {
 
     useEffect(() => {
         applyFilter();
-    }, [filter, userFilter, attendance]);
+    }, [filter, userFilter, attendance, searchTerm]);
 
     const fetchAttendance = async () => {
         try {
@@ -127,17 +128,31 @@ const AttendancePage = () => {
         }
 
         if (userFilter) {
-            filtered = filtered.filter(entry => entry.userId === userFilter.value); // Filter by selected user
+            filtered = filtered.filter(entry => entry.userId === userFilter.value);
+        }
+
+        if (searchTerm.trim()) {
+            const lowerSearch = searchTerm.toLowerCase();
+            filtered = filtered.filter(entry =>
+                entry.userName?.toLowerCase().includes(lowerSearch)
+            );
         }
 
         setFilteredAttendance(filtered);
     };
+
 
     const openEditModal = (entry) => {
         setEditingAttendance(entry);
         setEditStartTime(new Date(entry.startTime));
         setEditEndTime(entry.endTime ? new Date(entry.endTime) : null);
         setShowEditModal(true);
+    };
+
+    const resetFilters = () => {
+        setFilter('today');
+        setUserFilter(null);
+        setSearchTerm('');
     };
 
     const filterOptions = [
@@ -169,7 +184,7 @@ const AttendancePage = () => {
                 <Button variant="danger" onClick={endDay}>End Day</Button>
 
                 <Row className="mt-3">
-                    <Col md={4}>
+                    <Col md={2}>
                         <Form.Label className="fw-bold">Filter By Date</Form.Label>
                         <Select
                             value={filterOptions.find(option => option.value === filter)}
@@ -180,8 +195,18 @@ const AttendancePage = () => {
                         />
                     </Col>
 
+                    <Col md={2}>
+                        <Form.Label className="fw-bold">Search (User name)</Form.Label>
+                        <Form.Control
+                            type="text"
+                            placeholder="Search by user name"
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                        />
+                    </Col>
+
                     {localStorage.getItem('role') === 'superadmin' && (
-                        <Col md={4}>
+                        <Col md={2}>
                             <Form.Label className="fw-bold">Filter By User</Form.Label>
                             <Select
                                 value={userFilter}
@@ -193,6 +218,12 @@ const AttendancePage = () => {
                             />
                         </Col>
                     )}
+
+                    <Col md={1} className="d-flex align-items-end">
+                        <Button variant="danger" onClick={resetFilters} className="w-100">
+                            Reset Filters
+                        </Button>
+                    </Col>
                 </Row>
 
                 <Table striped bordered hover responsive className="mt-4">

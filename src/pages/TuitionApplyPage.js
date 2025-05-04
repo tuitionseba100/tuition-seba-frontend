@@ -293,7 +293,6 @@ const TuitionPage = () => {
                     </Card.Body>
                 </Card>
 
-
                 {/* Search bar */}
                 <Row className="mt-2 mb-3">
                     <Col md={2}>

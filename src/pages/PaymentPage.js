@@ -17,6 +17,8 @@ const PaymentPage = () => {
     const [filteredTeacherPaymentList, setFilteredTeacherPaymentList] = useState([]);
     const [showModal, setShowModal] = useState(false);
     const [editingId, setEditingId] = useState(null);
+    const [showTeacherModal, setShowTeacherModal] = useState(false);
+    const [teacherEditingId, setTeacherEditingId] = useState(null);
     const [paymentData, setPaymentData] = useState({
         tuitionCode: '',
         tuitionId: '',
@@ -31,6 +33,17 @@ const PaymentPage = () => {
         duePayment: '',
         paymentStatus: '',
         comment: '',
+    });
+    const [teacherPaymentData, setTeacherPaymentData] = useState({
+        tuitionCode: '',
+        paymentType: '',
+        paymentNumber: '',
+        transactionId: '',
+        personalPhone: '',
+        amount: '',
+        name: '',
+        note: '',
+        status: '',
     });
     const [loading, setLoading] = useState(false);
     const [statusFilter, setStatusFilter] = useState('');
@@ -271,6 +284,54 @@ const PaymentPage = () => {
         XLSX.writeFile(workbook, `${fileName}.xlsx`);
     };
 
+    const handleTeacherTableExportToExcel = () => {
+        const now = new Date();
+        const formattedDate = now.toLocaleDateString().replace(/\//g, '-');
+        const formattedTime = now.toLocaleTimeString().replace(/:/g, '-');
+
+        const fileName = `Teacher Payment List_${formattedDate}_${formattedTime}`;
+
+        const tableHeaders = [
+            "SL", "Tuition Code", "Payment Status", "Submitted At", "Teacher Name", "Teacher Number", "Payment Number", "Transaction ID", "Payment Type", "Amount", "Comment"
+        ];
+
+        const tableData = filteredTeacherPaymentList.slice().reverse().map((payment, index) => [
+            index + 1,
+            String(payment.tuitionCode ?? ""),
+            String(payment.status ?? ""),
+            payment.requestedAt ? formatDate(payment.requestedAt) : "",
+            String(payment.name ?? ""),
+            String(payment.personalPhone ?? ""),
+            String(payment.paymentNumber ?? ""),
+            String(payment.transactionId ?? ""),
+            String(payment.paymentType ?? ""),
+            String(payment.amount ?? ""),
+            String(payment.comment ?? ""),
+        ]);
+
+        const worksheet = XLSX.utils.aoa_to_sheet([tableHeaders, ...tableData]);
+
+        worksheet['!cols'] = [
+            { wpx: 40 },  // SL
+            { wpx: 90 },  // Tuition Code
+            { wpx: 140 }, // Payment Status
+            { wpx: 140 }, // Submitted At
+            { wpx: 140 }, // Teacher Name
+            { wpx: 100 }, // Teacher Number
+            { wpx: 100 }, // Payment Number
+            { wpx: 100 }, // Transaction ID
+            { wpx: 100 }, // Payment Type
+            { wpx: 80 },  // Amount
+            { wpx: 140 }, // Comment
+        ];
+
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, "Teacher Payments");
+
+        XLSX.writeFile(workbook, `${fileName}.xlsx`);
+    };
+
+
     const handleSavePayment = async () => {
         if (!paymentData.tuitionId || paymentData.tuitionId.trim() === '') {
             toast.error("Please select a tuition code.");
@@ -286,13 +347,35 @@ const PaymentPage = () => {
         try {
             if (editingId) {
                 await axios.put(`https://tuition-seba-backend-1.onrender.com/api/payment/edit/${editingId}`, updatedPaymentData);
-                toast.success("Tuition record updated successfully!");
+                toast.success("Payment record updated successfully!");
             } else {
                 await axios.post('https://tuition-seba-backend-1.onrender.com/api/payment/add', updatedPaymentData);
-                toast.success("Tuition record created successfully!");
+                toast.success("Payment record created successfully!");
             }
             setShowModal(false);
             fetchPaymentRecords();
+        } catch (err) {
+            console.error('Error saving payemnt record:', err);
+            toast.error("Error saving payment record.");
+        }
+    };
+
+    const handleSaveTeacherPayment = async () => {
+        if (!teacherPaymentData.tuitionCode || teacherPaymentData.tuitionCode.trim() === '') {
+            toast.error("Please type a tuition code.");
+            return;
+        }
+
+        try {
+            if (teacherEditingId) {
+                await axios.put(`https://tuition-seba-backend-1.onrender.com/api/teacherPayment/edit/${teacherEditingId}`, teacherPaymentData);
+                toast.success("Teacher payment record updated successfully!");
+            } else {
+                await axios.post('https://tuition-seba-backend-1.onrender.com/api/teacherPayment/add', teacherPaymentData);
+                toast.success("Teacher payment record created successfully!");
+            }
+            setShowTeacherModal(false);
+            fetchTeacherPaymentRecords();
         } catch (err) {
             console.error('Error saving payemnt record:', err);
             toast.error("Error saving payment record.");
@@ -303,6 +386,12 @@ const PaymentPage = () => {
         setPaymentData(payment);
         setEditingId(payment._id);
         setShowModal(true);
+    };
+
+    const handleEditTeacherPayment = (payment) => {
+        setTeacherPaymentData(payment);
+        setTeacherEditingId(payment._id);
+        setShowTeacherModal(true);
     };
 
     const handleDeletePayment = async (id) => {
@@ -593,7 +682,10 @@ const PaymentPage = () => {
                 <hr></hr>
 
                 <Header>
-                    <h2 className='text-primary fw-bold'>Teacher Payment Records</h2>
+                    <h2 className='text-primary fw-bold'>Teacher Payment Dashboard</h2>
+                    <Button variant="primary" onClick={() => { setShowTeacherModal(true); setTeacherEditingId(null); setTeacherPaymentData({ tuitionCode: '', paymentType: '', paymentNumber: '', transactionId: '', personalPhone: '', amount: '', name: '', note: '', status: '' }) }}>
+                        Create Teacher Payment Record
+                    </Button>
                 </Header>
                 <Card className="mt-4">
                     <Card.Body>
@@ -671,8 +763,11 @@ const PaymentPage = () => {
                         <Form.Select value={teacherStatusFilter} onChange={(e) => setTeacherStatusFilter(e.target.value)}>
                             <option value="">All</option>
                             <option value="pending">Pending</option>
-                            <option value="pending due">Pending Due</option>
-                            <option value="fully paid">Fully Paid</option>
+                            <option value="under review">Under review</option>
+                            <option value="received">Received</option>
+                            <option value="cancelled">Cancelled</option>
+                            <option value="returned">Returned</option>
+                            <option value="deposit">Deposit</option>
                         </Form.Select>
                     </Col>
 
@@ -713,7 +808,7 @@ const PaymentPage = () => {
                     </Col>
                 </Row>
 
-                <Button variant="success" className="mb-3">
+                <Button variant="success" className="mb-3" onClick={handleTeacherTableExportToExcel}>
                     Export to Excel
                 </Button>
 
@@ -755,13 +850,16 @@ const PaymentPage = () => {
                                                 <td>
                                                     <span
                                                         className={`badge 
-                                                            ${payment.status === "pending" ? "bg-danger" : ""}  
-                                                            ${payment.status === "pending due" ? "bg-info text-dark" : ""}  
-                                                            ${payment.status === "fully paid" ? "bg-success" : ""}
-                                                            `}
+                                                            ${payment.status === "pending" ? "bg-primary" : ""}  
+                                                            ${payment.status === "under review" ? "bg-warning" : ""}  
+                                                            ${payment.status === "received" ? "bg-success" : ""}  
+                                                            ${payment.status === "cancelled" ? "bg-danger" : ""}  
+                                                            ${payment.status === "returned" ? "bg-info" : ""}  
+                                                            ${payment.status === "deposit" ? "bg-primary" : ""}`}
                                                     >
                                                         {payment.status}
                                                     </span>
+
                                                 </td>
                                                 <td>{payment.requestedAt ? formatDate(payment.requestedAt) : ''}</td>
                                                 <td>{payment.name}</td>
@@ -772,6 +870,9 @@ const PaymentPage = () => {
                                                 <td>{payment.amount}</td>
                                                 <td>{payment.comment}</td>
                                                 <td style={{ display: 'flex', justifyContent: 'flex-start', gap: '8px' }}>
+                                                    <Button variant="warning" onClick={() => handleEditTeacherPayment(payment)} className="mr-2">
+                                                        <FaEdit />
+                                                    </Button>
                                                     <Button variant="danger" onClick={() => handleTeacherDeletePayment(payment._id)}>
                                                         <FaTrashAlt />
                                                     </Button>
@@ -915,7 +1016,6 @@ const PaymentPage = () => {
                                 </Col>
                             </Row>
 
-
                             <Row>
                                 <Col md={4}>
                                     <Form.Group controlId="paymentType">
@@ -989,6 +1089,184 @@ const PaymentPage = () => {
                         <Button variant="primary" onClick={handleSavePayment}>Save</Button>
                     </Modal.Footer>
                 </Modal>
+
+                {/* Teacher Create/Edit Payment Modal */}
+                <Modal show={showTeacherModal} onHide={() => setShowTeacherModal(false)} size="lg">
+                    <Modal.Header closeButton>
+                        <Modal.Title className="fw-bold">
+                            {teacherEditingId ? "Edit Teacher Payment" : "Create Teacher Payment"}
+                        </Modal.Title>
+                    </Modal.Header>
+
+                    <Modal.Body>
+                        <Form>
+                            <Row>
+                                <Col md={6}>
+                                    <Form.Group controlId="tuitionId">
+                                        <Form.Label className="fw-bold">Tuition Code</Form.Label>
+                                        <Form.Control
+                                            type="text"
+                                            value={teacherPaymentData.tuitionCode}
+                                            onChange={(e) =>
+                                                setTeacherPaymentData({ ...teacherPaymentData, tuitionCode: e.target.value })
+                                            }
+                                            required
+                                        />
+                                    </Form.Group>
+                                </Col>
+
+                                <Col md={6}>
+                                    <Form.Group controlId="paymentType">
+                                        <Form.Label className="fw-bold">Payment Type</Form.Label>
+                                        <Form.Control
+                                            as="select"
+                                            value={teacherPaymentData.paymentType}
+                                            onChange={(e) =>
+                                                setTeacherPaymentData({ ...teacherPaymentData, paymentType: e.target.value })
+                                            }
+                                            required
+                                        >
+                                            <option value="">Select Payment type</option>
+                                            <option value="bkash">Bkash</option>
+                                            <option value="nagad">Nagad</option>
+                                            <option value="cash">Cash</option>
+                                        </Form.Control>
+                                    </Form.Group>
+                                </Col>
+                            </Row>
+
+                            <Row>
+                                <Col md={6}>
+                                    <Form.Group controlId="paymentNumber">
+                                        <Form.Label className="fw-bold">Payment Number</Form.Label>
+                                        <Form.Control
+                                            type="text"
+                                            value={teacherPaymentData.paymentNumber}
+                                            onChange={(e) =>
+                                                setTeacherPaymentData({ ...teacherPaymentData, paymentNumber: e.target.value })
+                                            }
+                                            required
+                                        />
+                                    </Form.Group>
+                                </Col>
+
+                                <Col md={6}>
+                                    <Form.Group controlId="transactionId">
+                                        <Form.Label className="fw-bold">Transaction ID</Form.Label>
+                                        <Form.Control
+                                            type="text"
+                                            value={teacherPaymentData.transactionId}
+                                            onChange={(e) =>
+                                                setTeacherPaymentData({ ...teacherPaymentData, transactionId: e.target.value })
+                                            }
+                                            required
+                                        />
+                                    </Form.Group>
+                                </Col>
+                            </Row>
+
+                            <Row>
+                                <Col md={6}>
+                                    <Form.Group controlId="amount">
+                                        <Form.Label className="fw-bold">Payment Amount</Form.Label>
+                                        <Form.Control
+                                            type="number"
+                                            value={teacherPaymentData.amount}
+                                            onChange={(e) =>
+                                                setTeacherPaymentData({ ...teacherPaymentData, amount: e.target.value })
+                                            }
+                                            required
+                                        />
+                                    </Form.Group>
+                                </Col>
+
+                                <Col md={6}>
+                                    <Form.Group controlId="name">
+                                        <Form.Label className="fw-bold">Name</Form.Label>
+                                        <Form.Control
+                                            type="text"
+                                            value={teacherPaymentData.name}
+                                            onChange={(e) =>
+                                                setTeacherPaymentData({ ...teacherPaymentData, name: e.target.value })
+                                            }
+                                            required
+                                        />
+                                    </Form.Group>
+                                </Col>
+                            </Row>
+
+                            <Row>
+                                <Col md={6}>
+                                    <Form.Group controlId="personalPhone">
+                                        <Form.Label className="fw-bold">Contact Number/Whatsapp Number</Form.Label>
+                                        <Form.Control
+                                            type="text"
+                                            value={teacherPaymentData.personalPhone}
+                                            onChange={(e) =>
+                                                setTeacherPaymentData({ ...teacherPaymentData, personalPhone: e.target.value })
+                                            }
+                                            required
+                                        />
+                                    </Form.Group>
+                                </Col>
+
+                                <Col md={6}>
+                                    <Form.Group controlId="note">
+                                        <Form.Label className="fw-bold">Note</Form.Label>
+                                        <Form.Control
+                                            type="text"
+                                            value={teacherPaymentData.note}
+                                            onChange={(e) =>
+                                                setTeacherPaymentData({ ...teacherPaymentData, note: e.target.value })
+                                            }
+                                            required
+                                        />
+                                    </Form.Group>
+                                </Col>
+                            </Row>
+                            <Row className='mt-2'>
+                                <Col
+                                    md={6}
+                                    className="bg-warning bg-opacity-25 border border-warning rounded p-3 mb-3"
+                                >
+                                    <Form.Group controlId="status">
+                                        <Form.Label className="fw-bold text-dark">Payment Status</Form.Label>
+                                        <Form.Control
+                                            as="select"
+                                            value={teacherPaymentData.status}
+                                            onChange={(e) =>
+                                                setTeacherPaymentData({
+                                                    ...teacherPaymentData,
+                                                    status: e.target.value,
+                                                })
+                                            }
+                                            required
+                                            className="fw-semibold"
+                                        >
+                                            <option value="pending">Pending</option>
+                                            <option value="under review">Under review</option>
+                                            <option value="received">Received</option>
+                                            <option value="cancelled">Cancelled</option>
+                                            <option value="returned">Returned</option>
+                                            <option value="deposit">Deposit</option>
+                                        </Form.Control>
+                                    </Form.Group>
+                                </Col>
+                            </Row>
+
+                        </Form>
+                    </Modal.Body>
+
+                    <Modal.Footer>
+                        <Button variant="secondary" onClick={() => setShowTeacherModal(false)}>
+                            Close
+                        </Button>
+                        <Button variant="primary" onClick={handleSaveTeacherPayment}>
+                            Save
+                        </Button>
+                    </Modal.Footer>
+                </Modal>
+
 
                 {/* Due Payments Modal */}
                 <Modal show={showDueModal} onHide={() => setShowDueModal(false)} centered size="lg">

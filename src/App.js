@@ -11,6 +11,7 @@ import TaskPage from './pages/TaskPage';
 import AttendancePage from './pages/AttendancePage';
 import TuitionApply from './pages/TuitionApplyPage';
 import RefundPage from './pages/RefundPage';
+import PremiumTeacherPage from './pages/PremiumTeacherPage';
 
 const App = () => {
   return (
@@ -30,6 +31,7 @@ const App = () => {
           <Route path="/task" element={<TaskPage />} />
           <Route path="/attendance" element={<AttendancePage />} />
           <Route path="/tuitionApply" element={<TuitionApply />} />
+          <Route path="/premiumTeacher" element={<PremiumTeacherPage />} />
         </Route>
       </Routes>
     </Router>

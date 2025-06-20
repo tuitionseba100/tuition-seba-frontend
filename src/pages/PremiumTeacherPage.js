@@ -432,7 +432,7 @@ const PremiumTeacherPage = () => {
                                                 <tr key={item._id}>
                                                     <td>{index + 1}</td>
                                                     <td>{item.createdAt ? formatDate(item.createdAt) : ''}</td>
-                                                    <td>{item.password}</td>
+                                                    <td>{item.premiumCode}</td>
                                                     <td>
                                                         <span
                                                             className={`badge ${item.status === 'pending'
@@ -498,7 +498,7 @@ const PremiumTeacherPage = () => {
                                     className="w-100 rounded bg-primary text-white d-flex justify-content-center align-items-center shadow-sm"
                                     style={{ height: '60px', fontSize: '1.25rem', fontWeight: '600' }}
                                 >
-                                    Premium Code: <span className="ms-3">{selectedTeacher.password}</span>
+                                    Premium Code: <span className="ms-3">{selectedTeacher.premiumCode}</span>
                                 </div>
                             </div>
                         )}

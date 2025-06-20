@@ -19,13 +19,21 @@ const PremiumTeacherPage = () => {
     const [addressSearchQuery, setAddressSearchQuery] = useState('');
     const [loading, setLoading] = useState(false);
     const [statusFilter, setStatusFilter] = useState('');
+    const [genderFilter, setGenderFilter] = useState('');
     const [showDetailsModal, setShowDetailsModal] = useState(false);
     const [selectedTeacher, setSelectedTeacher] = useState(null);
 
     const fieldConfig = [
         // Personal Info
         { name: 'name', label: 'Name', col: 6, group: 'Personal Info' },
-        { name: 'gender', label: 'Gender', col: 6, group: 'Personal Info' },
+        {
+            name: 'gender',
+            label: 'Gender',
+            col: 6,
+            group: 'Personal Info',
+            type: 'select',
+            options: ['male', 'female']
+        },
         { name: 'phone', label: 'Phone', col: 6, group: 'Personal Info' },
         { name: 'whatsapp', label: 'WhatsApp', col: 6, group: 'Personal Info' },
         { name: 'email', label: 'Email', col: 6, group: 'Personal Info' },
@@ -126,8 +134,12 @@ const PremiumTeacherPage = () => {
             filteredData = filteredData.filter(item => item.status === statusFilter);
         }
 
+        if (genderFilter) {
+            filteredData = filteredData.filter(item => item.gender === genderFilter);
+        }
+
         setFilteredTeacherList(filteredData);
-    }, [premiumCodeSearchQuery, nameSearchQuery, phoneSearchQuery, addressSearchQuery, statusFilter, reacrodsList]);
+    }, [premiumCodeSearchQuery, nameSearchQuery, phoneSearchQuery, addressSearchQuery, statusFilter, genderFilter, reacrodsList]);
 
     const fetchAllRecords = async () => {
         setLoading(true);
@@ -260,6 +272,7 @@ const PremiumTeacherPage = () => {
         setPhoneSearchQuery('');
         setAddressSearchQuery('');
         setStatusFilter('');
+        setGenderFilter('');
         setFilteredTeacherList(reacrodsList);
     };
 
@@ -341,7 +354,7 @@ const PremiumTeacherPage = () => {
                         />
                     </Col>
 
-                    <Col md={2}>
+                    <Col md={1}>
                         <Form.Label className="fw-bold">Status</Form.Label>
                         <Form.Select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
                             <option value="">All</option>
@@ -350,6 +363,15 @@ const PremiumTeacherPage = () => {
                             <option value="pending payment">Pending Payment</option>
                             <option value="rejected">Rejected</option>
                             <option value="verified">Verified</option>
+                        </Form.Select>
+                    </Col>
+
+                    <Col md={1}>
+                        <Form.Label className="fw-bold">Gender</Form.Label>
+                        <Form.Select value={genderFilter} onChange={(e) => setGenderFilter(e.target.value)}>
+                            <option value="">All</option>
+                            <option value="male">Male</option>
+                            <option value="female">Female</option>
                         </Form.Select>
                     </Col>
 
@@ -541,57 +563,74 @@ const PremiumTeacherPage = () => {
                 </Modal>
 
                 {/* Create/Edit Tuition Modal */}
-                <Modal show={showModal} onHide={() => setShowModal(false)} size="lg">
+                {/* Create/Edit Tuition Modal */}
+                <Modal show={showModal} onHide={() => setShowModal(false)} size="lg" centered scrollable>
                     <Modal.Header closeButton>
-                        <Modal.Title className="fw-bold">{editingId ? "Edit" : "Create"}</Modal.Title>
+                        <Modal.Title className="fw-bold">{editingId ? "Edit Teacher" : "Create Teacher"}</Modal.Title>
                     </Modal.Header>
 
                     <Modal.Body>
-
                         <Form>
-                            <Row>
-                                {fieldConfig.map((field, idx) => (
-                                    <Col md={field.col || 6} key={idx}>
-                                        <Form.Group controlId={field.name} className="mb-3">
-                                            <Form.Label className="fw-bold">{field.label}</Form.Label>
+                            {Object.entries(
+                                fieldConfig.reduce((groups, field) => {
+                                    if (!groups[field.group]) groups[field.group] = [];
+                                    groups[field.group].push(field);
+                                    return groups;
+                                }, {})
+                            ).map(([groupName, fields]) => (
+                                <div key={groupName} className="mb-4">
+                                    <h5 className="fw-bold mb-3 border-bottom pb-1">{groupName}</h5>
+                                    <Row>
+                                        {fields.map((field, idx) => (
+                                            <Col md={field.col || 6} key={idx}>
+                                                <Form.Group controlId={field.name} className="mb-3">
+                                                    <Form.Label className="fw-bold">{field.label}</Form.Label>
 
-                                            {field.type === 'select' ? (
-                                                <Form.Control
-                                                    as="select"
-                                                    value={formData[field.name]}
-                                                    onChange={(e) =>
-                                                        setFormData({ ...formData, [field.name]: e.target.value })
-                                                    }
-                                                    required
-                                                >
-                                                    <option value="">Select {field.label}</option>
-                                                    {field.options.map((opt, i) => (
-                                                        <option key={i} value={opt}>
-                                                            {opt}
-                                                        </option>
-                                                    ))}
-                                                </Form.Control>
-                                            ) : (
-                                                <Form.Control
-                                                    type={field.type || 'text'}
-                                                    value={formData[field.name]}
-                                                    onChange={(e) =>
-                                                        setFormData({ ...formData, [field.name]: e.target.value })
-                                                    }
-                                                    required
-                                                />
-                                            )}
-                                        </Form.Group>
-                                    </Col>
-                                ))}
-                            </Row>
+                                                    {field.type === "select" ? (
+                                                        <Form.Control
+                                                            as="select"
+                                                            value={formData[field.name] || ""}
+                                                            onChange={(e) =>
+                                                                setFormData({ ...formData, [field.name]: e.target.value })
+                                                            }
+                                                            required
+                                                        >
+                                                            <option value="">Select {field.label}</option>
+                                                            {field.options.map((opt, i) => (
+                                                                <option key={i} value={opt}>
+                                                                    {opt}
+                                                                </option>
+                                                            ))}
+                                                        </Form.Control>
+                                                    ) : (
+                                                        <Form.Control
+                                                            type={field.type || "text"}
+                                                            value={formData[field.name] || ""}
+                                                            onChange={(e) =>
+                                                                setFormData({ ...formData, [field.name]: e.target.value })
+                                                            }
+                                                            required
+                                                        />
+                                                    )}
+                                                </Form.Group>
+                                            </Col>
+                                        ))}
+                                    </Row>
+                                </div>
+                            ))}
                         </Form>
                     </Modal.Body>
+
                     <Modal.Footer>
-                        <Button variant="secondary" onClick={() => setShowModal(false)}>Close</Button>
-                        <Button variant="primary" onClick={handleSaveRecord}>Save</Button>
+                        <Button variant="secondary" onClick={() => setShowModal(false)}>
+                            Close
+                        </Button>
+                        <Button variant="primary" onClick={handleSaveRecord}>
+                            Save
+                        </Button>
                     </Modal.Footer>
                 </Modal>
+
 
                 <ToastContainer />
             </Container>

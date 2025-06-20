@@ -363,6 +363,7 @@ const TuitionPage = () => {
                                         <th>SL</th>
                                         <th>Applied At</th>
                                         <th>Status</th>
+                                        <th>Premium Code</th>
                                         <th>Tuition Code</th>
                                         <th>Name</th>
                                         <th>Phone</th>
@@ -408,7 +409,7 @@ const TuitionPage = () => {
                                                         {tuition.status}
                                                     </span>
                                                 </td>
-
+                                                <td>{tuition.premiumCode}</td>
                                                 <td>{tuition.tuitionCode}</td>
                                                 <td>{tuition.name}</td>
                                                 <td>{tuition.phone}</td>

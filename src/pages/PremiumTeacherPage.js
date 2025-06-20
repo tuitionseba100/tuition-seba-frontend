@@ -7,34 +7,49 @@ import styled from 'styled-components';
 import { ToastContainer, toast } from 'react-toastify';
 import { Spinner } from 'react-bootstrap';
 import * as XLSX from 'xlsx';
+import Select from 'react-select';
 
 const PremiumTeacherPage = () => {
     const [reacrodsList, setReacrodsList] = useState([]);
     const [filteredTeacherList, setFilteredTeacherList] = useState([]);
     const [showModal, setShowModal] = useState(false);
     const [editingId, setEditingId] = useState(null);
-    const [nameSearchQuery, setnameSearchQuery] = useState('');
-    const [premiumCodeSearchQuery, setPremiumCodeSearchQuery] = useState('');
-    const [phoneSearchQuery, setPhoneSearchQuery] = useState('');
-    const [addressSearchQuery, setAddressSearchQuery] = useState('');
     const [loading, setLoading] = useState(false);
-    const [statusFilter, setStatusFilter] = useState('');
-    const [genderFilter, setGenderFilter] = useState('');
     const [showDetailsModal, setShowDetailsModal] = useState(false);
     const [selectedTeacher, setSelectedTeacher] = useState(null);
+    const [selectedCity, setSelectedCity] = useState('');
+    const [areaList, setAreaList] = useState([]);
+    const token = localStorage.getItem('token');
+
+    const initialSearchFilters = {
+        premiumCode: '',
+        name: '',
+        phone: '',
+        currentArea: '',
+        status: '',
+        gender: ''
+    };
+
+    const [searchFilters, setSearchFilters] = useState(initialSearchFilters);
+    const searchFields = [
+        { key: 'premiumCode', label: 'Premium Code', type: 'text', col: 2 },
+        { key: 'name', label: 'Name', type: 'text', col: 2 },
+        { key: 'phone', label: 'Phone', type: 'text', col: 2 },
+        { key: 'currentArea', label: 'Area', type: 'text', col: 2 },
+        { key: 'status', label: 'Status', type: 'select', options: ['pending', 'under review', 'pending payment', 'rejected', 'verified'], col: 1 },
+        { key: 'gender', label: 'Gender', type: 'select', options: ['male', 'female'], col: 1 }
+    ];
+
+    const handleFilterChange = (key, value) => {
+        setSearchFilters(prev => ({ ...prev, [key]: value }));
+    };
 
     const fieldConfig = [
         // Personal Info
         { name: 'name', label: 'Name', col: 6, group: 'Personal Info' },
-        {
-            name: 'gender',
-            label: 'Gender',
-            col: 6,
-            group: 'Personal Info',
-            type: 'select',
-            options: ['male', 'female']
-        },
+        { name: 'gender', label: 'Gender', col: 6, group: 'Personal Info', type: 'select', options: ['male', 'female'] },
         { name: 'phone', label: 'Phone', col: 6, group: 'Personal Info' },
+        { name: 'alternativePhone', label: 'Alternative Phone', col: 6, group: 'Personal Info' },
         { name: 'whatsapp', label: 'WhatsApp', col: 6, group: 'Personal Info' },
         { name: 'email', label: 'Email', col: 6, group: 'Personal Info' },
         { name: 'facebookLink', label: 'Facebook Link', col: 6, group: 'Personal Info' },
@@ -45,17 +60,15 @@ const PremiumTeacherPage = () => {
         { name: 'fullAddress', label: 'Full Address', col: 6, group: 'Personal Info' },
 
         // Academic Info
-        { name: 'university', label: 'University', col: 6, group: 'Academic Info' },
-        { name: 'department', label: 'Department', col: 6, group: 'Academic Info' },
-        { name: 'academicYear', label: 'Academic Year', col: 6, group: 'Academic Info' },
+        { name: 'academicYear', label: 'Academic Year', type: 'select', options: ['1st', '2nd', '3rd', '4th', '5th/masters', 'completed'], col: 6, group: 'Academic Info' },
         { name: 'medium', label: 'Medium', col: 6, group: 'Academic Info' },
         { name: 'mastersDept', label: 'Masters Dept', col: 6, group: 'Academic Info' },
         { name: 'mastersUniversity', label: 'Masters University', col: 6, group: 'Academic Info' },
         { name: 'honorsDept', label: 'Honors Dept', col: 6, group: 'Academic Info' },
         { name: 'honorsUniversity', label: 'Honors University', col: 6, group: 'Academic Info' },
-        { name: 'hscGroup', label: 'HSC Group', col: 6, group: 'Academic Info' },
+        { name: 'hscGroup', label: 'HSC Group', type: 'select', options: ['Science', 'Arts', 'Commerce', 'Vocational'], col: 6, group: 'Academic Info' },
         { name: 'hscResult', label: 'HSC Result', col: 6, group: 'Academic Info' },
-        { name: 'sscGroup', label: 'SSC Group', col: 6, group: 'Academic Info' },
+        { name: 'sscGroup', label: 'SSC Group', type: 'select', options: ['Science', 'Arts', 'Commerce', 'Vocational'], col: 6, group: 'Academic Info' },
         { name: 'sscResult', label: 'SSC Result', col: 6, group: 'Academic Info' },
 
         // Teaching Profile
@@ -67,14 +80,7 @@ const PremiumTeacherPage = () => {
         // Subscription & Payment Details
         { name: 'premiumCode', label: 'Premium Code', col: 6, group: 'Subscription & Payment Details' },
         { name: 'password', label: 'Password', col: 6, group: 'Subscription & Payment Details' },
-        {
-            name: 'status',
-            label: 'Subscription Status',
-            type: 'select',
-            col: 6,
-            options: ['pending', 'under review', 'pending payment', 'rejected', 'verified'],
-            group: 'Subscription & Payment Details'
-        },
+        { name: 'status', label: 'Subscription Status', type: 'select', col: 6, options: ['pending', 'under review', 'pending payment', 'rejected', 'verified'], group: 'Subscription & Payment Details' },
         { name: 'transactionId', label: 'Transaction ID', col: 6, group: 'Subscription & Payment Details' },
         { name: 'paymentType', label: 'Payment Method', col: 6, group: 'Subscription & Payment Details' },
         { name: 'amount', label: 'Amount Paid', col: 6, group: 'Subscription & Payment Details' },
@@ -82,6 +88,39 @@ const PremiumTeacherPage = () => {
         // Notes & Feedback
         { name: 'comment', label: 'Comment from agent', col: 6, group: 'Notes & Feedback' }
     ];
+
+    const cityOptions = [
+        { value: 'chittagong', label: 'Chittagong' },
+        { value: 'dhaka', label: 'Dhaka' },
+    ];
+
+    const areaOptions = {
+        chittagong: [
+            "Panchlaish", "Halishahar", "Nasirabad", "Agrabad", "Baizid",
+            "Chawkbazar", "Muradpur", "Kotowali", "Colonel Hut", "Airport",
+            "Hathazari", "Oxygen", "2 no gate area", "New Market", "Anderkilla",
+            "Bayazid", "Dewanhat", "Firingee Bazar", "Patenga", "South Pahartali",
+            "North Pahartali", "East Halishahar", "West Halishahar", "Sholokbahar",
+            "North Kattali", "South Kattali", "Saraipara", "Lalkhan Bazar",
+            "Bagmaniram", "Dewan Bazar", "Jamal Khan", "Enayet Bazar",
+            "North Agrabad", "South Agrabad", "North Middle Halishahar",
+            "South Middle Halishahar", "North Halishahar", "North Patenga",
+            "South Patenga", "Pathantooly", "West Madarbari", "East Madarbari",
+            "Alkaran", "Boxirhat", "Gosaildanga", "Patharghata", "GEC",
+            "Bahaddarhat", "Kalamia Bazar", "Rahattarpool", "Notun Bridge",
+            "Chandgao", "Kaptai Rasthar Matha"
+        ].map(a => ({ value: a, label: a })),
+
+        dhaka: [
+            "Adabor", "Badda", "Banani", "Bhasantek", "Biman Bandar", "Cantonment",
+            "Dakshinkhan", "Darus Salam", "Demra", "Dhanmondi", "Gendaria", "Gulshan",
+            "Hazaribagh", "Jatrabari", "Kafrul", "Kalabagan", "Kamrangir Char", "Khilgaon",
+            "Khilkhet", "Kotwali", "Lalbagh", "Mirpur", "Mohammadpur", "Motijheel",
+            "New Market", "Pallabi", "Paltan", "Ramna", "Rampura", "Sabujbagh", "Shah Ali",
+            "Shahbagh", "Sher E Bangla Nagar", "Shyampur", "Sutrapur", "Tejgaon", "Turag",
+            "Uttara", "Uttar Khan"
+        ].map(a => ({ value: a, label: a }))
+    };
 
     const summaryCardOptions = [
         { key: 'all', label: 'Total Applied', borderColor: 'dark', textColor: 'dark' },
@@ -92,6 +131,19 @@ const PremiumTeacherPage = () => {
         { key: 'verified', label: 'Verified', borderColor: 'success', textColor: 'success' },
     ];
 
+    useEffect(() => {
+        const filteredData = reacrodsList.filter(item => {
+            return Object.entries(searchFilters).every(([key, value]) => {
+                if (!value) return true;
+                const itemValue = (item[key] || '').toString().toLowerCase();
+                return itemValue.includes(value.toLowerCase());
+            });
+        });
+
+        setFilteredTeacherList(filteredData);
+    }, [searchFilters, reacrodsList]);
+
+
     const initialData = fieldConfig.reduce((acc, field) => {
         acc[field.name] = '';
         return acc;
@@ -101,50 +153,12 @@ const PremiumTeacherPage = () => {
         fetchAllRecords();
     }, []);
 
-    useEffect(() => {
-        const filters = [
-            {
-                key: 'password',
-                query: premiumCodeSearchQuery,
-            },
-            {
-                key: 'name',
-                query: nameSearchQuery,
-            },
-            {
-                key: 'phone',
-                query: phoneSearchQuery,
-            },
-            {
-                key: 'address',
-                query: addressSearchQuery,
-            }
-        ];
-
-        let filteredData = reacrodsList.filter(item => {
-            return filters.every(filter => {
-                if (!filter.query) return true;
-                const value = String(item[filter.key] || '').toLowerCase().trim();
-                const query = String(filter.query).toLowerCase().trim();
-                return value.includes(query);
-            });
-        });
-
-        if (statusFilter) {
-            filteredData = filteredData.filter(item => item.status === statusFilter);
-        }
-
-        if (genderFilter) {
-            filteredData = filteredData.filter(item => item.gender === genderFilter);
-        }
-
-        setFilteredTeacherList(filteredData);
-    }, [premiumCodeSearchQuery, nameSearchQuery, phoneSearchQuery, addressSearchQuery, statusFilter, genderFilter, reacrodsList]);
-
     const fetchAllRecords = async () => {
         setLoading(true);
         try {
-            const response = await axios.get('https://tuition-seba-backend-1.onrender.com/api/regTeacher/all');
+            const response = await axios.get('https://tuition-seba-backend-1.onrender.com/api/regTeacher/all', {
+                headers: { Authorization: token },
+            });
             setReacrodsList(response.data);
             setFilteredTeacherList(response.data);
         } catch (err) {
@@ -158,7 +172,6 @@ const PremiumTeacherPage = () => {
         setSelectedTeacher(teacher);
         setShowDetailsModal(true);
     };
-
 
     const handleExportToExcel = () => {
         const headers = fieldConfig.map(f => f.label);
@@ -189,7 +202,15 @@ const PremiumTeacherPage = () => {
         };
         try {
             if (editingId) {
-                await axios.put(`https://tuition-seba-backend-1.onrender.com/api/regTeacher/edit/${editingId}`, updatingData);
+                await axios.put(
+                    `https://tuition-seba-backend-1.onrender.com/api/regTeacher/edit/${editingId}`,
+                    updatingData,
+                    {
+                        headers: {
+                            Authorization: token
+                        }
+                    }
+                );
                 toast.success("Teacher record updated successfully!");
             } else {
                 await axios.post('https://tuition-seba-backend-1.onrender.com/api/regTeacher/add', updatingData);
@@ -226,7 +247,14 @@ const PremiumTeacherPage = () => {
 
         if (confirmDelete) {
             try {
-                await axios.delete(`https://tuition-seba-backend-1.onrender.com/api/regTeacher/delete/${id}`);
+                await axios.delete(
+                    `https://tuition-seba-backend-1.onrender.com/api/regTeacher/delete/${id}`,
+                    {
+                        headers: {
+                            Authorization: token
+                        }
+                    }
+                );
                 toast.success("Deleted successfully!");
                 fetchAllRecords();
             } catch (err) {
@@ -267,13 +295,7 @@ const PremiumTeacherPage = () => {
     };
     const summaryCounts = getSummaryCounts();
     const handleResetFilters = () => {
-        setnameSearchQuery('');
-        setPremiumCodeSearchQuery('');
-        setPhoneSearchQuery('');
-        setAddressSearchQuery('');
-        setStatusFilter('');
-        setGenderFilter('');
-        setFilteredTeacherList(reacrodsList);
+        setSearchFilters(initialSearchFilters);
     };
 
     return (
@@ -315,73 +337,37 @@ const PremiumTeacherPage = () => {
 
                 {/* Search bar */}
                 <Row className="mt-2 mb-3">
-                    <Col md={2}>
-                        <Form.Label className="fw-bold">Search (Premium Code)</Form.Label>
-                        <Form.Control
-                            type="text"
-                            placeholder="Search by Premium Code"
-                            value={premiumCodeSearchQuery}
-                            onChange={(e) => setPremiumCodeSearchQuery(e.target.value)}
-                        />
-                    </Col>
-                    <Col md={2}>
-                        <Form.Label className="fw-bold">Search (Name)</Form.Label>
-                        <Form.Control
-                            type="text"
-                            placeholder="Search by Name"
-                            value={nameSearchQuery}
-                            onChange={(e) => setnameSearchQuery(e.target.value)}
-                        />
-                    </Col>
+                    {searchFields.map(({ key, label, type, options, col }) => (
+                        <Col md={col} key={key}>
+                            <Form.Label className="fw-bold">{label}</Form.Label>
+                            {type === 'select' ? (
+                                <Form.Select
+                                    value={searchFilters[key]}
+                                    onChange={(e) => handleFilterChange(key, e.target.value)}
+                                >
+                                    <option value="">All</option>
+                                    {options.map(opt => (
+                                        <option key={opt} value={opt}>{opt}</option>
+                                    ))}
+                                </Form.Select>
+                            ) : (
+                                <Form.Control
+                                    type="text"
+                                    placeholder={`Search by ${label}`}
+                                    value={searchFilters[key]}
+                                    onChange={(e) => handleFilterChange(key, e.target.value)}
+                                />
+                            )}
+                        </Col>
+                    ))}
 
-                    <Col md={2}>
-                        <Form.Label className="fw-bold">Search (Phone Number)</Form.Label>
-                        <Form.Control
-                            type="text"
-                            placeholder="Search by Phone Number"
-                            value={phoneSearchQuery}
-                            onChange={(e) => setPhoneSearchQuery(e.target.value)}
-                        />
-                    </Col>
-
-                    <Col md={2}>
-                        <Form.Label className="fw-bold">Search (Address)</Form.Label>
-                        <Form.Control
-                            type="text"
-                            placeholder="Search by Address"
-                            value={addressSearchQuery}
-                            onChange={(e) => setAddressSearchQuery(e.target.value)}
-                        />
-                    </Col>
-
-                    <Col md={1}>
-                        <Form.Label className="fw-bold">Status</Form.Label>
-                        <Form.Select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
-                            <option value="">All</option>
-                            <option value="pending">Pending</option>
-                            <option value="under review">Under Review</option>
-                            <option value="pending payment">Pending Payment</option>
-                            <option value="rejected">Rejected</option>
-                            <option value="verified">Verified</option>
-                        </Form.Select>
-                    </Col>
-
-                    <Col md={1}>
-                        <Form.Label className="fw-bold">Gender</Form.Label>
-                        <Form.Select value={genderFilter} onChange={(e) => setGenderFilter(e.target.value)}>
-                            <option value="">All</option>
-                            <option value="male">Male</option>
-                            <option value="female">Female</option>
-                        </Form.Select>
-                    </Col>
-
-                    <Col md={1} className="d-flex align-items-end">
+                    <Col md={2} className="d-flex align-items-end">
                         <Button variant="danger" onClick={handleResetFilters} className="w-100">
-                            Reset Filters
+                            Reset
                         </Button>
                     </Col>
-
                 </Row>
+
                 <Button variant="success" className="mb-3" onClick={handleExportToExcel}>
                     Export to Excel
                 </Button>
@@ -564,9 +550,9 @@ const PremiumTeacherPage = () => {
 
                 {/* Create/Edit Tuition Modal */}
                 {/* Create/Edit Tuition Modal */}
-                <Modal show={showModal} onHide={() => setShowModal(false)} size="lg" centered scrollable>
+                <Modal show={showModal} onHide={() => setShowModal(false)} size="xl" centered scrollable>
                     <Modal.Header closeButton>
-                        <Modal.Title className="fw-bold">{editingId ? "Edit Teacher" : "Create Teacher"}</Modal.Title>
+                        <Modal.Title className="fw-bold text-primary">{editingId ? "Edit Teacher" : "Create Teacher"}</Modal.Title>
                     </Modal.Header>
 
                     <Modal.Body>
@@ -579,14 +565,56 @@ const PremiumTeacherPage = () => {
                                 }, {})
                             ).map(([groupName, fields]) => (
                                 <div key={groupName} className="mb-4">
-                                    <h5 className="fw-bold mb-3 border-bottom pb-1">{groupName}</h5>
+                                    <h5 className="fw-bold mb-3 text-primary border-bottom pb-1">{groupName}</h5>
                                     <Row>
                                         {fields.map((field, idx) => (
                                             <Col md={field.col || 6} key={idx}>
                                                 <Form.Group controlId={field.name} className="mb-3">
                                                     <Form.Label className="fw-bold">{field.label}</Form.Label>
 
-                                                    {field.type === "select" ? (
+                                                    {field.name === "city" ? (
+                                                        <Select
+                                                            options={cityOptions}
+                                                            value={cityOptions.find((opt) => opt.value === formData.city) || null}
+                                                            onChange={(selected) => {
+                                                                const cityVal = selected?.value || "";
+                                                                setSelectedCity(cityVal);
+                                                                setFormData({ ...formData, city: cityVal, currentArea: "" });
+                                                                setAreaList(areaOptions[cityVal] || []);
+                                                            }}
+                                                            placeholder="Select City"
+                                                            isClearable
+                                                            isSearchable
+                                                            styles={{
+                                                                control: (base) => ({
+                                                                    ...base,
+                                                                    minHeight: "38px",
+                                                                    fontSize: "0.875rem",
+                                                                }),
+                                                                menu: (base) => ({ ...base, fontSize: "0.875rem" }),
+                                                            }}
+                                                        />
+                                                    ) : field.name === "currentArea" ? (
+                                                        <Select
+                                                            options={areaList}
+                                                            value={areaList.find((opt) => opt.value === formData.currentArea) || null}
+                                                            onChange={(selected) =>
+                                                                setFormData({ ...formData, currentArea: selected?.value || "" })
+                                                            }
+                                                            placeholder="Select Area"
+                                                            isClearable
+                                                            isSearchable
+                                                            isDisabled={!formData.city}
+                                                            styles={{
+                                                                control: (base) => ({
+                                                                    ...base,
+                                                                    minHeight: "38px",
+                                                                    fontSize: "0.875rem",
+                                                                }),
+                                                                menu: (base) => ({ ...base, fontSize: "0.875rem" }),
+                                                            }}
+                                                        />
+                                                    ) : field.type === "select" ? (
                                                         <Form.Control
                                                             as="select"
                                                             value={formData[field.name] || ""}

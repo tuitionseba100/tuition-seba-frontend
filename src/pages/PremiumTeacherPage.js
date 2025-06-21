@@ -96,7 +96,7 @@ const PremiumTeacherPage = () => {
 
     const areaOptions = {
         chittagong: [
-            "Panchlaish", "Halishahar", "Nasirabad", "Agrabad", "Baizid",
+            "Panchlaish", "CU Campus", "Halishahar", "Nasirabad", "Agrabad", "Baizid",
             "Chawkbazar", "Muradpur", "Kotowali", "Colonel Hut", "Airport",
             "Hathazari", "Oxygen", "2 no gate area", "New Market", "Anderkilla",
             "Bayazid", "Dewanhat", "Firingee Bazar", "Patenga", "South Pahartali",

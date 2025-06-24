@@ -383,7 +383,6 @@ const PremiumTeacherPage = () => {
                                         <th>Name</th>
                                         <th>Phone</th>
                                         <th>Current Area</th>
-                                        <th>University</th>
                                         <th>Academic Year</th>
                                         <th>Actions</th>
                                     </tr>
@@ -437,7 +436,6 @@ const PremiumTeacherPage = () => {
                                                     <td>{item.name}</td>
                                                     <td>{item.phone}</td>
                                                     <td>{item.currentArea}</td>
-                                                    <td>{item.university}</td>
                                                     <td>{item.academicYear}</td>
                                                     <td style={{ display: 'flex', gap: '8px' }}>
                                                         <Button variant="info" size="sm" onClick={() => handleShowDetails(item)}>

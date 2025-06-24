@@ -108,7 +108,7 @@ const PremiumTeacherPage = () => {
             "South Patenga", "Pathantooly", "West Madarbari", "East Madarbari",
             "Alkaran", "Boxirhat", "Gosaildanga", "Patharghata", "GEC",
             "Bahaddarhat", "Kalamia Bazar", "Rahattarpool", "Notun Bridge",
-            "Chandgao", "Kaptai Rasthar Matha"
+            "Chandgao", "Kaptai Rasthar Matha", "Khulshi"
         ].map(a => ({ value: a, label: a })),
 
         dhaka: [

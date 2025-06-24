@@ -96,19 +96,16 @@ const PremiumTeacherPage = () => {
 
     const areaOptions = {
         chittagong: [
-            "Panchlaish", "CU Campus", "Halishahar", "Nasirabad", "Agrabad", "Baizid",
-            "Chawkbazar", "Muradpur", "Kotowali", "Colonel Hut", "Airport",
-            "Hathazari", "Oxygen", "2 no gate area", "New Market", "Anderkilla",
-            "Bayazid", "Dewanhat", "Firingee Bazar", "Patenga", "South Pahartali",
-            "North Pahartali", "East Halishahar", "West Halishahar", "Sholokbahar",
-            "North Kattali", "South Kattali", "Saraipara", "Lalkhan Bazar",
-            "Bagmaniram", "Dewan Bazar", "Jamal Khan", "Enayet Bazar",
-            "North Agrabad", "South Agrabad", "North Middle Halishahar",
-            "South Middle Halishahar", "North Halishahar", "North Patenga",
-            "South Patenga", "Pathantooly", "West Madarbari", "East Madarbari",
-            "Alkaran", "Boxirhat", "Gosaildanga", "Patharghata", "GEC",
-            "Bahaddarhat", "Kalamia Bazar", "Rahattarpool", "Notun Bridge",
-            "Chandgao", "Kaptai Rasthar Matha", "Khulshi"
+            "2 no gate area", "Agrabad", "Anwara", "Alkaran", "Anderkilla", "Banskhali", "Bahaddarhat", "Baizid",
+            "Bagmaniram", "Bakalia", "Boxirhat", "Chandgao", "Chawkbazar", "Colonel Hut",
+            "CU Campus", "Dewan Bazar", "Dewanhat", "East Halishahar", "East Madarbari", "Enayet Bazar",
+            "Firingee Bazar", "Foy's Lake", "GEC", "Gosaildanga", "Hathazari", "Halishahar", "Jamal Khan",
+            "Kalamia Bazar", "Kaptai Rasthar Matha", "Kotowali", "Karnaphuli", "Khulshi", "Muradpur", "Nasirabad",
+            "New Market", "North Agrabad", "North Halishahar", "North Kattali", "North Middle Halishahar",
+            "North Patenga", "Notun Bridge", "Oxygen", "Patharghata", "Pathantooly", "Patenga", "Pahartali",
+            "Panchlaish", "Rahattarpool", "Saraipara", "Sholokbahar", "South Agrabad", "South Halishahar",
+            "South Kattali", "South Middle Halishahar", "South Patenga", "South Pahartali", "West Halishahar",
+            "West Madarbari"
         ].map(a => ({ value: a, label: a })),
 
         dhaka: [

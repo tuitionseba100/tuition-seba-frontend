@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Button, Table, Modal, Form, Row, Col, Card } from 'react-bootstrap';
-import { FaEdit, FaInfoCircle, FaTrashAlt } from 'react-icons/fa'; // React Icons
+import { FaEdit, FaInfoCircle, FaTrashAlt, FaWhatsapp } from 'react-icons/fa'; // React Icons
 import axios from 'axios';
 import NavBarPage from './NavbarPage';
 import styled from 'styled-components';
@@ -295,6 +295,33 @@ const PremiumTeacherPage = () => {
         setSearchFilters(initialSearchFilters);
     };
 
+    const handleShare = (teacherDetails) => {
+        const message =
+            `🌟 টিউশন সেবা ফোরাম (আস্থা ও বিশ্বস্ততায় একধাপ এগিয়ে)\n` +
+            `যোগাযোগঃ 01540376020\n` +
+            `🌐 www.tuitionsebaforum.com\n\n` +
+
+            `✅ *Verified Premium Tutor*\n` +
+            `• Premium Code: *${teacherDetails.premiumCode}*\n\n` +
+
+            `🧑‍🏫 *Teacher CV*\n` +
+            `• Name: ${teacherDetails.name}\n` +
+            `• Area: ${teacherDetails.area}\n\n` +
+
+            `🎓 *Academic Qualifications*\n` +
+            `• Honours University: ${teacherDetails.honorsUniversity}\n` +
+            `• Department: ${teacherDetails.honorsDept}\n` +
+            `• HSC: Group - ${teacherDetails.hscGroup}, Result - ${teacherDetails.hscResult}\n` +
+            `• SSC: Group - ${teacherDetails.sscGroup}, Result - ${teacherDetails.sscResult}\n\n` +
+
+            `🧪 *Experience*: ${teacherDetails.experience}\n` +
+            `📍 *Address*: ${teacherDetails.fullAddress}\n` +
+            `📘 *Favorite Subject*: ${teacherDetails.favoriteSubject}`;
+
+        const url = `https://wa.me/?text=${encodeURIComponent(message)}`;
+        window.open(url, '_blank');
+    };
+
     return (
         <>
             <NavBarPage />
@@ -447,6 +474,9 @@ const PremiumTeacherPage = () => {
                                                         </Button>
                                                         <Button variant="danger" onClick={() => handleDeleteTeacher(item._id)} size="sm">
                                                             <FaTrashAlt />
+                                                        </Button>
+                                                        <Button variant="success" onClick={() => handleShare(item)}>
+                                                            <FaWhatsapp />
                                                         </Button>
                                                     </td>
                                                 </tr>

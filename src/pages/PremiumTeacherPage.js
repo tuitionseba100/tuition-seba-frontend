@@ -296,27 +296,29 @@ const PremiumTeacherPage = () => {
     };
 
     const handleShare = (teacherDetails) => {
+        const getValue = (val) => val || 'N/A';
+
         const message =
             `🌟 টিউশন সেবা ফোরাম (আস্থা ও বিশ্বস্ততায় একধাপ এগিয়ে)\n` +
-            `যোগাযোগঃ 01540376020\n` +
+            `📞 যোগাযোগঃ 01540376020\n` +
             `🌐 www.tuitionsebaforum.com\n\n` +
 
             `✅ *Verified Premium Tutor*\n` +
-            `• Premium Code: *${teacherDetails.premiumCode}*\n\n` +
+            `• Premium Code: *${getValue(teacherDetails.premiumCode)}*\n\n` +
 
-            `🧑‍🏫 *Teacher CV*\n` +
-            `• Name: ${teacherDetails.name}\n` +
-            `• Area: ${teacherDetails.area}\n\n` +
+            `👤 *Teacher CV*\n` +
+            `• Name: ${getValue(teacherDetails.name)}\n` +
+            `• Area: ${getValue(teacherDetails.currentArea)}\n\n` +
 
             `🎓 *Academic Qualifications*\n` +
-            `• Honours University: ${teacherDetails.honorsUniversity}\n` +
-            `• Department: ${teacherDetails.honorsDept}\n` +
-            `• HSC: Group - ${teacherDetails.hscGroup}, Result - ${teacherDetails.hscResult}\n` +
-            `• SSC: Group - ${teacherDetails.sscGroup}, Result - ${teacherDetails.sscResult}\n\n` +
+            `• Honours University: ${getValue(teacherDetails.honorsUniversity)}\n` +
+            `• Department: ${getValue(teacherDetails.honorsDept)}\n` +
+            `• HSC: Group - ${getValue(teacherDetails.hscGroup)}, Result - ${getValue(teacherDetails.hscResult)}\n` +
+            `• SSC: Group - ${getValue(teacherDetails.sscGroup)}, Result - ${getValue(teacherDetails.sscResult)}\n\n` +
 
-            `🧪 *Experience*: ${teacherDetails.experience}\n` +
-            `📍 *Address*: ${teacherDetails.fullAddress}\n` +
-            `📘 *Favorite Subject*: ${teacherDetails.favoriteSubject}`;
+            `📅 *Experience*: ${getValue(teacherDetails.experience)}\n` +
+            `📍 *Address*: ${getValue(teacherDetails.fullAddress)}\n` +
+            `📘 *Favorite Subject*: ${getValue(teacherDetails.favoriteSubject)}`;
 
         const url = `https://wa.me/?text=${encodeURIComponent(message)}`;
         window.open(url, '_blank');

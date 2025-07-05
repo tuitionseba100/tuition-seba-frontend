@@ -341,7 +341,7 @@ const PremiumTeacherPage = () => {
             <NavBarPage />
             <Container>
                 <Header>
-                    <h2 className='text-primary fw-bold'>Tuition Applications</h2>
+                    <h2 className='text-primary fw-bold'>Premium Teachers</h2>
                     <Button
                         variant="primary"
                         onClick={() => {

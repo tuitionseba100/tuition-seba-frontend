@@ -34,7 +34,7 @@ const PremiumTeacherPage = () => {
     const searchFields = [
         { key: 'premiumCode', label: 'Premium Code', type: 'text', col: 2 },
         { key: 'name', label: 'Name', type: 'text', col: 2 },
-        { key: 'phone', label: 'Phone', type: 'text', col: 2 },
+        { key: 'phone', label: 'Phone/Alternative phone/Whatsapp', type: 'text', col: 2 },
         { key: 'currentArea', label: 'Area', type: 'text', col: 2 },
         { key: 'status', label: 'Status', type: 'select', options: ['pending', 'under review', 'pending payment', 'rejected', 'verified'], col: 1 },
         { key: 'gender', label: 'Gender', type: 'select', options: ['male', 'female'], col: 1 }

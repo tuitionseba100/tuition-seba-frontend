@@ -132,14 +132,26 @@ const PremiumTeacherPage = () => {
         const filteredData = reacrodsList.filter(item => {
             return Object.entries(searchFilters).every(([key, value]) => {
                 if (!value) return true;
-                const itemValue = (item[key] || '').toString().toLowerCase();
-                return itemValue.includes(value.toLowerCase());
+
+                const searchValue = value.toLowerCase();
+
+                if (key === 'phone') {
+                    const phoneFields = [
+                        item.phone,
+                        item.alternativePhone,
+                        item.whatsapp
+                    ].map(f => (f || '').toString().toLowerCase());
+
+                    return phoneFields.some(field => field.includes(searchValue));
+                } else {
+                    const itemValue = (item[key] || '').toString().toLowerCase();
+                    return itemValue.includes(searchValue);
+                }
             });
         });
 
         setFilteredTeacherList(filteredData);
     }, [searchFilters, reacrodsList]);
-
 
     const initialData = fieldConfig.reduce((acc, field) => {
         acc[field.name] = '';

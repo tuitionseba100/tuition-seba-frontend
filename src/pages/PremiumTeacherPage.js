@@ -104,9 +104,10 @@ const PremiumTeacherPage = () => {
             "New Market", "North Agrabad", "North Halishahar", "North Kattali", "North Middle Halishahar",
             "North Patenga", "Notun Bridge", "Oxygen", "Patharghata", "Pathantooly", "Patenga", "Pahartali",
             "Panchlaish", "Rahattarpool", "Saraipara", "Sholokbahar", "South Agrabad", "South Halishahar",
-            "South Kattali", "South Middle Halishahar", "South Patenga", "South Pahartali", "Stillmill Bazar", "West Halishahar",
+            "South Kattali", "South Middle Halishahar", "South Patenga", "South Pahartali", "Stillmill Bazar", "West Halishahar", "Wasa",
             "West Madarbari"
         ].map(a => ({ value: a, label: a })),
+
         dhaka: [
             "Adabor", "Badda", "Banani", "Bhasantek", "Biman Bandar", "Cantonment",
             "Dakshinkhan", "Darus Salam", "Demra", "Dhanmondi", "Gendaria", "Gulshan",

@@ -247,6 +247,7 @@ const PremiumTeacherPage = () => {
 
     const handleEditTeacher = (teacher) => {
         setFormData(teacher);
+        setAreaList(areaOptions[teacher.city] || []);
         setEditingId(teacher._id);
         setShowModal(true);
     };

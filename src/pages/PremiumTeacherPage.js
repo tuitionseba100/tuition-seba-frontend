@@ -96,18 +96,17 @@ const PremiumTeacherPage = () => {
 
     const areaOptions = {
         chittagong: [
-            "2 no gate area", "Agrabad", "Anwara", "Alkaran", "Anderkilla", "Banskhali", "Bahaddarhat", "Baizid",
+            "2 no gate area", "Agrabad", "Anwara", "Alkaran", "Anderkilla", "Aturar Depo", "Banskhali", "Bandartilla", "Bahaddarhat", "Baizid",
             "Bagmaniram", "Bakalia", "Boxirhat", "Chandgao", "Chawkbazar", "Colonel Hut",
             "CU Campus", "Dewan Bazar", "Dewanhat", "East Halishahar", "East Madarbari", "Enayet Bazar",
             "Firingee Bazar", "Foy's Lake", "GEC", "Gosaildanga", "Hathazari", "Halishahar", "Jamal Khan",
-            "Kalamia Bazar", "Kaptai Rasthar Matha", "Kotowali", "Karnaphuli", "Khulshi", "Muradpur", "Nasirabad",
+            "Kalamia Bazar", "Kaptai Rasthar Matha", "Kotowali", "Karnaphuli", "Khulshi", "Lalkhan Bazar", "Muradpur", "Nasirabad",
             "New Market", "North Agrabad", "North Halishahar", "North Kattali", "North Middle Halishahar",
             "North Patenga", "Notun Bridge", "Oxygen", "Patharghata", "Pathantooly", "Patenga", "Pahartali",
             "Panchlaish", "Rahattarpool", "Saraipara", "Sholokbahar", "South Agrabad", "South Halishahar",
-            "South Kattali", "South Middle Halishahar", "South Patenga", "South Pahartali", "West Halishahar",
+            "South Kattali", "South Middle Halishahar", "South Patenga", "South Pahartali", "Stillmill Bazar", "West Halishahar",
             "West Madarbari"
         ].map(a => ({ value: a, label: a })),
-
         dhaka: [
             "Adabor", "Badda", "Banani", "Bhasantek", "Biman Bandar", "Cantonment",
             "Dakshinkhan", "Darus Salam", "Demra", "Dhanmondi", "Gendaria", "Gulshan",

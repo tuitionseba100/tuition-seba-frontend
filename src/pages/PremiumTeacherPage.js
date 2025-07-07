@@ -145,7 +145,11 @@ const PremiumTeacherPage = () => {
                     return phoneFields.some(field => field.includes(searchValue));
                 } else {
                     const itemValue = (item[key] || '').toString().toLowerCase();
+                    if (['gender', 'status'].includes(key)) {
+                        return itemValue === searchValue;
+                    }
                     return itemValue.includes(searchValue);
+
                 }
             });
         });

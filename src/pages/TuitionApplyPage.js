@@ -25,7 +25,9 @@ const TuitionPage = () => {
         comment: '',
         commentForTeacher: ''
     });
-    const [searchQuery, setSearchQuery] = useState('');
+    const [tuitionCodeSearch, setTuitionCodeSearch] = useState('');
+    const [phoneSearch, setPhoneSearch] = useState('');
+
     const [statusFilter, setStatusFilter] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
@@ -49,7 +51,7 @@ const TuitionPage = () => {
     useEffect(() => {
         fetchTuitionApplyRecords(currentPage);
         fetchCardSummary();
-    }, [currentPage, searchQuery, statusFilter]);
+    }, [currentPage, tuitionCodeSearch, phoneSearch, statusFilter]);
 
     const fetchTuitionApplyRecords = async (page = 1) => {
         setLoading(true);
@@ -57,7 +59,8 @@ const TuitionPage = () => {
             const response = await axios.get('https://tuition-seba-backend-1.onrender.com/api/tuitionApply/getTableData', {
                 params: {
                     page,
-                    search: searchQuery,
+                    tuitionCode: tuitionCodeSearch,
+                    phone: phoneSearch,
                     status: statusFilter
                 }
             });
@@ -73,10 +76,12 @@ const TuitionPage = () => {
         setLoading(false);
     };
 
+
     const fetchCardSummary = () => {
         axios.get('https://tuition-seba-backend-1.onrender.com/api/tuitionApply/summary', {
             params: {
-                search: searchQuery,
+                tuitionCode: tuitionCodeSearch,
+                phone: phoneSearch,
                 status: statusFilter
             }
         })
@@ -280,15 +285,28 @@ const TuitionPage = () => {
 
                 {/* Search bar */}
                 <Row className="mt-2 mb-3">
-                    <Col md={4}>
-                        <Form.Label className="fw-bold">Search (Code / Name / Phone / Address)</Form.Label>
+                    <Col md={3}>
+                        <Form.Label className="fw-bold">Search by Tuition Code</Form.Label>
                         <Form.Control
                             type="text"
-                            placeholder="Search anything..."
-                            value={searchQuery}
+                            placeholder="e.g. TSF-1001"
+                            value={tuitionCodeSearch}
                             onChange={(e) => {
                                 setCurrentPage(1);
-                                setSearchQuery(e.target.value);
+                                setTuitionCodeSearch(e.target.value);
+                            }}
+                        />
+                    </Col>
+
+                    <Col md={3}>
+                        <Form.Label className="fw-bold">Search by Phone</Form.Label>
+                        <Form.Control
+                            type="text"
+                            placeholder="e.g. 017xxxxxxxx"
+                            value={phoneSearch}
+                            onChange={(e) => {
+                                setCurrentPage(1);
+                                setPhoneSearch(e.target.value);
                             }}
                         />
                     </Col>
@@ -316,9 +334,10 @@ const TuitionPage = () => {
                         </Form.Select>
                     </Col>
 
-                    <Col md={2} className="d-flex align-items-end">
+                    <Col md={3} className="d-flex align-items-end">
                         <Button variant="danger" onClick={() => {
-                            setSearchQuery('');
+                            setTuitionCodeSearch('');
+                            setPhoneSearch('');
                             setStatusFilter('');
                             setCurrentPage(1);
                         }} className="w-100">
@@ -363,7 +382,7 @@ const TuitionPage = () => {
                                             </td>
                                         </tr>
                                     ) : (
-                                        filteredTuitionList.slice().reverse().map((tuition, index) => (
+                                        filteredTuitionList.map((tuition, index) => (
                                             <tr key={tuition._id}>
                                                 <td>{index + 1}</td>
                                                 <td>{tuition.appliedAt ? formatDate(tuition.appliedAt) : ''}</td>

@@ -25,19 +25,20 @@ const TuitionPage = () => {
         comment: '',
         commentForTeacher: ''
     });
-    const [tuitionCodeSearchQuery, setTuitionCodeSearchQuery] = useState('');
-    const [phoneSearchQuery, setPhoneSearchQuery] = useState('');
-    const [addressSearchQuery, setAddressSearchQuery] = useState('');
+    const [searchQuery, setSearchQuery] = useState('');
+    const [statusFilter, setStatusFilter] = useState('');
+    const [currentPage, setCurrentPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
     const [allTuitionList, setAllTuitionList] = useState([]);
     const [loading, setLoading] = useState(false);
-    const [statusFilter, setStatusFilter] = useState('');
     const [statusCounts, setStatusCounts] = useState({
         pending: 0,
         calledInterested: 0,
         calledNoResponse: 0,
         refertoBM: 0,
         shortlisted: 0,
-        requestedForPayment: 0
+        requestedForPayment: 0,
+        total: 0
     });
 
     useEffect(() => {
@@ -46,61 +47,53 @@ const TuitionPage = () => {
     }, []);
 
     useEffect(() => {
-        let filteredData = tuitionList;
-        if (tuitionCodeSearchQuery) {
-            filteredData = filteredData.filter(tuition =>
-                tuition.tuitionCode.toLowerCase().includes(tuitionCodeSearchQuery.toLowerCase())
-            );
-        }
-        if (phoneSearchQuery) {
-            filteredData = filteredData.filter(tuition =>
-                String(tuition.phone).trim().toLowerCase().includes(String(phoneSearchQuery).trim().toLowerCase())
-            );
-        }
+        fetchTuitionApplyRecords(currentPage);
+        fetchCardSummary();
+    }, [currentPage, searchQuery, statusFilter]);
 
-        if (addressSearchQuery) {
-            filteredData = filteredData.filter(tuition =>
-                String(tuition.address).trim().toLowerCase().includes(String(addressSearchQuery).trim().toLowerCase())
-            );
-        }
-
-        if (statusFilter) {
-            filteredData = filteredData.filter(tuition => tuition.status === statusFilter);
-        }
-
-        const statusCounts = filteredData.reduce((counts, tuition) => {
-            if (tuition.status === 'pending') counts.pending++;
-            if (tuition.status === 'called (interested)') counts.calledInterested++;
-            if (tuition.status === 'called (no response)') counts.calledNoResponse++;
-            if (tuition.status === 'refer to bm') counts.refertoBM++;
-            if (tuition.status === 'shortlisted') counts.shortlisted++;
-            if (tuition.status === 'requested for payment') counts.requestedForPayment++;
-            return counts;
-        }, {
-            pending: 0,
-            calledInterested: 0,
-            calledNoResponse: 0,
-            refertoBM: 0,
-            shortlisted: 0,
-            requestedForPayment: 0
-        });
-
-        setStatusCounts(statusCounts);
-
-        setFilteredTuitionApplyList(filteredData);
-    }, [tuitionCodeSearchQuery, phoneSearchQuery, addressSearchQuery, statusFilter, tuitionList]);
-
-    const fetchTuitionApplyRecords = async () => {
+    const fetchTuitionApplyRecords = async (page = 1) => {
         setLoading(true);
         try {
-            const response = await axios.get('https://tuition-seba-backend-1.onrender.com/api/tuitionApply/all');
-            setTuitionApplyList(response.data);
-            setFilteredTuitionApplyList(response.data);
+            const response = await axios.get('https://tuition-seba-backend-1.onrender.com/api/tuitionApply/getTableData', {
+                params: {
+                    page,
+                    search: searchQuery,
+                    status: statusFilter
+                }
+            });
+
+            setTuitionApplyList(response.data.data);
+            setFilteredTuitionApplyList(response.data.data);
+            setCurrentPage(response.data.currentPage);
+            setTotalPages(response.data.totalPages);
         } catch (err) {
             console.error('Error fetching tuition records:', err);
             toast.error("Failed to load tuition apply records.");
         }
         setLoading(false);
+    };
+
+    const fetchCardSummary = () => {
+        axios.get('https://tuition-seba-backend-1.onrender.com/api/tuitionApply/summary', {
+            params: {
+                search: searchQuery,
+                status: statusFilter
+            }
+        })
+            .then(response => {
+                setStatusCounts({
+                    pending: response.data.pending,
+                    calledInterested: response.data.calledInterested,
+                    calledNoResponse: response.data.calledNoResponse,
+                    refertoBM: response.data.refertoBM,
+                    shortlisted: response.data.shortlisted,
+                    requestedForPayment: response.data.requestedForPayment,
+                    total: response.data.total
+                });
+            })
+            .catch(error => {
+                console.error('Error fetching card summary:', error);
+            });
     };
 
     const fetchAllTuitions = async () => {
@@ -217,14 +210,6 @@ const TuitionPage = () => {
         }
     };
 
-    const handleResetFilters = () => {
-        setTuitionCodeSearchQuery('');
-        setPhoneSearchQuery('');
-        setAddressSearchQuery('');
-        setStatusFilter('');
-        setFilteredTuitionApplyList(tuitionList);
-    };
-
     return (
         <>
             <NavBarPage />
@@ -243,7 +228,7 @@ const TuitionPage = () => {
                                 <div className="card p-3 shadow border-dark">
                                     <div className="d-flex flex-column align-items-center">
                                         <span className="text-dark" style={{ fontWeight: 'bolder' }}>Total Applied</span>
-                                        <span>{filteredTuitionList.length}</span>
+                                        <span>{statusCounts.total}</span>
                                     </div>
                                 </div>
                             </div>
@@ -295,39 +280,28 @@ const TuitionPage = () => {
 
                 {/* Search bar */}
                 <Row className="mt-2 mb-3">
-                    <Col md={2}>
-                        <Form.Label className="fw-bold">Search (Tuition Code)</Form.Label>
+                    <Col md={4}>
+                        <Form.Label className="fw-bold">Search (Code / Name / Phone / Address)</Form.Label>
                         <Form.Control
                             type="text"
-                            placeholder="Search by Tuition Code"
-                            value={tuitionCodeSearchQuery}
-                            onChange={(e) => setTuitionCodeSearchQuery(e.target.value)}
+                            placeholder="Search anything..."
+                            value={searchQuery}
+                            onChange={(e) => {
+                                setCurrentPage(1);
+                                setSearchQuery(e.target.value);
+                            }}
                         />
                     </Col>
 
-                    <Col md={2}>
-                        <Form.Label className="fw-bold">Search (Phone Number)</Form.Label>
-                        <Form.Control
-                            type="text"
-                            placeholder="Search by Phone Number"
-                            value={phoneSearchQuery}
-                            onChange={(e) => setPhoneSearchQuery(e.target.value)}
-                        />
-                    </Col>
-
-                    <Col md={2}>
-                        <Form.Label className="fw-bold">Search (Address)</Form.Label>
-                        <Form.Control
-                            type="text"
-                            placeholder="Search by Address"
-                            value={addressSearchQuery}
-                            onChange={(e) => setAddressSearchQuery(e.target.value)}
-                        />
-                    </Col>
-
-                    <Col md={2}>
-                        <Form.Label className="fw-bold">Status</Form.Label>
-                        <Form.Select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
+                    <Col md={3}>
+                        <Form.Label className="fw-bold">Status Filter</Form.Label>
+                        <Form.Select
+                            value={statusFilter}
+                            onChange={(e) => {
+                                setCurrentPage(1);
+                                setStatusFilter(e.target.value);
+                            }}
+                        >
                             <option value="">All</option>
                             <option value="pending">Pending</option>
                             <option value="called (interested)">Called (Interested)</option>
@@ -336,19 +310,23 @@ const TuitionPage = () => {
                             <option value="cancel">Cancelled</option>
                             <option value="shortlisted">Shortlisted</option>
                             <option value="requested for payment">Requested for Payment</option>
-                            <option value="meet to office">Meeting at Office</option>
+                            <option value="meet to office">Meet to office</option>
                             <option value="selected">Selected</option>
                             <option value="refer to bm">Refer to BM</option>
                         </Form.Select>
                     </Col>
 
-                    <Col md={1} className="d-flex align-items-end">
-                        <Button variant="danger" onClick={handleResetFilters} className="w-100">
-                            Reset Filters
+                    <Col md={2} className="d-flex align-items-end">
+                        <Button variant="danger" onClick={() => {
+                            setSearchQuery('');
+                            setStatusFilter('');
+                            setCurrentPage(1);
+                        }} className="w-100">
+                            Reset
                         </Button>
                     </Col>
-
                 </Row>
+
                 <Button variant="success" className="mb-3" onClick={handleExportToExcel}>
                     Export to Excel
                 </Button>
@@ -433,6 +411,26 @@ const TuitionPage = () => {
 
                             </Table>
                         </div>
+                        <div className="d-flex justify-content-center my-3">
+                            <Button
+                                variant="secondary"
+                                disabled={currentPage === 1}
+                                onClick={() => setCurrentPage(prev => prev - 1)}
+                                className="mx-2"
+                            >
+                                Previous
+                            </Button>
+                            <span className="fw-bold align-self-center">Page {currentPage} of {totalPages}</span>
+                            <Button
+                                variant="secondary"
+                                disabled={currentPage === totalPages}
+                                onClick={() => setCurrentPage(prev => prev + 1)}
+                                className="mx-2"
+                            >
+                                Next
+                            </Button>
+                        </div>
+
                     </Card.Body>
                 </Card>
 

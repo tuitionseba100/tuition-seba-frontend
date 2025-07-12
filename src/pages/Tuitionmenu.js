@@ -106,7 +106,7 @@ const TuitionPage = () => {
                 }
             });
 
-            setPublishCount(res.data.total || 0);
+            setPublishCount(res.data.isPublishTrueCount || 0);
             setStatusCounts({
                 available: res.data.available || 0,
                 givenNumber: res.data.givenNumber || 0,
@@ -465,7 +465,7 @@ const TuitionPage = () => {
                                             </td>
                                         </tr>
                                     ) : (
-                                        filteredTuitionList.slice().reverse().map((tuition, index) => (
+                                        filteredTuitionList.map((tuition, index) => (
                                             <tr key={tuition._id}>
                                                 <td>{index + 1}</td>
                                                 <td>{tuition.tuitionCode}</td>

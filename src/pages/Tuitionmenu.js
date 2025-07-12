@@ -44,6 +44,10 @@ const TuitionPage = () => {
     const inputRef = useRef(null);
     const userRole = localStorage.getItem('role');
     const [publishCount, setPublishCount] = useState(0);
+
+    const [currentPage, setCurrentPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
+
     const [statusCounts, setStatusCounts] = useState({
         available: 0,
         givenNumber: 0,
@@ -57,63 +61,62 @@ const TuitionPage = () => {
     }, []);
 
     useEffect(() => {
-        let filteredData = tuitionList;
-        if (tuitionCodeSearchQuery) {
-            filteredData = filteredData.filter(tuition =>
-                tuition.tuitionCode.toLowerCase().includes(tuitionCodeSearchQuery.toLowerCase())
-            );
-        }
-        if (gurdianNoSearchQuery) {
-            filteredData = filteredData.filter(tuition =>
-                tuition.guardianNumber.toLowerCase().includes(gurdianNoSearchQuery.toLowerCase())
-            );
-        }
-        if (teacherNoSearchQuery) {
-            filteredData = filteredData.filter(tuition =>
-                String(tuition.tutorNumber).trim().toLowerCase().includes(String(teacherNoSearchQuery).trim().toLowerCase())
-            );
-        }
-        if (publishFilter) {
-            const isPublished = publishFilter === "Yes";
-            filteredData = filteredData.filter(tuition => tuition.isPublish === isPublished);
-        }
-        if (urgentFilter) {
-            const isUrgent = urgentFilter === "Yes";
-            filteredData = filteredData.filter(tuition => tuition.isUrgent === isUrgent);
-        }
-        if (statusFilter) {
-            filteredData = filteredData.filter(tuition => tuition.status === statusFilter);
-        }
-
-        const publishCount = filteredData.filter(tuition => tuition.isPublish === true).length;
-        setPublishCount(publishCount);
-
-        const statusCounts = filteredData.reduce((counts, tuition) => {
-            if (tuition.status === 'available') counts.available++;
-            if (tuition.status === 'given number') counts.givenNumber++;
-            if (tuition.status === 'demo class running') counts.demoClassRunning++;
-            if (tuition.status === 'confirm') counts.confirm++;
-            if (tuition.status === 'cancel') counts.cancel++;
-            return counts;
-        }, { available: 0, givenNumber: 0, demoClassRunning: 0, confirm: 0, cancel: 0 });
-
-        setStatusCounts(statusCounts);
-
-        setFilteredTuitionList(filteredData);
-    }, [tuitionCodeSearchQuery, gurdianNoSearchQuery, teacherNoSearchQuery, publishFilter, urgentFilter, statusFilter, tuitionList]);
+        fetchTuitionRecords();
+    }, [tuitionCodeSearchQuery, gurdianNoSearchQuery, teacherNoSearchQuery, publishFilter, urgentFilter, statusFilter, currentPage]);
 
     const fetchTuitionRecords = async () => {
         setLoading(true);
         try {
-            const response = await axios.get('https://tuition-seba-backend-1.onrender.com/api/tuition/all');
-            setTuitionList(response.data);
-            setFilteredTuitionList(response.data);
-            console.log(localStorage.getItem('token'));
+            const response = await axios.get('https://tuition-seba-backend-1.onrender.com/api/tuition/getTableData', {
+                params: {
+                    page: currentPage,
+                    tuitionCode: tuitionCodeSearchQuery,
+                    guardianNumber: gurdianNoSearchQuery,
+                    tutorNumber: teacherNoSearchQuery,
+                    isPublish: publishFilter === "Yes" ? 'true' : publishFilter === "No" ? 'false' : undefined,
+                    isUrgent: urgentFilter === "Yes" ? 'true' : urgentFilter === "No" ? 'false' : undefined,
+                    status: statusFilter
+                }
+            });
+
+            setTuitionList(response.data.data);
+            setFilteredTuitionList(response.data.data);
+            setCurrentPage(response.data.currentPage);
+            setTotalPages(response.data.totalPages);
+
+            fetchSummaryCounts();
+
         } catch (err) {
             console.error('Error fetching tuition records:', err);
             toast.error("Failed to load tuition records.");
         }
         setLoading(false);
+    };
+
+    const fetchSummaryCounts = async () => {
+        try {
+            const res = await axios.get('https://tuition-seba-backend-1.onrender.com/api/tuition/summary', {
+                params: {
+                    tuitionCode: tuitionCodeSearchQuery,
+                    guardianNumber: gurdianNoSearchQuery,
+                    tutorNumber: teacherNoSearchQuery,
+                    isPublish: publishFilter === "Yes" ? 'true' : publishFilter === "No" ? 'false' : undefined,
+                    isUrgent: urgentFilter === "Yes" ? 'true' : urgentFilter === "No" ? 'false' : undefined,
+                    status: statusFilter
+                }
+            });
+
+            setPublishCount(res.data.total || 0);
+            setStatusCounts({
+                available: res.data.available || 0,
+                givenNumber: res.data.givenNumber || 0,
+                demoClassRunning: res.data.demoClassRunning || 0,
+                confirm: res.data.confirm || 0,
+                cancel: res.data.cancel || 0
+            });
+        } catch (err) {
+            console.error('Error fetching summary counts:', err);
+        }
     };
 
     const handleExportToExcel = () => {
@@ -210,6 +213,7 @@ const TuitionPage = () => {
     const handleEditTuition = (tuition) => {
         setTuitionData(tuition);
         setEditingId(tuition._id);
+        setCurrentPage(1);
         setShowModal(true);
     };
 
@@ -517,7 +521,30 @@ const TuitionPage = () => {
                                 </tbody>
 
                             </Table>
+
                         </div>
+                        <div className="d-flex justify-content-center mt-3">
+                            <Button
+                                variant="secondary"
+                                disabled={currentPage === 1}
+                                onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                                className="me-2"
+                            >
+                                Previous
+                            </Button>
+                            <span className="align-self-center fw-bold">
+                                Page {currentPage} of {totalPages}
+                            </span>
+                            <Button
+                                variant="secondary"
+                                disabled={currentPage === totalPages}
+                                onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                                className="ms-2"
+                            >
+                                Next
+                            </Button>
+                        </div>
+
                     </Card.Body>
                 </Card>
 

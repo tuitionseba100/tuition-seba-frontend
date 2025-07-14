@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Button, Table, Modal, Form, Row, Col, Card } from 'react-bootstrap';
-import { FaEdit, FaInfoCircle, FaTrashAlt, FaWhatsapp } from 'react-icons/fa'; // React Icons
+import { FaEdit, FaInfoCircle, FaTrashAlt, FaWhatsapp, FaChevronLeft, FaChevronRight } from 'react-icons/fa'; // React Icons
 import axios from 'axios';
 import NavBarPage from './NavbarPage';
 import styled from 'styled-components';
@@ -20,6 +20,9 @@ const PremiumTeacherPage = () => {
     const [selectedCity, setSelectedCity] = useState('');
     const [areaList, setAreaList] = useState([]);
     const token = localStorage.getItem('token');
+    const [currentPage, setCurrentPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
+    const [summaryCounts, setSummaryCounts] = useState({});
 
     const initialSearchFilters = {
         premiumCode: '',
@@ -41,6 +44,7 @@ const PremiumTeacherPage = () => {
     ];
 
     const handleFilterChange = (key, value) => {
+        setCurrentPage(1);
         setSearchFilters(prev => ({ ...prev, [key]: value }));
     };
 
@@ -162,23 +166,43 @@ const PremiumTeacherPage = () => {
         return acc;
     }, {});
     const [formData, setFormData] = useState(initialData);
-    useEffect(() => {
-        fetchAllRecords();
-    }, []);
 
-    const fetchAllRecords = async () => {
+    useEffect(() => {
+        fetchTableData();
+        fetchSummary();
+    }, [searchFilters, currentPage]);
+
+    const fetchTableData = async () => {
         setLoading(true);
         try {
-            const response = await axios.get('https://tuition-seba-backend-1.onrender.com/api/regTeacher/all', {
-                headers: { Authorization: token },
+            const response = await axios.get(`https://tuition-seba-backend-1.onrender.com/api/regTeacher/getTableData`, {
+                params: {
+                    page: currentPage,
+                    ...searchFilters
+                },
+                headers: { Authorization: token }
             });
-            setReacrodsList(response.data);
-            setFilteredTeacherList(response.data);
+
+            setReacrodsList(response.data.data);
+            setFilteredTeacherList(response.data.data);
+            setTotalPages(response.data.totalPages);
         } catch (err) {
-            console.error('Error fetching records:', err);
+            console.error('Error fetching paginated records:', err);
             toast.error("Failed to load Teacher records.");
         }
         setLoading(false);
+    };
+
+    const fetchSummary = async () => {
+        try {
+            const res = await axios.get(`https://tuition-seba-backend-1.onrender.com/api/regTeacher/summary`, {
+                params: searchFilters,
+                headers: { Authorization: token }
+            });
+            setSummaryCounts(res.data);
+        } catch (err) {
+            console.error('Error fetching summary:', err);
+        }
     };
 
     const handleShowDetails = (teacher) => {
@@ -230,7 +254,9 @@ const PremiumTeacherPage = () => {
                 toast.success("Teacher record created successfully!");
             }
             setShowModal(false);
-            fetchAllRecords();
+            fetchTableData();
+            fetchSummary();
+
         } catch (err) {
             console.error('Error saving Teacher record:', err);
             toast.error("Error saving Teacher record.");
@@ -270,7 +296,9 @@ const PremiumTeacherPage = () => {
                     }
                 );
                 toast.success("Deleted successfully!");
-                fetchAllRecords();
+                fetchTableData();
+                fetchSummary();
+
             } catch (err) {
                 console.error('Error:', err);
                 toast.error("Error.");
@@ -287,27 +315,6 @@ const PremiumTeacherPage = () => {
         }, {});
     };
 
-    const getSummaryCounts = () => {
-        const counts = {
-            all: filteredTeacherList.length,
-            pending: 0,
-            under_review: 0,
-            pending_payment: 0,
-            rejected: 0,
-            verified: 0,
-        };
-
-        filteredTeacherList.forEach(teacher => {
-            if (!teacher.status) return;
-            const normalizedStatus = teacher.status.toLowerCase().replace(/\s+/g, '_');
-            if (counts.hasOwnProperty(normalizedStatus)) {
-                counts[normalizedStatus]++;
-            }
-        });
-
-        return counts;
-    };
-    const summaryCounts = getSummaryCounts();
     const handleResetFilters = () => {
         setSearchFilters(initialSearchFilters);
     };
@@ -454,8 +461,6 @@ const PremiumTeacherPage = () => {
                                         </tr>
                                     ) : (
                                         filteredTeacherList
-                                            .slice()
-                                            .reverse()
                                             .map((item, index) => (
                                                 <tr key={item._id}>
                                                     <td>{index + 1}</td>
@@ -503,6 +508,29 @@ const PremiumTeacherPage = () => {
                                     )}
                                 </tbody>
                             </Table>
+                        </div>
+                        <div className="d-flex justify-content-center align-items-center gap-3 mt-4 flex-wrap">
+                            <Button
+                                variant="outline-primary"
+                                className="d-flex align-items-center gap-2 px-3 py-2 rounded-pill"
+                                disabled={currentPage === 1}
+                                onClick={() => setCurrentPage(prev => prev - 1)}
+                            >
+                                <FaChevronLeft /> Previous
+                            </Button>
+
+                            <span className="fw-semibold text-primary-emphasis fs-5">
+                                Page {currentPage} of {totalPages}
+                            </span>
+
+                            <Button
+                                variant="outline-primary"
+                                className="d-flex align-items-center gap-2 px-3 py-2 rounded-pill"
+                                disabled={currentPage === totalPages}
+                                onClick={() => setCurrentPage(prev => prev + 1)}
+                            >
+                                Next <FaChevronRight />
+                            </Button>
                         </div>
                     </Card.Body>
                 </Card>
@@ -592,7 +620,6 @@ const PremiumTeacherPage = () => {
                     </Modal.Footer>
                 </Modal>
 
-                {/* Create/Edit Tuition Modal */}
                 {/* Create/Edit Tuition Modal */}
                 <Modal show={showModal} onHide={() => setShowModal(false)} size="xl" centered scrollable>
                     <Modal.Header closeButton>

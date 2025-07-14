@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Button, Table, Modal, Form, Row, Col, Card } from 'react-bootstrap';
-import { FaEdit, FaTrashAlt } from 'react-icons/fa'; // React Icons
+import { FaEdit, FaTrashAlt, FaChevronLeft, FaChevronRight } from 'react-icons/fa'; // React Icons
 import axios from 'axios';
 import NavBarPage from './NavbarPage';
 import styled from 'styled-components';
@@ -430,23 +430,27 @@ const TuitionPage = () => {
 
                             </Table>
                         </div>
-                        <div className="d-flex justify-content-center my-3">
+                        <div className="d-flex justify-content-center align-items-center gap-3 mt-4 flex-wrap">
                             <Button
-                                variant="secondary"
+                                variant="outline-primary"
+                                className="d-flex align-items-center gap-2 px-3 py-2 rounded-pill"
                                 disabled={currentPage === 1}
                                 onClick={() => setCurrentPage(prev => prev - 1)}
-                                className="mx-2"
                             >
-                                Previous
+                                <FaChevronLeft /> Previous
                             </Button>
-                            <span className="fw-bold align-self-center">Page {currentPage} of {totalPages}</span>
+
+                            <span className="fw-semibold text-primary-emphasis fs-5">
+                                Page {currentPage} of {totalPages}
+                            </span>
+
                             <Button
-                                variant="secondary"
+                                variant="outline-primary"
+                                className="d-flex align-items-center gap-2 px-3 py-2 rounded-pill"
                                 disabled={currentPage === totalPages}
                                 onClick={() => setCurrentPage(prev => prev + 1)}
-                                className="mx-2"
                             >
-                                Next
+                                Next <FaChevronRight />
                             </Button>
                         </div>
 

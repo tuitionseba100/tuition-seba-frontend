@@ -124,7 +124,7 @@ const PremiumTeacherPage = () => {
     };
 
     const summaryCardOptions = [
-        { key: 'all', label: 'Total Applied', borderColor: 'dark', textColor: 'dark' },
+        { key: 'total', label: 'Total Applied', borderColor: 'dark', textColor: 'dark' },
         { key: 'pending', label: 'Pending', borderColor: 'warning', textColor: 'warning' },
         { key: 'under_review', label: 'Under Review', borderColor: 'info', textColor: 'info' },
         { key: 'pending_payment', label: 'Pending Payment', borderColor: 'primary', textColor: 'primary' },

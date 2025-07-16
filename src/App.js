@@ -12,6 +12,7 @@ import AttendancePage from './pages/AttendancePage';
 import TuitionApply from './pages/TuitionApplyPage';
 import RefundPage from './pages/RefundPage';
 import PremiumTeacherPage from './pages/PremiumTeacherPage';
+import SpamBestPage from './pages/SpamBestPage';
 
 const App = () => {
   return (
@@ -32,6 +33,7 @@ const App = () => {
           <Route path="/attendance" element={<AttendancePage />} />
           <Route path="/tuitionApply" element={<TuitionApply />} />
           <Route path="/premiumTeacher" element={<PremiumTeacherPage />} />
+          <Route path="/spamBest" element={<SpamBestPage />} />
         </Route>
       </Routes>
     </Router>

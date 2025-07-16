@@ -76,6 +76,11 @@ const Navbar = () => {
                             </Link>
                         </li>
                         <li className="nav-item">
+                            <Link className="nav-link fw-bold text-white px-3 mx-2 rounded hover-effect" to="/spamBest">
+                                Spam/Best
+                            </Link>
+                        </li>
+                        <li className="nav-item">
                             <button
                                 onClick={handleLogout}
                                 className="btn fw-bold btn-outline-light px-3 mx-2 rounded-pill"

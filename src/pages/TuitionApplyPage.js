@@ -376,59 +376,32 @@ const TuitionPage = () => {
                                     {loading ? (
                                         <tr>
                                             <td colSpan="20" className="text-center">
-                                                <div
-                                                    className="d-flex justify-content-center align-items-center"
-                                                    style={{
-                                                        position: 'absolute',
-                                                        top: '90%',
-                                                        left: '50%',
-                                                        transform: 'translate(-50%, -50%)',
-                                                        width: '100vw',
-                                                        height: '100vh',
-                                                    }}
-                                                >
+                                                <div className="d-flex justify-content-center align-items-center" style={{ position: 'absolute', top: '90%', left: '50%', transform: 'translate(-50%, -50%)', width: '100vw', height: '100vh' }}>
                                                     <Spinner animation="border" variant="primary" size="lg" />
                                                 </div>
                                             </td>
                                         </tr>
                                     ) : (
                                         filteredTuitionList.map((tuition, index) => (
-                                            <tr
-                                                key={tuition._id}
-                                                style={
-                                                    tuition.isSpam
-                                                        ? { backgroundColor: '#ff1a1a', color: 'white' }
-                                                        : {}
-                                                }
-                                            >
+                                            <tr key={tuition._id} className={tuition.isSpam ? 'table-danger' : ''}>
                                                 <td>{index + 1}</td>
                                                 <td>{tuition.appliedAt ? formatDate(tuition.appliedAt) : ''}</td>
                                                 <td>
                                                     <span
                                                         className={`badge 
-              ${tuition.status === 'pending'
-                                                                ? 'bg-success'
-                                                                : tuition.status === 'called (no response)'
-                                                                    ? 'bg-primary'
-                                                                    : tuition.status === 'called (guardian no response)'
-                                                                        ? 'bg-info'
-                                                                        : tuition.status === 'called (interested)'
-                                                                            ? 'bg-info'
-                                                                            : tuition.status === 'cancel'
-                                                                                ? 'bg-danger'
-                                                                                : tuition.status === 'shortlisted'
-                                                                                    ? 'bg-secondary'
-                                                                                    : tuition.status === 'requested for payment'
-                                                                                        ? 'bg-warning text-dark'
-                                                                                        : tuition.status === 'meet to office'
-                                                                                            ? 'bg-dark'
-                                                                                            : tuition.status === 'selected'
-                                                                                                ? 'bg-success'
-                                                                                                : tuition.status === 'refer to bm'
-                                                                                                    ? 'bg-info'
-                                                                                                    : 'bg-secondary'
+                                                                ${tuition.status === "pending" ? "bg-success" :
+                                                                tuition.status === "called (no response)" ? "bg-primary" :
+                                                                    tuition.status === "called (guardian no response)" ? "bg-info" :
+                                                                        tuition.status === "called (interested)" ? "bg-info" :
+                                                                            tuition.status === "cancel" ? "bg-danger" :
+                                                                                tuition.status === "shortlisted" ? "bg-secondary" :
+                                                                                    tuition.status === "requested for payment" ? "bg-warning text-dark" :
+                                                                                        tuition.status === "meet to office" ? "bg-dark" :
+                                                                                            tuition.status === "selected" ? "bg-success" :
+                                                                                                tuition.status === "refer to bm" ? "bg-info" :
+                                                                                                    "bg-secondary"
                                                             }
-            `}
+                                                                `}
                                                     >
                                                         {tuition.status}
                                                     </span>
@@ -442,20 +415,19 @@ const TuitionPage = () => {
                                                 <td>{tuition.address}</td>
                                                 <td>{tuition.comment}</td>
                                                 <td>{tuition.commentForTeacher}</td>
-                                                <td>
-                                                    <div style={{ display: 'flex', justifyContent: 'flex-start', gap: '8px' }}>
-                                                        <Button variant="warning" onClick={() => handleEditTuition(tuition)} className="mr-2">
-                                                            <FaEdit />
-                                                        </Button>
-                                                        <Button variant="danger" onClick={() => handleDeleteTuition(tuition._id)}>
-                                                            <FaTrashAlt />
-                                                        </Button>
-                                                    </div>
+                                                <td style={{ display: 'flex', justifyContent: 'flex-start', gap: '8px' }}>
+                                                    <Button variant="warning" onClick={() => handleEditTuition(tuition)} className="mr-2">
+                                                        <FaEdit />
+                                                    </Button>
+                                                    <Button variant="danger" onClick={() => handleDeleteTuition(tuition._id)}>
+                                                        <FaTrashAlt />
+                                                    </Button>
                                                 </td>
                                             </tr>
                                         ))
                                     )}
                                 </tbody>
+
                             </Table>
                         </div>
                         <div className="d-flex justify-content-center align-items-center gap-3 mt-4 flex-wrap">

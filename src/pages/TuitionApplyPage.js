@@ -383,8 +383,8 @@ const TuitionPage = () => {
                                         </tr>
                                     ) : (
                                         filteredTuitionList.map((tuition, index) => (
-                                            <tr key={tuition._id} className={tuition.isSpam ? 'table-danger' : ''}>
-
+                                            <tr key={tuition._id} style={tuition.isSpam ? { backgroundColor: '#ff1a1a', color: 'white' } : {}}
+                                            >
                                                 <td>{index + 1}</td>
                                                 <td>{tuition.appliedAt ? formatDate(tuition.appliedAt) : ''}</td>
                                                 <td>

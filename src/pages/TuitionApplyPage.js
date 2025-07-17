@@ -43,6 +43,19 @@ const TuitionPage = () => {
         total: 0
     });
     const spamStyle = { backgroundColor: '#dc3545', color: 'white' };
+    const bestStyle = { backgroundColor: '#007bff', color: 'white' };
+
+    const getRowStyle = (tuition) => {
+        if (tuition.isSpam) return spamStyle;
+        if (tuition.isBest) return bestStyle;
+        return {};
+    };
+
+    const getButtonVariant = (tuition, defaultVariant) => {
+        if (tuition.isSpam) return 'light';
+        if (tuition.isBest) return 'primary';
+        return defaultVariant;
+    };
 
     useEffect(() => {
         fetchTuitionApplyRecords();
@@ -385,55 +398,49 @@ const TuitionPage = () => {
                                     ) : (
                                         filteredTuitionList.map((tuition, index) => (
                                             <tr key={tuition._id}>
-                                                <td style={tuition.isSpam ? spamStyle : {}}>{index + 1}</td>
-                                                <td style={tuition.isSpam ? spamStyle : {}}>{tuition.appliedAt ? formatDate(tuition.appliedAt) : ''}</td>
-                                                <td style={tuition.isSpam ? spamStyle : {}}>
-                                                    <span
-                                                        className={`badge 
-        ${tuition.status === "pending" ? "bg-success" :
-                                                                tuition.status === "called (no response)" ? "bg-primary" :
-                                                                    tuition.status === "called (guardian no response)" ? "bg-info" :
-                                                                        tuition.status === "called (interested)" ? "bg-info" :
-                                                                            tuition.status === "cancel" ? "bg-danger" :
-                                                                                tuition.status === "shortlisted" ? "bg-secondary" :
-                                                                                    tuition.status === "requested for payment" ? "bg-warning text-dark" :
-                                                                                        tuition.status === "meet to office" ? "bg-dark" :
-                                                                                            tuition.status === "selected" ? "bg-success" :
-                                                                                                tuition.status === "refer to bm" ? "bg-info" :
-                                                                                                    "bg-secondary"
-                                                            }`}
-                                                    >
+                                                <td style={getRowStyle(tuition)}>{index + 1}</td>
+                                                <td style={getRowStyle(tuition)}>{tuition.appliedAt ? formatDate(tuition.appliedAt) : ''}</td>
+                                                <td style={getRowStyle(tuition)}>
+                                                    <span className={`badge 
+            ${tuition.status === "pending" ? "bg-success" :
+                                                            tuition.status === "called (no response)" ? "bg-primary" :
+                                                                tuition.status === "called (guardian no response)" ? "bg-info" :
+                                                                    tuition.status === "called (interested)" ? "bg-info" :
+                                                                        tuition.status === "cancel" ? "bg-danger" :
+                                                                            tuition.status === "shortlisted" ? "bg-secondary" :
+                                                                                tuition.status === "requested for payment" ? "bg-warning text-dark" :
+                                                                                    tuition.status === "meet to office" ? "bg-dark" :
+                                                                                        tuition.status === "selected" ? "bg-success" :
+                                                                                            tuition.status === "refer to bm" ? "bg-info" :
+                                                                                                "bg-secondary"
+                                                        }`}>
                                                         {tuition.status}
                                                     </span>
                                                 </td>
-                                                <td style={tuition.isSpam ? spamStyle : {}}>{tuition.premiumCode}</td>
-                                                <td style={tuition.isSpam ? spamStyle : {}}>{tuition.tuitionCode}</td>
-                                                <td style={tuition.isSpam ? spamStyle : {}}>{tuition.name}</td>
-                                                <td style={tuition.isSpam ? spamStyle : {}}>{tuition.phone}</td>
-                                                <td style={tuition.isSpam ? spamStyle : {}}>{tuition.institute}</td>
-                                                <td style={tuition.isSpam ? spamStyle : {}}>{tuition.department}</td>
-                                                <td style={tuition.isSpam ? spamStyle : {}}>{tuition.address}</td>
-                                                <td style={tuition.isSpam ? spamStyle : {}}>{tuition.comment}</td>
-                                                <td style={tuition.isSpam ? spamStyle : {}}>{tuition.commentForTeacher}</td>
-                                                <td
-                                                    style={tuition.isSpam ? spamStyle : {}}
-                                                    className="d-flex justify-content-start gap-2"
-                                                >
+                                                <td style={getRowStyle(tuition)}>{tuition.premiumCode}</td>
+                                                <td style={getRowStyle(tuition)}>{tuition.tuitionCode}</td>
+                                                <td style={getRowStyle(tuition)}>{tuition.name}</td>
+                                                <td style={getRowStyle(tuition)}>{tuition.phone}</td>
+                                                <td style={getRowStyle(tuition)}>{tuition.institute}</td>
+                                                <td style={getRowStyle(tuition)}>{tuition.department}</td>
+                                                <td style={getRowStyle(tuition)}>{tuition.address}</td>
+                                                <td style={getRowStyle(tuition)}>{tuition.comment}</td>
+                                                <td style={getRowStyle(tuition)}>{tuition.commentForTeacher}</td>
+                                                <td style={getRowStyle(tuition)} className="d-flex justify-content-start gap-2">
                                                     <Button
-                                                        variant={tuition.isSpam ? "light" : "warning"}
+                                                        variant={getButtonVariant(tuition, 'warning')}
                                                         onClick={() => handleEditTuition(tuition)}
                                                     >
                                                         <FaEdit />
                                                     </Button>
                                                     <Button
-                                                        variant={tuition.isSpam ? "light" : "danger"}
+                                                        variant={getButtonVariant(tuition, 'danger')}
                                                         onClick={() => handleDeleteTuition(tuition._id)}
                                                     >
                                                         <FaTrashAlt />
                                                     </Button>
                                                 </td>
                                             </tr>
-
                                         ))
                                     )}
                                 </tbody>

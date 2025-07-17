@@ -83,7 +83,7 @@ const PhonePage = () => {
         ];
 
         const workbook = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(workbook, worksheet, "SPAM/BEST");
+        XLSX.utils.book_append_sheet(workbook, worksheet, "SPAM_BEST");
 
         XLSX.writeFile(workbook, `${fileName}.xlsx`);
     };

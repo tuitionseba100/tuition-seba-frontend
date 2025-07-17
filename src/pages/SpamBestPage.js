@@ -224,10 +224,18 @@ const PhonePage = () => {
                                         </tr>
                                     ) : (
                                         filteredPhoneList.slice().reverse().map((item, index) => (
+
                                             <tr key={item._id}>
                                                 <td>{index + 1}</td>
                                                 <td>{item.createdAt ? formatDate(item.createdAt) : ''}</td>
-                                                <td>{item.phone}</td>
+                                                <td
+                                                    style={{
+                                                        fontWeight: 'bold',
+                                                        color: item.isSpam ? '#dc3545' : '#007bff'
+                                                    }}
+                                                >
+                                                    {item.phone}
+                                                </td>
                                                 <td>{item.note}</td>
                                                 <td>{item.isSpam ? 'Yes' : 'No'}</td>
                                                 <td>{item.isActive ? 'Yes' : 'No'}</td>

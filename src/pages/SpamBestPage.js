@@ -181,18 +181,18 @@ const PhonePage = () => {
                             </div>
 
                             <div className="col-6 col-sm-4 col-md-2 mb-3">
-                                <div className="card p-3 shadow border-dark">
-                                    <div className="d-flex flex-column align-items-center">
-                                        <span className="text-dark" style={{ fontWeight: 'bolder' }}>Total Spam</span>
+                                <div className="card p-3 shadow border border-danger">
+                                    <div className="d-flex flex-column align-items-center text-danger">
+                                        <span style={{ fontWeight: 'bolder' }}>Total Spam</span>
                                         <span>{filteredPhoneList.filter(item => item.isSpam === true).length}</span>
                                     </div>
                                 </div>
                             </div>
 
                             <div className="col-6 col-sm-4 col-md-2 mb-3">
-                                <div className="card p-3 shadow border-dark">
-                                    <div className="d-flex flex-column align-items-center">
-                                        <span className="text-dark" style={{ fontWeight: 'bolder' }}>Total Best Teacher</span>
+                                <div className="card p-3 shadow border border-primary">
+                                    <div className="d-flex flex-column align-items-center text-primary">
+                                        <span style={{ fontWeight: 'bolder' }}>Total Best Teacher</span>
                                         <span>{filteredPhoneList.filter(item => item.isSpam === false).length}</span>
                                     </div>
                                 </div>

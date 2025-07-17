@@ -16,6 +16,8 @@ const PhonePage = () => {
     const [phoneData, setPhoneData] = useState({
         phone: '',
         note: '',
+        isSpam: false,
+        isActive: false,
     });
     const [phoneSearchQuery, setPhoneSearchQuery] = useState('');
     const [loading, setLoading] = useState(false);
@@ -155,7 +157,14 @@ const PhonePage = () => {
             <Container>
                 <Header>
                     <h2 className='text-primary fw-bold'>SPAM & BEST Phone Numbers</h2>
-                    <Button variant="primary" onClick={() => { setShowModal(true); setEditingId(null); setPhoneData({ phone: '', note: '' }) }}>
+                    <Button
+                        variant="primary"
+                        onClick={() => {
+                            setShowModal(true);
+                            setEditingId(null);
+                            setPhoneData({ phone: '', note: '', isSpam: false, isActive: false });
+                        }}
+                    >
                         Create Phone Record
                     </Button>
                 </Header>
@@ -199,7 +208,7 @@ const PhonePage = () => {
 
                 <Card className="mt-4">
                     <Card.Body>
-                        <Card.Title>Request List</Card.Title>
+                        <Card.Title>List</Card.Title>
                         <div style={{ maxHeight: "600px", overflowY: "auto" }}>
                             <Table striped bordered hover responsive="lg">
                                 <thead className="table-primary" style={{ position: "sticky", top: 0, zIndex: 2 }}>

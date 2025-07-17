@@ -221,8 +221,8 @@ const PhonePage = () => {
                         />
                     </Col>
 
-                    <Col md={3}>
-                        <Form.Label className="fw-bold">Status Filter</Form.Label>
+                    <Col md={1}>
+                        <Form.Label className="fw-bold">Type Filter</Form.Label>
                         <Form.Select
                             value={typeFilter}
                             onChange={(e) => {

@@ -21,6 +21,7 @@ const PhonePage = () => {
     });
     const [phoneSearchQuery, setPhoneSearchQuery] = useState('');
     const [loading, setLoading] = useState(false);
+    const [typeFilter, setTypeFilter] = useState('');
 
     useEffect(() => {
         fetchRecords();
@@ -35,8 +36,14 @@ const PhonePage = () => {
             );
         }
 
+        if (typeFilter === "spam") {
+            filteredData = filteredData.filter(x => x.isSpam === true);
+        } else if (typeFilter === "best") {
+            filteredData = filteredData.filter(x => x.isSpam === false);
+        }
+
         setFilteredPhoneList(filteredData);
-    }, [phoneSearchQuery, phoneList]);
+    }, [phoneSearchQuery, typeFilter, phoneList]);
 
     const fetchRecords = async () => {
         setLoading(true);
@@ -148,6 +155,7 @@ const PhonePage = () => {
 
     const handleResetFilters = () => {
         setPhoneSearchQuery('');
+        setTypeFilter('');
         setFilteredPhoneList(phoneList);
     };
 
@@ -211,6 +219,20 @@ const PhonePage = () => {
                             value={phoneSearchQuery}
                             onChange={(e) => setPhoneSearchQuery(e.target.value)}
                         />
+                    </Col>
+
+                    <Col md={3}>
+                        <Form.Label className="fw-bold">Status Filter</Form.Label>
+                        <Form.Select
+                            value={typeFilter}
+                            onChange={(e) => {
+                                setTypeFilter(e.target.value);
+                            }}
+                        >
+                            <option value="">All</option>
+                            <option value="spam">Spam</option>
+                            <option value="best">Best Teacher</option>
+                        </Form.Select>
                     </Col>
 
                     <Col md={1} className="d-flex align-items-end">

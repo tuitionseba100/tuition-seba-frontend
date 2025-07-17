@@ -179,9 +179,7 @@ const PhonePage = () => {
                                     </div>
                                 </div>
                             </div>
-                        </div>
 
-                        <div className="row text-center">
                             <div className="col-6 col-sm-4 col-md-2 mb-3">
                                 <div className="card p-3 shadow border-dark">
                                     <div className="d-flex flex-column align-items-center">
@@ -190,9 +188,7 @@ const PhonePage = () => {
                                     </div>
                                 </div>
                             </div>
-                        </div>
 
-                        <div className="row text-center">
                             <div className="col-6 col-sm-4 col-md-2 mb-3">
                                 <div className="card p-3 shadow border-dark">
                                     <div className="d-flex flex-column align-items-center">

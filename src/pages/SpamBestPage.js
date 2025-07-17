@@ -218,6 +218,7 @@ const PhonePage = () => {
                                         <th>Phone</th>
                                         <th>Note</th>
                                         <th>Is Spam</th>
+                                        <th>Is Best Teacher</th>
                                         <th>Is Active</th>
                                         <th>Actions</th>
                                     </tr>
@@ -246,7 +247,16 @@ const PhonePage = () => {
                                                     {item.phone}
                                                 </td>
                                                 <td>{item.note}</td>
-                                                <td>{item.isSpam ? 'Yes' : 'No'}</td>
+                                                <td
+                                                    style={{
+                                                        fontWeight: 'bold',
+                                                        color: item.isSpam ? '#dc3545' : '#007bff'
+                                                    }}>{item.isSpam ? 'Yes' : 'No'}</td>
+                                                <td
+                                                    style={{
+                                                        fontWeight: 'bold',
+                                                        color: item.isSpam ? '#dc3545' : '#007bff'
+                                                    }}>{item.isSpam ? 'No' : 'Yes'}</td>
                                                 <td>{item.isActive ? 'Yes' : 'No'}</td>
                                                 <td style={{ display: 'flex', justifyContent: 'flex-start', gap: '8px' }}>
                                                     <Button variant="warning" onClick={() => handleEditRecord(item)} className="mr-2">

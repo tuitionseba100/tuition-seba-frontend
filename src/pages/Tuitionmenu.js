@@ -11,6 +11,7 @@ import * as XLSX from 'xlsx';
 const TuitionPage = () => {
     const [tuitionList, setTuitionList] = useState([]);
     const [filteredTuitionList, setFilteredTuitionList] = useState([]);
+    const [excelTuitionList, setExcelTuitionList] = useState([]);
     const [showModal, setShowModal] = useState(false);
     const [editingId, setEditingId] = useState(null);
     const [publishFilter, setPublishFilter] = useState('');
@@ -105,7 +106,7 @@ const TuitionPage = () => {
                     status: statusFilter
                 }
             });
-
+            setExcelTuitionList(res.records);
             setPublishCount(res.data.isPublishTrueCount || 0);
             setStatusCounts({
                 available: res.data.available || 0,
@@ -132,7 +133,7 @@ const TuitionPage = () => {
             "Guardian Number", "Status", "Tutor Number", "Joining"
         ];
 
-        const tableData = filteredTuitionList.map(tuition => [
+        const tableData = excelTuitionList.map(tuition => [
             String(tuition.tuitionCode ?? ""),
             tuition.isPublish ? 'Yes' : 'No',
             tuition.isUrgent ? 'Yes' : 'No',

@@ -106,7 +106,7 @@ const TuitionPage = () => {
                     status: statusFilter
                 }
             });
-            setExcelTuitionList(res.records);
+            setExcelTuitionList(res.data);
             setPublishCount(res.data.isPublishTrueCount || 0);
             setStatusCounts({
                 available: res.data.available || 0,

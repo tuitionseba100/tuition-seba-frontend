@@ -132,7 +132,7 @@ const TuitionPage = () => {
             "Medium", "Subject", "Time", "Day", "Salary", "Location", "Area",
             "Guardian Number", "Status", "Tutor Number", "Joining"
         ];
-
+        console.log(excelTuitionList);
         const tableData = excelTuitionList.map(tuition => [
             String(tuition.tuitionCode ?? ""),
             tuition.isPublish ? 'Yes' : 'No',

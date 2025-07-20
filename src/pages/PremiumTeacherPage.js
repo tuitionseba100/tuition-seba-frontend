@@ -11,6 +11,7 @@ import Select from 'react-select';
 
 const PremiumTeacherPage = () => {
     const [reacrodsList, setReacrodsList] = useState([]);
+    const [exportList, setExportList] = useState([]);
     const [filteredTeacherList, setFilteredTeacherList] = useState([]);
     const [showModal, setShowModal] = useState(false);
     const [editingId, setEditingId] = useState(null);
@@ -132,35 +133,6 @@ const PremiumTeacherPage = () => {
         { key: 'verified', label: 'Verified', borderColor: 'success', textColor: 'success' },
     ];
 
-    useEffect(() => {
-        const filteredData = reacrodsList.filter(item => {
-            return Object.entries(searchFilters).every(([key, value]) => {
-                if (!value) return true;
-
-                const searchValue = value.toLowerCase();
-
-                if (key === 'phone') {
-                    const phoneFields = [
-                        item.phone,
-                        item.alternativePhone,
-                        item.whatsapp
-                    ].map(f => (f || '').toString().toLowerCase());
-
-                    return phoneFields.some(field => field.includes(searchValue));
-                } else {
-                    const itemValue = (item[key] || '').toString().toLowerCase();
-                    if (['gender', 'status'].includes(key)) {
-                        return itemValue === searchValue;
-                    }
-                    return itemValue.includes(searchValue);
-
-                }
-            });
-        });
-
-        setFilteredTeacherList(filteredData);
-    }, [searchFilters, reacrodsList]);
-
     const initialData = fieldConfig.reduce((acc, field) => {
         acc[field.name] = '';
         return acc;
@@ -199,6 +171,7 @@ const PremiumTeacherPage = () => {
                 params: searchFilters,
                 headers: { Authorization: token }
             });
+            setExportList(res.data.allData);
             setSummaryCounts(res.data);
         } catch (err) {
             console.error('Error fetching summary:', err);
@@ -213,7 +186,7 @@ const PremiumTeacherPage = () => {
     const handleExportToExcel = () => {
         const headers = fieldConfig.map(f => f.label);
 
-        const data = filteredTeacherList.map(item =>
+        const data = exportList.map(item =>
             fieldConfig.map(f => String(item[f.name] ?? ""))
         );
 

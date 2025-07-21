@@ -230,12 +230,6 @@ const GuardianApplyPage = () => {
         }
     };
 
-    const handleEditRecord = (data) => {
-        setTuitionData(data);
-        setEditingId(data._id);
-        setShowModal(true);
-    };
-
     const handleResetFilters = () => {
         setStatusFilter('');
         setAreaSearchQuery('');

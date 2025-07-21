@@ -23,10 +23,23 @@ const GuardianApplyPage = () => {
     const [totalNotInterested, setTotalNotInterested] = useState(0);
     const [totalNoResponse, setTotalNoResponse] = useState(0);
 
+
     const [showStatusModal, setShowStatusModal] = useState(false);
     const [selectedRecord, setSelectedRecord] = useState(null);
     const [newStatus, setNewStatus] = useState('');
     const [newComment, setNewComment] = useState('');
+    const [showModal, setShowModal] = useState(false);
+    const [editingId, setEditingId] = useState(null);
+    const [tuitionData, setTuitionData] = useState({
+        name: '',
+        phone: '',
+        address: '',
+        studentClass: '',
+        teacherGender: '',
+        characteristics: '',
+        status: '',
+        comment: '',
+    });
 
     const statusOptions = [
         'pending',
@@ -86,6 +99,27 @@ const GuardianApplyPage = () => {
             toast.error("Failed to load records.");
         }
         setLoading(false);
+    };
+
+    const handleSaveRequest = async () => {
+
+        const updatedData = {
+            ...tuitionData
+        };
+        try {
+            if (editingId) {
+                await axios.put(`https://tuition-seba-backend-1.onrender.com/api/guardianApply/edit/${editingId}`, updatedData);
+                toast.success("Record updated successfully!");
+            } else {
+                await axios.post('https://tuition-seba-backend-1.onrender.com/api/guardianApply/add', updatedData);
+                toast.success("Record updated successfully!");
+            }
+            setShowModal(false);
+            fetchRecords();
+        } catch (err) {
+            console.error('Error:', err);
+            toast.error("Error.");
+        }
     };
 
     const formatDate = (dateString) => {
@@ -196,6 +230,12 @@ const GuardianApplyPage = () => {
         }
     };
 
+    const handleEditRecord = (data) => {
+        setTuitionData(data);
+        setEditingId(data._id);
+        setShowModal(true);
+    };
+
     const handleResetFilters = () => {
         setStatusFilter('');
         setAreaSearchQuery('');
@@ -210,6 +250,25 @@ const GuardianApplyPage = () => {
 
                 <Header>
                     <h2 className='text-primary fw-bold'>Guardian Apply Dashboard</h2>
+                    <Button
+                        variant="primary"
+                        onClick={() => {
+                            setShowModal(true);
+                            setEditingId(null);
+                            setTuitionData({
+                                name: '',
+                                phone: '',
+                                address: '',
+                                studentClass: '',
+                                teacherGender: '',
+                                characteristics: '',
+                                status: '',
+                                comment: '',
+                            });
+                        }}
+                    >
+                        Create Apply Record
+                    </Button>
                 </Header>
 
                 <Card className="mt-4">
@@ -397,6 +456,132 @@ const GuardianApplyPage = () => {
                         </div>
                     </Card.Body>
                 </Card>
+
+                {/* Create/Edit Tuition Modal */}
+                <Modal show={showModal} onHide={() => setShowModal(false)} size="lg">
+                    <Modal.Header closeButton>
+                        <Modal.Title className="fw-bold">
+                            {editingId ? "Edit Record" : "Create Record"}
+                        </Modal.Title>
+                    </Modal.Header>
+
+                    <Modal.Body>
+                        <Form>
+                            <Row>
+                                <Col md={6}>
+                                    <Form.Group controlId="name">
+                                        <Form.Label className="fw-bold">Name</Form.Label>
+                                        <Form.Control
+                                            type="text"
+                                            value={tuitionData.name}
+                                            onChange={(e) => setTuitionData({ ...tuitionData, name: e.target.value })}
+                                        />
+                                    </Form.Group>
+                                </Col>
+
+                                <Col md={6}>
+                                    <Form.Group controlId="phone">
+                                        <Form.Label className="fw-bold">Phone<span className="text-danger">*</span></Form.Label>
+                                        <Form.Control
+                                            type="text"
+                                            required
+                                            value={tuitionData.phone}
+                                            onChange={(e) => setTuitionData({ ...tuitionData, phone: e.target.value })}
+                                        />
+                                    </Form.Group>
+                                </Col>
+                            </Row>
+
+                            <Row className="mt-3">
+                                <Col md={6}>
+                                    <Form.Group controlId="address">
+                                        <Form.Label className="fw-bold">Address</Form.Label>
+                                        <Form.Control
+                                            type="text"
+                                            value={tuitionData.address}
+                                            onChange={(e) => setTuitionData({ ...tuitionData, address: e.target.value })}
+                                        />
+                                    </Form.Group>
+                                </Col>
+
+                                <Col md={6}>
+                                    <Form.Group controlId="studentClass">
+                                        <Form.Label className="fw-bold">Student Class</Form.Label>
+                                        <Form.Control
+                                            type="text"
+                                            value={tuitionData.studentClass}
+                                            onChange={(e) => setTuitionData({ ...tuitionData, studentClass: e.target.value })}
+                                        />
+                                    </Form.Group>
+                                </Col>
+                            </Row>
+
+                            <Row className="mt-3">
+                                <Col md={6}>
+                                    <Form.Group controlId="teacherGender">
+                                        <Form.Label className="fw-bold">Preferred Teacher Gender</Form.Label>
+                                        <Form.Control
+                                            type="text"
+                                            value={tuitionData.teacherGender}
+                                            onChange={(e) => setTuitionData({ ...tuitionData, teacherGender: e.target.value })}
+                                        />
+                                    </Form.Group>
+                                </Col>
+
+                                <Col md={6}>
+                                    <Form.Group controlId="characteristics">
+                                        <Form.Label className="fw-bold">Characteristics</Form.Label>
+                                        <Form.Control
+                                            type="text"
+                                            value={tuitionData.characteristics}
+                                            onChange={(e) => setTuitionData({ ...tuitionData, characteristics: e.target.value })}
+                                        />
+                                    </Form.Group>
+                                </Col>
+                            </Row>
+
+                            <Row className="mt-3">
+                                <Col md={6}>
+                                    <Form.Group controlId="status">
+                                        <Form.Label className="fw-bold">Status</Form.Label>
+                                        <Form.Select
+                                            value={tuitionData.status}
+                                            onChange={(e) => setTuitionData({ ...tuitionData, status: e.target.value })}
+                                        >
+                                            <option value="">Select Status</option>
+                                            {statusOptions.map((option, idx) => (
+                                                <option key={idx} value={option}>
+                                                    {option}
+                                                </option>
+                                            ))}
+                                        </Form.Select>
+                                    </Form.Group>
+
+                                </Col>
+                            </Row>
+
+                            <Row className="mt-3">
+                                <Col md={12}>
+                                    <Form.Group controlId="comment">
+                                        <Form.Label className="fw-bold">Comment</Form.Label>
+                                        <Form.Control
+                                            as="textarea"
+                                            rows={3}
+                                            value={tuitionData.comment}
+                                            onChange={(e) => setTuitionData({ ...tuitionData, comment: e.target.value })}
+                                        />
+                                    </Form.Group>
+                                </Col>
+                            </Row>
+                        </Form>
+                    </Modal.Body>
+
+                    <Modal.Footer>
+                        <Button variant="secondary" onClick={() => setShowModal(false)}>Close</Button>
+                        <Button variant="primary" onClick={handleSaveRequest}>Save</Button>
+                    </Modal.Footer>
+                </Modal>
+
 
                 <Modal show={showStatusModal} onHide={() => setShowStatusModal(false)}>
                     <Modal.Header closeButton>

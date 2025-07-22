@@ -139,7 +139,7 @@ const TuitionPage = () => {
             "Status", "Comment", "Applied At", "Comment For Teacher"
         ];
 
-        const tableData = exportList.map(tuition => [
+        const tableData = [...exportList].reverse().map(tuition => [
             String(tuition.tuitionCode ?? ""),
             String(tuition.premiumCode ?? ""),
             String(tuition.name ?? ""),

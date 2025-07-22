@@ -156,6 +156,8 @@ const TuitionPage = () => {
         const worksheet = XLSX.utils.aoa_to_sheet([tableHeaders, ...tableData]);
 
         worksheet['!cols'] = [
+            { wpx: 100 },
+            { wpx: 100 },
             { wpx: 100 },  // Tuition Code
             { wpx: 50 },   // Published
             { wpx: 50 },   // Urgent

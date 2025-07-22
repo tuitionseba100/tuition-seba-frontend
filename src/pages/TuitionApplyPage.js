@@ -11,6 +11,7 @@ import Select from 'react-select';
 
 const TuitionPage = () => {
     const [tuitionList, setTuitionApplyList] = useState([]);
+    const [exportList, setExportList] = useState([]);
     const [filteredTuitionList, setFilteredTuitionApplyList] = useState([]);
     const [showModal, setShowModal] = useState(false);
     const [editingId, setEditingId] = useState(null);
@@ -109,6 +110,7 @@ const TuitionPage = () => {
                     requestedForPayment: response.data.requestedForPayment,
                     total: response.data.total
                 });
+                setExportList(response.data.data);
             })
             .catch(error => {
                 console.error('Error fetching card summary:', error);
@@ -133,12 +135,13 @@ const TuitionPage = () => {
         const fileName = `TuitionList_${formattedDate}_${formattedTime}`;
 
         const tableHeaders = [
-            "Tuition Code", "Name", "Phone", "Institute", "Department", "Address",
+            "Tuition Code", "Premium Code", "Name", "Phone", "Institute", "Department", "Address",
             "Status", "Comment", "Applied At", "Comment For Teacher"
         ];
 
-        const tableData = filteredTuitionList.map(tuition => [
+        const tableData = exportList.map(tuition => [
             String(tuition.tuitionCode ?? ""),
+            String(tuition.premiumCode ?? ""),
             String(tuition.name ?? ""),
             String(tuition.phone ?? ""),
             String(tuition.institute ?? ""),

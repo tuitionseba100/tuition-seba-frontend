@@ -642,7 +642,6 @@ const GuardianApplyPage = () => {
                     </Modal.Footer>
                 </Modal>
 
-
                 <ToastContainer />
             </Container>
         </>

@@ -365,14 +365,14 @@ const TuitionPage = () => {
 
                 <Button
                     variant="success"
-                    className="mb-3 d-flex align-items-center gap-2"
+                    className="mb-3 d-flex align-items-center justify-content-center gap-2"
                     onClick={handleExportToExcel}
                     disabled={exportList.length === 0}
                 >
                     {exportList.length === 0 ? (
                         <>
-                            <Spinner animation="border" size="sm" />
-                            Please wait...
+                            <Spinner animation="border" size="sm" role="status" />
+                            <span>Preparing export...</span>
                         </>
                     ) : (
                         'Export to Excel'

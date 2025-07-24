@@ -422,7 +422,7 @@ const TuitionPage = () => {
                                         filteredTuitionList.map((tuition, index) => (
                                             <tr key={tuition._id}>
                                                 <td style={getRowStyle(tuition)}>
-                                                    {index + 1} {tuition.isBest && <span style={{ color: '#000' }}>⭐</span>}
+                                                    {index + 1} {tuition.isBest && <span style={{ color: '#000 !important' }}>⭐</span>}
                                                 </td>
 
                                                 <td style={getRowStyle(tuition)}>{tuition.appliedAt ? formatDate(tuition.appliedAt) : ''}</td>

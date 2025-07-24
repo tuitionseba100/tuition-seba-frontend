@@ -45,8 +45,10 @@ const TuitionPage = () => {
     });
     const spamStyle = { backgroundColor: '#dc3545', color: 'white' };
     const bestStyle = { backgroundColor: '#007bff', color: 'white' };
+    const dueStyle = { backgroundColor: 'yellow', color: 'black' };
 
     const getRowStyle = (tuition) => {
+        if (tuition.hasDue) return dueStyle;
         if (tuition.isSpam) return spamStyle;
         if (tuition.isBest) return bestStyle;
         return {};
@@ -383,7 +385,7 @@ const TuitionPage = () => {
 
                 <Card className="mt-4">
                     <Card.Body>
-                        <Card.Title>Tuition List</Card.Title>
+                        <Card.Title>Tuition Application List</Card.Title>
                         <div style={{ maxHeight: "600px", overflowY: "auto" }}>
                             <Table bordered hover responsive="lg">
                                 <thead className="table-primary" style={{ position: "sticky", top: 0, zIndex: 2 }}>
@@ -415,7 +417,10 @@ const TuitionPage = () => {
                                     ) : (
                                         filteredTuitionList.map((tuition, index) => (
                                             <tr key={tuition._id}>
-                                                <td style={getRowStyle(tuition)}>{index + 1}</td>
+                                                <td style={getRowStyle(tuition)}>
+                                                    {index + 1} {tuition.isBest && '⭐'}
+                                                </td>
+
                                                 <td style={getRowStyle(tuition)}>{tuition.appliedAt ? formatDate(tuition.appliedAt) : ''}</td>
                                                 <td style={getRowStyle(tuition)}>
                                                     <span className={`badge 

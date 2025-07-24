@@ -144,8 +144,8 @@ const TuitionPage = () => {
         const tableData = [...exportList].reverse().map(tuition => [
             String(tuition.tuitionCode ?? ""),
             String(tuition.premiumCode ?? ""),
-            String(tuition.isBest ?? ""),
-            String(tuition.isSpam ?? ""),
+            tuition.isBest ? "yes" : "no",
+            tuition.isSpam ? "yes" : "no",
             String(tuition.name ?? ""),
             String(tuition.phone ?? ""),
             String(tuition.institute ?? ""),
@@ -422,7 +422,7 @@ const TuitionPage = () => {
                                         filteredTuitionList.map((tuition, index) => (
                                             <tr key={tuition._id}>
                                                 <td style={getRowStyle(tuition)}>
-                                                    {index + 1} {tuition.isBest && '⭐'}
+                                                    {index + 1} {tuition.isBest && <span style={{ color: '#000' }}>⭐</span>}
                                                 </td>
 
                                                 <td style={getRowStyle(tuition)}>{tuition.appliedAt ? formatDate(tuition.appliedAt) : ''}</td>

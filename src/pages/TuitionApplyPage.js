@@ -137,13 +137,15 @@ const TuitionPage = () => {
         const fileName = `TuitionList_${formattedDate}_${formattedTime}`;
 
         const tableHeaders = [
-            "Tuition Code", "Premium Code", "Name", "Phone", "Institute", "Department", "Address",
+            "Tuition Code", "Premium Code", "Is Best?", "Is Spam", "Name", "Phone", "Institute", "Department", "Address",
             "Status", "Comment", "Applied At", "Comment For Teacher"
         ];
 
         const tableData = [...exportList].reverse().map(tuition => [
             String(tuition.tuitionCode ?? ""),
             String(tuition.premiumCode ?? ""),
+            String(tuition.isBest ?? ""),
+            String(tuition.isSpam ?? ""),
             String(tuition.name ?? ""),
             String(tuition.phone ?? ""),
             String(tuition.institute ?? ""),
@@ -160,6 +162,8 @@ const TuitionPage = () => {
         worksheet['!cols'] = [
             { wpx: 100 },
             { wpx: 100 },
+            { wpx: 50 },
+            { wpx: 50 },
             { wpx: 100 },  // Tuition Code
             { wpx: 50 },   // Published
             { wpx: 50 },   // Urgent

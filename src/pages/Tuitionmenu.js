@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Button, Table, Modal, Form, Row, Col, Card } from 'react-bootstrap';
-import { FaEdit, FaTrashAlt, FaWhatsapp, FaChevronLeft, FaChevronRight } from 'react-icons/fa'; // React Icons
+import { FaEdit, FaTrashAlt, FaWhatsapp, FaChevronLeft, FaChevronRight, FaGlobe } from 'react-icons/fa'; // React Icons
 import axios from 'axios';
 import NavBarPage from './NavbarPage';
 import styled from 'styled-components';
@@ -34,7 +34,8 @@ const TuitionPage = () => {
         guardianNumber: '',
         status: '',
         tutorNumber: '',
-        joining: ''
+        joining: '',
+        isWhatsappApply: false
     });
     const [tuitionCodeSearchQuery, setTuitionCodeSearchQuery] = useState('');
     const [gurdianNoSearchQuery, setGurdianNoSearchQuery] = useState('');
@@ -130,7 +131,7 @@ const TuitionPage = () => {
         const tableHeaders = [
             "Tuition Code", "Published", "Urgent", "Institute", "Wanted Teacher", "Student", "Class",
             "Medium", "Subject", "Time", "Day", "Salary", "Location", "Area",
-            "Guardian Number", "Status", "Tutor Number", "Joining"
+            "Guardian Number", "Status", "Tutor Number", "Joining", "Apply Type"
         ];
 
         const tableData = excelTuitionList.map(tuition => [
@@ -151,7 +152,8 @@ const TuitionPage = () => {
             String(tuition.guardianNumber ?? ""),
             String(tuition.status ?? ""),
             String(tuition.tutorNumber ?? ""),
-            String(tuition.joining ?? "")
+            String(tuition.joining ?? ""),
+            tuition.isWhatsappApply ? 'Yes' : 'No',
         ]);
 
         const worksheet = XLSX.utils.aoa_to_sheet([tableHeaders, ...tableData]);
@@ -173,7 +175,8 @@ const TuitionPage = () => {
             { wpx: 100 },  // Guardian Number
             { wpx: 70 },   // Status
             { wpx: 100 },  // Tutor Number
-            { wpx: 70 }    // Joining
+            { wpx: 70 },
+            { wpx: 70 }
         ];
 
         const workbook = XLSX.utils.book_new();
@@ -448,6 +451,7 @@ const TuitionPage = () => {
                                     <tr>
                                         <th>SL</th>
                                         <th>Tuition Code</th>
+                                        <th>Apply Type</th>
                                         <th>Published?</th>
                                         <th>Status</th>
                                         <th>Teacher</th>
@@ -483,6 +487,18 @@ const TuitionPage = () => {
                                             <tr key={tuition._id}>
                                                 <td>{index + 1}</td>
                                                 <td>{tuition.tuitionCode}</td>
+                                                <td>
+                                                    {tuition.isWhatsappApply ? (
+                                                        <span style={{ color: 'green', fontWeight: 'bold' }}>
+                                                            <FaWhatsapp /> Whatsapp
+                                                        </span>
+                                                    ) : (
+                                                        <span style={{ color: 'blue', fontWeight: 'bold' }}>
+                                                            <FaGlobe /> Website
+                                                        </span>
+                                                    )}
+                                                </td>
+
                                                 <td className={tuition.isPublish ? "text-success fw-bold" : "text-danger fw-bold"}>
                                                     {tuition.isPublish ? "Yes" : "No"}
                                                 </td>
@@ -843,6 +859,19 @@ const TuitionPage = () => {
                                             label={tuitionData.isUrgent ? "Yes" : "No"}
                                             checked={tuitionData.isUrgent}
                                             onChange={(e) => setTuitionData({ ...tuitionData, isUrgent: e.target.checked })}
+                                        />
+                                    </Form.Group>
+                                </Col>
+
+                                <Col md={4}>
+                                    <Form.Group controlId="isUrgent">
+                                        <Form.Label className="fw-bold">Apply via WhatsApp?</Form.Label>
+                                        <Form.Check
+                                            type="switch"
+                                            id="isUrgentSwitch"
+                                            label={tuitionData.isWhatsappApply ? "Yes" : "No"}
+                                            checked={tuitionData.isWhatsappApply}
+                                            onChange={(e) => setTuitionData({ ...tuitionData, isWhatsappApply: e.target.checked })}
                                         />
                                     </Form.Group>
                                 </Col>

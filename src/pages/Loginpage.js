@@ -14,7 +14,6 @@ import { useNavigate } from "react-router-dom";
 import { FaUser, FaLock } from "react-icons/fa";
 import { Formik } from "formik";
 import * as Yup from "yup";
-import logo from "../img/favicon.png";
 
 const Login = () => {
     const [error, setError] = useState("");
@@ -39,7 +38,7 @@ const Login = () => {
             );
             localStorage.setItem("token", response.data.token);
             localStorage.setItem("role", response.data.role);
-            navigate("/tuition");
+            navigate("/admin/tuition");
         } catch (err) {
             setError("Invalid username or password");
             setShowError(true);
@@ -70,7 +69,7 @@ const Login = () => {
                         }}
                     >
                         <img
-                            src={logo}
+                            src="/img/favicon.png"
                             alt="Logo"
                             style={{ width: 110, marginBottom: "1.5rem" }}
                         />

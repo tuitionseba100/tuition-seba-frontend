@@ -1,20 +1,23 @@
 import React from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 const Navbar = () => {
     const navigate = useNavigate();
+    const location = useLocation();
+
+    if (location.pathname === '/admin/login') return null;
 
     const handleLogout = () => {
         localStorage.removeItem('token');
         localStorage.removeItem('role');
-        navigate('/login');
+        navigate('/admin/login');
     };
 
     return (
         <nav className="navbar navbar-expand-lg navbar-primary bg-primary shadow-sm">
             <div className="container">
-                <Link className="navbar-brand fw-bold text-white fs-4">Tuition Seba Forum</Link>
+                <Link className="navbar-brand fw-bold text-white fs-4" to="/admin">Tuition Seba Forum</Link>
                 <button
                     className="navbar-toggler border-0"
                     type="button"
@@ -29,62 +32,39 @@ const Navbar = () => {
                 <div className="collapse navbar-collapse" id="navbarNav">
                     <ul className="navbar-nav ms-auto">
                         <li className="nav-item">
-                            <Link className="nav-link fw-bold text-white px-3 mx-2 rounded hover-effect" to="/tuition">
-                                Tuitions
-                            </Link>
+                            <Link className="nav-link text-white fw-bold px-3" to="/admin/tuition">Tuitions</Link>
                         </li>
                         {localStorage.getItem('role') === 'superadmin' && (
                             <li className="nav-item">
-                                <Link className="nav-link fw-bold text-white px-3 mx-2 rounded hover-effect" to="/user">
-                                    Users
-                                </Link>
+                                <Link className="nav-link text-white fw-bold px-3" to="/admin/user">Users</Link>
                             </li>
                         )}
                         <li className="nav-item">
-                            <Link className="nav-link fw-bold text-white px-3 mx-2 rounded hover-effect" to="/payment">
-                                Payments
-                            </Link>
+                            <Link className="nav-link text-white fw-bold px-3" to="/admin/payment">Payments</Link>
                         </li>
                         <li className="nav-item">
-                            <Link className="nav-link fw-bold text-white px-3 mx-2 rounded hover-effect" to="/refund">
-                                Refund
-                            </Link>
+                            <Link className="nav-link text-white fw-bold px-3" to="/admin/refund">Refund</Link>
                         </li>
                         <li className="nav-item">
-                            <Link className="nav-link fw-bold text-white px-3 mx-2 rounded hover-effect" to="/guardianApply">
-                                Guardian
-                            </Link>
+                            <Link className="nav-link text-white fw-bold px-3" to="/admin/guardianApply">Guardian</Link>
                         </li>
                         <li className="nav-item">
-                            <Link className="nav-link fw-bold text-white px-3 mx-2 rounded hover-effect" to="/task">
-                                Task
-                            </Link>
+                            <Link className="nav-link text-white fw-bold px-3" to="/admin/task">Task</Link>
                         </li>
                         <li className="nav-item">
-                            <Link className="nav-link fw-bold text-white px-3 mx-2 rounded hover-effect" to="/attendance">
-                                Attendance
-                            </Link>
+                            <Link className="nav-link text-white fw-bold px-3" to="/admin/attendance">Attendance</Link>
                         </li>
                         <li className="nav-item">
-                            <Link className="nav-link fw-bold text-white px-3 mx-2 rounded hover-effect" to="/tuitionApply">
-                                Tuition Apply
-                            </Link>
+                            <Link className="nav-link text-white fw-bold px-3" to="/admin/tuitionApply">Tuition Apply</Link>
                         </li>
                         <li className="nav-item">
-                            <Link className="nav-link fw-bold text-white px-3 mx-2 rounded hover-effect" to="/premiumTeacher">
-                                Premium Teachers
-                            </Link>
+                            <Link className="nav-link text-white fw-bold px-3" to="/admin/premiumTeacher">Premium</Link>
                         </li>
                         <li className="nav-item">
-                            <Link className="nav-link fw-bold text-white px-3 mx-2 rounded hover-effect" to="/spamBest">
-                                Spam/Best
-                            </Link>
+                            <Link className="nav-link text-white fw-bold px-3" to="/admin/spamBest">Spam/Best</Link>
                         </li>
                         <li className="nav-item">
-                            <button
-                                onClick={handleLogout}
-                                className="btn fw-bold btn-outline-light px-3 mx-2 rounded-pill"
-                            >
+                            <button className="btn btn-outline-light fw-bold rounded-pill px-3" onClick={handleLogout}>
                                 Logout
                             </button>
                         </li>

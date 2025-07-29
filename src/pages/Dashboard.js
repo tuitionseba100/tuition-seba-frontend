@@ -1,10 +1,29 @@
 import React, { useEffect, useState } from 'react';
-import { Container, Row, Col, Card, Table } from 'react-bootstrap';
+import { FaSyncAlt } from 'react-icons/fa';
 import {
-    LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer,
+    Container,
+    Row,
+    Col,
+    Card,
+    Table,
+    Tooltip,
+    OverlayTrigger,
+} from 'react-bootstrap';
+
+import {
+    ResponsiveContainer,
+    BarChart,
+    Bar,
+    PieChart,
+    Pie,
+    Cell,
+    XAxis,
+    YAxis,
+    Tooltip as ReTooltip,
+    Legend,
+    LineChart,
+    Line,
 } from 'recharts';
-import NavBarPage from './NavbarPage';
-import { useNavigate } from 'react-router-dom';
 
 const COLORS = ['#0088FE', '#00C49F', '#FF8042'];
 
@@ -18,7 +37,7 @@ const cardStyle = {
 };
 
 const Dashboard = () => {
-    const navigate = useNavigate();
+    const [loading, setLoading] = useState(false);
     const [summaryData, setSummaryData] = useState(null);
     const [recentTuitionApplications, setRecentTuitionApplications] = useState([]);
     const [recentTeacherApplications, setRecentTeacherApplications] = useState([]);
@@ -29,10 +48,11 @@ const Dashboard = () => {
     const [monthlyPaymentInflow, setMonthlyPaymentInflow] = useState([]);
     const [refundTrends, setRefundTrends] = useState([]);
 
-    useEffect(() => {
+    const fetchData = () => {
+        setLoading(true);
         fetch('http://localhost:5001/api/dashboard/all')
-            .then(res => res.json())
-            .then(data => {
+            .then((res) => res.json())
+            .then((data) => {
                 setSummaryData(data.summaryData);
                 setRecentTuitionApplications(data.recentTuitionApplications);
                 setRecentTeacherApplications(data.recentTeacherApplications);
@@ -43,15 +63,29 @@ const Dashboard = () => {
                 setMonthlyPaymentInflow(data.monthlyPaymentInflow);
                 setRefundTrends(data.refundTrends);
             })
-            .catch(err => console.error(err));
+            .catch((err) => console.error('Dashboard fetch error:', err))
+            .finally(() => setLoading(false));
+    };
+
+    React.useEffect(() => {
+        fetchData();
+        const interval = setInterval(fetchData, 30000);
+        return () => clearInterval(interval);
     }, []);
 
-    if (!summaryData) return <div>Loading...</div>;
+    if (!summaryData) return <div>Loading dashboard...</div>;
 
     return (
         <>
-            <NavBarPage />
+            <style>{`
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+      `}</style>
+
             <Container fluid style={{ padding: '20px' }}>
+                {/* Summary Cards */}
                 <Row className="mb-4">
                     <Col md={4} lg={2}>
                         <Card style={{ ...cardStyle, backgroundColor: '#007bff' }}>
@@ -91,20 +125,22 @@ const Dashboard = () => {
                     </Col>
                 </Row>
 
+                {/* Recent Tuition Applications & Teacher Applications */}
                 <Row className="mb-4">
                     <Col lg={6} className="mb-4">
                         <Card>
                             <Card.Header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                 <span>Recent Tuition Applications</span>
+                                {/* Replace below with navigate if needed */}
                                 <button
                                     className="btn btn-link p-0"
                                     style={{ fontSize: '0.9rem' }}
-                                    onClick={() => navigate('/admin/tuition')}
+                                    onClick={() => window.location.href = '/admin/tuition'}
                                 >
                                     View All
                                 </button>
                             </Card.Header>
-                            <Card.Body style={{ padding: 0 }}>
+                            <Card.Body style={{ padding: 0, maxHeight: 300, overflowY: 'auto' }}>
                                 <Table striped hover responsive="md" style={{ marginBottom: 0 }}>
                                     <thead>
                                         <tr>
@@ -115,14 +151,18 @@ const Dashboard = () => {
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {recentTuitionApplications.map((app) => (
-                                            <tr key={app.id}>
-                                                <td>{app.name || app.studentName}</td>
-                                                <td>{app.tuitionCode}</td>
-                                                <td>{app.premiumCode?.trim() ? app.premiumCode : 'N/A'}</td>
-                                                <td>{app.status}</td>
-                                            </tr>
-                                        ))}
+                                        {recentTuitionApplications.length > 0 ? (
+                                            recentTuitionApplications.map((app) => (
+                                                <tr key={app.id || app._id}>
+                                                    <td>{app.name || app.studentName}</td>
+                                                    <td>{app.tuitionCode}</td>
+                                                    <td>{app.premiumCode?.trim() || 'N/A'}</td>
+                                                    <td>{app.status}</td>
+                                                </tr>
+                                            ))
+                                        ) : (
+                                            <tr><td colSpan="4" className="text-center">No recent tuition applications.</td></tr>
+                                        )}
                                     </tbody>
                                 </Table>
                             </Card.Body>
@@ -136,12 +176,12 @@ const Dashboard = () => {
                                 <button
                                     className="btn btn-link p-0"
                                     style={{ fontSize: '0.9rem' }}
-                                    onClick={() => navigate('/admin/premiumTeacher')}
+                                    onClick={() => window.location.href = '/admin/premiumTeacher'}
                                 >
                                     View All
                                 </button>
                             </Card.Header>
-                            <Card.Body style={{ padding: 0 }}>
+                            <Card.Body style={{ padding: 0, maxHeight: 300, overflowY: 'auto' }}>
                                 <Table striped hover responsive="md" style={{ marginBottom: 0 }}>
                                     <thead>
                                         <tr>
@@ -151,13 +191,17 @@ const Dashboard = () => {
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {recentTeacherApplications.map((app) => (
-                                            <tr key={app.id}>
-                                                <td>{app.name}</td>
-                                                <td>{app.phone}</td>
-                                                <td>{app.status}</td>
-                                            </tr>
-                                        ))}
+                                        {recentTeacherApplications.length > 0 ? (
+                                            recentTeacherApplications.map((app) => (
+                                                <tr key={app.id || app._id}>
+                                                    <td>{app.name}</td>
+                                                    <td>{app.phone}</td>
+                                                    <td>{app.status}</td>
+                                                </tr>
+                                            ))
+                                        ) : (
+                                            <tr><td colSpan="3" className="text-center">No recent teacher applications.</td></tr>
+                                        )}
                                     </tbody>
                                 </Table>
                             </Card.Body>
@@ -165,6 +209,7 @@ const Dashboard = () => {
                     </Col>
                 </Row>
 
+                {/* Recent Teacher Payments & Refund Requests */}
                 <Row className="mb-4">
                     <Col lg={6} className="mb-4">
                         <Card>
@@ -173,12 +218,12 @@ const Dashboard = () => {
                                 <button
                                     className="btn btn-link p-0"
                                     style={{ fontSize: '0.9rem' }}
-                                    onClick={() => navigate('/admin/payment')}
+                                    onClick={() => window.location.href = '/admin/payment'}
                                 >
                                     View All
                                 </button>
                             </Card.Header>
-                            <Card.Body style={{ padding: 0 }}>
+                            <Card.Body style={{ padding: 0, maxHeight: 300, overflowY: 'auto' }}>
                                 <Table striped hover responsive="md" style={{ marginBottom: 0 }}>
                                     <thead>
                                         <tr>
@@ -190,15 +235,19 @@ const Dashboard = () => {
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {recentTeacherPayments.map((p) => (
-                                            <tr key={p.id}>
-                                                <td>{p.tuitionCode}</td>
-                                                <td>{p.paymentNumber}</td>
-                                                <td>{p.personalPhone}</td>
-                                                <td>৳ {p.amount?.toLocaleString() || p.receivedTk?.toLocaleString()}</td>
-                                                <td>{p.status}</td>
-                                            </tr>
-                                        ))}
+                                        {recentTeacherPayments.length > 0 ? (
+                                            recentTeacherPayments.map((p) => (
+                                                <tr key={p.id || p._id}>
+                                                    <td>{p.tuitionCode}</td>
+                                                    <td>{p.paymentNumber}</td>
+                                                    <td>{p.personalPhone}</td>
+                                                    <td>৳ {p.amount?.toLocaleString() || p.receivedTk?.toLocaleString()}</td>
+                                                    <td>{p.status}</td>
+                                                </tr>
+                                            ))
+                                        ) : (
+                                            <tr><td colSpan="5" className="text-center">No recent teacher payments.</td></tr>
+                                        )}
                                     </tbody>
                                 </Table>
                             </Card.Body>
@@ -212,12 +261,12 @@ const Dashboard = () => {
                                 <button
                                     className="btn btn-link p-0"
                                     style={{ fontSize: '0.9rem' }}
-                                    onClick={() => navigate('/admin/refund')}
+                                    onClick={() => window.location.href = '/admin/refund'}
                                 >
                                     View All
                                 </button>
                             </Card.Header>
-                            <Card.Body style={{ padding: 0 }}>
+                            <Card.Body style={{ padding: 0, maxHeight: 300, overflowY: 'auto' }}>
                                 <Table striped hover responsive="md" style={{ marginBottom: 0 }}>
                                     <thead>
                                         <tr>
@@ -229,15 +278,19 @@ const Dashboard = () => {
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {refundRequests.map((r) => (
-                                            <tr key={r.id}>
-                                                <td>{r.tuitionCode}</td>
-                                                <td>{r.paymentNumber}</td>
-                                                <td>{r.personalPhone}</td>
-                                                <td>৳ {r.amount?.toLocaleString() || r.receivedTk?.toLocaleString()}</td>
-                                                <td>{r.status}</td>
-                                            </tr>
-                                        ))}
+                                        {refundRequests.length > 0 ? (
+                                            refundRequests.map((r) => (
+                                                <tr key={r.id || r._id}>
+                                                    <td>{r.tuitionCode}</td>
+                                                    <td>{r.paymentNumber}</td>
+                                                    <td>{r.personalPhone}</td>
+                                                    <td>৳ {r.amount?.toLocaleString() || r.receivedTk?.toLocaleString()}</td>
+                                                    <td>{r.status}</td>
+                                                </tr>
+                                            ))
+                                        ) : (
+                                            <tr><td colSpan="5" className="text-center">No refund requests.</td></tr>
+                                        )}
                                     </tbody>
                                 </Table>
                             </Card.Body>
@@ -245,6 +298,7 @@ const Dashboard = () => {
                     </Col>
                 </Row>
 
+                {/* Charts Section */}
                 <Row>
                     <Col lg={6} className="mb-4" style={{ height: 300 }}>
                         <Card style={{ padding: '10px' }}>
@@ -253,7 +307,7 @@ const Dashboard = () => {
                                 <BarChart data={monthlyTuitionApplications}>
                                     <XAxis dataKey="month" />
                                     <YAxis />
-                                    <Tooltip />
+                                    <ReTooltip />
                                     <Legend />
                                     <Bar dataKey="applications" fill="#007bff" />
                                 </BarChart>
@@ -280,7 +334,7 @@ const Dashboard = () => {
                                             <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                                         ))}
                                     </Pie>
-                                    <Tooltip />
+                                    <ReTooltip />
                                     <Legend />
                                 </PieChart>
                             </ResponsiveContainer>
@@ -296,7 +350,7 @@ const Dashboard = () => {
                                 <LineChart data={monthlyPaymentInflow}>
                                     <XAxis dataKey="month" />
                                     <YAxis />
-                                    <Tooltip />
+                                    <ReTooltip />
                                     <Legend />
                                     <Line type="monotone" dataKey="payments" stroke="#28a745" />
                                 </LineChart>
@@ -316,16 +370,58 @@ const Dashboard = () => {
                                         height={60}
                                     />
                                     <YAxis />
-                                    <Tooltip />
+                                    <ReTooltip />
                                     <Legend />
                                     <Bar dataKey="refunds" fill="#dc3545" />
                                 </BarChart>
                             </ResponsiveContainer>
                         </Card>
                     </Col>
-
                 </Row>
             </Container>
+
+            {/* Refresh Icon Button */}
+            <OverlayTrigger
+                placement="top"
+                overlay={loading ? <Tooltip id="refresh-tooltip">Refreshing data...</Tooltip> : <></>}
+            >
+                <div
+                    onClick={fetchData}
+                    style={{
+                        position: 'fixed',
+                        bottom: 20,
+                        right: 20,
+                        backgroundColor: '#007bff',
+                        borderRadius: '50%',
+                        padding: 12,
+                        boxShadow: '0 0 10px rgba(0,123,255,0.6)',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        zIndex: 9999,
+                    }}
+                    role="button"
+                    aria-label="Refresh dashboard data"
+                >
+                    <FaSyncAlt
+                        size={24}
+                        color="white"
+                        style={{
+                            animation: loading ? 'spin 1s linear infinite' : 'none',
+                            transformOrigin: 'center center',
+                        }}
+                    />
+                </div>
+            </OverlayTrigger>
+
+            {/* Spin animation */}
+            <style>{`
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+      `}</style>
         </>
     );
 };

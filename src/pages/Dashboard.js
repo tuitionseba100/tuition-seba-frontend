@@ -52,7 +52,7 @@ const Dashboard = () => {
 
     const fetchData = () => {
         setLoading(true);
-        fetch('http://localhost:5001/api/dashboard/all')
+        fetch('https://tuition-seba-backend-1.onrender.com/api/dashboard/all')
             .then((res) => res.json())
             .then((data) => {
                 setSummaryData(data.summaryData);

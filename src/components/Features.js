@@ -73,9 +73,9 @@ const Features = () => {
                     <FaGraduationCap />
                 </div>
                 <div>
-                    <h6 style={{ fontWeight: 'bold' }}>আপনার ভিউসন আপডেট</h6>
+                    <h6 style={{ fontWeight: 'bold' }}>আপনার টিউশন আপডেট</h6>
                     <p style={{ marginBottom: '4px', fontSize: '14px', color: '#555' }}>
-                        আপনার আবেদনকৃত ভিউসনগুলোর আপডেট জানতে
+                        আপনার আবেদনকৃত টিউশনগুলোর আপডেট জানতে
                     </p>
                     <a href="#" style={linkStyle('#3cb371')}>
                         <FaExternalLinkAlt /> এখানে ক্লিক করুন

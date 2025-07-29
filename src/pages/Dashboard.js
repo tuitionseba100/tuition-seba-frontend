@@ -10,6 +10,8 @@ import {
     OverlayTrigger,
 } from 'react-bootstrap';
 
+import NavBarPage from './NavbarPage';
+
 import {
     ResponsiveContainer,
     BarChart,
@@ -83,7 +85,7 @@ const Dashboard = () => {
           100% { transform: rotate(360deg); }
         }
       `}</style>
-
+            <NavBarPage />
             <Container fluid style={{ padding: '20px' }}>
                 {/* Summary Cards */}
                 <Row className="mb-4">
@@ -130,8 +132,7 @@ const Dashboard = () => {
                     <Col lg={6} className="mb-4">
                         <Card>
                             <Card.Header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                <span>Recent Tuition Applications</span>
-                                {/* Replace below with navigate if needed */}
+                                <span style={{ fontWeight: 900, color: '#0d6efd' }}>Recent Tuition Applications</span>
                                 <button
                                     className="btn btn-link p-0"
                                     style={{ fontSize: '0.9rem' }}
@@ -140,6 +141,7 @@ const Dashboard = () => {
                                     View All
                                 </button>
                             </Card.Header>
+
                             <Card.Body style={{ padding: 0, maxHeight: 300, overflowY: 'auto' }}>
                                 <Table striped hover responsive="md" style={{ marginBottom: 0 }}>
                                     <thead>
@@ -172,7 +174,7 @@ const Dashboard = () => {
                     <Col lg={6} className="mb-4">
                         <Card>
                             <Card.Header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                <span>Recent Teacher Applications</span>
+                                <span style={{ fontWeight: 900, color: '#0d6efd' }}>Recent Teacher Applications</span>
                                 <button
                                     className="btn btn-link p-0"
                                     style={{ fontSize: '0.9rem' }}
@@ -209,12 +211,11 @@ const Dashboard = () => {
                     </Col>
                 </Row>
 
-                {/* Recent Teacher Payments & Refund Requests */}
                 <Row className="mb-4">
                     <Col lg={6} className="mb-4">
                         <Card>
                             <Card.Header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                <span>Recent Teacher Payments</span>
+                                <span style={{ fontWeight: 900, color: '#0d6efd' }}>Recent Teacher Payments</span>
                                 <button
                                     className="btn btn-link p-0"
                                     style={{ fontSize: '0.9rem' }}
@@ -257,7 +258,7 @@ const Dashboard = () => {
                     <Col lg={6} className="mb-4">
                         <Card>
                             <Card.Header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                <span>Refund Requests</span>
+                                <span style={{ fontWeight: 900, color: '#0d6efd' }}>Refund Requests</span>
                                 <button
                                     className="btn btn-link p-0"
                                     style={{ fontSize: '0.9rem' }}

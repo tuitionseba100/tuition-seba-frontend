@@ -7,6 +7,7 @@ import HappyClients from '../../components/HappyClients';
 import About from '../../components/About';
 import PaymentOptions from '../../components/PaymentOptions';
 import Footer from '../../components/Footer';
+import FloatingWhatsAppIcon from '../../components/FloatingWhatsAppIcon';
 
 const LandingPage = () => {
     return (
@@ -19,6 +20,7 @@ const LandingPage = () => {
             <About />
             <PaymentOptions />
             <Footer />
+            <FloatingWhatsAppIcon />
         </>
     );
 };

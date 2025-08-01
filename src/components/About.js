@@ -4,7 +4,7 @@ import { FaWhatsapp, FaFacebookF, FaPhoneAlt, FaMapMarkerAlt, FaClock } from "re
 
 const AboutUs = () => {
     return (
-        <section style={{ backgroundColor: "#f4f7fa", padding: "60px 0" }}>
+        <section id="about-us" style={{ backgroundColor: "#f4f7fa", padding: "60px 0" }}>
             <Container>
                 <Card className="shadow-lg border-0 p-4 rounded-4">
                     <Row className="align-items-center">

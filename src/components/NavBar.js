@@ -46,22 +46,22 @@ const NavbarComponent = () => {
                         <Nav.Link as={NavLink} to="/tuitions" style={navLinkStyle}>
                             Available Tuitions
                         </Nav.Link>
-                        <Nav.Link href="#" style={navLinkStyle}>
+                        <Nav.Link as={NavLink} to="/findTutor" style={navLinkStyle}>
                             Find Tutor
                         </Nav.Link>
-                        <Nav.Link href="#" style={navLinkStyle}>
+                        <Nav.Link href="#about-us" style={navLinkStyle}>
                             About Us
                         </Nav.Link>
-                        <Nav.Link href="#" style={navLinkStyle}>
+                        <Nav.Link as={NavLink} to="/payment" style={navLinkStyle}>
                             Payment
                         </Nav.Link>
                         <Nav.Link href="#" style={navLinkStyle}>
                             Registration
                         </Nav.Link>
-                        <Nav.Link href="#" style={{ color: 'white', marginRight: '10px' }}>
+                        <Nav.Link href="https://facebook.com/groups/1003753066957594/" style={{ color: 'white', marginRight: '10px' }}>
                             <FaFacebookF />
                         </Nav.Link>
-                        <Nav.Link href="#" style={{ color: 'white' }}>
+                        <Nav.Link href="whatsapp://send?phone=+8801540376020" style={{ color: 'white' }}>
                             <FaWhatsapp />
                         </Nav.Link>
                     </Nav>

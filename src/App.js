@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 import LandingPage from './pages/public/LandingPage';
+import PaymentRefundPage from './pages/public/PaymentRefundPage';
 import Loginpage from './pages/Loginpage';
 import Tuitionmenu from './pages/Tuitionmenu';
 import UserPage from './pages/UserPage';
@@ -18,6 +19,7 @@ import PrivateRoute from './pages/PrivateRoute';
 import NotFoundPage from './pages/public/NotFoundPage';
 import Dashboard from './pages/Dashboard';
 import AvailableTuitions from './pages/public/AvailableTuitions';
+import FindTutorPage from './pages/public/FindTutorPage';
 
 const App = () => {
   return (
@@ -25,6 +27,8 @@ const App = () => {
       <Routes>
         <Route path="/" element={<LandingPage />} />
         <Route path="/tuitions" element={<AvailableTuitions />} />
+        <Route path="/payment" element={<PaymentRefundPage />} />
+        <Route path="/findTutor" element={<FindTutorPage />} />
         <Route path="/admin/login" element={<Loginpage />} />
 
         <Route path="/admin" element={<PrivateRoute />}>

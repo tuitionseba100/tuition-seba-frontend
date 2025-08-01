@@ -1,7 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { FaUserCheck, FaGraduationCap, FaExternalLinkAlt } from 'react-icons/fa';
+import TuitionApplyUpdateModal from '../components/modals/TuitionApplyUpdateModal';
 
 const Features = () => {
+    const [showUpdateModal, setUpdateShowModal] = useState(false);
+
     const cardStyle = {
         borderRadius: '14px',
         boxShadow: '0px 2px 20px rgba(0, 0, 0, 0.1)',
@@ -49,7 +52,6 @@ const Features = () => {
 
     return (
         <div style={containerStyle}>
-            {/* Card 1 */}
             <div style={{ ...cardStyle, borderLeft: '5px solid #2f6bf0' }}>
                 <div style={iconCircleStyle('#2f6bf0')}>
                     <FaUserCheck />
@@ -67,7 +69,6 @@ const Features = () => {
                 </div>
             </div>
 
-            {/* Card 2 */}
             <div style={{ ...cardStyle, borderLeft: '5px solid #3cb371' }}>
                 <div style={iconCircleStyle('#3cb371')}>
                     <FaGraduationCap />
@@ -77,11 +78,13 @@ const Features = () => {
                     <p style={{ marginBottom: '4px', fontSize: '14px', color: '#555' }}>
                         আপনার আবেদনকৃত টিউশনগুলোর আপডেট জানতে
                     </p>
-                    <a href="#" style={linkStyle('#3cb371')}>
+                    <a href="#" style={linkStyle('#3cb371')} onClick={() => setUpdateShowModal(true)}>
                         <FaExternalLinkAlt /> এখানে ক্লিক করুন
                     </a>
                 </div>
             </div>
+
+            <TuitionApplyUpdateModal show={showUpdateModal} handleClose={() => setUpdateShowModal(false)} />
         </div>
     );
 };

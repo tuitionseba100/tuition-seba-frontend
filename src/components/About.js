@@ -2,6 +2,7 @@ import React from "react";
 import { Container, Row, Col, Button, Image, Card } from "react-bootstrap";
 import { FaWhatsapp, FaFacebookF, FaPhoneAlt, FaMapMarkerAlt, FaClock } from "react-icons/fa";
 
+
 const AboutUs = () => {
     return (
         <section id="about-us" style={{ backgroundColor: "#f4f7fa", padding: "60px 0" }}>

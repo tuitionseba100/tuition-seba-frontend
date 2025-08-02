@@ -1,14 +1,13 @@
 import 'bootstrap/dist/css/bootstrap.min.css';
 import React from 'react';
-import ReactDOM from 'react-dom/client'; // Notice the change to 'react-dom/client'
+import ReactDOM from 'react-dom/client';
 import App from './App';
-import 'react-toastify/dist/ReactToastify.css'; // for toast notifications
+import 'react-toastify/dist/ReactToastify.css';
 import "@fontsource/poppins";
 import "./index.css";
+import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 
-
-
-const root = ReactDOM.createRoot(document.getElementById('root')); // Create the root
+const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
     <App />

@@ -1,69 +1,85 @@
 import React from 'react';
 import { Navbar, Nav, Container } from 'react-bootstrap';
 import { FaFacebookF, FaWhatsapp } from 'react-icons/fa';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useNavigate, useLocation } from 'react-router-dom';
 
 const NavbarComponent = () => {
-    const navbarStyle = {
-        backgroundColor: '#3c81e1',
-        height: '60px',
+    const navigate = useNavigate();
+    const location = useLocation();
+
+    const handleAboutUsClick = (e) => {
+        e.preventDefault();
+        if (location.pathname === '/') {
+            document.getElementById('about-us')?.scrollIntoView({ behavior: 'smooth' });
+        } else {
+            navigate('/');
+            setTimeout(() => {
+                document.getElementById('about-us')?.scrollIntoView({ behavior: 'smooth' });
+            }, 300);
+        }
     };
 
-    const logoStyle = {
-        width: '40px',
-        height: '40px',
-        marginRight: '8px',
-        borderRadius: '50%',
-        objectFit: 'cover',
-    };
+    const navbarStyle = { backgroundColor: '#3c81e1' };
+    const logoStyle = { width: 40, height: 40, marginRight: 10, borderRadius: '50%', objectFit: 'cover' };
+    const brandStyle = { fontWeight: 700, color: 'white', fontSize: 18 };
+    const navLinkStyle = { color: 'white', fontWeight: 500, marginRight: 16, whiteSpace: 'nowrap', cursor: 'pointer' };
+    const iconLinkStyle = { color: 'white', fontSize: 16, marginLeft: 10 };
 
-    const brandStyle = {
-        fontWeight: '700',
-        color: 'white',
-        fontSize: '18px',
-    };
+    const navLinks = [
+        { label: 'Available Tuitions', to: '/tuitions' },
+        { label: 'Find Tutor', to: '/findTutor' },
+        { label: 'About Us', to: '#about-us', isSpecial: true },
+        { label: 'Payment', to: '/payment' },
+        { label: 'Registration', to: '/register' },
+    ];
 
-    const navLinkStyle = {
-        color: 'white',
-        marginRight: '18px',
-        fontWeight: '500',
-    };
+    const iconLinks = [
+        {
+            href: 'https://facebook.com/groups/1003753066957594/',
+            icon: <FaFacebookF />,
+            key: 'facebook',
+        },
+        {
+            href: 'https://wa.me/8801540376020',
+            icon: <FaWhatsapp />,
+            key: 'whatsapp',
+        },
+    ];
 
     return (
-        <Navbar style={navbarStyle} expand="lg" variant="dark">
+        <Navbar style={navbarStyle} expand="lg" variant="dark" sticky="top">
             <Container>
                 <Navbar.Brand as={NavLink} to="/" className="d-flex align-items-center">
-                    <img
-                        src="/img/favicon.png"
-                        alt="Logo"
-                        style={logoStyle}
-                    />
+                    <img src="/img/favicon.png" alt="Logo" style={logoStyle} />
                     <span style={brandStyle}>Tuition Seba Forum</span>
                 </Navbar.Brand>
-                <Navbar.Toggle aria-controls="basic-navbar-nav" />
-                <Navbar.Collapse id="basic-navbar-nav">
+
+                <Navbar.Toggle aria-controls="main-navbar" />
+                <Navbar.Collapse id="main-navbar">
                     <Nav className="ms-auto align-items-center">
-                        <Nav.Link as={NavLink} to="/tuitions" style={navLinkStyle}>
-                            Available Tuitions
-                        </Nav.Link>
-                        <Nav.Link as={NavLink} to="/findTutor" style={navLinkStyle}>
-                            Find Tutor
-                        </Nav.Link>
-                        <Nav.Link href="#about-us" style={navLinkStyle}>
-                            About Us
-                        </Nav.Link>
-                        <Nav.Link as={NavLink} to="/payment" style={navLinkStyle}>
-                            Payment
-                        </Nav.Link>
-                        <Nav.Link href="#" style={navLinkStyle}>
-                            Registration
-                        </Nav.Link>
-                        <Nav.Link href="https://facebook.com/groups/1003753066957594/" style={{ color: 'white', marginRight: '10px' }}>
-                            <FaFacebookF />
-                        </Nav.Link>
-                        <Nav.Link href="whatsapp://send?phone=+8801540376020" style={{ color: 'white' }}>
-                            <FaWhatsapp />
-                        </Nav.Link>
+                        {navLinks.map(({ label, to, isSpecial }) =>
+                            !isSpecial ? (
+                                <Nav.Link key={label} as={NavLink} to={to} style={navLinkStyle}>
+                                    {label}
+                                </Nav.Link>
+                            ) : (
+                                <Nav.Link key={label} onClick={handleAboutUsClick} style={navLinkStyle}>
+                                    {label}
+                                </Nav.Link>
+                            )
+                        )}
+
+                        {iconLinks.map(({ href, icon, key }) => (
+                            <Nav.Link
+                                key={key}
+                                href={href}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                style={iconLinkStyle}
+                            >
+                                {icon}
+                            </Nav.Link>
+                        ))}
                     </Nav>
                 </Navbar.Collapse>
             </Container>

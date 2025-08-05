@@ -1,6 +1,9 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const TutorSection = () => {
+    const navigate = useNavigate();
+
     const sectionStyle = {
         background: 'linear-gradient(180deg, #55b3e7 0%, #55b3e7 100%)',
         padding: '60px 20px',
@@ -28,6 +31,7 @@ const TutorSection = () => {
         padding: '10px 25px',
         border: 'none',
         marginRight: '15px',
+        cursor: 'pointer',
     };
 
     const buttonSecondaryStyle = {
@@ -37,6 +41,7 @@ const TutorSection = () => {
         borderRadius: '25px',
         padding: '10px 25px',
         border: '2px solid white',
+        cursor: 'pointer',
     };
 
     return (
@@ -46,8 +51,18 @@ const TutorSection = () => {
                 Connect with expert tutors tailored to your educational needs
             </p>
             <div>
-                <button style={buttonPrimaryStyle}>AVAILABLE TUITIONS</button>
-                <button style={buttonSecondaryStyle}>FIND TUTOR</button>
+                <button
+                    style={buttonPrimaryStyle}
+                    onClick={() => navigate('/tuitions')}
+                >
+                    AVAILABLE TUITIONS
+                </button>
+                <button
+                    style={buttonSecondaryStyle}
+                    onClick={() => navigate('/findTutor')}
+                >
+                    FIND TUTOR
+                </button>
             </div>
         </section>
     );

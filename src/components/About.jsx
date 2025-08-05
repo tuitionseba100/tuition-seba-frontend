@@ -49,7 +49,7 @@ const AboutUs = () => {
                         <Col md={8}>
                             <h3 className="fw-semibold text-primary mb-3">About Tuition Seba Forum</h3>
                             <p style={{ lineHeight: "1.8", fontSize: "16px", color: "#333" }}>
-                                Tuition Seba Forum একটি সুপ্রতিষ্ঠিত এবং চট্টগ্রাম শহরের অন্যতম একটি টিউশন
+                                Tuition Seba Forum একটি সুপ্রতিষ্ঠিত এবং বাংলাদেশের অন্যতম একটি টিউশন
                                 মিডিয়া। আমাদের রয়েছে নিজস্ব অফিস ও দীর্ঘ কয়েক বছরের টিউশন ও গৃহশিক্ষক ও
                                 শিক্ষিকা দেয়ার অভিজ্ঞতা। আস্থা ও বিশ্বস্ততায় আমরা একধাপ এগিয়ে।
                             </p>

@@ -1,9 +1,9 @@
 import React from 'react';
 import { Modal, Button } from 'react-bootstrap';
 
-const ApplySuccessModal = ({ show, onHide }) => {
+const ApplySuccessModal = ({ show, handleClose }) => {
     return (
-        <Modal show={show} onHide={onHide} centered>
+        <Modal show={show} onHide={handleClose} centered>
             <Modal.Header closeButton>
                 <Modal.Title className="text-primary">Success</Modal.Title>
             </Modal.Header>
@@ -28,12 +28,13 @@ const ApplySuccessModal = ({ show, onHide }) => {
             </Modal.Body>
 
             <Modal.Footer>
-                <Button variant="secondary" onClick={onHide}>
+                <Button variant="secondary" onClick={handleClose}>
                     Close
                 </Button>
             </Modal.Footer>
         </Modal>
     );
 };
+
 
 export default ApplySuccessModal;

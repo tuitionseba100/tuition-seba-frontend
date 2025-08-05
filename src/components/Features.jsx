@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import { FaUserCheck, FaGraduationCap, FaExternalLinkAlt } from 'react-icons/fa';
 import TuitionApplyUpdateModal from './modals/TuitionApplyUpdateModal';
+import { useNavigate } from 'react-router-dom';
 
 const Features = () => {
     const [showUpdateModal, setUpdateShowModal] = useState(false);
+    const navigate = useNavigate();
 
     const cardStyle = {
         borderRadius: '14px',
@@ -39,19 +41,23 @@ const Features = () => {
         flexWrap: 'wrap',
     };
 
-    const linkStyle = (color) => ({
+    const buttonStyle = (color) => ({
+        background: 'none',
+        border: 'none',
+        padding: '0',
         color,
         fontWeight: 'bold',
-        textDecoration: 'none',
         fontSize: '14px',
         display: 'inline-flex',
         alignItems: 'center',
         marginTop: '8px',
         gap: '5px',
+        cursor: 'pointer',
     });
 
     return (
         <div style={containerStyle}>
+            {/* Premium Teacher Card */}
             <div style={{ ...cardStyle, borderLeft: '5px solid #2f6bf0' }}>
                 <div style={iconCircleStyle('#2f6bf0')}>
                     <FaUserCheck />
@@ -63,12 +69,16 @@ const Features = () => {
                     <p style={{ marginBottom: '4px', fontSize: '14px', color: '#555' }}>
                         বিশেষ সুযোগ-সুবিধা পেতে আজই রেজিস্ট্রেশন করুন।
                     </p>
-                    <a href="#" style={linkStyle('#2f6bf0')}>
+                    <button
+                        style={buttonStyle('#2f6bf0')}
+                        onClick={() => navigate('/teacherRegistration')}
+                    >
                         <FaExternalLinkAlt /> এখানে ক্লিক করুন
-                    </a>
+                    </button>
                 </div>
             </div>
 
+            {/* Tuition Update Card */}
             <div style={{ ...cardStyle, borderLeft: '5px solid #3cb371' }}>
                 <div style={iconCircleStyle('#3cb371')}>
                     <FaGraduationCap />
@@ -78,9 +88,12 @@ const Features = () => {
                     <p style={{ marginBottom: '4px', fontSize: '14px', color: '#555' }}>
                         আপনার আবেদনকৃত টিউশনগুলোর আপডেট জানতে
                     </p>
-                    <a href="#" style={linkStyle('#3cb371')} onClick={() => setUpdateShowModal(true)}>
+                    <button
+                        style={buttonStyle('#2f6bf0')}
+                        onClick={() => setUpdateShowModal(true)}
+                    >
                         <FaExternalLinkAlt /> এখানে ক্লিক করুন
-                    </a>
+                    </button>
                 </div>
             </div>
 

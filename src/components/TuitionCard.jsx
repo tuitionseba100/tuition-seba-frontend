@@ -3,14 +3,14 @@ import { Card, Button, ListGroup } from 'react-bootstrap';
 import {
     FaChalkboardTeacher, FaUsers, FaUniversity, FaBook,
     FaLanguage, FaBookOpen, FaCalendarDay, FaClock,
-    FaMoneyBill, FaMapMarkerAlt, FaCalendarCheck
+    FaMoneyBill, FaMapMarkerAlt, FaCalendarCheck, FaWhatsapp, FaGlobe
 } from 'react-icons/fa';
 import ApplyModal from '../components/modals/ApplyModal';
 
 const TuitionCard = ({ tuition }) => {
     const [showModal, setShowModal] = useState(false);
 
-    const handleApplyClick = (tuition) => {
+    const handleApplyClick = () => {
         if (tuition.isWhatsappApply) {
             redirectToWhatsApp(tuition);
         } else {
@@ -41,68 +41,79 @@ Joining: ${tuitionDetails.joining}
         window.open(url, '_blank');
     };
 
+    const infoRow = (icon, label, value) => (
+        <ListGroup.Item
+            className="d-flex justify-content-between align-items-center"
+            style={{
+                padding: '10px 16px',
+                fontSize: '1rem',
+                border: 'none',
+                borderBottom: '1px solid #e9ecef',
+                background: '#fff'
+            }}
+        >
+            <div className="d-flex align-items-center text-primary fw-semibold">
+                <span className="me-2">{icon}</span>
+                {label}
+            </div>
+            <div className="text-black fw-bold text-end" style={{ maxWidth: '55%' }}>
+                {value || '-'}
+            </div>
+        </ListGroup.Item>
+    );
+
     return (
         <>
-            <Card className="mx-auto my-3 shadow-sm" style={{ maxWidth: '400px' }}>
-                <Card.Header className="bg-primary text-white d-flex align-items-center gap-2">
+            <Card
+                className="mx-auto mb-2 shadow-sm"
+                style={{
+                    maxWidth: '460px',
+                    borderRadius: '0px',
+                    border: '1px solid #dee2e6',
+                    overflow: 'hidden',
+                    background: '#fff',
+                    height: '100%',
+                    display: 'flex',
+                    flexDirection: 'column',
+                }}
+            >
+                <Card.Header
+                    className="bg-primary text-white fw-bold d-flex align-items-center gap-2"
+                    style={{ fontSize: '1.1rem', padding: '14px 16px' }}
+                >
                     <FaChalkboardTeacher />
-                    <span>Tuition Code: {tuition.tuitionCode}</span>
+                    Tuition Code: {tuition.tuitionCode}
                 </Card.Header>
 
-                <ListGroup variant="flush" className="p-3" style={{ fontSize: '0.9rem' }}>
-                    <ListGroup.Item>
-                        <FaChalkboardTeacher className="text-primary me-2" />
-                        <strong>Wanted Teacher:</strong> {tuition.wantedTeacher}
-                    </ListGroup.Item>
-                    <ListGroup.Item>
-                        <FaUsers className="text-primary me-2" />
-                        <strong>Number of Students:</strong> {tuition.student}
-                    </ListGroup.Item>
-                    <ListGroup.Item>
-                        <FaUniversity className="text-primary me-2" />
-                        <strong>Institute:</strong> {tuition.institute || '-'}
-                    </ListGroup.Item>
-                    <ListGroup.Item>
-                        <FaBook className="text-primary me-2" />
-                        <strong>Class:</strong> {tuition.class}
-                    </ListGroup.Item>
-                    <ListGroup.Item>
-                        <FaLanguage className="text-primary me-2" />
-                        <strong>Medium:</strong> {tuition.medium}
-                    </ListGroup.Item>
-                    <ListGroup.Item>
-                        <FaBookOpen className="text-primary me-2" />
-                        <strong>Subject:</strong> {tuition.subject}
-                    </ListGroup.Item>
-                    <ListGroup.Item>
-                        <FaCalendarDay className="text-primary me-2" />
-                        <strong>Day:</strong> {tuition.day}
-                    </ListGroup.Item>
-                    <ListGroup.Item>
-                        <FaClock className="text-primary me-2" />
-                        <strong>Time:</strong> {tuition.time}
-                    </ListGroup.Item>
-                    <ListGroup.Item>
-                        <FaMoneyBill className="text-primary me-2" />
-                        <strong>Salary:</strong> {tuition.salary} Taka
-                    </ListGroup.Item>
-                    <ListGroup.Item>
-                        <FaMapMarkerAlt className="text-primary me-2" />
-                        <strong>Location:</strong> {tuition.location}{tuition.area ? `, ${tuition.area}` : ''}
-                    </ListGroup.Item>
-                    <ListGroup.Item>
-                        <FaCalendarCheck className="text-primary me-2" />
-                        <strong>Joining:</strong> {tuition.joining}
-                    </ListGroup.Item>
+                <ListGroup variant="flush" style={{ flexGrow: 1 }}>
+                    {infoRow(<FaChalkboardTeacher />, 'Wanted Teacher', tuition.wantedTeacher)}
+                    {infoRow(<FaUsers />, 'Students', tuition.student)}
+                    {infoRow(<FaUniversity />, 'Institute', tuition.institute)}
+                    {infoRow(<FaBook />, 'Class', tuition.class)}
+                    {infoRow(<FaLanguage />, 'Medium', tuition.medium)}
+                    {infoRow(<FaBookOpen />, 'Subject', tuition.subject)}
+                    {infoRow(<FaCalendarDay />, 'Day', tuition.day)}
+                    {infoRow(<FaClock />, 'Time', tuition.time)}
+                    {infoRow(<FaMoneyBill />, 'Salary', `${tuition.salary} Taka`)}
+                    {infoRow(<FaMapMarkerAlt />, 'Location', `${tuition.location}${tuition.area ? ', ' + tuition.area : ''}`)}
+                    {infoRow(<FaCalendarCheck />, 'Joining', tuition.joining)}
                 </ListGroup>
 
-                <Card.Footer className="text-center">
+                <Card.Footer className="text-center" style={{ marginTop: 'auto' }}>
                     <Button
                         variant="primary"
-                        className="rounded-pill px-4"
+                        className="rounded-pill px-4 d-inline-flex align-items-center gap-2"
                         onClick={() => handleApplyClick(tuition)}
                     >
-                        📩 Apply Now
+                        {tuition.isWhatsappApply ? (
+                            <>
+                                <FaWhatsapp /> Apply Now
+                            </>
+                        ) : (
+                            <>
+                                <FaGlobe /> Apply Now
+                            </>
+                        )}
                     </Button>
                 </Card.Footer>
             </Card>

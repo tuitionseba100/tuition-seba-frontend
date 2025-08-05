@@ -26,54 +26,91 @@ const paymentOptions = [
 
 const PaymentOptions = () => {
     return (
-        <Container style={{ padding: '40px 15px', backgroundColor: '#f9fbff' }}>
-            <h2 className="text-center mb-5" style={{ fontWeight: '700', color: '#2c3e50' }}>
-                We Accept
-            </h2>
-            <Row>
-                {paymentOptions.map((option, index) => (
-                    <Col key={index} xs={12} sm={6} md={3} className="d-flex">
-                        <Card
-                            style={{
-                                width: '100%',
-                                border: 'none',
-                                borderRadius: '15px',
-                                boxShadow: '0 6px 20px rgba(0,0,0,0.08)',
-                                transition: 'transform 0.3s ease, box-shadow 0.3s ease',
-                                backgroundColor: '#ffffff',
-                            }}
-                            className="mb-4 p-3 text-center"
-                            onMouseEnter={(e) => {
-                                e.currentTarget.style.transform = 'translateY(-5px)';
-                                e.currentTarget.style.boxShadow = '0 12px 24px rgba(0,0,0,0.15)';
-                            }}
-                            onMouseLeave={(e) => {
-                                e.currentTarget.style.transform = 'translateY(0)';
-                                e.currentTarget.style.boxShadow = '0 6px 20px rgba(0,0,0,0.08)';
-                            }}
-                        >
-                            <img
-                                src={option.image}
-                                alt={option.title}
+        <div
+            style={{
+                width: '100%',
+                padding: '80px 20px',
+                background: 'linear-gradient(to right, #e3f2fd, #f1f9ff)',
+            }}
+        >
+            <Container fluid>
+                <h2
+                    className="text-center mb-5"
+                    style={{
+                        fontWeight: '900',
+                        fontSize: '2.4rem',
+                        color: '#0b3d91',
+                        textShadow: '1px 1px 2px rgba(0,0,0,0.1)',
+                    }}
+                >
+                    💳 WE ACCEPT
+                </h2>
+                <Row className="gx-4 gy-4 justify-content-center">
+                    {paymentOptions.map((option, index) => (
+                        <Col key={index} xs={12} sm={6} md={4} lg={3} className="d-flex justify-content-center">
+                            <Card
                                 style={{
-                                    width: '80px',
-                                    height: '80px',
-                                    borderRadius: '50%',
-                                    objectFit: 'cover',
-                                    marginBottom: '15px',
+                                    width: '100%',
+                                    maxWidth: '320px',
+                                    border: 'none',
+                                    borderRadius: '16px',
+                                    overflow: 'hidden',
+                                    boxShadow: '0 10px 35px rgba(0, 123, 255, 0.15)',
+                                    transition: 'transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out',
+                                    backgroundColor: '#ffffff',
                                 }}
-                            />
-                            <Card.Title style={{ fontSize: '1.1rem', fontWeight: '600', color: '#34495e' }}>
-                                {option.title}
-                            </Card.Title>
-                            <Card.Text style={{ fontSize: '1rem', color: '#7f8c8d' }}>
-                                {option.number}
-                            </Card.Text>
-                        </Card>
-                    </Col>
-                ))}
-            </Row>
-        </Container>
+                                onMouseEnter={(e) => {
+                                    e.currentTarget.style.transform = 'translateY(-6px)';
+                                    e.currentTarget.style.boxShadow = '0 14px 40px rgba(0, 123, 255, 0.25)';
+                                }}
+                                onMouseLeave={(e) => {
+                                    e.currentTarget.style.transform = 'translateY(0)';
+                                    e.currentTarget.style.boxShadow = '0 10px 35px rgba(0, 123, 255, 0.15)';
+                                }}
+                            >
+                                <div style={{ width: '100%', height: '160px', overflow: 'hidden' }}>
+                                    <img
+                                        src={option.image}
+                                        alt={option.title}
+                                        style={{
+                                            width: '100%',
+                                            height: '100%',
+                                            objectFit: 'cover',
+                                            display: 'block',
+                                        }}
+                                    />
+                                </div>
+                                <Card.Body className="text-center">
+                                    <Card.Title
+                                        style={{
+                                            fontSize: '1.2rem',
+                                            fontWeight: '700',
+                                            color: '#0a2f74',
+                                            marginBottom: '12px',
+                                        }}
+                                    >
+                                        {option.title}
+                                    </Card.Title>
+                                    <Card.Text
+                                        style={{
+                                            fontSize: '1rem',
+                                            color: '#007bff',
+                                            backgroundColor: '#e8f4ff',
+                                            borderRadius: '12px',
+                                            padding: '8px 14px',
+                                            fontWeight: '600',
+                                            display: 'inline-block',
+                                        }}
+                                    >
+                                        {option.number}
+                                    </Card.Text>
+                                </Card.Body>
+                            </Card>
+                        </Col>
+                    ))}
+                </Row>
+            </Container>
+        </div>
     );
 };
 

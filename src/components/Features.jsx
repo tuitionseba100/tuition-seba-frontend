@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { FaUserCheck, FaGraduationCap, FaExternalLinkAlt } from 'react-icons/fa';
-import TuitionApplyUpdateModal from '../components/modals/TuitionApplyUpdateModal';
+import TuitionApplyUpdateModal from './modals/TuitionApplyUpdateModal';
 
 const Features = () => {
     const [showUpdateModal, setUpdateShowModal] = useState(false);

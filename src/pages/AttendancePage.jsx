@@ -5,15 +5,15 @@ import Select from 'react-select';
 import { ToastContainer, toast } from 'react-toastify';
 import NavBarPage from './NavbarPage';
 import { Modal } from 'react-bootstrap';
-import DatePicker from 'react-datepicker';
-import "react-datepicker/dist/react-datepicker.css"; // Import the styles
+import DateTimePicker from 'react-datetime-picker';
+import 'react-datetime-picker/dist/DateTimePicker.css';
 
 const AttendancePage = () => {
     const [attendance, setAttendance] = useState([]);
     const [filteredAttendance, setFilteredAttendance] = useState([]);
     const [filter, setFilter] = useState('today');
     const [users, setUsers] = useState([]);
-    const [userFilter, setUserFilter] = useState(null); // User filter state
+    const [userFilter, setUserFilter] = useState(null);
     const token = localStorage.getItem('token');
     const [showEditModal, setShowEditModal] = useState(false);
     const [editingAttendance, setEditingAttendance] = useState(null);
@@ -23,7 +23,7 @@ const AttendancePage = () => {
 
     useEffect(() => {
         fetchAttendance();
-        fetchUsers(); // Fetch users on mount
+        fetchUsers();
     }, []);
 
     useEffect(() => {
@@ -286,23 +286,23 @@ const AttendancePage = () => {
 
                                 <Form.Group className="mb-3">
                                     <Form.Label>Start Time</Form.Label>
-                                    <DatePicker
-                                        selected={editStartTime}
-                                        onChange={date => setEditStartTime(date)}
-                                        showTimeSelect
-                                        dateFormat="Pp"
+                                    <DateTimePicker
+                                        onChange={setEditStartTime}
+                                        value={editStartTime}
+                                        disableClock={true}
                                     />
                                 </Form.Group>
 
                                 <Form.Group className="mb-3">
                                     <Form.Label>End Time</Form.Label>
-                                    <DatePicker
-                                        selected={editEndTime}
-                                        onChange={date => setEditEndTime(date)}
-                                        showTimeSelect
-                                        dateFormat="Pp"
+                                    <DateTimePicker
+                                        onChange={setEditEndTime}
+                                        value={editEndTime}
+                                        disableClock={true}
+                                        clearIcon={null}
                                     />
                                 </Form.Group>
+
                             </Form>
                         </Modal.Body>
                         <Modal.Footer>

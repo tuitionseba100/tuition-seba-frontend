@@ -20,6 +20,7 @@ import NotFoundPage from './pages/public/NotFoundPage';
 import Dashboard from './pages/Dashboard';
 import AvailableTuitions from './pages/public/AvailableTuitions';
 import FindTutorPage from './pages/public/FindTutorPage';
+import TeacherRegistration from './pages/public/TeacherRegistration';
 
 const App = () => {
   return (
@@ -29,6 +30,7 @@ const App = () => {
         <Route path="/tuitions" element={<AvailableTuitions />} />
         <Route path="/payment" element={<PaymentRefundPage />} />
         <Route path="/findTutor" element={<FindTutorPage />} />
+        <Route path="/teacherRegistration" element={<TeacherRegistration />} />
         <Route path="/admin/login" element={<Loginpage />} />
 
         <Route path="/admin" element={<PrivateRoute />}>

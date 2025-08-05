@@ -1,14 +1,17 @@
 import React, { useState } from 'react';
 import { Modal, Button, Form } from 'react-bootstrap';
 import { toast } from 'react-toastify';
-import RefundTermsModal from '../../components/modals/RefundTermsModal';
+import PaymentTermsModal from './PaymentTermsModal';
+import RefundTermsModal from './RefundTermsModal';
 
-const RefundModal = ({ show, handleClose }) => {
+const PaymentModal = ({ show, handleClose }) => {
     const defaultForm = {
-        tuitionCode: '', paymentType: '', paymentNumber: '',
-        amount: '', name: '', personalPhone: '', note: '', agreeRefund: false
+        tuitionCode: '', paymentType: '', paymentNumber: '', transactionId: '',
+        amount: '', name: '', personalPhone: '', note: '', agreeTerms: false, agreeRefund: false
     };
     const [form, setForm] = useState(defaultForm);
+
+    const [showPaymentTerms, setShowPaymentTerms] = useState(false);
     const [showRefundTerms, setShowRefundTerms] = useState(false);
 
     const handleInput = (e) => {
@@ -18,18 +21,18 @@ const RefundModal = ({ show, handleClose }) => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        if (!form.agreeRefund) {
-            return toast.error('Please agree to refund terms.');
+        if (!form.agreeTerms || !form.agreeRefund) {
+            return toast.error('Please agree to all terms.');
         }
 
         try {
-            const res = await fetch('https://tuition-seba-backend-1.onrender.com/api/refund/add', {
+            const res = await fetch('https://tuition-seba-backend-1.onrender.com/api/teacherPayment/add', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(form)
             });
             if (res.ok) {
-                toast.success('Refund requested!');
+                toast.success('Payment submitted!');
                 setForm(defaultForm);
                 handleClose();
             } else toast.error('Submission failed.');
@@ -54,8 +57,8 @@ const RefundModal = ({ show, handleClose }) => {
     return (
         <>
             <Modal show={show} onHide={handleClose} centered>
-                <Modal.Header closeButton className="bg-danger text-white">
-                    <Modal.Title>Refund Form</Modal.Title>
+                <Modal.Header closeButton className="bg-primary text-white">
+                    <Modal.Title>Payment Form</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
                     <Form onSubmit={handleSubmit}>
@@ -69,7 +72,8 @@ const RefundModal = ({ show, handleClose }) => {
                                 <option value="cash">Cash</option>
                             </Form.Select>
                         </Form.Group>
-                        {renderField('Number (Bkash/Nagad)', 'paymentNumber')}
+                        {renderField('Number (Bkash/Nagad)', 'paymentNumber', 'text', false)}
+                        {renderField('Transaction ID', 'transactionId', 'text', false)}
                         {renderField('Amount', 'amount', 'number')}
                         {renderField('Your Name', 'name')}
                         {renderField('Contact Number/Whatsapp', 'personalPhone')}
@@ -78,7 +82,31 @@ const RefundModal = ({ show, handleClose }) => {
                             <Form.Control as="textarea" rows={3} name="note" value={form.note} onChange={handleInput} maxLength={500} />
                         </Form.Group>
 
-                        {/* Refund terms agreement */}
+                        <div className="mb-2 d-flex align-items-start">
+                            <Form.Check
+                                type="checkbox"
+                                name="agreeTerms"
+                                id="agreeTerms"
+                                checked={form.agreeTerms}
+                                onChange={handleInput}
+                                className="me-2"
+                            />
+                            <div>
+                                <label htmlFor="agreeTerms" className="mb-0">
+                                    I agree to the{' '}
+                                    <span
+                                        style={{ color: '#0d6efd', textDecoration: 'underline', cursor: 'pointer' }}
+                                        onClick={(e) => {
+                                            e.preventDefault();
+                                            setShowPaymentTerms(true);
+                                        }}
+                                    >
+                                        Payment Terms
+                                    </span>
+                                </label>
+                            </div>
+                        </div>
+
                         <div className="mb-3 d-flex align-items-start">
                             <Form.Check
                                 type="checkbox"
@@ -106,16 +134,17 @@ const RefundModal = ({ show, handleClose }) => {
 
                         <div className="d-flex justify-content-end gap-2">
                             <Button variant="secondary" size="sm" onClick={() => setForm(defaultForm)}>Reset</Button>
-                            <Button type="submit" size="sm" variant="danger">Submit</Button>
+                            <Button type="submit" size="sm" variant="success">Submit</Button>
                         </div>
                     </Form>
                 </Modal.Body>
             </Modal>
 
-            {/* Refund Terms Modal */}
+            {/* Terms Modals */}
+            <PaymentTermsModal show={showPaymentTerms} handleClose={() => setShowPaymentTerms(false)} />
             <RefundTermsModal show={showRefundTerms} handleClose={() => setShowRefundTerms(false)} />
         </>
     );
 };
 
-export default RefundModal;
+export default PaymentModal;

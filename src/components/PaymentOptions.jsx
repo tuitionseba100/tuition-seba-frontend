@@ -1,115 +1,194 @@
-import React from 'react';
-import { Container, Row, Col, Card } from 'react-bootstrap';
+import React, { useState } from 'react';
+import {
+    FaCopy,
+    FaCheck,
+    FaMobileAlt,
+    FaStore,
+    FaWallet,
+    FaRocket
+} from 'react-icons/fa';
 
 const paymentOptions = [
     {
-        title: 'বিকাশ সেন্ড মানি',
+        title: 'BKash Personal',
         number: '01633920928',
         image: '/img/bkash.png',
+        icon: FaMobileAlt
     },
     {
-        title: 'বিকাশ পেমেন্ট',
+        title: 'BKash Merchant',
         number: '01714045039',
         image: '/img/bkash.png',
+        icon: FaStore
     },
     {
-        title: 'নগদ সেন্ড মানি',
+        title: 'Nagad Personal',
         number: '01633920928',
         image: '/img/nagad.png',
+        icon: FaWallet
     },
     {
-        title: 'রকেট সেন্ড মানি',
+        title: 'Rocket Personal',
         number: '016339209284',
         image: '/img/rocket main ogo.jpg',
-    },
+        icon: FaRocket
+    }
 ];
 
 const PaymentOptions = () => {
+    const [copiedIndex, setCopiedIndex] = useState(null);
+
+    const handleCopy = (number, index) => {
+        navigator.clipboard.writeText(number);
+        setCopiedIndex(index);
+        setTimeout(() => setCopiedIndex(null), 2000);
+    };
+
     return (
         <div
             style={{
-                width: '100%',
-                padding: '80px 20px',
-                background: 'linear-gradient(to right, #e3f2fd, #f1f9ff)',
+                background: 'linear-gradient(to bottom, #0d6efd, #ffffff)',
+                padding: '60px 0'
             }}
         >
-            <Container fluid>
-                <h2
-                    className="text-center mb-5"
-                    style={{
-                        fontWeight: '900',
-                        fontSize: '2.4rem',
-                        color: '#0b3d91',
-                        textShadow: '1px 1px 2px rgba(0,0,0,0.1)',
-                    }}
-                >
-                    💳 WE ACCEPT
-                </h2>
-                <Row className="gx-4 gy-4 justify-content-center">
-                    {paymentOptions.map((option, index) => (
-                        <Col key={index} xs={12} sm={6} md={4} lg={3} className="d-flex justify-content-center">
-                            <Card
-                                style={{
-                                    width: '100%',
-                                    maxWidth: '320px',
-                                    border: 'none',
-                                    borderRadius: '16px',
-                                    overflow: 'hidden',
-                                    boxShadow: '0 10px 35px rgba(0, 123, 255, 0.15)',
-                                    transition: 'transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out',
-                                    backgroundColor: '#ffffff',
-                                }}
-                                onMouseEnter={(e) => {
-                                    e.currentTarget.style.transform = 'translateY(-6px)';
-                                    e.currentTarget.style.boxShadow = '0 14px 40px rgba(0, 123, 255, 0.25)';
-                                }}
-                                onMouseLeave={(e) => {
-                                    e.currentTarget.style.transform = 'translateY(0)';
-                                    e.currentTarget.style.boxShadow = '0 10px 35px rgba(0, 123, 255, 0.15)';
-                                }}
-                            >
-                                <div style={{ width: '100%', height: '160px', overflow: 'hidden' }}>
-                                    <img
-                                        src={option.image}
-                                        alt={option.title}
+            <div className="container">
+                <div className="text-center mb-5">
+                    <h2 className="fw-bold text-white mb-2">💳 Payment Methods</h2>
+                    <p className="text-light">Click to copy account numbers</p>
+                </div>
+
+                <div className="row g-4">
+                    {paymentOptions.map((option, index) => {
+                        const Icon = option.icon;
+                        const isCopied = copiedIndex === index;
+
+                        return (
+                            <div key={index} className="col-12 col-sm-6 col-lg-3">
+                                <div
+                                    className="p-4 text-center shadow rounded-4"
+                                    style={{
+                                        background: '#fff',
+                                        transition: 'transform 0.3s',
+                                        cursor: 'pointer',
+                                        height: '100%',
+                                        border: '1px solid #e0e0e0'
+                                    }}
+                                    onClick={() => handleCopy(option.number, index)}
+                                    onMouseEnter={(e) =>
+                                        (e.currentTarget.style.transform = 'translateY(-6px)')
+                                    }
+                                    onMouseLeave={(e) =>
+                                        (e.currentTarget.style.transform = 'translateY(0)')
+                                    }
+                                >
+                                    {/* Icon */}
+                                    <div
+                                        className="mx-auto mb-3 d-flex justify-content-center align-items-center rounded-3"
                                         style={{
-                                            width: '100%',
-                                            height: '100%',
-                                            objectFit: 'cover',
-                                            display: 'block',
-                                        }}
-                                    />
-                                </div>
-                                <Card.Body className="text-center">
-                                    <Card.Title
-                                        style={{
-                                            fontSize: '1.2rem',
-                                            fontWeight: '700',
-                                            color: '#0a2f74',
-                                            marginBottom: '12px',
+                                            width: '36px',
+                                            height: '36px',
+                                            background: '#0d6efd15',
+                                            border: '1px solid #0d6efd30'
                                         }}
                                     >
-                                        {option.title}
-                                    </Card.Title>
-                                    <Card.Text
+                                        <Icon size={16} color="#0d6efd" />
+                                    </div>
+
+                                    {/* Image */}
+                                    <div
+                                        className="mb-3 pulse-animation"
                                         style={{
-                                            fontSize: '1rem',
-                                            color: '#007bff',
-                                            backgroundColor: '#e8f4ff',
-                                            borderRadius: '12px',
-                                            padding: '8px 14px',
-                                            fontWeight: '600',
-                                            display: 'inline-block',
+                                            width: '80px',
+                                            height: '40px',
+                                            margin: '0 auto',
+                                            overflow: 'hidden',
+                                            borderRadius: '6px',
+                                            background: '#f8f9fa',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            padding: '4px'
+                                        }}
+                                    >
+                                        <img
+                                            src={option.image}
+                                            alt={option.title}
+                                            style={{
+                                                maxWidth: '100%',
+                                                maxHeight: '100%',
+                                                objectFit: 'contain'
+                                            }}
+                                        />
+                                    </div>
+
+                                    {/* Title */}
+                                    <h5 className="fw-semibold mb-2" style={{ fontSize: '1rem' }}>
+                                        {option.title}
+                                    </h5>
+
+                                    {/* Number with Copy Icon */}
+                                    <div
+                                        className="d-flex align-items-center justify-content-center gap-2 px-3 py-2 rounded-pill"
+                                        style={{
+                                            background: '#f0f2f5',
+                                            border: '1px solid #ddd',
+                                            fontFamily: 'monospace',
+                                            fontSize: '0.9rem'
                                         }}
                                     >
                                         {option.number}
-                                    </Card.Text>
-                                </Card.Body>
-                            </Card>
-                        </Col>
-                    ))}
-                </Row>
-            </Container>
+                                        {isCopied ? (
+                                            <FaCheck size={14} color="#198754" />
+                                        ) : (
+                                            <FaCopy size={14} color="#888" />
+                                        )}
+                                    </div>
+
+                                    {/* Tooltip Feedback */}
+                                    {isCopied && (
+                                        <div
+                                            className="position-absolute"
+                                            style={{
+                                                top: '10px',
+                                                left: '50%',
+                                                transform: 'translateX(-50%)',
+                                                backgroundColor: '#198754',
+                                                color: '#fff',
+                                                fontSize: '0.75rem',
+                                                padding: '4px 8px',
+                                                borderRadius: '4px',
+                                                boxShadow: '0 2px 6px rgba(0, 0, 0, 0.2)',
+                                                zIndex: 10
+                                            }}
+                                        >
+                                            Copied!
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        );
+                    })}
+                </div>
+            </div>
+
+            {/* CSS animation style */}
+            <style>{`
+                .pulse-animation {
+                    animation: pulse 2s infinite;
+                }
+
+                @keyframes pulse {
+                    0% {
+                        transform: scale(1);
+                    }
+                    50% {
+                        transform: scale(1.05);
+                    }
+                    100% {
+                        transform: scale(1);
+                    }
+                }
+            `}</style>
         </div>
     );
 };

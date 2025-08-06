@@ -107,15 +107,16 @@ const TuitionUpdateModal = ({ show, handleClose }) => {
                                         </td>
                                     </tr>
                                 ) : (
-                                    tuitionData.map((item, index) => (
-                                        <tr key={index}>
-                                            <td>{index + 1}</td>
-                                            <td>{formatDate(item.appliedAt)}</td>
-                                            <td>{item.tuitionCode}</td>
-                                            <td>{item.status}</td>
-                                            <td>{item.commentForTeacher || '-'}</td>
-                                        </tr>
-                                    ))
+                                    tuitionData.slice()
+                                        .reverse().map((item, index) => (
+                                            <tr key={index}>
+                                                <td>{index + 1}</td>
+                                                <td>{formatDate(item.appliedAt)}</td>
+                                                <td>{item.tuitionCode}</td>
+                                                <td>{item.status}</td>
+                                                <td>{item.commentForTeacher || '-'}</td>
+                                            </tr>
+                                        ))
                                 )}
                             </tbody>
                         </Table>

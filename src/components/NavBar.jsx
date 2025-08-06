@@ -26,6 +26,7 @@ const NavbarComponent = () => {
     const iconLinkStyle = { color: 'white', fontSize: 16, marginLeft: 10 };
 
     const navLinks = [
+        { label: 'Home', to: '/' },
         { label: 'Available Tuitions', to: '/tuitions' },
         { label: 'Find Tutor', to: '/findTutor' },
         { label: 'About Us', to: '#about-us', isSpecial: true },

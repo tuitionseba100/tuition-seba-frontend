@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Modal, Button, Form } from 'react-bootstrap';
 import { toast } from 'react-toastify';
 import RefundTermsModal from './RefundTermsModal';
+import ApplySuccessModal from '../../components/modals/ApplySuccessModal';
 
 const RefundModal = ({ show, handleClose }) => {
     const defaultForm = {
@@ -10,6 +11,7 @@ const RefundModal = ({ show, handleClose }) => {
     };
     const [form, setForm] = useState(defaultForm);
     const [showRefundTerms, setShowRefundTerms] = useState(false);
+    const [showSuccessModal, setShowSuccessModal] = useState(false);
 
     const handleInput = (e) => {
         const { name, value, type, checked } = e.target;
@@ -32,6 +34,7 @@ const RefundModal = ({ show, handleClose }) => {
                 toast.success('Refund requested!');
                 setForm(defaultForm);
                 handleClose();
+                setShowSuccessModal(true);
             } else toast.error('Submission failed.');
         } catch {
             toast.error('Something went wrong.');
@@ -114,6 +117,7 @@ const RefundModal = ({ show, handleClose }) => {
 
             {/* Refund Terms Modal */}
             <RefundTermsModal show={showRefundTerms} handleClose={() => setShowRefundTerms(false)} />
+            <ApplySuccessModal show={showSuccessModal} handleClose={() => setShowSuccessModal(false)} />
         </>
     );
 };

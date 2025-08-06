@@ -3,6 +3,7 @@ import { Modal, Button, Form } from 'react-bootstrap';
 import { toast } from 'react-toastify';
 import PaymentTermsModal from './PaymentTermsModal';
 import RefundTermsModal from './RefundTermsModal';
+import ApplySuccessModal from '../../components/modals/ApplySuccessModal';
 
 const PaymentModal = ({ show, handleClose }) => {
     const defaultForm = {
@@ -10,9 +11,9 @@ const PaymentModal = ({ show, handleClose }) => {
         amount: '', name: '', personalPhone: '', note: '', agreeTerms: false, agreeRefund: false
     };
     const [form, setForm] = useState(defaultForm);
-
     const [showPaymentTerms, setShowPaymentTerms] = useState(false);
     const [showRefundTerms, setShowRefundTerms] = useState(false);
+    const [showSuccessModal, setShowSuccessModal] = useState(false);
 
     const handleInput = (e) => {
         const { name, value, type, checked } = e.target;
@@ -35,6 +36,7 @@ const PaymentModal = ({ show, handleClose }) => {
                 toast.success('Payment submitted!');
                 setForm(defaultForm);
                 handleClose();
+                setShowSuccessModal(true);
             } else toast.error('Submission failed.');
         } catch {
             toast.error('Something went wrong.');
@@ -143,6 +145,8 @@ const PaymentModal = ({ show, handleClose }) => {
             {/* Terms Modals */}
             <PaymentTermsModal show={showPaymentTerms} handleClose={() => setShowPaymentTerms(false)} />
             <RefundTermsModal show={showRefundTerms} handleClose={() => setShowRefundTerms(false)} />
+
+            <ApplySuccessModal show={showSuccessModal} handleClose={() => setShowSuccessModal(false)} />
         </>
     );
 };

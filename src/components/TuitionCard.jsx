@@ -78,11 +78,18 @@ Joining: ${tuitionDetails.joining}
                 }}
             >
                 <Card.Header
-                    className="bg-primary text-white fw-bold d-flex align-items-center gap-2"
-                    style={{ fontSize: '1.1rem', padding: '14px 16px' }}
+                    className="bg-primary text-white d-flex justify-content-center align-items-center gap-2"
+                    style={{
+                        fontSize: '1.4rem',
+                        fontWeight: '700',
+                        padding: '10px 8px',
+                        letterSpacing: '0.05em',
+                        textShadow: '1px 1px 3px rgba(0,0,0,0.3)',
+                        borderBottom: '3px solid #0d6efd',
+                    }}
                 >
-                    <FaChalkboardTeacher />
-                    Tuition Code: {tuition.tuitionCode}
+                    <FaChalkboardTeacher style={{ fontSize: '1.6rem' }} />
+                    <span>Tuition Code: {tuition.tuitionCode}</span>
                 </Card.Header>
 
                 <ListGroup variant="flush" style={{ flexGrow: 1 }}>

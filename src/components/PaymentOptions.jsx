@@ -81,7 +81,6 @@ const PaymentOptions = () => {
                                         (e.currentTarget.style.transform = 'translateY(0)')
                                     }
                                 >
-                                    {/* Icon */}
                                     <div
                                         className="mx-auto mb-3 d-flex justify-content-center align-items-center rounded-3"
                                         style={{
@@ -94,7 +93,7 @@ const PaymentOptions = () => {
                                         <Icon size={16} color="#0d6efd" />
                                     </div>
 
-                                    {/* Image */}
+
                                     <div
                                         className="mb-3 pulse-animation"
                                         style={{
@@ -121,19 +120,32 @@ const PaymentOptions = () => {
                                         />
                                     </div>
 
-                                    {/* Title */}
-                                    <h5 className="fw-semibold mb-2" style={{ fontSize: '1rem' }}>
+                                    <h5
+                                        className="mb-2"
+                                        style={{
+                                            fontSize: '1.3rem',
+                                            fontWeight: '700',
+                                            background: 'linear-gradient(90deg, #3c81e1, #000, #3c81e1)',
+                                            backgroundSize: '200% auto',
+                                            color: 'transparent',
+                                            backgroundClip: 'text',
+                                            WebkitBackgroundClip: 'text',
+                                            WebkitTextFillColor: 'transparent',
+                                            animation: 'shineText 3s linear infinite'
+                                        }}
+                                    >
                                         {option.title}
                                     </h5>
 
-                                    {/* Number with Copy Icon */}
                                     <div
                                         className="d-flex align-items-center justify-content-center gap-2 px-3 py-2 rounded-pill"
                                         style={{
                                             background: '#f0f2f5',
                                             border: '1px solid #ddd',
-                                            fontFamily: 'monospace',
-                                            fontSize: '0.9rem'
+                                            fontFamily: "'Poppins', sans-serif",
+                                            fontWeight: '700',
+                                            fontSize: '0.95rem',
+                                            letterSpacing: '1px',
                                         }}
                                     >
                                         {option.number}
@@ -144,7 +156,6 @@ const PaymentOptions = () => {
                                         )}
                                     </div>
 
-                                    {/* Tooltip Feedback */}
                                     {isCopied && (
                                         <div
                                             className="position-absolute"
@@ -171,7 +182,6 @@ const PaymentOptions = () => {
                 </div>
             </div>
 
-            {/* CSS animation style */}
             <style>{`
                 .pulse-animation {
                     animation: pulse 2s infinite;
@@ -188,6 +198,16 @@ const PaymentOptions = () => {
                         transform: scale(1);
                     }
                 }
+
+                @keyframes shineText {
+                    0% {
+                        background-position: 200% center;
+                    }
+                    100% {
+                        background-position: -200% center;
+                    }
+                }
+
             `}</style>
         </div>
     );

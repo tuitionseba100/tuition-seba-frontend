@@ -56,6 +56,9 @@ const AttendancePage = () => {
                 headers: { Authorization: token },
             });
             toast.success('Day started');
+            setTimeout(() => {
+                window.location.reload();
+            }, 1000);
             fetchAttendance();
         } catch (error) {
             toast.error(error.response?.data?.message || 'Error starting day');
@@ -68,6 +71,9 @@ const AttendancePage = () => {
                 headers: { Authorization: token },
             });
             toast.success(`Day ended (${response.data.duration})`);
+            setTimeout(() => {
+                window.location.reload();
+            }, 1000);
             fetchAttendance();
         } catch (error) {
             toast.error(error.response?.data?.message || 'Error ending day');

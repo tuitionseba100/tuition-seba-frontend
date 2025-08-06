@@ -1,10 +1,24 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import { checkDayStarted } from '../utilities/checkDayStarted';
 
 const Navbar = () => {
     const navigate = useNavigate();
     const location = useLocation();
+    const [dayStarted, setDayStarted] = useState(true);
+    const [role, setRole] = useState(localStorage.getItem("role"));
+
+    useEffect(() => {
+        const fetchDayStatus = async () => {
+            if (role !== "superadmin") {
+                const started = await checkDayStarted();
+                setDayStarted(started);
+            }
+        };
+
+        fetchDayStatus();
+    }, [role]);
 
     if (location.pathname === '/admin/login') return null;
 
@@ -14,10 +28,20 @@ const Navbar = () => {
         navigate('/admin/login');
     };
 
+    const renderNavItem = (to, label) => (
+        <li className="nav-item">
+            <Link className="nav-link text-white fw-bold px-3" to={to}>
+                {label}
+            </Link>
+        </li>
+    );
+
     return (
         <nav className="navbar navbar-expand-lg navbar-primary bg-primary shadow-sm">
             <div className="container">
-                <Link className="navbar-brand fw-bold text-white fs-4" to="/admin">Tuition Seba Forum</Link>
+                <Link className="navbar-brand fw-bold text-white fs-4" to="/admin">
+                    Tuition Seba Forum
+                </Link>
                 <button
                     className="navbar-toggler border-0"
                     type="button"
@@ -31,38 +55,22 @@ const Navbar = () => {
                 </button>
                 <div className="collapse navbar-collapse" id="navbarNav">
                     <ul className="navbar-nav ms-auto">
-                        <li className="nav-item">
-                            <Link className="nav-link text-white fw-bold px-3" to="/admin/tuition">Tuitions</Link>
-                        </li>
-                        {localStorage.getItem('role') === 'superadmin' && (
-                            <li className="nav-item">
-                                <Link className="nav-link text-white fw-bold px-3" to="/admin/user">Users</Link>
-                            </li>
-                        )}
-                        <li className="nav-item">
-                            <Link className="nav-link text-white fw-bold px-3" to="/admin/payment">Payments</Link>
-                        </li>
-                        <li className="nav-item">
-                            <Link className="nav-link text-white fw-bold px-3" to="/admin/refund">Refund</Link>
-                        </li>
-                        <li className="nav-item">
-                            <Link className="nav-link text-white fw-bold px-3" to="/admin/guardianApply">Guardian</Link>
-                        </li>
-                        <li className="nav-item">
-                            <Link className="nav-link text-white fw-bold px-3" to="/admin/task">Task</Link>
-                        </li>
-                        <li className="nav-item">
-                            <Link className="nav-link text-white fw-bold px-3" to="/admin/attendance">Attendance</Link>
-                        </li>
-                        <li className="nav-item">
-                            <Link className="nav-link text-white fw-bold px-3" to="/admin/tuitionApply">Tuition Apply</Link>
-                        </li>
-                        <li className="nav-item">
-                            <Link className="nav-link text-white fw-bold px-3" to="/admin/premiumTeacher">Premium</Link>
-                        </li>
-                        <li className="nav-item">
-                            <Link className="nav-link text-white fw-bold px-3" to="/admin/spamBest">Spam/Best</Link>
-                        </li>
+                        {role === "superadmin" || dayStarted ? (
+                            <>
+                                {renderNavItem("/admin/tuition", "Tuitions")}
+                                {role === "superadmin" && renderNavItem("/admin/user", "Users")}
+                                {renderNavItem("/admin/payment", "Payments")}
+                                {renderNavItem("/admin/refund", "Refund")}
+                                {renderNavItem("/admin/guardianApply", "Guardian")}
+                                {renderNavItem("/admin/task", "Task")}
+                                {renderNavItem("/admin/tuitionApply", "Tuition Apply")}
+                                {renderNavItem("/admin/premiumTeacher", "Premium")}
+                                {renderNavItem("/admin/spamBest", "Spam/Best")}
+                            </>
+                        ) : null}
+
+                        {renderNavItem("/admin/attendance", "Attendance")}
+
                         <li className="nav-item">
                             <button className="btn btn-outline-light fw-bold rounded-pill px-3" onClick={handleLogout}>
                                 Logout

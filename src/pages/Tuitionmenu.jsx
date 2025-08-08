@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Button, Table, Modal, Form, Row, Col, Card } from 'react-bootstrap';
-import { FaEdit, FaTrashAlt, FaWhatsapp, FaChevronLeft, FaChevronRight, FaGlobe } from 'react-icons/fa'; // React Icons
+import { FaEdit, FaTrashAlt, FaWhatsapp, FaChevronLeft, FaChevronRight, FaGlobe, FaInfoCircle } from 'react-icons/fa';
 import axios from 'axios';
 import NavBarPage from './NavbarPage';
 import styled from 'styled-components';
@@ -8,6 +8,8 @@ import { ToastContainer, toast } from 'react-toastify';
 import { Spinner } from 'react-bootstrap';
 import * as XLSX from 'xlsx';
 import TuitionModal from '../components/modals/TuitionCreateEditModal';
+import TuitionDetailsModal from '../components/modals/TuitionDetailsModal';
+import LoadingCard from '../components/modals/LoadingCard';
 
 const TuitionPage = () => {
     const [tuitionList, setTuitionList] = useState([]);
@@ -26,6 +28,14 @@ const TuitionPage = () => {
     const [showModal, setShowModal] = useState(false);
     const [editingId, setEditingId] = useState(null);
     const [selectedTuition, setSelectedTuition] = useState(null);
+    const [deleteLoading, setDeleteLoading] = useState(false);
+    const [showDetailsModal, setShowDetailsModal] = useState(false);
+    const [detailsData, setDetailsData] = useState(null);
+
+    const handleShowDetails = (tuition) => {
+        setDetailsData(tuition);
+        setShowDetailsModal(true);
+    };
 
     const handleCreate = () => {
         setSelectedTuition(null);
@@ -154,16 +164,16 @@ const TuitionPage = () => {
             { wpx: 150 },
             { wpx: 100 },
             { wpx: 50 },
-            { wpx: 80 },   // Medium
-            { wpx: 100 },  // Subject
-            { wpx: 50 },   // Time
-            { wpx: 50 },   // Day
-            { wpx: 70 },   // Salary
-            { wpx: 100 },  // Location
-            { wpx: 80 },   // Area
-            { wpx: 100 },  // Guardian Number
-            { wpx: 70 },   // Status
-            { wpx: 100 },  // Tutor Number
+            { wpx: 80 },
+            { wpx: 100 },
+            { wpx: 50 },
+            { wpx: 50 },
+            { wpx: 70 },
+            { wpx: 100 },
+            { wpx: 80 },
+            { wpx: 100 },
+            { wpx: 70 },
+            { wpx: 100 },
             { wpx: 70 },
             { wpx: 70 }
         ];
@@ -176,15 +186,17 @@ const TuitionPage = () => {
 
     const handleDeleteTuition = async (id) => {
         const confirmDelete = window.confirm("Are you sure you want to delete this tuition record?");
-
         if (confirmDelete) {
             try {
+                setDeleteLoading(true);
                 await axios.delete(`https://tuition-seba-backend-1.onrender.com/api/tuition/delete/${id}`);
                 toast.success("Tuition record deleted successfully!");
-                fetchTuitionRecords();
+                await fetchTuitionRecords();
             } catch (err) {
-                console.error('Error deleting tuition record:', err);
+                console.error(err);
                 toast.error("Error deleting tuition record.");
+            } finally {
+                setDeleteLoading(false);
             }
         } else {
             toast.info("Deletion canceled");
@@ -330,8 +342,8 @@ const TuitionPage = () => {
                             <option value="No">No</option>
                         </Form.Select>
                     </Col>
-                    {/* Add Urgent filter */}
-                    <Col md={1}>
+
+                    <Col md={2}>
                         <Form.Label className="fw-bold">Emergency Status</Form.Label>
                         <Form.Select value={urgentFilter} onChange={(e) => setUrgentFilter(e.target.value)}>
                             <option value="">All</option>
@@ -385,6 +397,7 @@ const TuitionPage = () => {
                                 <thead className="table-primary" style={{ position: "sticky", top: 0, zIndex: 2 }}>
                                     <tr>
                                         <th>SL</th>
+                                        <th>Created/Updated By</th>
                                         <th>Tuition Code</th>
                                         <th>Apply Type</th>
                                         <th>Published?</th>
@@ -421,6 +434,7 @@ const TuitionPage = () => {
                                         filteredTuitionList.map((tuition, index) => (
                                             <tr key={tuition._id}>
                                                 <td>{index + 1}</td>
+                                                <td>{tuition.updatedBy}</td>
                                                 <td>{tuition.tuitionCode}</td>
                                                 <td>
                                                     {tuition.isWhatsappApply ? (
@@ -440,12 +454,12 @@ const TuitionPage = () => {
                                                 <td>
                                                     <span
                                                         className={`badge 
-                            ${tuition.status === "available" ? "bg-success" : ""}
-                            ${tuition.status === "given number" ? "bg-primary" : ""}
-                            ${tuition.status === "guardian meet" ? "bg-secondary" : ""}
-                            ${tuition.status === "demo class running" ? "bg-warning" : ""}
-                            ${tuition.status === "confirm" ? "bg-info" : ""}
-                            ${tuition.status === "cancel" ? "bg-danger" : ""}`}
+                                                        ${tuition.status === "available" ? "bg-success" : ""}
+                                                        ${tuition.status === "given number" ? "bg-primary" : ""}
+                                                        ${tuition.status === "guardian meet" ? "bg-secondary" : ""}
+                                                        ${tuition.status === "demo class running" ? "bg-warning" : ""}
+                                                        ${tuition.status === "confirm" ? "bg-info" : ""}
+                                                        ${tuition.status === "cancel" ? "bg-danger" : ""}`}
                                                     >
                                                         {tuition.status}
                                                     </span>
@@ -470,6 +484,11 @@ const TuitionPage = () => {
                                                     {tuition.isUrgent ? "Yes" : "No"}
                                                 </td>
                                                 <td style={{ display: 'flex', justifyContent: 'flex-start', gap: '8px' }}>
+
+                                                    <Button variant="info" onClick={() => handleShowDetails(tuition)} title="View Details">
+                                                        <FaInfoCircle />
+                                                    </Button>
+
                                                     <Button variant="warning" onClick={() => handleEdit(tuition)} className="mr-2">
                                                         <FaEdit />
                                                     </Button>
@@ -485,7 +504,6 @@ const TuitionPage = () => {
                                         ))
                                     )}
                                 </tbody>
-
                             </Table>
 
                         </div>
@@ -523,6 +541,14 @@ const TuitionPage = () => {
                     editingId={editingId}
                     fetchTuitionRecords={fetchTuitionRecords}
                 />
+
+                <TuitionDetailsModal
+                    show={showDetailsModal}
+                    onHide={() => setShowDetailsModal(false)}
+                    detailsData={detailsData}
+                />
+
+                <LoadingCard show={deleteLoading} message="Deleting..." />
 
                 <ToastContainer />
             </Container>

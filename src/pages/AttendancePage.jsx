@@ -147,7 +147,6 @@ const AttendancePage = () => {
         setFilteredAttendance(filtered);
     };
 
-
     const openEditModal = (entry) => {
         setEditingAttendance(entry);
         setEditStartTime(new Date(entry.startTime));

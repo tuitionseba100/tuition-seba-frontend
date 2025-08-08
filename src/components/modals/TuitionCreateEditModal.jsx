@@ -126,10 +126,14 @@ export default function TuitionModal({ show, onHide, editingData = null, editing
 
     const handleSaveTuition = async () => {
         setSaving(true);
+
+        const username = localStorage.getItem('username');
+
         try {
             const updatedTuitionData = {
                 ...formData,
                 status: formData.status || 'available',
+                updatedBy: username,
             };
             if (editingId) {
                 await axios.put(`https://tuition-seba-backend-1.onrender.com/api/tuition/edit/${editingId}`, updatedTuitionData);

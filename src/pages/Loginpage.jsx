@@ -38,7 +38,8 @@ const Login = () => {
             );
             localStorage.setItem("token", response.data.token);
             localStorage.setItem("role", response.data.role);
-            navigate("/admin/tuition");
+            localStorage.setItem("username", response.data.username);
+            navigate("/admin/dashboard");
         } catch (err) {
             setError("Invalid username or password");
             setShowError(true);

@@ -420,7 +420,7 @@ const TuitionPage = () => {
                 <div className="d-flex align-items-center justify-content-center">
                     <h5 className="me-3 d-flex align-items-center gap-2">
                         <FaBell className="text-primary" />
-                        <span>Tuitions Needing Update Today: {tuitionNeedsUpdateList.length}</span>
+                        <span>Tuitions needs update today: {tuitionNeedsUpdateList.length}</span>
                         <OverlayTrigger
                             placement="top"
                             overlay={<Tooltip id="tooltip">Click to see list</Tooltip>}
@@ -597,7 +597,7 @@ const TuitionPage = () => {
                     <Modal.Header closeButton className="bg-primary text-white">
                         <Modal.Title className="w-100 text-center fw-bold">
                             <FaBell className="text-warning" />
-                            <span className="ms-2">Tuition Needing Today: {tuitionNeedsUpdateList.length}</span>
+                            <span className="ms-2">Tuition needs update Today: {tuitionNeedsUpdateList.length}</span>
                         </Modal.Title>
                     </Modal.Header>
                     <Modal.Body className="p-4 bg-light">

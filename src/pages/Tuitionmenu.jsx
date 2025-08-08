@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Button, Table, Modal, Form, Row, Col, Card } from 'react-bootstrap';
-import { FaEdit, FaTrashAlt, FaWhatsapp, FaChevronLeft, FaChevronRight, FaGlobe, FaInfoCircle } from 'react-icons/fa';
+import { Button, Table, Modal, Form, Row, Col, Card, Tooltip, OverlayTrigger } from 'react-bootstrap';
+import { FaEdit, FaTrashAlt, FaWhatsapp, FaChevronLeft, FaChevronRight, FaGlobe, FaInfoCircle, FaBell } from 'react-icons/fa';
 import axios from 'axios';
 import NavBarPage from './NavbarPage';
 import styled from 'styled-components';
@@ -31,6 +31,8 @@ const TuitionPage = () => {
     const [deleteLoading, setDeleteLoading] = useState(false);
     const [showDetailsModal, setShowDetailsModal] = useState(false);
     const [detailsData, setDetailsData] = useState(null);
+    const [tuitionNeedsUpdateList, setTuitionNeedsUpdateList] = useState([]);
+    const [showUpdateListModal, setShowUpdateListModal] = useState(false);
 
     const handleShowDetails = (tuition) => {
         setDetailsData(tuition);
@@ -107,6 +109,7 @@ const TuitionPage = () => {
                 }
             });
             setExcelTuitionList(res.data.data);
+            filterTuitionForAlertsList(res.data.data);
             setPublishCount(res.data.isPublishTrueCount || 0);
             setStatusCounts({
                 available: res.data.available || 0,
@@ -118,6 +121,27 @@ const TuitionPage = () => {
         } catch (err) {
             console.error('Error fetching summary counts:', err);
         }
+    };
+
+    const isSameLocalDate = (date1, date2) =>
+        date1.getFullYear() === date2.getFullYear() &&
+        date1.getMonth() === date2.getMonth() &&
+        date1.getDate() === date2.getDate();
+
+    const filterTuitionForAlertsList = (tuitions) => {
+        const today = new Date();
+
+        const alertToday = tuitions.filter((t) => {
+            if (!t.nextUpdateDate || typeof t.nextUpdateDate !== "string" || t.nextUpdateDate.trim() === "")
+                return false;
+
+            const nextUpdateDateObj = new Date(t.nextUpdateDate);
+            if (isNaN(nextUpdateDateObj.getTime())) return false;
+
+            return isSameLocalDate(nextUpdateDateObj, today);
+        });
+
+        setTuitionNeedsUpdateList(alertToday);
     };
 
     const handleExportToExcel = () => {
@@ -192,6 +216,7 @@ const TuitionPage = () => {
                 await axios.delete(`https://tuition-seba-backend-1.onrender.com/api/tuition/delete/${id}`);
                 toast.success("Tuition record deleted successfully!");
                 await fetchTuitionRecords();
+                await fetchSummaryCounts();
             } catch (err) {
                 console.error(err);
                 toast.error("Error deleting tuition record.");
@@ -222,6 +247,25 @@ const TuitionPage = () => {
 
         const url = `https://wa.me/?text=${encodeURIComponent(message)}`;
         window.open(url, '_blank');
+    };
+
+    const formatDateTimeDisplay = (isoString) => {
+        if (!isoString) return '-';
+
+        const localString = isoString.endsWith('Z') ? isoString.slice(0, -1) : isoString;
+
+        const dt = new Date(localString);
+
+        if (isNaN(dt)) return isoString;
+
+        return dt.toLocaleString('en-GB', {
+            year: 'numeric',
+            month: 'short',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: true,
+        });
     };
 
     const handleResetFilters = () => {
@@ -372,6 +416,21 @@ const TuitionPage = () => {
                     </Col>
 
                 </Row>
+
+                <div className="d-flex align-items-center justify-content-center">
+                    <h5 className="me-3 d-flex align-items-center gap-2">
+                        <FaBell className="text-primary" />
+                        <span>Tuitions Needing Update Today: {tuitionNeedsUpdateList.length}</span>
+                        <OverlayTrigger
+                            placement="top"
+                            overlay={<Tooltip id="tooltip">Click to see list</Tooltip>}
+                        >
+                            <Button size="sm" onClick={() => setShowUpdateListModal(true)} className="ms-2">
+                                <FaInfoCircle />
+                            </Button>
+                        </OverlayTrigger>
+                    </h5>
+                </div>
 
                 <Button
                     variant="success"
@@ -534,12 +593,76 @@ const TuitionPage = () => {
                     </Card.Body>
                 </Card>
 
+                <Modal show={showUpdateListModal} onHide={() => setShowUpdateListModal(false)} centered size="xl">
+                    <Modal.Header closeButton className="bg-primary text-white">
+                        <Modal.Title className="w-100 text-center fw-bold">
+                            <FaBell className="text-warning" />
+                            <span className="ms-2">Tuition Needing Today: {tuitionNeedsUpdateList.length}</span>
+                        </Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body className="p-4 bg-light">
+                        {tuitionNeedsUpdateList.length > 0 ? (
+                            <Table responsive striped bordered hover className="shadow-sm">
+                                <thead className="bg-dark text-white text-center">
+                                    <tr>
+                                        <th>Tuition Code</th>
+                                        <th>Created By/Updated By</th>
+                                        <th>Last Available Check</th>
+                                        <th>Last Update</th>
+                                        <th>Next Update Date</th>
+                                        <th>Status</th>
+                                        <th>Teacher Number</th>
+                                        <th>Guardian Number</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {tuitionNeedsUpdateList.map((tuition, index) => (
+                                        <tr key={index} className="align-middle text-center">
+                                            <td>{tuition.tuitionCode}</td>
+                                            <td>{tuition.updatedBy}</td>
+                                            <td>{formatDateTimeDisplay(tuition.lastAvailableCheck)}</td>
+                                            <td>{formatDateTimeDisplay(tuition.lastUpdate)}</td>
+                                            <td>{formatDateTimeDisplay(tuition.nextUpdateDate)}</td>
+                                            <td>{tuition.status}</td>
+                                            <td>{tuition.tutorNumber}</td>
+                                            <td>{tuition.guardianNumber}</td>
+                                            <td style={{ display: 'flex', justifyContent: 'flex-start', gap: '8px' }}>
+                                                <Button variant="info" onClick={() => handleShowDetails(tuition)} title="View Details">
+                                                    <FaInfoCircle />
+                                                </Button>
+
+                                                <Button variant="warning" onClick={() => handleEdit(tuition)} className="mr-2">
+                                                    <FaEdit />
+                                                </Button>
+
+                                                <Button variant="danger" onClick={() => handleDeleteTuition(tuition._id)}>
+                                                    <FaTrashAlt />
+                                                </Button>
+                                                <Button variant="success" onClick={() => handleShare(tuition)}>
+                                                    <FaWhatsapp />
+                                                </Button>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </Table>
+                        ) : (
+                            <div className="text-center text-muted py-4">
+                                <h5>No tuition needs update check today.</h5>
+                            </div>
+                        )}
+                    </Modal.Body>
+                </Modal>
+
+
                 <TuitionModal
                     show={showModal}
                     onHide={() => setShowModal(false)}
                     editingData={selectedTuition}
                     editingId={editingId}
                     fetchTuitionRecords={fetchTuitionRecords}
+                    fetchSummaryCounts={fetchSummaryCounts}
                 />
 
                 <TuitionDetailsModal

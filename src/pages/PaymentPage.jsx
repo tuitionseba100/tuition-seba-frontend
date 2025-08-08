@@ -1315,7 +1315,6 @@ const PaymentPage = () => {
                     </Modal.Body>
                 </Modal>
 
-
                 <ToastContainer />
             </Container>
         </>

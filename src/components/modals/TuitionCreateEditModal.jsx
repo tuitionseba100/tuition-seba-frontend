@@ -49,7 +49,7 @@ const formatForDatetimeLocal = (isoString) => {
     return isoString.length >= 16 ? isoString.substring(0, 16) : isoString;
 };
 
-export default function TuitionModal({ show, onHide, editingData = null, editingId, fetchTuitionRecords }) {
+export default function TuitionModal({ show, onHide, editingData = null, editingId, fetchTuitionRecords, fetchSummaryCounts }) {
     const [formData, setFormData] = useState({});
     const [areaOptions, setAreaOptions] = useState([]);
     const [saving, setSaving] = useState(false);
@@ -144,6 +144,7 @@ export default function TuitionModal({ show, onHide, editingData = null, editing
             }
             onHide();
             fetchTuitionRecords();
+            fetchSummaryCounts();
         } catch (err) {
             console.error('Error saving tuition record:', err);
             toast.error('Error saving tuition record.');

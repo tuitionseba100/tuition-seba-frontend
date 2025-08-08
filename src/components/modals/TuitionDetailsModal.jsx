@@ -42,16 +42,23 @@ const fieldConfig = [
 
 const formatDateTimeDisplay = (isoString) => {
     if (!isoString) return '-';
-    const dt = new Date(isoString);
+
+    const localString = isoString.endsWith('Z') ? isoString.slice(0, -1) : isoString;
+
+    const dt = new Date(localString);
+
     if (isNaN(dt)) return isoString;
-    return dt.toLocaleString(undefined, {
+
+    return dt.toLocaleString('en-GB', {
         year: 'numeric',
         month: 'short',
         day: '2-digit',
         hour: '2-digit',
         minute: '2-digit',
+        hour12: true,
     });
 };
+
 
 export default function TuitionDetailsModal({ show, onHide, detailsData }) {
     const groups = fieldConfig.reduce((acc, field) => {

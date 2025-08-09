@@ -10,6 +10,7 @@ import * as XLSX from 'xlsx';
 import TuitionModal from '../components/modals/TuitionCreateEditModal';
 import TuitionDetailsModal from '../components/modals/TuitionDetailsModal';
 import LoadingCard from '../components/modals/LoadingCard';
+import AppliedListModal from '../components/modals/TuitionApplyListModal';
 
 const TuitionPage = () => {
     const [tuitionList, setTuitionList] = useState([]);
@@ -33,6 +34,17 @@ const TuitionPage = () => {
     const [detailsData, setDetailsData] = useState(null);
     const [tuitionNeedsUpdateList, setTuitionNeedsUpdateList] = useState([]);
     const [showUpdateListModal, setShowUpdateListModal] = useState(false);
+
+    const [showAppliedModal, setShowAppliedModal] = useState(false);
+    const [selectedTuitionId, setSelectedTuitionId] = useState(null);
+    const [selectedTuitionCode, setSelectedTuitionCode] = useState(null);
+
+    const openAppliedListModal = (tuition) => {
+        setSelectedTuitionId(tuition._id);
+        setSelectedTuitionCode(tuition.tuitionCode);
+        setShowAppliedModal(true);
+    };
+
 
     const handleShowDetails = (tuition) => {
         setDetailsData(tuition);
@@ -494,7 +506,13 @@ const TuitionPage = () => {
                                             <tr key={tuition._id}>
                                                 <td>{index + 1}</td>
                                                 <td>{tuition.updatedBy}</td>
-                                                <td>{tuition.tuitionCode}</td>
+                                                <td
+                                                    style={{ color: 'blue', cursor: 'pointer', textDecoration: 'none' }}
+                                                    onClick={() => openAppliedListModal(tuition)}
+                                                    title="Click to see applied list"
+                                                >
+                                                    {tuition.tuitionCode}
+                                                </td>
                                                 <td>
                                                     {tuition.isWhatsappApply ? (
                                                         <span style={{ color: 'green', fontWeight: 'bold' }}>
@@ -669,6 +687,13 @@ const TuitionPage = () => {
                     show={showDetailsModal}
                     onHide={() => setShowDetailsModal(false)}
                     detailsData={detailsData}
+                />
+
+                <AppliedListModal
+                    tuitionId={selectedTuitionId}
+                    tuitionCode={selectedTuitionCode}
+                    show={showAppliedModal}
+                    onHide={() => setShowAppliedModal(false)}
                 />
 
                 <LoadingCard show={deleteLoading} message="Deleting..." />

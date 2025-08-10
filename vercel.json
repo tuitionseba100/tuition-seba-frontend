@@ -8,7 +8,7 @@
     ],
     "rewrites": [
         {
-            "source": "/(.*)",
+            "source": "/((?!manifest\\.json|favicon\\.ico|robots\\.txt|img/|css/|js/).*)",
             "destination": "/"
         }
     ]

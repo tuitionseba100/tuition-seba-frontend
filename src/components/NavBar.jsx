@@ -97,7 +97,7 @@ const NavbarComponent = () => {
         <Navbar style={navbarStyle} expand="lg" variant="light" sticky="top">
             <Container fluid="md" className="px-3 px-sm-4">
                 <Navbar.Brand as={NavLink} to="/" className="d-flex align-items-center">
-                    <img src="../../public/img/TUITION SEBA FORUM TF.png" alt="Logo" style={logoStyle} />
+                    <img src="/img/TUITION SEBA FORUM TF.png" alt="Logo" style={logoStyle} />
                 </Navbar.Brand>
 
                 <Navbar.Toggle aria-controls="main-navbar" />

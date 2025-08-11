@@ -20,7 +20,7 @@ const ApplyModal = ({ show, onClose, tuitionCode, tuitionId }) => {
     const [showSuccess, setShowSuccess] = useState(false);
 
     const validationSchema = Yup.object({
-        registrationCode: Yup.string(),
+        premiumCode: Yup.string(),
         tuitionCode: Yup.string().required('Tuition Code is required'),
         name: Yup.string().required('Name is required'),
         institute: Yup.string().required('Institute is required'),
@@ -115,7 +115,7 @@ const ApplyModal = ({ show, onClose, tuitionCode, tuitionId }) => {
 
                 <Formik
                     initialValues={{
-                        registrationCode: '',
+                        premiumCode: '',
                         tuitionCode: tuitionCode || '',
                         tuitionId: tuitionId || '',
                         name: '',
@@ -182,7 +182,7 @@ const ApplyModal = ({ show, onClose, tuitionCode, tuitionId }) => {
                                 >
                                     {[
                                         {
-                                            name: 'registrationCode',
+                                            name: 'premiumCode',
                                             label: 'Registration Code',
                                             placeholder: '',
                                             hint: ' (ভেরিফায়েড টিচার না হলে এটি খালি রাখুন)',

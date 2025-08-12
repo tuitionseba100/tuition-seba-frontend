@@ -77,7 +77,7 @@ const NavbarComponent = () => {
             key: 'facebook',
         },
         {
-            href: 'https://wa.me/8801540376020',
+            href: 'https://wa.me/8801633920928',
             icon: <FaWhatsapp />,
             key: 'whatsapp',
         },

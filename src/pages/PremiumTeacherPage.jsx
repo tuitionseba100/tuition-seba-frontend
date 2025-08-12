@@ -297,7 +297,7 @@ const PremiumTeacherPage = () => {
 
         const message =
             `টিউশন সেবা ফোরাম (আস্থা ও বিশ্বস্ততায় একধাপ এগিয়ে)\n` +
-            `যোগাযোগ: 01540376020\n` +
+            `যোগাযোগ: 01633920928\n` +
             `ওয়েবসাইট: www.tuitionsebaforum.com\n\n` +
 
             `*Verified Premium Tutor*\n` +

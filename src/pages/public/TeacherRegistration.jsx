@@ -147,7 +147,7 @@ const TeacherRegistrationForm = () => {
                                 <div className="d-flex flex-wrap gap-3 mb-4">
                                     <div className="d-flex align-items-center">
                                         <FaPhoneAlt className="me-2" />
-                                        <span className="fw-semibold">Call Us: 01540376020</span>
+                                        <span className="fw-semibold">Call Us: 01633920928</span>
                                     </div>
                                     <Button variant="light" size="lg" onClick={() => setShowInfoModal(true)}>
                                         <FaInfoCircle className="me-2" /> Benefits & Terms

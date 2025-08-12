@@ -27,7 +27,7 @@ const AboutUs = () => {
                             <div>
                                 <Button
                                     variant="success"
-                                    href="https://wa.me/8801540376020"
+                                    href="https://wa.me/88001633920928"
                                     target="_blank"
                                     className="me-2 px-3"
                                 >
@@ -78,7 +78,7 @@ const AboutUs = () => {
                                 Contact
                             </h5>
                             <p style={{ fontSize: "15px", color: "#555" }}>
-                                <strong>Phone:</strong> 01540376020<br />
+                                <strong>Phone:</strong> 01633920928<br />
                                 <FaClock className="me-2 mt-2 text-warning" />
                                 <strong>Office Time:</strong> প্রতিদিন সকাল ১০টা থেকে রাত ১০টা পর্যন্ত<br />
                                 <span style={{ color: "#dc3545" }}>★ শুক্রবার বন্ধ</span>

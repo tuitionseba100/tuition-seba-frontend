@@ -256,12 +256,13 @@ const TuitionPage = () => {
     const formatDateTimeDisplay = (isoString) => {
         if (!isoString) return '-';
 
-        const dt = new Date(isoString);
+        const localString = isoString.endsWith('Z') ? isoString.slice(0, -1) : isoString;
+
+        const dt = new Date(localString);
 
         if (isNaN(dt)) return isoString;
 
         return dt.toLocaleString('en-GB', {
-            timeZone: 'Asia/Dhaka',
             year: 'numeric',
             month: 'short',
             day: '2-digit',

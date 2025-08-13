@@ -79,6 +79,20 @@ const TuitionPage = () => {
         fetchTuitionRecords();
     }, [tuitionCodeSearchQuery, gurdianNoSearchQuery, teacherNoSearchQuery, publishFilter, urgentFilter, statusFilter, currentPage]);
 
+    useEffect(() => {
+        const fetchTuitionAlertToday = async () => {
+            try {
+                const res = await axios.get('https://tuition-seba-backend-1.onrender.com/api/tuition/alert-today');
+                setTuitionNeedsUpdateList(res.data);
+            } catch (err) {
+                console.error('Error fetching tuition due today:', err);
+                toast.error("Failed to load tuition alerts for today.");
+            }
+        };
+
+        fetchTuitionAlertToday();
+    }, []);
+
     const fetchTuitionRecords = async () => {
         setLoading(true);
         try {
@@ -121,7 +135,6 @@ const TuitionPage = () => {
                 }
             });
             setExcelTuitionList(res.data.data);
-            filterTuitionForAlertsList(res.data.data);
             setPublishCount(res.data.isPublishTrueCount || 0);
             setStatusCounts({
                 available: res.data.available || 0,
@@ -133,27 +146,6 @@ const TuitionPage = () => {
         } catch (err) {
             console.error('Error fetching summary counts:', err);
         }
-    };
-
-    const isSameLocalDate = (date1, date2) =>
-        date1.getFullYear() === date2.getFullYear() &&
-        date1.getMonth() === date2.getMonth() &&
-        date1.getDate() === date2.getDate();
-
-    const filterTuitionForAlertsList = (tuitions) => {
-        const today = new Date();
-
-        const alertToday = tuitions.filter((t) => {
-            if (!t.nextUpdateDate || typeof t.nextUpdateDate !== "string" || t.nextUpdateDate.trim() === "")
-                return false;
-
-            const nextUpdateDateObj = new Date(t.nextUpdateDate);
-            if (isNaN(nextUpdateDateObj.getTime())) return false;
-
-            return isSameLocalDate(nextUpdateDateObj, today);
-        });
-
-        setTuitionNeedsUpdateList(alertToday);
     };
 
     const handleExportToExcel = () => {
@@ -264,13 +256,12 @@ const TuitionPage = () => {
     const formatDateTimeDisplay = (isoString) => {
         if (!isoString) return '-';
 
-        const localString = isoString.endsWith('Z') ? isoString.slice(0, -1) : isoString;
-
-        const dt = new Date(localString);
+        const dt = new Date(isoString);
 
         if (isNaN(dt)) return isoString;
 
         return dt.toLocaleString('en-GB', {
+            timeZone: 'Asia/Dhaka',
             year: 'numeric',
             month: 'short',
             day: '2-digit',

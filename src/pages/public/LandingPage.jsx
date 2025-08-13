@@ -6,6 +6,7 @@ import TuitionSection from '../../components/TuitionSection';
 import HappyClients from '../../components/HappyClients';
 import About from '../../components/About';
 import PaymentOptions from '../../components/PaymentOptions';
+import CountSection from '../../components/CountSection';
 import Footer from '../../components/Footer';
 import FloatingWhatsAppIcon from '../../components/FloatingWhatsAppIcon';
 
@@ -17,6 +18,7 @@ const LandingPage = () => {
             <Features />
             <TuitionSection />
             <HappyClients />
+            <CountSection />
             <About />
             <PaymentOptions />
             <Footer />

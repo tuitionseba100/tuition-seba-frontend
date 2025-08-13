@@ -187,7 +187,6 @@ const PaymentPage = () => {
         try {
             const response = await axios.get('https://tuition-seba-backend-1.onrender.com/api/payment/all');
             setPaymentList(response.data);
-            filterDuePayments(response.data);
             setFilteredPaymentList(response.data);
         } catch (err) {
             console.error('Error fetching payment records:', err);
@@ -209,32 +208,37 @@ const PaymentPage = () => {
         setLoading(false);
     };
 
-    const filterDuePayments = (payments) => {
-        const today = new Date().toISOString().split('T')[0];
+    useEffect(() => {
+        const fetchTuitionAlertToday = async () => {
+            try {
+                const res = await axios.get('https://tuition-seba-backend-1.onrender.com/api/payment/alert-today');
+                setDueTodayList(res.data);
+            } catch (err) {
+                console.error('Error fetching tuition due today:', err);
+                toast.error("Failed to load tuition alerts for today.");
+            }
+        };
 
-        const dueToday = payments.filter(payment => {
-            if (!payment.duePayDate) return false;
+        fetchTuitionAlertToday();
+    }, []);
 
-            const dueDateObj = new Date(payment.duePayDate);
-            if (isNaN(dueDateObj.getTime())) return false;
+    const formatDate = (isoString) => {
+        if (!isoString) return '-';
 
-            const dueDate = dueDateObj.toISOString().split('T')[0];
-            return dueDate === today;
+        const localString = isoString.endsWith('Z') ? isoString.slice(0, -1) : isoString;
+
+        const dt = new Date(localString);
+
+        if (isNaN(dt)) return isoString;
+
+        return dt.toLocaleString('en-GB', {
+            year: 'numeric',
+            month: 'short',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: true,
         });
-
-        setDueTodayList(dueToday);
-    };
-
-    const formatDate = (dateString) => {
-        const date = new Date(dateString);
-
-        const optionsDate = { day: '2-digit', month: 'long', year: 'numeric', timeZone: 'UTC' };
-        const optionsTime = { hour: '2-digit', minute: '2-digit', hour12: true, timeZone: 'UTC' };
-
-        const formattedDate = new Intl.DateTimeFormat('en-GB', optionsDate).format(date);
-        const formattedTime = new Intl.DateTimeFormat('en-GB', optionsTime).format(date);
-
-        return `${formattedDate} || ${formattedTime}`;
     };
 
     const handleExportToExcel = () => {
@@ -1281,6 +1285,7 @@ const PaymentPage = () => {
                             <Table responsive striped bordered hover className="shadow-sm">
                                 <thead className="bg-dark text-white text-center">
                                     <tr>
+                                        <th>Payment Received Date</th>
                                         <th>Tuition Code</th>
                                         <th>Due Tk</th>
                                         <th>Teacher Name</th>
@@ -1291,6 +1296,7 @@ const PaymentPage = () => {
                                 <tbody>
                                     {dueTodayList.map((payment, index) => (
                                         <tr key={index} className="align-middle text-center">
+                                            <td>{payment.paymentReceivedDate ? formatDate(payment.paymentReceivedDate) : '-'}</td>
                                             <td>{payment.tuitionCode}</td>
                                             <td className="fw-bold text-danger">{payment.duePayment}</td>
                                             <td>{payment.tutorName}</td>

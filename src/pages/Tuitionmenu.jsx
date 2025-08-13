@@ -665,7 +665,6 @@ const TuitionPage = () => {
                     </Modal.Body>
                 </Modal>
 
-
                 <TuitionModal
                     show={showModal}
                     onHide={() => setShowModal(false)}

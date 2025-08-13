@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Button, Table, Modal, Form, Row, Col, Card, Tooltip, OverlayTrigger } from 'react-bootstrap';
-import { FaEdit, FaTrashAlt, FaWhatsapp, FaChevronLeft, FaChevronRight, FaGlobe, FaInfoCircle, FaBell } from 'react-icons/fa';
+import { FaEdit, FaTrashAlt, FaWhatsapp, FaChevronLeft, FaChevronRight, FaGlobe, FaInfoCircle, FaBell, FaSearch } from 'react-icons/fa';
 import axios from 'axios';
 import NavBarPage from './NavbarPage';
 import styled from 'styled-components';
@@ -16,13 +16,26 @@ const TuitionPage = () => {
     const [tuitionList, setTuitionList] = useState([]);
     const [filteredTuitionList, setFilteredTuitionList] = useState([]);
     const [excelTuitionList, setExcelTuitionList] = useState([]);
-    const [publishFilter, setPublishFilter] = useState('');
-    const [urgentFilter, setUrgentFilter] = useState('');
-    const [tuitionCodeSearchQuery, setTuitionCodeSearchQuery] = useState('');
-    const [gurdianNoSearchQuery, setGurdianNoSearchQuery] = useState('');
-    const [teacherNoSearchQuery, setTeacherNoSearchQuery] = useState('');
+
+    const [searchInputs, setSearchInputs] = useState({
+        tuitionCode: '',
+        guardianNumber: '',
+        teacherNumber: '',
+        publishFilter: '',
+        urgentFilter: '',
+        statusFilter: ''
+    });
+
+    const [appliedFilters, setAppliedFilters] = useState({
+        tuitionCode: '',
+        guardianNumber: '',
+        teacherNumber: '',
+        publishFilter: '',
+        urgentFilter: '',
+        statusFilter: ''
+    });
+
     const [loading, setLoading] = useState(false);
-    const [statusFilter, setStatusFilter] = useState('');
     const [publishCount, setPublishCount] = useState(0);
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
@@ -44,7 +57,6 @@ const TuitionPage = () => {
         setSelectedTuitionCode(tuition.tuitionCode);
         setShowAppliedModal(true);
     };
-
 
     const handleShowDetails = (tuition) => {
         setDetailsData(tuition);
@@ -71,13 +83,45 @@ const TuitionPage = () => {
         cancel: 0
     });
 
+    const handleSearchInputChange = (field, value) => {
+        setSearchInputs(prev => ({
+            ...prev,
+            [field]: value
+        }));
+    };
+
+    const handleSearch = () => {
+        setAppliedFilters(searchInputs);
+        setCurrentPage(1);
+    };
+
+    const handleResetFilters = () => {
+        const resetFilters = {
+            tuitionCode: '',
+            guardianNumber: '',
+            teacherNumber: '',
+            publishFilter: '',
+            urgentFilter: '',
+            statusFilter: ''
+        };
+        setSearchInputs(resetFilters);
+        setAppliedFilters(resetFilters);
+        setCurrentPage(1);
+    };
+
+    const handleKeyPress = (e) => {
+        if (e.key === 'Enter') {
+            handleSearch();
+        }
+    };
+
     useEffect(() => {
         fetchTuitionRecords();
     }, []);
 
     useEffect(() => {
         fetchTuitionRecords();
-    }, [tuitionCodeSearchQuery, gurdianNoSearchQuery, teacherNoSearchQuery, publishFilter, urgentFilter, statusFilter, currentPage]);
+    }, [appliedFilters, currentPage]);
 
     useEffect(() => {
         const fetchTuitionAlertToday = async () => {
@@ -99,12 +143,12 @@ const TuitionPage = () => {
             const response = await axios.get('https://tuition-seba-backend-1.onrender.com/api/tuition/getTableData', {
                 params: {
                     page: currentPage,
-                    tuitionCode: tuitionCodeSearchQuery,
-                    guardianNumber: gurdianNoSearchQuery,
-                    tutorNumber: teacherNoSearchQuery,
-                    isPublish: publishFilter === "Yes" ? 'true' : publishFilter === "No" ? 'false' : undefined,
-                    isUrgent: urgentFilter === "Yes" ? 'true' : urgentFilter === "No" ? 'false' : undefined,
-                    status: statusFilter
+                    tuitionCode: appliedFilters.tuitionCode,
+                    guardianNumber: appliedFilters.guardianNumber,
+                    tutorNumber: appliedFilters.teacherNumber,
+                    isPublish: appliedFilters.publishFilter === "Yes" ? 'true' : appliedFilters.publishFilter === "No" ? 'false' : undefined,
+                    isUrgent: appliedFilters.urgentFilter === "Yes" ? 'true' : appliedFilters.urgentFilter === "No" ? 'false' : undefined,
+                    status: appliedFilters.statusFilter
                 }
             });
 
@@ -126,12 +170,12 @@ const TuitionPage = () => {
         try {
             const res = await axios.get('https://tuition-seba-backend-1.onrender.com/api/tuition/summary', {
                 params: {
-                    tuitionCode: tuitionCodeSearchQuery,
-                    guardianNumber: gurdianNoSearchQuery,
-                    tutorNumber: teacherNoSearchQuery,
-                    isPublish: publishFilter === "Yes" ? 'true' : publishFilter === "No" ? 'false' : undefined,
-                    isUrgent: urgentFilter === "Yes" ? 'true' : urgentFilter === "No" ? 'false' : undefined,
-                    status: statusFilter
+                    tuitionCode: appliedFilters.tuitionCode,
+                    guardianNumber: appliedFilters.guardianNumber,
+                    tutorNumber: appliedFilters.teacherNumber,
+                    isPublish: appliedFilters.publishFilter === "Yes" ? 'true' : appliedFilters.publishFilter === "No" ? 'false' : undefined,
+                    isUrgent: appliedFilters.urgentFilter === "Yes" ? 'true' : appliedFilters.urgentFilter === "No" ? 'false' : undefined,
+                    status: appliedFilters.statusFilter
                 }
             });
             setExcelTuitionList(res.data.data);
@@ -272,16 +316,6 @@ const TuitionPage = () => {
         });
     };
 
-    const handleResetFilters = () => {
-        setTuitionCodeSearchQuery('');
-        setGurdianNoSearchQuery('');
-        setTeacherNoSearchQuery('');
-        setPublishFilter('');
-        setUrgentFilter('');
-        setStatusFilter('');
-        setFilteredTuitionList(tuitionList);
-    };
-
     return (
         <>
             <NavBarPage />
@@ -350,15 +384,16 @@ const TuitionPage = () => {
                     </Card.Body>
                 </Card>
 
-                {/* Search bar */}
+
                 <Row className="mt-2 mb-3">
                     <Col md={2}>
                         <Form.Label className="fw-bold">Search (Tuition Code)</Form.Label>
                         <Form.Control
                             type="text"
                             placeholder="Search by Tuition Code"
-                            value={tuitionCodeSearchQuery}
-                            onChange={(e) => setTuitionCodeSearchQuery(e.target.value)}
+                            value={searchInputs.tuitionCode}
+                            onChange={(e) => handleSearchInputChange('tuitionCode', e.target.value)}
+                            onKeyPress={handleKeyPress}
                         />
                     </Col>
 
@@ -367,8 +402,9 @@ const TuitionPage = () => {
                         <Form.Control
                             type="text"
                             placeholder="Search by Guardian Number"
-                            value={gurdianNoSearchQuery}
-                            onChange={(e) => setGurdianNoSearchQuery(e.target.value)}
+                            value={searchInputs.guardianNumber}
+                            onChange={(e) => handleSearchInputChange('guardianNumber', e.target.value)}
+                            onKeyPress={handleKeyPress}
                         />
                     </Col>
 
@@ -377,23 +413,30 @@ const TuitionPage = () => {
                         <Form.Control
                             type="text"
                             placeholder="Search by Teacher Number"
-                            value={teacherNoSearchQuery}
-                            onChange={(e) => setTeacherNoSearchQuery(e.target.value)}
+                            value={searchInputs.teacherNumber}
+                            onChange={(e) => handleSearchInputChange('teacherNumber', e.target.value)}
+                            onKeyPress={handleKeyPress}
                         />
                     </Col>
 
                     <Col md={1}>
                         <Form.Label className="fw-bold">Publish Status</Form.Label>
-                        <Form.Select value={publishFilter} onChange={(e) => setPublishFilter(e.target.value)}>
+                        <Form.Select
+                            value={searchInputs.publishFilter}
+                            onChange={(e) => handleSearchInputChange('publishFilter', e.target.value)}
+                        >
                             <option value="">All</option>
                             <option value="Yes">Yes</option>
                             <option value="No">No</option>
                         </Form.Select>
                     </Col>
 
-                    <Col md={2}>
-                        <Form.Label className="fw-bold">Emergency Status</Form.Label>
-                        <Form.Select value={urgentFilter} onChange={(e) => setUrgentFilter(e.target.value)}>
+                    <Col md={1}>
+                        <Form.Label className="fw-bold">Emergency</Form.Label>
+                        <Form.Select
+                            value={searchInputs.urgentFilter}
+                            onChange={(e) => handleSearchInputChange('urgentFilter', e.target.value)}
+                        >
                             <option value="">All</option>
                             <option value="Yes">Urgent</option>
                             <option value="No">Not Urgent</option>
@@ -402,7 +445,10 @@ const TuitionPage = () => {
 
                     <Col md={2}>
                         <Form.Label className="fw-bold">Status</Form.Label>
-                        <Form.Select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
+                        <Form.Select
+                            value={searchInputs.statusFilter}
+                            onChange={(e) => handleSearchInputChange('statusFilter', e.target.value)}
+                        >
                             <option value="">All</option>
                             <option value="available">Available</option>
                             <option value="given number">Given Number</option>
@@ -414,8 +460,23 @@ const TuitionPage = () => {
                     </Col>
 
                     <Col md={1} className="d-flex align-items-end">
-                        <Button variant="danger" onClick={handleResetFilters} className="w-100">
-                            Reset Filters
+                        <Button
+                            variant="success"
+                            onClick={handleSearch}
+                            className="d-flex align-items-center justify-content-center gap-1 w-100"
+                            disabled={loading}
+                        >
+                            {loading ? <Spinner animation="border" size="sm" /> : <FaSearch />}
+                            Search
+                        </Button>
+                    </Col>
+                    <Col md={1} className="d-flex align-items-end">
+                        <Button
+                            variant="danger"
+                            onClick={handleResetFilters}
+                            className="d-flex align-items-center justify-content-center w-100"
+                        >
+                            Reset
                         </Button>
                     </Col>
 
@@ -487,7 +548,7 @@ const TuitionPage = () => {
                                 <tbody>
                                     {loading ? (
                                         <tr>
-                                            <td colSpan="20" className="text-center">
+                                            <td colSpan="23" className="text-center">
                                                 <div className="d-flex justify-content-center align-items-center" style={{ position: 'absolute', top: '90%', left: '50%', transform: 'translate(-50%, -50%)', width: '100vw', height: '100vh' }}>
                                                     <Spinner animation="border" variant="primary" size="lg" />
                                                 </div>
@@ -697,7 +758,6 @@ const TuitionPage = () => {
 
 export default TuitionPage;
 
-// Styled Components
 const Container = styled.div`
   padding: 30px;
   background: #f4f4f9;

@@ -59,7 +59,6 @@ const formatDateTimeDisplay = (isoString) => {
     });
 };
 
-
 export default function TuitionDetailsModal({ show, onHide, detailsData }) {
     const groups = fieldConfig.reduce((acc, field) => {
         acc[field.group] = acc[field.group] || [];

@@ -526,8 +526,12 @@ const TuitionPage = () => {
                                         <th>Apply Type</th>
                                         <th>Published?</th>
                                         <th>Status</th>
+                                        <th>Last Available Check</th>
+                                        <th>Last Update</th>
+                                        <th>Last Update Comment</th>
+                                        <th>Next Update</th>
+                                        <th>Next Update Comment</th>
                                         <th>Teacher</th>
-                                        <th>Institute</th>
                                         <th>Student</th>
                                         <th>Class</th>
                                         <th>Medium</th>
@@ -539,9 +543,7 @@ const TuitionPage = () => {
                                         <th>Area</th>
                                         <th>Guardian No.</th>
                                         <th>Teacher No.</th>
-                                        <th>Joining Date</th>
                                         <th>Comment</th>
-                                        <th>Emergency?</th>
                                         <th>Actions</th>
                                     </tr>
                                 </thead>
@@ -594,9 +596,12 @@ const TuitionPage = () => {
                                                         {tuition.status}
                                                     </span>
                                                 </td>
-
+                                                <td>{formatDateTimeDisplay(tuition.lastAvailableCheck)}</td>
+                                                <td>{formatDateTimeDisplay(tuition.lastUpdate)}</td>
+                                                <td>{tuition.lastUpdateComment || '-'}</td>
+                                                <td>{formatDateTimeDisplay(tuition.nextUpdateDate)}</td>
+                                                <td>{tuition.nextUpdateComment || '-'}</td>
                                                 <td>{tuition.wantedTeacher}</td>
-                                                <td>{tuition.institute}</td>
                                                 <td>{tuition.student}</td>
                                                 <td>{tuition.class}</td>
                                                 <td>{tuition.medium}</td>
@@ -608,11 +613,7 @@ const TuitionPage = () => {
                                                 <td>{tuition.area ? tuition.area : ""}</td>
                                                 <td>{tuition.guardianNumber}</td>
                                                 <td>{tuition.tutorNumber}</td>
-                                                <td>{tuition.joining}</td>
                                                 <td>{tuition.note}</td>
-                                                <td className={tuition.isUrgent ? "text-success fw-bold" : "text-danger fw-bold"}>
-                                                    {tuition.isUrgent ? "Yes" : "No"}
-                                                </td>
                                                 <td style={{ display: 'flex', justifyContent: 'flex-start', gap: '8px' }}>
 
                                                     <Button variant="info" onClick={() => handleShowDetails(tuition)} title="View Details">

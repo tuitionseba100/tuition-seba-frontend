@@ -544,7 +544,7 @@ const TuitionPage = () => {
                                         <th>Guardian No.</th>
                                         <th>Teacher No.</th>
                                         <th>Comment</th>
-                                        <th>Actions</th>
+                                        <th style={{ position: 'sticky', right: 0, zIndex: 3, minWidth: '150px' }}>Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -614,7 +614,7 @@ const TuitionPage = () => {
                                                 <td>{tuition.guardianNumber}</td>
                                                 <td>{tuition.tutorNumber}</td>
                                                 <td>{tuition.note}</td>
-                                                <td style={{ display: 'flex', justifyContent: 'flex-start', gap: '8px' }}>
+                                                <td style={{ display: 'flex', justifyContent: 'flex-start', gap: '8px', position: 'sticky', right: 0, zIndex: 2 }}>
 
                                                     <Button variant="info" onClick={() => handleShowDetails(tuition)} title="View Details">
                                                         <FaInfoCircle />

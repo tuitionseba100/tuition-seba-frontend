@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Button, Table, Modal, Form, Row, Col, Card } from 'react-bootstrap';
-import { FaEdit, FaTrashAlt, FaChevronLeft, FaChevronRight } from 'react-icons/fa'; // React Icons
+import { FaEdit, FaTrashAlt, FaChevronLeft, FaChevronRight, FaSearch } from 'react-icons/fa'; // React Icons
 import axios from 'axios';
 import NavBarPage from './NavbarPage';
 import styled from 'styled-components';
@@ -26,10 +26,6 @@ const TuitionPage = () => {
         comment: '',
         commentForTeacher: ''
     });
-    const [tuitionCodeSearch, setTuitionCodeSearch] = useState('');
-    const [phoneSearch, setPhoneSearch] = useState('');
-
-    const [statusFilter, setStatusFilter] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
     const [allTuitionList, setAllTuitionList] = useState([]);
@@ -47,6 +43,18 @@ const TuitionPage = () => {
     const bestStyle = { backgroundColor: '#007bff', color: 'white' };
     const dueStyle = { backgroundColor: 'yellow', color: 'black' };
     const role = localStorage.getItem('role');
+
+    const [searchInputs, setSearchInputs] = useState({
+        tuitionCode: '',
+        phone: '',
+        statusFilter: ''
+    });
+
+    const [appliedFilters, setAppliedFilters] = useState({
+        tuitionCode: '',
+        phone: '',
+        statusFilter: ''
+    });
 
     const getRowStyle = (tuition) => {
         if (tuition.hasDue) return dueStyle;
@@ -67,19 +75,36 @@ const TuitionPage = () => {
     }, []);
 
     useEffect(() => {
-        fetchTuitionApplyRecords(currentPage);
-        fetchCardSummary();
-    }, [currentPage, tuitionCodeSearch, phoneSearch, statusFilter]);
+        fetchTuitionApplyRecords();
+    }, [appliedFilters, currentPage]);
+
+    const handleSearchInputChange = (field, value) => {
+        setSearchInputs(prev => ({
+            ...prev,
+            [field]: value
+        }));
+    };
+
+    const handleSearch = () => {
+        setAppliedFilters(searchInputs);
+        setCurrentPage(1);
+    };
+
+    const handleKeyPress = (e) => {
+        if (e.key === 'Enter') {
+            handleSearch();
+        }
+    };
 
     const fetchTuitionApplyRecords = async (page = 1) => {
         setLoading(true);
         try {
             const response = await axios.get('https://tuition-seba-backend-1.onrender.com/api/tuitionApply/getTableData', {
                 params: {
-                    page,
-                    tuitionCode: tuitionCodeSearch,
-                    phone: phoneSearch,
-                    status: statusFilter
+                    page: currentPage,
+                    tuitionCode: appliedFilters.tuitionCode,
+                    phone: appliedFilters.phone,
+                    status: appliedFilters.statusFilter
                 }
             });
 
@@ -87,6 +112,7 @@ const TuitionPage = () => {
             setFilteredTuitionApplyList(response.data.data);
             setCurrentPage(response.data.currentPage);
             setTotalPages(response.data.totalPages);
+            fetchCardSummary();
         } catch (err) {
             console.error('Error fetching tuition records:', err);
             toast.error("Failed to load tuition apply records.");
@@ -94,13 +120,24 @@ const TuitionPage = () => {
         setLoading(false);
     };
 
+    const handleResetFilters = () => {
+        const resetFilters = {
+            tuitionCode: '',
+            phone: '',
+            statusFilter: ''
+        };
+        setSearchInputs(resetFilters);
+        setAppliedFilters(resetFilters);
+        setCurrentPage(1);
+    };
 
     const fetchCardSummary = () => {
         axios.get('https://tuition-seba-backend-1.onrender.com/api/tuitionApply/summary', {
             params: {
-                tuitionCode: tuitionCodeSearch,
-                phone: phoneSearch,
-                status: statusFilter
+                page: currentPage,
+                tuitionCode: appliedFilters.tuitionCode,
+                phone: appliedFilters.phone,
+                status: appliedFilters.statusFilter
             }
         })
             .then(response => {
@@ -316,11 +353,9 @@ const TuitionPage = () => {
                         <Form.Control
                             type="text"
                             placeholder="e.g. TSF-1001"
-                            value={tuitionCodeSearch}
-                            onChange={(e) => {
-                                setCurrentPage(1);
-                                setTuitionCodeSearch(e.target.value);
-                            }}
+                            value={searchInputs.tuitionCode}
+                            onChange={(e) => handleSearchInputChange('tuitionCode', e.target.value)}
+                            onKeyPress={handleKeyPress}
                         />
                     </Col>
 
@@ -329,22 +364,17 @@ const TuitionPage = () => {
                         <Form.Control
                             type="text"
                             placeholder="e.g. 017xxxxxxxx"
-                            value={phoneSearch}
-                            onChange={(e) => {
-                                setCurrentPage(1);
-                                setPhoneSearch(e.target.value);
-                            }}
+                            value={searchInputs.phone}
+                            onChange={(e) => handleSearchInputChange('phone', e.target.value)}
+                            onKeyPress={handleKeyPress}
                         />
                     </Col>
 
                     <Col md={3}>
                         <Form.Label className="fw-bold">Status Filter</Form.Label>
                         <Form.Select
-                            value={statusFilter}
-                            onChange={(e) => {
-                                setCurrentPage(1);
-                                setStatusFilter(e.target.value);
-                            }}
+                            value={searchInputs.statusFilter}
+                            onChange={(e) => handleSearchInputChange('statusFilter', e.target.value)}
                         >
                             <option value="">All</option>
                             <option value="pending">Pending</option>
@@ -360,13 +390,23 @@ const TuitionPage = () => {
                         </Form.Select>
                     </Col>
 
-                    <Col md={3} className="d-flex align-items-end">
-                        <Button variant="danger" onClick={() => {
-                            setTuitionCodeSearch('');
-                            setPhoneSearch('');
-                            setStatusFilter('');
-                            setCurrentPage(1);
-                        }} className="w-100">
+                    <Col md={1} className="d-flex align-items-end">
+                        <Button
+                            variant="success"
+                            onClick={handleSearch}
+                            className="d-flex align-items-center justify-content-center gap-1 w-100"
+                            disabled={loading}
+                        >
+                            {loading ? <Spinner animation="border" size="sm" /> : <FaSearch />}
+                            Search
+                        </Button>
+                    </Col>
+                    <Col md={1} className="d-flex align-items-end">
+                        <Button
+                            variant="danger"
+                            onClick={handleResetFilters}
+                            className="d-flex align-items-center justify-content-center w-100"
+                        >
                             Reset
                         </Button>
                     </Col>

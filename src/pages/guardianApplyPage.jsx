@@ -40,6 +40,7 @@ const GuardianApplyPage = () => {
         status: '',
         comment: '',
     });
+    const role = localStorage.getItem('role');
 
     const statusOptions = [
         'pending',
@@ -363,9 +364,16 @@ const GuardianApplyPage = () => {
                     </Col>
 
                 </Row>
-                <Button variant="success" className="mb-3" onClick={handleExportToExcel}>
-                    Export to Excel
-                </Button>
+
+                {role === "superadmin" && (
+                    <Button
+                        variant="success"
+                        className="mb-3"
+                        onClick={handleExportToExcel}
+                    >
+                        Export to Excel
+                    </Button>
+                )}
 
                 <Card className="mt-4">
                     <Card.Body>

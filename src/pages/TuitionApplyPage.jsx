@@ -46,6 +46,7 @@ const TuitionPage = () => {
     const spamStyle = { backgroundColor: '#dc3545', color: 'white' };
     const bestStyle = { backgroundColor: '#007bff', color: 'white' };
     const dueStyle = { backgroundColor: 'yellow', color: 'black' };
+    const role = localStorage.getItem('role');
 
     const getRowStyle = (tuition) => {
         if (tuition.hasDue) return dueStyle;
@@ -371,21 +372,23 @@ const TuitionPage = () => {
                     </Col>
                 </Row>
 
-                <Button
-                    variant="success"
-                    className="mb-3 d-flex align-items-center justify-content-center gap-2"
-                    onClick={handleExportToExcel}
-                    disabled={exportList.length === 0}
-                >
-                    {exportList.length === 0 ? (
-                        <>
-                            <Spinner animation="border" size="sm" role="status" />
-                            <span>Preparing export...</span>
-                        </>
-                    ) : (
-                        'Export to Excel'
-                    )}
-                </Button>
+                {role === "superadmin" && (
+                    <Button
+                        variant="success"
+                        className="mb-3 d-flex align-items-center justify-content-center gap-2"
+                        onClick={handleExportToExcel}
+                        disabled={exportList.length === 0}
+                    >
+                        {exportList.length === 0 ? (
+                            <>
+                                <Spinner animation="border" size="sm" role="status" />
+                                <span>Preparing export...</span>
+                            </>
+                        ) : (
+                            'Export to Excel'
+                        )}
+                    </Button>
+                )}
 
                 <Card className="mt-4">
                     <Card.Body>

@@ -51,6 +51,7 @@ const TuitionPage = () => {
     const [showAppliedModal, setShowAppliedModal] = useState(false);
     const [selectedTuitionId, setSelectedTuitionId] = useState(null);
     const [selectedTuitionCode, setSelectedTuitionCode] = useState(null);
+    const role = localStorage.getItem('role');
 
     const openAppliedListModal = (tuition) => {
         setSelectedTuitionId(tuition._id);
@@ -497,21 +498,23 @@ const TuitionPage = () => {
                     </h5>
                 </div>
 
-                <Button
-                    variant="success"
-                    className="mb-3 d-flex align-items-center justify-content-center gap-2"
-                    onClick={handleExportToExcel}
-                    disabled={excelTuitionList.length === 0}
-                >
-                    {excelTuitionList.length === 0 ? (
-                        <>
-                            <Spinner animation="border" size="sm" role="status" />
-                            <span>Preparing export...</span>
-                        </>
-                    ) : (
-                        'Export to Excel'
-                    )}
-                </Button>
+                {role === "superadmin" && (
+                    <Button
+                        variant="success"
+                        className="mb-3 d-flex align-items-center justify-content-center gap-2"
+                        onClick={handleExportToExcel}
+                        disabled={excelTuitionList.length === 0}
+                    >
+                        {excelTuitionList.length === 0 ? (
+                            <>
+                                <Spinner animation="border" size="sm" role="status" />
+                                <span>Preparing export...</span>
+                            </>
+                        ) : (
+                            'Export to Excel'
+                        )}
+                    </Button>
+                )}
 
                 <Card className="mt-4">
                     <Card.Body>

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Button, Table, Modal, Form, Row, Col, Card } from 'react-bootstrap';
-import { FaEdit, FaInfoCircle, FaTrashAlt, FaWhatsapp, FaChevronLeft, FaChevronRight } from 'react-icons/fa'; // React Icons
+import { FaEdit, FaInfoCircle, FaTrashAlt, FaWhatsapp, FaChevronLeft, FaChevronRight, FaSearch } from 'react-icons/fa'; // React Icons
 import axios from 'axios';
 import NavBarPage from './NavbarPage';
 import styled from 'styled-components';
@@ -26,16 +26,24 @@ const PremiumTeacherPage = () => {
     const [summaryCounts, setSummaryCounts] = useState({});
     const role = localStorage.getItem('role');
 
-    const initialSearchFilters = {
+    const [searchInputs, setSearchInputs] = useState({
         premiumCode: '',
         name: '',
         phone: '',
         currentArea: '',
         status: '',
         gender: ''
-    };
+    });
 
-    const [searchFilters, setSearchFilters] = useState(initialSearchFilters);
+    const [appliedFilters, setAppliedFilters] = useState({
+        premiumCode: '',
+        name: '',
+        phone: '',
+        currentArea: '',
+        status: '',
+        gender: ''
+    });
+
     const searchFields = [
         { key: 'premiumCode', label: 'Premium Code', type: 'text', col: 2 },
         { key: 'name', label: 'Name', type: 'text', col: 2 },
@@ -44,11 +52,6 @@ const PremiumTeacherPage = () => {
         { key: 'status', label: 'Status', type: 'select', options: ['pending', 'under review', 'pending payment', 'rejected', 'verified'], col: 1 },
         { key: 'gender', label: 'Gender', type: 'select', options: ['male', 'female'], col: 1 }
     ];
-
-    const handleFilterChange = (key, value) => {
-        setCurrentPage(1);
-        setSearchFilters(prev => ({ ...prev, [key]: value }));
-    };
 
     const fieldConfig = [
         // Personal Info
@@ -142,8 +145,29 @@ const PremiumTeacherPage = () => {
 
     useEffect(() => {
         fetchTableData();
-        fetchSummary();
-    }, [searchFilters, currentPage]);
+    }, []);
+
+    useEffect(() => {
+        fetchTableData();
+    }, [appliedFilters, currentPage]);
+
+    const handleSearchInputChange = (field, value) => {
+        setSearchInputs(prev => ({
+            ...prev,
+            [field]: value
+        }));
+    };
+
+    const handleSearch = () => {
+        setAppliedFilters(searchInputs);
+        setCurrentPage(1);
+    };
+
+    const handleKeyPress = (e) => {
+        if (e.key === 'Enter') {
+            handleSearch();
+        }
+    };
 
     const fetchTableData = async () => {
         setLoading(true);
@@ -151,7 +175,7 @@ const PremiumTeacherPage = () => {
             const response = await axios.get(`https://tuition-seba-backend-1.onrender.com/api/regTeacher/getTableData`, {
                 params: {
                     page: currentPage,
-                    ...searchFilters
+                    ...appliedFilters
                 },
                 headers: { Authorization: token }
             });
@@ -159,6 +183,7 @@ const PremiumTeacherPage = () => {
             setReacrodsList(response.data.data);
             setFilteredTeacherList(response.data.data);
             setTotalPages(response.data.totalPages);
+            fetchSummary();
         } catch (err) {
             console.error('Error fetching paginated records:', err);
             toast.error("Failed to load Teacher records.");
@@ -166,10 +191,24 @@ const PremiumTeacherPage = () => {
         setLoading(false);
     };
 
+    const handleResetFilters = () => {
+        const resetFilters = {
+            premiumCode: '',
+            name: '',
+            phone: '',
+            currentArea: '',
+            status: '',
+            gender: ''
+        };
+        setSearchInputs(resetFilters);
+        setAppliedFilters(resetFilters);
+        setCurrentPage(1);
+    };
+
     const fetchSummary = async () => {
         try {
             const res = await axios.get(`https://tuition-seba-backend-1.onrender.com/api/regTeacher/summary`, {
-                params: searchFilters,
+                params: appliedFilters,
                 headers: { Authorization: token }
             });
             setExportList(res.data.allData);
@@ -289,10 +328,6 @@ const PremiumTeacherPage = () => {
         }, {});
     };
 
-    const handleResetFilters = () => {
-        setSearchFilters(initialSearchFilters);
-    };
-
     const handleShare = (teacherDetails) => {
         const getValue = (val) => val || 'N/A';
 
@@ -366,8 +401,9 @@ const PremiumTeacherPage = () => {
                             <Form.Label className="fw-bold">{label}</Form.Label>
                             {type === 'select' ? (
                                 <Form.Select
-                                    value={searchFilters[key]}
-                                    onChange={(e) => handleFilterChange(key, e.target.value)}
+                                    value={searchInputs[key]}
+                                    onChange={(e) => handleSearchInputChange(key, e.target.value)}
+                                    onKeyPress={handleKeyPress}
                                 >
                                     <option value="">All</option>
                                     {options.map(opt => (
@@ -378,15 +414,31 @@ const PremiumTeacherPage = () => {
                                 <Form.Control
                                     type="text"
                                     placeholder={`Search by ${label}`}
-                                    value={searchFilters[key]}
-                                    onChange={(e) => handleFilterChange(key, e.target.value)}
+                                    value={searchInputs[key]}
+                                    onChange={(e) => handleSearchInputChange(key, e.target.value)}
+                                    onKeyPress={handleKeyPress}
                                 />
                             )}
                         </Col>
                     ))}
 
-                    <Col md={2} className="d-flex align-items-end">
-                        <Button variant="danger" onClick={handleResetFilters} className="w-100">
+                    <Col md={1} className="d-flex align-items-end">
+                        <Button
+                            variant="success"
+                            onClick={handleSearch}
+                            className="d-flex align-items-center justify-content-center gap-1 w-100"
+                            disabled={loading}
+                        >
+                            {loading ? <Spinner animation="border" size="sm" /> : <FaSearch />}
+                            Search
+                        </Button>
+                    </Col>
+                    <Col md={1} className="d-flex align-items-end">
+                        <Button
+                            variant="danger"
+                            onClick={handleResetFilters}
+                            className="d-flex align-items-center justify-content-center w-100"
+                        >
                             Reset
                         </Button>
                     </Col>

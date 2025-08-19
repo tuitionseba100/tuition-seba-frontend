@@ -179,39 +179,42 @@ function AppliedListModal({ tuitionId, tuitionCode, show, onHide }) {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {appliedList.map((app, index) => (
-                                        <tr key={app._id} style={getRowStyle(app)}>
-                                            <td>{index + 1}</td>
-                                            <td>{app.premiumCode}</td>
-                                            <td>{app.phone}</td>
-                                            <td>{app.name}</td>
-                                            <td>{app.institute}</td>
-                                            <td>{app.department}</td>
-                                            <td>{app.address}</td>
-                                            <td>{formatDate(app.appliedAt)}</td>
-                                            <td>{app.status}</td>
-                                            <td>{app.comment}</td>
-                                            <td>{app.commentForTeacher}</td>
-                                            <td className="d-flex justify-content-center gap-2">
-                                                <Button
-                                                    variant="warning"
-                                                    onClick={() => handleEditTuition(app)}
-                                                    disabled={deletingId === app._id}
-                                                    aria-label={`Edit application for ${app.name}`}
-                                                >
-                                                    <FaEdit />
-                                                </Button>
-                                                <Button
-                                                    variant="danger"
-                                                    onClick={() => handleDeleteTuition(app._id)}
-                                                    disabled={deletingId === app._id}
-                                                    aria-label={`Delete application for ${app.name}`}
-                                                >
-                                                    <FaTrashAlt />
-                                                </Button>
-                                            </td>
-                                        </tr>
-                                    ))}
+                                    {appliedList.map((app, index) => {
+                                        const style = getRowStyle(app);
+                                        return (
+                                            <tr key={app._id}>
+                                                <td style={style}>{index + 1}</td>
+                                                <td style={style}>{app.premiumCode}</td>
+                                                <td style={style}>{app.phone}</td>
+                                                <td style={style}>{app.name}</td>
+                                                <td style={style}>{app.institute}</td>
+                                                <td style={style}>{app.department}</td>
+                                                <td style={style}>{app.address}</td>
+                                                <td style={style}>{formatDate(app.appliedAt)}</td>
+                                                <td style={style}>{app.status}</td>
+                                                <td style={style}>{app.comment}</td>
+                                                <td style={style}>{app.commentForTeacher}</td>
+                                                <td style={style} className="d-flex justify-content-center gap-2">
+                                                    <Button
+                                                        variant="warning"
+                                                        onClick={() => handleEditTuition(app)}
+                                                        disabled={deletingId === app._id}
+                                                        aria-label={`Edit application for ${app.name}`}
+                                                    >
+                                                        <FaEdit />
+                                                    </Button>
+                                                    <Button
+                                                        variant="danger"
+                                                        onClick={() => handleDeleteTuition(app._id)}
+                                                        disabled={deletingId === app._id}
+                                                        aria-label={`Delete application for ${app.name}`}
+                                                    >
+                                                        <FaTrashAlt />
+                                                    </Button>
+                                                </td>
+                                            </tr>
+                                        );
+                                    })}
                                 </tbody>
 
                             </Table>

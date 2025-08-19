@@ -41,7 +41,7 @@ const TuitionPage = () => {
     });
     const spamStyle = { backgroundColor: '#dc3545', color: 'white' };
     const bestStyle = { backgroundColor: '#007bff', color: 'white' };
-    const dueStyle = { backgroundColor: 'yellow', color: 'black' };
+    const dueStyle = { backgroundColor: '#FFFF00', color: 'black' };
     const role = localStorage.getItem('role');
 
     const [searchInputs, setSearchInputs] = useState({

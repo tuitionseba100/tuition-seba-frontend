@@ -125,7 +125,7 @@ function AppliedListModal({ tuitionId, tuitionCode, show, onHide }) {
 
     const spamStyle = { backgroundColor: '#dc3545', color: 'white' };
     const bestStyle = { backgroundColor: '#007bff', color: 'white' };
-    const dueStyle = { backgroundColor: 'yellow', color: 'black' };
+    const dueStyle = { backgroundColor: '#FFFF00', color: 'black' };
 
     const getRowStyle = (tuition) => {
         if (tuition.hasDue) return dueStyle;

@@ -123,6 +123,17 @@ function AppliedListModal({ tuitionId, tuitionCode, show, onHide }) {
     const handleFocus = (field) => setFocusField(field);
     const handleBlur = () => setFocusField(null);
 
+    const spamStyle = { backgroundColor: '#dc3545', color: 'white' };
+    const bestStyle = { backgroundColor: '#007bff', color: 'white' };
+    const dueStyle = { backgroundColor: 'yellow', color: 'black' };
+
+    const getRowStyle = (tuition) => {
+        if (tuition.hasDue) return dueStyle;
+        if (tuition.isSpam) return spamStyle;
+        if (tuition.isBest) return bestStyle;
+        return {};
+    };
+
     return (
         <>
             <Modal
@@ -168,47 +179,41 @@ function AppliedListModal({ tuitionId, tuitionCode, show, onHide }) {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {appliedList.map((app, index) => {
-                                        const rowStyle = app.isBest
-                                            ? { backgroundColor: "#0d6efd", color: "white" }
-                                            : app.isSpam
-                                                ? { backgroundColor: "#dc3545", color: "white" }
-                                                : {};
-                                        return (
-                                            <tr key={app._id} style={rowStyle}>
-                                                <td>{index + 1}</td>
-                                                <td>{app.premiumCode}</td>
-                                                <td>{app.phone}</td>
-                                                <td>{app.name}</td>
-                                                <td>{app.institute}</td>
-                                                <td>{app.department}</td>
-                                                <td>{app.address}</td>
-                                                <td>{formatDate(app.appliedAt)}</td>
-                                                <td>{app.status}</td>
-                                                <td>{app.comment}</td>
-                                                <td>{app.commentForTeacher}</td>
-                                                <td className="d-flex justify-content-center gap-2">
-                                                    <Button
-                                                        variant="warning"
-                                                        onClick={() => handleEditTuition(app)}
-                                                        disabled={deletingId === app._id}
-                                                        aria-label={`Edit application for ${app.name}`}
-                                                    >
-                                                        <FaEdit />
-                                                    </Button>
-                                                    <Button
-                                                        variant="danger"
-                                                        onClick={() => handleDeleteTuition(app._id)}
-                                                        disabled={deletingId === app._id}
-                                                        aria-label={`Delete application for ${app.name}`}
-                                                    >
-                                                        <FaTrashAlt />
-                                                    </Button>
-                                                </td>
-                                            </tr>
-                                        );
-                                    })}
+                                    {appliedList.map((app, index) => (
+                                        <tr key={app._id} style={getRowStyle(app)}>
+                                            <td>{index + 1}</td>
+                                            <td>{app.premiumCode}</td>
+                                            <td>{app.phone}</td>
+                                            <td>{app.name}</td>
+                                            <td>{app.institute}</td>
+                                            <td>{app.department}</td>
+                                            <td>{app.address}</td>
+                                            <td>{formatDate(app.appliedAt)}</td>
+                                            <td>{app.status}</td>
+                                            <td>{app.comment}</td>
+                                            <td>{app.commentForTeacher}</td>
+                                            <td className="d-flex justify-content-center gap-2">
+                                                <Button
+                                                    variant="warning"
+                                                    onClick={() => handleEditTuition(app)}
+                                                    disabled={deletingId === app._id}
+                                                    aria-label={`Edit application for ${app.name}`}
+                                                >
+                                                    <FaEdit />
+                                                </Button>
+                                                <Button
+                                                    variant="danger"
+                                                    onClick={() => handleDeleteTuition(app._id)}
+                                                    disabled={deletingId === app._id}
+                                                    aria-label={`Delete application for ${app.name}`}
+                                                >
+                                                    <FaTrashAlt />
+                                                </Button>
+                                            </td>
+                                        </tr>
+                                    ))}
                                 </tbody>
+
                             </Table>
                         </div>
                     ) : (

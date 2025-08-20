@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Button, Table, Modal, Form, Row, Col, Card } from 'react-bootstrap';
-import { FaEdit, FaTrashAlt, FaInfoCircle, FaBell } from 'react-icons/fa';
+import { FaEdit, FaTrashAlt, FaInfoCircle, FaBell, FaPrint } from 'react-icons/fa';
 import axios from 'axios';
 import NavBarPage from './NavbarPage';
 import styled from 'styled-components';
@@ -9,6 +9,7 @@ import { Spinner } from 'react-bootstrap';
 import * as XLSX from 'xlsx';
 import Select from 'react-select';
 import { Tooltip, OverlayTrigger } from 'react-bootstrap';
+import PaymentInvoice from "../components/Invoice";
 
 const PaymentPage = () => {
     const [paymentList, setPaymentList] = useState([]);
@@ -70,6 +71,19 @@ const PaymentPage = () => {
     const [dueTodayList, setDueTodayList] = useState([]);
     const [showDueModal, setShowDueModal] = useState(false);
     const role = localStorage.getItem('role');
+
+    const [selectedPayment, setSelectedPayment] = useState(null);
+    const [showInvoiceModal, setShowInvoiceModal] = useState(false);
+
+    const handlePrintClick = (payment) => {
+        setSelectedPayment(payment);
+        setShowInvoiceModal(true);
+    };
+
+    const handleCloseModal = () => {
+        setShowInvoiceModal(false);
+        setSelectedPayment(null);
+    };
 
     useEffect(() => {
         fetchPaymentRecords();
@@ -888,6 +902,9 @@ const PaymentPage = () => {
                                                     <Button variant="danger" onClick={() => handleTeacherDeletePayment(payment._id)}>
                                                         <FaTrashAlt />
                                                     </Button>
+                                                    <Button variant="info" onClick={() => handlePrintClick(payment)}>
+                                                        <FaPrint />
+                                                    </Button>
                                                 </td>
                                             </tr>
                                         ))
@@ -900,7 +917,6 @@ const PaymentPage = () => {
                 </Card>
 
 
-                {/* Create/Edit Payment Modal */}
                 <Modal show={showModal} onHide={() => setShowModal(false)} size="lg">
                     <Modal.Header closeButton>
                         <Modal.Title className="fw-bold">{editingId ? "Edit Payment" : "Create Payment"}</Modal.Title>
@@ -1331,6 +1347,14 @@ const PaymentPage = () => {
 
                 <ToastContainer />
             </Container>
+
+            {selectedPayment && (
+                <PaymentInvoice
+                    show={showInvoiceModal}
+                    onClose={handleCloseModal}
+                    payment={selectedPayment}
+                />
+            )}
         </>
     );
 };

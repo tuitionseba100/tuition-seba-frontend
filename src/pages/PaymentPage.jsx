@@ -692,9 +692,7 @@ const PaymentPage = () => {
                                                     <Button variant="danger" onClick={() => handleDeletePayment(payment._id)}>
                                                         <FaTrashAlt />
                                                     </Button>
-                                                    <Button variant="info" onClick={() => handlePrintClick(payment)}>
-                                                        <FaPrint />
-                                                    </Button>
+
                                                 </td>
                                             </tr>
                                         ))

@@ -42,6 +42,9 @@ const PaymentPage = () => {
         transactionId: '',
         personalPhone: '',
         amount: '',
+        discount: '',
+        dueAmount: '',
+        totalAmount: '',
         name: '',
         note: '',
         status: '',
@@ -1279,6 +1282,50 @@ const PaymentPage = () => {
                                             <option value="returned">Returned</option>
                                             <option value="deposit">Deposit</option>
                                         </Form.Control>
+                                    </Form.Group>
+                                </Col>
+                            </Row>
+
+                            <Row>
+                                <Col md={4}>
+                                    <Form.Group controlId="discount">
+                                        <Form.Label className="fw-bold">Discount</Form.Label>
+                                        <Form.Control
+                                            type="text"
+                                            value={teacherPaymentData.discount}
+                                            onChange={(e) =>
+                                                setTeacherPaymentData({ ...teacherPaymentData, discount: e.target.value })
+                                            }
+                                            required
+                                        />
+                                    </Form.Group>
+                                </Col>
+
+                                <Col md={4}>
+                                    <Form.Group controlId="totalAmount">
+                                        <Form.Label className="fw-bold">Total Amount</Form.Label>
+                                        <Form.Control
+                                            type="text"
+                                            value={teacherPaymentData.totalAmount}
+                                            onChange={(e) =>
+                                                setTeacherPaymentData({ ...teacherPaymentData, totalAmount: e.target.value })
+                                            }
+                                            required
+                                        />
+                                    </Form.Group>
+                                </Col>
+
+                                <Col md={4}>
+                                    <Form.Group controlId="dueAmount">
+                                        <Form.Label className="fw-bold">Due Amount</Form.Label>
+                                        <Form.Control
+                                            type="text"
+                                            value={teacherPaymentData.dueAmount}
+                                            onChange={(e) =>
+                                                setTeacherPaymentData({ ...teacherPaymentData, dueAmount: e.target.value })
+                                            }
+                                            required
+                                        />
                                     </Form.Group>
                                 </Col>
                             </Row>

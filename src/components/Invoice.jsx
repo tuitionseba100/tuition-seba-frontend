@@ -111,7 +111,6 @@ const PaymentInvoice = ({ payment, show, onClose }) => {
             </div>
           </div>
 
-
           {/* Payment Details */}
           <div className="mb-3">
             <h5 className="fw-bold text-primary mb-2">Payment Details</h5>

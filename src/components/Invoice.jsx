@@ -67,7 +67,7 @@ const PaymentInvoice = ({ payment, show, onClose }) => {
             <div className="d-flex align-items-center">
               {logoBase64 && (
                 <a href="https://tuitionsebaforum.com" target="_blank" rel="noreferrer">
-                  <img src={logoBase64} alt="Logo" style={{ height: "50px", marginRight: "10px", cursor: "pointer" }} />
+                  <img src={logoBase64} alt="Logo" style={{ height: "110px", marginRight: "10px", cursor: "pointer" }} />
                 </a>
               )}
               <div>

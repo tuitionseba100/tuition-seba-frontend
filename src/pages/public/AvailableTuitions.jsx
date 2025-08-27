@@ -122,7 +122,7 @@ const TuitionSection = () => {
                         <input
                             type="text"
                             className="form-control"
-                            placeholder="General search (any field)"
+                            placeholder="General search (anything)"
                             value={generalSearch}
                             onChange={(e) => setGeneralSearch(e.target.value)}
                         />

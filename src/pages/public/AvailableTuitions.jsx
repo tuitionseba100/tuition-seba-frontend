@@ -3,6 +3,7 @@ import axios from 'axios';
 import TuitionCard from '../../components/TuitionCard';
 import NavBar from '../../components/NavBar';
 import { Spinner } from 'react-bootstrap';
+import { FiRefreshCcw } from 'react-icons/fi';
 
 const TuitionSection = () => {
     const [tuitions, setTuitions] = useState([]);
@@ -10,6 +11,7 @@ const TuitionSection = () => {
     const [genderFilter, setGenderFilter] = useState('All');
     const [codeSearch, setCodeSearch] = useState('');
     const [locationSearch, setLocationSearch] = useState('');
+    const [generalSearch, setGeneralSearch] = useState('');
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -28,12 +30,23 @@ const TuitionSection = () => {
         const gender = genderFilter.toLowerCase();
         const codeQuery = codeSearch.trim().toLowerCase();
         const locationQuery = locationSearch.trim().toLowerCase();
+        const generalQuery = generalSearch.trim().toLowerCase();
 
         const filteredResults = tuitions.filter((tuition) => {
-            const wantedTeacher = tuition.wantedTeacher?.toLowerCase() || '';
-            const tuitionCode = tuition.tuitionCode?.toString().toLowerCase() || '';
-            const location = tuition.location?.toLowerCase() || '';
-            const area = tuition.area?.toLowerCase() || '';
+            // trim all values before comparing
+            const wantedTeacher = tuition.wantedTeacher?.trim().toLowerCase() || '';
+            const tuitionCode = tuition.tuitionCode?.toString().trim().toLowerCase() || '';
+            const location = tuition.location?.trim().toLowerCase() || '';
+            const area = tuition.area?.trim().toLowerCase() || '';
+            const city = tuition.city?.trim().toLowerCase() || '';
+            const student = tuition.student?.toString().trim().toLowerCase() || '';
+            const className = tuition.class?.toString().trim().toLowerCase() || '';
+            const medium = tuition.medium?.trim().toLowerCase() || '';
+            const subject = tuition.subject?.trim().toLowerCase() || '';
+            const time = tuition.time?.trim().toLowerCase() || '';
+            const day = tuition.day?.toString().trim().toLowerCase() || '';
+            const salary = tuition.salary?.trim().toLowerCase() || '';
+            const joining = tuition.joining?.trim().toLowerCase() || '';
 
             const hasBothGenders = /male\s*\/\s*female|female\s*\/\s*male/.test(wantedTeacher);
             const matchesGender =
@@ -42,14 +55,36 @@ const TuitionSection = () => {
                 (gender === 'female' && (wantedTeacher.startsWith('female') || hasBothGenders));
 
             const matchesCode = !codeQuery || tuitionCode.includes(codeQuery);
-
             const matchesLocation = !locationQuery || location.includes(locationQuery) || area.includes(locationQuery);
 
-            return matchesGender && matchesCode && matchesLocation;
+            const matchesGeneral =
+                !generalQuery ||
+                tuitionCode.includes(generalQuery) ||
+                wantedTeacher.includes(generalQuery) ||
+                student.includes(generalQuery) ||
+                className.includes(generalQuery) ||
+                medium.includes(generalQuery) ||
+                subject.includes(generalQuery) ||
+                time.includes(generalQuery) ||
+                day.includes(generalQuery) ||
+                salary.includes(generalQuery) ||
+                location.includes(generalQuery) ||
+                area.includes(generalQuery) ||
+                city.includes(generalQuery) ||
+                joining.includes(generalQuery);
+
+            return matchesGender && matchesCode && matchesLocation && matchesGeneral;
         });
 
         setFiltered(filteredResults);
-    }, [genderFilter, codeSearch, locationSearch, tuitions]);
+    }, [genderFilter, codeSearch, locationSearch, generalSearch, tuitions]);
+
+    const resetFilters = () => {
+        setGenderFilter('All');
+        setCodeSearch('');
+        setLocationSearch('');
+        setGeneralSearch('');
+    };
 
     return (
         <>
@@ -57,24 +92,24 @@ const TuitionSection = () => {
             <div className="container my-4">
                 <h3 className="text-center mb-4">Available Tuitions</h3>
 
-                <div className="row mb-3">
-                    <div className="col-md-3">
+                <div className="row mb-3 g-2">
+                    <div className="col-md-2">
                         <select className="form-select" value={genderFilter} onChange={(e) => setGenderFilter(e.target.value)}>
                             <option value="All">Filter by Gender</option>
                             <option value="Male">Male</option>
                             <option value="Female">Female</option>
                         </select>
                     </div>
-                    <div className="col-md-3">
+                    <div className="col-md-2">
                         <input
                             type="text"
                             className="form-control"
-                            placeholder="Search by tuition code"
+                            placeholder="Search by code"
                             value={codeSearch}
                             onChange={(e) => setCodeSearch(e.target.value)}
                         />
                     </div>
-                    <div className="col-md-3">
+                    <div className="col-md-2">
                         <input
                             type="text"
                             className="form-control"
@@ -83,16 +118,21 @@ const TuitionSection = () => {
                             onChange={(e) => setLocationSearch(e.target.value)}
                         />
                     </div>
-                    <div className="col-md-3">
+                    <div className="col-md-4">
+                        <input
+                            type="text"
+                            className="form-control"
+                            placeholder="General search (any field)"
+                            value={generalSearch}
+                            onChange={(e) => setGeneralSearch(e.target.value)}
+                        />
+                    </div>
+                    <div className="col-md-2 d-flex align-items-center justify-content-center">
                         <button
-                            className="btn btn-outline-primary w-100"
-                            onClick={() => {
-                                setGenderFilter('All');
-                                setCodeSearch('');
-                                setLocationSearch('');
-                            }}
+                            className="btn btn-outline-danger w-100 d-flex align-items-center justify-content-center"
+                            onClick={resetFilters}
                         >
-                            Reset Filters
+                            <FiRefreshCcw className="me-2" /> Reset
                         </button>
                     </div>
                 </div>

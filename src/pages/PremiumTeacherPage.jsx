@@ -49,7 +49,7 @@ const PremiumTeacherPage = () => {
     const searchFields = [
         { key: 'premiumCode', label: 'Premium Code', type: 'text', col: 2 },
         {
-            key: 'uniCode', label: 'UniCode', type: 'select', options: ['pending', 'under review', 'pending payment', 'rejected', 'verified', 'CMC', 'CUET', 'CU Science', 'CU Arts', 'CU Commerce', 'CVASU', 'Private Science', 'Private Commerce', 'Private Arts', 'National Science', 'National Arts', 'National Commerce', 'Arabic', 'NC English', 'BC English']
+            key: 'uniCode', label: 'UniCode', type: 'select', options: ['CMC', 'CUET', 'CU Science', 'CU Arts', 'CU Commerce', 'CVASU', 'Private Science', 'Private Commerce', 'Private Arts', 'National Science', 'National Arts', 'National Commerce', 'Arabic', 'NC English', 'BC English']
             , col: 1
         },
         { key: 'name', label: 'Name', type: 'text', col: 2 },

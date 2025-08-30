@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Button, Table, Modal, Form, Row, Col, Card } from 'react-bootstrap';
-import { FaEdit, FaInfoCircle, FaTrashAlt, FaWhatsapp, FaChevronLeft, FaChevronRight, FaSearch } from 'react-icons/fa'; // React Icons
+import { FaEdit, FaInfoCircle, FaTrashAlt, FaWhatsapp, FaChevronLeft, FaChevronRight, FaSearch, FaTimes } from 'react-icons/fa'; // React Icons
 import axios from 'axios';
 import NavBarPage from './NavbarPage';
 import styled from 'styled-components';
@@ -32,7 +32,8 @@ const PremiumTeacherPage = () => {
         phone: '',
         currentArea: '',
         status: '',
-        gender: ''
+        gender: '',
+        uniCode: ''
     });
 
     const [appliedFilters, setAppliedFilters] = useState({
@@ -41,11 +42,16 @@ const PremiumTeacherPage = () => {
         phone: '',
         currentArea: '',
         status: '',
-        gender: ''
+        gender: '',
+        uniCode: ''
     });
 
     const searchFields = [
         { key: 'premiumCode', label: 'Premium Code', type: 'text', col: 2 },
+        {
+            key: 'uniCode', label: 'UniCode', type: 'select', options: ['pending', 'under review', 'pending payment', 'rejected', 'verified', 'CMC', 'CUET', 'CU Science', 'CU Arts', 'CU Commerce', 'CVASU', 'Private Science', 'Private Commerce', 'Private Arts', 'National Science', 'National Arts', 'National Commerce', 'Arabic', 'NC English', 'BC English']
+            , col: 1
+        },
         { key: 'name', label: 'Name', type: 'text', col: 2 },
         { key: 'phone', label: 'Phone|Alt.|WhatsApp', type: 'text', col: 2 },
         { key: 'currentArea', label: 'Area', type: 'text', col: 2 },
@@ -90,6 +96,7 @@ const PremiumTeacherPage = () => {
         { name: 'premiumCode', label: 'Premium Code', col: 6, group: 'Subscription & Payment Details' },
         { name: 'password', label: 'Password', col: 6, group: 'Subscription & Payment Details' },
         { name: 'status', label: 'Subscription Status', type: 'select', col: 6, options: ['pending', 'under review', 'pending payment', 'rejected', 'verified'], group: 'Subscription & Payment Details' },
+        { name: 'uniCode', label: 'Uni Code', type: 'select', col: 6, options: ['CMC', 'CUET', 'CU Science', 'CU Arts', 'CU Commerce', 'CVASU', 'Private Science', 'Private Commerce', 'Private Arts', 'National Science', 'National Arts', 'National Commerce', 'Arabic', 'NC English', 'BC English'], group: 'Subscription & Payment Details' },
         { name: 'transactionId', label: 'Transaction ID', col: 6, group: 'Subscription & Payment Details' },
         { name: 'paymentType', label: 'Payment Method', col: 6, group: 'Subscription & Payment Details' },
         { name: 'amount', label: 'Amount Paid', col: 6, group: 'Subscription & Payment Details' },
@@ -198,7 +205,8 @@ const PremiumTeacherPage = () => {
             phone: '',
             currentArea: '',
             status: '',
-            gender: ''
+            gender: '',
+            uniCode: ''
         };
         setSearchInputs(resetFilters);
         setAppliedFilters(resetFilters);
@@ -423,25 +431,29 @@ const PremiumTeacherPage = () => {
                     ))}
 
                     <Col md={1} className="d-flex align-items-end">
-                        <Button
-                            variant="success"
-                            onClick={handleSearch}
-                            className="d-flex align-items-center justify-content-center gap-1 w-100"
-                            disabled={loading}
-                        >
-                            {loading ? <Spinner animation="border" size="sm" /> : <FaSearch />}
-                            Search
-                        </Button>
+                        <Row className="g-1 w-100">
+                            <Col xs={6}>
+                                <Button
+                                    variant="success"
+                                    onClick={handleSearch}
+                                    className="d-flex align-items-center justify-content-center w-100"
+                                    disabled={loading}
+                                >
+                                    {loading ? <Spinner animation="border" size="sm" /> : <FaSearch />}
+                                </Button>
+                            </Col>
+                            <Col xs={6}>
+                                <Button
+                                    variant="danger"
+                                    onClick={handleResetFilters}
+                                    className="d-flex align-items-center justify-content-center w-100"
+                                >
+                                    <FaTimes />
+                                </Button>
+                            </Col>
+                        </Row>
                     </Col>
-                    <Col md={1} className="d-flex align-items-end">
-                        <Button
-                            variant="danger"
-                            onClick={handleResetFilters}
-                            className="d-flex align-items-center justify-content-center w-100"
-                        >
-                            Reset
-                        </Button>
-                    </Col>
+
                 </Row>
 
                 {role === "superadmin" && (
@@ -472,6 +484,7 @@ const PremiumTeacherPage = () => {
                                         <th>SL</th>
                                         <th>Created At</th>
                                         <th>Premium Code</th>
+                                        <th>Uni Code</th>
                                         <th>Status</th>
                                         <th>Name</th>
                                         <th>Phone</th>
@@ -506,6 +519,7 @@ const PremiumTeacherPage = () => {
                                                     <td>{index + 1}</td>
                                                     <td>{item.createdAt ? formatDate(item.createdAt) : ''}</td>
                                                     <td>{item.premiumCode}</td>
+                                                    <td>{item.uniCode}</td>
                                                     <td>
                                                         <span
                                                             className={`badge ${item.status === 'pending'

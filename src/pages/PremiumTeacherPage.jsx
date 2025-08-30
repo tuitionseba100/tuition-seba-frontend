@@ -55,7 +55,7 @@ const PremiumTeacherPage = () => {
         { key: 'name', label: 'Name', type: 'text', col: 2 },
         { key: 'phone', label: 'Phone|Alt.|WhatsApp', type: 'text', col: 2 },
         { key: 'currentArea', label: 'Area', type: 'text', col: 2 },
-        { key: 'status', label: 'Status', type: 'select', options: ['pending', 'under review', 'pending payment', 'rejected', 'verified'], col: 1 },
+        { key: 'status', label: 'Status', type: 'select', options: ['pending', 'under review', 'pending payment', 'rejected', 'verified', 'suspended'], col: 1 },
         { key: 'gender', label: 'Gender', type: 'select', options: ['male', 'female'], col: 1 }
     ];
 
@@ -95,7 +95,7 @@ const PremiumTeacherPage = () => {
         // Subscription & Payment Details
         { name: 'premiumCode', label: 'Premium Code', col: 6, group: 'Subscription & Payment Details' },
         { name: 'password', label: 'Password', col: 6, group: 'Subscription & Payment Details' },
-        { name: 'status', label: 'Subscription Status', type: 'select', col: 6, options: ['pending', 'under review', 'pending payment', 'rejected', 'verified'], group: 'Subscription & Payment Details' },
+        { name: 'status', label: 'Subscription Status', type: 'select', col: 6, options: ['pending', 'under review', 'pending payment', 'rejected', 'verified', 'suspended'], group: 'Subscription & Payment Details' },
         { name: 'uniCode', label: 'Uni Code', type: 'select', col: 6, options: ['CMC', 'CUET', 'CU Science', 'CU Arts', 'CU Commerce', 'CVASU', 'Private Science', 'Private Commerce', 'Private Arts', 'National Science', 'National Arts', 'National Commerce', 'Arabic', 'NC English', 'BC English'], group: 'Subscription & Payment Details' },
         { name: 'transactionId', label: 'Transaction ID', col: 6, group: 'Subscription & Payment Details' },
         { name: 'paymentType', label: 'Payment Method', col: 6, group: 'Subscription & Payment Details' },
@@ -365,6 +365,15 @@ const PremiumTeacherPage = () => {
         window.open(url, '_blank');
     };
 
+    const statusColors = {
+        'pending': { bg: 'bg-warning', text: 'text-dark' },
+        'under review': { bg: 'bg-info', text: 'text-dark' },
+        'pending payment': { bg: 'bg-primary', text: 'text-white' },
+        'rejected': { bg: 'bg-danger', text: 'text-white' },
+        'verified': { bg: 'bg-success', text: 'text-white' },
+        'suspended': { bg: 'bg-dark', text: 'text-white' }
+    };
+
     return (
         <>
             <NavBarPage />
@@ -520,20 +529,10 @@ const PremiumTeacherPage = () => {
                                                     <td>{item.createdAt ? formatDate(item.createdAt) : ''}</td>
                                                     <td>{item.premiumCode}</td>
                                                     <td>{item.uniCode}</td>
+
                                                     <td>
                                                         <span
-                                                            className={`badge ${item.status === 'pending'
-                                                                ? 'bg-warning text-dark'
-                                                                : item.status === 'under review'
-                                                                    ? 'bg-info'
-                                                                    : item.status === 'pending payment'
-                                                                        ? 'bg-primary'
-                                                                        : item.status === 'rejected'
-                                                                            ? 'bg-danger'
-                                                                            : item.status === 'verified'
-                                                                                ? 'bg-success'
-                                                                                : 'bg-secondary'
-                                                                }`}
+                                                            className={`badge ${statusColors[item.status]?.bg || 'bg-secondary'} ${statusColors[item.status]?.text || 'text-white'}`}
                                                         >
                                                             {item.status}
                                                         </span>

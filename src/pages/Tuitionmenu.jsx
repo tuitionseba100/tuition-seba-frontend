@@ -317,6 +317,16 @@ const TuitionPage = () => {
         });
     };
 
+    const statusColors = {
+        "available": { bg: "bg-success", text: "text-white" },
+        "given number": { bg: "bg-primary", text: "text-white" },
+        "guardian meet": { bg: "bg-secondary", text: "text-white" },
+        "demo class running": { bg: "bg-warning", text: "text-dark" },
+        "confirm": { bg: "bg-info", text: "text-dark" },
+        "cancel": { bg: "bg-danger", text: "text-white" },
+        "suspended": { bg: "bg-dark", text: "text-white" }
+    };
+
     return (
         <>
             <NavBarPage />
@@ -587,15 +597,7 @@ const TuitionPage = () => {
                                                     {tuition.isPublish ? "Yes" : "No"}
                                                 </td>
                                                 <td>
-                                                    <span
-                                                        className={`badge 
-                                                        ${tuition.status === "available" ? "bg-success" : ""}
-                                                        ${tuition.status === "given number" ? "bg-primary" : ""}
-                                                        ${tuition.status === "guardian meet" ? "bg-secondary" : ""}
-                                                        ${tuition.status === "demo class running" ? "bg-warning" : ""}
-                                                        ${tuition.status === "confirm" ? "bg-info" : ""}
-                                                        ${tuition.status === "cancel" ? "bg-danger" : ""}`}
-                                                    >
+                                                    <span className={`badge ${statusColors[tuition.status]?.bg || "bg-light"} ${statusColors[tuition.status]?.text || "text-dark"}`}>
                                                         {tuition.status}
                                                     </span>
                                                 </td>

@@ -26,7 +26,7 @@ const fieldConfig = [
     { name: 'joining', label: 'Joining Date', group: 'details', col: 4, type: 'text' },
     { name: 'guardianNumber', label: 'Guardian Number', group: 'details', col: 4, type: 'text' },
 
-    { name: 'status', label: 'Status', group: 'admin', col: 6, type: 'select', options: ['available', 'given number', 'guardian meet', 'demo class running', 'confirm', 'cancel'] },
+    { name: 'status', label: 'Status', group: 'admin', col: 6, type: 'select', options: ['available', 'given number', 'guardian meet', 'demo class running', 'confirm', 'cancel', 'suspended'] },
     { name: 'note', label: 'Comment', group: 'admin', col: 6, type: 'text' },
     { name: 'tutorNumber', label: 'Teacher Number', group: 'admin', col: 6, type: 'text' },
     { name: 'lastAvailableCheck', label: 'Last Available Check', group: 'admin', col: 6, type: 'datetime-local' },

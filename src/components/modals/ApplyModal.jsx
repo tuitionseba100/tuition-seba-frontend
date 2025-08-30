@@ -4,6 +4,7 @@ import * as Yup from 'yup';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import ApplySuccessModal from '../../components/modals/ApplySuccessModal';
+import CustomErrorModal from '../../components/modals/CustomErrorModal';
 
 const spinnerStyle = {
     width: 24,
@@ -18,9 +19,10 @@ const spinnerStyle = {
 const ApplyModal = ({ show, onClose, tuitionCode, tuitionId }) => {
     const modalBodyRef = useRef(null);
     const [showSuccess, setShowSuccess] = useState(false);
+    const [errorMessage, setErrorMessage] = useState('');
 
     const validationSchema = Yup.object({
-        premiumCode: Yup.string(),
+        premiumCode: Yup.string().required('Please enter your premium code'),
         tuitionCode: Yup.string().required('Tuition Code is required'),
         name: Yup.string().required('Name is required'),
         institute: Yup.string().required('Institute is required'),
@@ -107,7 +109,6 @@ const ApplyModal = ({ show, onClose, tuitionCode, tuitionId }) => {
                             cursor: 'pointer',
                             lineHeight: 1,
                         }}
-                        disabled={false}
                     >
                         &times;
                     </button>
@@ -127,8 +128,26 @@ const ApplyModal = ({ show, onClose, tuitionCode, tuitionId }) => {
                     }}
                     enableReinitialize
                     validationSchema={validationSchema}
-                    onSubmit={async (values, { setSubmitting, setErrors }) => {
+                    onSubmit={async (values, { setSubmitting }) => {
                         try {
+                            const checkRes = await fetch(
+                                'https://tuition-seba-backend-1.onrender.com/api/regTeacher/check-apply-possible',
+                                {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({
+                                        premiumCode: values.premiumCode,
+                                        phone: values.phone,
+                                    }),
+                                }
+                            );
+                            const checkData = await checkRes.json();
+                            if (!checkRes.ok) {
+                                setErrorMessage(checkData.message || 'Invalid premium code or phone');
+                                setSubmitting(false);
+                                return;
+                            }
+
                             const res = await fetch(
                                 'https://tuition-seba-backend-1.onrender.com/api/tuitionApply/add',
                                 {
@@ -141,10 +160,10 @@ const ApplyModal = ({ show, onClose, tuitionCode, tuitionId }) => {
                             if (res.ok) {
                                 setShowSuccess(true);
                             } else {
-                                toast.error(data.message || 'Submission failed');
+                                setErrorMessage(data.message || 'Submission failed');
                             }
                         } catch (error) {
-                            toast.error(error.message);
+                            setErrorMessage(error.message);
                         } finally {
                             setSubmitting(false);
                         }
@@ -185,7 +204,8 @@ const ApplyModal = ({ show, onClose, tuitionCode, tuitionId }) => {
                                             name: 'premiumCode',
                                             label: 'Registration Code',
                                             placeholder: '',
-                                            hint: ' (ভেরিফায়েড টিচার না হলে এটি খালি রাখুন)',
+                                            required: true,
+                                            hint: 'অ্যাপলাই করতে অবশ্যই প্রিমিয়াম টিচার হতে হবে',
                                         },
                                         {
                                             name: 'tuitionCode',
@@ -230,7 +250,9 @@ const ApplyModal = ({ show, onClose, tuitionCode, tuitionId }) => {
                                                 {field.label}
                                                 {field.required && <span className="text-danger">*</span>}
                                                 {field.hint && (
-                                                    <small style={{ fontWeight: '600' }}>{field.hint}</small>
+                                                    <small style={{ fontWeight: '600', marginLeft: 8, color: '#555' }}>
+                                                        ({field.hint})
+                                                    </small>
                                                 )}
                                             </label>
                                             <Field
@@ -339,7 +361,6 @@ const ApplyModal = ({ show, onClose, tuitionCode, tuitionId }) => {
                 </Formik>
 
                 <ToastContainer />
-
                 {showSuccess && (
                     <ApplySuccessModal
                         show={showSuccess}
@@ -349,6 +370,11 @@ const ApplyModal = ({ show, onClose, tuitionCode, tuitionId }) => {
                         }}
                     />
                 )}
+                <CustomErrorModal
+                    show={!!errorMessage}
+                    message={errorMessage}
+                    onClose={() => setErrorMessage('')}
+                />
             </div>
 
             <style>{`
@@ -356,7 +382,6 @@ const ApplyModal = ({ show, onClose, tuitionCode, tuitionId }) => {
           0% { transform: rotate(0deg); }
           100% { transform: rotate(360deg); }
         }
-        /* For webkit browsers scrollbar styling */
         .custom-scrollbar::-webkit-scrollbar {
           width: 10px;
         }

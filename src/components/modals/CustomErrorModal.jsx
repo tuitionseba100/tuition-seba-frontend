@@ -19,7 +19,7 @@ const CustomErrorModal = ({ show, message, onClose }) => {
     };
 
     const goToPremiumPage = () => {
-        window.location.href = '/premium'; // replace with actual premium page URL
+        window.location.href = '/teacherRegistration';
     };
 
     return (

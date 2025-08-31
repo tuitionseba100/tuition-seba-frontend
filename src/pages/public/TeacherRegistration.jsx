@@ -78,7 +78,7 @@ const TeacherRegistrationForm = () => {
         { name: 'experience', label: 'Experience', col: 6, group: 'Teaching Profile', icon: <FaClock /> },
         { name: 'favoriteSubject', label: 'Favorite Subject', col: 6, group: 'Teaching Profile', icon: <FaHeart /> },
         { name: 'expectedTuitionAreas', label: 'Expected Tuition Areas', col: 6, group: 'Teaching Profile', icon: <FaMapMarkerAlt /> },
-        { name: 'commentFromTeacher', label: 'Comment From Teacher', col: 6, group: 'Teaching Profile', icon: <FaComments /> },
+        { name: 'commentFromTeacher', label: 'Comment From Teacher', col: 6, group: 'Teaching Profile', icon: <FaComments />, optional: true },
     ];
 
     const groupFields = fieldConfig.reduce((acc, field) => {

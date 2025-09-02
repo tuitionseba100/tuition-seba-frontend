@@ -46,7 +46,9 @@ const TuitionPage = () => {
     const [showDetailsModal, setShowDetailsModal] = useState(false);
     const [detailsData, setDetailsData] = useState(null);
     const [tuitionNeedsUpdateList, setTuitionNeedsUpdateList] = useState([]);
+    const [tuitionNeedsPaymentCreation, setTuitionNeedsPaymentCreation] = useState([]);
     const [showUpdateListModal, setShowUpdateListModal] = useState(false);
+    const [showPaymentPendingModal, setShowPaymentPendingModal] = useState(false);
 
     const [showAppliedModal, setShowAppliedModal] = useState(false);
     const [selectedTuitionId, setSelectedTuitionId] = useState(null);
@@ -125,17 +127,22 @@ const TuitionPage = () => {
     }, [appliedFilters, currentPage]);
 
     useEffect(() => {
-        const fetchTuitionAlertToday = async () => {
+        const fetchAlertData = async () => {
             try {
-                const res = await axios.get('https://tuition-seba-backend-1.onrender.com/api/tuition/alert-today');
-                setTuitionNeedsUpdateList(res.data);
+                const [alertRes, pendingRes] = await Promise.all([
+                    axios.get('https://tuition-seba-backend-1.onrender.com/api/tuition/alert-today'),
+                    axios.get('https://tuition-seba-backend-1.onrender.com/api/tuition/pending-payment-creation')
+                ]);
+
+                setTuitionNeedsUpdateList(alertRes.data);
+                setTuitionNeedsPaymentCreation(pendingRes.data);
             } catch (err) {
-                console.error('Error fetching tuition due today:', err);
-                toast.error("Failed to load tuition alerts for today.");
+                console.error('Error fetching tuition data:', err);
+                toast.error("Failed to load tuition data.");
             }
         };
 
-        fetchTuitionAlertToday();
+        fetchAlertData();
     }, []);
 
     const fetchTuitionRecords = async () => {
@@ -197,58 +204,67 @@ const TuitionPage = () => {
         const now = new Date();
         const formattedDate = now.toLocaleDateString().replace(/\//g, '-');
         const formattedTime = now.toLocaleTimeString().replace(/:/g, '-');
-
         const fileName = `TuitionList_${formattedDate}_${formattedTime}`;
 
         const tableHeaders = [
-            "Tuition Code", "Published", "Urgent", "Institute", "Wanted Teacher", "Student", "Class",
-            "Medium", "Subject", "Time", "Day", "Salary", "Location", "Area",
-            "Guardian Number", "Status", "Tutor Number", "Joining", "Apply Type"
+            "Tuition Code", "Wanted Teacher", "Student",
+            "Institute", "Class", "Medium",
+            "Subject", "Day", "Time",
+            "Salary", "City", "Area",
+            "Location", "Joining Date", "Guardian Number",
+            "Status", "Comment", "Teacher Number",
+            "Last Available Check", "Last Update", "Last Update Comment",
+            "Next Update Date", "Next Update Comment",
+            "Comment 1", "Comment 2",
+            "Publish", "Is Emergency?", "Apply via WhatsApp?",
+            "Payment Created?"
         ];
 
         const tableData = excelTuitionList.map(tuition => [
             String(tuition.tuitionCode ?? ""),
-            tuition.isPublish ? 'Yes' : 'No',
-            tuition.isUrgent ? 'Yes' : 'No',
             String(tuition.wantedTeacher ?? ""),
-            String(tuition.institute ?? ""),
             String(tuition.student ?? ""),
+            String(tuition.institute ?? ""),
             String(tuition.class ?? ""),
             String(tuition.medium ?? ""),
             String(tuition.subject ?? ""),
-            String(tuition.time ?? "").replace("undefined", ""),
             String(tuition.day ?? ""),
+            String(tuition.time ?? "").replace("undefined", ""),
             String(tuition.salary ?? ""),
-            String(tuition.location ?? ""),
+            String(tuition.city ?? ""),
             String(tuition.area ?? ""),
+            String(tuition.location ?? ""),
+            String(tuition.joining ?? ""),
             String(tuition.guardianNumber ?? ""),
             String(tuition.status ?? ""),
+            String(tuition.note ?? ""),
             String(tuition.tutorNumber ?? ""),
-            String(tuition.joining ?? ""),
+            tuition.lastAvailableCheck ? String(tuition.lastAvailableCheck).substring(0, 16) : "",
+            tuition.lastUpdate ? String(tuition.lastUpdate).substring(0, 16) : "",
+            String(tuition.lastUpdateComment ?? ""),
+            tuition.nextUpdateDate ? String(tuition.nextUpdateDate).substring(0, 16) : "",
+            String(tuition.nextUpdateComment ?? ""),
+            String(tuition.comment1 ?? ""),
+            String(tuition.comment2 ?? ""),
+            tuition.isPublish ? 'Yes' : 'No',
+            tuition.isUrgent ? 'Yes' : 'No',
             tuition.isWhatsappApply ? 'Yes' : 'No',
+            tuition.isPaymentCreated ? 'Yes' : 'No',
         ]);
 
         const worksheet = XLSX.utils.aoa_to_sheet([tableHeaders, ...tableData]);
 
         worksheet['!cols'] = [
-            { wpx: 100 },
-            { wpx: 50 },
-            { wpx: 50 },
-            { wpx: 150 },
-            { wpx: 100 },
-            { wpx: 50 },
-            { wpx: 80 },
-            { wpx: 100 },
-            { wpx: 50 },
-            { wpx: 50 },
-            { wpx: 70 },
-            { wpx: 100 },
-            { wpx: 80 },
-            { wpx: 100 },
-            { wpx: 70 },
-            { wpx: 100 },
-            { wpx: 70 },
-            { wpx: 70 }
+            { wpx: 100 }, { wpx: 120 }, { wpx: 100 },
+            { wpx: 120 }, { wpx: 80 }, { wpx: 80 },
+            { wpx: 100 }, { wpx: 70 }, { wpx: 60 },
+            { wpx: 80 }, { wpx: 80 }, { wpx: 80 },
+            { wpx: 100 }, { wpx: 90 }, { wpx: 100 },
+            { wpx: 100 }, { wpx: 120 }, { wpx: 100 },
+            { wpx: 140 }, { wpx: 140 }, { wpx: 140 },
+            { wpx: 140 }, { wpx: 140 }, { wpx: 100 },
+            { wpx: 100 }, { wpx: 60 }, { wpx: 70 }, { wpx: 70 }
+            , { wpx: 70 }
         ];
 
         const workbook = XLSX.utils.book_new();
@@ -506,6 +522,18 @@ const TuitionPage = () => {
                             </Button>
                         </OverlayTrigger>
                     </h5>
+                    <h5 className="me-3 d-flex align-items-center gap-2">
+                        <FaBell className="text-primary" />
+                        <span>Pending payment creation: {tuitionNeedsPaymentCreation.length}</span>
+                        <OverlayTrigger
+                            placement="top"
+                            overlay={<Tooltip id="tooltip">Click to see list</Tooltip>}
+                        >
+                            <Button size="sm" onClick={() => setShowPaymentPendingModal(true)} className="ms-2">
+                                <FaInfoCircle />
+                            </Button>
+                        </OverlayTrigger>
+                    </h5>
                 </div>
 
                 {role === "superadmin" && (
@@ -539,6 +567,7 @@ const TuitionPage = () => {
                                         <th>Apply Type</th>
                                         <th>Published?</th>
                                         <th>Status</th>
+                                        <th>Payment Created?</th>
                                         <th>Last Available Check</th>
                                         <th>Last Update</th>
                                         <th>Last Update Comment</th>
@@ -600,6 +629,9 @@ const TuitionPage = () => {
                                                     <span className={`badge ${statusColors[tuition.status]?.bg || "bg-light"} ${statusColors[tuition.status]?.text || "text-dark"}`}>
                                                         {tuition.status}
                                                     </span>
+                                                </td>
+                                                <td className={tuition.isPaymentCreated ? "text-success fw-bold" : "text-danger fw-bold"}>
+                                                    {tuition.isPaymentCreated ? "Yes" : "No"}
                                                 </td>
                                                 <td>{formatDateTimeDisplay(tuition.lastAvailableCheck)}</td>
                                                 <td>{formatDateTimeDisplay(tuition.lastUpdate)}</td>
@@ -727,6 +759,62 @@ const TuitionPage = () => {
                         ) : (
                             <div className="text-center text-muted py-4">
                                 <h5>No tuition needs update check today.</h5>
+                            </div>
+                        )}
+                    </Modal.Body>
+                </Modal>
+
+                <Modal show={showPaymentPendingModal} onHide={() => setShowPaymentPendingModal(false)} centered size="xl">
+                    <Modal.Header closeButton className="bg-primary text-white">
+                        <Modal.Title className="w-100 text-center fw-bold">
+                            <FaBell className="text-warning" />
+                            <span className="ms-2">
+                                Tuition needs payment creation: {tuitionNeedsPaymentCreation.length}
+                            </span>
+                        </Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body className="p-4 bg-light">
+                        {tuitionNeedsPaymentCreation.length > 0 ? (
+                            <div style={{ maxHeight: "calc(100vh - 200px)", overflowY: "auto" }}>
+                                <Table responsive striped bordered hover className="shadow-sm mb-0">
+                                    <thead className="bg-dark text-white text-center">
+                                        <tr>
+                                            <th>SL</th>
+                                            <th>Tuition Code</th>
+                                            <th>Teacher Number</th>
+                                            <th>Salary</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {tuitionNeedsPaymentCreation.map((tuition, index) => (
+                                            <tr key={index} className="align-middle text-center">
+                                                <td>{index + 1}</td>
+                                                <td>{tuition.tuitionCode}</td>
+                                                <td>{tuition.tutorNumber}</td>
+                                                <td>{tuition.salary}</td>
+                                                <td style={{ display: 'flex', justifyContent: 'flex-start', gap: '8px' }}>
+                                                    <Button variant="info" onClick={() => handleShowDetails(tuition)} title="View Details">
+                                                        <FaInfoCircle />
+                                                    </Button>
+                                                    <Button variant="warning" onClick={() => handleEdit(tuition)}>
+                                                        <FaEdit />
+                                                    </Button>
+                                                    <Button variant="danger" onClick={() => handleDeleteTuition(tuition._id)}>
+                                                        <FaTrashAlt />
+                                                    </Button>
+                                                    <Button variant="success" onClick={() => handleShare(tuition)}>
+                                                        <FaWhatsapp />
+                                                    </Button>
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </Table>
+                            </div>
+                        ) : (
+                            <div className="text-center text-muted py-4">
+                                <h5>No tuition needs payment creation.</h5>
                             </div>
                         )}
                     </Modal.Body>

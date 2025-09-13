@@ -35,6 +35,7 @@ import * as Yup from 'yup';
 import InfoModal from '../../components/modals/TeacherBenefitInfoModal';
 import SuccessModal from '../../components/modals/ApplySuccessModal';
 import ErrorModal from '../../components/modals/ErrorSubmitModal';
+import RegistrationSteps from '../../components/modals/RegistrationSteps';
 import locationData from '../../data/locations.json';
 import NavBar from '../../components/NavBar';
 import Footer from '../../components/Footer';
@@ -44,6 +45,7 @@ const TeacherRegistrationForm = () => {
     const [showInfoModal, setShowInfoModal] = useState(false);
     const [showSuccessModal, setShowSuccessModal] = useState(false);
     const [showErrorModal, setShowErrorModal] = useState(false);
+    const [showStepsModal, setShowStepsModal] = useState(false);
     const [errorMessage, setErrorMessage] = useState('');
     const [areas, setAreas] = useState([]);
 
@@ -152,6 +154,14 @@ const TeacherRegistrationForm = () => {
                                     <Button variant="light" size="lg" onClick={() => setShowInfoModal(true)}>
                                         <FaInfoCircle className="me-2" /> Benefits & Terms
                                     </Button>
+                                    <Button
+                                        variant="light"
+                                        size="lg"
+                                        onClick={() => setShowStepsModal(true)}
+                                    >
+                                        <FaInfoCircle className="me-2" /> আপনাদের থেকে টিউশন পাওয়ার সিস্টেম কী?
+                                    </Button>
+
                                 </div>
                             </Col>
                             <Col lg={4} className="text-center">
@@ -354,6 +364,7 @@ const TeacherRegistrationForm = () => {
                 <InfoModal show={showInfoModal} handleClose={() => setShowInfoModal(false)} />
                 <SuccessModal show={showSuccessModal} handleClose={() => setShowSuccessModal(false)} />
                 <ErrorModal show={showErrorModal} handleClose={() => setShowErrorModal(false)} message={errorMessage} />
+                <RegistrationSteps show={showStepsModal} handleClose={() => setShowStepsModal(false)} />
             </div>
             <Footer />
         </>

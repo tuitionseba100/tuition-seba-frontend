@@ -154,12 +154,21 @@ function AppliedListModal({ tuitionId, tuitionCode, show, onHide }) {
                     {loading ? (
                         <div className="text-center py-4">Loading...</div>
                     ) : appliedList.length > 0 ? (
-                        <div style={{ maxHeight: "80vh", overflowY: "auto" }}>
+                        <div
+                            style={{
+                                maxHeight: "80vh",
+                                overflowY: "auto",
+                                overflowX: "auto",
+                            }}
+                        >
                             <Table
-                                responsive
                                 striped
                                 bordered
                                 hover
+                                style={{
+                                    display: "block",
+                                    minWidth: "1000px",
+                                }}
                                 className="shadow-sm text-center align-middle"
                             >
                                 <thead className="bg-dark text-white">

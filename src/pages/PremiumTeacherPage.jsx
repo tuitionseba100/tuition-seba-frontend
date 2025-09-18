@@ -491,14 +491,16 @@ const PremiumTeacherPage = () => {
                                 <thead className="table-primary" style={{ position: "sticky", top: 0, zIndex: 2 }}>
                                     <tr>
                                         <th>SL</th>
-                                        <th>Created At</th>
                                         <th>Premium Code</th>
                                         <th>Uni Code</th>
                                         <th>Status</th>
                                         <th>Name</th>
                                         <th>Phone</th>
-                                        <th>Current Area</th>
+                                        <th>Hons. Dept.</th>
+                                        <th>Hons. Uni..</th>
                                         <th>Academic Year</th>
+                                        <th>Current Area</th>
+                                        <th>Full Address</th>
                                         <th>Actions</th>
                                     </tr>
                                 </thead>
@@ -526,7 +528,6 @@ const PremiumTeacherPage = () => {
                                             .map((item, index) => (
                                                 <tr key={item._id}>
                                                     <td>{index + 1}</td>
-                                                    <td>{item.createdAt ? formatDate(item.createdAt) : ''}</td>
                                                     <td>{item.premiumCode}</td>
                                                     <td>{item.uniCode}</td>
 
@@ -539,8 +540,11 @@ const PremiumTeacherPage = () => {
                                                     </td>
                                                     <td>{item.name}</td>
                                                     <td>{item.phone}</td>
-                                                    <td>{item.currentArea}</td>
+                                                    <td>{item.honorsDept}</td>
+                                                    <td>{item.honorsUniversity}</td>
                                                     <td>{item.academicYear}</td>
+                                                    <td>{item.currentArea}</td>
+                                                    <td>{item.fullAddress}</td>
                                                     <td style={{ display: 'flex', gap: '8px' }}>
                                                         <Button variant="info" size="sm" onClick={() => handleShowDetails(item)}>
                                                             <FaInfoCircle />

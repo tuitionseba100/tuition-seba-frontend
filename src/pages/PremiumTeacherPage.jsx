@@ -416,7 +416,27 @@ const PremiumTeacherPage = () => {
                     {searchFields.map(({ key, label, type, options, col }) => (
                         <Col md={col} key={key}>
                             <Form.Label className="fw-bold">{label}</Form.Label>
-                            {type === 'select' ? (
+
+                            {key === 'currentArea' ? (
+                                <Form.Select
+                                    value={searchInputs.currentArea}
+                                    onChange={(e) => handleSearchInputChange('currentArea', e.target.value)}
+                                    onKeyPress={handleKeyPress}
+                                >
+                                    <option value="">All</option>
+                                    {[
+                                        ...areaOptions.chittagong.map(a => ({ ...a, city: 'Chittagong' })),
+                                        ...areaOptions.dhaka.map(a => ({ ...a, city: 'Dhaka' }))
+                                    ]
+                                        .sort((a, b) => a.value.localeCompare(b.value))
+                                        .map((opt, index) => (
+                                            <option key={`${opt.value}-${opt.city}-${index}`} value={opt.value}>
+                                                {`${opt.value} (${opt.city})`}
+                                            </option>
+                                        ))
+                                    }
+                                </Form.Select>
+                            ) : type === 'select' ? (
                                 <Form.Select
                                     value={searchInputs[key]}
                                     onChange={(e) => handleSearchInputChange(key, e.target.value)}
@@ -462,7 +482,6 @@ const PremiumTeacherPage = () => {
                             </Col>
                         </Row>
                     </Col>
-
                 </Row>
 
                 {role === "superadmin" && (

@@ -141,7 +141,7 @@ function AppliedListModal({ tuitionId, tuitionCode, show, onHide }) {
                 onHide={onHide}
                 centered
                 size="xl"
-                dialogClassName="with-border-modal"
+                dialogClassName="custom-size-modal with-border-modal"
             >
                 <Modal.Header closeButton className="bg-primary text-white">
                     <Modal.Title className="w-100 text-center fw-bold">
@@ -363,6 +363,22 @@ function AppliedListModal({ tuitionId, tuitionCode, show, onHide }) {
           border-radius: 0.3rem;
           box-sizing: border-box;
         }
+
+        .custom-size-modal {
+          max-width: 90% !important; /* width */
+          width: 90% !important;
+          height: 90% !important; /* height */
+        }
+
+        .custom-size-modal .modal-content {
+          height: 100% !important; /* fill height */
+        }
+
+        .custom-size-modal .modal-body {
+          height: calc(100% - 60px - 60px); /* subtract header + footer height */
+          overflow-y: auto;
+        }
+
         .simple-overlay {
           position: absolute;
           top: 0; left: 0; right: 0; bottom: 0;
@@ -383,6 +399,7 @@ function AppliedListModal({ tuitionId, tuitionCode, show, onHide }) {
           box-shadow: 0 0 8px rgba(13,110,253,0.5);
         }
       `}</style>
+
         </>
     );
 }

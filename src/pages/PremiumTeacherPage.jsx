@@ -49,7 +49,7 @@ const PremiumTeacherPage = () => {
     const searchFields = [
         { key: 'premiumCode', label: 'Premium Code', type: 'text', col: 2 },
         {
-            key: 'uniCode', label: 'UniCode', type: 'select', options: ['CMC', 'CUET', 'CU Science', 'CU Arts', 'CU Commerce', 'CVASU', 'Private Science', 'Private Commerce', 'Private Arts', 'National Science', 'National Arts', 'National Commerce', 'Arabic', 'NC English', 'BC English']
+            key: 'uniCode', label: 'UniCode', type: 'select', options: ['CMC', 'CUET', 'CU Science', 'CU Arts', 'CU Commerce', 'CVASU', 'Private Science', 'Private Commerce', 'Private Arts', 'National Science', 'National Arts', 'National Commerce', 'Arabic', 'NC English', 'BC English', 'Special']
             , col: 1
         },
         { key: 'name', label: 'Name', type: 'text', col: 2 },
@@ -96,7 +96,7 @@ const PremiumTeacherPage = () => {
         { name: 'premiumCode', label: 'Premium Code', col: 6, group: 'Subscription & Payment Details' },
         { name: 'password', label: 'Password', col: 6, group: 'Subscription & Payment Details' },
         { name: 'status', label: 'Subscription Status', type: 'select', col: 6, options: ['pending', 'under review', 'pending payment', 'rejected', 'verified', 'suspended'], group: 'Subscription & Payment Details' },
-        { name: 'uniCode', label: 'Uni Code', type: 'select', col: 6, options: ['CMC', 'CUET', 'CU Science', 'CU Arts', 'CU Commerce', 'CVASU', 'Private Science', 'Private Commerce', 'Private Arts', 'National Science', 'National Arts', 'National Commerce', 'Arabic', 'NC English', 'BC English'], group: 'Subscription & Payment Details' },
+        { name: 'uniCode', label: 'Uni Code', type: 'select', col: 6, options: ['CMC', 'CUET', 'CU Science', 'CU Arts', 'CU Commerce', 'CVASU', 'Private Science', 'Private Commerce', 'Private Arts', 'National Science', 'National Arts', 'National Commerce', 'Arabic', 'NC English', 'BC English', 'Special'], group: 'Subscription & Payment Details' },
         { name: 'transactionId', label: 'Transaction ID', col: 6, group: 'Subscription & Payment Details' },
         { name: 'paymentType', label: 'Payment Method', col: 6, group: 'Subscription & Payment Details' },
         { name: 'amount', label: 'Amount Paid', col: 6, group: 'Subscription & Payment Details' },
@@ -515,6 +515,7 @@ const PremiumTeacherPage = () => {
                                         <th>Status</th>
                                         <th>Name</th>
                                         <th>Phone</th>
+                                        <th>Phone (WP)</th>
                                         <th>Hons. Dept.</th>
                                         <th>Hons. Uni..</th>
                                         <th>Academic Year</th>
@@ -559,6 +560,7 @@ const PremiumTeacherPage = () => {
                                                     </td>
                                                     <td>{item.name}</td>
                                                     <td>{item.phone}</td>
+                                                    <td>{item.whatsapp}</td>
                                                     <td>{item.honorsDept}</td>
                                                     <td>{item.honorsUniversity}</td>
                                                     <td>{item.academicYear}</td>

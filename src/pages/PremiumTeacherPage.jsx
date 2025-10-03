@@ -8,6 +8,7 @@ import { ToastContainer, toast } from 'react-toastify';
 import { Spinner } from 'react-bootstrap';
 import * as XLSX from 'xlsx';
 import Select from 'react-select';
+import locationsBd from '../data/DivisonWiseLocation.json';
 
 const PremiumTeacherPage = () => {
     const [reacrodsList, setReacrodsList] = useState([]);
@@ -25,6 +26,10 @@ const PremiumTeacherPage = () => {
     const [totalPages, setTotalPages] = useState(1);
     const [summaryCounts, setSummaryCounts] = useState({});
     const role = localStorage.getItem('role');
+    const [selectedDivision, setSelectedDivision] = useState('');
+    const [selectedDistrict, setSelectedDistrict] = useState('');
+    const [districtList, setDistrictList] = useState([]);
+    const [thanaList, setThanaList] = useState([]);
 
     const [searchInputs, setSearchInputs] = useState({
         premiumCode: '',
@@ -73,6 +78,9 @@ const PremiumTeacherPage = () => {
         { name: 'city', label: 'City', col: 6, group: 'Personal Info' },
         { name: 'currentArea', label: 'Current Area', col: 6, group: 'Personal Info' },
         { name: 'fullAddress', label: 'Full Address', col: 6, group: 'Personal Info' },
+        { name: 'division', label: 'Division', col: 6, group: 'Personal Info' },
+        { name: 'district', label: 'District', col: 6, group: 'Personal Info' },
+        { name: 'thana', label: 'Thana', col: 6, group: 'Personal Info' },
 
         // Academic Info
         { name: 'academicYear', label: 'Academic Year', type: 'select', options: ['1st', '2nd', '3rd', '4th', '5th/masters', 'completed'], col: 6, group: 'Academic Info' },
@@ -721,7 +729,52 @@ const PremiumTeacherPage = () => {
                                                 <Form.Group controlId={field.name} className="mb-3">
                                                     <Form.Label className="fw-bold">{field.label}</Form.Label>
 
-                                                    {field.name === "city" ? (
+                                                    {/* Division Dropdown */}
+                                                    {field.name === "division" ? (
+                                                        <Select
+                                                            options={locationsBd.map(d => ({ value: d.Division, label: d.Division }))}
+                                                            value={selectedDivision ? { value: selectedDivision, label: selectedDivision } : null}
+                                                            onChange={(selected) => {
+                                                                const div = selected?.value || "";
+                                                                setSelectedDivision(div);
+                                                                setFormData({ ...formData, division: div, district: "", thana: "" });
+
+                                                                const distList = locationsBd.find(d => d.Division === div)?.Districts || [];
+                                                                setDistrictList(distList.map(d => ({ value: d.District, label: d.District, thanas: d.Thanas })));
+                                                                setThanaList([]);
+                                                                setSelectedDistrict('');
+                                                            }}
+                                                            placeholder="Select Division"
+                                                            isClearable
+                                                        />
+                                                    ) : field.name === "district" ? (
+                                                        <Select
+                                                            options={districtList}
+                                                            value={selectedDistrict ? { value: selectedDistrict, label: selectedDistrict } : null}
+                                                            onChange={(selected) => {
+                                                                const dist = selected?.value || "";
+                                                                setSelectedDistrict(dist);
+                                                                setFormData({ ...formData, district: dist, thana: "" });
+
+                                                                const thanas = districtList.find(d => d.value === dist)?.thanas || [];
+                                                                setThanaList(thanas.map(t => ({ value: t, label: t })));
+                                                            }}
+                                                            placeholder="Select District"
+                                                            isClearable
+                                                            isDisabled={!selectedDivision}
+                                                        />
+                                                    ) : field.name === "thana" ? (
+                                                        <Select
+                                                            options={thanaList}
+                                                            value={thanaList.find(t => t.value === formData.thana) || null}
+                                                            onChange={(selected) =>
+                                                                setFormData({ ...formData, thana: selected?.value || "" })
+                                                            }
+                                                            placeholder="Select Thana"
+                                                            isClearable
+                                                            isDisabled={!selectedDistrict}
+                                                        />
+                                                    ) : field.name === "city" ? (
                                                         <Select
                                                             options={cityOptions}
                                                             value={cityOptions.find((opt) => opt.value === formData.city) || null}
@@ -734,14 +787,6 @@ const PremiumTeacherPage = () => {
                                                             placeholder="Select City"
                                                             isClearable
                                                             isSearchable
-                                                            styles={{
-                                                                control: (base) => ({
-                                                                    ...base,
-                                                                    minHeight: "38px",
-                                                                    fontSize: "0.875rem",
-                                                                }),
-                                                                menu: (base) => ({ ...base, fontSize: "0.875rem" }),
-                                                            }}
                                                         />
                                                     ) : field.name === "currentArea" ? (
                                                         <Select
@@ -754,14 +799,6 @@ const PremiumTeacherPage = () => {
                                                             isClearable
                                                             isSearchable
                                                             isDisabled={!formData.city}
-                                                            styles={{
-                                                                control: (base) => ({
-                                                                    ...base,
-                                                                    minHeight: "38px",
-                                                                    fontSize: "0.875rem",
-                                                                }),
-                                                                menu: (base) => ({ ...base, fontSize: "0.875rem" }),
-                                                            }}
                                                         />
                                                     ) : field.type === "select" ? (
                                                         <Form.Control

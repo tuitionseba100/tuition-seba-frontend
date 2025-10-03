@@ -1,0 +1,173 @@
+[
+    {
+        "Division": "Chittagong",
+        "Districts": [
+            {
+                "District": "Chattogram",
+                "Thanas": [
+                    "Anwara",
+                    "Banshkhali",
+                    "Boalkhali",
+                    "Chandanaish",
+                    "Fatikchhari",
+                    "Hathazari",
+                    "Karnaphuli",
+                    "Lohagara",
+                    "Mirsharai",
+                    "Patiya",
+                    "Rangunia",
+                    "Raozan",
+                    "Sandwip",
+                    "Satkania",
+                    "Sitakunda"
+                ]
+            },
+            {
+                "District": "Cox's Bazar",
+                "Thanas": [
+                    "Chakaria",
+                    "Cox's Bazar Sadar",
+                    "Kutubdia",
+                    "Maheshkhali",
+                    "Pekua",
+                    "Ramu",
+                    "Teknaf",
+                    "Ukhiya"
+                ]
+            },
+            {
+                "District": "Comilla",
+                "Thanas": [
+                    "Barura",
+                    "Brahmanpara",
+                    "Burichang",
+                    "Chandina",
+                    "Chauddagram",
+                    "Comilla Adarsha Sadar",
+                    "Comilla Sadar Dakshin",
+                    "Daudkandi",
+                    "Debidwar",
+                    "Homna",
+                    "Laksham",
+                    "Manoharganj",
+                    "Meghna",
+                    "Muradnagar",
+                    "Nangalkot",
+                    "Titas"
+                ]
+            },
+            {
+                "District": "Brahmanbaria",
+                "Thanas": [
+                    "Ashuganj",
+                    "Bancharampur",
+                    "Bijoynagar",
+                    "Brahmanbaria Sadar",
+                    "Kasba",
+                    "Nabinagar",
+                    "Nasirnagar",
+                    "Sarail"
+                ]
+            },
+            {
+                "District": "Chandpur",
+                "Thanas": [
+                    "Chandpur Sadar",
+                    "Faridganj",
+                    "Haimchar",
+                    "Hajiganj",
+                    "Kachua",
+                    "Matlab Dakshin",
+                    "Matlab Uttar",
+                    "Shahrasti"
+                ]
+            },
+            {
+                "District": "Feni",
+                "Thanas": [
+                    "Chhagalnaiya",
+                    "Daganbhuiyan",
+                    "Feni Sadar",
+                    "Fulgazi",
+                    "Parshuram",
+                    "Sonagazi"
+                ]
+            },
+            {
+                "District": "Lakshmipur",
+                "Thanas": [
+                    "Kamalnagar",
+                    "Lakshmipur Sadar",
+                    "Ramganj",
+                    "Ramgati",
+                    "Raipur"
+                ]
+            },
+            {
+                "District": "Noakhali",
+                "Thanas": [
+                    "Begumganj",
+                    "Chatkhil",
+                    "Companiganj",
+                    "Hatiya",
+                    "Kabirhat",
+                    "Noakhali Sadar",
+                    "Senbagh",
+                    "Subarnachar"
+                ]
+            },
+            {
+                "District": "Khagrachari",
+                "Thanas": [
+                    "Dighinala",
+                    "Guimara",
+                    "Khagrachari Sadar",
+                    "Lakshmichhari",
+                    "Mahalchhari",
+                    "Manikchhari",
+                    "Matiranga",
+                    "Panchhari",
+                    "Ramgarh"
+                ]
+            },
+            {
+                "District": "Rangamati",
+                "Thanas": [
+                    "Baghaichhari",
+                    "Barkal",
+                    "Belaichhari",
+                    "Juraichhari",
+                    "Kaptai",
+                    "Kaukhali",
+                    "Langadu",
+                    "Naniarchar",
+                    "Rajasthali",
+                    "Rangamati Sadar"
+                ]
+            },
+            {
+                "District": "Bandarban",
+                "Thanas": [
+                    "Alikadam",
+                    "Bandarban Sadar",
+                    "Lama",
+                    "Naikhongchhari",
+                    "Rowangchhari",
+                    "Ruma",
+                    "Thanchi"
+                ]
+            }
+        ]
+    },
+    {
+        "Division": "Dhaka",
+        "Districts": [
+            {
+                "District": "Coming soon",
+                "Thanas": [
+                    "Coming soon"
+                ]
+            }
+        ]
+    }
+]

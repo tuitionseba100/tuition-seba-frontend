@@ -120,26 +120,13 @@ const PremiumTeacherPage = () => {
 
     const areaOptions = {
         chittagong: [
-            "2 no gate area", "Agrabad", "Anwara", "Alkaran", "Anderkilla", "Aturar Depo", "Banskhali", "Bandartilla", "Bahaddarhat", "Baizid",
-            "Bagmaniram", "Bakalia", "Boxirhat", "Chandgao", "Chawkbazar", "Colonel Hut",
-            "CU Campus", "Dewan Bazar", "Dewanhat", "East Halishahar", "East Madarbari", "Enayet Bazar",
-            "Firingee Bazar", "Foy's Lake", "GEC", "Gosaildanga", "Hathazari", "Halishahar", "Jamal Khan",
-            "Kalamia Bazar", "Kaptai Rasthar Matha", "Kotowali", "Karnaphuli", "Khulshi", "Lalkhan Bazar", "Muradpur", "Nasirabad",
-            "New Market", "North Agrabad", "North Halishahar", "North Kattali", "North Middle Halishahar",
-            "North Patenga", "Notun Bridge", "Oxygen", "Patharghata", "Pathantooly", "Patenga", "Pahartali",
-            "Panchlaish", "Rahattarpool", "Saraipara", "Sholokbahar", "South Agrabad", "South Halishahar",
-            "South Kattali", "South Middle Halishahar", "South Patenga", "South Pahartali", "Stillmill Bazar", "West Halishahar", "Wasa",
-            "West Madarbari"
+            "2 Number Gate", "Agrabad", "Agrbad CDA", "Ak Khan", "Akbarshah", "Alongkar", "Aman bazar", "Ambagan", "Andorkillah", "Aturar Depo", "Baddarhat", "Baklia accese road", "Baluchara", "Bandartila", "Baroquerter", "Barek Building", "Baizid", "Bahir Signal", "Boropol", "Cement Crossing", "Chakbazar", "Chandgao", "Chowmohoni", "City Gate", "Commerce college road", "Cornelhut", "CRB", "Cuna Factory road", "Customs",
+            "Dampara", "Dewanbazar", "Dewanhat", "Didar Market", "Eidgah kacha rasta", "Firingibazar", "Firozsah", "Foyezlake", "Freeport", "Gec", "Halishohor", "Hathazari", "Jamalkhan", "Jubilee Road", "Kajir dewri", "Kalurghat", "Kalamia Bazar", "Kapasgola", "Kaptai Rastar Matha", "Katgor", "Khaja Road", "Khulsi", "Kodomtoli", "Kotoali", "Lalkhan Bazar", "Love lane", "Majirghat", "Miler Matha", "Muradpur", "Nalapara", "Nandan kanon",
+            "New Market", "Nimtola", "Noton Bridge", "Noyabazar", "Oxyzen", "Panchlaish", "Patharghata", "Patenga", "Polytechnic More", "Rahattarpol", "Sadharghat", "Sagorika", "Saltgola Crossing", "Shershah", "Solokbohor", "Soloshohor", "Stillmil Bazar", "Tiger Pass", "Vatiyari", "Wasa", "West Madarbari"
         ].map(a => ({ value: a, label: a })),
 
         dhaka: [
-            "Adabor", "Badda", "Banani", "Bhasantek", "Biman Bandar", "Cantonment",
-            "Dakshinkhan", "Darus Salam", "Demra", "Dhanmondi", "Gendaria", "Gulshan",
-            "Hazaribagh", "Jatrabari", "Kafrul", "Kalabagan", "Kamrangir Char", "Khilgaon",
-            "Khilkhet", "Kotwali", "Lalbagh", "Mirpur", "Mohammadpur", "Motijheel",
-            "New Market", "Pallabi", "Paltan", "Ramna", "Rampura", "Sabujbagh", "Shah Ali",
-            "Shahbagh", "Sher E Bangla Nagar", "Shyampur", "Sutrapur", "Tejgaon", "Turag",
-            "Uttara", "Uttar Khan"
+            "Coming Soon"
         ].map(a => ({ value: a, label: a }))
     };
 

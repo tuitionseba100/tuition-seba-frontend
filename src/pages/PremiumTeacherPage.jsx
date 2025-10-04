@@ -348,6 +348,7 @@ const PremiumTeacherPage = () => {
 
             `*Academic Qualifications*\n` +
             `Honours University: *${getValue(teacherDetails.honorsUniversity)}*\n` +
+            `Academic Year: *${getValue(teacherDetails.academicYear)}*\n` +
             `Department: *${getValue(teacherDetails.honorsDept)}*\n` +
             `HSC - Group: *${getValue(teacherDetails.hscGroup)}*, Result: *${getValue(teacherDetails.hscResult)}*\n` +
             `SSC - Group: *${getValue(teacherDetails.sscGroup)}*, Result: *${getValue(teacherDetails.sscResult)}*\n\n` +

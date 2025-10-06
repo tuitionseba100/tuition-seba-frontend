@@ -17,6 +17,7 @@ const PhonePage = () => {
         phone: '',
         note: '',
         isSpam: false,
+        isExpress: false,
         isActive: false,
     });
     const [phoneSearchQuery, setPhoneSearchQuery] = useState('');
@@ -41,6 +42,9 @@ const PhonePage = () => {
             filteredData = filteredData.filter(x => x.isSpam === true);
         } else if (typeFilter === "best") {
             filteredData = filteredData.filter(x => x.isSpam === false);
+        }
+        else if (typeFilter === "express") {
+            filteredData = filteredData.filter(x => x.isExpress === true);
         }
 
         setFilteredPhoneList(filteredData);
@@ -71,6 +75,7 @@ const PhonePage = () => {
             "Phone",
             "Note",
             "IsActive",
+            "IsExpress",
             "IsSpam"
         ];
 
@@ -79,6 +84,7 @@ const PhonePage = () => {
             String(item.phone ?? ""),
             String(item.note ?? ""),
             String(item.isActive ?? ""),
+            String(item.isExpress ?? ""),
             String(item.isSpam ?? ""),
         ]);
 
@@ -132,7 +138,13 @@ const PhonePage = () => {
     };
 
     const handleEditRecord = (data) => {
-        setPhoneData(data);
+        setPhoneData({
+            phone: data.phone ?? '',
+            note: data.note ?? '',
+            isSpam: !!data.isSpam,
+            isExpress: !!data.isExpress,
+            isActive: !!data.isActive,
+        });
         setEditingId(data._id);
         setShowModal(true);
     };
@@ -206,6 +218,15 @@ const PhonePage = () => {
                                     </div>
                                 </div>
                             </div>
+
+                            <div className="col-6 col-sm-4 col-md-2 mb-3">
+                                <div className="card p-3 shadow border border-success">
+                                    <div className="d-flex flex-column align-items-center text-success">
+                                        <span style={{ fontWeight: 'bolder' }}>Total Express Teacher</span>
+                                        <span>{filteredPhoneList.filter(item => item.isExpress === true).length}</span>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </Card.Body>
                 </Card>
@@ -233,6 +254,7 @@ const PhonePage = () => {
                             <option value="">All</option>
                             <option value="spam">Spam</option>
                             <option value="best">Best Teacher</option>
+                            <option value="express">Express</option>
                         </Form.Select>
                     </Col>
 
@@ -267,6 +289,7 @@ const PhonePage = () => {
                                         <th>Note</th>
                                         <th>Is Spam</th>
                                         <th>Is Best Teacher</th>
+                                        <th>Is Express</th>
                                         <th>Is Active</th>
                                         <th>Actions</th>
                                     </tr>
@@ -305,6 +328,7 @@ const PhonePage = () => {
                                                         fontWeight: 'bold',
                                                         color: item.isSpam ? '#dc3545' : '#007bff'
                                                     }}>{item.isSpam ? 'No' : 'Yes'}</td>
+                                                <td>{item.isExpress ? 'Yes' : 'No'}</td>
                                                 <td>{item.isActive ? 'Yes' : 'No'}</td>
                                                 <td style={{ display: 'flex', justifyContent: 'flex-start', gap: '8px' }}>
                                                     <Button variant="warning" onClick={() => handleEditRecord(item)} className="mr-2">
@@ -327,7 +351,9 @@ const PhonePage = () => {
                 {/* Create/Edit Tuition Modal */}
                 <Modal show={showModal} onHide={() => setShowModal(false)} size="lg">
                     <Modal.Header closeButton>
-                        <Modal.Title className="fw-bold">{editingId ? "Edit Phone Record" : "Create Phone Record"}</Modal.Title>
+                        <Modal.Title className="fw-bold">
+                            {editingId ? "Edit Phone Record" : "Create Phone Record"}
+                        </Modal.Title>
                     </Modal.Header>
 
                     <Modal.Body>
@@ -338,8 +364,10 @@ const PhonePage = () => {
                                         <Form.Label className="fw-bold">Phone</Form.Label>
                                         <Form.Control
                                             type="text"
-                                            value={phoneData.phone}
-                                            onChange={(e) => setPhoneData({ ...phoneData, phone: e.target.value })}
+                                            value={phoneData.phone ?? ''}
+                                            onChange={(e) =>
+                                                setPhoneData({ ...phoneData, phone: e.target.value })
+                                            }
                                         />
                                     </Form.Group>
                                 </Col>
@@ -352,8 +380,10 @@ const PhonePage = () => {
                                         <Form.Control
                                             as="textarea"
                                             rows={3}
-                                            value={phoneData.note}
-                                            onChange={(e) => setPhoneData({ ...phoneData, note: e.target.value })}
+                                            value={phoneData.note ?? ''}
+                                            onChange={(e) =>
+                                                setPhoneData({ ...phoneData, note: e.target.value })
+                                            }
                                         />
                                     </Form.Group>
                                 </Col>
@@ -365,8 +395,10 @@ const PhonePage = () => {
                                         <Form.Check
                                             type="checkbox"
                                             label="Is Spam?"
-                                            checked={phoneData.isSpam}
-                                            onChange={(e) => setPhoneData({ ...phoneData, isSpam: e.target.checked })}
+                                            checked={!!phoneData.isSpam}
+                                            onChange={(e) =>
+                                                setPhoneData({ ...phoneData, isSpam: e.target.checked })
+                                            }
                                         />
                                     </Form.Group>
                                 </Col>
@@ -376,8 +408,23 @@ const PhonePage = () => {
                                         <Form.Check
                                             type="checkbox"
                                             label="Is Active?"
-                                            checked={phoneData.isActive}
-                                            onChange={(e) => setPhoneData({ ...phoneData, isActive: e.target.checked })}
+                                            checked={!!phoneData.isActive}
+                                            onChange={(e) =>
+                                                setPhoneData({ ...phoneData, isActive: e.target.checked })
+                                            }
+                                        />
+                                    </Form.Group>
+                                </Col>
+
+                                <Col md={3}>
+                                    <Form.Group controlId="isExpress">
+                                        <Form.Check
+                                            type="checkbox"
+                                            label="Is Express?"
+                                            checked={!!phoneData.isExpress}
+                                            onChange={(e) =>
+                                                setPhoneData({ ...phoneData, isExpress: e.target.checked })
+                                            }
                                         />
                                     </Form.Group>
                                 </Col>
@@ -390,6 +437,7 @@ const PhonePage = () => {
                         <Button variant="primary" onClick={handleSaveRequest}>Save</Button>
                     </Modal.Footer>
                 </Modal>
+
 
                 <ToastContainer />
             </Container>

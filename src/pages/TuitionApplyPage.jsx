@@ -41,6 +41,7 @@ const TuitionPage = () => {
     });
     const spamStyle = { backgroundColor: '#dc3545', color: 'white' };
     const bestStyle = { backgroundColor: '#007bff', color: 'white' };
+    const manualExpressStyle = { backgroundColor: '#28a745', color: 'white' };
     const dueStyle = { backgroundColor: '#FFFF00', color: 'black' };
     const role = localStorage.getItem('role');
 
@@ -60,6 +61,7 @@ const TuitionPage = () => {
         if (tuition.hasDue) return dueStyle;
         if (tuition.isSpam) return spamStyle;
         if (tuition.isBest) return bestStyle;
+        if (tuition.isExpress) return manualExpressStyle;
         return {};
     };
 

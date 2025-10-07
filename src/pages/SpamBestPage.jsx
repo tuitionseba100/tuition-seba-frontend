@@ -17,6 +17,7 @@ const PhonePage = () => {
         phone: '',
         note: '',
         isSpam: false,
+        isBest: false,
         isExpress: false,
         isActive: false,
     });
@@ -41,7 +42,7 @@ const PhonePage = () => {
         if (typeFilter === "spam") {
             filteredData = filteredData.filter(x => x.isSpam === true);
         } else if (typeFilter === "best") {
-            filteredData = filteredData.filter(x => x.isSpam === false);
+            filteredData = filteredData.filter(x => x.isBest === true);
         }
         else if (typeFilter === "express") {
             filteredData = filteredData.filter(x => x.isExpress === true);
@@ -76,7 +77,8 @@ const PhonePage = () => {
             "Note",
             "IsActive",
             "IsExpress",
-            "IsSpam"
+            "IsSpam",
+            "IsBest"
         ];
 
         const tableData = filteredPhoneList.map(item => [
@@ -86,6 +88,7 @@ const PhonePage = () => {
             String(item.isActive ?? ""),
             String(item.isExpress ?? ""),
             String(item.isSpam ?? ""),
+            String(item.isBest ?? ""),
         ]);
 
         const worksheet = XLSX.utils.aoa_to_sheet([tableHeaders, ...tableData]);
@@ -143,6 +146,7 @@ const PhonePage = () => {
             note: data.note ?? '',
             isSpam: !!data.isSpam,
             isExpress: !!data.isExpress,
+            isBest: !!data.isBest,
             isActive: !!data.isActive,
         });
         setEditingId(data._id);
@@ -214,7 +218,7 @@ const PhonePage = () => {
                                 <div className="card p-3 shadow border border-primary">
                                     <div className="d-flex flex-column align-items-center text-primary">
                                         <span style={{ fontWeight: 'bolder' }}>Total Best Teacher</span>
-                                        <span>{filteredPhoneList.filter(item => item.isSpam === false).length}</span>
+                                        <span>{filteredPhoneList.filter(item => item.isBest === true).length}</span>
                                     </div>
                                 </div>
                             </div>
@@ -326,8 +330,8 @@ const PhonePage = () => {
                                                 <td
                                                     style={{
                                                         fontWeight: 'bold',
-                                                        color: item.isSpam ? '#dc3545' : '#007bff'
-                                                    }}>{item.isSpam ? 'No' : 'Yes'}</td>
+                                                        color: item.isBest ? '#dc3545' : '#007bff'
+                                                    }}>{item.isBest ? 'Yes' : 'No'}</td>
                                                 <td>{item.isExpress ? 'Yes' : 'No'}</td>
                                                 <td>{item.isActive ? 'Yes' : 'No'}</td>
                                                 <td style={{ display: 'flex', justifyContent: 'flex-start', gap: '8px' }}>
@@ -398,6 +402,19 @@ const PhonePage = () => {
                                             checked={!!phoneData.isSpam}
                                             onChange={(e) =>
                                                 setPhoneData({ ...phoneData, isSpam: e.target.checked })
+                                            }
+                                        />
+                                    </Form.Group>
+                                </Col>
+
+                                <Col md={3}>
+                                    <Form.Group controlId="isBest">
+                                        <Form.Check
+                                            type="checkbox"
+                                            label="Is Best?"
+                                            checked={!!phoneData.isBest}
+                                            onChange={(e) =>
+                                                setPhoneData({ ...phoneData, isBest: e.target.checked })
                                             }
                                         />
                                     </Form.Group>

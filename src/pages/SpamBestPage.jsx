@@ -332,7 +332,14 @@ const PhonePage = () => {
                                                         fontWeight: 'bold',
                                                         color: item.isBest ? '#dc3545' : '#007bff'
                                                     }}>{item.isBest ? 'Yes' : 'No'}</td>
-                                                <td>{item.isExpress ? 'Yes' : 'No'}</td>
+                                                <td
+                                                    style={{
+                                                        fontWeight: 'bold',
+                                                        color: item.isExpress ? 'green' : 'black'
+                                                    }}
+                                                >
+                                                    {item.isExpress ? 'Yes' : 'No'}
+                                                </td>
                                                 <td>{item.isActive ? 'Yes' : 'No'}</td>
                                                 <td style={{ display: 'flex', justifyContent: 'flex-start', gap: '8px' }}>
                                                     <Button variant="warning" onClick={() => handleEditRecord(item)} className="mr-2">

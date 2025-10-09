@@ -9,6 +9,7 @@ import { Spinner } from 'react-bootstrap';
 import * as XLSX from 'xlsx';
 import Select from 'react-select';
 import locationsBd from '../data/DivisonWiseLocation.json';
+import CreatableSelect from 'react-select/creatable';
 
 const PremiumTeacherPage = () => {
     const [reacrodsList, setReacrodsList] = useState([]);
@@ -414,24 +415,31 @@ const PremiumTeacherPage = () => {
                             <Form.Label className="fw-bold">{label}</Form.Label>
 
                             {key === 'currentArea' ? (
-                                <Form.Select
-                                    value={searchInputs.currentArea}
-                                    onChange={(e) => handleSearchInputChange('currentArea', e.target.value)}
-                                    onKeyPress={handleKeyPress}
-                                >
-                                    <option value="">All</option>
-                                    {[
-                                        ...areaOptions.chittagong.map(a => ({ ...a, city: 'Chittagong' })),
-                                        ...areaOptions.dhaka.map(a => ({ ...a, city: 'Dhaka' }))
+                                <CreatableSelect
+                                    isClearable
+                                    value={
+                                        searchInputs.currentArea
+                                            ? { label: searchInputs.currentArea, value: searchInputs.currentArea }
+                                            : null
+                                    }
+                                    onChange={(newValue) =>
+                                        handleSearchInputChange('currentArea', newValue ? newValue.value : '')
+                                    }
+                                    onKeyDown={(e) => {
+                                        if (e.key === 'Enter') handleSearch();
+                                    }}
+                                    options={[
+                                        ...areaOptions.chittagong.map((a) => ({ ...a, city: 'Chittagong' })),
+                                        ...areaOptions.dhaka.map((a) => ({ ...a, city: 'Dhaka' }))
                                     ]
                                         .sort((a, b) => a.value.localeCompare(b.value))
-                                        .map((opt, index) => (
-                                            <option key={`${opt.value}-${opt.city}-${index}`} value={opt.value}>
-                                                {`${opt.value} (${opt.city})`}
-                                            </option>
-                                        ))
-                                    }
-                                </Form.Select>
+                                        .map((opt) => ({ value: opt.value, label: `${opt.value} (${opt.city})` }))}
+                                    menuPortalTarget={document.body}
+                                    menuPosition="fixed"
+                                    styles={{
+                                        menuPortal: (base) => ({ ...base, zIndex: 9999 })
+                                    }}
+                                />
                             ) : type === 'select' ? (
                                 <Form.Select
                                     value={searchInputs[key]}
@@ -439,8 +447,10 @@ const PremiumTeacherPage = () => {
                                     onKeyPress={handleKeyPress}
                                 >
                                     <option value="">All</option>
-                                    {options.map(opt => (
-                                        <option key={opt} value={opt}>{opt}</option>
+                                    {options.map((opt) => (
+                                        <option key={opt} value={opt}>
+                                            {opt}
+                                        </option>
                                     ))}
                                 </Form.Select>
                             ) : (
@@ -479,6 +489,8 @@ const PremiumTeacherPage = () => {
                         </Row>
                     </Col>
                 </Row>
+
+
 
                 {role === "superadmin" && (
                     <Button

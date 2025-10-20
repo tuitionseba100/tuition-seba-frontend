@@ -60,7 +60,6 @@ const PaymentPage = () => {
     const [teacherNumberTeacherSearchQuery, setTeacherNumberTeacherSearchQuery] = useState('');
     const [teacherPaymentNumberSearchQuery, setTeacherPaymentNumberSearchQuery] = useState('');
 
-    const [tuitionList, setTuitionList] = useState([]);
     const [totalPaymentTK, setTotalPaymentTK] = useState(0);
     const [totalPaymentsCount, setTotalPaymentsCount] = useState(0);
     const [totalTeacherPaymentTK, setTotalTeacherPaymentTK] = useState(0);
@@ -91,7 +90,6 @@ const PaymentPage = () => {
     useEffect(() => {
         fetchPaymentRecords();
         fetchTeacherPaymentRecords();
-        fetchTuitions();
     }, []);
 
     useEffect(() => {
@@ -188,16 +186,6 @@ const PaymentPage = () => {
 
         setFilteredTeacherPaymentList(filteredTeacherData);
     }, [teacherStatusFilter, teacherTuitionCodeSearchQuery, teacherNumberTeacherSearchQuery, teacherPaymentNumberSearchQuery, teacherPaymentList]);
-
-    const fetchTuitions = async () => {
-        try {
-            const response = await axios.get('https://tuition-seba-backend-1.onrender.com/api/tuition/all');
-            setTuitionList(response.data);
-        } catch (err) {
-            console.error('Error fetching tuitions:', err);
-            toast.error("Failed to load tuitions.");
-        }
-    };
 
     const fetchPaymentRecords = async () => {
         setLoading(true);
@@ -355,14 +343,13 @@ const PaymentPage = () => {
 
     const handleSavePayment = async () => {
         if (!paymentData.tuitionId || paymentData.tuitionId.trim() === '') {
-            toast.error("Please select a tuition code.");
+            toast.error("Please enter a tuition code.");
             return;
         }
 
-        const selectedTuition = tuitionList.find(tuition => tuition._id === paymentData.tuitionId);
         const updatedPaymentData = {
             ...paymentData,
-            tuitionCode: selectedTuition.tuitionCode
+            tuitionCode: paymentData.tuitionId
         };
         console.log('Sending payment data:', updatedPaymentData);
         try {
@@ -933,19 +920,11 @@ const PaymentPage = () => {
                                 <Col md={6}>
                                     <Form.Group controlId="tuitionId">
                                         <Form.Label className="fw-bold">Tuition Code</Form.Label>
-                                        <Select
-                                            options={tuitionList.map(tuition => ({
-                                                value: tuition._id,
-                                                label: tuition.tuitionCode
-                                            }))}
-                                            value={tuitionList.find(tuition => tuition._id === paymentData.tuitionId) ? {
-                                                value: tuitionList.find(tuition => tuition._id === paymentData.tuitionId)._id,
-                                                label: tuitionList.find(tuition => tuition._id === paymentData.tuitionId).tuitionCode
-                                            } : null}
-
-                                            onChange={(selectedOption) => setPaymentData({ ...paymentData, tuitionId: selectedOption.value })}
-                                            placeholder="Select Tuition Code"
-                                            isSearchable
+                                        <Form.Control
+                                            type="text"
+                                            value={paymentData.tuitionId}
+                                            onChange={(e) => setPaymentData({ ...paymentData, tuitionId: e.target.value })}
+                                            required
                                         />
                                     </Form.Group>
                                 </Col>

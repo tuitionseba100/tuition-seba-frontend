@@ -310,7 +310,7 @@ const TuitionPage = () => {
             `Visit our website: www.tuitionsebaforum.com\n\n` +
             `Whatsapp: ${phoneNumber}`;
 
-        const url = `https://wa.me/?text=${encodeURIComponent(message)}`;
+        const url = `https://api.whatsapp.com/send?text=${encodeURIComponent(message)}`;
         window.open(url, '_blank');
     };
 

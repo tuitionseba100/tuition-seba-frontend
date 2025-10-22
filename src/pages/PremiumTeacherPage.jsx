@@ -358,7 +358,7 @@ const PremiumTeacherPage = () => {
             `*Address*: ${getValue(teacherDetails.fullAddress)}\n` +
             `*Favorite Subject*: ${getValue(teacherDetails.favoriteSubject)}`;
 
-        const url = `https://wa.me/?text=${encodeURIComponent(message)}`;
+        const url = `https://api.whatsapp.com/send?text=${encodeURIComponent(message)}`;
         window.open(url, '_blank');
     };
 

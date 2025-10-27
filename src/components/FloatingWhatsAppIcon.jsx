@@ -3,7 +3,7 @@ import { BsWhatsapp } from 'react-icons/bs';
 import { motion } from 'framer-motion';
 
 const FloatingWhatsAppIcon = () => {
-  const whatsappLink = 'whatsapp://send?phone=+8801633920928';
+  const whatsappLink = 'whatsapp://send?phone=+8801571305804';
 
   return (
     <div

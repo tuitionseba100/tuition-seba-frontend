@@ -6,7 +6,7 @@ const CustomErrorModal = ({ show, message, onClose }) => {
 
     if (!show) return null;
 
-    const phoneNumber = '+8801633920928';
+    const phoneNumber = '+8801571305804';
 
     const copyToClipboard = () => {
         navigator.clipboard.writeText(phoneNumber);

@@ -19,7 +19,7 @@ const TuitionCard = ({ tuition }) => {
     };
 
     const redirectToWhatsApp = (tuitionDetails) => {
-        const phoneNumber = '+8801633920928';
+        const phoneNumber = '+8801571305804';
         const area = tuitionDetails.area ? `, ${tuitionDetails.area}` : '';
 
         const message = `

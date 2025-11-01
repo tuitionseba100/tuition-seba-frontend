@@ -7,6 +7,7 @@ import {
     Button,
     ProgressBar,
     Card,
+    Modal,
 } from 'react-bootstrap';
 import {
     FaGraduationCap,
@@ -27,6 +28,7 @@ import {
     FaTransgender,
     FaGlobe,
     FaCalendarAlt,
+    FaExclamationTriangle,
 } from 'react-icons/fa';
 
 import { Formik } from 'formik';
@@ -40,12 +42,37 @@ import locationData from '../../data/locations.json';
 import NavBar from '../../components/NavBar';
 import Footer from '../../components/Footer';
 
+const PhoneRequiredModal = ({ show, handleClose }) => (
+    <Modal show={show} onHide={handleClose} centered>
+        <Modal.Header closeButton className="bg-warning text-white">
+            <Modal.Title>
+                <FaExclamationTriangle className="me-2" />
+                তথ্য মিসিং
+            </Modal.Title>
+        </Modal.Header>
+        <Modal.Body className="text-center py-4">
+            <FaExclamationTriangle size={50} className="text-warning mb-3" />
+            <h5 className="mb-3">ফোন বা হোয়াটসঅ্যাপ প্রয়োজন</h5>
+            <p className="text-muted">
+                দয়া করে কমপক্ষে একটি যোগাযোগ নম্বর দিন: <br />
+                <strong>ফোন</strong> অথবা <strong>হোয়াটসঅ্যাপ</strong>
+            </p>
+        </Modal.Body>
+        <Modal.Footer>
+            <Button variant="warning" onClick={handleClose}>
+                ঠিক আছে
+            </Button>
+        </Modal.Footer>
+    </Modal>
+);
+
 const TeacherRegistrationForm = () => {
     const [progress, setProgress] = useState(0);
     const [showInfoModal, setShowInfoModal] = useState(false);
     const [showSuccessModal, setShowSuccessModal] = useState(false);
     const [showErrorModal, setShowErrorModal] = useState(false);
     const [showStepsModal, setShowStepsModal] = useState(false);
+    const [showPhoneRequiredModal, setShowPhoneRequiredModal] = useState(false);
     const [errorMessage, setErrorMessage] = useState('');
     const [areas, setAreas] = useState([]);
 
@@ -68,10 +95,10 @@ const TeacherRegistrationForm = () => {
 
         { name: 'academicYear', label: 'Academic Year', col: 6, group: 'Academic Info', type: 'select', options: ['1st', '2nd', '3rd', '4th', '5th/masters', 'completed'], icon: <FaCalendarAlt /> },
         { name: 'medium', label: 'Medium', col: 6, group: 'Academic Info', icon: <FaGlobe /> },
-        { name: 'mastersDept', label: 'Masters Dept', col: 6, group: 'Academic Info', optional: true, icon: <FaGraduationCap /> },
-        { name: 'mastersUniversity', label: 'Masters University', col: 6, group: 'Academic Info', optional: true, icon: <FaUniversity /> },
-        { name: 'honorsDept', label: 'Honours Dept', col: 6, group: 'Academic Info', optional: true, icon: <FaGraduationCap /> },
-        { name: 'honorsUniversity', label: 'Honours University', col: 6, group: 'Academic Info', optional: true, icon: <FaUniversity /> },
+        { name: 'mastersDept', label: 'Masters Dept', col: 6, group: 'Academic Info', icon: <FaGraduationCap /> },
+        { name: 'mastersUniversity', label: 'Masters University', col: 6, group: 'Academic Info', icon: <FaUniversity /> },
+        { name: 'honorsDept', label: 'Honours Dept', col: 6, group: 'Academic Info', icon: <FaGraduationCap /> },
+        { name: 'honorsUniversity', label: 'Honours University', col: 6, group: 'Academic Info', icon: <FaUniversity /> },
         { name: 'hscGroup', label: 'HSC Group', col: 6, group: 'Academic Info', type: 'select', options: ['Science', 'Arts', 'Commerce', 'Vocational'], icon: <FaBook /> },
         { name: 'hscResult', label: 'HSC Result', col: 6, group: 'Academic Info', icon: <FaAward /> },
         { name: 'sscGroup', label: 'SSC Group', col: 6, group: 'Academic Info', type: 'select', options: ['Science', 'Arts', 'Commerce', 'Vocational'], icon: <FaBook /> },
@@ -80,7 +107,7 @@ const TeacherRegistrationForm = () => {
         { name: 'experience', label: 'Experience', col: 6, group: 'Teaching Profile', icon: <FaClock /> },
         { name: 'favoriteSubject', label: 'Favorite Subject', col: 6, group: 'Teaching Profile', icon: <FaHeart /> },
         { name: 'expectedTuitionAreas', label: 'Expected Tuition Areas', col: 6, group: 'Teaching Profile', icon: <FaMapMarkerAlt /> },
-        { name: 'commentFromTeacher', label: 'Comment From Teacher', col: 6, group: 'Teaching Profile', icon: <FaComments />, optional: true },
+        { name: 'commentFromTeacher', label: 'Comment From Teacher', col: 6, group: 'Teaching Profile', icon: <FaComments /> },
     ];
 
     const groupFields = fieldConfig.reduce((acc, field) => {
@@ -95,41 +122,28 @@ const TeacherRegistrationForm = () => {
     });
 
     const validationSchemaFields = {};
-    fieldConfig.forEach(({ name, label, optional, type }) => {
-        if (optional) {
+    fieldConfig.forEach(({ name, label }) => {
+        if (name === 'phone') {
+            validationSchemaFields[name] = Yup.string()
+                .matches(/^\+?\d{7,15}$/, `${label} must be a valid phone number`)
+                .nullable();
+        } else if (name === 'whatsapp') {
+            validationSchemaFields[name] = Yup.string()
+                .matches(/^\+?\d{7,15}$/, `${label} must be a valid phone number`)
+                .nullable();
+        } else if (name === 'email') {
+            validationSchemaFields[name] = Yup.string()
+                .email('Invalid email address')
+                .nullable();
+        } else if (name === 'alternativePhone' || name === 'familyPhone' || name === 'friendPhone') {
+            validationSchemaFields[name] = Yup.string()
+                .matches(/^\+?\d{7,15}$/, `${label} must be a valid phone number`)
+                .nullable();
+        } else {
             validationSchemaFields[name] = Yup.string().nullable();
-            return;
-        }
-
-        switch (name) {
-            case 'email':
-                validationSchemaFields[name] = Yup.string()
-                    .email('Invalid email address')
-                    .required(`${label} is required`);
-                break;
-            case 'phone':
-            case 'alternativePhone':
-            case 'whatsapp':
-            case 'familyPhone':
-            case 'friendPhone':
-                validationSchemaFields[name] = Yup.string()
-                    .matches(/^\+?\d{7,15}$/, `${label} must be a valid phone number`)
-                    .required(`${label} is required`);
-                break;
-            case 'gender':
-            case 'academicYear':
-            case 'hscGroup':
-            case 'sscGroup':
-            case 'city':
-            case 'currentArea':
-                validationSchemaFields[name] = Yup.string()
-                    .required(`Please select your ${label.toLowerCase()}`);
-                break;
-            default:
-                validationSchemaFields[name] = Yup.string()
-                    .required(`${label} is required`);
         }
     });
+
     const validationSchema = Yup.object(validationSchemaFields);
 
     return (
@@ -159,9 +173,8 @@ const TeacherRegistrationForm = () => {
                                         size="lg"
                                         onClick={() => setShowStepsModal(true)}
                                     >
-                                        <FaInfoCircle className="me-2" /> আপনাদের থেকে টিউশন পাওয়ার সিস্টেম কী?
+                                        <FaInfoCircle className="me-2" /> আপনাদের থেকে টিউশন পাওয়ার সিস্টেম কী?
                                     </Button>
-
                                 </div>
                             </Col>
                             <Col lg={4} className="text-center">
@@ -177,7 +190,7 @@ const TeacherRegistrationForm = () => {
                     <Card className="p-4 p-md-5 shadow-lg" style={{ borderRadius: '20px' }}>
                         <div className="text-center mb-5">
                             <h2 className="fw-bold text-primary mb-3">Registration Form</h2>
-                            <p className="text-muted">Please fill out all required fields to complete your registration</p>
+                            <p className="text-muted">অনুগ্রহ করে সব তথ্য দিন যদি সম্ভব হয়, শুধু ফোন অথবা হোয়াটসঅ্যাপের মধ্যে যেকোনো একটি দিয়ে আবেদন করতে পারবেন।</p>
                             <ProgressBar now={progress} style={{ height: '6px' }} />
                         </div>
 
@@ -185,6 +198,13 @@ const TeacherRegistrationForm = () => {
                             initialValues={initialValues}
                             validationSchema={validationSchema}
                             onSubmit={async (values, { resetForm, setSubmitting }) => {
+                                // Check if at least phone or whatsapp is provided
+                                if (!values.phone && !values.whatsapp) {
+                                    setShowPhoneRequiredModal(true);
+                                    setSubmitting(false);
+                                    return;
+                                }
+
                                 try {
                                     const res = await fetch('https://tuition-seba-backend-1.onrender.com/api/regTeacher/add', {
                                         method: 'POST',
@@ -207,8 +227,8 @@ const TeacherRegistrationForm = () => {
                                             .map((field) => fieldMap[field] || field)
                                             .join(', ');
                                         const fullMessage = duplicateNames
-                                            ? `একই ${duplicateNames} দিয়ে ইতোমধ্যে আবেদন করা হয়েছে।`
-                                            : data.message || 'একই তথ্য দিয়ে ইতোমধ্যে আবেদন করা হয়েছে।';
+                                            ? `একই ${duplicateNames} দিয়ে ইতোমধ্যে আবেদন করা হয়েছে।`
+                                            : data.message || 'একই তথ্য দিয়ে ইতোমধ্যে আবেদন করা হয়েছে।';
                                         setErrorMessage(fullMessage);
                                         setShowErrorModal(true);
                                     } else {
@@ -236,16 +256,14 @@ const TeacherRegistrationForm = () => {
                                 useEffect(() => {
                                     if (values.city) {
                                         setAreas(areaOptions[values.city] || []);
-                                        // Clear currentArea if city changes
                                         setFieldValue('currentArea', '');
                                     }
-                                }, [values.city, setFieldValue]);
+                                }, [values.city]);
 
                                 // Calculate progress
                                 useEffect(() => {
-                                    const requiredFields = fieldConfig.filter(f => !f.optional);
-                                    const filled = requiredFields.filter(f => values[f.name]?.toString().trim()).length;
-                                    setProgress((filled / requiredFields.length) * 100);
+                                    const filled = fieldConfig.filter(f => values[f.name]?.toString().trim()).length;
+                                    setProgress((filled / fieldConfig.length) * 100);
                                 }, [values]);
 
                                 return (
@@ -272,6 +290,9 @@ const TeacherRegistrationForm = () => {
                                                                 <Form.Group controlId={field.name}>
                                                                     <Form.Label className="fw-semibold">
                                                                         {field.icon} {field.label}
+                                                                        {(field.name === 'phone' || field.name === 'whatsapp') && (
+                                                                            <span className="text-danger ms-1">*</span>
+                                                                        )}
                                                                     </Form.Label>
 
                                                                     {field.type === 'select' ? (
@@ -350,6 +371,9 @@ const TeacherRegistrationForm = () => {
                                             </div>
                                         ))}
                                         <div className="text-center mt-5">
+                                            <p className="text-muted mb-3">
+                                                <small>* ফোন বা হোয়াটসঅ্যাপের মধ্যে অন্তত একটি অবশ্যই দিতে হবে, তারপরই আবেদন করতে পারবেন।</small>
+                                            </p>
                                             <Button type="submit" className="btn btn-primary btn-lg px-5 py-3" disabled={isSubmitting}>
                                                 <FaGraduationCap className="me-2" /> Submit Registration
                                             </Button>
@@ -365,6 +389,7 @@ const TeacherRegistrationForm = () => {
                 <SuccessModal show={showSuccessModal} handleClose={() => setShowSuccessModal(false)} />
                 <ErrorModal show={showErrorModal} handleClose={() => setShowErrorModal(false)} message={errorMessage} />
                 <RegistrationSteps show={showStepsModal} handleClose={() => setShowStepsModal(false)} />
+                <PhoneRequiredModal show={showPhoneRequiredModal} handleClose={() => setShowPhoneRequiredModal(false)} />
             </div>
             <Footer />
         </>

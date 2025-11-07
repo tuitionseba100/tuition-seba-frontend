@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Button, Table, Modal, Form, Row, Col, Card } from 'react-bootstrap';
-import { FaEdit, FaTrashAlt } from 'react-icons/fa';
+import { FaEdit, FaTrashAlt, FaSearch, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 import axios from 'axios';
 import NavBarPage from './NavbarPage';
 import styled from 'styled-components';
@@ -10,19 +10,10 @@ import * as XLSX from 'xlsx';
 import { OverlayTrigger, Tooltip } from "react-bootstrap";
 
 const GuardianApplyPage = () => {
-    const [applyList, setApplyList] = useState([]);
-    const [filteredApplyList, setFilteredApplyList] = useState([]);
+    const [guardianList, setGuardianApplyList] = useState([]);
+    const [exportList, setExportList] = useState([]);
+    const [filteredGuardianList, setFilteredGuardianApplyList] = useState([]);
     const [loading, setLoading] = useState(false);
-    const [areaSearchQuery, setAreaSearchQuery] = useState('');
-    const [numberSearchQuery, setNumberSearchQuery] = useState('');
-    const [statusFilter, setStatusFilter] = useState('');
-    const [totalApply, setTotalApply] = useState(0);
-    const [totalPending, setTotalPending] = useState(0);
-    const [totalMeetingScheduled, setTotalMeetingScheduled] = useState(0);
-    const [totalConfirmed, setTotalConfirmed] = useState(0);
-    const [totalNotInterested, setTotalNotInterested] = useState(0);
-    const [totalNoResponse, setTotalNoResponse] = useState(0);
-
 
     const [showStatusModal, setShowStatusModal] = useState(false);
     const [selectedRecord, setSelectedRecord] = useState(null);
@@ -41,6 +32,15 @@ const GuardianApplyPage = () => {
         comment: '',
     });
     const role = localStorage.getItem('role');
+    const [currentPage, setCurrentPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
+    const [statusCounts, setStatusCounts] = useState({
+        pending: 0,
+        no_response: 0,
+        meeting_scheduled: 0,
+        confirmed: 0,
+        not_interested: 0
+    });
 
     const statusOptions = [
         'pending',
@@ -52,54 +52,101 @@ const GuardianApplyPage = () => {
         'not interested'
     ];
 
+    const [searchInputs, setSearchInputs] = useState({
+        phone: '',
+        address: '',
+        statusFilter: ''
+    });
+
+    const [appliedFilters, setAppliedFilters] = useState({
+        phone: '',
+        address: '',
+        statusFilter: ''
+    });
+
     useEffect(() => {
-        fetchRecords();
+        fetchGuardianApplyRecords();
     }, []);
 
     useEffect(() => {
-        let filteredData = applyList;
-        if (statusFilter) {
-            filteredData = filteredData.filter(data => data.status === statusFilter);
+        fetchGuardianApplyRecords();
+    }, [appliedFilters, currentPage]);
+
+    const handleSearchInputChange = (field, value) => {
+        setSearchInputs(prev => ({
+            ...prev,
+            [field]: value
+        }));
+    };
+
+    const handleSearch = () => {
+        setAppliedFilters(searchInputs);
+        setCurrentPage(1);
+    };
+
+    const handleKeyPress = (e) => {
+        if (e.key === 'Enter') {
+            handleSearch();
         }
+    };
 
-        if (areaSearchQuery) {
-            filteredData = filteredData.filter(data =>
-                String(data.address).toLowerCase().includes(String(areaSearchQuery).toLowerCase())
-            );
-        }
-        if (numberSearchQuery) {
-            filteredData = filteredData.filter(data =>
-                String(data.phone).toLowerCase().includes(String(numberSearchQuery).toLowerCase())
-            );
-        }
-        const totalApplyCount = filteredData.length;
-        const totalPending = filteredData.filter(item => item.status === 'pending').length;
-        const totalNoResponse = filteredData.filter(item => item.status === 'called (no response)').length;
-        const totalMeetingScheduled = filteredData.filter(item => item.status === 'meeting scheduled').length;
-        const totalConfirmed = filteredData.filter(item => item.status === 'confirmed').length;
-        const totalNotIntersted = filteredData.filter(item => item.status === 'not interested').length;
-
-        setTotalApply(totalApplyCount);
-        setTotalPending(totalPending);
-        setTotalMeetingScheduled(totalMeetingScheduled);
-        setTotalConfirmed(totalConfirmed);
-        setTotalNotInterested(totalNotIntersted);
-        setTotalNoResponse(totalNoResponse);
-
-        setFilteredApplyList(filteredData);
-    }, [statusFilter, areaSearchQuery, numberSearchQuery, applyList]);
-
-    const fetchRecords = async () => {
+    const fetchGuardianApplyRecords = async (page = 1) => {
         setLoading(true);
         try {
-            const response = await axios.get('https://tuition-seba-backend-1.onrender.com/api/guardianApply/all');
-            setApplyList(response.data);
-            setFilteredApplyList(response.data);
+            const response = await axios.get('https://tuition-seba-backend-1.onrender.com/api/guardianApply/getTableData', {
+                params: {
+                    page: currentPage,
+                    phone: appliedFilters.phone,
+                    address: appliedFilters.address,
+                    status: appliedFilters.statusFilter
+                }
+            });
+
+            setGuardianApplyList(response.data.data);
+            setFilteredGuardianApplyList(response.data.data);
+            setCurrentPage(response.data.currentPage);
+            setTotalPages(response.data.totalPages);
+            fetchCardSummary();
         } catch (err) {
-            console.error('Error:', err);
-            toast.error("Failed to load records.");
+            console.error('Error fetching guardian records:', err);
+            toast.error("Failed to load guardian apply records.");
         }
         setLoading(false);
+    };
+
+    const handleResetFilters = () => {
+        const resetFilters = {
+            phone: '',
+            address: '',
+            statusFilter: ''
+        };
+        setSearchInputs(resetFilters);
+        setAppliedFilters(resetFilters);
+        setCurrentPage(1);
+    };
+
+    const fetchCardSummary = () => {
+        axios.get('https://tuition-seba-backend-1.onrender.com/api/guardianApply/summary', {
+            params: {
+                page: currentPage,
+                phone: appliedFilters.phone,
+                address: appliedFilters.address.trim(),
+                status: appliedFilters.statusFilter
+            }
+        })
+            .then(response => {
+                setStatusCounts({
+                    pending: response.data.pending,
+                    no_response: response.data.no_response,
+                    meeting_scheduled: response.data.meeting_scheduled,
+                    confirmed: response.data.confirmed,
+                    total: response.data.total
+                });
+                setExportList(response.data.data);
+            })
+            .catch(error => {
+                console.error('Error fetching card summary:', error);
+            });
     };
 
     const handleSaveRequest = async () => {
@@ -116,7 +163,7 @@ const GuardianApplyPage = () => {
                 toast.success("Record updated successfully!");
             }
             setShowModal(false);
-            fetchRecords();
+            fetchGuardianApplyRecords();
         } catch (err) {
             console.error('Error:', err);
             toast.error("Error.");
@@ -146,7 +193,7 @@ const GuardianApplyPage = () => {
             "Guardian Name", "Status", "Applied Date", "Phone No.", "Address", "Student Class", "Teacher Gender", "Characteristics", "Comment"
         ];
 
-        const tableData = filteredApplyList.map(data => [
+        const tableData = [...exportList].reverse().map(data => [
             String(data.name ?? ""),
             String(data.Status ?? ""),
             data.appliedAt ? formatDate(data.appliedAt) : "",
@@ -194,7 +241,7 @@ const GuardianApplyPage = () => {
                 { status: newStatus, comment: newComment }
             );
 
-            fetchRecords();
+            fetchGuardianApplyRecords();
             setShowStatusModal(false);
             setSelectedRecord(null);
             setNewStatus('');
@@ -221,7 +268,7 @@ const GuardianApplyPage = () => {
             try {
                 await axios.delete(`https://tuition-seba-backend-1.onrender.com/api/guardianApply/delete/${id}`);
                 toast.success("Record deleted successfully!");
-                fetchRecords();
+                fetchGuardianApplyRecords();
             } catch (err) {
                 console.error('Error deleting record:', err);
                 toast.error("Error deleting record.");
@@ -229,13 +276,6 @@ const GuardianApplyPage = () => {
         } else {
             toast.info("Deletion canceled");
         }
-    };
-
-    const handleResetFilters = () => {
-        setStatusFilter('');
-        setAreaSearchQuery('');
-        setNumberSearchQuery('');
-        setFilteredApplyList(applyList);
     };
 
     return (
@@ -273,7 +313,7 @@ const GuardianApplyPage = () => {
                                 <div className="card p-3 shadow border-primary">
                                     <div className="d-flex flex-column align-items-center">
                                         <span className="text-primary" style={{ fontWeight: 'bolder' }}>Total Apply</span>
-                                        <span>{totalApply}</span>
+                                        <span>{statusCounts.total}</span>
                                     </div>
                                 </div>
                             </div>
@@ -281,7 +321,7 @@ const GuardianApplyPage = () => {
                                 <div className="card p-3 shadow border-primary">
                                     <div className="d-flex flex-column align-items-center">
                                         <span className="text-primary" style={{ fontWeight: 'bolder' }}>Total Pending</span>
-                                        <span>{totalPending}</span>
+                                        <span>{statusCounts.pending}</span>
                                     </div>
                                 </div>
                             </div>
@@ -289,7 +329,7 @@ const GuardianApplyPage = () => {
                                 <div className="card p-3 shadow border-primary">
                                     <div className="d-flex flex-column align-items-center">
                                         <span className="text-primary" style={{ fontWeight: 'bolder' }}>Total No Response</span>
-                                        <span>{totalNoResponse}</span>
+                                        <span>{statusCounts.no_response}</span>
                                     </div>
                                 </div>
                             </div>
@@ -297,7 +337,7 @@ const GuardianApplyPage = () => {
                                 <div className="card p-3 shadow border-primary">
                                     <div className="d-flex flex-column align-items-center">
                                         <span className="text-primary" style={{ fontWeight: 'bolder' }}>Total Meeting Scheduled</span>
-                                        <span>{totalMeetingScheduled}</span>
+                                        <span>{statusCounts.meeting_scheduled}</span>
                                     </div>
                                 </div>
                             </div>
@@ -305,7 +345,7 @@ const GuardianApplyPage = () => {
                                 <div className="card p-3 shadow border-primary">
                                     <div className="d-flex flex-column align-items-center">
                                         <span className="text-primary" style={{ fontWeight: 'bolder' }}>Total Confirmed</span>
-                                        <span>{totalConfirmed}</span>
+                                        <span>{statusCounts.confirmed}</span>
                                     </div>
                                 </div>
                             </div>
@@ -313,7 +353,7 @@ const GuardianApplyPage = () => {
                                 <div className="card p-3 shadow border-primary">
                                     <div className="d-flex flex-column align-items-center">
                                         <span className="text-primary" style={{ fontWeight: 'bolder' }}>Total Not Interested</span>
-                                        <span>{totalNotInterested}</span>
+                                        <span>{statusCounts.not_interested}</span>
                                     </div>
                                 </div>
                             </div>
@@ -323,9 +363,35 @@ const GuardianApplyPage = () => {
 
                 {/* Search bar */}
                 <Row className="mt-2 mb-3">
-                    <Col md={2}>
-                        <Form.Label className="fw-bold">Status</Form.Label>
-                        <Form.Select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
+
+                    <Col md={3}>
+                        <Form.Label className="fw-bold">Search by Phone</Form.Label>
+                        <Form.Control
+                            type="text"
+                            placeholder="e.g. 017xxxxxxxx"
+                            value={searchInputs.phone}
+                            onChange={(e) => handleSearchInputChange('phone', e.target.value)}
+                            onKeyPress={handleKeyPress}
+                        />
+                    </Col>
+
+                    <Col md={3}>
+                        <Form.Label className="fw-bold">Search by Address</Form.Label>
+                        <Form.Control
+                            type="text"
+                            placeholder="e.g. ctg"
+                            value={searchInputs.address}
+                            onChange={(e) => handleSearchInputChange('address', e.target.value)}
+                            onKeyPress={handleKeyPress}
+                        />
+                    </Col>
+
+                    <Col md={3}>
+                        <Form.Label className="fw-bold">Status Filter</Form.Label>
+                        <Form.Select
+                            value={searchInputs.statusFilter}
+                            onChange={(e) => handleSearchInputChange('statusFilter', e.target.value)}
+                        >
                             <option value="">All</option>
                             <option value="pending">Pending</option>
                             <option value="called (interested)">Called (Interested)</option>
@@ -337,29 +403,24 @@ const GuardianApplyPage = () => {
                         </Form.Select>
                     </Col>
 
-                    <Col md={2}>
-                        <Form.Label className="fw-bold">Search (Address)</Form.Label>
-                        <Form.Control
-                            type="text"
-                            placeholder="Search by Address"
-                            value={areaSearchQuery}
-                            onChange={(e) => setAreaSearchQuery(e.target.value)}
-                        />
+                    <Col md={1} className="d-flex align-items-end">
+                        <Button
+                            variant="success"
+                            onClick={handleSearch}
+                            className="d-flex align-items-center justify-content-center gap-1 w-100"
+                            disabled={loading}
+                        >
+                            {loading ? <Spinner animation="border" size="sm" /> : <FaSearch />}
+                            Search
+                        </Button>
                     </Col>
-
-                    <Col md={2}>
-                        <Form.Label className="fw-bold">Search (Phone Number)</Form.Label>
-                        <Form.Control
-                            type="text"
-                            placeholder="Search by Phone Number"
-                            value={numberSearchQuery}
-                            onChange={(e) => setNumberSearchQuery(e.target.value)}
-                        />
-                    </Col>
-
-                    <Col md={2} className="d-flex align-items-end">
-                        <Button variant="danger" onClick={handleResetFilters} className="w-100">
-                            Reset Filters
+                    <Col md={1} className="d-flex align-items-end">
+                        <Button
+                            variant="danger"
+                            onClick={handleResetFilters}
+                            className="d-flex align-items-center justify-content-center w-100"
+                        >
+                            Reset
                         </Button>
                     </Col>
 
@@ -368,10 +429,18 @@ const GuardianApplyPage = () => {
                 {role === "superadmin" && (
                     <Button
                         variant="success"
-                        className="mb-3"
+                        className="mb-3 d-flex align-items-center justify-content-center gap-2"
                         onClick={handleExportToExcel}
+                        disabled={exportList.length === 0}
                     >
-                        Export to Excel
+                        {exportList.length === 0 ? (
+                            <>
+                                <Spinner animation="border" size="sm" role="status" />
+                                <span>Preparing export...</span>
+                            </>
+                        ) : (
+                            'Export to Excel'
+                        )}
                     </Button>
                 )}
 
@@ -405,7 +474,7 @@ const GuardianApplyPage = () => {
                                             </td>
                                         </tr>
                                     ) : (
-                                        filteredApplyList.slice().reverse().map((rowData, index) => (
+                                        filteredGuardianList.map((rowData, index) => (
                                             <tr key={rowData._id}>
                                                 <td>{index + 1}</td>
                                                 <td>{rowData.name}</td>
@@ -455,6 +524,29 @@ const GuardianApplyPage = () => {
                                 </tbody>
 
                             </Table>
+                        </div>
+                        <div className="d-flex justify-content-center align-items-center gap-3 mt-4 flex-wrap">
+                            <Button
+                                variant="outline-primary"
+                                className="d-flex align-items-center gap-2 px-3 py-2 rounded-pill"
+                                disabled={currentPage === 1}
+                                onClick={() => setCurrentPage(prev => prev - 1)}
+                            >
+                                <FaChevronLeft /> Previous
+                            </Button>
+
+                            <span className="fw-semibold text-primary-emphasis fs-5">
+                                Page {currentPage} of {totalPages}
+                            </span>
+
+                            <Button
+                                variant="outline-primary"
+                                className="d-flex align-items-center gap-2 px-3 py-2 rounded-pill"
+                                disabled={currentPage === totalPages}
+                                onClick={() => setCurrentPage(prev => prev + 1)}
+                            >
+                                Next <FaChevronRight />
+                            </Button>
                         </div>
                     </Card.Body>
                 </Card>

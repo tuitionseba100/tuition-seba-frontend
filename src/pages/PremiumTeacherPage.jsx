@@ -61,7 +61,7 @@ const PremiumTeacherPage = () => {
         { key: 'name', label: 'Name', type: 'text', col: 2 },
         { key: 'phone', label: 'Phone|Alt.|WhatsApp', type: 'text', col: 2 },
         { key: 'currentArea', label: 'Area', type: 'text', col: 2 },
-        { key: 'status', label: 'Status', type: 'select', options: ['pending', 'under review', 'pending payment', 'rejected', 'verified', 'suspended'], col: 1 },
+        { key: 'status', label: 'Status', type: 'select', options: ['pending', 'under review', 'pending payment', 'Must Advance', 'After Confirmation', 'After Salary', '30% Advance', 'rejected', 'verified', 'suspended'], col: 1 },
         { key: 'gender', label: 'Gender', type: 'select', options: ['male', 'female'], col: 1 }
     ];
 
@@ -104,7 +104,7 @@ const PremiumTeacherPage = () => {
         // Subscription & Payment Details
         { name: 'premiumCode', label: 'Premium Code', col: 6, group: 'Subscription & Payment Details' },
         { name: 'password', label: 'Password', col: 6, group: 'Subscription & Payment Details' },
-        { name: 'status', label: 'Subscription Status', type: 'select', col: 6, options: ['pending', 'under review', 'pending payment', 'rejected', 'verified', 'suspended'], group: 'Subscription & Payment Details' },
+        { name: 'status', label: 'Subscription Status', type: 'select', col: 6, options: ['pending', 'under review', 'pending payment', 'Must Advance', 'After Confirmation', 'After Salary', '30% Advance', 'rejected', 'verified', 'suspended'], group: 'Subscription & Payment Details' },
         { name: 'uniCode', label: 'Uni Code', type: 'select', col: 6, options: ['CMC', 'CUET', 'CU Science', 'CU Arts', 'CU Commerce', 'CVASU', 'Private Science', 'Private Commerce', 'Private Arts', 'National Science', 'National Arts', 'National Commerce', 'Arabic', 'NC English', 'BC English', 'Special'], group: 'Subscription & Payment Details' },
         { name: 'transactionId', label: 'Transaction ID', col: 6, group: 'Subscription & Payment Details' },
         { name: 'paymentType', label: 'Payment Method', col: 6, group: 'Subscription & Payment Details' },
@@ -362,14 +362,20 @@ const PremiumTeacherPage = () => {
         window.open(url, '_blank');
     };
 
-    const statusColors = {
-        'pending': { bg: 'bg-warning', text: 'text-dark' },
-        'under review': { bg: 'bg-info', text: 'text-dark' },
-        'pending payment': { bg: 'bg-primary', text: 'text-white' },
-        'rejected': { bg: 'bg-danger', text: 'text-white' },
-        'verified': { bg: 'bg-success', text: 'text-white' },
-        'suspended': { bg: 'bg-dark', text: 'text-white' }
+    const statusStyles = {
+        "pending": { bg: "#FFD966", color: "#000" }, // yellow
+        "under review": { bg: "#9DDCF9", color: "#000" }, // sky
+        "pending payment": { bg: "#6FA8DC", color: "#fff" }, // blue
+        "Must Advance": { bg: "#FF9900", color: "#fff" }, // orange
+        "After Confirmation": { bg: "#009688", color: "#fff" }, // teal
+        "After Salary": { bg: "#673AB7", color: "#fff" }, // deep purple
+        "30% Advance": { bg: "#795548", color: "#fff" }, // brown
+        "verified": { bg: "#4CAF50", color: "#fff" }, // green
+        "rejected": { bg: "#F44336", color: "#fff" }, // red
+        "suspended": { bg: "#424242", color: "#fff" }, // dark gray
     };
+
+    const defaultStatusStyle = { bg: "#BDBDBD", color: "#000" };
 
     return (
         <>
@@ -561,11 +567,21 @@ const PremiumTeacherPage = () => {
 
                                                     <td>
                                                         <span
-                                                            className={`badge ${statusColors[item.status]?.bg || 'bg-secondary'} ${statusColors[item.status]?.text || 'text-white'}`}
+                                                            style={{
+                                                                backgroundColor: statusStyles[item.status]?.bg || defaultStatusStyle.bg,
+                                                                color: statusStyles[item.status]?.color || defaultStatusStyle.color,
+                                                                padding: "3px 10px",
+                                                                borderRadius: "5px",
+                                                                fontWeight: "600",
+                                                                fontSize: "12px",
+                                                                textTransform: "capitalize",
+                                                                display: "inline-block"
+                                                            }}
                                                         >
                                                             {item.status}
                                                         </span>
                                                     </td>
+
                                                     <td>{item.name}</td>
                                                     <td>{item.phone}</td>
                                                     <td>{item.whatsapp}</td>

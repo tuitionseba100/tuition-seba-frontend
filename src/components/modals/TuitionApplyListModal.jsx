@@ -285,6 +285,8 @@ function AppliedListModal({ tuitionId, tuitionCode, show, onHide }) {
                                             Called Guardian(No Response)
                                         </option>
                                         <option value="cancel">Cancelled</option>
+                                        <option value="cancelled by guardian">Cancelled By Guardian</option>
+                                        <option value="cancelled by teacher">Cancelled By Teacher</option>
                                         <option value="shortlisted">Shortlisted</option>
                                         <option value="requested for payment">Requested for Payment</option>
                                         <option value="meet to office">Meet to office</option>

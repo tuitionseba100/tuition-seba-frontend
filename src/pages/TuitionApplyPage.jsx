@@ -384,6 +384,8 @@ const TuitionPage = () => {
                             <option value="called (no response)">Called (No Response)</option>
                             <option value="called (guardian no response)">Called Guardian(No Response)</option>
                             <option value="cancel">Cancelled</option>
+                            <option value="cancelled by guardian">Cancelled By Guardian</option>
+                            <option value="cancelled by teacher">Cancelled By Teacher</option>
                             <option value="shortlisted">Shortlisted</option>
                             <option value="requested for payment">Requested for Payment</option>
                             <option value="meet to office">Meet to office</option>
@@ -652,6 +654,8 @@ const TuitionPage = () => {
                                             <option value="called (no response)">Called (No Response)</option>
                                             <option value="called (guardian no response)">Called Guardian(No Response)</option>
                                             <option value="cancel">Cancelled</option>
+                                            <option value="cancelled by guardian">Cancelled By Guardian</option>
+                                            <option value="cancelled by teacher">Cancelled By Teacher</option>
                                             <option value="shortlisted">Shortlisted</option>
                                             <option value="requested for payment">Requested for Payment</option>
                                             <option value="meet to office">Meet to office</option>

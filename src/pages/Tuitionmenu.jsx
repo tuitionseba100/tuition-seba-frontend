@@ -483,8 +483,10 @@ const TuitionPage = () => {
                             <option value="demo class running">Demo Class Running</option>
                             <option value="confirm">Confirm</option>
                             <option value="cancel">Cancel</option>
+                            <option value="suspended">Suspended</option>
                         </Form.Select>
                     </Col>
+
 
                     <Col md={1} className="d-flex align-items-end">
                         <Button

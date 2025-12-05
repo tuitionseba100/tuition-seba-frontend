@@ -66,6 +66,7 @@ const Navbar = () => {
                                 {renderNavItem("/admin/tuitionApply", "Tuition Apply")}
                                 {renderNavItem("/admin/premiumTeacher", "Premium")}
                                 {renderNavItem("/admin/spamBest", "Spam/Best")}
+                                {renderNavItem("/admin/lead", "Lead")}
                             </>
                         ) : null}
 

@@ -26,6 +26,7 @@ import AvailableTuitions from './pages/public/AvailableTuitions';
 import FindTutorPage from './pages/public/FindTutorPage';
 import TeacherRegistration from './pages/public/TeacherRegistration';
 import OurTeacher from './pages/public/OurTeacher';
+import LeadPage from './pages/LeadPage';
 
 const App = () => {
   return (
@@ -54,6 +55,7 @@ const App = () => {
             <Route path="tuitionApply" element={<TuitionApply />} />
             <Route path="premiumTeacher" element={<PremiumTeacherPage />} />
             <Route path="spamBest" element={<SpamBestPage />} />
+            <Route path="lead" element={<LeadPage />} />
           </Route>
 
           <Route element={<PrivateRoute role="superadmin" />}>

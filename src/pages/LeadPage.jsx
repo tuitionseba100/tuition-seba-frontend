@@ -467,7 +467,7 @@ const LeadPage = () => {
                                         <th>Tuition Code</th>
                                         <th>Phone</th>
                                         <th>Name</th>
-                                        <th>Employee Name</th>
+                                        <th>Assigned Employee</th>
                                         <th>Created By</th>
                                         <th>Status</th>
                                         <th>Comment</th>

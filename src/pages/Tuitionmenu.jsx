@@ -575,6 +575,7 @@ const TuitionPage = () => {
                                         <th>Last Update Comment</th>
                                         <th>Next Update</th>
                                         <th>Next Update Comment</th>
+                                        <th>Joining Date</th>
                                         <th>Teacher</th>
                                         <th>Student</th>
                                         <th>Class</th>
@@ -640,6 +641,7 @@ const TuitionPage = () => {
                                                 <td>{tuition.lastUpdateComment || '-'}</td>
                                                 <td>{formatDateTimeDisplay(tuition.nextUpdateDate)}</td>
                                                 <td>{tuition.nextUpdateComment || '-'}</td>
+                                                <td>{tuition.joining}</td>
                                                 <td>{tuition.wantedTeacher}</td>
                                                 <td>{tuition.student}</td>
                                                 <td>{tuition.class}</td>

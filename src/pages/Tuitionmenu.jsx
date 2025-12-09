@@ -129,9 +129,24 @@ const TuitionPage = () => {
     useEffect(() => {
         const fetchAlertData = async () => {
             try {
+
                 const [alertRes, pendingRes] = await Promise.all([
-                    axios.get('https://tuition-seba-backend-1.onrender.com/api/tuition/alert-today'),
-                    axios.get('https://tuition-seba-backend-1.onrender.com/api/tuition/pending-payment-creation')
+                    axios.get(
+                        'https://tuition-seba-backend-1.onrender.com/api/tuition/alert-today',
+                        {
+                            headers: {
+                                Authorization: token
+                            }
+                        }
+                    ),
+                    axios.get(
+                        'https://tuition-seba-backend-1.onrender.com/api/tuition/pending-payment-creation',
+                        {
+                            headers: {
+                                Authorization: token
+                            }
+                        }
+                    )
                 ]);
 
                 setTuitionNeedsUpdateList(alertRes.data);
@@ -157,6 +172,9 @@ const TuitionPage = () => {
                     isPublish: appliedFilters.publishFilter === "Yes" ? 'true' : appliedFilters.publishFilter === "No" ? 'false' : undefined,
                     isUrgent: appliedFilters.urgentFilter === "Yes" ? 'true' : appliedFilters.urgentFilter === "No" ? 'false' : undefined,
                     status: appliedFilters.statusFilter
+                },
+                headers: {
+                    Authorization: token
                 }
             });
 
@@ -184,6 +202,9 @@ const TuitionPage = () => {
                     isPublish: appliedFilters.publishFilter === "Yes" ? 'true' : appliedFilters.publishFilter === "No" ? 'false' : undefined,
                     isUrgent: appliedFilters.urgentFilter === "Yes" ? 'true' : appliedFilters.urgentFilter === "No" ? 'false' : undefined,
                     status: appliedFilters.statusFilter
+                },
+                headers: {
+                    Authorization: token
                 }
             });
             setExcelTuitionList(res.data.data);
@@ -278,7 +299,11 @@ const TuitionPage = () => {
         if (confirmDelete) {
             try {
                 setDeleteLoading(true);
-                await axios.delete(`https://tuition-seba-backend-1.onrender.com/api/tuition/delete/${id}`);
+                await axios.delete(`https://tuition-seba-backend-1.onrender.com/api/tuition/delete/${id}`, {
+                    headers: {
+                        Authorization: token
+                    }
+                });
                 toast.success("Tuition record deleted successfully!");
                 await fetchTuitionRecords();
                 await fetchSummaryCounts();

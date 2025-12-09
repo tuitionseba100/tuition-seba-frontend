@@ -48,14 +48,7 @@ const TaskPage = () => {
 
     const fetchTuitions = async () => {
         try {
-            const response = await axios.get(
-                'https://tuition-seba-backend-1.onrender.com/api/tuition/all',
-                {
-                    headers: {
-                        Authorization: token
-                    }
-                }
-            );
+            const response = await axios.get('https://tuition-seba-backend-1.onrender.com/api/tuition/all');
             setTuitionList(response.data);
         } catch (err) {
             console.error('Error fetching tuitions:', err);

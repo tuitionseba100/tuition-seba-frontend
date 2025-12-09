@@ -44,7 +44,6 @@ const TuitionPage = () => {
     const manualExpressStyle = { backgroundColor: '#28a745', color: 'white' };
     const dueStyle = { backgroundColor: '#FFFF00', color: 'black' };
     const role = localStorage.getItem('role');
-    const token = localStorage.getItem('token');
 
     const [searchInputs, setSearchInputs] = useState({
         tuitionCode: '',
@@ -162,14 +161,7 @@ const TuitionPage = () => {
 
     const fetchAllTuitions = async () => {
         try {
-            const response = await axios.get(
-                'https://tuition-seba-backend-1.onrender.com/api/tuition/all',
-                {
-                    headers: {
-                        Authorization: token
-                    }
-                }
-            );
+            const response = await axios.get('https://tuition-seba-backend-1.onrender.com/api/tuition/all');
             setAllTuitionList(response.data);
         } catch (err) {
             console.error('Error fetching tuitions:', err);

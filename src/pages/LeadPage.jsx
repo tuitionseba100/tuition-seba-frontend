@@ -41,7 +41,9 @@ const LeadPage = () => {
         'pending',
         'employee assigned',
         'under review',
+        'no response',
         'confirmed',
+        'pending payment',
         'cancel',
         'suspended'
     ];
@@ -503,11 +505,14 @@ const LeadPage = () => {
                                                             ${rowData.status === "confirmed" ? "bg-success" : ""}  
                                                             ${rowData.status === "cancel" ? "bg-danger" : ""}
                                                             ${rowData.status === "suspended" ? "bg-dark" : ""}
+                                                            ${rowData.status === "no response" ? "bg-dark-subtle text-dark" : ""} 
+                                                            ${rowData.status === "pending payment" ? "bg-primary text-light" : ""}
                                                         `}
                                                     >
                                                         {rowData.status}
                                                     </span>
                                                 </td>
+
                                                 <td>{rowData.note}</td>
                                                 <td>{rowData.followUpDate ? formatDate(rowData.followUpDate) : '-'}</td>
                                                 <td>{rowData.followUpComment}</td>
@@ -714,16 +719,20 @@ const LeadPage = () => {
                                             <td>
                                                 <span
                                                     className={`badge 
-                                        ${lead.status === "pending" ? "bg-warning text-dark" : ""}  
-                                        ${lead.status === "employee assigned" ? "bg-info text-dark" : ""}  
-                                        ${lead.status === "under review" ? "bg-secondary text-light" : ""}  
-                                        ${lead.status === "confirmed" ? "bg-success" : ""}  
-                                        ${lead.status === "cancel" ? "bg-danger" : ""}
-                                        ${lead.status === "suspended" ? "bg-dark" : ""}`}
+                                                        ${lead.status === "pending" ? "bg-warning text-dark" : ""}  
+                                                        ${lead.status === "employee assigned" ? "bg-info text-dark" : ""}  
+                                                        ${lead.status === "under review" ? "bg-secondary text-light" : ""}  
+                                                        ${lead.status === "confirmed" ? "bg-success" : ""}  
+                                                        ${lead.status === "cancel" ? "bg-danger" : ""}
+                                                        ${lead.status === "suspended" ? "bg-dark" : ""}
+                                                        ${lead.status === "no response" ? "bg-dark-subtle text-dark" : ""} 
+                                                        ${lead.status === "pending payment" ? "bg-primary text-light" : ""}
+                                                    `}
                                                 >
                                                     {lead.status}
                                                 </span>
                                             </td>
+
                                             <td>{lead.note}</td>
                                             <td>{lead.followUpDate ? formatMongoDate(lead.followUpDate) : '-'}</td>
                                             <td>{lead.followUpComment}</td>

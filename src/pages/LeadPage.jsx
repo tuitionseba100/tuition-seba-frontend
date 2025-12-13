@@ -679,10 +679,16 @@ const LeadPage = () => {
                     </Modal.Footer>
                 </Modal>
 
-                <Modal show={showDueModal} onHide={() => setShowDueModal(false)} size="lg">
+                <Modal
+                    show={showDueModal}
+                    onHide={() => setShowDueModal(false)}
+                    dialogClassName="custom-due-modal"
+                    centered
+                >
                     <Modal.Header closeButton>
                         <Modal.Title>Today's Follow-Ups</Modal.Title>
                     </Modal.Header>
+
                     <Modal.Body>
                         {loadingDueToday ? (
                             <div className="text-center my-4">
@@ -691,73 +697,91 @@ const LeadPage = () => {
                         ) : dueTodayList.length === 0 ? (
                             <p>No follow-ups for today.</p>
                         ) : (
-                            <Table striped bordered hover responsive>
-                                <thead className="table-primary">
-                                    <tr>
-                                        <th>SL</th>
-                                        <th>Tuition Code</th>
-                                        <th>Phone</th>
-                                        <th>Name</th>
-                                        <th>Employee Name</th>
-                                        <th>Status</th>
-                                        <th>Note</th>
-                                        <th>Follow Up Date</th>
-                                        <th>Follow Up Comment</th>
-                                        <th>Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {dueTodayList.map((lead, idx) => (
-                                        <tr key={lead._id}>
-                                            <td>{idx + 1}</td>
-                                            <td>{lead.tuitionCode}</td>
-                                            <td>{lead.phone}</td>
-                                            <td>{lead.name}</td>
-                                            <td>{lead.employeeName}</td>
-                                            <td>
-                                                <span
-                                                    className={`badge 
-                                                        ${lead.status === "pending" ? "bg-warning text-dark" : ""}  
-                                                        ${lead.status === "employee assigned" ? "bg-info text-dark" : ""}  
-                                                        ${lead.status === "under review" ? "bg-secondary text-light" : ""}  
-                                                        ${lead.status === "confirmed" ? "bg-success" : ""}  
-                                                        ${lead.status === "cancel" ? "bg-danger" : ""}
-                                                        ${lead.status === "suspended" ? "bg-dark" : ""}
-                                                        ${lead.status === "no response" ? "bg-dark-subtle text-dark" : ""} 
-                                                        ${lead.status === "pending payment" ? "bg-primary text-light" : ""}
-                                                    `}
-                                                >
-                                                    {lead.status}
-                                                </span>
-                                            </td>
-
-                                            <td>{lead.note}</td>
-                                            <td>{lead.followUpDate ? formatMongoDate(lead.followUpDate) : '-'}</td>
-                                            <td>{lead.followUpComment}</td>
-                                            <td style={{ display: 'flex', gap: '8px' }}>
-                                                <OverlayTrigger placement="top" overlay={<Tooltip>Edit Record</Tooltip>}>
-                                                    <Button variant="primary" onClick={() => openEditModal(lead)}>
-                                                        <FaEdit />
-                                                    </Button>
-                                                </OverlayTrigger>
-                                                <OverlayTrigger placement="top" overlay={<Tooltip>Delete Record</Tooltip>}>
-                                                    <Button variant="danger" onClick={() => handleDeleteRecord(lead._id)}>
-                                                        <FaTrashAlt />
-                                                    </Button>
-                                                </OverlayTrigger>
-                                            </td>
+                            <div style={{ maxHeight: '700px', overflowY: 'auto' }}>
+                                <Table striped bordered hover responsive>
+                                    <thead className="table-primary">
+                                        <tr>
+                                            <th>SL</th>
+                                            <th>Tuition Code</th>
+                                            <th style={{ width: '80px' }}>Phone</th>
+                                            <th>Name</th>
+                                            <th>Employee Name</th>
+                                            <th>Status</th>
+                                            <th>Note</th>
+                                            <th>Follow Up Date</th>
+                                            <th>Follow Up Comment</th>
+                                            <th>Actions</th>
                                         </tr>
-                                    ))}
-                                </tbody>
-                            </Table>
+                                    </thead>
+                                    <tbody>
+                                        {dueTodayList.map((lead, idx) => (
+                                            <tr key={lead._id}>
+                                                <td>{idx + 1}</td>
+                                                <td>{lead.tuitionCode}</td>
+                                                <td style={{ width: '80px' }}>{lead.phone}</td>
+                                                <td>{lead.name}</td>
+                                                <td>{lead.employeeName}</td>
+                                                <td>
+                                                    <span
+                                                        className={`badge 
+                                            ${lead.status === "pending" ? "bg-warning text-dark" : ""}  
+                                            ${lead.status === "employee assigned" ? "bg-info text-dark" : ""}  
+                                            ${lead.status === "under review" ? "bg-secondary text-light" : ""}  
+                                            ${lead.status === "confirmed" ? "bg-success" : ""}  
+                                            ${lead.status === "cancel" ? "bg-danger" : ""}  
+                                            ${lead.status === "suspended" ? "bg-dark" : ""}  
+                                            ${lead.status === "no response" ? "bg-dark-subtle text-dark" : ""}  
+                                            ${lead.status === "pending payment" ? "bg-primary text-light" : ""}  
+                                        `}
+                                                    >
+                                                        {lead.status}
+                                                    </span>
+                                                </td>
+                                                <td>{lead.note}</td>
+                                                <td>{lead.followUpDate ? formatMongoDate(lead.followUpDate) : '-'}</td>
+                                                <td>{lead.followUpComment}</td>
+                                                <td style={{ display: 'flex', gap: '8px' }}>
+                                                    <OverlayTrigger placement="top" overlay={<Tooltip>Edit Record</Tooltip>}>
+                                                        <Button variant="primary" onClick={() => openEditModal(lead)}>
+                                                            <FaEdit />
+                                                        </Button>
+                                                    </OverlayTrigger>
+
+                                                    <OverlayTrigger placement="top" overlay={<Tooltip>Delete Record</Tooltip>}>
+                                                        <Button variant="danger" onClick={() => handleDeleteRecord(lead._id)}>
+                                                            <FaTrashAlt />
+                                                        </Button>
+                                                    </OverlayTrigger>
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </Table>
+                            </div>
                         )}
                     </Modal.Body>
+
                     <Modal.Footer>
                         <Button variant="secondary" onClick={() => setShowDueModal(false)}>
                             Close
                         </Button>
                     </Modal.Footer>
+
+                    <style>
+                        {`
+            .custom-due-modal {
+                --bs-modal-width: 1400px;
+            }
+
+            @media (max-width: 1500px) {
+                .custom-due-modal {
+                    --bs-modal-width: 95vw;
+                }
+            }
+        `}
+                    </style>
                 </Modal>
+
 
             </Container>
             <ToastContainer />

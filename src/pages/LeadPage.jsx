@@ -470,7 +470,6 @@ const LeadPage = () => {
                                         <th>Phone</th>
                                         <th>Name</th>
                                         <th>Assigned Employee</th>
-                                        <th>Created By</th>
                                         <th>Status</th>
                                         <th>Comment</th>
                                         <th>Follow Up Date</th>
@@ -495,7 +494,6 @@ const LeadPage = () => {
                                                 <td>{rowData.phone}</td>
                                                 <td>{rowData.name}</td>
                                                 <td>{rowData.employeeName}</td>
-                                                <td>{rowData.createdBy}</td>
                                                 <td>
                                                     <span
                                                         className={`badge 

@@ -22,8 +22,8 @@ const fieldConfig = [
     { name: 'city', label: 'City', group: 'details', col: 4, type: 'select' },
     { name: 'area', label: 'Area', group: 'details', col: 4, type: 'select' },
 
-    { name: 'location', label: 'Location', group: 'details', col: 4, type: 'text' },
-    { name: 'joining', label: 'Joining Date', group: 'details', col: 4, type: 'text' },
+    { name: 'location', label: 'Location', group: 'details', col: 6, type: 'text' },
+    { name: 'joining', label: 'Joining Date', group: 'details', col: 6, type: 'text' },
     { name: 'guardianNumber', label: 'Guardian Number', group: 'details', col: 4, type: 'text' },
 
     { name: 'status', label: 'Status', group: 'admin', col: 6, type: 'select', options: ['available', 'given number', 'guardian meet', 'demo class running', 'confirm', 'cancel', 'suspended'] },

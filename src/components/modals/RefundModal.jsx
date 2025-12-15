@@ -20,9 +20,6 @@ const RefundModal = ({ show, handleClose }) => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        if (!form.agreeRefund) {
-            return toast.error('Please agree to refund terms.');
-        }
 
         try {
             const res = await fetch('https://tuition-seba-backend-1.onrender.com/api/refund/add', {
@@ -81,7 +78,7 @@ const RefundModal = ({ show, handleClose }) => {
                             <Form.Control as="textarea" rows={3} name="note" value={form.note} onChange={handleInput} maxLength={500} />
                         </Form.Group>
 
-                        {/* Refund terms agreement */}
+                        {/* Refund terms agreement 
                         <div className="mb-3 d-flex align-items-start">
                             <Form.Check
                                 type="checkbox"
@@ -105,7 +102,7 @@ const RefundModal = ({ show, handleClose }) => {
                                     </span>
                                 </label>
                             </div>
-                        </div>
+                        </div>*/}
 
                         <div className="d-flex justify-content-end gap-2">
                             <Button variant="secondary" size="sm" onClick={() => setForm(defaultForm)}>Reset</Button>

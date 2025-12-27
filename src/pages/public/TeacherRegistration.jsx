@@ -165,9 +165,9 @@ const TeacherRegistrationForm = () => {
                                         <FaPhoneAlt className="me-2" />
                                         <span className="fw-semibold">Call Us: 01633920928</span>
                                     </div>
-                                    <Button variant="light" size="lg" onClick={() => setShowInfoModal(true)}>
+                                    {/*<Button variant="light" size="lg" onClick={() => setShowInfoModal(true)}>
                                         <FaInfoCircle className="me-2" /> Benefits & Terms
-                                    </Button>
+                                    </Button>*/}
                                     <Button
                                         variant="light"
                                         size="lg"

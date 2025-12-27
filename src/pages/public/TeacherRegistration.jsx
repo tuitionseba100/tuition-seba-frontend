@@ -101,8 +101,10 @@ const TeacherRegistrationForm = () => {
         { name: 'honorsUniversity', label: 'Honours University', col: 6, group: 'Academic Info', icon: <FaUniversity /> },
         { name: 'hscGroup', label: 'HSC Group', col: 6, group: 'Academic Info', type: 'select', options: ['Science', 'Arts', 'Commerce', 'Vocational'], icon: <FaBook /> },
         { name: 'hscResult', label: 'HSC Result', col: 6, group: 'Academic Info', icon: <FaAward /> },
+        { name: 'college', label: 'HSC College', col: 12, group: 'Academic Info', icon: <FaUniversity /> },
         { name: 'sscGroup', label: 'SSC Group', col: 6, group: 'Academic Info', type: 'select', options: ['Science', 'Arts', 'Commerce', 'Vocational'], icon: <FaBook /> },
         { name: 'sscResult', label: 'SSC Result', col: 6, group: 'Academic Info', icon: <FaAward /> },
+        { name: 'school', label: 'SSC School', col: 12, group: 'Academic Info', icon: <FaUniversity /> },
 
         { name: 'experience', label: 'Experience', col: 6, group: 'Teaching Profile', icon: <FaClock /> },
         { name: 'favoriteSubject', label: 'Favorite Subject', col: 6, group: 'Teaching Profile', icon: <FaHeart /> },

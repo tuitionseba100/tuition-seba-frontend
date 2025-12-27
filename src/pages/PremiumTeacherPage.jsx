@@ -93,8 +93,10 @@ const PremiumTeacherPage = () => {
         { name: 'mastersUniversity', label: 'Masters University', col: 6, group: 'Academic Info' },
         { name: 'honorsDept', label: 'Honors Dept', col: 6, group: 'Academic Info' },
         { name: 'honorsUniversity', label: 'Honors University', col: 6, group: 'Academic Info' },
+        { name: 'college', label: 'HSC College', col: 6, group: 'Academic Info' },
         { name: 'hscGroup', label: 'HSC Group', type: 'select', options: ['Science', 'Arts', 'Commerce', 'Vocational'], col: 6, group: 'Academic Info' },
         { name: 'hscResult', label: 'HSC Result', col: 6, group: 'Academic Info' },
+        { name: 'school', label: 'SSC School', col: 6, group: 'Academic Info' },
         { name: 'sscGroup', label: 'SSC Group', type: 'select', options: ['Science', 'Arts', 'Commerce', 'Vocational'], col: 6, group: 'Academic Info' },
         { name: 'sscResult', label: 'SSC Result', col: 6, group: 'Academic Info' },
 

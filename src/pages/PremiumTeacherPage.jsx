@@ -36,6 +36,7 @@ const PremiumTeacherPage = () => {
         premiumCode: '',
         name: '',
         phone: '',
+        department: '',
         currentArea: '',
         status: '',
         gender: '',
@@ -46,6 +47,7 @@ const PremiumTeacherPage = () => {
         premiumCode: '',
         name: '',
         phone: '',
+        department: '',
         currentArea: '',
         status: '',
         gender: '',
@@ -54,6 +56,7 @@ const PremiumTeacherPage = () => {
 
     const searchFields = [
         { key: 'premiumCode', label: 'Premium Code', type: 'text', col: 2 },
+        { key: 'department', label: 'Department', type: 'text', col: 2 },
         {
             key: 'uniCode', label: 'UniCode', type: 'select', options: ['CMC', 'CUET', 'CU Science', 'CU Arts', 'CU Commerce', 'CVASU', 'Private Science', 'Private Commerce', 'Private Arts', 'National Science', 'National Arts', 'National Commerce', 'Arabic', 'NC English', 'BC English', 'Special']
             , col: 1
@@ -199,6 +202,7 @@ const PremiumTeacherPage = () => {
             premiumCode: '',
             name: '',
             phone: '',
+            department: '',
             currentArea: '',
             status: '',
             gender: '',

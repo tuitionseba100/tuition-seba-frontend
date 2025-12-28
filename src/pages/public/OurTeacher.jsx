@@ -96,6 +96,10 @@ export default function OurTeacher() {
             transition: 'all 0.3s ease',
             cursor: 'pointer',
             boxShadow: '0 4px 12px rgba(0,0,0,0.05)',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'space-between',
+            height: '100%'
         },
         cardHeader: { display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '22px', paddingBottom: '20px', borderBottom: '1px solid #f1f5f9' },
         avatar: {
@@ -311,7 +315,7 @@ function TeacherCard({ teacher, styles, onRequest }) {
                     </div>
                 )}
             </div>
-            <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '16px' }}>
+            <div style={{ marginTop: '16px', marginTop: 'auto', display: 'flex', justifyContent: 'center' }}>
                 <button
                     onClick={(e) => { e.stopPropagation(); onRequest && onRequest(teacher); }}
                     className="btn btn-primary"

@@ -12,6 +12,8 @@ import {
 } from 'react-icons/fa';
 import NavBar from '../../components/NavBar';
 import Footer from '../../components/Footer';
+import { ToastContainer } from 'react-toastify';
+import RequestTeacherModal from '../../components/modals/RequestTeacherModal';
 
 export default function OurTeacher() {
     const [teachers, setTeachers] = useState([]);
@@ -20,6 +22,8 @@ export default function OurTeacher() {
     const [currentPage, setCurrentPage] = useState(1);
     const [loading, setLoading] = useState(true);
     const itemsPerPage = 12;
+    const [showRequestModal, setShowRequestModal] = useState(false);
+    const [selectedTeacher, setSelectedTeacher] = useState(null);
 
     useEffect(() => {
         fetchTeachers();
@@ -144,6 +148,7 @@ export default function OurTeacher() {
                 <div style={styles.header}>
                     <h1 style={styles.title}>Premium Teachers</h1>
                     <p style={styles.subtitle}>Find qualified teacher easily</p>
+                    <p style={styles.stats}>10,000+ registered teachers available nationwide</p>
                 </div>
 
                 <div style={styles.searchWrapper}>
@@ -170,7 +175,7 @@ export default function OurTeacher() {
                     <>
                         <div style={styles.gridContainer} className="grid-container">
                             {currentTeachers.map(teacher => (
-                                <TeacherCard key={teacher._id} teacher={teacher} styles={styles} />
+                                <TeacherCard key={teacher._id} teacher={teacher} styles={styles} onRequest={() => { setSelectedTeacher(teacher); setShowRequestModal(true); }} />
                             ))}
                         </div>
 
@@ -203,15 +208,23 @@ export default function OurTeacher() {
                                 </button>
                             </div>
                         )}
-                        <Footer />
+
                     </>
                 )}
             </div>
+            <Footer />
+            <RequestTeacherModal
+                show={showRequestModal}
+                onHide={() => setShowRequestModal(false)}
+                teacher={selectedTeacher}
+                onSaved={() => setShowRequestModal(false)}
+            />
+            <ToastContainer position="top-center" />
         </>
     );
 }
 
-function TeacherCard({ teacher, styles }) {
+function TeacherCard({ teacher, styles, onRequest }) {
     const [isHovered, setIsHovered] = useState(false);
     const GenderIcon = teacher.gender?.toLowerCase() === 'male' ? FaMale : FaFemale;
 
@@ -297,6 +310,16 @@ function TeacherCard({ teacher, styles }) {
                         </div>
                     </div>
                 )}
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '16px' }}>
+                <button
+                    onClick={(e) => { e.stopPropagation(); onRequest && onRequest(teacher); }}
+                    className="btn btn-primary"
+                    style={{ padding: '8px 12px', borderRadius: '10px', fontWeight: 600 }}
+                    onMouseDown={(e) => e.stopPropagation()}
+                >
+                    Request Teacher
+                </button>
             </div>
         </div>
     );

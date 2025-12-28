@@ -25,6 +25,7 @@ const GuardianApplyPage = () => {
         name: '',
         phone: '',
         address: '',
+        teacherCode: '',
         studentClass: '',
         teacherGender: '',
         characteristics: '',
@@ -190,7 +191,7 @@ const GuardianApplyPage = () => {
         const fileName = `Guardian Apply List_${formattedDate}_${formattedTime}`;
 
         const tableHeaders = [
-            "Guardian Name", "Status", "Applied Date", "Phone No.", "Address", "Student Class", "Teacher Gender", "Characteristics", "Comment"
+            "Guardian Name", "Status", "Applied Date", "Phone No.", "Address", "Teacher Code", "Student Class", "Teacher Gender", "Characteristics", "Comment"
         ];
 
         const tableData = [...exportList].reverse().map(data => [
@@ -199,6 +200,7 @@ const GuardianApplyPage = () => {
             data.appliedAt ? formatDate(data.appliedAt) : "",
             String(data.phone ?? ""),
             String(data.address ?? ""),
+            String(data.teacherCode ?? ""),
             String(data.studentClass ?? ""),
             String(data.teacherGender ?? ""),
             String(data.characteristics ?? ""),
@@ -212,6 +214,8 @@ const GuardianApplyPage = () => {
             { wpx: 140 },
             { wpx: 140 },
             { wpx: 140 },
+            { wpx: 120 },
+            { wpx: 100 },
             { wpx: 120 },
             { wpx: 120 },
             { wpx: 200 },
@@ -457,6 +461,7 @@ const GuardianApplyPage = () => {
                                         <th>Status</th>
                                         <th>Phone No.</th>
                                         <th>Address</th>
+                                        <th>Teacher Code</th>
                                         <th>Student Class</th>
                                         <th>Teacher Gender</th>
                                         <th>Teacher Characteristics</th>
@@ -496,6 +501,7 @@ const GuardianApplyPage = () => {
                                                 </td>
                                                 <td>{rowData.phone}</td>
                                                 <td>{rowData.address}</td>
+                                                <td>{rowData.teacherCode}</td>
                                                 <td>{rowData.studentClass}</td>
                                                 <td>{rowData.teacherGender}</td>
                                                 <td>{rowData.characteristics}</td>
@@ -629,6 +635,19 @@ const GuardianApplyPage = () => {
                                             type="text"
                                             value={tuitionData.characteristics}
                                             onChange={(e) => setTuitionData({ ...tuitionData, characteristics: e.target.value })}
+                                        />
+                                    </Form.Group>
+                                </Col>
+                            </Row>
+
+                            <Row className="mt-3">
+                                <Col md={6}>
+                                    <Form.Group controlId="teacherCode">
+                                        <Form.Label className="fw-bold">Teacher Code</Form.Label>
+                                        <Form.Control
+                                            type="text"
+                                            value={tuitionData.teacherCode}
+                                            onChange={(e) => setTuitionData({ ...tuitionData, teacherCode: e.target.value })}
                                         />
                                     </Form.Group>
                                 </Col>

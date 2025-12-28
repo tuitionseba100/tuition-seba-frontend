@@ -3,7 +3,7 @@ import { FaChalkboardTeacher, FaBookOpen, FaUsers } from 'react-icons/fa';
 
 const StatsSection = () => {
     const stats = [
-        { title: "Registered Tutors", count: 6000, suffix: "+", icon: FaChalkboardTeacher },
+        { title: "Registered Tutors", count: 10000, suffix: "+", icon: FaChalkboardTeacher },
         { title: "Available Tuitions", count: 100, suffix: "+", icon: FaBookOpen },
         { title: "Registered Guardians", count: 5000, suffix: "+", icon: FaUsers }
     ];

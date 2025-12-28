@@ -55,8 +55,8 @@ const PremiumTeacherPage = () => {
     });
 
     const searchFields = [
-        { key: 'premiumCode', label: 'Premium Code', type: 'text', col: 2 },
-        { key: 'department', label: 'Department', type: 'text', col: 2 },
+        { key: 'premiumCode', label: 'Premium Code', type: 'text', col: 1 },
+        { key: 'department', label: 'Department', type: 'text', col: 1 },
         {
             key: 'uniCode', label: 'UniCode', type: 'select', options: ['CMC', 'CUET', 'CU Science', 'CU Arts', 'CU Commerce', 'CVASU', 'Private Science', 'Private Commerce', 'Private Arts', 'National Science', 'National Arts', 'National Commerce', 'Arabic', 'NC English', 'BC English', 'Special']
             , col: 1
@@ -99,6 +99,7 @@ const PremiumTeacherPage = () => {
         { name: 'school', label: 'SSC School', col: 6, group: 'Academic Info' },
         { name: 'sscGroup', label: 'SSC Group', type: 'select', options: ['Science', 'Arts', 'Commerce', 'Vocational'], col: 6, group: 'Academic Info' },
         { name: 'sscResult', label: 'SSC Result', col: 6, group: 'Academic Info' },
+        { name: 'isResultShow', label: 'Show SSC & HSC Result?', col: 12, group: 'Academic Info', type: 'checkbox' },
 
         // Teaching Profile
         { name: 'experience', label: 'Experience', col: 6, group: 'Teaching Profile' },
@@ -114,6 +115,7 @@ const PremiumTeacherPage = () => {
         { name: 'transactionId', label: 'Transaction ID', col: 6, group: 'Subscription & Payment Details' },
         { name: 'paymentType', label: 'Payment Method', col: 6, group: 'Subscription & Payment Details' },
         { name: 'amount', label: 'Amount Paid', col: 6, group: 'Subscription & Payment Details' },
+        { name: 'isBiodataShow', label: 'Show Biodata?', col: 12, group: 'Subscription & Payment Details', type: 'checkbox' },
 
         // Notes & Feedback
         { name: 'comment', label: 'Comment from agent', col: 6, group: 'Notes & Feedback' }
@@ -146,7 +148,7 @@ const PremiumTeacherPage = () => {
     ];
 
     const initialData = fieldConfig.reduce((acc, field) => {
-        acc[field.name] = '';
+        acc[field.name] = field.type === 'checkbox' ? false : '';
         return acc;
     }, {});
     const [formData, setFormData] = useState(initialData);
@@ -333,7 +335,7 @@ const PremiumTeacherPage = () => {
 
     const getEmptyFormData = () => {
         return fieldConfig.reduce((acc, field) => {
-            acc[field.name] = '';
+            acc[field.name] = field.type === 'checkbox' ? false : '';
             return acc;
         }, {});
     };
@@ -681,6 +683,15 @@ const PremiumTeacherPage = () => {
                                     <div className="row gx-4 gy-4">
                                         {fields.map(({ name, label, type }) => {
                                             const value = selectedTeacher[name];
+                                            let displayValue;
+                                            if (type === 'password') {
+                                                displayValue = '••••••';
+                                            } else if (type === 'checkbox') {
+                                                displayValue = value ? 'Yes' : 'No';
+                                            } else {
+                                                displayValue = value !== undefined && value !== null && value !== '' ? String(value).trim() : 'N/A';
+                                            }
+
                                             return (
                                                 <div
                                                     key={name}
@@ -707,7 +718,7 @@ const PremiumTeacherPage = () => {
                                                             }}
                                                             title={type === 'password' ? value : undefined}
                                                         >
-                                                            {type === 'password' ? '••••••' : value?.toString().trim() || 'N/A'}
+                                                            {displayValue}
                                                         </div>
                                                     </div>
                                                 </div>
@@ -749,7 +760,7 @@ const PremiumTeacherPage = () => {
                                         {fields.map((field, idx) => (
                                             <Col md={field.col || 6} key={idx}>
                                                 <Form.Group controlId={field.name} className="mb-3">
-                                                    <Form.Label className="fw-bold">{field.label}</Form.Label>
+                                                    {field.type !== 'checkbox' && <Form.Label className="fw-bold">{field.label}</Form.Label>}
 
                                                     {/* Division Dropdown */}
                                                     {field.name === "division" ? (
@@ -822,6 +833,21 @@ const PremiumTeacherPage = () => {
                                                             isSearchable
                                                             isDisabled={!formData.city}
                                                         />
+                                                    ) : field.type === "checkbox" ? (
+                                                        <div className="d-flex align-items-center" style={{ paddingTop: '6px' }}>
+                                                            <Form.Check
+                                                                type="switch"
+                                                                id={field.name}
+                                                                checked={!!formData[field.name]}
+                                                                onChange={(e) => setFormData({ ...formData, [field.name]: e.target.checked })}
+                                                                label={
+                                                                    <>
+                                                                        <span className="fw-bold">{field.label}</span>
+                                                                        <small className="ms-2 text-muted">{formData[field.name] ? 'Yes' : 'No'}</small>
+                                                                    </>
+                                                                }
+                                                            />
+                                                        </div>
                                                     ) : field.type === "select" ? (
                                                         <Form.Control
                                                             as="select"

@@ -110,6 +110,12 @@ const TeacherRegistrationForm = () => {
         { name: 'favoriteSubject', label: 'Favorite Subject', col: 6, group: 'Teaching Profile', icon: <FaHeart /> },
         { name: 'expectedTuitionAreas', label: 'Expected Tuition Areas', col: 6, group: 'Teaching Profile', icon: <FaMapMarkerAlt /> },
         { name: 'commentFromTeacher', label: 'Comment From Teacher', col: 6, group: 'Teaching Profile', icon: <FaComments /> },
+        {
+            name: 'isResultShow', label: 'SSC ও HSC রেজাল্ট Our Teachers পেজে দেখাতে চাইলে এই বক্সে টিক দিন',
+            col: 12,
+            group: 'Academic Info',
+            type: 'checkbox'
+        },
     ];
 
     const groupFields = fieldConfig.reduce((acc, field) => {
@@ -119,8 +125,9 @@ const TeacherRegistrationForm = () => {
     }, {});
 
     const initialValues = {};
-    fieldConfig.forEach(({ name }) => {
-        initialValues[name] = '';
+    fieldConfig.forEach(({ name, type }) => {
+        if (type === 'checkbox') initialValues[name] = false;
+        else initialValues[name] = '';
     });
 
     const validationSchemaFields = {};
@@ -287,89 +294,111 @@ const TeacherRegistrationForm = () => {
                                                 <Row className="g-3">
                                                     {fields.map((field) => {
                                                         const hasError = touched[field.name] && !!errors[field.name];
+
                                                         return (
                                                             <Col md={field.col || 6} key={field.name}>
                                                                 <Form.Group controlId={field.name}>
-                                                                    <Form.Label className="fw-semibold">
-                                                                        {field.icon} {field.label}
-                                                                        {(field.name === 'phone' || field.name === 'whatsapp') && (
-                                                                            <span className="text-danger ms-1">*</span>
-                                                                        )}
-                                                                    </Form.Label>
-
-                                                                    {field.type === 'select' ? (
-                                                                        <Form.Select
-                                                                            size="lg"
+                                                                    {field.type === 'checkbox' ? (
+                                                                        <Form.Check
+                                                                            type="checkbox"
+                                                                            id={field.name}
                                                                             name={field.name}
-                                                                            value={values[field.name]}
+                                                                            checked={values[field.name]}
                                                                             onChange={handleChange}
                                                                             onBlur={handleBlur}
-                                                                            isInvalid={hasError}
-                                                                            aria-describedby={`${field.name}-feedback`}
-                                                                        >
-                                                                            <option value="">Select {field.label}</option>
-                                                                            {field.options.map((opt) => (
-                                                                                <option key={opt} value={opt}>
-                                                                                    {opt}
-                                                                                </option>
-                                                                            ))}
-                                                                        </Form.Select>
-                                                                    ) : field.type === 'city' ? (
-                                                                        <Form.Select
-                                                                            size="lg"
-                                                                            name={field.name}
-                                                                            value={values[field.name]}
-                                                                            onChange={handleChange}
-                                                                            onBlur={handleBlur}
-                                                                            isInvalid={hasError}
-                                                                            aria-describedby={`${field.name}-feedback`}
-                                                                        >
-                                                                            <option value="">Select City</option>
-                                                                            {cityOptions.map((opt) => (
-                                                                                <option key={opt.value} value={opt.value}>
-                                                                                    {opt.label}
-                                                                                </option>
-                                                                            ))}
-                                                                        </Form.Select>
-                                                                    ) : field.type === 'area' ? (
-                                                                        <Form.Select
-                                                                            size="lg"
-                                                                            name={field.name}
-                                                                            value={values[field.name]}
-                                                                            onChange={handleChange}
-                                                                            onBlur={handleBlur}
-                                                                            isInvalid={hasError}
-                                                                            aria-describedby={`${field.name}-feedback`}
-                                                                        >
-                                                                            <option value="">Select Area</option>
-                                                                            {areas.map((area) => (
-                                                                                <option key={area} value={area}>
-                                                                                    {area}
-                                                                                </option>
-                                                                            ))}
-                                                                        </Form.Select>
-                                                                    ) : (
-                                                                        <Form.Control
-                                                                            size="lg"
-                                                                            type="text"
-                                                                            name={field.name}
-                                                                            value={values[field.name]}
-                                                                            onChange={handleChange}
-                                                                            onBlur={handleBlur}
-                                                                            placeholder={`Enter ${field.label.toLowerCase()}`}
-                                                                            isInvalid={hasError}
-                                                                            aria-describedby={`${field.name}-feedback`}
+                                                                            isInvalid={touched[field.name] && !!errors[field.name]}
+                                                                            className="mb-3"
+                                                                            label={
+                                                                                <span className="fw-bold" style={{ fontSize: '1rem', color: '#333' }}>
+                                                                                    {field.label}
+                                                                                </span>
+                                                                            }
                                                                         />
-                                                                    )}
+                                                                    ) : (
+                                                                        <>
+                                                                            <Form.Label className="fw-semibold">
+                                                                                {field.icon} {field.label}
+                                                                                {(field.name === 'phone' || field.name === 'whatsapp') && (
+                                                                                    <span className="text-danger ms-1">*</span>
+                                                                                )}
+                                                                            </Form.Label>
 
-                                                                    <Form.Control.Feedback type="invalid" id={`${field.name}-feedback`}>
-                                                                        {errors[field.name]}
-                                                                    </Form.Control.Feedback>
+                                                                            {field.type === 'select' ? (
+                                                                                <Form.Select
+                                                                                    size="lg"
+                                                                                    name={field.name}
+                                                                                    value={values[field.name]}
+                                                                                    onChange={handleChange}
+                                                                                    onBlur={handleBlur}
+                                                                                    isInvalid={hasError}
+                                                                                    aria-describedby={`${field.name}-feedback`}
+                                                                                >
+                                                                                    <option value="">Select {field.label}</option>
+                                                                                    {field.options.map((opt) => (
+                                                                                        <option key={opt} value={opt}>
+                                                                                            {opt}
+                                                                                        </option>
+                                                                                    ))}
+                                                                                </Form.Select>
+                                                                            ) : field.type === 'city' ? (
+                                                                                <Form.Select
+                                                                                    size="lg"
+                                                                                    name={field.name}
+                                                                                    value={values[field.name]}
+                                                                                    onChange={handleChange}
+                                                                                    onBlur={handleBlur}
+                                                                                    isInvalid={hasError}
+                                                                                    aria-describedby={`${field.name}-feedback`}
+                                                                                >
+                                                                                    <option value="">Select City</option>
+                                                                                    {cityOptions.map((opt) => (
+                                                                                        <option key={opt.value} value={opt.value}>
+                                                                                            {opt.label}
+                                                                                        </option>
+                                                                                    ))}
+                                                                                </Form.Select>
+                                                                            ) : field.type === 'area' ? (
+                                                                                <Form.Select
+                                                                                    size="lg"
+                                                                                    name={field.name}
+                                                                                    value={values[field.name]}
+                                                                                    onChange={handleChange}
+                                                                                    onBlur={handleBlur}
+                                                                                    isInvalid={hasError}
+                                                                                    aria-describedby={`${field.name}-feedback`}
+                                                                                >
+                                                                                    <option value="">Select Area</option>
+                                                                                    {areas.map((area) => (
+                                                                                        <option key={area} value={area}>
+                                                                                            {area}
+                                                                                        </option>
+                                                                                    ))}
+                                                                                </Form.Select>
+                                                                            ) : (
+                                                                                <Form.Control
+                                                                                    size="lg"
+                                                                                    type="text"
+                                                                                    name={field.name}
+                                                                                    value={values[field.name]}
+                                                                                    onChange={handleChange}
+                                                                                    onBlur={handleBlur}
+                                                                                    placeholder={`Enter ${field.label.toLowerCase()}`}
+                                                                                    isInvalid={hasError}
+                                                                                    aria-describedby={`${field.name}-feedback`}
+                                                                                />
+                                                                            )}
+
+                                                                            <Form.Control.Feedback type="invalid" id={`${field.name}-feedback`}>
+                                                                                {errors[field.name]}
+                                                                            </Form.Control.Feedback>
+                                                                        </>
+                                                                    )}
                                                                 </Form.Group>
                                                             </Col>
                                                         );
                                                     })}
                                                 </Row>
+
                                             </div>
                                         ))}
                                         <div className="text-center mt-5">

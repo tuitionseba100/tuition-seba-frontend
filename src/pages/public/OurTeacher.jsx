@@ -6,7 +6,8 @@ import {
     FaBookOpen,
     FaCalendarAlt,
     FaMale,
-    FaFemale
+    FaFemale,
+    FaArrowUp
 } from 'react-icons/fa';
 import { Modal, Button, Form, Row, Col } from 'react-bootstrap';
 import { Pagination } from '@mui/material';
@@ -29,6 +30,34 @@ export default function OurTeacher() {
     // Pagination state
     const [currentPage, setCurrentPage] = useState(1);
     const teachersPerPage = 50;
+    
+    // State for scroll to top button visibility
+    const [showScrollTop, setShowScrollTop] = useState(false);
+    
+    // Handle scroll event to show/hide scroll to top button
+    useEffect(() => {
+        const handleScroll = () => {
+            if (window.scrollY > 300) {
+                setShowScrollTop(true);
+            } else {
+                setShowScrollTop(false);
+            }
+        };
+        
+        window.addEventListener('scroll', handleScroll);
+        
+        return () => {
+            window.removeEventListener('scroll', handleScroll);
+        };
+    }, []);
+    
+    // Function to scroll to top
+    const scrollToTop = () => {
+        window.scrollTo({
+            top: 0,
+            behavior: 'smooth'
+        });
+    };
 
     useEffect(() => {
         fetchTeachers();
@@ -121,21 +150,22 @@ export default function OurTeacher() {
             display: 'flex',
             justifyContent: 'center',
             alignItems: 'center',
-            width: '90%',
+            width: '95%',
             maxWidth: '1200px',
             margin: '0 auto 30px',
-            flexWrap: 'nowrap',
-            gap: '20px',
-            padding: '25px',
+            flexWrap: 'wrap',
+            gap: '16px',
+            padding: '20px',
             background: 'linear-gradient(135deg, #f0f9ff, #e0f2fe)',
             borderRadius: '16px',
             boxShadow: '0 4px 20px rgba(0, 0, 0, 0.08)'
         },
         searchWrapper: {
-            width: '55%',
+            width: '100%',
+            maxWidth: '500px',
             position: 'relative'
         },
-        genderFilterWrapper: { display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'nowrap', minWidth: '300px' },
+        genderFilterWrapper: { display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap', justifyContent: 'center' },
         filterLabel: { fontSize: '0.9rem', fontWeight: '500', color: '#475569' },
         genderFilterButtons: { display: 'flex', gap: '8px' },
         genderButton: {
@@ -226,12 +256,109 @@ export default function OurTeacher() {
 
         loading: { display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '400px', color: '#64748b' },
         spinner: { width: '45px', height: '45px', border: '4px solid #e2e8f0', borderTop: '4px solid #3b82f6', borderRadius: '50%', animation: 'spin 0.8s linear infinite', marginBottom: '18px' },
-        noResults: { textAlign: 'center', color: '#64748b', padding: '60px 20px', fontSize: '1rem' }
+        noResults: { textAlign: 'center', color: '#64748b', padding: '60px 20px', fontSize: '1rem' },
+        
+        // Scroll to top button styles
+        scrollTopButton: {
+            position: 'fixed',
+            bottom: '30px',
+            right: '30px',
+            width: '50px',
+            height: '50px',
+            borderRadius: '50%',
+            background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)',
+            border: 'none',
+            color: 'white',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            boxShadow: '0 4px 12px rgba(59, 130, 246, 0.4)',
+            zIndex: 1000,
+            transition: 'all 0.3s ease',
+            opacity: 0,
+            visibility: 'hidden',
+            transform: 'translateY(20px)'
+        },
+        scrollTopButtonVisible: {
+            opacity: 1,
+            visibility: 'visible',
+            transform: 'translateY(0)'
+        }
     };
 
     const keyframes = `
         @keyframes spin { to { transform: rotate(360deg); } }
-        @media (max-width: 768px) { .grid-container { grid-template-columns: 1fr !important; } }
+        
+        /* Responsive for tablet */
+        @media (max-width: 1024px) {
+            .filter-container {
+                width: 98%;
+                padding: 18px;
+                gap: 14px;
+            }
+            
+            .search-wrapper {
+                width: 100%;
+                max-width: none;
+            }
+            
+            .grid-container { 
+                grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)) !important; 
+            }
+        }
+        
+        /* Responsive for small tablet */
+        @media (max-width: 768px) {
+            .filter-container {
+                width: 98%;
+                padding: 16px;
+                gap: 12px;
+            }
+            
+            .search-wrapper {
+                width: 100%;
+                max-width: none;
+            }
+            
+            .grid-container { grid-template-columns: 1fr !important; }
+            
+            .gender-filter-wrapper {
+                justify-content: center;
+                width: 100%;
+            }
+            
+            .gender-filter-buttons {
+                justify-content: center;
+            }
+        }
+        
+        /* Responsive for mobile */
+        @media (max-width: 480px) {
+            .filter-container {
+                padding: 14px;
+                gap: 10px;
+            }
+            
+            .search-input {
+                padding: 14px 20px 14px 44px;
+                font-size: 0.9rem;
+            }
+            
+            .search-icon {
+                left: 14px;
+            }
+            
+            .gender-button {
+                padding: 6px 10px;
+                font-size: 0.8rem;
+            }
+            
+            .reset-button {
+                padding: 6px 10px;
+                font-size: 0.8rem;
+            }
+        }
     `;
 
 
@@ -247,13 +374,14 @@ export default function OurTeacher() {
                     <p style={styles.stats}>10,000+ registered teachers available nationwide</p>
                 </div>
 
-                <div style={styles.filterContainer}>
-                    <div style={styles.searchWrapper}>
-                        <FaSearch style={styles.searchIcon} size={18} />
+                <div style={styles.filterContainer} className="filter-container">
+                    <div style={styles.searchWrapper} className="search-wrapper">
+                        <FaSearch style={styles.searchIcon} className="search-icon" size={18} />
                         <input
                             type="text"
                             placeholder="Search by area, university, department, etc..."
                             style={styles.searchInput}
+                            className="search-input"
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                             onFocus={(e) => {
@@ -267,32 +395,38 @@ export default function OurTeacher() {
                         />
                     </div>
 
-                    <div style={styles.genderFilterWrapper}>
+                    <div style={styles.genderFilterWrapper} className="gender-filter-wrapper">
                         <span style={styles.filterLabel}>Gender:</span>
-                        <div style={styles.genderFilterButtons}>
+                        <div style={styles.genderFilterButtons} className="gender-filter-buttons">
                             <button
-                                style={{
-                                    ...styles.genderButton,
-                                    ...(genderFilter === '' && styles.genderButtonActive)
-                                }}
+                                style={
+                                    genderFilter === ''
+                                        ? { ...styles.genderButton, ...styles.genderButtonActive }
+                                        : styles.genderButton
+                                }
+                                className="gender-button"
                                 onClick={() => setGenderFilter('')}
                             >
                                 All
                             </button>
                             <button
-                                style={{
-                                    ...styles.genderButton,
-                                    ...(genderFilter === 'male' && styles.genderButtonActive)
-                                }}
+                                style={
+                                    genderFilter === 'male'
+                                        ? { ...styles.genderButton, ...styles.genderButtonActive }
+                                        : styles.genderButton
+                                }
+                                className="gender-button"
                                 onClick={() => setGenderFilter('male')}
                             >
                                 <FaMale style={{ marginRight: '6px' }} /> Male
                             </button>
                             <button
-                                style={{
-                                    ...styles.genderButton,
-                                    ...(genderFilter === 'female' && styles.genderButtonActive)
-                                }}
+                                style={
+                                    genderFilter === 'female'
+                                        ? { ...styles.genderButton, ...styles.genderButtonActive }
+                                        : styles.genderButton
+                                }
+                                className="gender-button"
                                 onClick={() => setGenderFilter('female')}
                             >
                                 <FaFemale style={{ marginRight: '6px' }} /> Female
@@ -302,6 +436,7 @@ export default function OurTeacher() {
 
                     <button
                         style={styles.resetButton}
+                        className="reset-button"
                         onClick={resetFilters}
                     >
                         Reset
@@ -353,6 +488,18 @@ export default function OurTeacher() {
                 onSaved={() => setShowRequestModal(false)}
             />
             <ToastContainer position="top-center" />
+            
+            {/* Scroll to top button */}
+            <button
+                style={{
+                    ...styles.scrollTopButton,
+                    ...(showScrollTop ? styles.scrollTopButtonVisible : {})
+                }}
+                onClick={scrollToTop}
+                aria-label="Scroll to top"
+            >
+                <FaArrowUp size={20} />
+            </button>
         </>
     );
 }

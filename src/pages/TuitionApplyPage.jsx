@@ -34,7 +34,7 @@ const TuitionPage = () => {
         pending: 0,
         calledInterested: 0,
         calledNoResponse: 0,
-        refertoBM: 0,
+        selected: 0,
         shortlisted: 0,
         requestedForPayment: 0,
         total: 0
@@ -148,7 +148,7 @@ const TuitionPage = () => {
                     pending: response.data.pending,
                     calledInterested: response.data.calledInterested,
                     calledNoResponse: response.data.calledNoResponse,
-                    refertoBM: response.data.refertoBM,
+                    selected: response.data.selected,
                     shortlisted: response.data.shortlisted,
                     requestedForPayment: response.data.requestedForPayment,
                     total: response.data.total
@@ -347,8 +347,8 @@ const TuitionPage = () => {
                             <div className="col-6 col-sm-4 col-md-2 mb-3">
                                 <div className="card p-3 shadow border-primary">
                                     <div className="d-flex flex-column align-items-center">
-                                        <span className="text-primary" style={{ fontWeight: 'bolder' }}>Referred To BM</span>
-                                        <span>{statusCounts.refertoBM}</span>
+                                        <span className="text-primary" style={{ fontWeight: 'bolder' }}>Selected</span>
+                                        <span>{statusCounts.selected}</span>
                                     </div>
                                 </div>
                             </div>

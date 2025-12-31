@@ -58,59 +58,59 @@ export default function RequestTeacherModal({ show, onHide, teacher, onSaved }) 
     return (
         <>
             <Modal show={show} onHide={onHide} size="lg">
-            <Modal.Header closeButton>
-                <Modal.Title>Request Teacher</Modal.Title>
-            </Modal.Header>
+                <Modal.Header closeButton>
+                    <Modal.Title>Request Teacher</Modal.Title>
+                </Modal.Header>
 
-            <Modal.Body>
-                <Form>
-                    <Row>
-                        <Col md={6}>
-                            <Form.Group controlId="name">
-                                <Form.Label className="fw-bold">Name</Form.Label>
-                                <Form.Control type="text" value={form.name} onChange={(e) => handleChange('name', e.target.value)} />
-                            </Form.Group>
-                        </Col>
+                <Modal.Body>
+                    <Form>
+                        <Row>
+                            <Col md={6}>
+                                <Form.Group controlId="name">
+                                    <Form.Label className="fw-bold">Name</Form.Label>
+                                    <Form.Control type="text" value={form.name} onChange={(e) => handleChange('name', e.target.value)} />
+                                </Form.Group>
+                            </Col>
 
-                        <Col md={6}>
-                            <Form.Group controlId="phone">
-                                <Form.Label className="fw-bold">Phone<span className="text-danger">*</span></Form.Label>
-                                <Form.Control type="text" value={form.phone} onChange={(e) => handleChange('phone', e.target.value)} />
-                            </Form.Group>
-                        </Col>
-                    </Row>
+                            <Col md={6}>
+                                <Form.Group controlId="phone">
+                                    <Form.Label className="fw-bold">Phone<span className="text-danger">*</span></Form.Label>
+                                    <Form.Control type="text" value={form.phone} onChange={(e) => handleChange('phone', e.target.value)} />
+                                </Form.Group>
+                            </Col>
+                        </Row>
 
-                    <Row className="mt-3">
-                        <Col md={6}>
-                            <Form.Group controlId="address">
-                                <Form.Label className="fw-bold">Address</Form.Label>
-                                <Form.Control type="text" value={form.address} onChange={(e) => handleChange('address', e.target.value)} />
-                            </Form.Group>
-                        </Col>
+                        <Row className="mt-3">
+                            <Col md={6}>
+                                <Form.Group controlId="address">
+                                    <Form.Label className="fw-bold">Address</Form.Label>
+                                    <Form.Control type="text" value={form.address} onChange={(e) => handleChange('address', e.target.value)} />
+                                </Form.Group>
+                            </Col>
 
-                        <Col md={6}>
-                            <Form.Group controlId="studentClass">
-                                <Form.Label className="fw-bold">Student Class</Form.Label>
-                                <Form.Control type="text" value={form.studentClass} onChange={(e) => handleChange('studentClass', e.target.value)} />
-                            </Form.Group>
-                        </Col>
-                    </Row>
+                            <Col md={6}>
+                                <Form.Group controlId="studentClass">
+                                    <Form.Label className="fw-bold">Student Class</Form.Label>
+                                    <Form.Control type="text" value={form.studentClass} onChange={(e) => handleChange('studentClass', e.target.value)} />
+                                </Form.Group>
+                            </Col>
+                        </Row>
 
-                    <Row className="mt-3">
-                        <Col md={6}>
-                            <Form.Group controlId="characteristics">
-                                <Form.Label className="fw-bold">Characteristics</Form.Label>
-                                <Form.Control type="text" value={form.characteristics} onChange={(e) => handleChange('characteristics', e.target.value)} />
-                            </Form.Group>
-                        </Col>
-                    </Row>
-                </Form>
-            </Modal.Body>
+                        <Row className="mt-3">
+                            <Col md={6}>
+                                <Form.Group controlId="characteristics">
+                                    <Form.Label className="fw-bold">Characteristics</Form.Label>
+                                    <Form.Control type="text" value={form.characteristics} onChange={(e) => handleChange('characteristics', e.target.value)} />
+                                </Form.Group>
+                            </Col>
+                        </Row>
+                    </Form>
+                </Modal.Body>
 
-            <Modal.Footer>
-                <Button variant="secondary" onClick={onHide}>Close</Button>
-                <Button variant="primary" onClick={handleSubmit}>Submit Request</Button>
-            </Modal.Footer>
+                <Modal.Footer>
+                    <Button variant="secondary" onClick={onHide}>Close</Button>
+                    <Button variant="primary" onClick={handleSubmit}>Submit Request</Button>
+                </Modal.Footer>
             </Modal>
 
             <ApplySuccessModal show={showSuccess} handleClose={() => setShowSuccess(false)} />

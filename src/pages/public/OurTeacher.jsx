@@ -102,79 +102,92 @@ export default function OurTeacher() {
         searchWrapper: { maxWidth: '600px', margin: '0 auto 40px', position: 'relative' },
         searchInput: {
             width: '100%',
-            padding: '14px 22px 14px 48px',
+            padding: '16px 22px 16px 48px',
             fontSize: '1rem',
-            border: '1px solid #cbd5e1',
-            borderRadius: '14px',
+            border: '2px solid #e2e8f0',
+            borderRadius: '16px',
             outline: 'none',
-            background: '#fff',
+            background: '#ffffff',
             color: '#1e293b',
             fontWeight: '500',
             transition: 'all 0.3s ease',
-            boxShadow: '0 2px 6px rgba(0,0,0,0.05)'
+            '&:focus': {
+                borderColor: '#3b82f6',
+                boxShadow: '0 0 0 3px rgba(59, 130, 246, 0.2)'
+            }
         },
-        searchIcon: { position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: '#94a3b8', pointerEvents: 'none' },
+        searchIcon: { position: 'absolute', left: '18px', top: '50%', transform: 'translateY(-50%)', color: '#64748b', pointerEvents: 'none', fontSize: '1.2rem' },
         filterContainer: {
             display: 'flex',
-            justifyContent: 'space-between',
+            justifyContent: 'center',
             alignItems: 'center',
-            maxWidth: '800px',
+            width: '90%',
+            maxWidth: '1200px',
             margin: '0 auto 30px',
-            flexWrap: 'wrap',
-            gap: '15px'
+            flexWrap: 'nowrap',
+            gap: '20px',
+            padding: '25px',
+            background: 'linear-gradient(135deg, #f0f9ff, #e0f2fe)',
+            borderRadius: '16px',
+            boxShadow: '0 4px 20px rgba(0, 0, 0, 0.08)'
         },
         searchWrapper: {
-            width: '40%',
+            width: '55%',
             position: 'relative'
         },
-        genderFilterWrapper: { display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'nowrap' },
+        genderFilterWrapper: { display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'nowrap', minWidth: '300px' },
         filterLabel: { fontSize: '0.9rem', fontWeight: '500', color: '#475569' },
         genderFilterButtons: { display: 'flex', gap: '8px' },
         genderButton: {
-            padding: '6px 10px',
-            borderRadius: '8px',
-            border: '1px solid #cbd5e1',
-            background: '#fff',
+            padding: '8px 12px',
+            borderRadius: '12px',
+            border: '2px solid #e2e8f0',
+            background: '#ffffff',
             color: '#64748b',
             cursor: 'pointer',
-            fontSize: '0.8rem',
-            fontWeight: '500',
-            transition: 'all 0.2s ease',
+            fontSize: '0.85rem',
+            fontWeight: '600',
+            transition: 'all 0.3s ease',
             display: 'flex',
             alignItems: 'center',
-            whiteSpace: 'nowrap'
+            whiteSpace: 'nowrap',
+            boxShadow: '0 2px 4px rgba(0, 0, 0, 0.05)'
         },
         genderButtonActive: {
-            background: '#3b82f6',
+            background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)',
             color: '#fff',
-            borderColor: '#3b82f6'
+            borderColor: '#3b82f6',
+            boxShadow: '0 4px 12px rgba(59, 130, 246, 0.3)'
         },
         resetButton: {
-            padding: '6px 12px',
-            borderRadius: '8px',
-            border: '1px solid #ef4444',
-            background: '#fff',
-            color: '#ef4444',
+            padding: '8px 12px',
+            borderRadius: '12px',
+            border: '2px solid #f87171',
+            background: 'linear-gradient(135deg, #fee2e2, #fecaca)',
+            color: '#dc2626',
             cursor: 'pointer',
-            fontSize: '0.8rem',
-            fontWeight: '500',
-            transition: 'all 0.2s ease'
-        },
-        gridContainer: { maxWidth: '1440px', margin: '0 auto', display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '26px', padding: '0 15px' },
-        card: {
-            background: '#fff',
-            borderRadius: '20px',
-            padding: '26px',
-            border: '1px solid #e0e7ff',
+            fontSize: '0.85rem',
+            fontWeight: '600',
             transition: 'all 0.3s ease',
+            boxShadow: '0 4px 6px rgba(239, 68, 68, 0.15)'
+        },
+        gridContainer: { maxWidth: '1440px', margin: '0 auto', display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '30px', padding: '0 15px' },
+        card: {
+            background: 'linear-gradient(135deg, #ffffff, #f8fafc)',
+            borderRadius: '20px',
+            padding: '24px',
+            border: '1px solid #e2e8f0',
+            transition: 'all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.1)',
             cursor: 'pointer',
-            boxShadow: '0 4px 12px rgba(0,0,0,0.05)',
+            boxShadow: '0 8px 20px rgba(0, 0, 0, 0.08)',
             display: 'flex',
             flexDirection: 'column',
             justifyContent: 'space-between',
-            height: '100%'
+            height: '100%',
+            position: 'relative',
+            overflow: 'hidden'
         },
-        cardHeader: { display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '22px', paddingBottom: '20px', borderBottom: '1px solid #f1f5f9' },
+        cardHeader: { display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '18px', paddingBottom: '16px', borderBottom: '1px solid #e2e8f0', position: 'relative' },
         avatar: {
             width: '65px',
             height: '65px',
@@ -183,18 +196,33 @@ export default function OurTeacher() {
             alignItems: 'center',
             justifyContent: 'center',
             flexShrink: 0,
-            transition: 'transform 0.3s ease, box-shadow 0.3s ease'
+            transition: 'transform 0.3s ease, box-shadow 0.3s ease',
+            boxShadow: '0 6px 16px rgba(0, 0, 0, 0.1)'
         },
-        avatarIcon: { color: '#fff', width: '32px', height: '32px' },
+        avatarIcon: { color: '#fff', width: '30px', height: '30px' },
         cardInfo: { flex: 1, minWidth: 0 },
-        name: { fontSize: '1.2rem', fontWeight: '700', color: '#0f172a', marginBottom: '4px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' },
-        code: { display: 'inline-block', fontSize: '0.8rem', fontWeight: '600', color: '#fff', background: '#3b82f6', padding: '5px 12px', borderRadius: '10px', letterSpacing: '0.3px', marginTop: '4px' },
+        name: { fontSize: '1.2rem', fontWeight: '700', color: '#1e293b', marginBottom: '4px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontFamily: 'Inter, sans-serif' },
+        code: {
+            display: 'inline-flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontSize: '0.8rem',
+            fontWeight: '700',
+            color: '#fff',
+            background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)',
+            padding: '5px 12px',
+            borderRadius: '18px',
+            letterSpacing: '0.5px',
+            marginTop: '4px',
+            boxShadow: '0 4px 12px rgba(59, 130, 246, 0.3)',
+            border: '1px solid rgba(255, 255, 255, 0.2)'
+        },
         gender: { fontSize: '0.85rem', color: '#64748b', marginTop: '6px', display: 'flex', alignItems: 'center', gap: '6px' },
-        infoSection: { display: 'flex', flexDirection: 'column', gap: '14px' },
+        infoSection: { display: 'flex', flexDirection: 'column', gap: '12px', marginTop: '8px' },
         infoRow: { display: 'flex', alignItems: 'flex-start', gap: '12px' },
-        infoIcon: { color: '#3b82f6', flexShrink: 0, marginTop: '2px' },
-        infoText: { flex: 1, fontSize: '0.95rem', color: '#334155', lineHeight: '1.5' },
-        infoLabel: { fontSize: '0.8rem', color: '#64748b', fontWeight: '500', marginBottom: '2px' },
+        infoIcon: { color: '#4f46e5', flexShrink: 0, marginTop: '2px', fontSize: '1rem' },
+        infoText: { flex: 1, fontSize: '0.95rem', color: '#374151', lineHeight: '1.5' },
+        infoLabel: { fontSize: '0.8rem', color: '#6b7280', fontWeight: '600', marginBottom: '2px', textTransform: 'uppercase', letterSpacing: '0.5px' },
 
         loading: { display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '400px', color: '#64748b' },
         spinner: { width: '45px', height: '45px', border: '4px solid #e2e8f0', borderTop: '4px solid #3b82f6', borderRadius: '50%', animation: 'spin 0.8s linear infinite', marginBottom: '18px' },
@@ -224,12 +252,18 @@ export default function OurTeacher() {
                         <FaSearch style={styles.searchIcon} size={18} />
                         <input
                             type="text"
-                            placeholder="Search teachers..."
+                            placeholder="Search by area, university, department, etc..."
                             style={styles.searchInput}
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
-                            onFocus={(e) => e.target.style.borderColor = '#3b82f6'}
-                            onBlur={(e) => e.target.style.borderColor = '#cbd5e1'}
+                            onFocus={(e) => {
+                                e.target.style.borderColor = '#3b82f6';
+                                e.target.style.boxShadow = '0 0 0 3px rgba(59, 130, 246, 0.2)';
+                            }}
+                            onBlur={(e) => {
+                                e.target.style.borderColor = '#e2e8f0';
+                                e.target.style.boxShadow = '0 4px 6px rgba(0, 0, 0, 0.05)';
+                            }}
                         />
                     </div>
 
@@ -358,11 +392,11 @@ function TeacherCard({ teacher, styles, onRequest }) {
                 </div>
 
                 <div style={styles.cardInfo}>
-                    <h3 style={{ ...styles.name, color: '#1e40af', fontSize: '1.25rem' }}>
+                    <h3 style={styles.name}>
                         {teacher.name}
                     </h3>
 
-                    <div style={styles.code}>Teacher Code: #{teacher.premiumCode}</div>
+                    <div style={styles.code}>Code: #{teacher.premiumCode}</div>
 
                     <div style={styles.gender}>
                         <GenderIcon /> {teacher.gender}
@@ -377,7 +411,7 @@ function TeacherCard({ teacher, styles, onRequest }) {
                     <div style={styles.infoRow}>
                         <FaMapMarkerAlt style={styles.infoIcon} size={16} />
                         <div style={styles.infoText}>
-                            <div style={styles.infoLabel}>Location</div>
+                            <div style={styles.infoLabel}>Area</div>
                             <span style={{ fontWeight: 600, color: '#0f172a' }}>
                                 {[teacher.currentArea, teacher.thana, teacher.district]
                                     .filter(Boolean)
@@ -453,12 +487,32 @@ function TeacherCard({ teacher, styles, onRequest }) {
             <div style={{ marginTop: 'auto', display: 'flex', justifyContent: 'center' }}>
                 <button
                     className="btn btn-primary"
-                    style={{ padding: '8px 12px', borderRadius: '10px', fontWeight: 600 }}
+                    style={{
+                        padding: '10px 20px',
+                        borderRadius: '12px',
+                        fontWeight: '600',
+                        fontSize: '0.95rem',
+                        background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)',
+                        color: 'white',
+                        border: 'none',
+                        cursor: 'pointer',
+                        boxShadow: '0 4px 12px rgba(59, 130, 246, 0.3)',
+                        transition: 'all 0.3s ease',
+                        marginTop: '15px'
+                    }}
                     onClick={(e) => {
                         e.stopPropagation();
                         onRequest && onRequest(teacher);
                     }}
                     onMouseDown={(e) => e.stopPropagation()}
+                    onMouseEnter={(e) => {
+                        e.target.style.transform = 'translateY(-2px)';
+                        e.target.style.boxShadow = '0 6px 16px rgba(59, 130, 246, 0.4)';
+                    }}
+                    onMouseLeave={(e) => {
+                        e.target.style.transform = 'translateY(0)';
+                        e.target.style.boxShadow = '0 4px 12px rgba(59, 130, 246, 0.3)';
+                    }}
                 >
                     Request Teacher
                 </button>
@@ -477,6 +531,7 @@ function RequestTeacherModal({ show, onHide, teacher, onSaved }) {
         comment: ''
     });
     const [showSuccess, setShowSuccess] = useState(false);
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     useEffect(() => {
         if (show) {
@@ -499,6 +554,8 @@ function RequestTeacherModal({ show, onHide, teacher, onSaved }) {
             toast.error('সঠিক ফোন নাম্বার লিখুন।');
             return;
         }
+
+        setIsSubmitting(true);
 
         const payload = {
             name: form.name,
@@ -526,6 +583,8 @@ function RequestTeacherModal({ show, onHide, teacher, onSaved }) {
         } catch (err) {
             console.error(err);
             toast.error('An error occurred. Please try again later.');
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
@@ -757,10 +816,16 @@ function RequestTeacherModal({ show, onHide, teacher, onSaved }) {
                     <Button
                         style={modalStyles.buttonPrimary}
                         onClick={handleSubmit}
+                        disabled={isSubmitting}
                         onMouseEnter={(e) => e.target.style.transform = 'translateY(-2px)'}
                         onMouseLeave={(e) => e.target.style.transform = 'translateY(0)'}
                     >
-                        Submit Request
+                        {isSubmitting ? (
+                            <span>
+                                <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                                Submitting...
+                            </span>
+                        ) : 'Submit Request'}
                     </Button>
                 </Modal.Footer>
             </Modal>

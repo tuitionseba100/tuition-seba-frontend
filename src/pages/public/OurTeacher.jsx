@@ -1,37 +1,45 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, Suspense } from 'react';
 import {
     FaMapMarkerAlt,
     FaGraduationCap,
     FaSearch,
-    FaChevronLeft,
-    FaChevronRight,
     FaBookOpen,
     FaCalendarAlt,
     FaMale,
-    FaFemale
+    FaFemale,
+    FaArrowUp
 } from 'react-icons/fa';
 import NavBar from '../../components/NavBar';
 import Footer from '../../components/Footer';
 import { ToastContainer } from 'react-toastify';
-import RequestTeacherModal from '../../components/modals/RequestTeacherModal';
+
+// Lazy load the modal to improve performance
+const RequestTeacherModal = React.lazy(() => import('../../components/modals/RequestTeacherModal'));
 
 export default function OurTeacher() {
     const [teachers, setTeachers] = useState([]);
     const [filteredTeachers, setFilteredTeachers] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
-    const [currentPage, setCurrentPage] = useState(1);
+    const [selectedGender, setSelectedGender] = useState('all');
     const [loading, setLoading] = useState(true);
-    const itemsPerPage = 12;
     const [showRequestModal, setShowRequestModal] = useState(false);
     const [selectedTeacher, setSelectedTeacher] = useState(null);
+    const [showBackToTop, setShowBackToTop] = useState(false);
+
+    const resultsRef = useRef(null);
 
     useEffect(() => {
         fetchTeachers();
+        const handleScroll = () => {
+            setShowBackToTop(window.scrollY > 600);
+        };
+        window.addEventListener('scroll', handleScroll);
+        return () => window.removeEventListener('scroll', handleScroll);
     }, []);
 
     useEffect(() => {
         filterTeachers();
-    }, [searchTerm, teachers]);
+    }, [searchTerm, selectedGender, teachers]);
 
     const fetchTeachers = async () => {
         try {
@@ -47,283 +55,298 @@ export default function OurTeacher() {
     };
 
     const filterTeachers = () => {
-        const filtered = teachers.filter(teacher =>
-            teacher.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            teacher.premiumCode.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            teacher.district?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            teacher.thana?.toLowerCase().includes(searchTerm.toLowerCase())
-        );
+        let filtered = teachers;
+
+        if (selectedGender !== 'all') {
+            filtered = filtered.filter(t =>
+                t.gender?.toLowerCase() === selectedGender
+            );
+        }
+
+        const term = searchTerm.trim().toLowerCase();
+        if (term) {
+            filtered = filtered.filter((teacher) =>
+                Object.values(teacher).some((value) => {
+                    if (!value) return false;
+                    return String(value).toLowerCase().includes(term);
+                })
+            );
+        }
+
         setFilteredTeachers(filtered);
-        setCurrentPage(1);
     };
 
-    const indexOfLastItem = currentPage * itemsPerPage;
-    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-    const currentTeachers = filteredTeachers.slice(indexOfFirstItem, indexOfLastItem);
-    const totalPages = Math.ceil(filteredTeachers.length / itemsPerPage);
-
-    const styles = {
-        container: {
-            minHeight: '100vh',
-            background: 'linear-gradient(to bottom right, #f0f4f8, #e0e7ff)',
-            padding: '30px 20px 60px',
-            fontFamily: '"Inter", sans-serif',
-        },
-        header: { textAlign: 'center', marginBottom: '30px' },
-        title: { color: '#1e293b', fontSize: '1.6rem', fontWeight: '700', marginBottom: '6px' },
-        subtitle: { color: '#475569', fontSize: '1rem', fontWeight: '400' },
-        searchWrapper: { maxWidth: '600px', margin: '0 auto 40px', position: 'relative' },
-        searchInput: {
-            width: '100%',
-            padding: '14px 22px 14px 48px',
-            fontSize: '1rem',
-            border: '1px solid #cbd5e1',
-            borderRadius: '14px',
-            outline: 'none',
-            background: '#fff',
-            color: '#1e293b',
-            fontWeight: '500',
-            transition: 'all 0.3s ease',
-            boxShadow: '0 2px 6px rgba(0,0,0,0.05)'
-        },
-        searchIcon: { position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: '#94a3b8', pointerEvents: 'none' },
-        gridContainer: { maxWidth: '1440px', margin: '0 auto', display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '26px', padding: '0 15px' },
-        card: {
-            background: '#fff',
-            borderRadius: '20px',
-            padding: '26px',
-            border: '1px solid #e0e7ff',
-            transition: 'all 0.3s ease',
-            cursor: 'pointer',
-            boxShadow: '0 4px 12px rgba(0,0,0,0.05)',
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'space-between',
-            height: '100%'
-        },
-        cardHeader: { display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '22px', paddingBottom: '20px', borderBottom: '1px solid #f1f5f9' },
-        avatar: {
-            width: '65px',
-            height: '65px',
-            borderRadius: '16px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            flexShrink: 0,
-            transition: 'transform 0.3s ease, box-shadow 0.3s ease'
-        },
-        avatarIcon: { color: '#fff', width: '32px', height: '32px' },
-        cardInfo: { flex: 1, minWidth: 0 },
-        name: { fontSize: '1.2rem', fontWeight: '700', color: '#0f172a', marginBottom: '4px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' },
-        code: { display: 'inline-block', fontSize: '0.8rem', fontWeight: '600', color: '#fff', background: '#3b82f6', padding: '5px 12px', borderRadius: '10px', letterSpacing: '0.3px', marginTop: '4px' },
-        gender: { fontSize: '0.85rem', color: '#64748b', marginTop: '6px', display: 'flex', alignItems: 'center', gap: '6px' },
-        infoSection: { display: 'flex', flexDirection: 'column', gap: '14px' },
-        infoRow: { display: 'flex', alignItems: 'flex-start', gap: '12px' },
-        infoIcon: { color: '#3b82f6', flexShrink: 0, marginTop: '2px' },
-        infoText: { flex: 1, fontSize: '0.95rem', color: '#334155', lineHeight: '1.5' },
-        infoLabel: { fontSize: '0.8rem', color: '#64748b', fontWeight: '500', marginBottom: '2px' },
-        pagination: { display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '10px', marginTop: '50px', flexWrap: 'wrap' },
-        pageBtn: { minWidth: '38px', height: '38px', padding: '0 12px', background: '#fff', color: '#64748b', border: '1px solid #cbd5e1', borderRadius: '12px', cursor: 'pointer', fontWeight: '500', fontSize: '0.9rem', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.2s ease' },
-        pageBtnActive: { background: '#3b82f6', color: '#fff', borderColor: '#3b82f6' },
-        pageBtnDisabled: { opacity: 0.4, cursor: 'not-allowed' },
-        loading: { display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '400px', color: '#64748b' },
-        spinner: { width: '45px', height: '45px', border: '4px solid #e2e8f0', borderTop: '4px solid #3b82f6', borderRadius: '50%', animation: 'spin 0.8s linear infinite', marginBottom: '18px' },
-        noResults: { textAlign: 'center', color: '#64748b', padding: '60px 20px', fontSize: '1rem' }
+    const handleReset = () => {
+        setSearchTerm('');
+        setSelectedGender('all');
+        resultsRef.current?.scrollIntoView({ behavior: 'smooth' });
     };
 
-    const keyframes = `
-        @keyframes spin { to { transform: rotate(360deg); } }
-        @media (max-width: 768px) { .grid-container { grid-template-columns: 1fr !important; } }
-    `;
+    const scrollToTop = () => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
 
-    const pageWindow = 5;
-    let startPage = Math.max(1, currentPage - 2);
-    let endPage = Math.min(totalPages, startPage + pageWindow - 1);
-    if (endPage - startPage < pageWindow - 1) {
-        startPage = Math.max(1, endPage - pageWindow + 1);
-    }
-    const pageNumbers = Array.from({ length: endPage - startPage + 1 }, (_, i) => startPage + i);
+    const openModal = (teacher) => {
+        setSelectedTeacher(teacher);
+        setShowRequestModal(true);
+    };
 
     return (
         <>
             <NavBar />
-            <style>{keyframes}</style>
-            <div style={styles.container}>
-                <div style={styles.header}>
-                    <h1 style={styles.title}>Premium Teachers</h1>
-                    <p style={styles.subtitle}>Find qualified teacher easily</p>
-                    <p style={styles.stats}>10,000+ registered teachers available nationwide</p>
-                </div>
-
-                <div style={styles.searchWrapper}>
-                    <FaSearch style={styles.searchIcon} size={18} />
-                    <input
-                        type="text"
-                        placeholder="Search teachers..."
-                        style={styles.searchInput}
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        onFocus={(e) => e.target.style.borderColor = '#3b82f6'}
-                        onBlur={(e) => e.target.style.borderColor = '#cbd5e1'}
-                    />
-                </div>
-
-                {loading ? (
-                    <div style={styles.loading}>
-                        <div style={styles.spinner}></div>
-                        <div>Loading...</div>
-                    </div>
-                ) : filteredTeachers.length === 0 ? (
-                    <div style={styles.noResults}>No teachers found</div>
-                ) : (
-                    <>
-                        <div style={styles.gridContainer} className="grid-container">
-                            {currentTeachers.map(teacher => (
-                                <TeacherCard key={teacher._id} teacher={teacher} styles={styles} onRequest={() => { setSelectedTeacher(teacher); setShowRequestModal(true); }} />
-                            ))}
-                        </div>
-
-                        {totalPages > 1 && (
-                            <div style={styles.pagination}>
-                                <button
-                                    onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
-                                    disabled={currentPage === 1}
-                                    style={{ ...styles.pageBtn, ...(currentPage === 1 && styles.pageBtnDisabled) }}
-                                >
-                                    <FaChevronLeft size={18} />
-                                </button>
-
-                                {pageNumbers.map((pageNum) => (
-                                    <button
-                                        key={pageNum}
-                                        onClick={() => setCurrentPage(pageNum)}
-                                        style={{ ...styles.pageBtn, ...(currentPage === pageNum && styles.pageBtnActive) }}
-                                    >
-                                        {pageNum}
-                                    </button>
-                                ))}
-
-                                <button
-                                    onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
-                                    disabled={currentPage === totalPages}
-                                    style={{ ...styles.pageBtn, ...(currentPage === totalPages && styles.pageBtnDisabled) }}
-                                >
-                                    <FaChevronRight size={18} />
-                                </button>
-                            </div>
-                        )}
-
-                    </>
-                )}
-            </div>
-            <Footer />
-            <RequestTeacherModal
-                show={showRequestModal}
-                onHide={() => setShowRequestModal(false)}
-                teacher={selectedTeacher}
-                onSaved={() => setShowRequestModal(false)}
-            />
             <ToastContainer position="top-center" />
+
+            <section className="py-5 bg-light" style={{ minHeight: '100vh' }}>
+                <div className="container py-4">
+                    {/* Header */}
+                    <div className="text-center mb-5">
+                        <h1 className="display-5 fw-bold text-primary mb-3">Premium Teachers</h1>
+                        <p className="lead text-muted mb-2">Find qualified teachers easily</p>
+                        <p className="text-secondary fs-5">10,000+ registered teachers available nationwide</p>
+                    </div>
+
+                    {/* Smaller Filter Card */}
+                    <div className="row justify-content-center mb-4">
+                        <div className="col-lg-8">
+                            <div className="card shadow-sm border-0">
+                                <div className="card-body p-3"> {/* Reduced padding */}
+                                    <div className="row g-3 align-items-center"> {/* align-items-center for tighter layout */}
+                                        {/* Search */}
+                                        <div className="col-md-6">
+                                            <div className="position-relative">
+                                                <FaSearch className="position-absolute top-50 start-3 translate-middle-y text-muted" size={18} />
+                                                <input
+                                                    type="text"
+                                                    className="form-control ps-5 rounded-pill"
+                                                    placeholder="Search teachers..."
+                                                    value={searchTerm}
+                                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                                />
+                                            </div>
+                                        </div>
+
+                                        {/* Gender Filter */}
+                                        <div className="col-md-3">
+                                            <select
+                                                className="form-select rounded-pill"
+                                                value={selectedGender}
+                                                onChange={(e) => setSelectedGender(e.target.value)}
+                                            >
+                                                <option value="all">All</option>
+                                                <option value="male">Male</option>
+                                                <option value="female">Female</option>
+                                            </select>
+                                        </div>
+
+                                        {/* Reset Button */}
+                                        <div className="col-md-3">
+                                            <button
+                                                onClick={handleReset}
+                                                className="btn btn-outline-secondary w-100 rounded-pill"
+                                            >
+                                                Reset
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Results */}
+                    <div ref={resultsRef}>
+                        {loading ? (
+                            <div className="text-center py-5 my-5">
+                                <div className="spinner-border text-primary" role="status" style={{ width: '4rem', height: '4rem' }}>
+                                    <span className="visually-hidden">Loading...</span>
+                                </div>
+                                <p className="mt-4 text-muted fs-5">Loading teachers...</p>
+                            </div>
+                        ) : filteredTeachers.length === 0 ? (
+                            <div className="text-center py-5 my-5">
+                                <div className="display-1 text-muted mb-4">😔</div>
+                                <h3 className="text-muted">No teachers found</h3>
+                                <p className="text-secondary">Try adjusting your search or filters.</p>
+                            </div>
+                        ) : (
+                            <>
+                                <div className="row row-cols-1 row-cols-md-2 row-cols-lg-3 row-cols-xl-4 g-4">
+                                    {filteredTeachers.map(teacher => (
+                                        <div key={teacher._id} className="col">
+                                            <TeacherCard
+                                                teacher={teacher}
+                                                onRequest={() => openModal(teacher)}
+                                            />
+                                        </div>
+                                    ))}
+                                </div>
+
+                                <div className="text-center mt-5">
+                                    <p className="text-muted fs-5">
+                                        Showing <strong>{filteredTeachers.length}</strong> teacher{filteredTeachers.length !== 1 ? 's' : ''}
+                                    </p>
+                                </div>
+                            </>
+                        )}
+                    </div>
+                </div>
+            </section>
+
+            <Footer />
+
+            {/* Lazy Loaded Modal with Fallback */}
+            <Suspense fallback={
+                <div className="modal-backdrop fade show" style={{ zIndex: 1050 }}>
+                    <div className="d-flex justify-content-center align-items-center vh-100">
+                        <div className="spinner-border text-primary" style={{ width: '3rem', height: '3rem' }} />
+                    </div>
+                </div>
+            }>
+                <RequestTeacherModal
+                    show={showRequestModal}
+                    onHide={() => setShowRequestModal(false)}
+                    teacher={selectedTeacher}
+                    onSaved={() => setShowRequestModal(false)}
+                />
+            </Suspense>
+
+            {/* Back to Top Button */}
+            {showBackToTop && (
+                <button
+                    onClick={scrollToTop}
+                    className="btn btn-primary btn-lg rounded-circle shadow-lg position-fixed"
+                    style={{
+                        bottom: '30px',
+                        right: '30px',
+                        zIndex: 1000,
+                        width: '60px',
+                        height: '60px'
+                    }}
+                    aria-label="Back to top"
+                >
+                    <FaArrowUp size={24} />
+                </button>
+            )}
         </>
     );
 }
 
-function TeacherCard({ teacher, styles, onRequest }) {
-    const [isHovered, setIsHovered] = useState(false);
-    const GenderIcon = teacher.gender?.toLowerCase() === 'male' ? FaMale : FaFemale;
-
-    const avatarGradient = teacher.gender?.toLowerCase() === 'male'
-        ? 'linear-gradient(135deg, #3b82f6, #60a5fa)'
-        : 'linear-gradient(135deg, #ec4899, #f472b6)';
+function TeacherCard({ teacher, onRequest }) {
+    const isMale = teacher.gender?.toLowerCase() === 'male';
+    const GenderIcon = isMale ? FaMale : FaFemale;
 
     return (
         <div
+            className="card h-100 border-0 shadow-sm hover-shadow-lg transition-all"
             style={{
-                ...styles.card,
-                transform: isHovered ? 'translateY(-6px)' : 'translateY(0)',
-                boxShadow: isHovered
-                    ? '0 16px 28px rgba(0, 0, 0, 0.12)'
-                    : '0 4px 12px rgba(0, 0, 0, 0.05)'
+                borderRadius: '20px',
+                overflow: 'hidden',
+                transition: 'transform 0.3s ease, box-shadow 0.3s ease'
             }}
-            onMouseEnter={() => setIsHovered(true)}
-            onMouseLeave={() => setIsHovered(false)}
+            onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-8px)'}
+            onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}
         >
-            <div style={styles.cardHeader}>
-                <div
-                    style={{
-                        ...styles.avatar,
-                        transform: isHovered ? 'scale(1.1)' : 'scale(1)',
-                        background: avatarGradient
-                    }}
-                >
-                    <GenderIcon style={styles.avatarIcon} />
+            <div className="card-body p-4 d-flex flex-column">
+                <div className="d-flex align-items-center mb-4 pb-3 border-bottom">
+                    <div
+                        className="flex-shrink-0 d-flex align-items-center justify-content-center rounded-3"
+                        style={{
+                            width: '70px',
+                            height: '70px',
+                            background: isMale
+                                ? 'linear-gradient(135deg, #3b82f6, #60a5fa)'
+                                : 'linear-gradient(135deg, #ec4899, #f472b6)',
+                            color: 'white'
+                        }}
+                    >
+                        <GenderIcon size={32} />
+                    </div>
+                    <div className="ms-3 flex-grow-1">
+                        <h5 className="mb-1 fw-bold text-primary">{teacher.name}</h5>
+                        <span className="badge bg-primary text-white px-3 py-2 rounded-pill">
+                            #{teacher.premiumCode}
+                        </span>
+                        <div className="mt-2 text-muted small">
+                            <GenderIcon className="me-1" />
+                            {teacher.gender}
+                        </div>
+                    </div>
                 </div>
 
-                <div style={styles.cardInfo}>
-                    <h3 style={{ ...styles.name, color: '#1e40af', fontSize: '1.25rem' }}>{teacher.name}</h3>
-                    <div style={{ ...styles.code }}>#{teacher.premiumCode}</div>
-                    <div style={styles.gender}><GenderIcon /> {teacher.gender}</div>
+                <div className="flex-grow-1">
+                    {(teacher.currentArea || teacher.thana || teacher.district) && (
+                        <div className="d-flex mb-3">
+                            <FaMapMarkerAlt className="text-primary mt-1 flex-shrink-0" />
+                            <div className="ms-3">
+                                <small className="text-muted d-block">Location</small>
+                                <strong>
+                                    {[teacher.currentArea, teacher.thana, teacher.district]
+                                        .filter(Boolean)
+                                        .join(', ')}
+                                </strong>
+                            </div>
+                        </div>
+                    )}
+
+                    {teacher.honorsDept && (
+                        <div className="d-flex mb-3">
+                            <FaGraduationCap className="text-primary mt-1 flex-shrink-0" />
+                            <div className="ms-3">
+                                <small className="text-muted d-block">Honors</small>
+                                <strong className="text-primary">
+                                    {teacher.honorsDept}
+                                    {teacher.honorsUniversity && ` - ${teacher.honorsUniversity}`}
+                                </strong>
+                            </div>
+                        </div>
+                    )}
+
+                    {teacher.mastersDept && (
+                        <div className="d-flex mb-3">
+                            <FaBookOpen className="text-primary mt-1 flex-shrink-0" />
+                            <div className="ms-3">
+                                <small className="text-muted d-block">Masters</small>
+                                <strong className="text-primary">
+                                    {teacher.mastersDept}
+                                    {teacher.mastersUniversity && ` - ${teacher.mastersUniversity}`}
+                                </strong>
+                            </div>
+                        </div>
+                    )}
+
+                    {teacher.academicYear && (
+                        <div className="d-flex mb-3">
+                            <FaCalendarAlt className="text-primary mt-1 flex-shrink-0" />
+                            <div className="ms-3">
+                                <small className="text-muted d-block">Academic Year</small>
+                                <strong>{teacher.academicYear}</strong>
+                            </div>
+                        </div>
+                    )}
+
+                    {teacher.isResultShow && (teacher.sscResult || teacher.hscResult) && (
+                        <div className="d-flex mb-3">
+                            <FaBookOpen className="text-primary mt-1 flex-shrink-0" />
+                            <div className="ms-3">
+                                <small className="text-muted d-block">Results</small>
+                                {teacher.sscResult && <div><strong>SSC:</strong> {teacher.sscResult}</div>}
+                                {teacher.hscResult && <div><strong>HSC:</strong> {teacher.hscResult}</div>}
+                            </div>
+                        </div>
+                    )}
                 </div>
-            </div>
 
-            <div style={styles.infoSection}>
-                {teacher.currentArea || teacher.thana || teacher.district ? (
-                    <div style={styles.infoRow}>
-                        <FaMapMarkerAlt style={styles.infoIcon} size={16} />
-                        <div style={styles.infoText}>
-                            <div style={styles.infoLabel}>Location</div>
-                            <span style={{ fontWeight: '600', color: '#0f172a' }}>
-                                {[teacher.currentArea, teacher.thana, teacher.district].filter(Boolean).join(', ')}
-                            </span>
-                        </div>
-                    </div>
-                ) : null}
-
-                {teacher.honorsDept && (
-                    <div style={styles.infoRow}>
-                        <FaGraduationCap style={styles.infoIcon} size={16} />
-                        <div style={styles.infoText}>
-                            <div style={styles.infoLabel}>Honors</div>
-                            <span style={{ fontWeight: '600', color: '#1e40af' }}>
-                                {teacher.honorsDept}
-                                {teacher.honorsUniversity && ` - ${teacher.honorsUniversity}`}
-                            </span>
-                        </div>
-                    </div>
-                )}
-
-                {teacher.mastersDept && (
-                    <div style={styles.infoRow}>
-                        <FaBookOpen style={styles.infoIcon} size={16} />
-                        <div style={styles.infoText}>
-                            <div style={styles.infoLabel}>Masters</div>
-                            <span style={{ fontWeight: '600', color: '#1e40af' }}>
-                                {teacher.mastersDept}
-                                {teacher.mastersUniversity && ` - ${teacher.mastersUniversity}`}
-                            </span>
-                        </div>
-                    </div>
-                )}
-
-                {teacher.academicYear && (
-                    <div style={styles.infoRow}>
-                        <FaCalendarAlt style={styles.infoIcon} size={16} />
-                        <div style={styles.infoText}>
-                            <div style={styles.infoLabel}>Academic Year</div>
-                            <span style={{ fontWeight: '600', color: '#0f172a' }}>{teacher.academicYear}</span>
-                        </div>
-                    </div>
-                )}
-            </div>
-            <div style={{ marginTop: '16px', marginTop: 'auto', display: 'flex', justifyContent: 'center' }}>
-                <button
-                    onClick={(e) => { e.stopPropagation(); onRequest && onRequest(teacher); }}
-                    className="btn btn-primary"
-                    style={{ padding: '8px 12px', borderRadius: '10px', fontWeight: 600 }}
-                    onMouseDown={(e) => e.stopPropagation()}
-                >
-                    Request Teacher
-                </button>
+                <div className="mt-auto pt-3">
+                    <button
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            onRequest();
+                        }}
+                        className="btn btn-primary btn-lg w-100 rounded-pill shadow-sm fw-semibold"
+                    >
+                        Request Teacher
+                    </button>
+                </div>
             </div>
         </div>
     );

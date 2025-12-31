@@ -65,6 +65,7 @@ const NavbarComponent = () => {
         { label: 'Home', to: '/' },
         { label: 'Available Tuitions', to: '/tuitions' },
         { label: 'Find Tutor', to: '/findTutor' },
+        { label: 'Our Teachers', to: '/OurTeachers' },
         { label: 'About Us', to: '#about-us', isSpecial: true },
         { label: 'Payment', to: '/payment' },
         { label: 'Registration', to: '/teacherRegistration' },

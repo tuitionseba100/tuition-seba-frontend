@@ -1,44 +1,44 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
     FaMapMarkerAlt,
     FaGraduationCap,
     FaSearch,
-    FaChevronLeft,
-    FaChevronRight,
     FaBookOpen,
     FaCalendarAlt,
     FaMale,
     FaFemale
 } from 'react-icons/fa';
+import { Modal, Button, Form, Row, Col } from 'react-bootstrap';
+import { Pagination } from '@mui/material';
 import NavBar from '../../components/NavBar';
 import Footer from '../../components/Footer';
-import { ToastContainer } from 'react-toastify';
-import RequestTeacherModal from '../../components/modals/RequestTeacherModal';
+import { ToastContainer, toast } from 'react-toastify';
+import axios from 'axios';
+import ApplySuccessModal from '../../components/modals/ApplySuccessModal';
+import { ButtonGroup } from 'react-bootstrap';
 
 export default function OurTeacher() {
     const [teachers, setTeachers] = useState([]);
     const [filteredTeachers, setFilteredTeachers] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
-    const [currentPage, setCurrentPage] = useState(1);
+    const [genderFilter, setGenderFilter] = useState(''); // '' means all
     const [loading, setLoading] = useState(true);
-    const itemsPerPage = 12;
     const [showRequestModal, setShowRequestModal] = useState(false);
     const [selectedTeacher, setSelectedTeacher] = useState(null);
+
+    // Pagination state
+    const [currentPage, setCurrentPage] = useState(1);
+    const teachersPerPage = 50;
 
     useEffect(() => {
         fetchTeachers();
     }, []);
-
-    useEffect(() => {
-        filterTeachers();
-    }, [searchTerm, teachers]);
 
     const fetchTeachers = async () => {
         try {
             const response = await fetch('https://tuition-seba-backend-1.onrender.com/api/regTeacher/public-teachers');
             const data = await response.json();
             setTeachers(data);
-            setFilteredTeachers(data);
             setLoading(false);
         } catch (error) {
             console.error('Error fetching teachers:', error);
@@ -46,30 +46,48 @@ export default function OurTeacher() {
         }
     };
 
-    const filterTeachers = () => {
-        const term = searchTerm.trim().toLowerCase();
+    // Memoized filtered teachers to avoid recalculating on every render
+    const memoizedFilteredTeachers = useMemo(() => {
+        let filtered = teachers;
 
-        if (!term) {
-            setFilteredTeachers(teachers);
-            return;
+        // Apply search term filter
+        if (searchTerm.trim()) {
+            const term = searchTerm.trim().toLowerCase();
+            filtered = filtered.filter((teacher) =>
+                Object.values(teacher).some((value) => {
+                    if (!value) return false;
+                    return String(value).toLowerCase().includes(term);
+                })
+            );
         }
 
-        const filtered = teachers.filter((teacher) =>
-            Object.values(teacher).some((value) => {
-                if (!value) return false;
+        // Apply gender filter
+        if (genderFilter) {
+            filtered = filtered.filter(teacher =>
+                teacher.gender && teacher.gender.toLowerCase() === genderFilter.toLowerCase()
+            );
+        }
 
-                return String(value).toLowerCase().includes(term);
-            })
-        );
+        return filtered;
+    }, [teachers, searchTerm, genderFilter]);
 
-        setFilteredTeachers(filtered);
+    // Calculate pagination
+    const indexOfLastTeacher = currentPage * teachersPerPage;
+    const indexOfFirstTeacher = indexOfLastTeacher - teachersPerPage;
+    const currentTeachers = memoizedFilteredTeachers.slice(indexOfFirstTeacher, indexOfLastTeacher);
+    const totalPages = Math.ceil(memoizedFilteredTeachers.length / teachersPerPage);
+
+    // Reset to first page when filters change
+    useEffect(() => {
         setCurrentPage(1);
+    }, [searchTerm, genderFilter]);
+
+    const resetFilters = () => {
+        setSearchTerm('');
+        setGenderFilter('');
     };
 
-    const indexOfLastItem = currentPage * itemsPerPage;
-    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-    const currentTeachers = filteredTeachers.slice(indexOfFirstItem, indexOfLastItem);
-    const totalPages = Math.ceil(filteredTeachers.length / itemsPerPage);
+
 
     const styles = {
         container: {
@@ -96,6 +114,52 @@ export default function OurTeacher() {
             boxShadow: '0 2px 6px rgba(0,0,0,0.05)'
         },
         searchIcon: { position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: '#94a3b8', pointerEvents: 'none' },
+        filterContainer: {
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            maxWidth: '800px',
+            margin: '0 auto 30px',
+            flexWrap: 'wrap',
+            gap: '15px'
+        },
+        searchWrapper: {
+            width: '40%',
+            position: 'relative'
+        },
+        genderFilterWrapper: { display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'nowrap' },
+        filterLabel: { fontSize: '0.9rem', fontWeight: '500', color: '#475569' },
+        genderFilterButtons: { display: 'flex', gap: '8px' },
+        genderButton: {
+            padding: '6px 10px',
+            borderRadius: '8px',
+            border: '1px solid #cbd5e1',
+            background: '#fff',
+            color: '#64748b',
+            cursor: 'pointer',
+            fontSize: '0.8rem',
+            fontWeight: '500',
+            transition: 'all 0.2s ease',
+            display: 'flex',
+            alignItems: 'center',
+            whiteSpace: 'nowrap'
+        },
+        genderButtonActive: {
+            background: '#3b82f6',
+            color: '#fff',
+            borderColor: '#3b82f6'
+        },
+        resetButton: {
+            padding: '6px 12px',
+            borderRadius: '8px',
+            border: '1px solid #ef4444',
+            background: '#fff',
+            color: '#ef4444',
+            cursor: 'pointer',
+            fontSize: '0.8rem',
+            fontWeight: '500',
+            transition: 'all 0.2s ease'
+        },
         gridContainer: { maxWidth: '1440px', margin: '0 auto', display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '26px', padding: '0 15px' },
         card: {
             background: '#fff',
@@ -131,10 +195,7 @@ export default function OurTeacher() {
         infoIcon: { color: '#3b82f6', flexShrink: 0, marginTop: '2px' },
         infoText: { flex: 1, fontSize: '0.95rem', color: '#334155', lineHeight: '1.5' },
         infoLabel: { fontSize: '0.8rem', color: '#64748b', fontWeight: '500', marginBottom: '2px' },
-        pagination: { display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '10px', marginTop: '50px', flexWrap: 'wrap' },
-        pageBtn: { minWidth: '38px', height: '38px', padding: '0 12px', background: '#fff', color: '#64748b', border: '1px solid #cbd5e1', borderRadius: '12px', cursor: 'pointer', fontWeight: '500', fontSize: '0.9rem', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.2s ease' },
-        pageBtnActive: { background: '#3b82f6', color: '#fff', borderColor: '#3b82f6' },
-        pageBtnDisabled: { opacity: 0.4, cursor: 'not-allowed' },
+
         loading: { display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '400px', color: '#64748b' },
         spinner: { width: '45px', height: '45px', border: '4px solid #e2e8f0', borderTop: '4px solid #3b82f6', borderRadius: '50%', animation: 'spin 0.8s linear infinite', marginBottom: '18px' },
         noResults: { textAlign: 'center', color: '#64748b', padding: '60px 20px', fontSize: '1rem' }
@@ -145,13 +206,7 @@ export default function OurTeacher() {
         @media (max-width: 768px) { .grid-container { grid-template-columns: 1fr !important; } }
     `;
 
-    const pageWindow = 5;
-    let startPage = Math.max(1, currentPage - 2);
-    let endPage = Math.min(totalPages, startPage + pageWindow - 1);
-    if (endPage - startPage < pageWindow - 1) {
-        startPage = Math.max(1, endPage - pageWindow + 1);
-    }
-    const pageNumbers = Array.from({ length: endPage - startPage + 1 }, (_, i) => startPage + i);
+
 
     return (
         <>
@@ -164,17 +219,59 @@ export default function OurTeacher() {
                     <p style={styles.stats}>10,000+ registered teachers available nationwide</p>
                 </div>
 
-                <div style={styles.searchWrapper}>
-                    <FaSearch style={styles.searchIcon} size={18} />
-                    <input
-                        type="text"
-                        placeholder="Search teachers..."
-                        style={styles.searchInput}
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        onFocus={(e) => e.target.style.borderColor = '#3b82f6'}
-                        onBlur={(e) => e.target.style.borderColor = '#cbd5e1'}
-                    />
+                <div style={styles.filterContainer}>
+                    <div style={styles.searchWrapper}>
+                        <FaSearch style={styles.searchIcon} size={18} />
+                        <input
+                            type="text"
+                            placeholder="Search teachers..."
+                            style={styles.searchInput}
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            onFocus={(e) => e.target.style.borderColor = '#3b82f6'}
+                            onBlur={(e) => e.target.style.borderColor = '#cbd5e1'}
+                        />
+                    </div>
+
+                    <div style={styles.genderFilterWrapper}>
+                        <span style={styles.filterLabel}>Gender:</span>
+                        <div style={styles.genderFilterButtons}>
+                            <button
+                                style={{
+                                    ...styles.genderButton,
+                                    ...(genderFilter === '' && styles.genderButtonActive)
+                                }}
+                                onClick={() => setGenderFilter('')}
+                            >
+                                All
+                            </button>
+                            <button
+                                style={{
+                                    ...styles.genderButton,
+                                    ...(genderFilter === 'male' && styles.genderButtonActive)
+                                }}
+                                onClick={() => setGenderFilter('male')}
+                            >
+                                <FaMale style={{ marginRight: '6px' }} /> Male
+                            </button>
+                            <button
+                                style={{
+                                    ...styles.genderButton,
+                                    ...(genderFilter === 'female' && styles.genderButtonActive)
+                                }}
+                                onClick={() => setGenderFilter('female')}
+                            >
+                                <FaFemale style={{ marginRight: '6px' }} /> Female
+                            </button>
+                        </div>
+                    </div>
+
+                    <button
+                        style={styles.resetButton}
+                        onClick={resetFilters}
+                    >
+                        Reset
+                    </button>
                 </div>
 
                 {loading ? (
@@ -182,7 +279,7 @@ export default function OurTeacher() {
                         <div style={styles.spinner}></div>
                         <div>Loading...</div>
                     </div>
-                ) : filteredTeachers.length === 0 ? (
+                ) : memoizedFilteredTeachers.length === 0 ? (
                     <div style={styles.noResults}>No teachers found</div>
                 ) : (
                     <>
@@ -192,36 +289,25 @@ export default function OurTeacher() {
                             ))}
                         </div>
 
+                        {/* Pagination Controls */}
                         {totalPages > 1 && (
-                            <div style={styles.pagination}>
-                                <button
-                                    onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
-                                    disabled={currentPage === 1}
-                                    style={{ ...styles.pageBtn, ...(currentPage === 1 && styles.pageBtnDisabled) }}
-                                >
-                                    <FaChevronLeft size={18} />
-                                </button>
-
-                                {pageNumbers.map((pageNum) => (
-                                    <button
-                                        key={pageNum}
-                                        onClick={() => setCurrentPage(pageNum)}
-                                        style={{ ...styles.pageBtn, ...(currentPage === pageNum && styles.pageBtnActive) }}
-                                    >
-                                        {pageNum}
-                                    </button>
-                                ))}
-
-                                <button
-                                    onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
-                                    disabled={currentPage === totalPages}
-                                    style={{ ...styles.pageBtn, ...(currentPage === totalPages && styles.pageBtnDisabled) }}
-                                >
-                                    <FaChevronRight size={18} />
-                                </button>
+                            <div style={{
+                                display: 'flex',
+                                justifyContent: 'center',
+                                marginTop: '30px',
+                                marginBottom: '40px'
+                            }}>
+                                <Pagination
+                                    count={totalPages}
+                                    page={currentPage}
+                                    onChange={(event, page) => setCurrentPage(page)}
+                                    color="primary"
+                                    size="large"
+                                    showFirstButton
+                                    showLastButton
+                                />
                             </div>
                         )}
-
                     </>
                 )}
             </div>
@@ -276,7 +362,7 @@ function TeacherCard({ teacher, styles, onRequest }) {
                         {teacher.name}
                     </h3>
 
-                    <div style={styles.code}>#{teacher.premiumCode}</div>
+                    <div style={styles.code}>Teacher Code: #{teacher.premiumCode}</div>
 
                     <div style={styles.gender}>
                         <GenderIcon /> {teacher.gender}
@@ -378,5 +464,308 @@ function TeacherCard({ teacher, styles, onRequest }) {
                 </button>
             </div>
         </div>
+    );
+}
+
+function RequestTeacherModal({ show, onHide, teacher, onSaved }) {
+    const [form, setForm] = useState({
+        name: '',
+        phone: '',
+        address: '',
+        studentClass: '',
+        status: '',
+        comment: ''
+    });
+    const [showSuccess, setShowSuccess] = useState(false);
+
+    useEffect(() => {
+        if (show) {
+            // Reset form when modal opens
+            setForm({
+                name: '',
+                phone: '',
+                address: '',
+                studentClass: '',
+                status: '',
+                comment: ''
+            });
+        }
+    }, [show]);
+
+    const handleChange = (field, val) => setForm(prev => ({ ...prev, [field]: val }));
+
+    const handleSubmit = async () => {
+        if (!form.phone || form.phone.trim() === '') {
+            toast.error('সঠিক ফোন নাম্বার লিখুন।');
+            return;
+        }
+
+        const payload = {
+            name: form.name,
+            phone: form.phone,
+            address: form.address,
+            studentClass: form.studentClass,
+            status: form.status,
+            comment: form.comment,
+            teacherId: teacher?._id || null,
+            teacherCode: teacher?.premiumCode || null
+        };
+
+        try {
+            const response = await axios.post('https://tuition-seba-backend-1.onrender.com/api/guardianApply/add', payload);
+            if (response && (response.status === 200 || response.status === 201)) {
+                toast.success('Request submitted successfully');
+                setShowSuccess(true);
+                setForm({
+                    name: '', phone: '', address: '', studentClass: '', status: '', comment: ''
+                });
+                onSaved && onSaved();
+            } else {
+                toast.error('Error submitting request');
+            }
+        } catch (err) {
+            console.error(err);
+            toast.error('An error occurred. Please try again later.');
+        }
+    };
+
+    // Premium modal styling
+    const modalStyles = {
+        header: {
+            background: 'linear-gradient(135deg, #3b82f6, #60a5fa)',
+            color: 'white',
+            borderTopLeftRadius: '16px',
+            borderTopRightRadius: '16px',
+            border: 'none',
+            padding: '1.2rem 1.5rem'
+        },
+        title: {
+            fontWeight: '700',
+            fontSize: '1.3rem',
+            margin: 0
+        },
+        footer: {
+            background: '#f8fafc',
+            borderTop: '1px solid #e2e8f0',
+            padding: '1rem 1.5rem',
+            borderBottomLeftRadius: '16px',
+            borderBottomRightRadius: '16px'
+        },
+        formLabel: {
+            fontWeight: '600',
+            color: '#1e293b',
+            marginBottom: '0.5rem',
+            fontSize: '0.9rem'
+        },
+        formControl: {
+            borderRadius: '10px',
+            padding: '10px 14px',
+            border: '1px solid #cbd5e1',
+            fontSize: '0.95rem',
+            transition: 'all 0.3s ease',
+            boxShadow: '0 1px 2px rgba(0,0,0,0.02)'
+        },
+        teacherInfo: {
+            background: 'linear-gradient(to right, #f0f4f8, #e0e7ff)',
+            borderRadius: '12px',
+            padding: '1rem',
+            marginBottom: '1.5rem',
+            border: '1px solid #c7d2fe'
+        },
+        teacherName: {
+            fontSize: '1.2rem',
+            fontWeight: '700',
+            color: '#1e40af',
+            marginBottom: '0.25rem'
+        },
+        teacherCode: {
+            fontSize: '0.9rem',
+            fontWeight: '600',
+            color: '#fff',
+            background: '#3b82f6',
+            padding: '4px 10px',
+            borderRadius: '8px',
+            display: 'inline-block',
+            marginBottom: '0.5rem'
+        },
+        teacherGender: {
+            fontSize: '0.9rem',
+            color: '#64748b',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '6px'
+        },
+        buttonPrimary: {
+            background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)',
+            border: 'none',
+            padding: '10px 24px',
+            fontWeight: '600',
+            fontSize: '1rem',
+            borderRadius: '10px',
+            boxShadow: '0 4px 12px rgba(59, 130, 246, 0.25)',
+            transition: 'all 0.3s ease'
+        },
+        buttonSecondary: {
+            background: '#e2e8f0',
+            color: '#475569',
+            border: 'none',
+            padding: '10px 24px',
+            fontWeight: '600',
+            fontSize: '1rem',
+            borderRadius: '10px',
+            transition: 'all 0.3s ease'
+        }
+    };
+
+    return (
+        <>
+            <Modal show={show} onHide={onHide} size="lg" centered>
+                <Modal.Header style={modalStyles.header}>
+                    <div style={{ flex: 1 }}>
+                        <Modal.Title style={modalStyles.title}>Request Teacher</Modal.Title>
+                        {teacher && (
+                            <div style={{ marginTop: '0.5rem' }}>
+                                <div style={modalStyles.teacherInfo}>
+                                    <div style={modalStyles.teacherName}>{teacher.name}</div>
+                                    <div style={modalStyles.teacherCode}>Teacher Code: #{teacher.premiumCode}</div>
+                                    <div style={modalStyles.teacherGender}>
+                                        {teacher.gender?.toLowerCase() === 'male' ? (
+                                            <FaMale style={{ color: '#3b82f6' }} />
+                                        ) : (
+                                            <FaFemale style={{ color: '#ec4899' }} />
+                                        )}
+                                        {teacher.gender}
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                    <button
+                        onClick={onHide}
+                        style={{
+                            background: 'none',
+                            border: 'none',
+                            color: 'white',
+                            fontSize: '1.5rem',
+                            cursor: 'pointer',
+                            padding: '0.25rem',
+                            borderRadius: '50%',
+                            width: '36px',
+                            height: '36px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            transition: 'background 0.3s ease'
+                        }}
+                        onMouseEnter={(e) => e.target.style.background = 'rgba(255,255,255,0.2)'}
+                        onMouseLeave={(e) => e.target.style.background = 'none'}
+                    >
+                        ×
+                    </button>
+                </Modal.Header>
+
+                <Modal.Body style={{ padding: '1.5rem' }}>
+                    <Form>
+                        <Row>
+                            <Col md={6}>
+                                <Form.Group controlId="name">
+                                    <Form.Label style={modalStyles.formLabel}>আপনার নাম</Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        value={form.name}
+                                        onChange={(e) => handleChange('name', e.target.value)}
+                                        style={modalStyles.formControl}
+                                        placeholder="Enter your full name"
+                                    />
+                                </Form.Group>
+                            </Col>
+
+                            <Col md={6}>
+                                <Form.Group controlId="phone">
+                                    <Form.Label style={modalStyles.formLabel}>আপনার সচল মোবাইল নাম্বার লিখুন <span style={{ color: '#ef4444' }}>*</span></Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        value={form.phone}
+                                        onChange={(e) => handleChange('phone', e.target.value)}
+                                        style={modalStyles.formControl}
+                                        placeholder="Enter your phone number"
+                                    />
+                                </Form.Group>
+                            </Col>
+                        </Row>
+
+                        <Row className="mt-3">
+                            <Col md={6}>
+                                <Form.Group controlId="address">
+                                    <Form.Label style={modalStyles.formLabel}>আপনার বাসার ঠিকানা লিখুন</Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        value={form.address}
+                                        onChange={(e) => handleChange('address', e.target.value)}
+                                        style={modalStyles.formControl}
+                                        placeholder="Enter your address"
+                                    />
+                                </Form.Group>
+                            </Col>
+
+                            <Col md={6}>
+                                <Form.Group controlId="studentClass">
+                                    <Form.Label style={modalStyles.formLabel}>ছাত্র/ছাত্রী কোন ক্লাসে পড়ে?</Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        value={form.studentClass}
+                                        onChange={(e) => handleChange('studentClass', e.target.value)}
+                                        style={modalStyles.formControl}
+                                        placeholder="Enter student class"
+                                    />
+                                </Form.Group>
+                            </Col>
+                        </Row>
+
+
+
+                        <Row className="mt-3">
+                            <Col md={12}>
+                                <Form.Group controlId="comment">
+                                    <Form.Label style={modalStyles.formLabel}>কেমন শিক্ষক খুঁজছেন সংক্ষেপে নিচে লিখুন</Form.Label>
+                                    <Form.Control
+                                        as="textarea"
+                                        rows={3}
+                                        value={form.comment}
+                                        onChange={(e) => handleChange('comment', e.target.value)}
+                                        style={{
+                                            ...modalStyles.formControl,
+                                            minHeight: '100px'
+                                        }}
+                                        placeholder="Enter any additional comments or requirements"
+                                    />
+                                </Form.Group>
+                            </Col>
+                        </Row>
+                    </Form>
+                </Modal.Body>
+
+                <Modal.Footer style={modalStyles.footer}>
+                    <Button
+                        style={modalStyles.buttonSecondary}
+                        onClick={onHide}
+                        onMouseEnter={(e) => e.target.style.background = '#cbd5e1'}
+                        onMouseLeave={(e) => e.target.style.background = '#e2e8f0'}
+                    >
+                        Cancel
+                    </Button>
+                    <Button
+                        style={modalStyles.buttonPrimary}
+                        onClick={handleSubmit}
+                        onMouseEnter={(e) => e.target.style.transform = 'translateY(-2px)'}
+                        onMouseLeave={(e) => e.target.style.transform = 'translateY(0)'}
+                    >
+                        Submit Request
+                    </Button>
+                </Modal.Footer>
+            </Modal>
+
+            <ApplySuccessModal show={showSuccess} handleClose={() => setShowSuccess(false)} />
+        </>
     );
 }

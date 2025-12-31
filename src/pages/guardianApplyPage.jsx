@@ -141,7 +141,8 @@ const GuardianApplyPage = () => {
                     no_response: response.data.no_response,
                     meeting_scheduled: response.data.meeting_scheduled,
                     confirmed: response.data.confirmed,
-                    total: response.data.total
+                    total: response.data.total,
+                    not_interested: response.data.not_interested
                 });
                 setExportList(response.data.data);
             })

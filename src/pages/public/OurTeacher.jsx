@@ -342,7 +342,6 @@ function TeacherCard({ teacher, styles, onRequest }) {
                     </div>
                 )}
 
-                {/* ✅ RESULT (SSC / HSC) */}
                 {teacher.isResultShow && (teacher.sscResult || teacher.hscResult) && (
                     <div style={styles.infoRow}>
                         <FaBookOpen style={styles.infoIcon} size={16} />
@@ -365,7 +364,6 @@ function TeacherCard({ teacher, styles, onRequest }) {
                 )}
             </div>
 
-            {/* Action */}
             <div style={{ marginTop: 'auto', display: 'flex', justifyContent: 'center' }}>
                 <button
                     className="btn btn-primary"

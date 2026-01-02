@@ -22,7 +22,7 @@ export default function OurTeacher() {
     const [teachers, setTeachers] = useState([]);
     const [filteredTeachers, setFilteredTeachers] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
-    const [genderFilter, setGenderFilter] = useState(''); // '' means all
+    const [genderFilter, setGenderFilter] = useState('');
     const [loading, setLoading] = useState(true);
     const [showRequestModal, setShowRequestModal] = useState(false);
     const [selectedTeacher, setSelectedTeacher] = useState(null);
@@ -568,67 +568,132 @@ function TeacherCard({ teacher, styles, onRequest }) {
                     </div>
                 )}
 
-                {/* Honors */}
-                {teacher.honorsDept && (
-                    <div style={styles.infoRow}>
-                        <FaGraduationCap style={styles.infoIcon} size={16} />
-                        <div style={styles.infoText}>
-                            <div style={styles.infoLabel}>Honors</div>
-                            <span style={{ fontWeight: 600, color: '#1e40af' }}>
-                                {teacher.honorsDept}
-                                {teacher.honorsUniversity && ` - ${teacher.honorsUniversity}`}
-                            </span>
-                        </div>
+                {/* Academic Information Section */}
+                <div style={{ marginTop: '10px', paddingTop: '10px', borderTop: '1px solid #e2e8f0' }}>
+                    <div style={{ fontWeight: '700', color: '#374151', marginBottom: '8px', fontSize: '0.9rem' }}>
+                        Academic Information:
                     </div>
-                )}
 
-                {/* Masters */}
-                {teacher.mastersDept && (
-                    <div style={styles.infoRow}>
-                        <FaBookOpen style={styles.infoIcon} size={16} />
-                        <div style={styles.infoText}>
-                            <div style={styles.infoLabel}>Masters</div>
-                            <span style={{ fontWeight: 600, color: '#1e40af' }}>
-                                {teacher.mastersDept}
-                                {teacher.mastersUniversity && ` - ${teacher.mastersUniversity}`}
-                            </span>
+                    {/* Honors */}
+                    {teacher.honorsDept && (
+                        <div style={styles.infoRow}>
+                            <FaGraduationCap style={styles.infoIcon} size={16} />
+                            <div style={styles.infoText}>
+                                <div style={styles.infoLabel}>Honors</div>
+                                <span style={{ fontWeight: 600, color: '#1e40af' }}>
+                                    {teacher.honorsDept}
+                                    {teacher.honorsUniversity && ` - ${teacher.honorsUniversity}`}
+                                </span>
+                            </div>
                         </div>
-                    </div>
-                )}
+                    )}
 
-                {/* Academic Year */}
-                {teacher.academicYear && (
-                    <div style={styles.infoRow}>
-                        <FaCalendarAlt style={styles.infoIcon} size={16} />
-                        <div style={styles.infoText}>
-                            <div style={styles.infoLabel}>Academic Year</div>
-                            <span style={{ fontWeight: 600, color: '#0f172a' }}>
-                                {teacher.academicYear}
-                            </span>
+                    {/* Masters */}
+                    {teacher.mastersDept && (
+                        <div style={styles.infoRow}>
+                            <FaBookOpen style={styles.infoIcon} size={16} />
+                            <div style={styles.infoText}>
+                                <div style={styles.infoLabel}>Masters</div>
+                                <span style={{ fontWeight: 600, color: '#1e40af' }}>
+                                    {teacher.mastersDept}
+                                    {teacher.mastersUniversity && ` - ${teacher.mastersUniversity}`}
+                                </span>
+                            </div>
                         </div>
-                    </div>
-                )}
+                    )}
 
-                {teacher.isResultShow && (teacher.sscResult || teacher.hscResult) && (
-                    <div style={styles.infoRow}>
-                        <FaBookOpen style={styles.infoIcon} size={16} />
-                        <div style={styles.infoText}>
-                            <div style={styles.infoLabel}>Result</div>
-
-                            {teacher.sscResult && (
-                                <div>
-                                    <strong>SSC:</strong> {teacher.sscResult}
-                                </div>
-                            )}
-
-                            {teacher.hscResult && (
-                                <div>
-                                    <strong>HSC:</strong> {teacher.hscResult}
-                                </div>
-                            )}
+                    {/* Academic Year */}
+                    {teacher.academicYear && (
+                        <div style={styles.infoRow}>
+                            <FaCalendarAlt style={styles.infoIcon} size={16} />
+                            <div style={styles.infoText}>
+                                <div style={styles.infoLabel}>Academic Year</div>
+                                <span style={{ fontWeight: 600, color: '#0f172a' }}>
+                                    {teacher.academicYear}
+                                </span>
+                            </div>
                         </div>
+                    )}
+
+                    {/* SSC School */}
+                    {teacher.school && (
+                        <div style={styles.infoRow}>
+                            <FaGraduationCap style={styles.infoIcon} size={16} />
+                            <div style={styles.infoText}>
+                                <div style={styles.infoLabel}>SSC School</div>
+                                <span style={{ fontWeight: 600, color: '#1e40af' }}>
+                                    {teacher.school}
+                                </span>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* HSC College */}
+                    {teacher.college && (
+                        <div style={styles.infoRow}>
+                            <FaGraduationCap style={styles.infoIcon} size={16} />
+                            <div style={styles.infoText}>
+                                <div style={styles.infoLabel}>HSC College</div>
+                                <span style={{ fontWeight: 600, color: '#1e40af' }}>
+                                    {teacher.college}
+                                </span>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Results */}
+                    {teacher.isResultShow && (teacher.sscResult || teacher.hscResult) && (
+                        <div style={styles.infoRow}>
+                            <FaBookOpen style={styles.infoIcon} size={16} />
+                            <div style={styles.infoText}>
+                                <div style={styles.infoLabel}>Result</div>
+
+                                {teacher.sscResult && (
+                                    <div>
+                                        <strong>SSC:</strong> {teacher.sscResult}
+                                    </div>
+                                )}
+
+                                {teacher.hscResult && (
+                                    <div>
+                                        <strong>HSC:</strong> {teacher.hscResult}
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    )}
+                </div>
+
+                {/* Teaching Profile Section */}
+                <div style={{ marginTop: '10px', paddingTop: '10px', borderTop: '1px solid #e2e8f0' }}>
+                    <div style={{ fontWeight: '700', color: '#374151', marginBottom: '8px', fontSize: '0.9rem' }}>
+                        Teaching Profile:
                     </div>
-                )}
+
+                    {teacher.experience && (
+                        <div style={styles.infoRow}>
+                            <FaCalendarAlt style={styles.infoIcon} size={16} />
+                            <div style={styles.infoText}>
+                                <div style={styles.infoLabel}>Experience</div>
+                                <span style={{ fontWeight: 600, color: '#0f172a' }}>
+                                    {teacher.experience}
+                                </span>
+                            </div>
+                        </div>
+                    )}
+
+                    {teacher.favoriteSubject && (
+                        <div style={styles.infoRow}>
+                            <FaBookOpen style={styles.infoIcon} size={16} />
+                            <div style={styles.infoText}>
+                                <div style={styles.infoLabel}>Favorite Subject</div>
+                                <span style={{ fontWeight: 600, color: '#1e40af' }}>
+                                    {teacher.favoriteSubject}
+                                </span>
+                            </div>
+                        </div>
+                    )}
+                </div>
             </div>
 
             <div style={{ marginTop: 'auto', display: 'flex', justifyContent: 'center' }}>

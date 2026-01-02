@@ -344,9 +344,9 @@ const PremiumTeacherPage = () => {
         const hasValue = (v) => v !== undefined && v !== null && String(v).trim() !== '';
 
         const lines = [
-            `টিউশন সেবা ফোরাম (আস্থা ও বিশ্বস্ততায় একধাপ এগিয়ে)`,
+            `টিউশন সেবা ফোরাম (আস্থা ও বিশ্বস্ততায় একধাপ এগিয়ে)`,
             `যোগাযোগ: 01633920928`,
-            `ওয়েবসাইট: www.tuitionsebaforum.com`,
+            `ওয়েবসাইট: www.tuitionsebaforum.com`,
             ``,
             `*Verified Premium Tutor*`,
             `Premium Code: *${teacherDetails.premiumCode || 'N/A'}*`,
@@ -356,6 +356,9 @@ const PremiumTeacherPage = () => {
             `Area: *${teacherDetails.currentArea || 'N/A'}*`,
             ``,
             `*Academic Qualifications*`,
+
+            ...(hasValue(teacherDetails.mastersUniversity) ? [`Masters University: *${teacherDetails.mastersUniversity}*`] : []),
+            ...(hasValue(teacherDetails.mastersDept) ? [`Masters Department: *${teacherDetails.mastersDept}*`] : []),
             `Honours University: *${teacherDetails.honorsUniversity || 'N/A'}*`,
             `Academic Year: *${teacherDetails.academicYear || 'N/A'}*`,
             `Department: *${teacherDetails.honorsDept || 'N/A'}*`,

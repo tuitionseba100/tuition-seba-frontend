@@ -69,10 +69,8 @@ export default function OurTeacher() {
         fetchTeachers();
     }, []);
 
-    // Counter animation effect
+    // Counter animation effect - starts immediately when component mounts
     useEffect(() => {
-        if (loading) return; // Don't start animation while loading
-
         let start = 0;
         const maxCount = 10000;
         const maxGuardianCount = 7000;
@@ -101,7 +99,7 @@ export default function OurTeacher() {
         }, 16);
 
         return () => clearInterval(timer);
-    }, [loading]);
+    }, []); // Empty dependency array to run only once when component mounts
 
     const fetchTeachers = async () => {
         try {
@@ -478,7 +476,7 @@ export default function OurTeacher() {
             <div style={styles.container}>
                 <div style={styles.header}>
                     <h1 style={styles.title}>Our Verified Premium Teachers</h1>
-                    <p style={styles.subtitle}>Find Qualified Teacher easily</p>
+                    <p style={styles.subtitle}>Quality tutors every class and subject</p>
                     <p style={styles.stats}>{count.toLocaleString()}+ Verified Tutors | Trusted by {guardianCount.toLocaleString()}+ Guardian and Student</p>
                 </div>
 

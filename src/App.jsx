@@ -12,6 +12,7 @@ import Loginpage from './pages/Loginpage';
 import Tuitionmenu from './pages/Tuitionmenu';
 import UserPage from './pages/UserPage';
 import PaymentPage from './pages/PaymentPage';
+import TeacherPaymentPage from './pages/TeacherPaymentPage';
 import GuardianApplyPage from './pages/guardianApplyPage';
 import TaskPage from './pages/TaskPage';
 import AttendancePage from './pages/AttendancePage';
@@ -49,6 +50,7 @@ const App = () => {
             <Route path="dashboard" element={<Dashboard />} />
             <Route path="tuition" element={<Tuitionmenu />} />
             <Route path="payment" element={<PaymentPage />} />
+            <Route path="teacherPayment" element={<TeacherPaymentPage />} />
             <Route path="refund" element={<RefundPage />} />
             <Route path="guardianApply" element={<GuardianApplyPage />} />
             <Route path="task" element={<TaskPage />} />

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { checkDayStarted } from '../utilities/checkDayStarted';
+import '../App.css'; // Import custom styles
 
 const Navbar = () => {
     const navigate = useNavigate();
@@ -28,18 +29,25 @@ const Navbar = () => {
         navigate('/admin/login');
     };
 
-    const renderNavItem = (to, label) => (
-        <li className="nav-item">
-            <Link className="nav-link text-white fw-bold px-3" to={to}>
-                {label}
-            </Link>
-        </li>
-    );
+    const renderNavItem = (to, label) => {
+        const isActive = location.pathname === to;
+        return (
+            <li className="nav-item">
+                <Link
+                    className={`nav-link text-white fw-bold px-3 ${isActive ? 'active' : ''}`}
+                    to={to}
+                >
+                    {label}
+                </Link>
+            </li>
+        );
+    };
 
     return (
-        <nav className="navbar navbar-expand-lg navbar-primary bg-primary shadow-sm">
-            <div className="container">
-                <Link className="navbar-brand fw-bold text-white fs-4" to="/admin">
+        <nav className="navbar navbar-expand-lg navbar-dark custom-navbar shadow-lg">
+            <div className="container-fluid px-4">
+                <Link className="navbar-brand fw-bold text-white fs-3" to="/admin">
+                    <i className="fas fa-graduation-cap me-2"></i>
                     Tuition Seba Forum
                 </Link>
                 <button
@@ -60,6 +68,7 @@ const Navbar = () => {
                                 {renderNavItem("/admin/tuition", "Tuitions")}
                                 {role === "superadmin" && renderNavItem("/admin/user", "Users")}
                                 {renderNavItem("/admin/payment", "Payments")}
+                                {renderNavItem("/admin/teacherPayment", "Teacher Payments")}
                                 {renderNavItem("/admin/refund", "Refund")}
                                 {renderNavItem("/admin/guardianApply", "Guardian")}
                                 {renderNavItem("/admin/task", "Task")}
@@ -73,7 +82,8 @@ const Navbar = () => {
                         {renderNavItem("/admin/attendance", "Attendance")}
 
                         <li className="nav-item">
-                            <button className="btn btn-outline-light fw-bold rounded-pill px-3" onClick={handleLogout}>
+                            <button className="btn btn-light text-primary fw-bold rounded-pill px-4 py-2 ms-2" onClick={handleLogout}>
+                                <i className="fas fa-sign-out-alt me-1"></i>
                                 Logout
                             </button>
                         </li>

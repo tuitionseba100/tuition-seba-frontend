@@ -30,10 +30,10 @@ export default function OurTeacher() {
     // Pagination state
     const [currentPage, setCurrentPage] = useState(1);
     const teachersPerPage = 50;
-    
+
     // State for scroll to top button visibility
     const [showScrollTop, setShowScrollTop] = useState(false);
-    
+
     // Handle scroll event to show/hide scroll to top button
     useEffect(() => {
         const handleScroll = () => {
@@ -43,14 +43,14 @@ export default function OurTeacher() {
                 setShowScrollTop(false);
             }
         };
-        
+
         window.addEventListener('scroll', handleScroll);
-        
+
         return () => {
             window.removeEventListener('scroll', handleScroll);
         };
     }, []);
-    
+
     // Function to scroll to top
     const scrollToTop = () => {
         window.scrollTo({
@@ -257,7 +257,7 @@ export default function OurTeacher() {
         loading: { display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '400px', color: '#64748b' },
         spinner: { width: '45px', height: '45px', border: '4px solid #e2e8f0', borderTop: '4px solid #3b82f6', borderRadius: '50%', animation: 'spin 0.8s linear infinite', marginBottom: '18px' },
         noResults: { textAlign: 'center', color: '#64748b', padding: '60px 20px', fontSize: '1rem' },
-        
+
         // Scroll to top button styles
         scrollTopButton: {
             position: 'fixed',
@@ -488,7 +488,7 @@ export default function OurTeacher() {
                 onSaved={() => setShowRequestModal(false)}
             />
             <ToastContainer position="top-center" />
-            
+
             {/* Scroll to top button */}
             <button
                 style={{

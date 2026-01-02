@@ -579,7 +579,7 @@ function TeacherCard({ teacher, styles, onRequest }) {
                         <div style={styles.infoRow}>
                             <FaGraduationCap style={styles.infoIcon} size={16} />
                             <div style={styles.infoText}>
-                                <div style={styles.infoLabel}>Honors</div>
+                                <div style={styles.infoLabel}>Honours</div>
                                 <span style={{ fontWeight: 600, color: '#1e40af' }}>
                                     {teacher.honorsDept}
                                     {teacher.honorsUniversity && ` - ${teacher.honorsUniversity}`}

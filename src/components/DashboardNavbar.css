@@ -1,0 +1,83 @@
+/* Admin Dashboard Navbar Styles */
+.admin-navbar {
+    background: linear-gradient(135deg, #0d6efd 0%, #0b5ed7 100%);
+    padding: 0.5rem 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.admin-navbar .navbar-brand {
+    display: flex;
+    align-items: center;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+}
+
+.admin-navbar .navbar-nav .nav-link {
+    color: rgba(255, 255, 255, 0.85) !important;
+    font-weight: 500;
+    padding: 0.5rem 0.8rem !important;
+    margin: 0 0.2rem;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+}
+
+.admin-navbar .navbar-nav .nav-link:hover {
+    color: white !important;
+    background-color: rgba(255, 255, 255, 0.25);
+}
+
+.admin-navbar .navbar-nav .nav-link.active,
+.admin-navbar .navbar-nav .nav-link.active:hover {
+    color: white !important;
+    background: linear-gradient(to right, rgba(13, 110, 253, 0.7) 0%, rgba(11, 94, 215, 0.7) 100%) !important;
+    border-left: 3px solid #fff;
+    font-weight: 600;
+    position: relative;
+}
+
+.admin-navbar .navbar-nav .nav-link.active::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background-color: #61dafb;
+}
+
+.admin-navbar .btn-light {
+    background-color: white;
+    color: #0d6efd;
+    border: none;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+.admin-navbar .btn-light:hover {
+    background-color: #f8f9fa;
+    color: #0a58ca;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.admin-navbar .navbar-toggler {
+    border: none;
+}
+
+.admin-navbar .navbar-toggler:focus {
+    box-shadow: none;
+}
+
+/* Adjust padding for smaller screens */
+@media (max-width: 768px) {
+    .admin-navbar .container-fluid.px-4 {
+        padding-right: 0.75rem;
+        padding-left: 0.75rem;
+    }
+
+    .admin-navbar .navbar-nav .nav-link {
+        padding: 0.5rem 0.6rem !important;
+        margin: 0 0.1rem;
+    }
+}

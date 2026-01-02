@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { checkDayStarted } from '../utilities/checkDayStarted';
-import '../App.css'; // Import custom styles
+import '../components/DashboardNavbar.css'; // Import admin navbar styles
 
 const Navbar = () => {
     const navigate = useNavigate();
@@ -44,7 +44,7 @@ const Navbar = () => {
     };
 
     return (
-        <nav className="navbar navbar-expand-lg navbar-dark custom-navbar shadow-lg">
+        <nav className="navbar navbar-expand-lg navbar-dark admin-navbar shadow-lg">
             <div className="container-fluid px-4">
                 <Link className="navbar-brand fw-bold text-white fs-3" to="/admin">
                     <i className="fas fa-graduation-cap me-2"></i>

@@ -7,7 +7,8 @@ import {
     FaCalendarAlt,
     FaMale,
     FaFemale,
-    FaArrowUp
+    FaArrowUp,
+    FaUniversity
 } from 'react-icons/fa';
 import { Modal, Button, Form, Row, Col } from 'react-bootstrap';
 import { Pagination } from '@mui/material';
@@ -22,10 +23,15 @@ export default function OurTeacher() {
     const [teachers, setTeachers] = useState([]);
     const [filteredTeachers, setFilteredTeachers] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
+    const [areaSearch, setAreaSearch] = useState('');
+    const [subjectSearch, setSubjectSearch] = useState('');
+    const [universitySearch, setUniversitySearch] = useState('');
     const [genderFilter, setGenderFilter] = useState('');
     const [loading, setLoading] = useState(true);
     const [showRequestModal, setShowRequestModal] = useState(false);
     const [selectedTeacher, setSelectedTeacher] = useState(null);
+    const [count, setCount] = useState(0);
+    const [guardianCount, setGuardianCount] = useState(0);
 
     // Pagination state
     const [currentPage, setCurrentPage] = useState(1);
@@ -63,6 +69,40 @@ export default function OurTeacher() {
         fetchTeachers();
     }, []);
 
+    // Counter animation effect
+    useEffect(() => {
+        if (loading) return; // Don't start animation while loading
+
+        let start = 0;
+        const maxCount = 10000;
+        const maxGuardianCount = 7000;
+
+        const duration = 2000; // 2 seconds
+        const increment = maxCount / (duration / 16); // 16ms is roughly one frame at 60fps
+        const guardianIncrement = maxGuardianCount / (duration / 16);
+
+        const timer = setInterval(() => {
+            setCount(prev => {
+                const newCount = prev + increment;
+                if (newCount >= maxCount) {
+                    clearInterval(timer);
+                    return maxCount;
+                }
+                return Math.floor(newCount);
+            });
+
+            setGuardianCount(prev => {
+                const newGuardianCount = prev + guardianIncrement;
+                if (newGuardianCount >= maxGuardianCount) {
+                    return maxGuardianCount;
+                }
+                return Math.floor(newGuardianCount);
+            });
+        }, 16);
+
+        return () => clearInterval(timer);
+    }, [loading]);
+
     const fetchTeachers = async () => {
         try {
             const response = await fetch('https://tuition-seba-backend-1.onrender.com/api/regTeacher/public-teachers');
@@ -79,7 +119,7 @@ export default function OurTeacher() {
     const memoizedFilteredTeachers = useMemo(() => {
         let filtered = teachers;
 
-        // Apply search term filter
+        // Apply general search term filter
         if (searchTerm.trim()) {
             const term = searchTerm.trim().toLowerCase();
             filtered = filtered.filter((teacher) =>
@@ -87,6 +127,32 @@ export default function OurTeacher() {
                     if (!value) return false;
                     return String(value).toLowerCase().includes(term);
                 })
+            );
+        }
+
+        // Apply area search filter
+        if (areaSearch.trim()) {
+            const areaTerm = areaSearch.trim().toLowerCase();
+            filtered = filtered.filter(teacher =>
+                teacher.currentArea && teacher.currentArea.toLowerCase().includes(areaTerm)
+            );
+        }
+
+        // Apply subject search filter
+        if (subjectSearch.trim()) {
+            const subjectTerm = subjectSearch.trim().toLowerCase();
+            filtered = filtered.filter(teacher =>
+                teacher.favoriteSubject && teacher.favoriteSubject.toLowerCase().includes(subjectTerm)
+            );
+        }
+
+        // Apply university search filter
+        if (universitySearch.trim()) {
+            const universityTerm = universitySearch.trim().toLowerCase();
+            filtered = filtered.filter(teacher =>
+                (teacher.honorsUniversity && teacher.honorsUniversity.toLowerCase().includes(universityTerm)) ||
+                (teacher.mastersUniversity && teacher.mastersUniversity.toLowerCase().includes(universityTerm)) ||
+                (teacher.uniCode && teacher.uniCode.toLowerCase().includes(universityTerm))
             );
         }
 
@@ -98,7 +164,7 @@ export default function OurTeacher() {
         }
 
         return filtered;
-    }, [teachers, searchTerm, genderFilter]);
+    }, [teachers, searchTerm, areaSearch, subjectSearch, universitySearch, genderFilter]);
 
     // Calculate pagination
     const indexOfLastTeacher = currentPage * teachersPerPage;
@@ -109,10 +175,13 @@ export default function OurTeacher() {
     // Reset to first page when filters change
     useEffect(() => {
         setCurrentPage(1);
-    }, [searchTerm, genderFilter]);
+    }, [searchTerm, areaSearch, subjectSearch, universitySearch, genderFilter]);
 
     const resetFilters = () => {
         setSearchTerm('');
+        setAreaSearch('');
+        setSubjectSearch('');
+        setUniversitySearch('');
         setGenderFilter('');
     };
 
@@ -122,7 +191,7 @@ export default function OurTeacher() {
         container: {
             minHeight: '100vh',
             background: 'linear-gradient(to bottom right, #f0f4f8, #e0e7ff)',
-            padding: '30px 20px 60px',
+            padding: '30px 0 60px',
             fontFamily: '"Inter", sans-serif',
         },
         header: { textAlign: 'center', marginBottom: '30px' },
@@ -150,19 +219,19 @@ export default function OurTeacher() {
             display: 'flex',
             justifyContent: 'center',
             alignItems: 'center',
-            width: '95%',
-            maxWidth: '1200px',
+            width: '100%',
+            maxWidth: '100%',
             margin: '0 auto 30px',
-            flexWrap: 'wrap',
-            gap: '16px',
             padding: '20px',
             background: 'linear-gradient(135deg, #f0f9ff, #e0f2fe)',
             borderRadius: '16px',
-            boxShadow: '0 4px 20px rgba(0, 0, 0, 0.08)'
+            boxShadow: '0 4px 20px rgba(0, 0, 0, 0.08)',
+            gap: '12px',
+            flexWrap: 'wrap'
         },
         searchWrapper: {
             width: '100%',
-            maxWidth: '500px',
+            maxWidth: '320px',
             position: 'relative'
         },
         genderFilterWrapper: { display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap', justifyContent: 'center' },
@@ -201,7 +270,7 @@ export default function OurTeacher() {
             transition: 'all 0.3s ease',
             boxShadow: '0 4px 6px rgba(239, 68, 68, 0.15)'
         },
-        gridContainer: { maxWidth: '1440px', margin: '0 auto', display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '30px', padding: '0 15px' },
+        gridContainer: { maxWidth: '100%', width: '95%', margin: '0 auto', display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '30px', padding: '0' },
         card: {
             background: 'linear-gradient(135deg, #ffffff, #f8fafc)',
             borderRadius: '20px',
@@ -290,20 +359,39 @@ export default function OurTeacher() {
     const keyframes = `
         @keyframes spin { to { transform: rotate(360deg); } }
         
-        /* Responsive for tablet */
-        @media (max-width: 1024px) {
+        /* Responsive for desktop */
+        @media (max-width: 1200px) {
             .filter-container {
-                width: 98%;
+                width: 100%;
                 padding: 18px;
                 gap: 14px;
             }
             
             .search-wrapper {
+                max-width: 300px;
+            }
+            
+            .grid-container {
+                width: 98%;
+            }
+        }
+        
+        /* Responsive for tablet */
+        @media (max-width: 1024px) {
+            .filter-container {
                 width: 100%;
-                max-width: none;
+                padding: 16px;
+                gap: 12px;
+                flex-direction: column;
+            }
+            
+            .search-wrapper {
+                width: 100%;
+                max-width: 100%;
             }
             
             .grid-container { 
+                width: 98%;
                 grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)) !important; 
             }
         }
@@ -311,17 +399,20 @@ export default function OurTeacher() {
         /* Responsive for small tablet */
         @media (max-width: 768px) {
             .filter-container {
-                width: 98%;
-                padding: 16px;
+                width: 100%;
+                padding: 14px;
                 gap: 12px;
             }
             
             .search-wrapper {
                 width: 100%;
-                max-width: none;
+                max-width: 100%;
             }
             
-            .grid-container { grid-template-columns: 1fr !important; }
+            .grid-container { 
+                width: 98%;
+                grid-template-columns: 1fr !important; 
+            }
             
             .gender-filter-wrapper {
                 justify-content: center;
@@ -335,28 +426,42 @@ export default function OurTeacher() {
         
         /* Responsive for mobile */
         @media (max-width: 480px) {
+            .container {
+                padding: 20px 0 40px;
+            }
+            
             .filter-container {
-                padding: 14px;
+                padding: 12px;
                 gap: 10px;
             }
             
+            .grid-container {
+                width: 98%;
+                padding: 0 10px;
+            }
+            
+            .search-wrapper {
+                max-width: 100%;
+            }
+            
             .search-input {
-                padding: 14px 20px 14px 44px;
-                font-size: 0.9rem;
+                padding: 12px 18px 12px 40px;
+                font-size: 0.85rem;
             }
             
             .search-icon {
-                left: 14px;
+                left: 12px;
+                font-size: 0.9rem;
             }
             
             .gender-button {
-                padding: 6px 10px;
-                font-size: 0.8rem;
+                padding: 6px 8px;
+                font-size: 0.75rem;
             }
             
             .reset-button {
-                padding: 6px 10px;
-                font-size: 0.8rem;
+                padding: 6px 8px;
+                font-size: 0.75rem;
             }
         }
     `;
@@ -369,21 +474,85 @@ export default function OurTeacher() {
             <style>{keyframes}</style>
             <div style={styles.container}>
                 <div style={styles.header}>
-                    <h1 style={styles.title}>Premium Teachers</h1>
-                    <p style={styles.subtitle}>Find qualified teacher easily</p>
-                    <p style={styles.stats}>10,000+ registered teachers available nationwide</p>
+                    <h1 style={styles.title}>Our Verified Premium Teachers</h1>
+                    <p style={styles.subtitle}>Qualified tutor for every class and every subject</p>
+                    <p style={styles.stats}>{count.toLocaleString()}+ Verified Tutors | Trusted by {guardianCount.toLocaleString()}+ Guardian and Student</p>
                 </div>
 
                 <div style={styles.filterContainer} className="filter-container">
+                    {/* General Search */}
                     <div style={styles.searchWrapper} className="search-wrapper">
                         <FaSearch style={styles.searchIcon} className="search-icon" size={18} />
                         <input
                             type="text"
-                            placeholder="Search by area, university, department, etc..."
+                            placeholder="University, area, school, college যেকোনো কিছু দিয়ে খুঁজুন"
                             style={styles.searchInput}
                             className="search-input"
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
+                            onFocus={(e) => {
+                                e.target.style.borderColor = '#3b82f6';
+                                e.target.style.boxShadow = '0 0 0 3px rgba(59, 130, 246, 0.2)';
+                            }}
+                            onBlur={(e) => {
+                                e.target.style.borderColor = '#e2e8f0';
+                                e.target.style.boxShadow = '0 4px 6px rgba(0, 0, 0, 0.05)';
+                            }}
+                        />
+                    </div>
+
+                    {/* Area Search */}
+                    <div style={styles.searchWrapper} className="search-wrapper">
+                        <FaMapMarkerAlt style={styles.searchIcon} className="search-icon" size={18} />
+                        <input
+                            type="text"
+                            placeholder="এলাকা অনুসারে খুঁজুন..."
+                            style={styles.searchInput}
+                            className="search-input"
+                            value={areaSearch}
+                            onChange={(e) => setAreaSearch(e.target.value)}
+                            onFocus={(e) => {
+                                e.target.style.borderColor = '#3b82f6';
+                                e.target.style.boxShadow = '0 0 0 3px rgba(59, 130, 246, 0.2)';
+                            }}
+                            onBlur={(e) => {
+                                e.target.style.borderColor = '#e2e8f0';
+                                e.target.style.boxShadow = '0 4px 6px rgba(0, 0, 0, 0.05)';
+                            }}
+                        />
+                    </div>
+
+                    {/* Subject Search */}
+                    <div style={styles.searchWrapper} className="search-wrapper">
+                        <FaBookOpen style={styles.searchIcon} className="search-icon" size={18} />
+                        <input
+                            type="text"
+                            placeholder="বিষয় অনুসারে খুঁজুন..."
+                            style={styles.searchInput}
+                            className="search-input"
+                            value={subjectSearch}
+                            onChange={(e) => setSubjectSearch(e.target.value)}
+                            onFocus={(e) => {
+                                e.target.style.borderColor = '#3b82f6';
+                                e.target.style.boxShadow = '0 0 0 3px rgba(59, 130, 246, 0.2)';
+                            }}
+                            onBlur={(e) => {
+                                e.target.style.borderColor = '#e2e8f0';
+                                e.target.style.boxShadow = '0 4px 6px rgba(0, 0, 0, 0.05)';
+                            }}
+                        />
+                    </div>
+
+                    {/* University Search */}
+                    <div style={styles.searchWrapper} className="search-wrapper">
+                        <FaUniversity style={styles.searchIcon} className="search-icon" size={18} />
+                        <input
+                            type="text"
+                            placeholder="বিশ্ববিদ্যালয় অনুসারে খুঁজুন..."
+                            style={styles.searchInput}
+                            className="search-input"
+                            value={universitySearch}
+                            onChange={(e) => setUniversitySearch(e.target.value)}
                             onFocus={(e) => {
                                 e.target.style.borderColor = '#3b82f6';
                                 e.target.style.boxShadow = '0 0 0 3px rgba(59, 130, 246, 0.2)';
@@ -578,7 +747,7 @@ function TeacherCard({ teacher, styles, onRequest }) {
                             <FaGraduationCap style={styles.infoIcon} size={16} />
                             <div style={styles.infoText}>
                                 <div style={styles.infoLabel}>Honours</div>
-                                <span style={{ fontWeight: 600, color: '#1e40af' }}>
+                                <span style={{ fontWeight: 600, color: '#3b82f6' }}>
                                     {teacher.honorsDept}
                                     {teacher.honorsUniversity && ` - ${teacher.honorsUniversity}`}
                                 </span>
@@ -592,7 +761,7 @@ function TeacherCard({ teacher, styles, onRequest }) {
                             <FaBookOpen style={styles.infoIcon} size={16} />
                             <div style={styles.infoText}>
                                 <div style={styles.infoLabel}>Masters</div>
-                                <span style={{ fontWeight: 600, color: '#1e40af' }}>
+                                <span style={{ fontWeight: 600, color: '#3b82f6' }}>
                                     {teacher.mastersDept}
                                     {teacher.mastersUniversity && ` - ${teacher.mastersUniversity}`}
                                 </span>
@@ -613,28 +782,32 @@ function TeacherCard({ teacher, styles, onRequest }) {
                         </div>
                     )}
 
-                    {/* SSC School */}
-                    {teacher.school && (
+                    {/* SSC Information */}
+                    {(teacher.school || teacher.sscGroup) && (
                         <div style={styles.infoRow}>
                             <FaGraduationCap style={styles.infoIcon} size={16} />
                             <div style={styles.infoText}>
-                                <div style={styles.infoLabel}>SSC School</div>
-                                <span style={{ fontWeight: 600, color: '#1e40af' }}>
-                                    {teacher.school}
-                                </span>
+                                <div style={styles.infoLabel}>SSC Information</div>
+                                <div style={{ fontWeight: 600, color: '#3b82f6' }}>
+                                    {teacher.school && `School: ${teacher.school}`}
+                                    {teacher.school && teacher.sscGroup && ' | '}
+                                    {teacher.sscGroup && `Group: ${teacher.sscGroup}`}
+                                </div>
                             </div>
                         </div>
                     )}
 
-                    {/* HSC College */}
-                    {teacher.college && (
+                    {/* HSC Information */}
+                    {(teacher.college || teacher.hscGroup) && (
                         <div style={styles.infoRow}>
                             <FaGraduationCap style={styles.infoIcon} size={16} />
                             <div style={styles.infoText}>
-                                <div style={styles.infoLabel}>HSC College</div>
-                                <span style={{ fontWeight: 600, color: '#1e40af' }}>
-                                    {teacher.college}
-                                </span>
+                                <div style={styles.infoLabel}>HSC Information</div>
+                                <div style={{ fontWeight: 600, color: '#3b82f6' }}>
+                                    {teacher.college && `College: ${teacher.college}`}
+                                    {teacher.college && teacher.hscGroup && ' | '}
+                                    {teacher.hscGroup && `Group: ${teacher.hscGroup}`}
+                                </div>
                             </div>
                         </div>
                     )}
@@ -686,7 +859,7 @@ function TeacherCard({ teacher, styles, onRequest }) {
                                 <FaBookOpen style={styles.infoIcon} size={16} />
                                 <div style={styles.infoText}>
                                     <div style={styles.infoLabel}>Favorite Subject</div>
-                                    <span style={{ fontWeight: 600, color: '#1e40af' }}>
+                                    <span style={{ fontWeight: 600, color: '#3b82f6' }}>
                                         {teacher.favoriteSubject}
                                     </span>
                                 </div>
@@ -726,8 +899,7 @@ function TeacherCard({ teacher, styles, onRequest }) {
                         e.target.style.boxShadow = '0 4px 12px rgba(59, 130, 246, 0.3)';
                     }}
                 >
-                    Request Teacher
-                </button>
+                    Hire This TeTutor                </button>
             </div>
         </div>
     );
@@ -893,7 +1065,7 @@ function RequestTeacherModal({ show, onHide, teacher, onSaved }) {
             <Modal show={show} onHide={onHide} size="lg" centered>
                 <Modal.Header style={modalStyles.header}>
                     <div style={{ flex: 1 }}>
-                        <Modal.Title style={modalStyles.title}>Request Teacher</Modal.Title>
+                        <Modal.Title style={modalStyles.title}>Hire This TeTutor </Modal.Title>
                         {teacher && (
                             <div style={{ marginTop: '0.5rem' }}>
                                 <div style={modalStyles.teacherInfo}>

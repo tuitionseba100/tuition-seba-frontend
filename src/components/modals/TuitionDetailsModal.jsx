@@ -38,6 +38,8 @@ const fieldConfig = [
     { name: 'isPublish', label: 'Publish', group: 'admin', col: 4, type: 'switch', defaultValue: false },
     { name: 'isUrgent', label: 'Is Emergency?', group: 'admin', col: 4, type: 'switch', defaultValue: false },
     { name: 'isWhatsappApply', label: 'Apply via WhatsApp?', group: 'admin', col: 4, type: 'switch', defaultValue: false },
+    { name: 'createdBy', label: 'Created By', group: 'admin', col: 6, type: 'text' },
+    { name: 'updatedBy', label: 'Updated By', group: 'admin', col: 6, type: 'text' },
 ];
 
 const formatDateTimeDisplay = (isoString) => {

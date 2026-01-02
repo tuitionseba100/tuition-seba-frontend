@@ -140,6 +140,7 @@ export default function TuitionModal({ show, onHide, editingData = null, editing
                 await axios.put(`https://tuition-seba-backend-1.onrender.com/api/tuition/edit/${editingId}`, updatedTuitionData);
                 toast.success('Tuition record updated successfully!');
             } else {
+                updatedTuitionData.createdBy = username;
                 await axios.post('https://tuition-seba-backend-1.onrender.com/api/tuition/add', updatedTuitionData);
                 toast.success('Tuition record created successfully!');
             }

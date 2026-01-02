@@ -564,7 +564,7 @@ const TuitionPage = () => {
                                 <thead className="table-primary" style={{ position: "sticky", top: 0, zIndex: 2 }}>
                                     <tr>
                                         <th>SL</th>
-                                        <th>Created/Updated By</th>
+                                        <th>Created By / Updated By</th>
                                         <th>Tuition Code</th>
                                         <th>Apply Type</th>
                                         <th>Published?</th>
@@ -605,7 +605,7 @@ const TuitionPage = () => {
                                         filteredTuitionList.map((tuition, index) => (
                                             <tr key={tuition._id}>
                                                 <td>{index + 1}</td>
-                                                <td>{tuition.updatedBy}</td>
+                                                <td><div className="d-flex flex-column"><span className="badge bg-success text-start mb-1" title="Created By">CB: {tuition.createdBy || '-'}</span><span className="badge bg-info text-start" title="Updated By">UB: {tuition.updatedBy || '-'}</span></div></td>
                                                 <td
                                                     style={{ color: 'blue', cursor: 'pointer', textDecoration: 'none' }}
                                                     onClick={() => openAppliedListModal(tuition)}

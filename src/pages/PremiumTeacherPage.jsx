@@ -118,7 +118,8 @@ const PremiumTeacherPage = () => {
         { name: 'isBiodataShow', label: 'Show Biodata?', col: 12, group: 'Subscription & Payment Details', type: 'checkbox' },
 
         // Notes & Feedback
-        { name: 'comment', label: 'Comment from agent', col: 6, group: 'Notes & Feedback' }
+        { name: 'comment', label: 'Comment from agent', col: 6, group: 'Notes & Feedback' },
+        { name: 'rating', label: 'Rating', col: 6, group: 'Notes & Feedback', type: 'star-rating' }
     ];
 
     const cityOptions = [
@@ -148,7 +149,7 @@ const PremiumTeacherPage = () => {
     ];
 
     const initialData = fieldConfig.reduce((acc, field) => {
-        acc[field.name] = field.type === 'checkbox' ? false : '';
+        acc[field.name] = field.type === 'checkbox' ? false : (field.type === 'star-rating' ? 0 : '');
         return acc;
     }, {});
     const [formData, setFormData] = useState(initialData);
@@ -335,7 +336,7 @@ const PremiumTeacherPage = () => {
 
     const getEmptyFormData = () => {
         return fieldConfig.reduce((acc, field) => {
-            acc[field.name] = field.type === 'checkbox' ? false : '';
+            acc[field.name] = field.type === 'checkbox' ? false : (field.type === 'star-rating' ? 0 : '');
             return acc;
         }, {});
     };
@@ -714,6 +715,23 @@ const PremiumTeacherPage = () => {
                                                 displayValue = '••••••';
                                             } else if (type === 'checkbox') {
                                                 displayValue = value ? 'Yes' : 'No';
+                                            } else if (type === 'star-rating') {
+                                                displayValue = (
+                                                    <div className="d-flex align-items-center">
+                                                        {[1, 2, 3, 4, 5].map((star) => (
+                                                            <span
+                                                                key={star}
+                                                                style={{
+                                                                    color: value >= star ? '#ffc107' : '#ddd',
+                                                                    fontSize: '16px'
+                                                                }}
+                                                            >
+                                                                ★
+                                                            </span>
+                                                        ))}
+                                                        <span className="ms-2">{value || '0'} star{value !== 1 ? 's' : ''}</span>
+                                                    </div>
+                                                );
                                             } else {
                                                 displayValue = value !== undefined && value !== null && value !== '' ? String(value).trim() : 'N/A';
                                             }
@@ -890,6 +908,26 @@ const PremiumTeacherPage = () => {
                                                                 </option>
                                                             ))}
                                                         </Form.Control>
+                                                    ) : field.type === "star-rating" ? (
+                                                        <div className="star-rating">
+                                                            {[1, 2, 3, 4, 5].map((star) => (
+                                                                <span
+                                                                    key={star}
+                                                                    onClick={() => setFormData({ ...formData, [field.name]: star })}
+                                                                    style={{
+                                                                        cursor: 'pointer',
+                                                                        color: formData[field.name] >= star ? '#ffc107' : '#ddd',
+                                                                        fontSize: '24px',
+                                                                        marginRight: '4px'
+                                                                    }}
+                                                                >
+                                                                    ★
+                                                                </span>
+                                                            ))}
+                                                            <span style={{ marginLeft: '8px', fontSize: '14px', color: '#666' }}>
+                                                                {formData[field.name] || '0'} star{formData[field.name] !== 1 ? 's' : ''}
+                                                            </span>
+                                                        </div>
                                                     ) : (
                                                         <Form.Control
                                                             type={field.type || "text"}

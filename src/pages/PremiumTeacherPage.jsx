@@ -341,31 +341,54 @@ const PremiumTeacherPage = () => {
     };
 
     const handleShare = (teacherDetails) => {
-        const getValue = (val) => val || 'N/A';
+        const hasValue = (v) => v !== undefined && v !== null && String(v).trim() !== '';
 
-        const message =
-            `টিউশন সেবা ফোরাম (আস্থা ও বিশ্বস্ততায় একধাপ এগিয়ে)\n` +
-            `যোগাযোগ: 01633920928\n` +
-            `ওয়েবসাইট: www.tuitionsebaforum.com\n\n` +
+        const lines = [
+            `টিউশন সেবা ফোরাম (আস্থা ও বিশ্বস্ততায় একধাপ এগিয়ে)`,
+            `যোগাযোগ: 01633920928`,
+            `ওয়েবসাইট: www.tuitionsebaforum.com`,
+            ``,
+            `*Verified Premium Tutor*`,
+            `Premium Code: *${teacherDetails.premiumCode || 'N/A'}*`,
+            ``,
+            `*Teacher CV*`,
+            `Name: *${teacherDetails.name || 'N/A'}*`,
+            `Area: *${teacherDetails.currentArea || 'N/A'}*`,
+            ``,
+            `*Academic Qualifications*`,
+            `Honours University: *${teacherDetails.honorsUniversity || 'N/A'}*`,
+            `Academic Year: *${teacherDetails.academicYear || 'N/A'}*`,
+            `Department: *${teacherDetails.honorsDept || 'N/A'}*`,
+        ];
 
-            `*Verified Premium Tutor*\n` +
-            `Premium Code: *${getValue(teacherDetails.premiumCode)}*\n\n` +
+        if (hasValue(teacherDetails.college)) {
+            lines.push(`College (HSC): *${teacherDetails.college}*`);
+        }
 
-            `*Teacher CV*\n` +
-            `Name: *${getValue(teacherDetails.name)}*\n` +
-            `Area: *${getValue(teacherDetails.currentArea)}*\n\n` +
+        if (teacherDetails.isResultShow && (hasValue(teacherDetails.hscGroup) || hasValue(teacherDetails.hscResult))) {
+            lines.push(
+                `HSC - Group: *${teacherDetails.hscGroup || 'N/A'}*, Result: *${teacherDetails.hscResult || 'N/A'}*`
+            );
+        }
 
-            `*Academic Qualifications*\n` +
-            `Honours University: *${getValue(teacherDetails.honorsUniversity)}*\n` +
-            `Academic Year: *${getValue(teacherDetails.academicYear)}*\n` +
-            `Department: *${getValue(teacherDetails.honorsDept)}*\n` +
-            `HSC - Group: *${getValue(teacherDetails.hscGroup)}*, Result: *${getValue(teacherDetails.hscResult)}*\n` +
-            `SSC - Group: *${getValue(teacherDetails.sscGroup)}*, Result: *${getValue(teacherDetails.sscResult)}*\n\n` +
+        if (hasValue(teacherDetails.school)) {
+            lines.push(`School (SSC): *${teacherDetails.school}*`);
+        }
 
-            `*Experience*: ${getValue(teacherDetails.experience)}\n` +
-            `*Address*: ${getValue(teacherDetails.fullAddress)}\n` +
-            `*Favorite Subject*: ${getValue(teacherDetails.favoriteSubject)}`;
+        if (teacherDetails.isResultShow && (hasValue(teacherDetails.sscGroup) || hasValue(teacherDetails.sscResult))) {
+            lines.push(
+                `SSC - Group: *${teacherDetails.sscGroup || 'N/A'}*, Result: *${teacherDetails.sscResult || 'N/A'}*`
+            );
+        }
 
+        lines.push(
+            ``,
+            `*Experience*: ${teacherDetails.experience || 'N/A'}`,
+            `*Address*: ${teacherDetails.fullAddress || 'N/A'}`,
+            `*Favorite Subject*: ${teacherDetails.favoriteSubject || 'N/A'}`
+        );
+
+        const message = lines.join('\n');
         const url = `https://api.whatsapp.com/send?text=${encodeURIComponent(message)}`;
         window.open(url, '_blank');
     };

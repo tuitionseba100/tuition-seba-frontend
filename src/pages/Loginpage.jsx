@@ -70,10 +70,11 @@ const Login = () => {
                         }}
                     >
                         <img
-                            src="/img/favicon.png"
+                            src="/img/TSF LOGO.png"
                             alt="Logo"
-                            style={{ width: 110, marginBottom: "1.5rem" }}
+                            style={{ width: 150, marginBottom: "1.5rem" }}
                         />
+
                         <h2
                             style={{
                                 marginBottom: "2rem",

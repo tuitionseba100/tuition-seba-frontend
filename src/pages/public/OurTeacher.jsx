@@ -554,15 +554,13 @@ function TeacherCard({ teacher, styles, onRequest }) {
             {/* Info */}
             <div style={styles.infoSection}>
                 {/* Location */}
-                {(teacher.currentArea || teacher.thana || teacher.district) && (
+                {teacher.currentArea && (
                     <div style={styles.infoRow}>
                         <FaMapMarkerAlt style={styles.infoIcon} size={16} />
                         <div style={styles.infoText}>
                             <div style={styles.infoLabel}>Area</div>
                             <span style={{ fontWeight: 600, color: '#0f172a' }}>
-                                {[teacher.currentArea, teacher.thana, teacher.district]
-                                    .filter(Boolean)
-                                    .join(', ')}
+                                {teacher.currentArea}
                             </span>
                         </div>
                     </div>
@@ -664,36 +662,38 @@ function TeacherCard({ teacher, styles, onRequest }) {
                     )}
                 </div>
 
-                {/* Teaching Profile Section */}
-                <div style={{ marginTop: '10px', paddingTop: '10px', borderTop: '1px solid #e2e8f0' }}>
-                    <div style={{ fontWeight: '700', color: '#374151', marginBottom: '8px', fontSize: '0.9rem' }}>
-                        Teaching Profile:
+                {/* Teaching Profile Section - only show if at least one field exists */}
+                {(teacher.experience || teacher.favoriteSubject) && (
+                    <div style={{ marginTop: '10px', paddingTop: '10px', borderTop: '1px solid #e2e8f0' }}>
+                        <div style={{ fontWeight: '700', color: '#374151', marginBottom: '8px', fontSize: '0.9rem' }}>
+                            Teaching Profile:
+                        </div>
+
+                        {teacher.experience && (
+                            <div style={styles.infoRow}>
+                                <FaCalendarAlt style={styles.infoIcon} size={16} />
+                                <div style={styles.infoText}>
+                                    <div style={styles.infoLabel}>Experience</div>
+                                    <span style={{ fontWeight: 600, color: '#0f172a' }}>
+                                        {teacher.experience}
+                                    </span>
+                                </div>
+                            </div>
+                        )}
+
+                        {teacher.favoriteSubject && (
+                            <div style={styles.infoRow}>
+                                <FaBookOpen style={styles.infoIcon} size={16} />
+                                <div style={styles.infoText}>
+                                    <div style={styles.infoLabel}>Favorite Subject</div>
+                                    <span style={{ fontWeight: 600, color: '#1e40af' }}>
+                                        {teacher.favoriteSubject}
+                                    </span>
+                                </div>
+                            </div>
+                        )}
                     </div>
-
-                    {teacher.experience && (
-                        <div style={styles.infoRow}>
-                            <FaCalendarAlt style={styles.infoIcon} size={16} />
-                            <div style={styles.infoText}>
-                                <div style={styles.infoLabel}>Experience</div>
-                                <span style={{ fontWeight: 600, color: '#0f172a' }}>
-                                    {teacher.experience}
-                                </span>
-                            </div>
-                        </div>
-                    )}
-
-                    {teacher.favoriteSubject && (
-                        <div style={styles.infoRow}>
-                            <FaBookOpen style={styles.infoIcon} size={16} />
-                            <div style={styles.infoText}>
-                                <div style={styles.infoLabel}>Favorite Subject</div>
-                                <span style={{ fontWeight: 600, color: '#1e40af' }}>
-                                    {teacher.favoriteSubject}
-                                </span>
-                            </div>
-                        </div>
-                    )}
-                </div>
+                )}
             </div>
 
             <div style={{ marginTop: 'auto', display: 'flex', justifyContent: 'center' }}>

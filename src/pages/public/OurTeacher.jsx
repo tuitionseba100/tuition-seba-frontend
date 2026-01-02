@@ -77,7 +77,7 @@ export default function OurTeacher() {
         const maxCount = 10000;
         const maxGuardianCount = 7000;
 
-        const duration = 2000; // 2 seconds
+        const duration = 800; // 0.8 seconds
         const increment = maxCount / (duration / 16); // 16ms is roughly one frame at 60fps
         const guardianIncrement = maxGuardianCount / (duration / 16);
 
@@ -191,12 +191,13 @@ export default function OurTeacher() {
         container: {
             minHeight: '100vh',
             background: 'linear-gradient(to bottom right, #f0f4f8, #e0e7ff)',
-            padding: '30px 0 60px',
+            padding: '0 0 60px',
             fontFamily: '"Inter", sans-serif',
         },
-        header: { textAlign: 'center', marginBottom: '30px' },
-        title: { color: '#1e293b', fontSize: '1.6rem', fontWeight: '700', marginBottom: '6px' },
-        subtitle: { color: '#475569', fontSize: '1rem', fontWeight: '400' },
+        header: { textAlign: 'center', marginBottom: '30px', padding: '25px 20px', background: 'linear-gradient(135deg, #667eea, #764ba2)', borderRadius: '20px', boxShadow: '0 8px 30px rgba(102, 126, 234, 0.5)', position: 'relative', overflow: 'hidden', border: '1px solid rgba(255, 255, 255, 0.4)', backdropFilter: 'blur(10px)', marginTop: '0px' },
+        title: { color: '#ffffff', fontSize: '2rem', fontWeight: '800', marginBottom: '8px', textShadow: '0 2px 8px rgba(0, 0, 0, 0.4)', position: 'relative', zIndex: 2, fontFamily: '"Poppins", sans-serif', letterSpacing: '0.5px' },
+        subtitle: { color: '#e2e8f0', fontSize: '1.1rem', fontWeight: '500', marginBottom: '12px', position: 'relative', zIndex: 2 },
+        stats: { color: '#f0fdfa', fontSize: '1.3rem', fontWeight: '600', marginTop: '12px', display: 'block', position: 'relative', zIndex: 2, textShadow: '0 1px 4px rgba(0, 0, 0, 0.3)', background: 'rgba(255, 255, 255, 0.2)', padding: '8px 16px', borderRadius: '10px', backdropFilter: 'blur(6px)', border: '1px solid rgba(255, 255, 255, 0.3)' },
         searchWrapper: { maxWidth: '600px', margin: '0 auto 40px', position: 'relative' },
         searchInput: {
             width: '100%',
@@ -221,13 +222,15 @@ export default function OurTeacher() {
             alignItems: 'center',
             width: '100%',
             maxWidth: '100%',
-            margin: '0 auto 30px',
-            padding: '20px',
+            margin: '0 auto 25px',
+            padding: '16px',
             background: 'linear-gradient(135deg, #f0f9ff, #e0f2fe)',
-            borderRadius: '16px',
-            boxShadow: '0 4px 20px rgba(0, 0, 0, 0.08)',
-            gap: '12px',
-            flexWrap: 'wrap'
+            borderRadius: '14px',
+            boxShadow: '0 6px 24px rgba(0, 0, 0, 0.1)',
+            gap: '10px',
+            flexWrap: 'wrap',
+            backdropFilter: 'blur(10px)',
+            border: '1px solid rgba(255, 255, 255, 0.3)'
         },
         searchWrapper: {
             width: '100%',
@@ -475,7 +478,7 @@ export default function OurTeacher() {
             <div style={styles.container}>
                 <div style={styles.header}>
                     <h1 style={styles.title}>Our Verified Premium Teachers</h1>
-                    <p style={styles.subtitle}>Qualified tutor for every class and every subject</p>
+                    <p style={styles.subtitle}>Find Qualified Teacher easily</p>
                     <p style={styles.stats}>{count.toLocaleString()}+ Verified Tutors | Trusted by {guardianCount.toLocaleString()}+ Guardian and Student</p>
                 </div>
 
@@ -485,7 +488,7 @@ export default function OurTeacher() {
                         <FaSearch style={styles.searchIcon} className="search-icon" size={18} />
                         <input
                             type="text"
-                            placeholder="University, area, school, college যেকোনো কিছু দিয়ে খুঁজুন"
+                            placeholder="যেকোনো কিছু লিখে সার্চ করুন (general search)"
                             style={styles.searchInput}
                             className="search-input"
                             value={searchTerm}

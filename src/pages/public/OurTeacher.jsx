@@ -900,7 +900,7 @@ function TeacherCard({ teacher, styles, onRequest }) {
                         e.target.style.boxShadow = '0 4px 12px rgba(59, 130, 246, 0.3)';
                     }}
                 >
-                    Hire This TeTutor                </button>
+                    Hire This Tutor                </button>
             </div>
         </div>
     );
@@ -1066,7 +1066,7 @@ function RequestTeacherModal({ show, onHide, teacher, onSaved }) {
             <Modal show={show} onHide={onHide} size="lg" centered>
                 <Modal.Header style={modalStyles.header}>
                     <div style={{ flex: 1 }}>
-                        <Modal.Title style={modalStyles.title}>Hire This TeTutor </Modal.Title>
+                        <Modal.Title style={modalStyles.title}>Hire This Tutor </Modal.Title>
                         {teacher && (
                             <div style={{ marginTop: '0.5rem' }}>
                                 <div style={modalStyles.teacherInfo}>

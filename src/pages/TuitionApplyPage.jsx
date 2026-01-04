@@ -6,12 +6,12 @@ import NavBarPage from './NavbarPage';
 import styled from 'styled-components';
 import { ToastContainer, toast } from 'react-toastify';
 import { Spinner } from 'react-bootstrap';
-import * as XLSX from 'xlsx';
+
 import Select from 'react-select';
 
 const TuitionPage = () => {
     const [tuitionList, setTuitionApplyList] = useState([]);
-    const [exportList, setExportList] = useState([]);
+
     const [filteredTuitionList, setFilteredTuitionApplyList] = useState([]);
     const [showModal, setShowModal] = useState(false);
     const [editingId, setEditingId] = useState(null);
@@ -137,7 +137,6 @@ const TuitionPage = () => {
     const fetchCardSummary = () => {
         axios.get('https://tuition-seba-backend-1.onrender.com/api/tuitionApply/summary', {
             params: {
-                page: currentPage,
                 tuitionCode: appliedFilters.tuitionCode,
                 phone: appliedFilters.phone,
                 status: appliedFilters.statusFilter
@@ -153,11 +152,35 @@ const TuitionPage = () => {
                     requestedForPayment: response.data.requestedForPayment,
                     total: response.data.total
                 });
-                setExportList(response.data.data);
             })
             .catch(error => {
                 console.error('Error fetching card summary:', error);
+                // Show a user-friendly message about CORS or network issues
+                if (error.code === 'ERR_NETWORK') {
+                    console.warn('Network error occurred. This may be due to CORS policy. Please check backend configuration.');
+                }
             });
+    };
+
+    const handleExportToExcel = async () => {
+        const confirmDownload = window.confirm('Download tuition list Excel?');
+
+        if (confirmDownload) {
+            try {
+                const link = document.createElement('a');
+                link.href = 'https://tuition-seba-backend-1.onrender.com/api/tuitionApply/exportAll';
+                link.target = '_blank';
+                link.download = 'tuition_apply_all.xlsx';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            } catch (error) {
+                console.error('Export failed:', error);
+                toast.error('Export failed. Please try again.');
+            }
+        } else {
+            toast.info('Export cancelled');
+        }
     };
 
     const fetchAllTuitions = async () => {
@@ -177,57 +200,7 @@ const TuitionPage = () => {
         }
     };
 
-    const handleExportToExcel = () => {
-        const now = new Date();
-        const formattedDate = now.toLocaleDateString().replace(/\//g, '-');
-        const formattedTime = now.toLocaleTimeString().replace(/:/g, '-');
 
-        const fileName = `TuitionList_${formattedDate}_${formattedTime}`;
-
-        const tableHeaders = [
-            "Tuition Code", "Premium Code", "Is Best?", "Is Spam", "Name", "Phone", "Institute", "Department", "Address",
-            "Status", "Comment", "Applied At", "Comment For Teacher"
-        ];
-
-        const tableData = [...exportList].reverse().map(tuition => [
-            String(tuition.tuitionCode ?? ""),
-            String(tuition.premiumCode ?? ""),
-            tuition.isBest ? "yes" : "no",
-            tuition.isSpam ? "yes" : "no",
-            String(tuition.name ?? ""),
-            String(tuition.phone ?? ""),
-            String(tuition.institute ?? ""),
-            String(tuition.department ?? ""),
-            String(tuition.address ?? ""),
-            String(tuition.status ?? ""),
-            String(tuition.comment ?? ""),
-            String(tuition.appliedAt ?? ""),
-            String(tuition.commentForTeacher ?? "")
-        ]);
-
-        const worksheet = XLSX.utils.aoa_to_sheet([tableHeaders, ...tableData]);
-
-        worksheet['!cols'] = [
-            { wpx: 100 },
-            { wpx: 100 },
-            { wpx: 50 },
-            { wpx: 50 },
-            { wpx: 100 },  // Tuition Code
-            { wpx: 50 },   // Published
-            { wpx: 50 },   // Urgent
-            { wpx: 150 },  // Wanted Teacher
-            { wpx: 100 },  // Student
-            { wpx: 50 },   // Class
-            { wpx: 80 },   // Medium
-            { wpx: 100 },
-            { wpx: 50 },
-        ];
-
-        const workbook = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(workbook, worksheet, "Tuition Applications");
-
-        XLSX.writeFile(workbook, `${fileName}.xlsx`);
-    };
 
     const handleSaveTuition = async () => {
         const selectedTuition = allTuitionList.find(tuition => tuition._id === tuitionData.tuitionId);
@@ -429,18 +402,12 @@ const TuitionPage = () => {
                         variant="success"
                         className="mb-3 d-flex align-items-center justify-content-center gap-2"
                         onClick={handleExportToExcel}
-                        disabled={exportList.length === 0}
                     >
-                        {exportList.length === 0 ? (
-                            <>
-                                <Spinner animation="border" size="sm" role="status" />
-                                <span>Preparing export...</span>
-                            </>
-                        ) : (
-                            'Export to Excel'
-                        )}
+                        Export Data
                     </Button>
                 )}
+
+
 
                 <Card className="mt-4">
                     <Card.Body>

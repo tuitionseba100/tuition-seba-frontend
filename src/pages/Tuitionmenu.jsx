@@ -81,9 +81,11 @@ const TuitionPage = () => {
     const [statusCounts, setStatusCounts] = useState({
         available: 0,
         givenNumber: 0,
+        guardianMeet: 0,
         demoClassRunning: 0,
         confirm: 0,
-        cancel: 0
+        cancel: 0,
+        total: 0
     });
 
     const handleSearchInputChange = (field, value) => {
@@ -191,86 +193,36 @@ const TuitionPage = () => {
             setStatusCounts({
                 available: res.data.available || 0,
                 givenNumber: res.data.givenNumber || 0,
+                guardianMeet: res.data.guardianMeet || 0,
                 demoClassRunning: res.data.demoClassRunning || 0,
                 confirm: res.data.confirm || 0,
-                cancel: res.data.cancel || 0
+                cancel: res.data.cancel || 0,
+                total: res.data.total || 0
             });
         } catch (err) {
             console.error('Error fetching summary counts:', err);
         }
     };
 
-    const handleExportToExcel = () => {
-        const now = new Date();
-        const formattedDate = now.toLocaleDateString().replace(/\//g, '-');
-        const formattedTime = now.toLocaleTimeString().replace(/:/g, '-');
-        const fileName = `TuitionList_${formattedDate}_${formattedTime}`;
+    const handleExportToExcel = async () => {
+        const confirmDownload = window.confirm('Download tuition list Excel?');
 
-        const tableHeaders = [
-            "Tuition Code", "Wanted Teacher", "Student",
-            "Institute", "Class", "Medium",
-            "Subject", "Day", "Time",
-            "Salary", "City", "Area",
-            "Location", "Joining Date", "Guardian Number",
-            "Status", "Comment", "Teacher Number",
-            "Last Available Check", "Last Update", "Last Update Comment",
-            "Next Update Date", "Next Update Comment",
-            "Comment 1", "Comment 2",
-            "Publish", "Is Emergency?", "Apply via WhatsApp?",
-            "Payment Created?"
-        ];
-
-        const tableData = excelTuitionList.map(tuition => [
-            String(tuition.tuitionCode ?? ""),
-            String(tuition.wantedTeacher ?? ""),
-            String(tuition.student ?? ""),
-            String(tuition.institute ?? ""),
-            String(tuition.class ?? ""),
-            String(tuition.medium ?? ""),
-            String(tuition.subject ?? ""),
-            String(tuition.day ?? ""),
-            String(tuition.time ?? "").replace("undefined", ""),
-            String(tuition.salary ?? ""),
-            String(tuition.city ?? ""),
-            String(tuition.area ?? ""),
-            String(tuition.location ?? ""),
-            String(tuition.joining ?? ""),
-            String(tuition.guardianNumber ?? ""),
-            String(tuition.status ?? ""),
-            String(tuition.note ?? ""),
-            String(tuition.tutorNumber ?? ""),
-            tuition.lastAvailableCheck ? String(tuition.lastAvailableCheck).substring(0, 16) : "",
-            tuition.lastUpdate ? String(tuition.lastUpdate).substring(0, 16) : "",
-            String(tuition.lastUpdateComment ?? ""),
-            tuition.nextUpdateDate ? String(tuition.nextUpdateDate).substring(0, 16) : "",
-            String(tuition.nextUpdateComment ?? ""),
-            String(tuition.comment1 ?? ""),
-            String(tuition.comment2 ?? ""),
-            tuition.isPublish ? 'Yes' : 'No',
-            tuition.isUrgent ? 'Yes' : 'No',
-            tuition.isWhatsappApply ? 'Yes' : 'No',
-            tuition.isPaymentCreated ? 'Yes' : 'No',
-        ]);
-
-        const worksheet = XLSX.utils.aoa_to_sheet([tableHeaders, ...tableData]);
-
-        worksheet['!cols'] = [
-            { wpx: 100 }, { wpx: 120 }, { wpx: 100 },
-            { wpx: 120 }, { wpx: 80 }, { wpx: 80 },
-            { wpx: 100 }, { wpx: 70 }, { wpx: 60 },
-            { wpx: 80 }, { wpx: 80 }, { wpx: 80 },
-            { wpx: 100 }, { wpx: 90 }, { wpx: 100 },
-            { wpx: 100 }, { wpx: 120 }, { wpx: 100 },
-            { wpx: 140 }, { wpx: 140 }, { wpx: 140 },
-            { wpx: 140 }, { wpx: 140 }, { wpx: 100 },
-            { wpx: 100 }, { wpx: 60 }, { wpx: 70 }, { wpx: 70 }
-            , { wpx: 70 }
-        ];
-
-        const workbook = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(workbook, worksheet, "Tuitions");
-
-        XLSX.writeFile(workbook, `${fileName}.xlsx`);
+        if (confirmDownload) {
+            try {
+                const link = document.createElement('a');
+                link.href = 'https://tuition-seba-backend-1.onrender.com/api/tuition/exportAll';
+                link.target = '_blank';
+                link.download = 'tuition_apply_all.xlsx';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            } catch (error) {
+                console.error('Export failed:', error);
+                toast.error('Export failed. Please try again.');
+            }
+        } else {
+            toast.info('Export cancelled');
+        }
     };
 
     const handleDeleteTuition = async (id) => {
@@ -357,56 +309,71 @@ const TuitionPage = () => {
                 </Header>
                 <Card className="mt-4">
                     <Card.Body>
-                        <div className="row text-center">
-                            <div className="col-6 col-sm-4 col-md-2 mb-3">
-                                <div className="card p-3 shadow border-primary">
+                        <div className="row text-center" style={{ display: 'flex', flexWrap: 'wrap', margin: '0 -0.5rem' }}>
+                            <div className="col-6 col-sm-3 mb-3" style={{ flex: '0 0 12.5%', maxWidth: '12.5%', padding: '0 0.5rem' }}>
+                                <div className="card p-3 shadow border-primary" style={{ minHeight: '80px' }}>
                                     <div className="d-flex flex-column align-items-center">
-                                        <span className="text-primary" style={{ fontWeight: 'bolder' }}>Published</span>
-                                        <span>{publishCount}</span>
+                                        <span className="text-primary" style={{ fontWeight: 'bolder', fontSize: '0.9rem' }}>Published</span>
+                                        <span style={{ fontSize: '1.1rem', fontWeight: 'bold' }}>{publishCount}</span>
                                     </div>
                                 </div>
                             </div>
-                            <div className="col-6 col-sm-4 col-md-2 mb-3">
-                                <div className="card p-3 shadow border-primary">
+                            <div className="col-6 col-sm-3 mb-3" style={{ flex: '0 0 12.5%', maxWidth: '12.5%', padding: '0 0.5rem' }}>
+                                <div className="card p-3 shadow border-primary" style={{ minHeight: '80px' }}>
                                     <div className="d-flex flex-column align-items-center">
-                                        <span className="text-primary" style={{ fontWeight: 'bolder' }}>Available</span>
-                                        <span>{statusCounts.available}</span>
+                                        <span className="text-primary" style={{ fontWeight: 'bolder', fontSize: '0.9rem' }}>Total</span>
+                                        <span style={{ fontSize: '1.1rem', fontWeight: 'bold' }}>{statusCounts.total}</span>
                                     </div>
                                 </div>
                             </div>
-                            <div className="col-6 col-sm-4 col-md-2 mb-3">
-                                <div className="card p-3 shadow border-primary">
+                            <div className="col-6 col-sm-3 mb-3" style={{ flex: '0 0 12.5%', maxWidth: '12.5%', padding: '0 0.5rem' }}>
+                                <div className="card p-3 shadow border-primary" style={{ minHeight: '80px' }}>
                                     <div className="d-flex flex-column align-items-center">
-                                        <span className="text-primary" style={{ fontWeight: 'bolder' }}>Given Number</span>
-                                        <span>{statusCounts.givenNumber}</span>
+                                        <span className="text-primary" style={{ fontWeight: 'bolder', fontSize: '0.9rem' }}>Available</span>
+                                        <span style={{ fontSize: '1.1rem', fontWeight: 'bold' }}>{statusCounts.available}</span>
                                     </div>
                                 </div>
                             </div>
-                            <div className="col-6 col-sm-4 col-md-2 mb-3">
-                                <div className="card p-3 shadow border-primary">
+                            <div className="col-6 col-sm-3 mb-3" style={{ flex: '0 0 12.5%', maxWidth: '12.5%', padding: '0 0.5rem' }}>
+                                <div className="card p-3 shadow border-primary" style={{ minHeight: '80px' }}>
                                     <div className="d-flex flex-column align-items-center">
-                                        <span className="text-primary" style={{ fontWeight: 'bolder' }}>Demo Class Running</span>
-                                        <span>{statusCounts.demoClassRunning}</span>
+                                        <span className="text-primary" style={{ fontWeight: 'bolder', fontSize: '0.9rem' }}>Given Number</span>
+                                        <span style={{ fontSize: '1.1rem', fontWeight: 'bold' }}>{statusCounts.givenNumber}</span>
                                     </div>
                                 </div>
                             </div>
-                            <div className="col-6 col-sm-4 col-md-2 mb-3">
-                                <div className="card p-3 shadow border-primary">
+                            <div className="col-6 col-sm-3 mb-3" style={{ flex: '0 0 12.5%', maxWidth: '12.5%', padding: '0 0.5rem' }}>
+                                <div className="card p-3 shadow border-primary" style={{ minHeight: '80px' }}>
                                     <div className="d-flex flex-column align-items-center">
-                                        <span className="text-primary" style={{ fontWeight: 'bolder' }}>Confirm</span>
-                                        <span>{statusCounts.confirm}</span>
+                                        <span className="text-primary" style={{ fontWeight: 'bolder', fontSize: '0.9rem' }}>Guardian Meet</span>
+                                        <span style={{ fontSize: '1.1rem', fontWeight: 'bold' }}>{statusCounts.guardianMeet}</span>
                                     </div>
                                 </div>
                             </div>
-                            <div className="col-6 col-sm-4 col-md-2 mb-3">
-                                <div className="card p-3 shadow border-primary">
+                            <div className="col-6 col-sm-3 mb-3" style={{ flex: '0 0 12.5%', maxWidth: '12.5%', padding: '0 0.5rem' }}>
+                                <div className="card p-3 shadow border-primary" style={{ minHeight: '80px' }}>
                                     <div className="d-flex flex-column align-items-center">
-                                        <span className="text-primary" style={{ fontWeight: 'bolder' }}>Cancel</span>
-                                        <span>{statusCounts.cancel}</span>
+                                        <span className="text-primary" style={{ fontWeight: 'bolder', fontSize: '0.9rem' }}>Demo Class Running</span>
+                                        <span style={{ fontSize: '1.1rem', fontWeight: 'bold' }}>{statusCounts.demoClassRunning}</span>
                                     </div>
                                 </div>
                             </div>
-
+                            <div className="col-6 col-sm-3 mb-3" style={{ flex: '0 0 12.5%', maxWidth: '12.5%', padding: '0 0.5rem' }}>
+                                <div className="card p-3 shadow border-primary" style={{ minHeight: '80px' }}>
+                                    <div className="d-flex flex-column align-items-center">
+                                        <span className="text-primary" style={{ fontWeight: 'bolder', fontSize: '0.9rem' }}>Confirm</span>
+                                        <span style={{ fontSize: '1.1rem', fontWeight: 'bold' }}>{statusCounts.confirm}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="col-6 col-sm-3 mb-3" style={{ flex: '0 0 12.5%', maxWidth: '12.5%', padding: '0 0.5rem' }}>
+                                <div className="card p-3 shadow border-primary" style={{ minHeight: '80px' }}>
+                                    <div className="d-flex flex-column align-items-center">
+                                        <span className="text-primary" style={{ fontWeight: 'bolder', fontSize: '0.9rem' }}>Cancel</span>
+                                        <span style={{ fontSize: '1.1rem', fontWeight: 'bold' }}>{statusCounts.cancel}</span>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </Card.Body>
                 </Card>
@@ -543,16 +510,8 @@ const TuitionPage = () => {
                         variant="success"
                         className="mb-3 d-flex align-items-center justify-content-center gap-2"
                         onClick={handleExportToExcel}
-                        disabled={excelTuitionList.length === 0}
                     >
-                        {excelTuitionList.length === 0 ? (
-                            <>
-                                <Spinner animation="border" size="sm" role="status" />
-                                <span>Preparing export...</span>
-                            </>
-                        ) : (
-                            'Export to Excel'
-                        )}
+                        Export to CSV
                     </Button>
                 )}
 
@@ -849,7 +808,7 @@ const TuitionPage = () => {
                 <LoadingCard show={deleteLoading} message="Deleting..." />
 
                 <ToastContainer />
-            </Container>
+            </Container >
         </>
     );
 };

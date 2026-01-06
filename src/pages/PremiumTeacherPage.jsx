@@ -369,7 +369,7 @@ const PremiumTeacherPage = () => {
             lines.push(`College (HSC): *${teacherDetails.college}*`);
         }
 
-        if (teacherDetails.isResultShow && (hasValue(teacherDetails.hscGroup) || hasValue(teacherDetails.hscResult))) {
+        if (hasValue(teacherDetails.hscGroup) || hasValue(teacherDetails.hscResult)) {
             lines.push(
                 `HSC - Group: *${teacherDetails.hscGroup || 'N/A'}*, Result: *${teacherDetails.hscResult || 'N/A'}*`
             );
@@ -379,7 +379,7 @@ const PremiumTeacherPage = () => {
             lines.push(`School (SSC): *${teacherDetails.school}*`);
         }
 
-        if (teacherDetails.isResultShow && (hasValue(teacherDetails.sscGroup) || hasValue(teacherDetails.sscResult))) {
+        if (hasValue(teacherDetails.sscGroup) || hasValue(teacherDetails.sscResult)) {
             lines.push(
                 `SSC - Group: *${teacherDetails.sscGroup || 'N/A'}*, Result: *${teacherDetails.sscResult || 'N/A'}*`
             );

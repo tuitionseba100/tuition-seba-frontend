@@ -8,6 +8,7 @@ import { ToastContainer, toast } from 'react-toastify';
 import { Spinner } from 'react-bootstrap';
 
 import Select from 'react-select';
+import LoadingCard from '../components/modals/LoadingCard';
 
 const TuitionPage = () => {
     const [tuitionList, setTuitionApplyList] = useState([]);
@@ -31,6 +32,8 @@ const TuitionPage = () => {
     const [totalPages, setTotalPages] = useState(1);
     const [allTuitionList, setAllTuitionList] = useState([]);
     const [loading, setLoading] = useState(false);
+    const [saving, setSaving] = useState(false);
+    const [deleting, setDeleting] = useState(false);
     const [statusCounts, setStatusCounts] = useState({
         pending: 0,
         calledInterested: 0,
@@ -197,9 +200,12 @@ const TuitionPage = () => {
     };
 
     const handleSaveTuition = async () => {
+        setSaving(true);
+        const username = localStorage.getItem('username');
 
         const updatedTuitionData = {
             ...tuitionData,
+            updatedBy: username,
             status: tuitionData.status ? tuitionData.status : "pending"
         };
         try {
@@ -215,6 +221,8 @@ const TuitionPage = () => {
         } catch (err) {
             console.error('Error saving tuition apply record:', err);
             toast.error("Error saving tuition apply record.");
+        } finally {
+            setSaving(false);
         }
     };
 
@@ -240,6 +248,7 @@ const TuitionPage = () => {
         const confirmDelete = window.confirm("Are you sure you want to delete this tuition apply record?");
 
         if (confirmDelete) {
+            setDeleting(true);
             try {
                 await axios.delete(`https://tuition-seba-backend-1.onrender.com/api/tuitionApply/delete/${id}`);
                 toast.success("Tuition record deleted successfully!");
@@ -247,6 +256,8 @@ const TuitionPage = () => {
             } catch (err) {
                 console.error('Error deleting tuition apply record:', err);
                 toast.error("Error deleting tuition apply record.");
+            } finally {
+                setDeleting(false);
             }
         } else {
             toast.info("Deletion canceled");
@@ -410,6 +421,7 @@ const TuitionPage = () => {
                                     <tr>
                                         <th>SL</th>
                                         <th>Applied At</th>
+                                        <th>Updated By</th>
                                         <th>Status</th>
                                         <th>Premium Code</th>
                                         <th>Tuition Code</th>
@@ -440,6 +452,7 @@ const TuitionPage = () => {
                                                 </td>
 
                                                 <td style={getRowStyle(tuition)}>{tuition.appliedAt ? formatDate(tuition.appliedAt) : ''}</td>
+                                                <td style={getRowStyle(tuition)}>{tuition.updatedBy}</td>
                                                 <td style={getRowStyle(tuition)}>
                                                     <span className={`badge 
             ${tuition.status === "pending" ? "bg-success" :
@@ -470,14 +483,36 @@ const TuitionPage = () => {
                                                     <Button
                                                         variant={getButtonVariant(tuition, 'warning')}
                                                         onClick={() => handleEditTuition(tuition)}
+                                                        disabled={saving}
                                                     >
-                                                        <FaEdit />
+                                                        {saving ? (
+                                                            <Spinner
+                                                                as="span"
+                                                                animation="border"
+                                                                size="sm"
+                                                                role="status"
+                                                                className="me-1"
+                                                            />
+                                                        ) : (
+                                                            <FaEdit />
+                                                        )}
                                                     </Button>
                                                     <Button
                                                         variant={getButtonVariant(tuition, 'danger')}
                                                         onClick={() => handleDeleteTuition(tuition._id)}
+                                                        disabled={deleting}
                                                     >
-                                                        <FaTrashAlt />
+                                                        {deleting ? (
+                                                            <Spinner
+                                                                as="span"
+                                                                animation="border"
+                                                                size="sm"
+                                                                role="status"
+                                                                className="me-1"
+                                                            />
+                                                        ) : (
+                                                            <FaTrashAlt />
+                                                        )}
                                                     </Button>
                                                 </td>
                                             </tr>
@@ -667,12 +702,31 @@ const TuitionPage = () => {
                         </Form>
                     </Modal.Body>
                     <Modal.Footer>
-                        <Button variant="secondary" onClick={() => setShowModal(false)}>Close</Button>
-                        <Button variant="primary" onClick={handleSaveTuition}>Save</Button>
+                        <Button variant="secondary" onClick={() => setShowModal(false)} disabled={saving}>Close</Button>
+                        <Button variant="primary" onClick={handleSaveTuition} disabled={saving}>
+                            {saving ? (
+                                <>
+                                    <Spinner
+                                        as="span"
+                                        animation="border"
+                                        size="sm"
+                                        role="status"
+                                        className="me-2"
+                                    />
+                                    Saving...
+                                </>
+                            ) : (
+                                'Save'
+                            )}
+                        </Button>
                     </Modal.Footer>
                 </Modal>
 
                 <ToastContainer />
+
+                {/* Loading spinners for save and delete operations */}
+                <LoadingCard show={saving} message="Saving tuition record..." />
+                <LoadingCard show={deleting} message="Deleting tuition record..." />
 
                 {/* Export Modal */}
                 <Modal show={showExportModal} onHide={() => {

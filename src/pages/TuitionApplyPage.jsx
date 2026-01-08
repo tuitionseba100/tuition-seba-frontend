@@ -17,7 +17,6 @@ const TuitionPage = () => {
     const [editingId, setEditingId] = useState(null);
     const [tuitionData, setTuitionData] = useState({
         tuitionCode: '',
-        tuitionId: '',
         name: '',
         phone: '',
         institute: '',
@@ -77,7 +76,6 @@ const TuitionPage = () => {
 
     useEffect(() => {
         fetchTuitionApplyRecords();
-        fetchAllTuitions();
     }, []);
 
     useEffect(() => {
@@ -196,31 +194,10 @@ const TuitionPage = () => {
         }
     };
 
-    const fetchAllTuitions = async () => {
-        try {
-            const response = await axios.get(
-                'https://tuition-seba-backend-1.onrender.com/api/tuition/all',
-                {
-                    headers: {
-                        Authorization: token
-                    }
-                }
-            );
-            setAllTuitionList(response.data);
-        } catch (err) {
-            console.error('Error fetching tuitions:', err);
-            toast.error("Failed to load tuitions.");
-        }
-    };
-
-
-
     const handleSaveTuition = async () => {
-        const selectedTuition = allTuitionList.find(tuition => tuition._id === tuitionData.tuitionId);
 
         const updatedTuitionData = {
             ...tuitionData,
-            tuitionCode: selectedTuition.tuitionCode,
             status: tuitionData.status ? tuitionData.status : "pending"
         };
         try {
@@ -546,21 +523,13 @@ const TuitionPage = () => {
                         <Form>
                             <Row>
                                 <Col md={6}>
-                                    <Form.Group controlId="tuitionId">
+                                    <Form.Group controlId="tuitionCode">
                                         <Form.Label className="fw-bold">Tuition Code</Form.Label>
-                                        <Select
-                                            options={allTuitionList.map(tuition => ({
-                                                value: tuition._id,
-                                                label: tuition.tuitionCode
-                                            }))}
-                                            value={allTuitionList.find(tuition => tuition._id === tuitionData.tuitionId) ? {
-                                                value: allTuitionList.find(tuition => tuition._id === tuitionData.tuitionId)._id,
-                                                label: allTuitionList.find(tuition => tuition._id === tuitionData.tuitionId).tuitionCode
-                                            } : null}
-
-                                            onChange={(selectedOption) => setTuitionData({ ...tuitionData, tuitionId: selectedOption.value })}
-                                            placeholder="Select Tuition Code"
-                                            isSearchable
+                                        <Form.Control
+                                            type="text"
+                                            value={tuitionData.tuitionCode}
+                                            onChange={(e) => setTuitionData({ ...tuitionData, tuitionCode: e.target.value })}
+                                            required
                                         />
                                     </Form.Group>
                                 </Col>

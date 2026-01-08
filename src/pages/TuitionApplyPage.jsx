@@ -18,6 +18,7 @@ const TuitionPage = () => {
     const [tuitionData, setTuitionData] = useState({
         tuitionCode: '',
         tuitionId: '',
+        premiumCode: '',
         name: '',
         phone: '',
         institute: '',
@@ -259,7 +260,7 @@ const TuitionPage = () => {
 
                 <Header>
                     <h2 className='text-primary fw-bold'>Tuition Applications</h2>
-                    <Button variant="primary" onClick={() => { setShowModal(true); setEditingId(null); setTuitionData({ tuitionCode: '', name: '', phone: '', institute: '', department: '', address: '', status: '', comment: '', commentForTeacher: '' }) }}>
+                    <Button variant="primary" onClick={() => { setShowModal(true); setEditingId(null); setTuitionData({ tuitionCode: '', tuitionId: '', premiumCode: '', name: '', phone: '', institute: '', department: '', address: '', status: '', comment: '', commentForTeacher: '' }) }}>
                         Create Tuition Apply
                     </Button>
                 </Header>
@@ -548,7 +549,7 @@ const TuitionPage = () => {
                             </Row>
 
                             <Row>
-                                <Col md={4}>
+                                <Col md={6}>
                                     <Form.Group controlId="phone">
                                         <Form.Label className="fw-bold">Phone</Form.Label>
                                         <Form.Control
@@ -559,7 +560,7 @@ const TuitionPage = () => {
                                         />
                                     </Form.Group>
                                 </Col>
-                                <Col md={4}>
+                                <Col md={6}>
                                     <Form.Group controlId="institute">
                                         <Form.Label className="fw-bold">Institute</Form.Label>
                                         <Form.Control
@@ -570,7 +571,21 @@ const TuitionPage = () => {
                                         />
                                     </Form.Group>
                                 </Col>
-                                <Col md={4}>
+                            </Row>
+
+                            <Row>
+                                <Col md={6}>
+                                    <Form.Group controlId="premiumCode">
+                                        <Form.Label className="fw-bold">Premium Code</Form.Label>
+                                        <Form.Control
+                                            type="text"
+                                            value={tuitionData.premiumCode || ''}
+                                            onChange={(e) => setTuitionData({ ...tuitionData, premiumCode: e.target.value })}
+                                            required
+                                        />
+                                    </Form.Group>
+                                </Col>
+                                <Col md={6}>
                                     <Form.Group controlId="department">
                                         <Form.Label className="fw-bold">Department</Form.Label>
                                         <Form.Control

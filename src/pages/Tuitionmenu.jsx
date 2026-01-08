@@ -53,6 +53,8 @@ const TuitionPage = () => {
     const [showAppliedModal, setShowAppliedModal] = useState(false);
     const [selectedTuitionId, setSelectedTuitionId] = useState(null);
     const [selectedTuitionCode, setSelectedTuitionCode] = useState(null);
+    const [showExportModal, setShowExportModal] = useState(false);
+    const [selectedExportStatus, setSelectedExportStatus] = useState('');
     const role = localStorage.getItem('role');
 
     const openAppliedListModal = (tuition) => {
@@ -205,23 +207,29 @@ const TuitionPage = () => {
     };
 
     const handleExportToExcel = async () => {
-        const confirmDownload = window.confirm('Download tuition list Excel?');
+        setShowExportModal(true);
+    };
 
-        if (confirmDownload) {
+    const handleExportWithStatus = async () => {
+        if (selectedExportStatus) {
             try {
+                const statusForFileName = selectedExportStatus.replace(/\s+/g, '_').toLowerCase();
                 const link = document.createElement('a');
-                link.href = 'https://tuition-seba-backend-1.onrender.com/api/tuition/exportAll';
+                link.href = `https://tuition-seba-backend-1.onrender.com/api/tuition/exportData?status=${selectedExportStatus}`;
                 link.target = '_blank';
-                link.download = 'tuition_apply_all.xlsx';
+                // Match backend file naming and CSV extension
+                link.download = `tuition_apply_${statusForFileName}.csv`;
                 document.body.appendChild(link);
                 link.click();
                 document.body.removeChild(link);
+                setShowExportModal(false);
+                setSelectedExportStatus('');
             } catch (error) {
                 console.error('Export failed:', error);
                 toast.error('Export failed. Please try again.');
             }
         } else {
-            toast.info('Export cancelled');
+            toast.error('Please select a status to export.');
         }
     };
 
@@ -808,6 +816,57 @@ const TuitionPage = () => {
                 <LoadingCard show={deleteLoading} message="Deleting..." />
 
                 <ToastContainer />
+
+                {/* Export Modal */}
+                <Modal show={showExportModal} onHide={() => {
+                    setShowExportModal(false);
+                    setSelectedExportStatus('');
+                }} centered>
+                    <Modal.Header closeButton className="bg-primary text-white">
+                        <Modal.Title className="w-100 text-center fw-bold">
+                            Select Status for Export
+                        </Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body className="p-4 bg-light">
+                        <Form.Group className="mb-3">
+                            <Form.Label className="fw-bold">Select Status:</Form.Label>
+                            <Form.Select
+                                value={selectedExportStatus}
+                                onChange={(e) => setSelectedExportStatus(e.target.value)}
+                                className="form-control-lg"
+                            >
+                                <option value="">-- Select Status --</option>
+                                <option value="all">All</option>
+                                <option value="available">Available</option>
+                                <option value="given number">Given Number</option>
+                                <option value="guardian meet">Guardian Meet</option>
+                                <option value="demo class running">Demo Class Running</option>
+                                <option value="confirm">Confirm</option>
+                                <option value="cancel">Cancel</option>
+                                <option value="suspended">Suspended</option>
+                            </Form.Select>
+                        </Form.Group>
+                    </Modal.Body>
+                    <Modal.Footer className="bg-light">
+                        <Button
+                            variant="secondary"
+                            onClick={() => {
+                                setShowExportModal(false);
+                                setSelectedExportStatus('');
+                            }}
+                        >
+                            Cancel
+                        </Button>
+                        <Button
+                            variant="primary"
+                            onClick={handleExportWithStatus}
+                            disabled={!selectedExportStatus}
+                        >
+                            Export
+                        </Button>
+                    </Modal.Footer>
+                </Modal>
+
             </Container >
         </>
     );

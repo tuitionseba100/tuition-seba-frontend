@@ -6,6 +6,7 @@ import PaymentModal from '../../components/modals/PaymentModal';
 import RefundModal from '../../components/modals/RefundModal';
 import PaymentTermsModal from '../../components/modals/PaymentTermsModal';
 import RefundTermsModal from '../../components/modals/RefundTermsModal';
+import SmallPaymentOptions from '../../components/SmallPaymentOptions';
 import NavBar from '../../components/NavBar';
 import Footer from '../../components/Footer';
 
@@ -20,6 +21,7 @@ const PaymentRefundPage = () => {
             <NavBar />
             <Container className="my-5">
                 <ToastContainer position="top-center" autoClose={2500} />
+                <SmallPaymentOptions />
                 <Row className="justify-content-center mb-4">
                     <Col md={8}>
                         <Card className="shadow-sm rounded-4 p-4 border-0">

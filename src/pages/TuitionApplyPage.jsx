@@ -17,6 +17,7 @@ const TuitionPage = () => {
     const [editingId, setEditingId] = useState(null);
     const [tuitionData, setTuitionData] = useState({
         tuitionCode: '',
+        tuitionId: '',
         name: '',
         phone: '',
         institute: '',

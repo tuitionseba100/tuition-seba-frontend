@@ -260,7 +260,7 @@ const TuitionPage = () => {
 
                 <Header>
                     <h2 className='text-primary fw-bold'>Tuition Applications</h2>
-                    <Button variant="primary" onClick={() => { setShowModal(true); setEditingId(null); setTuitionData({ tuitionCode: '', tuitionId: '', premiumCode: '', name: '', phone: '', institute: '', department: '', address: '', status: '', comment: '', commentForTeacher: '' }) }}>
+                    <Button variant="primary" onClick={() => { setShowModal(true); setEditingId(null); setTuitionData({ tuitionCode: '', tuitionId: 'admin_created', premiumCode: '', name: '', phone: '', institute: '', department: '', address: '', status: '', comment: '', commentForTeacher: '' }) }}>
                         Create Tuition Apply
                     </Button>
                 </Header>

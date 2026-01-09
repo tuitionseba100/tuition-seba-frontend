@@ -78,14 +78,21 @@ function AppliedListModal({ tuitionId, tuitionCode, show, onHide }) {
     const handleSaveTuition = async () => {
         try {
             setSaving(true);
+            const username = localStorage.getItem('username');
+
+            const updatedTuitionData = {
+                ...tuitionData,
+                updatedBy: username
+            };
+
             await axios.put(
                 `https://tuition-seba-backend-1.onrender.com/api/tuitionApply/edit/${editingId}`,
-                tuitionData
+                updatedTuitionData
             );
             toast.success("Tuition apply record updated successfully!");
             setAppliedList((prev) =>
                 prev.map((item) =>
-                    item._id === editingId ? { ...item, ...tuitionData } : item
+                    item._id === editingId ? { ...item, ...updatedTuitionData } : item
                 )
             );
             setShowEditModal(false);

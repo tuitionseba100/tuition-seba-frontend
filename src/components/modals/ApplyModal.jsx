@@ -42,6 +42,7 @@ const ApplyModal = ({ show, onClose, tuitionCode, tuitionId }) => {
         phone: Yup.string()
             .required('Phone is required')
             .matches(/^\+?\d{7,15}$/, 'Phone number is not valid'),
+        academicYear: Yup.string().required('Academic Year is required'),
         comment: Yup.string(),
     });
 
@@ -83,6 +84,7 @@ const ApplyModal = ({ show, onClose, tuitionCode, tuitionId }) => {
             setFieldValue('name', teacher.name || '');
             setFieldValue('institute', teacher.university || teacher.honorsUniversity || teacher.mastersUniversity || '');
             setFieldValue('department', teacher.department || teacher.honorsDept || teacher.mastersDept || '');
+            setFieldValue('academicYear', teacher.academicYear || '');
 
             let combinedAddress = teacher.fullAddress || '';
             if (teacher.currentArea) {
@@ -137,18 +139,25 @@ const ApplyModal = ({ show, onClose, tuitionCode, tuitionId }) => {
                     style={{
                         position: 'sticky',
                         top: 0,
-                        backgroundColor: 'white',
-                        padding: '16px 48px 16px 16px',
-                        borderBottom: '4px solid #3c81e1',
+                        padding: '16px 16px',
+                        borderBottom: '4px solid #1a5fb4',
                         zIndex: 10,
                         display: 'flex',
-                        justifyContent: 'center',
+                        justifyContent: 'space-between',
                         alignItems: 'center',
-                        fontWeight: '700',
-                        fontSize: 20,
+                        fontWeight: '600',
+                        fontSize: 18,
+                        background: '#1a5fb4',
+                        color: 'white',
+                        boxShadow: '0 2px 8px rgba(0,0,0,0.2)',
                     }}
                 >
-                    <span style={{ flex: 1, textAlign: 'center' }}>📩 Application for Tuition</span>
+                    <div style={{ flex: 1, textAlign: 'center' }}>
+                        <div style={{ fontSize: 15, fontWeight: 'normal', marginBottom: 5, opacity: 0.9 }}>Applying For</div>
+                        <div style={{ fontSize: 20, fontWeight: 'bold', backgroundColor: 'rgba(255, 255, 255, 0.2)', padding: '6px 12px', borderRadius: '20px', display: 'inline-block' }}>
+                            Tuition Code: <span style={{ color: '#ffffff', fontWeight: '800', fontSize: 22 }}>{tuitionCode || 'N/A'}</span>
+                        </div>
+                    </div>
                     <button
                         type="button"
                         onClick={onClose}
@@ -160,11 +169,12 @@ const ApplyModal = ({ show, onClose, tuitionCode, tuitionId }) => {
                             transform: 'translateY(-50%)',
                             border: 'none',
                             background: 'transparent',
-                            fontSize: 28,
+                            fontSize: 26,
                             fontWeight: 'bold',
-                            color: '#3c81e1',
+                            color: 'white',
                             cursor: 'pointer',
                             lineHeight: 1,
+                            textShadow: '0 1px 2px rgba(0,0,0,0.3)',
                         }}
                     >
                         &times;
@@ -179,6 +189,7 @@ const ApplyModal = ({ show, onClose, tuitionCode, tuitionId }) => {
                         name: '',
                         institute: '',
                         department: '',
+                        academicYear: '',
                         address: '',
                         phone: '',
                         comment: '',
@@ -244,42 +255,7 @@ const ApplyModal = ({ show, onClose, tuitionCode, tuitionId }) => {
                                     }}
                                     className="custom-scrollbar"
                                 >
-                                    {/* Tuition Code - moved to top and designed beautifully */}
-                                    <div
-                                        style={{
-                                            textAlign: 'center',
-                                            padding: '20px',
-                                            margin: '10px 0 20px 0',
-                                            backgroundColor: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                                            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                                            borderRadius: '12px',
-                                            boxShadow: '0 4px 15px rgba(102, 126, 234, 0.4)',
-                                            color: 'white',
-                                            fontWeight: 'bold',
-                                            fontSize: '18px',
-                                            position: 'relative',
-                                        }}
-                                    >
-                                        <div style={{
-                                            position: 'absolute',
-                                            top: '-10px',
-                                            left: '50%',
-                                            transform: 'translateX(-50%)',
-                                            backgroundColor: '#ff6b6b',
-                                            color: 'white',
-                                            padding: '5px 15px',
-                                            borderRadius: '20px',
-                                            fontSize: '12px',
-                                            fontWeight: 'bold',
-                                            boxShadow: '0 2px 10px rgba(0,0,0,0.2)',
-                                        }}>
-                                            TUITION APPLICATION
-                                        </div>
-                                        <div style={{ marginTop: '10px' }}>
-                                            <span style={{ display: 'block', fontSize: '14px', opacity: 0.9, marginBottom: '5px' }}>TUITION CODE</span>
-                                            <span style={{ fontSize: '24px', fontWeight: 'bold', letterSpacing: '1px' }}>{values.tuitionCode}</span>
-                                        </div>
-                                    </div>
+
 
                                     {/* Info Note in Bangla */}
                                     <div
@@ -301,9 +277,9 @@ const ApplyModal = ({ show, onClose, tuitionCode, tuitionId }) => {
                                         <label className="form-label" htmlFor="premiumCode">
                                             Registration Code (Premium Code)
                                             <span className="text-danger">*</span>
-                                            <small style={{ fontWeight: '600', marginLeft: 8, color: '#555' }}>
+                                            <div style={{ fontSize: '12px', marginLeft: 8, color: '#666', fontStyle: 'italic', marginTop: 4 }}>
                                                 (অ্যাপলাই করতে অবশ্যই প্রিমিয়াম টিচার হতে হবে)
-                                            </small>
+                                            </div>
                                         </label>
                                         <Field
                                             name="premiumCode"
@@ -393,6 +369,12 @@ const ApplyModal = ({ show, onClose, tuitionCode, tuitionId }) => {
                                                     name: 'department',
                                                     label: 'Department',
                                                     placeholder: 'Your department',
+                                                    required: true,
+                                                },
+                                                {
+                                                    name: 'academicYear',
+                                                    label: 'Academic Year',
+                                                    placeholder: 'Your academic year',
                                                     required: true,
                                                 },
                                                 {

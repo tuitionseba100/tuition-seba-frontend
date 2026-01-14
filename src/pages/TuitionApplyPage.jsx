@@ -24,6 +24,7 @@ const TuitionPage = () => {
         phone: '',
         institute: '',
         department: '',
+        academicYear: '',
         address: '',
         comment: '',
         commentForTeacher: '',
@@ -272,7 +273,7 @@ const TuitionPage = () => {
 
                 <Header>
                     <h2 className='text-primary fw-bold'>Tuition Applications</h2>
-                    <Button variant="primary" onClick={() => { setShowModal(true); setEditingId(null); setTuitionData({ tuitionCode: '', tuitionId: 'admin_created', premiumCode: '', name: '', phone: '', institute: '', department: '', address: '', status: '', comment: '', commentForTeacher: '' }) }}>
+                    <Button variant="primary" onClick={() => { setShowModal(true); setEditingId(null); setTuitionData({ tuitionCode: '', tuitionId: 'admin_created', premiumCode: '', name: '', phone: '', institute: '', department: '', academicYear: '', address: '', status: '', comment: '', commentForTeacher: '' }) }}>
                         Create Tuition Apply
                     </Button>
                 </Header>
@@ -430,6 +431,7 @@ const TuitionPage = () => {
                                         <th>Phone</th>
                                         <th>Institute</th>
                                         <th>Department</th>
+                                        <th>Academic Year</th>
                                         <th>Address</th>
                                         <th>Comment</th>
                                         <th>Comment For Teacher</th>
@@ -478,6 +480,7 @@ const TuitionPage = () => {
                                                 <td style={getRowStyle(tuition)}>{tuition.phone}</td>
                                                 <td style={getRowStyle(tuition)}>{tuition.institute}</td>
                                                 <td style={getRowStyle(tuition)}>{tuition.department}</td>
+                                                <td style={getRowStyle(tuition)}>{tuition.academicYear}</td>
                                                 <td style={getRowStyle(tuition)}>{tuition.address}</td>
                                                 <td style={getRowStyle(tuition)}>{tuition.comment}</td>
                                                 <td style={getRowStyle(tuition)}>{tuition.commentForTeacher}</td>
@@ -630,6 +633,20 @@ const TuitionPage = () => {
                                             type="text"
                                             value={tuitionData.department}
                                             onChange={(e) => setTuitionData({ ...tuitionData, department: e.target.value })}
+                                            required
+                                        />
+                                    </Form.Group>
+                                </Col>
+                            </Row>
+
+                            <Row>
+                                <Col md={6}>
+                                    <Form.Group controlId="academicYear">
+                                        <Form.Label className="fw-bold">Academic Year</Form.Label>
+                                        <Form.Control
+                                            type="text"
+                                            value={tuitionData.academicYear}
+                                            onChange={(e) => setTuitionData({ ...tuitionData, academicYear: e.target.value })}
                                             required
                                         />
                                     </Form.Group>

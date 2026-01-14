@@ -189,6 +189,7 @@ function AppliedListModal({ tuitionId, tuitionCode, show, onHide }) {
                                         <th>Name</th>
                                         <th>Institute</th>
                                         <th>Department</th>
+                                        <th>Academic Year</th>
                                         <th>Address</th>
                                         <th>Applied At</th>
                                         <th>Status</th>
@@ -210,6 +211,7 @@ function AppliedListModal({ tuitionId, tuitionCode, show, onHide }) {
                                                 <td style={style}>{app.name}</td>
                                                 <td style={style}>{app.institute}</td>
                                                 <td style={style}>{app.department}</td>
+                                                <td style={style}>{app.academicYear}</td>
                                                 <td style={style}>{app.address}</td>
                                                 <td style={style}>{formatDate(app.appliedAt)}</td>
                                                 <td style={style}>{app.status}</td>

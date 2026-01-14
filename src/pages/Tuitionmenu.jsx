@@ -300,7 +300,8 @@ const TuitionPage = () => {
         "demo class running": { bg: "bg-warning", text: "text-dark" },
         "confirm": { bg: "bg-info", text: "text-dark" },
         "cancel": { bg: "bg-danger", text: "text-white" },
-        "suspended": { bg: "bg-dark", text: "text-white" }
+        "suspended": { bg: "bg-dark", text: "text-white" },
+        "refer BM": { bg: "bg-info", text: "text-dark" },
     };
 
     return (
@@ -458,6 +459,7 @@ const TuitionPage = () => {
                             <option value="demo class running">Demo Class Running</option>
                             <option value="confirm">Confirm</option>
                             <option value="cancel">Cancel</option>
+                            <option value="refer BM">Refer BM</option>
                             <option value="suspended">Suspended</option>
                         </Form.Select>
                     </Col>
@@ -843,6 +845,7 @@ const TuitionPage = () => {
                                 <option value="demo class running">Demo Class Running</option>
                                 <option value="confirm">Confirm</option>
                                 <option value="cancel">Cancel</option>
+                                <option value="refer BM">Refer BM</option>
                                 <option value="suspended">Suspended</option>
                             </Form.Select>
                         </Form.Group>

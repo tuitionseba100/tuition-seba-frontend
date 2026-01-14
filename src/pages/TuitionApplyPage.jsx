@@ -26,7 +26,8 @@ const TuitionPage = () => {
         department: '',
         address: '',
         comment: '',
-        commentForTeacher: ''
+        commentForTeacher: '',
+        agentComment: '',
     });
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
@@ -432,6 +433,7 @@ const TuitionPage = () => {
                                         <th>Address</th>
                                         <th>Comment</th>
                                         <th>Comment For Teacher</th>
+                                        <th>Agent Comment</th>
                                         <th>Actions</th>
                                     </tr>
                                 </thead>
@@ -479,6 +481,7 @@ const TuitionPage = () => {
                                                 <td style={getRowStyle(tuition)}>{tuition.address}</td>
                                                 <td style={getRowStyle(tuition)}>{tuition.comment}</td>
                                                 <td style={getRowStyle(tuition)}>{tuition.commentForTeacher}</td>
+                                                <td style={getRowStyle(tuition)}>{tuition.agentComment}</td>
                                                 <td style={getRowStyle(tuition)} className="d-flex justify-content-start gap-2">
                                                     <Button
                                                         variant={getButtonVariant(tuition, 'warning')}
@@ -694,6 +697,19 @@ const TuitionPage = () => {
                                             type="text"
                                             value={tuitionData.commentForTeacher}
                                             onChange={(e) => setTuitionData({ ...tuitionData, commentForTeacher: e.target.value })}
+                                            required
+                                        />
+                                    </Form.Group>
+                                </Col>
+                            </Row>
+                            <Row>
+                                <Col md={12}>
+                                    <Form.Group controlId="agentComment">
+                                        <Form.Label className="fw-bold">Agent Comment</Form.Label>
+                                        <Form.Control
+                                            type="text"
+                                            value={tuitionData.agentComment}
+                                            onChange={(e) => setTuitionData({ ...tuitionData, agentComment: e.target.value })}
                                             required
                                         />
                                     </Form.Group>

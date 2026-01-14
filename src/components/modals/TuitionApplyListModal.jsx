@@ -26,6 +26,7 @@ function AppliedListModal({ tuitionId, tuitionCode, show, onHide }) {
         status: "pending",
         comment: "",
         commentForTeacher: "",
+        agentComment: "",
     });
     const [focusField, setFocusField] = useState(null);
     const [saving, setSaving] = useState(false);
@@ -48,6 +49,7 @@ function AppliedListModal({ tuitionId, tuitionCode, show, onHide }) {
             status: tuition.status || "pending",
             comment: tuition.comment || "",
             commentForTeacher: tuition.commentForTeacher || "",
+            agentComment: tuition.agentComment || "",
         });
         setEditingId(tuition._id);
         setShowEditModal(true);
@@ -181,6 +183,7 @@ function AppliedListModal({ tuitionId, tuitionCode, show, onHide }) {
                                 <thead className="bg-dark text-white">
                                     <tr>
                                         <th>SL</th>
+                                        <th>Updated By</th>
                                         <th>Premium Code</th>
                                         <th>Phone</th>
                                         <th>Name</th>
@@ -191,6 +194,7 @@ function AppliedListModal({ tuitionId, tuitionCode, show, onHide }) {
                                         <th>Status</th>
                                         <th>Comment</th>
                                         <th>Comment For Teacher</th>
+                                        <th>Agent Comment</th>
                                         <th>Actions</th>
                                     </tr>
                                 </thead>
@@ -200,6 +204,7 @@ function AppliedListModal({ tuitionId, tuitionCode, show, onHide }) {
                                         return (
                                             <tr key={app._id}>
                                                 <td style={style}>{index + 1}</td>
+                                                <td style={style}>{app.updatedBy || ""}</td>
                                                 <td style={style}>{app.premiumCode}</td>
                                                 <td style={style}>{app.phone}</td>
                                                 <td style={style}>{app.name}</td>
@@ -210,6 +215,7 @@ function AppliedListModal({ tuitionId, tuitionCode, show, onHide }) {
                                                 <td style={style}>{app.status}</td>
                                                 <td style={style}>{app.comment}</td>
                                                 <td style={style}>{app.commentForTeacher}</td>
+                                                <td style={style}>{app.agentComment}</td>
                                                 <td style={style} className="d-flex justify-content-center gap-2">
                                                     <Button
                                                         variant="warning"
@@ -345,6 +351,28 @@ function AppliedListModal({ tuitionId, tuitionCode, show, onHide }) {
                                     />
                                 </Form.Group>
                             </Col>
+                            <Col md={6}>
+                                <Form.Group controlId="agentComment" className="mb-3">
+                                    <Form.Label className="fw-bold">Agent Comment</Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        value={tuitionData.agentComment}
+                                        onChange={(e) =>
+                                            setTuitionData({
+                                                ...tuitionData,
+                                                agentComment: e.target.value,
+                                            })
+                                        }
+                                        onFocus={() => handleFocus("agentComment")}
+                                        onBlur={handleBlur}
+                                        style={{
+                                            ...inputStyle,
+                                            ...(focusField === "agentComment" ? inputFocusStyle : {}),
+                                        }}
+                                        disabled={saving}
+                                    />
+                                </Form.Group>
+                            </Col>
                         </Row>
                     </Form>
                     {saving && (
@@ -364,7 +392,7 @@ function AppliedListModal({ tuitionId, tuitionCode, show, onHide }) {
                         Save
                     </Button>
                 </Modal.Footer>
-            </Modal>
+            </Modal >
 
             <style>{`
         .with-border-modal .modal-content {

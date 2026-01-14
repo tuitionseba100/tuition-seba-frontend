@@ -155,7 +155,7 @@ const TeacherPaymentPage = () => {
             String(payment.transactionId ?? ""),
             String(payment.paymentType ?? ""),
             String(payment.amount ?? ""),
-            String(payment.comment ?? ""),
+            String(payment.note ?? ""),
         ]);
 
         const worksheet = XLSX.utils.aoa_to_sheet([tableHeaders, ...tableData]);
@@ -427,7 +427,7 @@ const TeacherPaymentPage = () => {
                                                 <td>{payment.transactionId}</td>
                                                 <td>{payment.paymentType}</td>
                                                 <td>{payment.amount}</td>
-                                                <td>{payment.comment}</td>
+                                                <td>{payment.note}</td>
                                                 <td style={{ display: 'flex', justifyContent: 'flex-start', gap: '8px' }}>
                                                     <Button variant="warning" onClick={() => handleEditTeacherPayment(payment)} className="mr-2">
                                                         <FaEdit />

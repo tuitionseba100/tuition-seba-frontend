@@ -244,6 +244,43 @@ const ApplyModal = ({ show, onClose, tuitionCode, tuitionId }) => {
                                     }}
                                     className="custom-scrollbar"
                                 >
+                                    {/* Tuition Code - moved to top and designed beautifully */}
+                                    <div
+                                        style={{
+                                            textAlign: 'center',
+                                            padding: '20px',
+                                            margin: '10px 0 20px 0',
+                                            backgroundColor: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                                            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                                            borderRadius: '12px',
+                                            boxShadow: '0 4px 15px rgba(102, 126, 234, 0.4)',
+                                            color: 'white',
+                                            fontWeight: 'bold',
+                                            fontSize: '18px',
+                                            position: 'relative',
+                                        }}
+                                    >
+                                        <div style={{
+                                            position: 'absolute',
+                                            top: '-10px',
+                                            left: '50%',
+                                            transform: 'translateX(-50%)',
+                                            backgroundColor: '#ff6b6b',
+                                            color: 'white',
+                                            padding: '5px 15px',
+                                            borderRadius: '20px',
+                                            fontSize: '12px',
+                                            fontWeight: 'bold',
+                                            boxShadow: '0 2px 10px rgba(0,0,0,0.2)',
+                                        }}>
+                                            TUITION APPLICATION
+                                        </div>
+                                        <div style={{ marginTop: '10px' }}>
+                                            <span style={{ display: 'block', fontSize: '14px', opacity: 0.9, marginBottom: '5px' }}>TUITION CODE</span>
+                                            <span style={{ fontSize: '24px', fontWeight: 'bold', letterSpacing: '1px' }}>{values.tuitionCode}</span>
+                                        </div>
+                                    </div>
+
                                     {/* Info Note in Bangla */}
                                     <div
                                         style={{
@@ -284,32 +321,6 @@ const ApplyModal = ({ show, onClose, tuitionCode, tuitionId }) => {
                                         />
                                         <ErrorMessage
                                             name="premiumCode"
-                                            component="div"
-                                            className="text-danger small"
-                                        />
-                                    </div>
-
-                                    {/* Tuition Code */}
-                                    <div className="mb-3">
-                                        <label className="form-label" htmlFor="tuitionCode">
-                                            Tuition Code
-                                            <span className="text-danger">*</span>
-                                        </label>
-                                        <Field
-                                            name="tuitionCode"
-                                            type="text"
-                                            className="form-control"
-                                            disabled={true}
-                                            style={{
-                                                border: '1.5px solid #3c81e1',
-                                                borderRadius: 6,
-                                                padding: '8px 12px',
-                                                transition: 'border-color 0.3s',
-                                                backgroundColor: '#f5f5f5',
-                                            }}
-                                        />
-                                        <ErrorMessage
-                                            name="tuitionCode"
                                             component="div"
                                             className="text-danger small"
                                         />
@@ -357,7 +368,7 @@ const ApplyModal = ({ show, onClose, tuitionCode, tuitionId }) => {
                                                 }}
                                             >
                                                 {isVerifying && <span style={spinnerStyle} />}
-                                                {isVerifying ? 'যাচাই করা হচ্ছে...' : 'যাচাই করুন এবং এগিয়ে যান'}
+                                                {isVerifying ? 'Verifying...Please Wait' : 'Verify and Continue'}
                                             </button>
                                         </div>
                                     )}

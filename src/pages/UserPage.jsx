@@ -4,6 +4,7 @@ import { FaTrashAlt, FaEdit } from 'react-icons/fa';
 import axios from 'axios';
 import NavBarPage from './NavbarPage';
 import { ToastContainer, toast } from 'react-toastify';
+import ConfirmationModal from '../components/modals/ConfirmationModal';
 
 const UserPage = () => {
     const [userList, setUserList] = useState([]);
@@ -12,6 +13,9 @@ const UserPage = () => {
     const [showModal, setShowModal] = useState(false);
     const [newUser, setNewUser] = useState({ username: '', password: '', name: '', role: 'admin' });
     const [editingUser, setEditingUser] = useState(null);
+    const [showConfirmModal, setShowConfirmModal] = useState(false);
+    const [userToDelete, setUserToDelete] = useState(null);
+    const [deleting, setDeleting] = useState(false);
 
     useEffect(() => {
         fetchUsers();
@@ -33,19 +37,34 @@ const UserPage = () => {
     };
 
     const handleDeleteUser = async (id) => {
-        setLoading(true);
+        setUserToDelete(id);
+        setShowConfirmModal(true);
+    };
+
+    const confirmDeleteUser = async () => {
+        if (!userToDelete) return;
+        
+        setDeleting(true);
         setError(null);
         try {
-            await axios.delete(`https://tuition-seba-backend-1.onrender.com/api/user/delete/${id}`);
+            await axios.delete(`https://tuition-seba-backend-1.onrender.com/api/user/delete/${userToDelete}`);
             fetchUsers();
             toast.success('User deleted successfully');
+            setShowConfirmModal(false);
+            setUserToDelete(null);
         } catch (err) {
             setError('Error deleting user');
             toast.error('Error deleting user');
             console.error('Error deleting user:', err);
         } finally {
-            setLoading(false);
+            setDeleting(false);
         }
+    };
+
+    const cancelDelete = () => {
+        setShowConfirmModal(false);
+        setUserToDelete(null);
+        toast.info('Deletion cancelled');
     };
 
     const handleOpenModal = (user = null) => {
@@ -104,38 +123,54 @@ const UserPage = () => {
                     <h2 className="mb-4">User List</h2>
                     <Button variant="primary" onClick={() => handleOpenModal()} className="btn btn-primary">Add New User</Button>
                 </div>
-                {loading && <p>Loading...</p>}
-                <Table striped bordered hover responsive className="mt-4">
-                    <thead className="table-primary">
-                        <tr>
-                            <th>Username</th>
-                            <th>Name</th>
-                            <th>Status</th>
-                            <th>Password</th>
-                            <th>Role</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {userList.map((user) => (
-                            <tr key={user._id}>
-                                <td>{user.username}</td>
-                                <td>{user.name}</td>
-                                <td>{user.status}</td>
-                                <td>{user.password}</td>
-                                <td>{user.role}</td>
-                                <td style={{ display: 'flex', justifyContent: 'flex-start', gap: '8px' }}>
-                                    <Button variant="danger" onClick={() => handleDeleteUser(user._id)}>
-                                        <FaTrashAlt />
-                                    </Button>
-                                    <Button variant="warning" onClick={() => handleOpenModal(user)} className="ml-2">
-                                        <FaEdit />
-                                    </Button>
-                                </td>
+                {loading ? (
+                    <div className="text-center py-4">
+                        <div className="spinner-border text-primary" role="status">
+                            <span className="visually-hidden">Loading...</span>
+                        </div>
+                        <p className="mt-2">Loading users...</p>
+                    </div>
+                ) : (
+                    <Table striped bordered hover responsive className="mt-4">
+                        <thead className="table-primary">
+                            <tr>
+                                <th>Username</th>
+                                <th>Name</th>
+                                <th>Status</th>
+                                <th>Password</th>
+                                <th>Role</th>
+                                <th>Actions</th>
                             </tr>
-                        ))}
-                    </tbody>
-                </Table>
+                        </thead>
+                        <tbody>
+                            {userList.map((user) => (
+                                <tr key={user._id}>
+                                    <td>{user.username}</td>
+                                    <td>{user.name}</td>
+                                    <td>{user.status}</td>
+                                    <td>{user.password}</td>
+                                    <td>{user.role}</td>
+                                    <td style={{ display: 'flex', justifyContent: 'flex-start', gap: '8px' }}>
+                                        <Button 
+                                            variant="danger" 
+                                            onClick={() => handleDeleteUser(user._id)}
+                                            disabled={deleting}
+                                        >
+                                            {deleting && userToDelete === user._id ? (
+                                                <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                                            ) : (
+                                                <FaTrashAlt />
+                                            )}
+                                        </Button>
+                                        <Button variant="warning" onClick={() => handleOpenModal(user)} className="ml-2">
+                                            <FaEdit />
+                                        </Button>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </Table>
+                )}
 
                 {/* Modal for adding/editing user */}
                 <Modal show={showModal} onHide={handleCloseModal}>
@@ -204,6 +239,16 @@ const UserPage = () => {
                         </Button>
                     </Modal.Footer>
                 </Modal>
+                <ConfirmationModal
+                    show={showConfirmModal}
+                    onHide={cancelDelete}
+                    onConfirm={confirmDeleteUser}
+                    title="Delete User"
+                    message="Are you sure you want to delete this user? This action cannot be undone."
+                    confirmText="Delete User"
+                    confirmVariant="danger"
+                    isLoading={deleting}
+                />
                 <ToastContainer />
             </div>
         </>

@@ -2,11 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { Button, Table, Modal, Form } from 'react-bootstrap';
 import { FaTrashAlt, FaEdit } from 'react-icons/fa';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 import NavBarPage from './NavbarPage';
 import { ToastContainer, toast } from 'react-toastify';
 import ConfirmationModal from '../components/modals/ConfirmationModal';
 
 const UserPage = () => {
+    const navigate = useNavigate();
     const [userList, setUserList] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
@@ -16,6 +18,14 @@ const UserPage = () => {
     const [showConfirmModal, setShowConfirmModal] = useState(false);
     const [userToDelete, setUserToDelete] = useState(null);
     const [deleting, setDeleting] = useState(false);
+    const token = localStorage.getItem('token');
+    
+    // Check if user has valid token, otherwise redirect to login
+    useEffect(() => {
+        if (!token) {
+            navigate('/admin/login');
+        }
+    }, [token, navigate]);
 
     useEffect(() => {
         fetchUsers();
@@ -25,11 +35,20 @@ const UserPage = () => {
         setLoading(true);
         setError(null);
         try {
-            const response = await axios.get('https://tuition-seba-backend-1.onrender.com/api/user/users');
+            const response = await axios.get('https://tuition-seba-backend-1.onrender.com/api/user/users', {
+                headers: { Authorization: token }
+            });
             setUserList(response.data);
         } catch (err) {
-            setError('Error fetching users');
-            toast.error('Error fetching users');
+            if (err.response && (err.response.status === 401 || err.response.status === 403)) {
+                localStorage.removeItem('token');
+                localStorage.removeItem('role');
+                navigate('/admin/login');
+                toast.error('Session expired. Please log in again.');
+            } else {
+                setError('Error fetching users');
+                toast.error('Error fetching users');
+            }
             console.error('Error fetching users:', err);
         } finally {
             setLoading(false);
@@ -43,18 +62,27 @@ const UserPage = () => {
 
     const confirmDeleteUser = async () => {
         if (!userToDelete) return;
-        
+
         setDeleting(true);
         setError(null);
         try {
-            await axios.delete(`https://tuition-seba-backend-1.onrender.com/api/user/delete/${userToDelete}`);
+            await axios.delete(`https://tuition-seba-backend-1.onrender.com/api/user/delete/${userToDelete}`, {
+                headers: { Authorization: token }
+            });
             fetchUsers();
             toast.success('User deleted successfully');
             setShowConfirmModal(false);
             setUserToDelete(null);
         } catch (err) {
-            setError('Error deleting user');
-            toast.error('Error deleting user');
+            if (err.response && (err.response.status === 401 || err.response.status === 403)) {
+                localStorage.removeItem('token');
+                localStorage.removeItem('role');
+                navigate('/admin/login');
+                toast.error('Session expired. Please log in again.');
+            } else {
+                setError('Error deleting user');
+                toast.error('Error deleting user');
+            }
             console.error('Error deleting user:', err);
         } finally {
             setDeleting(false);
@@ -95,18 +123,29 @@ const UserPage = () => {
         try {
             if (editingUser) {
 
-                await axios.put(`https://tuition-seba-backend-1.onrender.com/api/user/edit/${editingUser._id}`, newUser);
+                await axios.put(`https://tuition-seba-backend-1.onrender.com/api/user/edit/${editingUser._id}`, newUser, {
+                    headers: { Authorization: token }
+                });
                 toast.success('User updated successfully');
             } else {
 
-                await axios.post('https://tuition-seba-backend-1.onrender.com/api/user/register', newUser);
+                await axios.post('https://tuition-seba-backend-1.onrender.com/api/user/register', newUser, {
+                    headers: { Authorization: token }
+                });
                 toast.success('User added successfully');
             }
             fetchUsers();
             handleCloseModal();
         } catch (err) {
-            setError('Error saving user');
-            toast.error('Error saving user');
+            if (err.response && (err.response.status === 401 || err.response.status === 403)) {
+                localStorage.removeItem('token');
+                localStorage.removeItem('role');
+                navigate('/admin/login');
+                toast.error('Session expired. Please log in again.');
+            } else {
+                setError('Error saving user');
+                toast.error('Error saving user');
+            }
             console.error('Error saving user:', err);
         } finally {
             setLoading(false);
@@ -151,8 +190,8 @@ const UserPage = () => {
                                     <td>{user.password}</td>
                                     <td>{user.role}</td>
                                     <td style={{ display: 'flex', justifyContent: 'flex-start', gap: '8px' }}>
-                                        <Button 
-                                            variant="danger" 
+                                        <Button
+                                            variant="danger"
                                             onClick={() => handleDeleteUser(user._id)}
                                             disabled={deleting}
                                         >

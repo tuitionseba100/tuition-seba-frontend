@@ -1,10 +1,10 @@
 import React from 'react';
 import { Modal, Button } from 'react-bootstrap';
 
-const ConfirmationModal = ({ 
-    show, 
-    onHide, 
-    onConfirm, 
+const ConfirmationModal = ({
+    show,
+    onHide,
+    onConfirm,
     title = "Confirm Action",
     message = "Are you sure you want to proceed?",
     confirmText = "Yes",
@@ -21,16 +21,16 @@ const ConfirmationModal = ({
                 <p className="mb-0">{message}</p>
             </Modal.Body>
             <Modal.Footer>
-                <Button 
-                    variant="secondary" 
-                    onClick={onHide} 
+                <Button
+                    variant="secondary"
+                    onClick={onHide}
                     disabled={isLoading}
                 >
                     {cancelText}
                 </Button>
-                <Button 
-                    variant={confirmVariant} 
-                    onClick={onConfirm} 
+                <Button
+                    variant={confirmVariant}
+                    onClick={onConfirm}
                     disabled={isLoading}
                 >
                     {isLoading ? (

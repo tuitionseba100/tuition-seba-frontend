@@ -19,7 +19,7 @@ const UserPage = () => {
     const [userToDelete, setUserToDelete] = useState(null);
     const [deleting, setDeleting] = useState(false);
     const token = localStorage.getItem('token');
-    
+
     // Check if user has valid token, otherwise redirect to login
     useEffect(() => {
         if (!token) {

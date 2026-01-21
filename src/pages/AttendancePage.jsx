@@ -43,7 +43,9 @@ const AttendancePage = () => {
 
     const fetchUsers = async () => {
         try {
-            const response = await axios.get('https://tuition-seba-backend-1.onrender.com/api/user/users');
+            const response = await axios.get('https://tuition-seba-backend-1.onrender.com/api/user/users', {
+                headers: { Authorization: token },
+            });
             setUsers(response.data);
         } catch (error) {
             toast.error('Error fetching users');

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Card, Button, ListGroup } from 'react-bootstrap';
+import { Card, Button, ListGroup, Badge } from 'react-bootstrap';
 import {
     FaChalkboardTeacher, FaUsers, FaUniversity, FaBook,
     FaLanguage, FaBookOpen, FaCalendarDay, FaClock,
@@ -9,6 +9,16 @@ import ApplyModal from '../components/modals/ApplyModal';
 
 const TuitionCard = ({ tuition }) => {
     const [showModal, setShowModal] = useState(false);
+
+    // Check if tuition is new (created within 3 days)
+    const isNewTuition = () => {
+        if (!tuition.createdAt) return false;
+        const createdDate = new Date(tuition.createdAt);
+        const currentDate = new Date();
+        const diffTime = Math.abs(currentDate - createdDate);
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        return diffDays <= 3;
+    };
 
     const handleApplyClick = () => {
         if (tuition.isWhatsappApply) {
@@ -65,7 +75,7 @@ Joining: ${tuitionDetails.joining}
     return (
         <>
             <Card
-                className="mx-auto mb-2 shadow-sm"
+                className="mx-auto mb-2 shadow-sm position-relative"
                 style={{
                     maxWidth: '460px',
                     borderRadius: '0px',
@@ -77,6 +87,20 @@ Joining: ${tuitionDetails.joining}
                     flexDirection: 'column',
                 }}
             >
+                {isNewTuition() && (
+                    <Badge
+                        bg="danger"
+                        className="position-absolute top-0 start-0 m-2"
+                        style={{
+                            fontSize: '0.8rem',
+                            fontWeight: 'bold',
+                            padding: '5px 10px',
+                            zIndex: 10
+                        }}
+                    >
+                        NEW
+                    </Badge>
+                )}
                 <Card.Header
                     className="bg-primary text-white d-flex justify-content-center align-items-center gap-2"
                     style={{

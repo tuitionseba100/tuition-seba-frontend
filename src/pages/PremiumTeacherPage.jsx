@@ -20,6 +20,10 @@ const PremiumTeacherPage = () => {
     const [loading, setLoading] = useState(false);
     const [showDetailsModal, setShowDetailsModal] = useState(false);
     const [selectedTeacher, setSelectedTeacher] = useState(null);
+    const [showTuitionApplyModal, setShowTuitionApplyModal] = useState(false);
+    const [tuitionApplyList, setTuitionApplyList] = useState([]);
+    const [selectedPremiumCode, setSelectedPremiumCode] = useState('');
+    const [applyLoading, setApplyLoading] = useState(false);
     const [selectedCity, setSelectedCity] = useState('');
     const [areaList, setAreaList] = useState([]);
     const token = localStorage.getItem('token');
@@ -234,6 +238,33 @@ const PremiumTeacherPage = () => {
     const handleShowDetails = (teacher) => {
         setSelectedTeacher(teacher);
         setShowDetailsModal(true);
+    };
+
+    const handleShowTuitionApply = async (premiumCode) => {
+        setSelectedPremiumCode(premiumCode);
+        setApplyLoading(true);
+        setShowTuitionApplyModal(true);
+        try {
+            const response = await axios.get(
+                `https://tuition-seba-backend-1.onrender.com/api/tuitionApply/byPremiumCode`,
+                {
+                    params: { premiumCode },
+                    headers: { Authorization: token }
+                }
+            );
+            setTuitionApplyList(response.data);
+        } catch (err) {
+            console.error('Error fetching tuition applies:', err);
+            toast.error("Failed to load tuition applications.");
+            setTuitionApplyList([]);
+        }
+        setApplyLoading(false);
+    };
+
+    const handleCloseTuitionApplyModal = () => {
+        setShowTuitionApplyModal(false);
+        setTuitionApplyList([]);
+        setSelectedPremiumCode('');
     };
 
     const handleExportToExcel = () => {
@@ -597,7 +628,15 @@ const PremiumTeacherPage = () => {
                                             .map((item, index) => (
                                                 <tr key={item._id}>
                                                     <td>{index + 1}</td>
-                                                    <td>{item.premiumCode}</td>
+                                                    <td>
+                                                        <span
+                                                            className="text-primary fw-bold"
+                                                            style={{ cursor: 'pointer' }}
+                                                            onClick={() => handleShowTuitionApply(item.premiumCode)}
+                                                        >
+                                                            {item.premiumCode}
+                                                        </span>
+                                                    </td>
                                                     <td>{item.uniCode}</td>
 
                                                     <td>
@@ -957,6 +996,128 @@ const PremiumTeacherPage = () => {
                     </Modal.Footer>
                 </Modal>
 
+                {/* Tuition Apply List Modal */}
+                <Modal
+                    show={showTuitionApplyModal}
+                    onHide={handleCloseTuitionApplyModal}
+                    size="xl"
+                    centered
+                    scrollable
+                >
+                    <Modal.Header closeButton className="border-bottom-0">
+                        <Modal.Title className="fw-bold fs-4">
+                            Tuition Applications
+                        </Modal.Title>
+                    </Modal.Header>
+
+                    <Modal.Body className="px-4 py-3" style={{ maxHeight: '75vh', overflowY: 'auto' }}>
+                        {applyLoading ? (
+                            <div className="text-center py-5">
+                                <Spinner animation="border" variant="primary" />
+                                <p className="mt-2">Loading applications...</p>
+                            </div>
+                        ) : tuitionApplyList.length > 0 ? (
+                            <>
+                                {/* Summary Section */}
+                                <div className="mb-4 p-3 bg-light rounded shadow-sm">
+                                    <div className="row text-center g-2">
+                                        <div className="col-md-3 col-6 mb-2">
+                                            <div className="bg-white p-2 rounded border h-100">
+                                                <small className="text-primary mb-1 d-block">Premium Code</small>
+                                                <div className="fw-bold">{selectedPremiumCode}</div>
+                                            </div>
+                                        </div>
+                                        <div className="col-md-3 col-6 mb-2">
+                                            <div className="bg-white p-2 rounded border h-100">
+                                                <small className="text-primary mb-1 d-block">Teacher Name</small>
+                                                <div className="fw-bold">{tuitionApplyList[0]?.name || 'N/A'}</div>
+                                            </div>
+                                        </div>
+                                        <div className="col-md-3 col-6 mb-2">
+                                            <div className="bg-white p-2 rounded border h-100">
+                                                <small className="text-primary mb-1 d-block">Total</small>
+                                                <div className="fw-bold text-success">{tuitionApplyList.length}</div>
+                                            </div>
+                                        </div>
+                                        <div className="col-md-3 col-6 mb-2">
+                                            <div className="bg-white p-2 rounded border h-100">
+                                                <small className="text-primary mb-1 d-block">Status Summary</small>
+                                                <div className="d-flex justify-content-center gap-2">
+                                                    <span className="badge bg-warning text-dark">
+                                                        Selected: {tuitionApplyList.filter(a => a.status === 'selected').length}
+                                                    </span>
+                                                    <span className="badge bg-info text-white">
+                                                        Shortlisted: {tuitionApplyList.filter(a => a.status === 'shortlisted').length}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <Table striped bordered hover responsive className="text-center">
+                                    <thead className="table-primary">
+                                        <tr>
+                                            <th>SL</th>
+                                            <th>Premium Code</th>
+                                            <th>Tuition Code</th>
+                                            <th>Teacher Name</th>
+                                            <th>Phone</th>
+                                            <th>Status</th>
+                                            <th>Applied At</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {tuitionApplyList.map((apply, index) => (
+                                            <tr key={index}>
+                                                <td>{index + 1}</td>
+                                                <td>{apply.premiumCode}</td>
+                                                <td>{apply.tuitionCode}</td>
+                                                <td>{apply.name}</td>
+                                                <td>{apply.phone}</td>
+                                                <td>
+                                                    <span
+                                                        style={apply.status === 'pending' ? {
+                                                            backgroundColor: '#FFD966',
+                                                            color: '#000',
+                                                            padding: '3px 10px',
+                                                            borderRadius: '5px',
+                                                            fontWeight: '600',
+                                                            fontSize: '12px',
+                                                            textTransform: 'capitalize',
+                                                            display: 'inline-block'
+                                                        } : {
+                                                            backgroundColor: '#4CAF50',
+                                                            color: '#fff',
+                                                            padding: '3px 10px',
+                                                            borderRadius: '5px',
+                                                            fontWeight: '600',
+                                                            fontSize: '12px',
+                                                            textTransform: 'capitalize',
+                                                            display: 'inline-block'
+                                                        }}
+                                                    >
+                                                        {apply.status}
+                                                    </span>
+                                                </td>
+                                                <td>{formatDate(apply.appliedAt)}</td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </Table>
+                            </>
+                        ) : (
+                            <div className="text-center py-5">
+                                <p className="text-muted fst-italic">No tuition applications found for this premium code.</p>
+                            </div>
+                        )}
+                    </Modal.Body>
+
+                    <Modal.Footer className="border-top-0">
+                        <Button variant="secondary" onClick={handleCloseTuitionApplyModal}>
+                            Close
+                        </Button>
+                    </Modal.Footer>
+                </Modal>
 
                 <ToastContainer />
             </Container>

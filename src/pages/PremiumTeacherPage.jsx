@@ -1058,9 +1058,9 @@ const PremiumTeacherPage = () => {
                                     <thead className="table-primary">
                                         <tr>
                                             <th>SL</th>
-                                            <th>Premium Code</th>
+
                                             <th>Tuition Code</th>
-                                            <th>Teacher Name</th>
+
                                             <th>Phone</th>
                                             <th>Status</th>
                                             <th>Applied At</th>
@@ -1070,9 +1070,9 @@ const PremiumTeacherPage = () => {
                                         {tuitionApplyList.map((apply, index) => (
                                             <tr key={index}>
                                                 <td>{index + 1}</td>
-                                                <td>{apply.premiumCode}</td>
+
                                                 <td>{apply.tuitionCode}</td>
-                                                <td>{apply.name}</td>
+
                                                 <td>{apply.phone}</td>
                                                 <td>
                                                     <span

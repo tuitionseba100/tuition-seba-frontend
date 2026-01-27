@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Button, Table, Modal, Form, Row, Col, Card, Tooltip, OverlayTrigger } from 'react-bootstrap';
-import { FaEdit, FaTrashAlt, FaWhatsapp, FaChevronLeft, FaChevronRight, FaGlobe, FaInfoCircle, FaBell, FaSearch } from 'react-icons/fa';
+import { FaEdit, FaTrashAlt, FaWhatsapp, FaChevronLeft, FaChevronRight, FaGlobe, FaInfoCircle, FaBell, FaSearch, FaUndo } from 'react-icons/fa';
 import axios from 'axios';
 import NavBarPage from './NavbarPage';
 import styled from 'styled-components';
@@ -11,6 +11,7 @@ import TuitionModal from '../components/modals/TuitionCreateEditModal';
 import TuitionDetailsModal from '../components/modals/TuitionDetailsModal';
 import LoadingCard from '../components/modals/LoadingCard';
 import AppliedListModal from '../components/modals/TuitionApplyListModal';
+import locationData from '../data/locations.json';
 
 const TuitionPage = () => {
     const [tuitionList, setTuitionList] = useState([]);
@@ -23,7 +24,8 @@ const TuitionPage = () => {
         teacherNumber: '',
         publishFilter: '',
         urgentFilter: '',
-        statusFilter: ''
+        statusFilter: '',
+        areaFilter: ''
     });
 
     const [appliedFilters, setAppliedFilters] = useState({
@@ -32,7 +34,8 @@ const TuitionPage = () => {
         teacherNumber: '',
         publishFilter: '',
         urgentFilter: '',
-        statusFilter: ''
+        statusFilter: '',
+        areaFilter: ''
     });
 
     const [loading, setLoading] = useState(false);
@@ -109,7 +112,8 @@ const TuitionPage = () => {
             teacherNumber: '',
             publishFilter: '',
             urgentFilter: '',
-            statusFilter: ''
+            statusFilter: '',
+            areaFilter: ''
         };
         setSearchInputs(resetFilters);
         setAppliedFilters(resetFilters);
@@ -160,7 +164,8 @@ const TuitionPage = () => {
                     tutorNumber: appliedFilters.teacherNumber,
                     isPublish: appliedFilters.publishFilter === "Yes" ? 'true' : appliedFilters.publishFilter === "No" ? 'false' : undefined,
                     isUrgent: appliedFilters.urgentFilter === "Yes" ? 'true' : appliedFilters.urgentFilter === "No" ? 'false' : undefined,
-                    status: appliedFilters.statusFilter
+                    status: appliedFilters.statusFilter,
+                    area: appliedFilters.areaFilter
                 }
             });
 
@@ -187,7 +192,8 @@ const TuitionPage = () => {
                     tutorNumber: appliedFilters.teacherNumber,
                     isPublish: appliedFilters.publishFilter === "Yes" ? 'true' : appliedFilters.publishFilter === "No" ? 'false' : undefined,
                     isUrgent: appliedFilters.urgentFilter === "Yes" ? 'true' : appliedFilters.urgentFilter === "No" ? 'false' : undefined,
-                    status: appliedFilters.statusFilter
+                    status: appliedFilters.statusFilter,
+                    area: appliedFilters.areaFilter
                 }
             });
             setExcelTuitionList(res.data.data);
@@ -389,8 +395,8 @@ const TuitionPage = () => {
 
 
                 <Row className="mt-2 mb-3">
-                    <Col md={2}>
-                        <Form.Label className="fw-bold">Search (Tuition Code)</Form.Label>
+                    <Col md={1}>
+                        <Form.Label className="fw-bold">Tuition Code</Form.Label>
                         <Form.Control
                             type="text"
                             placeholder="Search by Tuition Code"
@@ -464,25 +470,40 @@ const TuitionPage = () => {
                         </Form.Select>
                     </Col>
 
+                    <Col md={2}>
+                        <Form.Label className="fw-bold">Area (Chittagong)</Form.Label>
+                        <Form.Select
+                            value={searchInputs.areaFilter}
+                            onChange={(e) => handleSearchInputChange('areaFilter', e.target.value)}
+                        >
+                            <option value="">All Areas</option>
+                            {locationData.areaOptions.chittagong.map((area, index) => (
+                                <option key={index} value={area}>{area}</option>
+                            ))}
+                        </Form.Select>
+                    </Col>
 
-                    <Col md={1} className="d-flex align-items-end">
+                    <Col md="auto" className="d-flex align-items-end">
                         <Button
                             variant="success"
                             onClick={handleSearch}
-                            className="d-flex align-items-center justify-content-center gap-1 w-100"
+                            className="d-flex align-items-center justify-content-center"
                             disabled={loading}
+                            title="Search"
+                            style={{ width: "40px", height: "40px" }}
                         >
                             {loading ? <Spinner animation="border" size="sm" /> : <FaSearch />}
-                            Search
                         </Button>
                     </Col>
-                    <Col md={1} className="d-flex align-items-end">
+                    <Col md="auto" className="d-flex align-items-end">
                         <Button
                             variant="danger"
                             onClick={handleResetFilters}
-                            className="d-flex align-items-center justify-content-center w-100"
+                            className="d-flex align-items-center justify-content-center ms-2"
+                            title="Reset Filters"
+                            style={{ width: "40px", height: "40px" }}
                         >
-                            Reset
+                            <FaUndo />
                         </Button>
                     </Col>
 

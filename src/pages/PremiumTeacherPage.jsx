@@ -1058,9 +1058,7 @@ const PremiumTeacherPage = () => {
                                     <thead className="table-primary">
                                         <tr>
                                             <th>SL</th>
-
                                             <th>Tuition Code</th>
-
                                             <th>Phone</th>
                                             <th>Status</th>
                                             <th>Applied At</th>

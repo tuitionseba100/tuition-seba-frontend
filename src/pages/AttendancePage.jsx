@@ -304,7 +304,9 @@ const AttendancePage = () => {
         let filtered = [...attendance];
 
         // Date Filter
-        if (filter === 'today') {
+        if (filter === 'all') {
+            // No date filtering - show all records
+        } else if (filter === 'today') {
             filtered = filtered.filter(entry => {
                 const startDate = new Date(entry.startTime);
                 return startDate.toDateString() === now.toDateString();
@@ -318,7 +320,7 @@ const AttendancePage = () => {
             const firstDayOfCurrentMonth = new Date(now.getFullYear(), now.getMonth(), 1);
             const lastDayOfLastMonth = new Date(firstDayOfCurrentMonth.getTime() - 1);
             const firstDayOfLastMonth = new Date(lastDayOfLastMonth.getFullYear(), lastDayOfLastMonth.getMonth(), 1);
-            
+
             filtered = filtered.filter(entry => {
                 const entryDate = new Date(entry.startTime);
                 return entryDate >= firstDayOfLastMonth && entryDate <= lastDayOfLastMonth;
@@ -326,7 +328,7 @@ const AttendancePage = () => {
         } else if (filter === 'runningMonth') {
             // Current month: from 1st of current month to today
             const firstDayOfCurrentMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-            
+
             filtered = filtered.filter(entry => {
                 const entryDate = new Date(entry.startTime);
                 return entryDate >= firstDayOfCurrentMonth && entryDate <= now;
@@ -335,10 +337,10 @@ const AttendancePage = () => {
             // Specific month filter
             const monthIndex = new Date(`${filter} 1, ${now.getFullYear()}`).getMonth();
             const year = now.getFullYear();
-            
+
             const firstDayOfMonth = new Date(year, monthIndex, 1);
             const lastDayOfMonth = new Date(year, monthIndex + 1, 0, 23, 59, 59, 999);
-            
+
             filtered = filtered.filter(entry => {
                 const entryDate = new Date(entry.startTime);
                 return entryDate >= firstDayOfMonth && entryDate <= lastDayOfMonth;
@@ -508,6 +510,7 @@ const AttendancePage = () => {
     };
 
     const filterOptions = [
+        { value: 'all', label: 'All Records' },
         { value: 'today', label: 'Today' },
         { value: 'last7days', label: 'Last 7 Days' },
         { value: 'runningMonth', label: 'Running Month' },
@@ -809,7 +812,7 @@ const AttendancePage = () => {
                                         </td>
                                         <td>
                                             <span className="fw-bold text-dark">
-                                                {parseFloat(user.totalHours).toLocaleString('en-US', {maximumFractionDigits: 1})} hrs
+                                                {parseFloat(user.totalHours).toLocaleString('en-US', { maximumFractionDigits: 1 })} hrs
                                             </span>
                                         </td>
                                         <td>

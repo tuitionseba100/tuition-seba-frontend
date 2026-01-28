@@ -1,34 +1,277 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import axios from 'axios';
-import { Button, Table, Form, Row, Col } from 'react-bootstrap';
+import { Button, Modal, Form, Row, Col } from 'react-bootstrap';
 import Select from 'react-select';
 import { ToastContainer, toast } from 'react-toastify';
 import NavBarPage from './NavbarPage';
-import { Modal } from 'react-bootstrap';
 import DateTimePicker from 'react-datetime-picker';
 import 'react-datetime-picker/dist/DateTimePicker.css';
+import styled from 'styled-components';
+import { motion, AnimatePresence } from 'framer-motion';
+import { FaUserClock, FaSignInAlt, FaSignOutAlt, FaCalendarAlt, FaSearch, FaTrash, FaEdit, FaSpinner, FaCheckCircle, FaChartPie, FaChartBar } from 'react-icons/fa';
+
+// --- Styled Components ---
+
+const PageContainer = styled.div`
+  background-color: #f8f9fa;
+  min-height: 100vh;
+  padding-bottom: 2rem;
+  font-family: 'Poppins', sans-serif;
+`;
+
+const ContentWrapper = styled(motion.div)`
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+`;
+
+const HeaderSection = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 2rem 0;
+  
+  h2 {
+    font-weight: 700;
+    color: #2c3e50;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    gap: 1rem;
+    align-items: flex-start;
+  }
+`;
+
+const StatsGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+`;
+
+const StatCard = styled(motion.div)`
+  background: white;
+  border-radius: 16px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  transition: transform 0.2s;
+
+  &:hover {
+    transform: translateY(-5px);
+  }
+
+  .icon-box {
+    width: 50px;
+    height: 50px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    
+    &.blue { background: #e3f2fd; color: #1976d2; }
+    &.green { background: #e8f5e9; color: #2e7d32; }
+    &.orange { background: #fff3e0; color: #ef6c00; }
+    &.purple { background: #f3e5f5; color: #7b1fa2; }
+    &.teal { background: #e0f2f1; color: #00897b; }
+  }
+
+  .content {
+    h4 { margin: 0; font-weight: 700; color: #333; }
+    p { margin: 0; font-size: 0.9rem; color: #666; }
+  }
+`;
+
+const ControlsCard = styled.div`
+  background: white;
+  border-radius: 16px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  margin-bottom: 2rem;
+`;
+
+const StyledTable = styled.div`
+  background: white;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  margin-bottom: 2rem;
+
+  h5 {
+    padding: 1rem 1.5rem;
+    margin: 0;
+    background: #f8f9fa;
+    border-bottom: 1px solid #e9ecef;
+    font-weight: 600;
+    color: #495057;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    
+    thead {
+      background: #f8f9fa;
+      th {
+        padding: 1rem;
+        font-weight: 600;
+        color: #495057;
+        border-bottom: 2px solid #e9ecef;
+      }
+    }
+
+    tbody {
+      tr {
+        border-bottom: 1px solid #e9ecef;
+        transition: background 0.2s;
+        
+        &:hover {
+          background: #f1f3f5;
+        }
+
+        td {
+          padding: 1rem;
+          color: #333;
+          vertical-align: middle;
+        }
+      }
+    }
+  }
+`;
+
+const PaginationContainer = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 1.5rem;
+  margin-bottom: 3rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+  
+  @media (max-width: 768px) {
+    flex-direction: column;
+    justify-content: center;
+    text-align: center;
+  }
+  
+  .page-info {
+    color: #6c757d;
+  }
+
+  .pagination-buttons {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+`;
+
+const LoadingOverlay = styled(motion.div)`
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.9);
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  
+  .spinner {
+    font-size: 3rem;
+    color: #4caf50;
+    margin-bottom: 1rem;
+    animation: spin 1s linear infinite;
+  }
+  
+  h3 {
+    color: #2c3e50;
+    font-weight: 600;
+  }
+
+  @keyframes spin { 100% { transform: rotate(360deg); } }
+`;
+
+const DatePickerWrapper = styled.div`
+  width: 100%;
+  
+  .react-datetime-picker {
+    width: 100%;
+    border: 1px solid #ced4da;
+    border-radius: 0.375rem;
+    padding: 0.375rem 0.75rem;
+    background-color: #fff;
+  }
+  
+  .react-datetime-picker__wrapper {
+    border: none;
+  }
+  
+  .react-calendar {
+    border: none;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    border-radius: 8px;
+    font-family: inherit;
+  }
+`;
+
+const TimeDisplay = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  
+  .time {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #2c3e50;
+  }
+  
+  .date {
+    font-size: 0.8rem;
+    color: #6c757d;
+  }
+`;
+
+// --- Main Component ---
 
 const AttendancePage = () => {
+    // State
     const [attendance, setAttendance] = useState([]);
-    const [filteredAttendance, setFilteredAttendance] = useState([]);
     const [filter, setFilter] = useState('today');
     const [users, setUsers] = useState([]);
     const [userFilter, setUserFilter] = useState(null);
-    const token = localStorage.getItem('token');
     const [showEditModal, setShowEditModal] = useState(false);
     const [editingAttendance, setEditingAttendance] = useState(null);
     const [editStartTime, setEditStartTime] = useState(new Date());
     const [editEndTime, setEditEndTime] = useState(new Date());
     const [searchTerm, setSearchTerm] = useState('');
+    const [isActionLoading, setIsActionLoading] = useState(false);
+    const [loadingMessage, setLoadingMessage] = useState('');
+
+    // Pagination State
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 10;
+
+    const token = localStorage.getItem('token');
+    const userRole = localStorage.getItem('role');
 
     useEffect(() => {
         fetchAttendance();
         fetchUsers();
     }, []);
-
-    useEffect(() => {
-        applyFilter();
-    }, [filter, userFilter, attendance, searchTerm]);
 
     const fetchAttendance = async () => {
         try {
@@ -52,33 +295,133 @@ const AttendancePage = () => {
         }
     };
 
-    const startDay = async () => {
-        try {
-            await axios.post('https://tuition-seba-backend-1.onrender.com/api/attendance/start', {}, {
-                headers: { Authorization: token },
-            });
-            toast.success('Day started');
-            setTimeout(() => {
-                window.location.reload();
-            }, 1000);
-            fetchAttendance();
-        } catch (error) {
-            toast.error(error.response?.data?.message || 'Error starting day');
-        }
-    };
+    const filteredAttendance = useMemo(() => {
+        const now = new Date();
+        let filtered = [...attendance];
 
-    const endDay = async () => {
-        try {
-            const response = await axios.put('https://tuition-seba-backend-1.onrender.com/api/attendance/end', {}, {
-                headers: { Authorization: token },
+        // Date Filter
+        if (filter === 'today') {
+            filtered = filtered.filter(entry => {
+                const startDate = new Date(entry.startTime);
+                return startDate.toDateString() === now.toDateString();
             });
-            toast.success(`Day ended (${response.data.duration})`);
-            setTimeout(() => {
-                window.location.reload();
-            }, 1000);
+        } else if (filter === 'last7days') {
+            const last7Days = new Date();
+            last7Days.setDate(now.getDate() - 7);
+            filtered = filtered.filter(entry => new Date(entry.startTime) >= last7Days);
+        } else if (filter === 'lastMonth') {
+            const lastMonth = new Date();
+            lastMonth.setMonth(now.getMonth() - 1);
+            lastMonth.setDate(1);
+            filtered = filtered.filter(entry => new Date(entry.startTime) >= lastMonth);
+        } else {
+            const monthIndex = new Date(`${filter} 1, ${now.getFullYear()}`).getMonth();
+            filtered = filtered.filter(entry => new Date(entry.startTime).getMonth() === monthIndex);
+        }
+
+        // User Filter
+        if (userFilter) {
+            filtered = filtered.filter(entry => entry.userId === userFilter.value);
+        }
+
+        // Search Filter
+        if (searchTerm.trim()) {
+            const lowerSearch = searchTerm.toLowerCase();
+            filtered = filtered.filter(entry =>
+                entry.userName?.toLowerCase().includes(lowerSearch)
+            );
+        }
+
+        // Sort by startTime descending (newest first)
+        return filtered.sort((a, b) => new Date(b.startTime) - new Date(a.startTime));
+    }, [attendance, filter, userFilter, searchTerm]);
+
+    // Statistics Calculation
+    const stats = useMemo(() => {
+        const now = new Date();
+        const todayEntries = attendance.filter(entry => new Date(entry.startTime).toDateString() === now.toDateString());
+        const activeNow = todayEntries.filter(entry => !entry.endTime);
+
+        // Filtered stats
+        const completedSessionsFiltered = filteredAttendance.filter(e => e.endTime);
+        const totalHoursFiltered = completedSessionsFiltered.reduce((acc, curr) => {
+            const duration = (new Date(curr.endTime) - new Date(curr.startTime)) / (1000 * 60 * 60);
+            return acc + duration;
+        }, 0);
+
+        const avgHours = completedSessionsFiltered.length > 0
+            ? (totalHoursFiltered / completedSessionsFiltered.length).toFixed(1)
+            : '0.0';
+
+        return {
+            totalPresentToday: new Set(todayEntries.map(e => e.userId)).size,
+            activeSessions: activeNow.length,
+            filteredCount: filteredAttendance.length,
+            avgHoursFiltered: avgHours
+        };
+    }, [attendance, filteredAttendance]);
+
+    // User Log Summary (Grouped)
+    const userSummaries = useMemo(() => {
+        const summaryMap = {};
+
+        filteredAttendance.forEach(entry => {
+            if (!summaryMap[entry.userName]) {
+                summaryMap[entry.userName] = {
+                    name: entry.name,
+                    userName: entry.userName,
+                    totalSessions: 0,
+                    totalHours: 0
+                };
+            }
+            summaryMap[entry.userName].totalSessions += 1;
+
+            if (entry.endTime) {
+                const duration = (new Date(entry.endTime) - new Date(entry.startTime)) / (1000 * 60 * 60);
+                summaryMap[entry.userName].totalHours += duration;
+            }
+        });
+
+        return Object.values(summaryMap).map(s => ({
+            ...s,
+            avgHours: s.totalSessions > 0 ? (s.totalHours / s.totalSessions).toFixed(1) : '0.0',
+            totalHours: s.totalHours.toFixed(1)
+        }));
+    }, [filteredAttendance]);
+
+    // Pagination Logic
+    const totalPages = Math.ceil(filteredAttendance.length / itemsPerPage);
+    const paginatedAttendance = filteredAttendance.slice(
+        (currentPage - 1) * itemsPerPage,
+        currentPage * itemsPerPage
+    );
+
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [filter, userFilter, searchTerm]);
+
+    const handleAction = async (actionType) => {
+        setIsActionLoading(true);
+        setLoadingMessage(actionType === 'start' ? 'Starting your day... Have a productive one!' : 'Ending your day... Great work today!');
+
+        try {
+            const url = actionType === 'start'
+                ? 'https://tuition-seba-backend-1.onrender.com/api/attendance/start'
+                : 'https://tuition-seba-backend-1.onrender.com/api/attendance/end';
+
+            const method = actionType === 'start' ? axios.post : axios.put;
+
+            const response = await method(url, {}, { headers: { Authorization: token } });
+
+            // Wait a bit to show the nice message
+            await new Promise(resolve => setTimeout(resolve, 1500));
+
+            toast.success(actionType === 'start' ? 'Day started successfully' : `Day ended. Duration: ${response.data.duration || 'Recorded'}`);
             fetchAttendance();
         } catch (error) {
-            toast.error(error.response?.data?.message || 'Error ending day');
+            toast.error(error.response?.data?.message || `Error ${actionType}ing day`);
+        } finally {
+            setIsActionLoading(false);
         }
     };
 
@@ -110,43 +453,6 @@ const AttendancePage = () => {
         } catch (error) {
             toast.error(error.response?.data?.message || 'Error updating attendance');
         }
-    };
-
-    const applyFilter = () => {
-        const now = new Date();
-        let filtered = [...attendance];
-
-        if (filter === 'today') {
-            filtered = filtered.filter(entry => {
-                const startDate = new Date(entry.startTime);
-                return startDate.toDateString() === now.toDateString();
-            });
-        } else if (filter === 'last7days') {
-            const last7Days = new Date();
-            last7Days.setDate(now.getDate() - 7);
-            filtered = filtered.filter(entry => new Date(entry.startTime) >= last7Days);
-        } else if (filter === 'lastMonth') {
-            const lastMonth = new Date();
-            lastMonth.setMonth(now.getMonth() - 1);
-            lastMonth.setDate(1);
-            filtered = filtered.filter(entry => new Date(entry.startTime) >= lastMonth);
-        } else {
-            const monthIndex = new Date(`${filter} 1, ${now.getFullYear()}`).getMonth();
-            filtered = filtered.filter(entry => new Date(entry.startTime).getMonth() === monthIndex);
-        }
-
-        if (userFilter) {
-            filtered = filtered.filter(entry => entry.userId === userFilter.value);
-        }
-
-        if (searchTerm.trim()) {
-            const lowerSearch = searchTerm.toLowerCase();
-            filtered = filtered.filter(entry =>
-                entry.userName?.toLowerCase().includes(lowerSearch)
-            );
-        }
-
-        setFilteredAttendance(filtered);
     };
 
     const openEditModal = (entry) => {
@@ -183,149 +489,322 @@ const AttendancePage = () => {
     const userOptions = users.map(user => ({ value: user._id, label: user.name }));
 
     return (
-        <>
+        <PageContainer>
             <NavBarPage />
-            <div className="container mt-4">
-                <h2>Attendance Tracker</h2>
-                <Button variant="success" onClick={startDay} className="me-2">Start Day</Button>
-                <Button variant="danger" onClick={endDay}>End Day</Button>
 
-                <Row className="mt-3">
-                    <Col md={2}>
-                        <Form.Label className="fw-bold">Filter By Date</Form.Label>
-                        <Select
-                            value={filterOptions.find(option => option.value === filter)}
-                            onChange={(selectedOption) => setFilter(selectedOption.value)}
-                            options={filterOptions}
-                            getOptionLabel={(e) => e.label}
-                            getOptionValue={(e) => e.value}
-                        />
-                    </Col>
+            <AnimatePresence>
+                {isActionLoading && (
+                    <LoadingOverlay
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                    >
+                        <FaSpinner className="spinner" />
+                        <motion.h3
+                            initial={{ y: 20, opacity: 0 }}
+                            animate={{ y: 0, opacity: 1 }}
+                            transition={{ delay: 0.2 }}
+                        >
+                            {loadingMessage}
+                        </motion.h3>
+                    </LoadingOverlay>
+                )}
+            </AnimatePresence>
 
-                    <Col md={2}>
-                        <Form.Label className="fw-bold">Search (User name)</Form.Label>
-                        <Form.Control
-                            type="text"
-                            placeholder="Search by user name"
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                        />
-                    </Col>
+            <ContentWrapper initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
+                <HeaderSection>
+                    <h2><FaUserClock style={{ color: '#4caf50' }} /> Attendance Dashboard</h2>
+                    <div>
+                        <Button
+                            variant="success"
+                            size="lg"
+                            className="me-3 shadow-sm"
+                            onClick={() => handleAction('start')}
+                        >
+                            <FaSignInAlt className="me-2" /> Start Day
+                        </Button>
+                        <Button
+                            variant="danger"
+                            size="lg"
+                            className="shadow-sm"
+                            onClick={() => handleAction('end')}
+                        >
+                            <FaSignOutAlt className="me-2" /> End Day
+                        </Button>
+                    </div>
+                </HeaderSection>
 
-                    {localStorage.getItem('role') === 'superadmin' && (
-                        <Col md={2}>
-                            <Form.Label className="fw-bold">Filter By User</Form.Label>
+                <StatsGrid>
+                    <StatCard>
+                        <div className="icon-box green"><FaUserClock /></div>
+                        <div className="content">
+                            <h4>{stats.totalPresentToday}</h4>
+                            <p>People Present Today</p>
+                        </div>
+                    </StatCard>
+                    <StatCard>
+                        <div className="icon-box blue"><FaSpinner /></div>
+                        <div className="content">
+                            <h4>{stats.activeSessions}</h4>
+                            <p>Active Sessions Now</p>
+                        </div>
+                    </StatCard>
+                    <StatCard>
+                        <div className="icon-box purple"><FaCheckCircle /></div>
+                        <div className="content">
+                            <h4>{stats.filteredCount}</h4>
+                            <p>Total Records (Filtered)</p>
+                        </div>
+                    </StatCard>
+                    <StatCard>
+                        <div className="icon-box orange"><FaChartPie /></div>
+                        <div className="content">
+                            <h4>{stats.avgHoursFiltered} hrs</h4>
+                            <p>Avg Hours (Filtered)</p>
+                        </div>
+                    </StatCard>
+                </StatsGrid>
+
+                <ControlsCard>
+                    <Row className="g-3">
+                        <Col md={3}>
+                            <Form.Label className="fw-bold text-muted small">FILTER BY DATE</Form.Label>
                             <Select
-                                value={userFilter}
-                                onChange={setUserFilter}
-                                options={userOptions}
-                                getOptionLabel={(e) => e.label}
-                                getOptionValue={(e) => e.value}
-                                isClearable
+                                value={filterOptions.find(option => option.value === filter)}
+                                onChange={(selectedOption) => setFilter(selectedOption.value)}
+                                options={filterOptions}
+                                className="react-select-container"
+                                classNamePrefix="react-select"
                             />
                         </Col>
-                    )}
-
-                    <Col md={1} className="d-flex align-items-end">
-                        <Button variant="danger" onClick={resetFilters} className="w-100">
-                            Reset Filters
-                        </Button>
-                    </Col>
-                </Row>
-
-                <Table striped bordered hover responsive className="mt-4">
-                    <thead>
-                        <tr>
-                            <th>Username</th>
-                            <th>Name</th>
-                            <th>Start Time</th>
-                            <th>End Time</th>
-                            <th>Duration</th>
-                            {localStorage.getItem('role') === 'superadmin' && (<th>Actions</th>)}
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {filteredAttendance.length === 0 ? (
-                            <tr>
-                                <td colSpan={localStorage.getItem('role') === 'superadmin' ? 6 : 5} className="text-center">
-                                    No attendance record found
-                                </td>
-                            </tr>
-                        ) : (
-                            filteredAttendance.map((entry) => (
-                                <tr key={entry._id}>
-                                    <td>{entry.userName}</td>
-                                    <td>{entry.name}</td>
-                                    <td>{new Date(entry.startTime).toLocaleString()}</td>
-                                    <td>{entry.endTime ? new Date(entry.endTime).toLocaleString() : 'Running'}</td>
-                                    <td>{entry.duration || 'N/A'}</td>
-                                    {localStorage.getItem('role') === 'superadmin' && (
-                                        <td>
-                                            <Button variant="primary" size="sm" className="me-2" onClick={() => openEditModal(entry)}>
-                                                Edit
-                                            </Button>
-                                            <Button variant="danger" size="sm" onClick={() => deleteAttendance(entry._id)}>
-                                                Delete
-                                            </Button>
-                                        </td>
-                                    )}
-                                </tr>
-                            ))
+                        <Col md={3}>
+                            <Form.Label className="fw-bold text-muted small">SEARCH USER</Form.Label>
+                            <div className="d-flex align-items-center bg-light rounded px-2 border">
+                                <FaSearch className="text-secondary" />
+                                <Form.Control
+                                    type="text"
+                                    placeholder="Search by name..."
+                                    value={searchTerm}
+                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                    className="border-0 bg-transparent shadow-none"
+                                />
+                            </div>
+                        </Col>
+                        {userRole === 'superadmin' && (
+                            <Col md={3}>
+                                <Form.Label className="fw-bold text-muted small">FILTER BY USER</Form.Label>
+                                <Select
+                                    value={userFilter}
+                                    onChange={setUserFilter}
+                                    options={userOptions}
+                                    isClearable
+                                    className="react-select-container"
+                                    classNamePrefix="react-select"
+                                />
+                            </Col>
                         )}
-                    </tbody>
-                </Table>
-                {editingAttendance && (
-                    <Modal show={showEditModal} onHide={() => setShowEditModal(false)}>
-                        <Modal.Header closeButton>
-                            <Modal.Title>Edit Attendance</Modal.Title>
-                        </Modal.Header>
-                        <Modal.Body>
-                            <Form>
-                                <Form.Group className="mb-3">
-                                    <Form.Label>Username</Form.Label>
-                                    <Form.Control type="text" value={editingAttendance.userName} disabled />
-                                </Form.Group>
-
-                                <Form.Group className="mb-3">
-                                    <Form.Label>Name</Form.Label>
-                                    <Form.Control type="text" value={editingAttendance.name} disabled />
-                                </Form.Group>
-
-                                <Form.Group className="mb-3">
-                                    <Form.Label>Start Time</Form.Label>
-                                    <DateTimePicker
-                                        onChange={setEditStartTime}
-                                        value={editStartTime}
-                                        disableClock={true}
-                                    />
-                                </Form.Group>
-
-                                <Form.Group className="mb-3">
-                                    <Form.Label>End Time</Form.Label>
-                                    <DateTimePicker
-                                        onChange={setEditEndTime}
-                                        value={editEndTime}
-                                        disableClock={true}
-                                        clearIcon={null}
-                                    />
-                                </Form.Group>
-
-                            </Form>
-                        </Modal.Body>
-                        <Modal.Footer>
-                            <Button variant="secondary" onClick={() => setShowEditModal(false)}>
-                                Cancel
+                        <Col md={userRole === 'superadmin' ? 3 : 6} className="d-flex align-items-end justify-content-end">
+                            <Button variant="outline-dark" onClick={resetFilters}>
+                                Reset Filters
                             </Button>
-                            <Button variant="primary" onClick={handleEditSubmit}>
-                                Save Changes
+                        </Col>
+                    </Row>
+                </ControlsCard>
+
+                {/* Detailed Log moved above Summary */}
+                <StyledTable>
+                    <h5><FaCalendarAlt className="text-primary" /> Detailed Log</h5>
+                    <table className="table mb-0">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Username</th>
+                                <th>Start Time</th>
+                                <th>End Time</th>
+                                <th>Duration</th>
+                                {userRole === 'superadmin' && <th>Actions</th>}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {paginatedAttendance.length === 0 ? (
+                                <tr>
+                                    <td colSpan={userRole === 'superadmin' ? 6 : 5} className="text-center py-5 text-muted">
+                                        <div className="d-flex flex-column align-items-center">
+                                            <FaCalendarAlt size={40} className="mb-3 opacity-25" />
+                                            <h5>No attendance records found</h5>
+                                            <p className="mb-0">Try adjusting your filters or start a new day.</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                            ) : (
+                                paginatedAttendance.map((entry) => (
+                                    <tr key={entry._id}>
+                                        <td className="fw-bold">{entry.name}</td>
+                                        <td className="text-muted">{entry.userName}</td>
+                                        <td>
+                                            <TimeDisplay>
+                                                <span className="time">
+                                                    {new Date(entry.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                                </span>
+                                                <span className="date">
+                                                    {new Date(entry.startTime).toLocaleDateString()}
+                                                </span>
+                                            </TimeDisplay>
+                                        </td>
+                                        <td>
+                                            {entry.endTime ? (
+                                                <TimeDisplay>
+                                                    <span className="time">
+                                                        {new Date(entry.endTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                                    </span>
+                                                    <span className="date">
+                                                        {new Date(entry.endTime).toLocaleDateString()}
+                                                    </span>
+                                                </TimeDisplay>
+                                            ) : (
+                                                <span className="badge bg-success bg-opacity-10 text-success border border-success">
+                                                    Running...
+                                                </span>
+                                            )}
+                                        </td>
+                                        <td>{entry.duration || '-'}</td>
+                                        {userRole === 'superadmin' && (
+                                            <td>
+                                                <Button variant="link" className="p-0 me-3 text-primary" onClick={() => openEditModal(entry)}>
+                                                    <FaEdit size={18} />
+                                                </Button>
+                                                <Button variant="link" className="p-0 text-danger" onClick={() => deleteAttendance(entry._id)}>
+                                                    <FaTrash size={16} />
+                                                </Button>
+                                            </td>
+                                        )}
+                                    </tr>
+                                ))
+                            )}
+                        </tbody>
+                    </table>
+                </StyledTable>
+
+                {/* Pagination Controls */}
+                {totalPages > 1 && (
+                    <PaginationContainer>
+                        <div className="page-info">
+                            Showing {((currentPage - 1) * itemsPerPage) + 1} to {Math.min(currentPage * itemsPerPage, filteredAttendance.length)} of {filteredAttendance.length} entries
+                        </div>
+                        <div className="pagination-buttons">
+                            <Button
+                                variant="outline-primary"
+                                disabled={currentPage === 1}
+                                onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                            >
+                                Previous
                             </Button>
-                        </Modal.Footer>
-                    </Modal>
+                            {[...Array(totalPages)].map((_, idx) => (
+                                <Button
+                                    key={idx + 1}
+                                    variant={currentPage === idx + 1 ? "primary" : "outline-primary"}
+                                    onClick={() => setCurrentPage(idx + 1)}
+                                >
+                                    {idx + 1}
+                                </Button>
+                            ))}
+                            <Button
+                                variant="outline-primary"
+                                disabled={currentPage === totalPages}
+                                onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                            >
+                                Next
+                            </Button>
+                        </div>
+                    </PaginationContainer>
                 )}
 
-                <ToastContainer />
-            </div>
-        </>
+                {/* User Summary Table - Now below Detailed Log */}
+                {userSummaries.length > 0 && (
+                    <StyledTable>
+                        <h5><FaChartBar className="text-primary" /> User Summary (Filtered Data)</h5>
+                        <table className="table mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Username</th>
+                                    <th>Total Sessions</th>
+                                    <th>Total Hours</th>
+                                    <th>Avg Hours / Session</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {userSummaries.map((user, idx) => (
+                                    <tr key={idx}>
+                                        <td className="fw-bold">{user.name}</td>
+                                        <td className="text-muted">{user.userName}</td>
+                                        <td>{user.totalSessions}</td>
+                                        <td>{user.totalHours} hrs</td>
+                                        <td>
+                                            <span className={`badge ${parseFloat(user.avgHours) >= 8 ? 'bg-success' : parseFloat(user.avgHours) >= 5 ? 'bg-warning text-dark' : 'bg-danger'} bg-opacity-75`}>
+                                                {user.avgHours} hrs
+                                            </span>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </StyledTable>
+                )}
+            </ContentWrapper>
+
+            {/* Edit Modal */}
+            <Modal show={showEditModal} onHide={() => setShowEditModal(false)} centered>
+                <Modal.Header closeButton className="border-0 pb-0">
+                    <Modal.Title>Edit Attendance</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    {editingAttendance && (
+                        <Form>
+                            <Form.Group className="mb-3">
+                                <Form.Label>User</Form.Label>
+                                <Form.Control type="text" value={`${editingAttendance.name} (${editingAttendance.userName})`} disabled className="bg-light" />
+                            </Form.Group>
+                            <Row>
+                                <Col md={6}>
+                                    <Form.Group className="mb-3">
+                                        <Form.Label>Start Time</Form.Label>
+                                        <DatePickerWrapper>
+                                            <DateTimePicker
+                                                onChange={setEditStartTime}
+                                                value={editStartTime}
+                                                disableClock={true}
+                                                className="form-control border-0 p-0"
+                                            />
+                                        </DatePickerWrapper>
+                                    </Form.Group>
+                                </Col>
+                                <Col md={6}>
+                                    <Form.Group className="mb-3">
+                                        <Form.Label>End Time</Form.Label>
+                                        <DatePickerWrapper>
+                                            <DateTimePicker
+                                                onChange={setEditEndTime}
+                                                value={editEndTime}
+                                                disableClock={true}
+                                                clearIcon={null}
+                                                className="form-control border-0 p-0"
+                                            />
+                                        </DatePickerWrapper>
+                                    </Form.Group>
+                                </Col>
+                            </Row>
+                        </Form>
+                    )}
+                </Modal.Body>
+                <Modal.Footer className="border-0 pt-0">
+                    <Button variant="light" onClick={() => setShowEditModal(false)}>Cancel</Button>
+                    <Button variant="primary" onClick={handleEditSubmit}>Save Changes</Button>
+                </Modal.Footer>
+            </Modal>
+
+            <ToastContainer position="bottom-right" theme="colored" />
+        </PageContainer>
     );
 };
 

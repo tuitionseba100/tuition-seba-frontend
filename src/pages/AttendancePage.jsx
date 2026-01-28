@@ -260,6 +260,7 @@ const AttendancePage = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [isActionLoading, setIsActionLoading] = useState(false);
     const [loadingMessage, setLoadingMessage] = useState('');
+    const [isLoadingData, setIsLoadingData] = useState(false);
 
     // Pagination State
     const [currentPage, setCurrentPage] = useState(1);
@@ -274,6 +275,7 @@ const AttendancePage = () => {
     }, []);
 
     const fetchAttendance = async () => {
+        setIsLoadingData(true);
         try {
             const response = await axios.get('https://tuition-seba-backend-1.onrender.com/api/attendance', {
                 headers: { Authorization: token },
@@ -281,6 +283,8 @@ const AttendancePage = () => {
             setAttendance(response.data);
         } catch (error) {
             toast.error('Error fetching attendance');
+        } finally {
+            setIsLoadingData(false);
         }
     };
 
@@ -310,13 +314,35 @@ const AttendancePage = () => {
             last7Days.setDate(now.getDate() - 7);
             filtered = filtered.filter(entry => new Date(entry.startTime) >= last7Days);
         } else if (filter === 'lastMonth') {
-            const lastMonth = new Date();
-            lastMonth.setMonth(now.getMonth() - 1);
-            lastMonth.setDate(1);
-            filtered = filtered.filter(entry => new Date(entry.startTime) >= lastMonth);
+            // Last month: from 1st of previous month to last day of previous month
+            const firstDayOfCurrentMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+            const lastDayOfLastMonth = new Date(firstDayOfCurrentMonth.getTime() - 1);
+            const firstDayOfLastMonth = new Date(lastDayOfLastMonth.getFullYear(), lastDayOfLastMonth.getMonth(), 1);
+            
+            filtered = filtered.filter(entry => {
+                const entryDate = new Date(entry.startTime);
+                return entryDate >= firstDayOfLastMonth && entryDate <= lastDayOfLastMonth;
+            });
+        } else if (filter === 'runningMonth') {
+            // Current month: from 1st of current month to today
+            const firstDayOfCurrentMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+            
+            filtered = filtered.filter(entry => {
+                const entryDate = new Date(entry.startTime);
+                return entryDate >= firstDayOfCurrentMonth && entryDate <= now;
+            });
         } else {
+            // Specific month filter
             const monthIndex = new Date(`${filter} 1, ${now.getFullYear()}`).getMonth();
-            filtered = filtered.filter(entry => new Date(entry.startTime).getMonth() === monthIndex);
+            const year = now.getFullYear();
+            
+            const firstDayOfMonth = new Date(year, monthIndex, 1);
+            const lastDayOfMonth = new Date(year, monthIndex + 1, 0, 23, 59, 59, 999);
+            
+            filtered = filtered.filter(entry => {
+                const entryDate = new Date(entry.startTime);
+                return entryDate >= firstDayOfMonth && entryDate <= lastDayOfMonth;
+            });
         }
 
         // User Filter
@@ -371,10 +397,21 @@ const AttendancePage = () => {
                     name: entry.name,
                     userName: entry.userName,
                     totalSessions: 0,
-                    totalHours: 0
+                    runningSessions: 0,
+                    totalHours: 0,
+                    presentDays: new Set()
                 };
             }
             summaryMap[entry.userName].totalSessions += 1;
+
+            // Count running sessions (those without endTime)
+            if (!entry.endTime) {
+                summaryMap[entry.userName].runningSessions += 1;
+            }
+
+            // Track unique present days
+            const sessionDate = new Date(entry.startTime).toDateString();
+            summaryMap[entry.userName].presentDays.add(sessionDate);
 
             if (entry.endTime) {
                 const duration = (new Date(entry.endTime) - new Date(entry.startTime)) / (1000 * 60 * 60);
@@ -384,7 +421,9 @@ const AttendancePage = () => {
 
         return Object.values(summaryMap).map(s => ({
             ...s,
+            totalDaysPresent: s.presentDays.size,
             avgHours: s.totalSessions > 0 ? (s.totalHours / s.totalSessions).toFixed(1) : '0.0',
+            avgHoursPerDay: s.presentDays.size > 0 ? (s.totalHours / s.presentDays.size).toFixed(1) : '0.0',
             totalHours: s.totalHours.toFixed(1)
         }));
     }, [filteredAttendance]);
@@ -471,6 +510,7 @@ const AttendancePage = () => {
     const filterOptions = [
         { value: 'today', label: 'Today' },
         { value: 'last7days', label: 'Last 7 Days' },
+        { value: 'runningMonth', label: 'Running Month' },
         { value: 'lastMonth', label: 'Last Month' },
         { value: 'january', label: 'January' },
         { value: 'february', label: 'February' },
@@ -614,9 +654,16 @@ const AttendancePage = () => {
                 {/* Detailed Log moved above Summary */}
                 <StyledTable>
                     <h5><FaCalendarAlt className="text-primary" /> Detailed Log</h5>
+                    {isLoadingData && (
+                        <div className="text-center py-4">
+                            <FaSpinner className="spinner" />
+                            <p className="mt-2 text-muted">Loading attendance data...</p>
+                        </div>
+                    )}
                     <table className="table mb-0">
                         <thead>
                             <tr>
+                                <th>SL</th>
                                 <th>Name</th>
                                 <th>Username</th>
                                 <th>Start Time</th>
@@ -626,9 +673,9 @@ const AttendancePage = () => {
                             </tr>
                         </thead>
                         <tbody>
-                            {paginatedAttendance.length === 0 ? (
+                            {!isLoadingData && paginatedAttendance.length === 0 ? (
                                 <tr>
-                                    <td colSpan={userRole === 'superadmin' ? 6 : 5} className="text-center py-5 text-muted">
+                                    <td colSpan={userRole === 'superadmin' ? 10 : 9} className="text-center py-5 text-muted">
                                         <div className="d-flex flex-column align-items-center">
                                             <FaCalendarAlt size={40} className="mb-3 opacity-25" />
                                             <h5>No attendance records found</h5>
@@ -636,9 +683,12 @@ const AttendancePage = () => {
                                         </div>
                                     </td>
                                 </tr>
-                            ) : (
-                                paginatedAttendance.map((entry) => (
+                            ) : !isLoadingData ? (
+                                paginatedAttendance.map((entry, idx) => (
                                     <tr key={entry._id}>
+                                        <td className="text-muted fw-bold">
+                                            {((currentPage - 1) * itemsPerPage) + idx + 1}
+                                        </td>
                                         <td className="fw-bold">{entry.name}</td>
                                         <td className="text-muted">{entry.userName}</td>
                                         <td>
@@ -647,7 +697,7 @@ const AttendancePage = () => {
                                                     {new Date(entry.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                                 </span>
                                                 <span className="date">
-                                                    {new Date(entry.startTime).toLocaleDateString()}
+                                                    {new Date(entry.startTime).toLocaleDateString('en-GB')}
                                                 </span>
                                             </TimeDisplay>
                                         </td>
@@ -658,11 +708,11 @@ const AttendancePage = () => {
                                                         {new Date(entry.endTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                                     </span>
                                                     <span className="date">
-                                                        {new Date(entry.endTime).toLocaleDateString()}
+                                                        {new Date(entry.endTime).toLocaleDateString('en-GB')}
                                                     </span>
                                                 </TimeDisplay>
                                             ) : (
-                                                <span className="badge bg-success bg-opacity-10 text-success border border-success">
+                                                <span className="badge bg-success bg-opacity-10 text-success border border-success px-2 py-1">
                                                     Running...
                                                 </span>
                                             )}
@@ -680,7 +730,7 @@ const AttendancePage = () => {
                                         )}
                                     </tr>
                                 ))
-                            )}
+                            ) : null}
                         </tbody>
                     </table>
                 </StyledTable>
@@ -726,23 +776,50 @@ const AttendancePage = () => {
                         <table className="table mb-0">
                             <thead>
                                 <tr>
+                                    <th>SL</th>
                                     <th>Name</th>
                                     <th>Username</th>
-                                    <th>Total Sessions</th>
+                                    <th>Total Sessions (Running)</th>
+                                    <th>Total Days Present</th>
                                     <th>Total Hours</th>
                                     <th>Avg Hours / Session</th>
+                                    <th>Avg Hours / Day</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {userSummaries.map((user, idx) => (
                                     <tr key={idx}>
+                                        <td className="text-muted fw-bold">{idx + 1}</td>
                                         <td className="fw-bold">{user.name}</td>
                                         <td className="text-muted">{user.userName}</td>
-                                        <td>{user.totalSessions}</td>
-                                        <td>{user.totalHours} hrs</td>
                                         <td>
-                                            <span className={`badge ${parseFloat(user.avgHours) >= 8 ? 'bg-success' : parseFloat(user.avgHours) >= 5 ? 'bg-warning text-dark' : 'bg-danger'} bg-opacity-75`}>
-                                                {user.avgHours} hrs
+                                            <div className="d-flex align-items-center gap-2">
+                                                <span className="fw-bold fs-6">{user.totalSessions}</span>
+                                                {user.runningSessions > 0 && (
+                                                    <span className="badge bg-success bg-opacity-10 text-success border border-success px-2 py-1">
+                                                        <small>Running: {user.runningSessions}</small>
+                                                    </span>
+                                                )}
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <span className="badge bg-primary bg-opacity-10 text-primary border border-primary px-2 py-1 fw-bold">
+                                                {user.totalDaysPresent}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <span className="fw-bold text-dark">
+                                                {parseFloat(user.totalHours).toLocaleString('en-US', {maximumFractionDigits: 1})} hrs
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <span className={`badge ${parseFloat(user.avgHours) >= 8 ? 'bg-success' : parseFloat(user.avgHours) >= 5 ? 'bg-warning text-dark' : 'bg-danger'} bg-opacity-100 text-white px-2 py-1`}>
+                                                {parseFloat(user.avgHours).toFixed(1)} hrs
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <span className={`badge ${parseFloat(user.avgHoursPerDay) >= 8 ? 'bg-success' : parseFloat(user.avgHoursPerDay) >= 5 ? 'bg-warning text-dark' : 'bg-danger'} bg-opacity-100 text-white px-2 py-1`}>
+                                                {parseFloat(user.avgHoursPerDay).toFixed(1)} hrs
                                             </span>
                                         </td>
                                     </tr>

@@ -9,6 +9,7 @@ import 'react-datetime-picker/dist/DateTimePicker.css';
 import styled from 'styled-components';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FaUserClock, FaSignInAlt, FaSignOutAlt, FaCalendarAlt, FaSearch, FaTrash, FaEdit, FaSpinner, FaCheckCircle, FaChartPie, FaChartBar } from 'react-icons/fa';
+import { checkDayStarted } from '../utilities/checkDayStarted';
 
 // --- Styled Components ---
 
@@ -261,6 +262,7 @@ const AttendancePage = () => {
     const [isActionLoading, setIsActionLoading] = useState(false);
     const [loadingMessage, setLoadingMessage] = useState('');
     const [isLoadingData, setIsLoadingData] = useState(false);
+    const [isDayStarted, setIsDayStarted] = useState(false);
 
     // Pagination State
     const [currentPage, setCurrentPage] = useState(1);
@@ -272,6 +274,13 @@ const AttendancePage = () => {
     useEffect(() => {
         fetchAttendance();
         fetchUsers();
+        
+        // Check if day is started when component mounts
+        const checkDayStatus = async () => {
+            const dayStarted = await checkDayStarted();
+            setIsDayStarted(dayStarted);
+        };
+        checkDayStatus();
     }, []);
 
     const fetchAttendance = async () => {
@@ -285,6 +294,10 @@ const AttendancePage = () => {
             toast.error('Error fetching attendance');
         } finally {
             setIsLoadingData(false);
+            
+            // Refresh day started status after fetching attendance
+            const dayStarted = await checkDayStarted();
+            setIsDayStarted(dayStarted);
         }
     };
 
@@ -297,6 +310,11 @@ const AttendancePage = () => {
         } catch (error) {
             toast.error('Error fetching users');
         }
+    };
+
+    const refreshDayStatus = async () => {
+        const dayStarted = await checkDayStarted();
+        setIsDayStarted(dayStarted);
     };
 
     const filteredAttendance = useMemo(() => {
@@ -459,6 +477,13 @@ const AttendancePage = () => {
 
             toast.success(actionType === 'start' ? 'Day started successfully' : `Day ended. Duration: ${response.data.duration || 'Recorded'}`);
             fetchAttendance();
+            
+            // Update the day started state
+            if (actionType === 'start') {
+                setIsDayStarted(true);
+            } else {
+                setIsDayStarted(false);
+            }
         } catch (error) {
             toast.error(error.response?.data?.message || `Error ${actionType}ing day`);
         } finally {
@@ -559,20 +584,32 @@ const AttendancePage = () => {
                     <h2><FaUserClock style={{ color: '#4caf50' }} /> Attendance Dashboard</h2>
                     <div>
                         <Button
-                            variant="success"
+                            variant={isDayStarted ? "secondary" : "success"}
                             size="lg"
                             className="me-3 shadow-sm"
-                            onClick={() => handleAction('start')}
+                            onClick={() => !isDayStarted && handleAction('start')}
+                            disabled={isDayStarted}
                         >
-                            <FaSignInAlt className="me-2" /> Start Day
+                            <FaSignInAlt className="me-2" />
+                            {isDayStarted ? (
+                                <span>Day Already Started</span>
+                            ) : (
+                                <span>Start Day</span>
+                            )}
                         </Button>
                         <Button
-                            variant="danger"
+                            variant={isDayStarted ? "danger" : "secondary"}
                             size="lg"
                             className="shadow-sm"
-                            onClick={() => handleAction('end')}
+                            onClick={() => isDayStarted && handleAction('end')}
+                            disabled={!isDayStarted}
                         >
-                            <FaSignOutAlt className="me-2" /> End Day
+                            <FaSignOutAlt className="me-2" />
+                            {isDayStarted ? (
+                                <span>End Day</span>
+                            ) : (
+                                <span>Day Not Started Yet</span>
+                            )}
                         </Button>
                     </div>
                 </HeaderSection>

@@ -274,7 +274,7 @@ const AttendancePage = () => {
     useEffect(() => {
         fetchAttendance();
         fetchUsers();
-        
+
         // Check if day is started when component mounts
         const checkDayStatus = async () => {
             const dayStarted = await checkDayStarted();
@@ -294,7 +294,7 @@ const AttendancePage = () => {
             toast.error('Error fetching attendance');
         } finally {
             setIsLoadingData(false);
-            
+
             // Refresh day started status after fetching attendance
             const dayStarted = await checkDayStarted();
             setIsDayStarted(dayStarted);
@@ -477,7 +477,7 @@ const AttendancePage = () => {
 
             toast.success(actionType === 'start' ? 'Day started successfully' : `Day ended. Duration: ${response.data.duration || 'Recorded'}`);
             fetchAttendance();
-            
+
             // Update the day started state
             if (actionType === 'start') {
                 setIsDayStarted(true);

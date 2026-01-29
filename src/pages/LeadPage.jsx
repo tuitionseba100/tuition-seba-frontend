@@ -19,8 +19,6 @@ const LeadPage = () => {
         tuitionCode: '',
         phone: '',
         name: '',
-        employeeId: '',
-        employeeName: '',
         status: '',
         note: '',
         followUpDate: '',
@@ -177,15 +175,10 @@ const LeadPage = () => {
             createdBy: username
         };
 
-        if (leadData.employeeId) {
-            const selectedEmployee = userList.find(user => user._id === leadData.employeeId);
-            if (selectedEmployee) {
-                updatedData.employeeName = selectedEmployee.name;
-            }
-        }
-
         try {
             if (editingId) {
+                // Include updatedBy field when updating
+                updatedData.updatedBy = username;
                 await axios.put(`https://tuition-seba-backend-1.onrender.com/api/lead/edit/${editingId}`, updatedData, {
                     headers: { Authorization: token },
                 });
@@ -223,8 +216,6 @@ const LeadPage = () => {
             tuitionCode: rowData.tuitionCode || '',
             phone: rowData.phone || '',
             name: rowData.name || '',
-            employeeId: rowData.employeeId || '',
-            employeeName: rowData.employeeName || '',
             status: rowData.status || '',
             note: rowData.note || '',
             followUpDate: rowData.followUpDate ? new Date(rowData.followUpDate).toISOString().slice(0, 16) : '',
@@ -268,14 +259,13 @@ const LeadPage = () => {
         const formattedDate = now.toLocaleDateString().replace(/\//g, '-');
         const formattedTime = now.toLocaleTimeString().replace(/:/g, '-');
         const fileName = `Lead_List_${formattedDate}_${formattedTime}`;
-        const tableHeaders = ["Tuition Code", "Phone", "Name", "Employee ID", "Employee Name", "Created By", "Status", "Note", "Follow Up Date", "Follow Up Comment", "Created At", "Updated At"];
+        const tableHeaders = ["Tuition Code", "Phone", "Name", "Created By", "Updated By", "Status", "Note", "Follow Up Date", "Follow Up Comment", "Created At", "Updated At"];
         const tableData = [...exportList].reverse().map(data => [
             data.tuitionCode ?? "",
             data.phone ?? "",
             data.name ?? "",
-            data.employeeId ?? "",
-            data.employeeName ?? "",
             data.createdBy ?? "",
+            data.updatedBy ?? data.createdBy ?? "",
             data.status ?? "",
             data.note ?? "",
             data.followUpDate ? formatDate(data.followUpDate) : "",
@@ -305,9 +295,7 @@ const LeadPage = () => {
                                 tuitionCode: '',
                                 phone: '',
                                 name: '',
-                                employeeId: '',
-                                employeeName: '',
-                                status: '',
+                                status: 'pending',
                                 note: '',
                                 followUpDate: '',
                                 followUpComment: ''
@@ -469,10 +457,10 @@ const LeadPage = () => {
                                         <th>SL</th>
                                         <th>Created At</th>
                                         <th>Created By</th>
+                                        <th>Updated By</th>
                                         <th>Tuition Code</th>
                                         <th>Phone</th>
                                         <th>Name</th>
-                                        <th>Assigned Employee</th>
                                         <th>Status</th>
                                         <th>Comment</th>
                                         <th>Follow Up Date</th>
@@ -493,10 +481,10 @@ const LeadPage = () => {
                                                 <td>{(currentPage - 1) * 50 + index + 1}</td>
                                                 <td>{rowData.createdAt ? formatMongoDate(rowData.createdAt) : '-'}</td>
                                                 <td>{rowData.createdBy}</td>
+                                                <td>{rowData.updatedBy}</td>
                                                 <td>{rowData.tuitionCode}</td>
                                                 <td>{rowData.phone}</td>
                                                 <td>{rowData.name}</td>
-                                                <td>{rowData.employeeName}</td>
                                                 <td>
                                                     <span
                                                         className={`badge 
@@ -599,29 +587,6 @@ const LeadPage = () => {
                                     </Form.Group>
                                 </Col>
                                 <Col md={6}>
-                                    <Form.Group controlId="employeeId">
-                                        <Form.Label className="fw-bold">Employee Name</Form.Label>
-                                        <Select
-                                            options={userList.map(user => ({
-                                                value: user._id,
-                                                label: user.name?.trim() ? user.name : user.username
-                                            }))}
-                                            value={userList.find(user => user._id === leadData.employeeId) ? {
-                                                value: userList.find(user => user._id === leadData.employeeId)._id,
-                                                label: userList.find(user => user._id === leadData.employeeId).name?.trim()
-                                                    ? userList.find(user => user._id === leadData.employeeId).name
-                                                    : userList.find(user => user._id === leadData.employeeId).username
-                                            } : null}
-                                            onChange={(selectedOption) => setLeadData({ ...leadData, employeeId: selectedOption.value })}
-                                            placeholder="Select Employee"
-                                            isSearchable
-                                        />
-                                    </Form.Group>
-
-                                </Col>
-                            </Row>
-                            <Row className="mt-3">
-                                <Col md={6}>
                                     <Form.Group controlId="status">
                                         <Form.Label className="fw-bold">Status</Form.Label>
                                         <Form.Select
@@ -637,6 +602,8 @@ const LeadPage = () => {
                                         </Form.Select>
                                     </Form.Group>
                                 </Col>
+                            </Row>
+                            <Row className="mt-3">
                                 <Col md={6}>
                                     <Form.Group controlId="note">
                                         <Form.Label className="fw-bold">Note</Form.Label>
@@ -647,8 +614,6 @@ const LeadPage = () => {
                                         />
                                     </Form.Group>
                                 </Col>
-                            </Row>
-                            <Row className="mt-3">
                                 <Col md={6}>
                                     <Form.Group controlId="followUpDate">
                                         <Form.Label className="fw-bold">Follow Up Date</Form.Label>
@@ -659,6 +624,8 @@ const LeadPage = () => {
                                         />
                                     </Form.Group>
                                 </Col>
+                            </Row>
+                            <Row className="mt-3">
                                 <Col md={6}>
                                     <Form.Group controlId="followUpComment">
                                         <Form.Label className="fw-bold">Follow Up Comment</Form.Label>
@@ -705,10 +672,11 @@ const LeadPage = () => {
                                     <thead className="table-primary">
                                         <tr>
                                             <th>SL</th>
+                                            <th>Created By</th>
+                                            <th>Updated By</th>
                                             <th>Tuition Code</th>
                                             <th style={{ width: '80px' }}>Phone</th>
                                             <th>Name</th>
-                                            <th>Employee Name</th>
                                             <th>Status</th>
                                             <th>Note</th>
                                             <th>Follow Up Date</th>
@@ -720,10 +688,11 @@ const LeadPage = () => {
                                         {dueTodayList.map((lead, idx) => (
                                             <tr key={lead._id}>
                                                 <td>{idx + 1}</td>
+                                                <td>{lead.createdBy}</td>
+                                                <td>{lead.updatedBy || lead.createdBy}</td>
                                                 <td>{lead.tuitionCode}</td>
                                                 <td style={{ width: '80px' }}>{lead.phone}</td>
                                                 <td>{lead.name}</td>
-                                                <td>{lead.employeeName}</td>
                                                 <td>
                                                     <span
                                                         className={`badge 

@@ -84,7 +84,8 @@ const PrivacyPolicyPage = () => {
                                     <strong>Tuition Seba Forum</strong><br />
                                     No 2 Gate, Biplob Udyan, Chattogram<br />
                                     Phone: 01633920928<br />
-                                    Email: tuitionsebaforum@gmail.com
+                                    Email: tuitionsebaforum@gmail.com<br />
+                                    <strong>Trade License No:</strong> TRAD/CHTG/008405/2025
                                 </p>
                             </section>
                         </div>

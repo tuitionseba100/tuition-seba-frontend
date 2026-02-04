@@ -28,6 +28,7 @@ import FindTutorPage from './pages/public/FindTutorPage';
 import TeacherRegistration from './pages/public/TeacherRegistration';
 import OurTeacher from './pages/public/OurTeacher';
 import LeadPage from './pages/LeadPage';
+import PrivacyPolicyPage from './pages/public/PrivacyPolicyPage';
 
 const App = () => {
   return (
@@ -40,6 +41,7 @@ const App = () => {
         <Route path="/findTutor" element={<FindTutorPage />} />
         <Route path="/teacherRegistration" element={<TeacherRegistration />} />
         <Route path="/OurTeachers" element={<OurTeacher />} />
+        <Route path="/privacy" element={<PrivacyPolicyPage />} />
         <Route path="/admin/login" element={<Loginpage />} />
 
         <Route path="/admin" element={<PrivateRoute />}>

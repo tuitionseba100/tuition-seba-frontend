@@ -233,16 +233,20 @@ const PaymentPage = () => {
             return;
         }
 
+        const username = localStorage.getItem('username');
+
         const updatedPaymentData = {
             ...paymentData,
             tuitionCode: paymentData.tuitionId
         };
-        console.log('Sending payment data:', updatedPaymentData);
+
         try {
             if (editingId) {
+                updatedPaymentData.updatedBy = username;
                 await axios.put(`https://tuition-seba-backend-1.onrender.com/api/payment/edit/${editingId}`, updatedPaymentData);
                 toast.success("Payment record updated successfully!");
             } else {
+                updatedPaymentData.createdBy = username;
                 await axios.post('https://tuition-seba-backend-1.onrender.com/api/payment/add', updatedPaymentData);
                 toast.success("Payment record created successfully!");
             }
@@ -475,6 +479,8 @@ const PaymentPage = () => {
                                     <tr>
                                         <th>SL</th>
                                         <th>Tuition Code</th>
+                                        <th>Created By</th>
+                                        <th>Updated By</th>
                                         <th>Payment Status</th>
                                         <th>Payment Received Date</th>
                                         <th>Due Payment Date</th>
@@ -503,6 +509,8 @@ const PaymentPage = () => {
                                             <tr key={payment._id}>
                                                 <td>{(currentPage - 1) * 50 + index + 1}</td>
                                                 <td>{payment.tuitionCode}</td>
+                                                <td>{payment.createdBy}</td>
+                                                <td>{payment.updatedBy}</td>
                                                 <td>
                                                     <span
                                                         className={`badge 

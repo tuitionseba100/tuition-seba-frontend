@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Button, Table, Modal, Form, Row, Col, Card } from 'react-bootstrap';
-import { FaEdit, FaTrashAlt, FaInfoCircle, FaBell } from 'react-icons/fa';
+import { FaEdit, FaTrashAlt, FaInfoCircle, FaBell, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 import axios from 'axios';
 import NavBarPage from './NavbarPage';
 import styled from 'styled-components';
@@ -31,10 +31,34 @@ const PaymentPage = () => {
         comment: '',
     });
     const [loading, setLoading] = useState(false);
-    const [statusFilter, setStatusFilter] = useState('');
-    const [tuitionCodeSearchQuery, setTuitionCodeSearchQuery] = useState('');
-    const [teacherNumberSearchQuery, setTeacherNumberSearchQuery] = useState('');
-    const [paymentNumberSearchQuery, setPaymentNumberSearchQuery] = useState('');
+    const [currentPage, setCurrentPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
+
+    const [searchInputs, setSearchInputs] = useState({
+        tuitionCode: '',
+        tutorNumber: '',
+        paymentNumber: '',
+        paymentStatus: '',
+        paymentType: ''
+    });
+
+    const [appliedFilters, setAppliedFilters] = useState({
+        tuitionCode: '',
+        tutorNumber: '',
+        paymentNumber: '',
+        paymentStatus: '',
+        paymentType: ''
+    });
+
+    const [summaryCounts, setSummaryCounts] = useState({
+        totalPaymentsCount: 0,
+        totalPaymentTK: 0,
+        totalPaymentsTodayCount: 0,
+        totalPaymentTKToday: 0,
+        totalDues: 0,
+        totalDuesCount: 0
+    });
+
     const [totalPaymentTK, setTotalPaymentTK] = useState(0);
     const [totalPaymentsCount, setTotalPaymentsCount] = useState(0);
     const [totalPaymentTKToday, setTotalPaymentTKToday] = useState(0);
@@ -43,6 +67,8 @@ const PaymentPage = () => {
     const [totalDuesCount, setTotalDuesCount] = useState(0);
     const [dueTodayList, setDueTodayList] = useState([]);
     const [showDueModal, setShowDueModal] = useState(false);
+    const [showExportModal, setShowExportModal] = useState(false);
+    const [selectedExportStatus, setSelectedExportStatus] = useState('');
     const role = localStorage.getItem('role');
 
     useEffect(() => {
@@ -50,65 +76,120 @@ const PaymentPage = () => {
     }, []);
 
     useEffect(() => {
-        let filteredData = paymentList;
-        if (statusFilter) {
-            filteredData = filteredData.filter(payment => payment.paymentStatus === statusFilter);
+        fetchPaymentRecords();
+    }, [appliedFilters, currentPage]);
+
+    const handleSearchInputChange = (field, value) => {
+        setSearchInputs(prev => ({
+            ...prev,
+            [field]: value
+        }));
+    };
+
+    const handleSearch = () => {
+        setAppliedFilters(searchInputs);
+        setCurrentPage(1);
+    };
+
+    const handleKeyPress = (e) => {
+        if (e.key === 'Enter') {
+            handleSearch();
         }
+    };
 
-        if (tuitionCodeSearchQuery) {
-            filteredData = filteredData.filter(payment =>
-                String(payment.tuitionCode).toLowerCase().includes(String(tuitionCodeSearchQuery).toLowerCase())
-            );
-        }
-
-        if (teacherNumberSearchQuery) {
-            filteredData = filteredData.filter(tuition =>
-                String(tuition.tutorNumber).toLowerCase().includes(String(teacherNumberSearchQuery).toLowerCase())
-            );
-        }
-
-        if (paymentNumberSearchQuery) {
-            filteredData = filteredData.filter(tuition =>
-                String(tuition.paymentNumber).toLowerCase().includes(String(paymentNumberSearchQuery).toLowerCase())
-            );
-        }
-
-        const totalCount = filteredData.length;
-        const totalTk = filteredData.reduce((sum, payment) => sum + parseFloat(payment.totalReceivedTk || 0), 0);
-        const todayDateString = new Date().toISOString().split('T')[0];
-
-        const totalCountToday = filteredData.filter(payment => {
-            const paymentDateString = new Date(payment.paymentReceivedDate).toISOString().split('T')[0];
-            return paymentDateString === todayDateString;
-        }).length;
-
-        const totalTkToday = filteredData
-            .filter(payment => new Date(payment.paymentReceivedDate).toISOString().split('T')[0] === todayDateString)
-            .reduce((sum, payment) => sum + parseFloat(payment.receivedTk || 0), 0);
-        const totalDues = filteredData.reduce((sum, payment) => sum + parseFloat(payment.duePayment || 0), 0);
-        const totalDuesCount = filteredData.filter(payment => parseFloat(payment.duePayment || 0) > 0).length;
-
-        setTotalPaymentsCount(totalCount);
-        setTotalPaymentTK(totalTk);
-        setTotalPaymentsTodayCount(totalCountToday);
-        setTotalPaymentTKToday(totalTkToday);
-        setTotalDues(totalDues);
-        setTotalDuesCount(totalDuesCount);
-
-        setFilteredPaymentList(filteredData);
-    }, [statusFilter, tuitionCodeSearchQuery, teacherNumberSearchQuery, paymentNumberSearchQuery, paymentList]);
+    const handleResetFilters = () => {
+        const resetFilters = {
+            tuitionCode: '',
+            tutorNumber: '',
+            paymentNumber: '',
+            paymentStatus: '',
+            paymentType: ''
+        };
+        setSearchInputs(resetFilters);
+        setAppliedFilters(resetFilters);
+        setCurrentPage(1);
+    };
 
     const fetchPaymentRecords = async () => {
         setLoading(true);
         try {
-            const response = await axios.get('https://tuition-seba-backend-1.onrender.com/api/payment/all');
-            setPaymentList(response.data);
-            setFilteredPaymentList(response.data);
+            const response = await axios.get('https://tuition-seba-backend-1.onrender.com/api/payment/getTableData', {
+                params: {
+                    page: currentPage,
+                    tuitionCode: appliedFilters.tuitionCode,
+                    tutorNumber: appliedFilters.tutorNumber,
+                    paymentNumber: appliedFilters.paymentNumber,
+                    paymentStatus: appliedFilters.paymentStatus,
+                    paymentType: appliedFilters.paymentType
+                }
+            });
+
+            setPaymentList(response.data.data);
+            setFilteredPaymentList(response.data.data);
+            setCurrentPage(response.data.currentPage);
+            setTotalPages(response.data.totalPages);
+
+            // Fetch summary data
+            fetchSummary();
         } catch (err) {
             console.error('Error fetching payment records:', err);
             toast.error("Failed to load payment records.");
         }
         setLoading(false);
+    };
+
+    const fetchSummary = async () => {
+        try {
+            const res = await axios.get('https://tuition-seba-backend-1.onrender.com/api/payment/summary', {
+                params: {
+                    tuitionCode: appliedFilters.tuitionCode,
+                    tutorNumber: appliedFilters.tutorNumber,
+                    paymentNumber: appliedFilters.paymentNumber,
+                    paymentStatus: appliedFilters.paymentStatus,
+                    paymentType: appliedFilters.paymentType
+                }
+            });
+
+            setSummaryCounts(res.data);
+            setTotalPaymentsCount(res.data.totalPaymentsCount);
+            setTotalPaymentTK(res.data.totalPaymentTK);
+            setTotalPaymentsTodayCount(res.data.totalPaymentsTodayCount);
+            setTotalPaymentTKToday(res.data.totalPaymentTKToday);
+            setTotalDues(res.data.totalDues);
+            setTotalDuesCount(res.data.totalDuesCount);
+        } catch (err) {
+            console.error('Error fetching summary:', err);
+        }
+    };
+
+    const handleExportToExcel = async () => {
+        setShowExportModal(true);
+    };
+
+    const handleExportWithStatus = async () => {
+        if (selectedExportStatus) {
+            try {
+                const statusForFileName = selectedExportStatus.replace(/\s+/g, '_').toLowerCase();
+                const link = document.createElement('a');
+                link.href = `https://tuition-seba-backend-1.onrender.com/api/payment/exportData?paymentStatus=${selectedExportStatus}`;
+                link.target = '_blank';
+                link.download = selectedExportStatus.toLowerCase() === 'all'
+                    ? 'payments_all.csv'
+                    : `payments_${statusForFileName}.csv`;
+
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+
+                setShowExportModal(false);
+                setSelectedExportStatus('');
+            } catch (error) {
+                console.error('Export failed:', error);
+                toast.error('Export failed. Please try again.');
+            }
+        } else {
+            toast.error('Please select a status to export.');
+        }
     };
 
     useEffect(() => {
@@ -144,52 +225,7 @@ const PaymentPage = () => {
         });
     };
 
-    const handleExportToExcel = () => {
-        const now = new Date();
-        const formattedDate = now.toLocaleDateString().replace(/\//g, '-');
-        const formattedTime = now.toLocaleTimeString().replace(/:/g, '-');
 
-        const fileName = `Payment List_${formattedDate}_${formattedTime}`;
-
-        const tableHeaders = [
-            "Tuition Code", "Status", "Payment Received Date", "Due Payment Date", "Teacher Name", "Teacher Number", "Payment Number", "Payment Type", "Received TK", "Due TK", "Total Received TK", "Comment"
-        ];
-
-        const tableData = filteredPaymentList.map(payment => [
-            String(payment.tuitionCode ?? ""),
-            String(payment.paymentStatus ?? ""),
-            payment.paymentReceivedDate ? formatDate(payment.paymentReceivedDate) : "",
-            payment.duePayDate ? formatDate(payment.duePayDate) : "",
-            String(payment.tutorName ?? ""),
-            String(payment.tutorNumber ?? ""),
-            String(payment.paymentNumber ?? ""),
-            String(payment.paymentType ?? ""),
-            String(payment.receivedTk ?? ""),
-            String(payment.duePayment ?? ""),
-            String(payment.totalReceivedTk ?? ""),
-            String(payment.comment ?? ""),
-        ]);
-
-        const worksheet = XLSX.utils.aoa_to_sheet([tableHeaders, ...tableData]);
-
-        worksheet['!cols'] = [
-            { wpx: 90 },  // Tuition Code
-            { wpx: 140 },   // date
-            { wpx: 140 },   // name
-            { wpx: 100 },  // number
-            { wpx: 100 },  //number
-            { wpx: 100 },   // type
-            { wpx: 100 },    // id
-            { wpx: 80 },
-            { wpx: 80 },
-            { wpx: 140 },
-        ];
-
-        const workbook = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(workbook, worksheet, "Payments");
-
-        XLSX.writeFile(workbook, `${fileName}.xlsx`);
-    };
 
     const handleSavePayment = async () => {
         if (!paymentData.tuitionId || paymentData.tuitionId.trim() === '') {
@@ -241,13 +277,7 @@ const PaymentPage = () => {
         }
     };
 
-    const handleResetFilters = () => {
-        setStatusFilter('');
-        setTuitionCodeSearchQuery('');
-        setTeacherNumberSearchQuery('');
-        setPaymentNumberSearchQuery('');
-        setFilteredPaymentList(paymentList);
-    };
+
 
     return (
         <>
@@ -344,7 +374,11 @@ const PaymentPage = () => {
                 <Row className="mt-2 mb-3">
                     <Col md={2}>
                         <Form.Label className="fw-bold">Payment Status</Form.Label>
-                        <Form.Select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
+                        <Form.Select
+                            value={searchInputs.paymentStatus}
+                            onChange={(e) => handleSearchInputChange('paymentStatus', e.target.value)}
+                            onKeyPress={handleKeyPress}
+                        >
                             <option value="">All</option>
                             <option value="pending payment">Pending Payment</option>
                             <option value="pending due">Pending Due</option>
@@ -357,8 +391,9 @@ const PaymentPage = () => {
                         <Form.Control
                             type="text"
                             placeholder="Search by Tuition Code"
-                            value={tuitionCodeSearchQuery}
-                            onChange={(e) => setTuitionCodeSearchQuery(e.target.value)}
+                            value={searchInputs.tuitionCode}
+                            onChange={(e) => handleSearchInputChange('tuitionCode', e.target.value)}
+                            onKeyPress={handleKeyPress}
                         />
                     </Col>
 
@@ -367,8 +402,9 @@ const PaymentPage = () => {
                         <Form.Control
                             type="text"
                             placeholder="Search by Teacher Number"
-                            value={teacherNumberSearchQuery}
-                            onChange={(e) => setTeacherNumberSearchQuery(e.target.value)}
+                            value={searchInputs.tutorNumber}
+                            onChange={(e) => handleSearchInputChange('tutorNumber', e.target.value)}
+                            onKeyPress={handleKeyPress}
                         />
                     </Col>
 
@@ -377,14 +413,30 @@ const PaymentPage = () => {
                         <Form.Control
                             type="text"
                             placeholder="Search by Payment Number"
-                            value={paymentNumberSearchQuery}
-                            onChange={(e) => setPaymentNumberSearchQuery(e.target.value)}
+                            value={searchInputs.paymentNumber}
+                            onChange={(e) => handleSearchInputChange('paymentNumber', e.target.value)}
+                            onKeyPress={handleKeyPress}
                         />
                     </Col>
 
                     <Col md={2} className="d-flex align-items-end">
-                        <Button variant="danger" onClick={handleResetFilters} className="w-100">
-                            Reset Filters
+                        <Button
+                            variant="success"
+                            onClick={handleSearch}
+                            className="w-100"
+                            disabled={loading}
+                        >
+                            Search
+                        </Button>
+                    </Col>
+
+                    <Col md={2} className="d-flex align-items-end">
+                        <Button
+                            variant="danger"
+                            onClick={handleResetFilters}
+                            className="w-100"
+                        >
+                            Reset
                         </Button>
                     </Col>
                 </Row>
@@ -407,10 +459,10 @@ const PaymentPage = () => {
                 {role === "superadmin" && (
                     <Button
                         variant="success"
-                        className="mb-3"
+                        className="mb-3 d-flex align-items-center justify-content-center gap-2"
                         onClick={handleExportToExcel}
                     >
-                        Export to Excel
+                        Export to CSV
                     </Button>
                 )}
 
@@ -447,9 +499,9 @@ const PaymentPage = () => {
                                             </td>
                                         </tr>
                                     ) : (
-                                        filteredPaymentList.slice().reverse().map((payment, index) => (
+                                        filteredPaymentList.map((payment, index) => (
                                             <tr key={payment._id}>
-                                                <td>{index + 1}</td>
+                                                <td>{(currentPage - 1) * 50 + index + 1}</td>
                                                 <td>{payment.tuitionCode}</td>
                                                 <td>
                                                     <span
@@ -486,6 +538,29 @@ const PaymentPage = () => {
                                 </tbody>
 
                             </Table>
+                        </div>
+                        <div className="d-flex justify-content-center align-items-center gap-3 mt-4 flex-wrap">
+                            <Button
+                                variant="outline-primary"
+                                className="d-flex align-items-center gap-2 px-3 py-2 rounded-pill"
+                                disabled={currentPage === 1}
+                                onClick={() => setCurrentPage(prev => prev - 1)}
+                            >
+                                <FaChevronLeft /> Previous
+                            </Button>
+
+                            <span className="fw-semibold text-primary-emphasis fs-5">
+                                Page {currentPage} of {totalPages}
+                            </span>
+
+                            <Button
+                                variant="outline-primary"
+                                className="d-flex align-items-center gap-2 px-3 py-2 rounded-pill"
+                                disabled={currentPage === totalPages}
+                                onClick={() => setCurrentPage(prev => prev + 1)}
+                            >
+                                Next <FaChevronRight />
+                            </Button>
                         </div>
                     </Card.Body>
                 </Card>
@@ -731,6 +806,52 @@ const PaymentPage = () => {
                             </div>
                         )}
                     </Modal.Body>
+                </Modal>
+
+                {/* Export Modal */}
+                <Modal show={showExportModal} onHide={() => {
+                    setShowExportModal(false);
+                    setSelectedExportStatus('');
+                }} centered>
+                    <Modal.Header closeButton className="bg-primary text-white">
+                        <Modal.Title className="w-100 text-center fw-bold">
+                            Select Status for Export
+                        </Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body className="p-4 bg-light">
+                        <Form.Group className="mb-3">
+                            <Form.Label className="fw-bold">Select Status:</Form.Label>
+                            <Form.Select
+                                value={selectedExportStatus}
+                                onChange={(e) => setSelectedExportStatus(e.target.value)}
+                                className="form-control-lg"
+                            >
+                                <option value="">-- Select Status --</option>
+                                <option value="all">All</option>
+                                <option value="pending payment">Pending Payment</option>
+                                <option value="pending due">Pending Due</option>
+                                <option value="fully paid">Fully Paid</option>
+                            </Form.Select>
+                        </Form.Group>
+                    </Modal.Body>
+                    <Modal.Footer className="bg-light">
+                        <Button
+                            variant="secondary"
+                            onClick={() => {
+                                setShowExportModal(false);
+                                setSelectedExportStatus('');
+                            }}
+                        >
+                            Cancel
+                        </Button>
+                        <Button
+                            variant="primary"
+                            onClick={handleExportWithStatus}
+                            disabled={!selectedExportStatus}
+                        >
+                            Export
+                        </Button>
+                    </Modal.Footer>
                 </Modal>
 
                 <ToastContainer />

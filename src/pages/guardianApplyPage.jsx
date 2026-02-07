@@ -14,6 +14,8 @@ const GuardianApplyPage = () => {
     const [exportList, setExportList] = useState([]);
     const [filteredGuardianList, setFilteredGuardianApplyList] = useState([]);
     const [loading, setLoading] = useState(false);
+    const [statusLoading, setStatusLoading] = useState(false);
+    const [deleteLoading, setDeleteLoading] = useState(false);
 
     const [showStatusModal, setShowStatusModal] = useState(false);
     const [selectedRecord, setSelectedRecord] = useState(null);
@@ -152,23 +154,30 @@ const GuardianApplyPage = () => {
     };
 
     const handleSaveRequest = async () => {
+        const username = localStorage.getItem('username');
+        setLoading(true);
 
         const updatedData = {
             ...tuitionData
         };
+
         try {
             if (editingId) {
+                updatedData.updatedBy = username;
                 await axios.put(`https://tuition-seba-backend-1.onrender.com/api/guardianApply/edit/${editingId}`, updatedData);
                 toast.success("Record updated successfully!");
             } else {
+                updatedData.createdBy = username;
                 await axios.post('https://tuition-seba-backend-1.onrender.com/api/guardianApply/add', updatedData);
-                toast.success("Record updated successfully!");
+                toast.success("Record created successfully!");
             }
             setShowModal(false);
             fetchGuardianApplyRecords();
         } catch (err) {
             console.error('Error:', err);
             toast.error("Error.");
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -192,7 +201,7 @@ const GuardianApplyPage = () => {
         const fileName = `Guardian Apply List_${formattedDate}_${formattedTime}`;
 
         const tableHeaders = [
-            "Guardian Name", "Status", "Applied Date", "Phone No.", "Address", "Teacher Code", "Student Class", "Teacher Gender", "Characteristics", "Comment"
+            "Guardian Name", "Status", "Applied Date", "Phone No.", "Address", "Teacher Code", "Student Class", "Teacher Gender", "Characteristics", "Comment", "Created By", "Updated By"
         ];
 
         const tableData = [...exportList].reverse().map(data => [
@@ -206,6 +215,8 @@ const GuardianApplyPage = () => {
             String(data.teacherGender ?? ""),
             String(data.characteristics ?? ""),
             String(data.comment ?? ""),
+            String(data.createdBy ?? ""),
+            String(data.updatedBy ?? ""),
         ]);
 
         const worksheet = XLSX.utils.aoa_to_sheet([tableHeaders, ...tableData]);
@@ -220,6 +231,8 @@ const GuardianApplyPage = () => {
             { wpx: 120 },
             { wpx: 120 },
             { wpx: 200 },
+            { wpx: 120 },
+            { wpx: 120 },
             { wpx: 120 },
         ];
 
@@ -240,10 +253,13 @@ const GuardianApplyPage = () => {
             return;
         }
 
+        const username = localStorage.getItem('username');
+        setStatusLoading(true);
+
         try {
             const response = await axios.put(
                 `https://tuition-seba-backend-1.onrender.com/api/guardianApply/update-status/${selectedRecord._id}`,
-                { status: newStatus, comment: newComment }
+                { status: newStatus, comment: newComment, updatedBy: username }
             );
 
             fetchGuardianApplyRecords();
@@ -256,6 +272,8 @@ const GuardianApplyPage = () => {
         } catch (err) {
             console.error('Error updating status:', err);
             toast.error("Failed to update status.");
+        } finally {
+            setStatusLoading(false);
         }
     };
 
@@ -270,6 +288,7 @@ const GuardianApplyPage = () => {
         const confirmDelete = window.confirm("Are you sure you want to delete this record?");
 
         if (confirmDelete) {
+            setDeleteLoading(true);
             try {
                 await axios.delete(`https://tuition-seba-backend-1.onrender.com/api/guardianApply/delete/${id}`);
                 toast.success("Record deleted successfully!");
@@ -277,6 +296,8 @@ const GuardianApplyPage = () => {
             } catch (err) {
                 console.error('Error deleting record:', err);
                 toast.error("Error deleting record.");
+            } finally {
+                setDeleteLoading(false);
             }
         } else {
             toast.info("Deletion canceled");
@@ -457,6 +478,8 @@ const GuardianApplyPage = () => {
                                 <thead className="table-primary" style={{ position: "sticky", top: 0, zIndex: 2 }}>
                                     <tr>
                                         <th>SL</th>
+                                        <th>Created By</th>
+                                        <th>Updated By</th>
                                         <th>Guardian Name</th>
                                         <th>Applied Date</th>
                                         <th>Status</th>
@@ -483,6 +506,8 @@ const GuardianApplyPage = () => {
                                         filteredGuardianList.map((rowData, index) => (
                                             <tr key={rowData._id}>
                                                 <td>{index + 1}</td>
+                                                <td>{rowData.createdBy}</td>
+                                                <td>{rowData.updatedBy}</td>
                                                 <td>{rowData.name}</td>
                                                 <td>{rowData.appliedAt ? formatDate(rowData.appliedAt) : ''}</td>
                                                 <td>
@@ -520,8 +545,16 @@ const GuardianApplyPage = () => {
                                                         placement="top"
                                                         overlay={<Tooltip>Delete Record</Tooltip>}
                                                     >
-                                                        <Button variant="danger" onClick={() => handleDeleteRecord(rowData._id)}>
-                                                            <FaTrashAlt />
+                                                        <Button 
+                                                            variant="danger" 
+                                                            onClick={() => handleDeleteRecord(rowData._id)}
+                                                            disabled={deleteLoading}
+                                                        >
+                                                            {deleteLoading ? (
+                                                                <Spinner animation="border" size="sm" />
+                                                            ) : (
+                                                                <FaTrashAlt />
+                                                            )}
                                                         </Button>
                                                     </OverlayTrigger>
                                                 </td>
@@ -692,7 +725,14 @@ const GuardianApplyPage = () => {
 
                     <Modal.Footer>
                         <Button variant="secondary" onClick={() => setShowModal(false)}>Close</Button>
-                        <Button variant="primary" onClick={handleSaveRequest}>Save</Button>
+                        <Button variant="primary" onClick={handleSaveRequest} disabled={loading}>
+                            {loading ? (
+                                <>
+                                    <Spinner animation="border" size="sm" className="me-2" />
+                                    Saving...
+                                </>
+                            ) : 'Save'}
+                        </Button>
                     </Modal.Footer>
                 </Modal>
 
@@ -756,8 +796,13 @@ const GuardianApplyPage = () => {
                         <Button variant="secondary" onClick={() => setShowStatusModal(false)}>
                             Cancel
                         </Button>
-                        <Button variant="primary" onClick={handleUpdateStatus}>
-                            Update Status
+                        <Button variant="primary" onClick={handleUpdateStatus} disabled={statusLoading}>
+                            {statusLoading ? (
+                                <>
+                                    <Spinner animation="border" size="sm" className="me-2" />
+                                    Updating...
+                                </>
+                            ) : 'Update Status'}
                         </Button>
                     </Modal.Footer>
                 </Modal>

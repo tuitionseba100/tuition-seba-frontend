@@ -696,23 +696,26 @@ const TuitionPage = () => {
                     </Card.Body>
                 </Card>
 
-                <Modal show={showUpdateListModal} onHide={() => setShowUpdateListModal(false)} centered size="xl">
-                    <Modal.Header closeButton className="bg-primary text-white">
-                        <Modal.Title className="w-100 text-center fw-bold">
-                            <FaBell className="text-warning" />
-                            <span className="ms-2">Tuition needs update Today: {tuitionNeedsUpdateList.length}</span>
-                        </Modal.Title>
-                    </Modal.Header>
-                    <Modal.Body className="p-4 bg-light">
+                <div className="modal show d-block" style={{ backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 1050, padding: '20px' }}>
+                    <div className="modal-dialog" style={{ maxWidth: 'calc(100vw - 40px)', width: '100%', height: 'calc(100vh - 40px)', margin: '0' }}>
+                        <div className="modal-content">
+                            <div className="modal-header bg-primary text-white">
+                                <h5 className="modal-title w-100 text-center fw-bold">
+                                    <FaBell className="text-warning" />
+                                    <span className="ms-2">Tuition needs update Today: {tuitionNeedsUpdateList.length}</span>
+                                </h5>
+                                <button type="button" className="btn-close btn-close-white" onClick={() => setShowUpdateListModal(false)}></button>
+                            </div>
+                            <div className="modal-body p-4 bg-light" style={{ maxHeight: 'calc(100vh - 120px)', overflowY: 'auto' }}>
                         {tuitionNeedsUpdateList.length > 0 ? (
                             <Table responsive striped bordered hover className="shadow-sm">
-                                <thead className="bg-dark text-white text-center">
+                                <thead className="bg-dark text-white text-center" style={{ position: 'sticky', top: 0, zIndex: 10 }}>
                                     <tr>
                                         <th>Tuition Code</th>
                                         <th>Created By/Updated By</th>
-                                        <th>Last Available Check</th>
-                                        <th>Last Update</th>
-                                        <th>Next Update Date</th>
+                                        <th>Comment</th>
+                                        <th>Last Update Comment</th>
+                                        <th>Next Update Comment</th>
                                         <th>Status</th>
                                         <th>Teacher Number</th>
                                         <th>Guardian Number</th>
@@ -723,10 +726,13 @@ const TuitionPage = () => {
                                     {tuitionNeedsUpdateList.map((tuition, index) => (
                                         <tr key={index} className="align-middle text-center">
                                             <td>{tuition.tuitionCode}</td>
-                                            <td>{tuition.updatedBy}</td>
-                                            <td>{formatDateTimeDisplay(tuition.lastAvailableCheck)}</td>
-                                            <td>{formatDateTimeDisplay(tuition.lastUpdate)}</td>
-                                            <td>{formatDateTimeDisplay(tuition.nextUpdateDate)}</td>
+                                            <td className="text-start">
+                                                <span className="badge bg-success text-white me-2">CB: {tuition.createdBy || '-'}</span>
+                                                <span className="badge bg-primary text-white">UB: {tuition.updatedBy || '-'}</span>
+                                            </td>
+                                            <td>{tuition.note || '-'}</td>
+                                            <td>{tuition.lastUpdateComment || '-'}</td>
+                                            <td>{tuition.nextUpdateComment || '-'}</td>
                                             <td>{tuition.status}</td>
                                             <td>{tuition.tutorNumber}</td>
                                             <td>{tuition.guardianNumber}</td>
@@ -755,8 +761,10 @@ const TuitionPage = () => {
                                 <h5>No tuition needs update check today.</h5>
                             </div>
                         )}
-                    </Modal.Body>
-                </Modal>
+                    </div>
+                </div>
+            </div>
+        </div>
 
                 <Modal show={showPaymentPendingModal} onHide={() => setShowPaymentPendingModal(false)} centered size="xl">
                     <Modal.Header closeButton className="bg-primary text-white">

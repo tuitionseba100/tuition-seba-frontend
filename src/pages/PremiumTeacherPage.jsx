@@ -294,11 +294,16 @@ const PremiumTeacherPage = () => {
             ...formData,
             status: formData.status ? formData.status : "pending"
         };
+        const username = localStorage.getItem('username');
         try {
             if (editingId) {
+                const updatedData = {
+                    ...updatingData,
+                    updatedBy: username
+                };
                 await axios.put(
                     `https://tuition-seba-backend-1.onrender.com/api/regTeacher/edit/${editingId}`,
-                    updatingData,
+                    updatedData,
                     {
                         headers: {
                             Authorization: token
@@ -307,7 +312,11 @@ const PremiumTeacherPage = () => {
                 );
                 toast.success("Teacher record updated successfully!");
             } else {
-                await axios.post('https://tuition-seba-backend-1.onrender.com/api/regTeacher/add', updatingData);
+                const newData = {
+                    ...updatingData,
+                    createdBy: username
+                };
+                await axios.post('https://tuition-seba-backend-1.onrender.com/api/regTeacher/add', newData);
                 toast.success("Teacher record created successfully!");
             }
             setShowModal(false);
@@ -590,6 +599,7 @@ const PremiumTeacherPage = () => {
                                 <thead className="table-primary" style={{ position: "sticky", top: 0, zIndex: 2 }}>
                                     <tr>
                                         <th>SL</th>
+                                        <th>Created/Updated By</th>
                                         <th>Premium Code</th>
                                         <th>Uni Code</th>
                                         <th>Status</th>
@@ -607,7 +617,7 @@ const PremiumTeacherPage = () => {
                                 <tbody>
                                     {loading ? (
                                         <tr>
-                                            <td colSpan="10" className="text-center">
+                                            <td colSpan="15" className="text-center">
                                                 <div
                                                     className="d-flex justify-content-center align-items-center"
                                                     style={{
@@ -628,6 +638,16 @@ const PremiumTeacherPage = () => {
                                             .map((item, index) => (
                                                 <tr key={item._id}>
                                                     <td>{index + 1}</td>
+                                                    <td>
+                                                        <div className="d-flex flex-column gap-1 align-items-start">
+                                                            <span className="badge bg-secondary">
+                                                                CB: {item.createdBy || ''}
+                                                            </span>
+                                                            <span className="badge bg-info text-dark">
+                                                                UB: {item.updatedBy || ''}
+                                                            </span>
+                                                        </div>
+                                                    </td>
                                                     <td>
                                                         <span
                                                             className="text-primary fw-bold"

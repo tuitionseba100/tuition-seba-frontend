@@ -113,11 +113,13 @@ const RefundPage = () => {
             "Applied At",
             "Status",
             "Tuition Code",
+            "Created By",
+            "Updated By",
             "Payment Number Type",
             "Payment Number",
             "Name",
             "Return Amount",
-            "Phone Number",
+            "Personal Phone",
             "Comment (Teacher)",
             "Comment From Agent"
         ];
@@ -126,11 +128,12 @@ const RefundPage = () => {
             item.requestedAt ? formatDate(item.requestedAt) : "",
             String(item.status ?? ""),
             String(item.tuitionCode ?? ""),
+            String(item.createdBy ?? ""),
+            String(item.updatedBy ?? ""),
             String(item.paymentType ?? ""),
             String(item.paymentNumber ?? ""),
             String(item.name ?? ""),
             String(item.amount ?? ""),
-            String(item.paymentNumber ?? ""),
             String(item.personalPhone ?? ""),
             String(item.note ?? ""),
             String(item.commentFromAgent ?? "")
@@ -139,16 +142,18 @@ const RefundPage = () => {
         const worksheet = XLSX.utils.aoa_to_sheet([tableHeaders, ...tableData]);
 
         worksheet['!cols'] = [
-            { wpx: 100 },  // Tuition Code
-            { wpx: 50 },   // Published
-            { wpx: 50 },   // Urgent
-            { wpx: 150 },  // Wanted Teacher
-            { wpx: 100 },  // Student
-            { wpx: 50 },   // Class
-            { wpx: 80 },   // Medium
             { wpx: 100 },
-            { wpx: 50 },
+            { wpx: 80 },
             { wpx: 100 },
+            { wpx: 100 },
+            { wpx: 90 },
+            { wpx: 110 },
+            { wpx: 110 },
+            { wpx: 120 },
+            { wpx: 90 },
+            { wpx: 120 },
+            { wpx: 140 },
+            { wpx: 140 },
         ];
 
         const workbook = XLSX.utils.book_new();
@@ -158,17 +163,25 @@ const RefundPage = () => {
     };
 
     const handleSaveRequest = async () => {
-
+        const username = localStorage.getItem('username');
         const updatedTuitionData = {
             ...refundData,
             status: refundData.status ? refundData.status : "pending"
         };
         try {
             if (editingId) {
-                await axios.put(`https://tuition-seba-backend-1.onrender.com/api/refund/edit/${editingId}`, updatedTuitionData);
+                const updatedData = {
+                    ...updatedTuitionData,
+                    updatedBy: username
+                };
+                await axios.put(`https://tuition-seba-backend-1.onrender.com/api/refund/edit/${editingId}`, updatedData);
                 toast.success("Refund record updated successfully!");
             } else {
-                await axios.post('https://tuition-seba-backend-1.onrender.com/api/refund/add', updatedTuitionData);
+                const newData = {
+                    ...updatedTuitionData,
+                    createdBy: username
+                };
+                await axios.post('https://tuition-seba-backend-1.onrender.com/api/refund/add', newData);
                 toast.success("Refund record updated successfully!");
             }
             setShowModal(false);
@@ -363,6 +376,8 @@ const RefundPage = () => {
                                         <th>Applied At</th>
                                         <th>Status</th>
                                         <th>Tuition Code</th>
+                                        <th>Created By</th>
+                                        <th>Updated By</th>
                                         <th>Payment Number Type</th>
                                         <th>Payment Number</th>
                                         <th>Name</th>
@@ -405,6 +420,8 @@ const RefundPage = () => {
                                                 </td>
 
                                                 <td>{item.tuitionCode}</td>
+                                                <td>{item.createdBy || '-'}</td>
+                                                <td>{item.updatedBy || '-'}</td>
                                                 <td>{item.paymentType}</td>
                                                 <td>{item.paymentNumber}</td>
                                                 <td>{item.name}</td>

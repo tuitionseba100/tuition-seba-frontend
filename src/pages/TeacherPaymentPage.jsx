@@ -141,11 +141,13 @@ const TeacherPaymentPage = () => {
         const fileName = `Teacher Payment List_${formattedDate}_${formattedTime}`;
 
         const tableHeaders = [
-            "SL", "Tuition Code", "Payment Status", "Submitted At", "Teacher Name", "Teacher Number", "Payment Number", "Transaction ID", "Payment Type", "Amount", "Comment"
+            "SL", "Created By", "Updated By", "Tuition Code", "Payment Status", "Submitted At", "Teacher Name", "Teacher Number", "Payment Number", "Transaction ID", "Payment Type", "Amount", "Comment"
         ];
 
         const tableData = filteredTeacherPaymentList.slice().reverse().map((payment, index) => [
             index + 1,
+            String(payment.createdBy ?? ""),
+            String(payment.updatedBy ?? ""),
             String(payment.tuitionCode ?? ""),
             String(payment.status ?? ""),
             payment.requestedAt ? formatDate(payment.requestedAt) : "",
@@ -162,6 +164,8 @@ const TeacherPaymentPage = () => {
 
         worksheet['!cols'] = [
             { wpx: 40 },  // SL
+            { wpx: 120 }, // Created By
+            { wpx: 120 }, // Updated By
             { wpx: 90 },  // Tuition Code
             { wpx: 140 }, // Payment Status
             { wpx: 140 }, // Submitted At
@@ -186,18 +190,28 @@ const TeacherPaymentPage = () => {
             return;
         }
 
+        const username = localStorage.getItem('username');
+        
         try {
             if (teacherEditingId) {
-                await axios.put(`https://tuition-seba-backend-1.onrender.com/api/teacherPayment/edit/${teacherEditingId}`, teacherPaymentData);
+                const updatedData = {
+                    ...teacherPaymentData,
+                    updatedBy: username
+                };
+                await axios.put(`https://tuition-seba-backend-1.onrender.com/api/teacherPayment/edit/${teacherEditingId}`, updatedData);
                 toast.success("Teacher payment record updated successfully!");
             } else {
-                await axios.post('https://tuition-seba-backend-1.onrender.com/api/teacherPayment/add', teacherPaymentData);
+                const newData = {
+                    ...teacherPaymentData,
+                    createdBy: username
+                };
+                await axios.post('https://tuition-seba-backend-1.onrender.com/api/teacherPayment/add', newData);
                 toast.success("Teacher payment record created successfully!");
             }
             setShowTeacherModal(false);
             fetchTeacherPaymentRecords();
         } catch (err) {
-            console.error('Error saving payemnt record:', err);
+            console.error('Error saving payment record:', err);
             toast.error("Error saving payment record.");
         }
     };
@@ -379,9 +393,11 @@ const TeacherPaymentPage = () => {
                                 <thead className="table-primary" style={{ position: "sticky", top: 0, zIndex: 2 }}>
                                     <tr>
                                         <th>SL</th>
+                                        <th>Created By</th>
+                                        <th>Updated By</th>
                                         <th>Tuition Code</th>
                                         <th>Payment Status</th>
-                                        <th>Submiited At</th>
+                                        <th>Submitted At</th>
                                         <th>Teacher Name</th>
                                         <th>Teacher Number</th>
                                         <th>Payment Number</th>
@@ -405,6 +421,8 @@ const TeacherPaymentPage = () => {
                                         filteredTeacherPaymentList.slice().reverse().map((payment, index) => (
                                             <tr key={payment._id}>
                                                 <td>{index + 1}</td>
+                                                <td>{payment.createdBy || '-'}</td>
+                                                <td>{payment.updatedBy || '-'}</td>
                                                 <td>{payment.tuitionCode}</td>
                                                 <td>
                                                     <span

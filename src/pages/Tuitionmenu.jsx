@@ -707,56 +707,58 @@ const TuitionPage = () => {
                                     </h5>
                                     <button type="button" className="btn-close btn-close-white" onClick={() => setShowUpdateListModal(false)}></button>
                                 </div>
-                                <div className="modal-body p-4 bg-light" style={{ maxHeight: 'calc(100vh - 120px)', overflowY: 'auto' }}>
+                                <div className="modal-body p-0 bg-light" style={{ maxHeight: 'calc(100vh - 120px)', overflowY: 'auto' }}>
                                     {tuitionNeedsUpdateList.length > 0 ? (
-                                        <Table responsive striped bordered hover className="shadow-sm">
-                                            <thead className="bg-dark text-white text-center" style={{ position: 'sticky', top: 0, zIndex: 10 }}>
-                                                <tr>
-                                                    <th>Tuition Code</th>
-                                                    <th>Created By/Updated By</th>
-                                                    <th>Comment</th>
-                                                    <th>Last Update Comment</th>
-                                                    <th>Next Update Comment</th>
-                                                    <th>Status</th>
-                                                    <th>Teacher Number</th>
-                                                    <th>Guardian Number</th>
-                                                    <th>Actions</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                {tuitionNeedsUpdateList.map((tuition, index) => (
-                                                    <tr key={index} className="align-middle text-center">
-                                                        <td>{tuition.tuitionCode}</td>
-                                                        <td className="text-start">
-                                                            <span className="badge bg-success text-white me-2">CB: {tuition.createdBy || '-'}</span>
-                                                            <span className="badge bg-primary text-white">UB: {tuition.updatedBy || '-'}</span>
-                                                        </td>
-                                                        <td>{tuition.note || '-'}</td>
-                                                        <td>{tuition.lastUpdateComment || '-'}</td>
-                                                        <td>{tuition.nextUpdateComment || '-'}</td>
-                                                        <td>{tuition.status}</td>
-                                                        <td>{tuition.tutorNumber}</td>
-                                                        <td>{tuition.guardianNumber}</td>
-                                                        <td style={{ display: 'flex', justifyContent: 'flex-start', gap: '8px' }}>
-                                                            <Button variant="info" onClick={() => handleShowDetails(tuition)} title="View Details">
-                                                                <FaInfoCircle />
-                                                            </Button>
-
-                                                            <Button variant="warning" onClick={() => handleEdit(tuition)} className="mr-2">
-                                                                <FaEdit />
-                                                            </Button>
-
-                                                            <Button variant="danger" onClick={() => handleDeleteTuition(tuition._id)}>
-                                                                <FaTrashAlt />
-                                                            </Button>
-                                                            <Button variant="success" onClick={() => handleShare(tuition)}>
-                                                                <FaWhatsapp />
-                                                            </Button>
-                                                        </td>
+                                        <div className="table-responsive" style={{ maxHeight: 'calc(100vh - 180px)', overflowY: 'auto' }}>
+                                            <table className="table table-striped table-bordered table-hover mb-0">
+                                                <thead className="bg-dark text-white text-center sticky-header">
+                                                    <tr>
+                                                        <th>Tuition Code</th>
+                                                        <th>Created By/Updated By</th>
+                                                        <th>Comment</th>
+                                                        <th>Last Update Comment</th>
+                                                        <th>Next Update Comment</th>
+                                                        <th>Status</th>
+                                                        <th>Teacher Number</th>
+                                                        <th>Guardian Number</th>
+                                                        <th>Actions</th>
                                                     </tr>
-                                                ))}
-                                            </tbody>
-                                        </Table>
+                                                </thead>
+                                                <tbody>
+                                                    {tuitionNeedsUpdateList.map((tuition, index) => (
+                                                        <tr key={index} className="align-middle text-center">
+                                                            <td>{tuition.tuitionCode}</td>
+                                                            <td className="text-start">
+                                                                <span className="badge bg-success text-white me-2">CB: {tuition.createdBy || '-'}</span>
+                                                                <span className="badge bg-primary text-white">UB: {tuition.updatedBy || '-'}</span>
+                                                            </td>
+                                                            <td>{tuition.note || '-'}</td>
+                                                            <td>{tuition.lastUpdateComment || '-'}</td>
+                                                            <td>{tuition.nextUpdateComment || '-'}</td>
+                                                            <td>{tuition.status}</td>
+                                                            <td>{tuition.tutorNumber}</td>
+                                                            <td>{tuition.guardianNumber}</td>
+                                                            <td style={{ display: 'flex', justifyContent: 'flex-start', gap: '8px' }}>
+                                                                <Button variant="info" onClick={() => handleShowDetails(tuition)} title="View Details">
+                                                                    <FaInfoCircle />
+                                                                </Button>
+
+                                                                <Button variant="warning" onClick={() => handleEdit(tuition)} className="mr-2">
+                                                                    <FaEdit />
+                                                                </Button>
+
+                                                                <Button variant="danger" onClick={() => handleDeleteTuition(tuition._id)}>
+                                                                    <FaTrashAlt />
+                                                                </Button>
+                                                                <Button variant="success" onClick={() => handleShare(tuition)}>
+                                                                    <FaWhatsapp />
+                                                                </Button>
+                                                            </td>
+                                                        </tr>
+                                                    ))}
+                                                </tbody>
+                                            </table>
+                                        </div>
                                     ) : (
                                         <div className="text-center text-muted py-4">
                                             <h5>No tuition needs update check today.</h5>
@@ -907,6 +909,34 @@ const TuitionPage = () => {
 };
 
 export default TuitionPage;
+
+// Sticky table header styles
+const stickyHeaderStyles = `
+  .sticky-header {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background-color: #343a40 !important;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  }
+  
+  .table-responsive {
+    position: relative;
+  }
+  
+  table {
+    border-collapse: separate;
+  }
+  
+  th {
+    background-color: inherit;
+  }
+`;
+
+// Inject styles into the document
+const styleElement = document.createElement('style');
+styleElement.innerHTML = stickyHeaderStyles;
+document.head.appendChild(styleElement);
 
 const Container = styled.div`
   padding: 30px;

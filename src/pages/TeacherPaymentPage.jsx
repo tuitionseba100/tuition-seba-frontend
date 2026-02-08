@@ -1,17 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { Button, Table, Modal, Form, Row, Col, Card } from 'react-bootstrap';
-import { FaEdit, FaTrashAlt, FaPrint } from 'react-icons/fa';
+import { FaEdit, FaTrashAlt, FaPrint, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 import axios from 'axios';
 import NavBarPage from './NavbarPage';
 import styled from 'styled-components';
 import { ToastContainer, toast } from 'react-toastify';
 import { Spinner } from 'react-bootstrap';
-import * as XLSX from 'xlsx';
-import Select from 'react-select';
 import PaymentInvoice from "../components/Invoice";
 
 const TeacherPaymentPage = () => {
-    const [teacherPaymentList, setTeacherPaymentList] = useState([]);
     const [filteredTeacherPaymentList, setFilteredTeacherPaymentList] = useState([]);
     const [showTeacherModal, setShowTeacherModal] = useState(false);
     const [teacherEditingId, setTeacherEditingId] = useState(null);
@@ -30,14 +27,29 @@ const TeacherPaymentPage = () => {
         status: '',
     });
     const [loading, setLoading] = useState(false);
-    const [teacherStatusFilter, setTeacherStatusFilter] = useState('');
-    const [teacherTuitionCodeSearchQuery, setTeacherTuitionCodeSearchQuery] = useState('');
-    const [teacherNumberTeacherSearchQuery, setTeacherNumberTeacherSearchQuery] = useState('');
-    const [teacherPaymentNumberSearchQuery, setTeacherPaymentNumberSearchQuery] = useState('');
+    const [currentPage, setCurrentPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
+    const [searchInputs, setSearchInputs] = useState({
+        tuitionCode: '',
+        personalPhone: '',
+        paymentNumber: '',
+        status: '',
+        paymentType: ''
+    });
+    const [appliedFilters, setAppliedFilters] = useState({
+        tuitionCode: '',
+        personalPhone: '',
+        paymentNumber: '',
+        status: '',
+        paymentType: ''
+    });
     const [totalTeacherPaymentTK, setTotalTeacherPaymentTK] = useState(0);
     const [totalTeacherPaymentsCount, setTotalTeacherPaymentsCount] = useState(0);
     const [totalTeacherPaymentTKToday, setTotalTeacherPaymentTKToday] = useState(0);
     const [totalTeacherPaymentsTodayCount, setTotalTeacherPaymentsTodayCount] = useState(0);
+    const [totalTeacherApprovedPaymentsCount, setTotalTeacherApprovedPaymentsCount] = useState(0);
+    const [showExportModal, setShowExportModal] = useState(false);
+    const [selectedExportStatus, setSelectedExportStatus] = useState('');
     const [selectedPayment, setSelectedPayment] = useState(null);
     const [showInvoiceModal, setShowInvoiceModal] = useState(false);
     const role = localStorage.getItem('role');
@@ -57,61 +69,73 @@ const TeacherPaymentPage = () => {
     }, []);
 
     useEffect(() => {
-        let filteredTeacherData = teacherPaymentList;
-        if (teacherStatusFilter) {
-            filteredTeacherData = filteredTeacherData.filter(payment => payment.status === teacherStatusFilter);
+        fetchTeacherPaymentRecords();
+    }, [appliedFilters, currentPage]);
+
+    const handleSearchInputChange = (field, value) => {
+        setSearchInputs(prev => ({
+            ...prev,
+            [field]: value
+        }));
+    };
+
+    const handleSearch = () => {
+        setAppliedFilters(searchInputs);
+        setCurrentPage(1);
+    };
+
+    const handleKeyPress = (e) => {
+        if (e.key === 'Enter') {
+            handleSearch();
         }
-
-        if (teacherTuitionCodeSearchQuery) {
-            filteredTeacherData = filteredTeacherData.filter(payment =>
-                String(payment.tuitionCode).toLowerCase().includes(String(teacherTuitionCodeSearchQuery).toLowerCase())
-            );
-        }
-
-        if (teacherNumberTeacherSearchQuery) {
-            filteredTeacherData = filteredTeacherData.filter(tuition =>
-                String(tuition.personalPhone).toLowerCase().includes(String(teacherNumberTeacherSearchQuery).toLowerCase())
-            );
-        }
-
-        if (teacherPaymentNumberSearchQuery) {
-            filteredTeacherData = filteredTeacherData.filter(tuition =>
-                String(tuition.paymentNumber).toLowerCase().includes(String(teacherPaymentNumberSearchQuery).toLowerCase())
-            );
-        }
-
-        const totalCount = filteredTeacherData.length;
-        const totalTk = filteredTeacherData.reduce((sum, payment) => sum + parseFloat(payment.amount || 0), 0);
-        const todayDateString = new Date().toISOString().split('T')[0];
-
-        const totalCountToday = filteredTeacherData.filter(payment => {
-            const paymentDateString = new Date(payment.requestedAt).toISOString().split('T')[0];
-            return paymentDateString === todayDateString;
-        }).length;
-
-        const totalTkToday = filteredTeacherData
-            .filter(payment => new Date(payment.requestedAt).toISOString().split('T')[0] === todayDateString)
-            .reduce((sum, payment) => sum + parseFloat(payment.amount || 0), 0);
-
-        setTotalTeacherPaymentsCount(totalCount);
-        setTotalTeacherPaymentTK(totalTk);
-        setTotalTeacherPaymentsTodayCount(totalCountToday);
-        setTotalTeacherPaymentTKToday(totalTkToday);
-
-        setFilteredTeacherPaymentList(filteredTeacherData);
-    }, [teacherStatusFilter, teacherTuitionCodeSearchQuery, teacherNumberTeacherSearchQuery, teacherPaymentNumberSearchQuery, teacherPaymentList]);
+    };
 
     const fetchTeacherPaymentRecords = async () => {
         setLoading(true);
         try {
-            const response = await axios.get('https://tuition-seba-backend-1.onrender.com/api/teacherPayment/all');
-            setTeacherPaymentList(response.data);
-            setFilteredTeacherPaymentList(response.data);
+            const response = await axios.get('https://tuition-seba-backend-1.onrender.com/api/teacherPayment/getTableData', {
+                params: {
+                    page: currentPage,
+                    tuitionCode: appliedFilters.tuitionCode,
+                    personalPhone: appliedFilters.personalPhone,
+                    paymentNumber: appliedFilters.paymentNumber,
+                    status: appliedFilters.status,
+                    paymentType: appliedFilters.paymentType
+                }
+            });
+
+            setFilteredTeacherPaymentList(response.data.data);
+            setCurrentPage(response.data.currentPage);
+            setTotalPages(response.data.totalPages);
+
+            fetchTeacherSummary();
         } catch (err) {
             console.error('Error fetching payment records:', err);
             toast.error("Failed to load payment records.");
         }
         setLoading(false);
+    };
+
+    const fetchTeacherSummary = async () => {
+        try {
+            const res = await axios.get('https://tuition-seba-backend-1.onrender.com/api/teacherPayment/summary', {
+                params: {
+                    tuitionCode: appliedFilters.tuitionCode,
+                    personalPhone: appliedFilters.personalPhone,
+                    paymentNumber: appliedFilters.paymentNumber,
+                    status: appliedFilters.status,
+                    paymentType: appliedFilters.paymentType
+                }
+            });
+
+            setTotalTeacherPaymentsCount(res.data.totalPaymentsCount);
+            setTotalTeacherPaymentTK(res.data.totalPayments);
+            setTotalTeacherPaymentsTodayCount(res.data.totalPaymentsTodayCount);
+            setTotalTeacherPaymentTKToday(res.data.totalPaymentsToday);
+            setTotalTeacherApprovedPaymentsCount(res.data.totalApprovedPaymentsCount);
+        } catch (err) {
+            console.error('Error fetching summary:', err);
+        }
     };
 
     const formatDate = (isoString) => {
@@ -133,55 +157,34 @@ const TeacherPaymentPage = () => {
         });
     };
 
-    const handleTeacherTableExportToExcel = () => {
-        const now = new Date();
-        const formattedDate = now.toLocaleDateString().replace(/\//g, '-');
-        const formattedTime = now.toLocaleTimeString().replace(/:/g, '-');
+    const handleExportToCsv = async () => {
+        setShowExportModal(true);
+    };
 
-        const fileName = `Teacher Payment List_${formattedDate}_${formattedTime}`;
+    const handleExportWithStatus = async () => {
+        if (selectedExportStatus) {
+            try {
+                const statusForFileName = selectedExportStatus.replace(/\s+/g, '_').toLowerCase();
+                const link = document.createElement('a');
+                link.href = `https://tuition-seba-backend-1.onrender.com/api/teacherPayment/exportData?status=${selectedExportStatus}`;
+                link.target = '_blank';
+                link.download = selectedExportStatus.toLowerCase() === 'all'
+                    ? 'teacher_payments_all.csv'
+                    : `teacher_payments_${statusForFileName}.csv`;
 
-        const tableHeaders = [
-            "SL", "Created By", "Updated By", "Tuition Code", "Payment Status", "Submitted At", "Teacher Name", "Teacher Number", "Payment Number", "Transaction ID", "Payment Type", "Amount", "Comment"
-        ];
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
 
-        const tableData = filteredTeacherPaymentList.slice().reverse().map((payment, index) => [
-            index + 1,
-            String(payment.createdBy ?? ""),
-            String(payment.updatedBy ?? ""),
-            String(payment.tuitionCode ?? ""),
-            String(payment.status ?? ""),
-            payment.requestedAt ? formatDate(payment.requestedAt) : "",
-            String(payment.name ?? ""),
-            String(payment.personalPhone ?? ""),
-            String(payment.paymentNumber ?? ""),
-            String(payment.transactionId ?? ""),
-            String(payment.paymentType ?? ""),
-            String(payment.amount ?? ""),
-            String(payment.note ?? ""),
-        ]);
-
-        const worksheet = XLSX.utils.aoa_to_sheet([tableHeaders, ...tableData]);
-
-        worksheet['!cols'] = [
-            { wpx: 40 },  // SL
-            { wpx: 120 }, // Created By
-            { wpx: 120 }, // Updated By
-            { wpx: 90 },  // Tuition Code
-            { wpx: 140 }, // Payment Status
-            { wpx: 140 }, // Submitted At
-            { wpx: 140 }, // Teacher Name
-            { wpx: 100 }, // Teacher Number
-            { wpx: 100 }, // Payment Number
-            { wpx: 100 }, // Transaction ID
-            { wpx: 100 }, // Payment Type
-            { wpx: 80 },  // Amount
-            { wpx: 140 }, // Comment
-        ];
-
-        const workbook = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(workbook, worksheet, "Teacher Payments");
-
-        XLSX.writeFile(workbook, `${fileName}.xlsx`);
+                setShowExportModal(false);
+                setSelectedExportStatus('');
+            } catch (error) {
+                console.error('Export failed:', error);
+                toast.error('Export failed. Please try again.');
+            }
+        } else {
+            toast.error('Please select a status to export.');
+        }
     };
 
     const handleSaveTeacherPayment = async () => {
@@ -240,11 +243,16 @@ const TeacherPaymentPage = () => {
     };
 
     const handleTeacherResetFilters = () => {
-        setTeacherStatusFilter('');
-        setTeacherTuitionCodeSearchQuery('');
-        setTeacherNumberTeacherSearchQuery('');
-        setTeacherPaymentNumberSearchQuery('');
-        setFilteredTeacherPaymentList(teacherPaymentList);
+        const resetFilters = {
+            tuitionCode: '',
+            personalPhone: '',
+            paymentNumber: '',
+            status: '',
+            paymentType: ''
+        };
+        setSearchInputs(resetFilters);
+        setAppliedFilters(resetFilters);
+        setCurrentPage(1);
     };
 
     return (
@@ -275,7 +283,7 @@ const TeacherPaymentPage = () => {
                                     <div className="d-flex flex-column align-items-center">
                                         {role === 'superadmin' ? (
                                             <>
-                                                <span className="text-primary" style={{ fontWeight: 'bolder' }}>Total Approved Payments(TK)</span>
+                                                <span className="text-primary" style={{ fontWeight: 'bolder' }}>Total Payments(TK)</span>
                                                 <span>TK. {totalTeacherPaymentTK}</span>
                                             </>
                                         ) : (
@@ -284,6 +292,15 @@ const TeacherPaymentPage = () => {
                                                 <span>&nbsp;</span>
                                             </>
                                         )}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="col-6 col-sm-4 col-md-2 mb-3">
+                                <div className="card p-3 shadow border-primary">
+                                    <div className="d-flex flex-column align-items-center">
+                                        <span className="text-primary" style={{ fontWeight: 'bolder' }}>Total Approved Payments Count</span>
+                                        <span>{totalTeacherApprovedPaymentsCount}</span>
                                     </div>
                                 </div>
                             </div>
@@ -306,24 +323,6 @@ const TeacherPaymentPage = () => {
                                 </div>
                             </div>
 
-                            <div className="col-6 col-sm-4 col-md-2 mb-3">
-                                <div className="card p-3 shadow border-primary">
-                                    <div className="d-flex flex-column align-items-center">
-                                        <span className="text-primary" style={{ fontWeight: 'bolder' }}>--</span>
-                                        <span>--</span>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div className="col-6 col-sm-4 col-md-2 mb-3">
-                                <div className="card p-3 shadow border-primary">
-                                    <div className="d-flex flex-column align-items-center">
-                                        <span className="text-primary" style={{ fontWeight: 'bolder' }}>--</span>
-                                        <span>--</span>
-                                    </div>
-                                </div>
-                            </div>
-
                         </div>
                     </Card.Body>
                 </Card>
@@ -331,7 +330,11 @@ const TeacherPaymentPage = () => {
                 <Row className="mt-2 mb-3">
                     <Col md={2}>
                         <Form.Label className="fw-bold">Payment Status</Form.Label>
-                        <Form.Select value={teacherStatusFilter} onChange={(e) => setTeacherStatusFilter(e.target.value)}>
+                        <Form.Select
+                            value={searchInputs.status}
+                            onChange={(e) => handleSearchInputChange('status', e.target.value)}
+                            onKeyPress={handleKeyPress}
+                        >
                             <option value="">All</option>
                             <option value="pending">Pending</option>
                             <option value="under review">Under review</option>
@@ -347,8 +350,9 @@ const TeacherPaymentPage = () => {
                         <Form.Control
                             type="text"
                             placeholder="Search by Tuition Code"
-                            value={teacherTuitionCodeSearchQuery}
-                            onChange={(e) => setTeacherTuitionCodeSearchQuery(e.target.value)}
+                            value={searchInputs.tuitionCode}
+                            onChange={(e) => handleSearchInputChange('tuitionCode', e.target.value)}
+                            onKeyPress={handleKeyPress}
                         />
                     </Col>
 
@@ -357,8 +361,9 @@ const TeacherPaymentPage = () => {
                         <Form.Control
                             type="text"
                             placeholder="Search by Teacher Number"
-                            value={teacherNumberTeacherSearchQuery}
-                            onChange={(e) => setTeacherNumberTeacherSearchQuery(e.target.value)}
+                            value={searchInputs.personalPhone}
+                            onChange={(e) => handleSearchInputChange('personalPhone', e.target.value)}
+                            onKeyPress={handleKeyPress}
                         />
                     </Col>
 
@@ -367,21 +372,33 @@ const TeacherPaymentPage = () => {
                         <Form.Control
                             type="text"
                             placeholder="Search by Payment Number"
-                            value={teacherPaymentNumberSearchQuery}
-                            onChange={(e) => setTeacherPaymentNumberSearchQuery(e.target.value)}
+                            value={searchInputs.paymentNumber}
+                            onChange={(e) => handleSearchInputChange('paymentNumber', e.target.value)}
+                            onKeyPress={handleKeyPress}
                         />
                     </Col>
 
                     <Col md={2} className="d-flex align-items-end">
+                        <Button
+                            variant="success"
+                            onClick={handleSearch}
+                            className="w-100"
+                            disabled={loading}
+                        >
+                            Search
+                        </Button>
+                    </Col>
+
+                    <Col md={2} className="d-flex align-items-end">
                         <Button variant="danger" onClick={handleTeacherResetFilters} className="w-100">
-                            Reset Filters
+                            Reset
                         </Button>
                     </Col>
                 </Row>
 
                 {role === "superadmin" && (
-                    <Button variant="success" className="mb-3" onClick={handleTeacherTableExportToExcel}>
-                        Export to Excel
+                    <Button variant="success" className="mb-3" onClick={handleExportToCsv}>
+                        Export to CSV
                     </Button>
                 )}
 
@@ -418,7 +435,7 @@ const TeacherPaymentPage = () => {
                                             </td>
                                         </tr>
                                     ) : (
-                                        filteredTeacherPaymentList.slice().reverse().map((payment, index) => (
+                                        filteredTeacherPaymentList.map((payment, index) => (
                                             <tr key={payment._id}>
                                                 <td>{index + 1}</td>
                                                 <td>{payment.createdBy || '-'}</td>
@@ -466,6 +483,30 @@ const TeacherPaymentPage = () => {
                         </div>
                     </Card.Body>
                 </Card>
+
+                <div className="d-flex justify-content-center align-items-center gap-3 mt-4 flex-wrap">
+                    <Button
+                        variant="outline-primary"
+                        className="d-flex align-items-center gap-2 px-3 py-2 rounded-pill"
+                        disabled={currentPage === 1}
+                        onClick={() => setCurrentPage(prev => prev - 1)}
+                    >
+                        <FaChevronLeft /> Previous
+                    </Button>
+
+                    <span className="fw-semibold text-primary-emphasis fs-5">
+                        Page {currentPage} of {totalPages}
+                    </span>
+
+                    <Button
+                        variant="outline-primary"
+                        className="d-flex align-items-center gap-2 px-3 py-2 rounded-pill"
+                        disabled={currentPage === totalPages}
+                        onClick={() => setCurrentPage(prev => prev + 1)}
+                    >
+                        Next <FaChevronRight />
+                    </Button>
+                </div>
 
                 {/* Teacher Create/Edit Payment Modal */}
                 <Modal show={showTeacherModal} onHide={() => setShowTeacherModal(false)} size="lg">
@@ -698,6 +739,55 @@ const TeacherPaymentPage = () => {
                     payment={selectedPayment}
                 />
             )}
+
+            {/* Export Modal */}
+            <Modal show={showExportModal} onHide={() => {
+                setShowExportModal(false);
+                setSelectedExportStatus('');
+            }} centered>
+                <Modal.Header closeButton className="bg-primary text-white">
+                    <Modal.Title className="w-100 text-center fw-bold">
+                        Select Status for Export
+                    </Modal.Title>
+                </Modal.Header>
+                <Modal.Body className="p-4 bg-light">
+                    <Form.Group className="mb-3">
+                        <Form.Label className="fw-bold">Select Status:</Form.Label>
+                        <Form.Select
+                            value={selectedExportStatus}
+                            onChange={(e) => setSelectedExportStatus(e.target.value)}
+                            className="form-control-lg"
+                        >
+                            <option value="">-- Select Status --</option>
+                            <option value="all">All</option>
+                            <option value="pending">Pending</option>
+                            <option value="under review">Under review</option>
+                            <option value="received">Received</option>
+                            <option value="cancelled">Cancelled</option>
+                            <option value="returned">Returned</option>
+                            <option value="deposit">Deposit</option>
+                        </Form.Select>
+                    </Form.Group>
+                </Modal.Body>
+                <Modal.Footer className="bg-light">
+                    <Button
+                        variant="secondary"
+                        onClick={() => {
+                            setShowExportModal(false);
+                            setSelectedExportStatus('');
+                        }}
+                    >
+                        Cancel
+                    </Button>
+                    <Button
+                        variant="primary"
+                        onClick={handleExportWithStatus}
+                        disabled={!selectedExportStatus}
+                    >
+                        Export
+                    </Button>
+                </Modal.Footer>
+            </Modal>
         </>
     );
 };

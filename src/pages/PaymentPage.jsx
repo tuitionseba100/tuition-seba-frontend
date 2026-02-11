@@ -192,17 +192,17 @@ const PaymentPage = () => {
         }
     };
 
-    useEffect(() => {
-        const fetchTuitionAlertToday = async () => {
-            try {
-                const res = await axios.get('https://tuition-seba-backend-1.onrender.com/api/payment/alert-today');
-                setDueTodayList(res.data);
-            } catch (err) {
-                console.error('Error fetching tuition due today:', err);
-                toast.error("Failed to load tuition alerts for today.");
-            }
-        };
+    const fetchTuitionAlertToday = async () => {
+        try {
+            const res = await axios.get('https://tuition-seba-backend-1.onrender.com/api/payment/alert-today');
+            setDueTodayList(res.data);
+        } catch (err) {
+            console.error('Error fetching tuition due today:', err);
+            toast.error("Failed to load tuition alerts for today.");
+        }
+    };
 
+    useEffect(() => {
         fetchTuitionAlertToday();
     }, []);
 
@@ -252,6 +252,7 @@ const PaymentPage = () => {
             }
             setShowModal(false);
             fetchPaymentRecords();
+            fetchTuitionAlertToday();
         } catch (err) {
             console.error('Error saving payemnt record:', err);
             toast.error("Error saving payment record.");
@@ -286,6 +287,11 @@ const PaymentPage = () => {
     return (
         <>
             <NavBarPage />
+            <style>{`
+                .modal-95w {
+                    max-width: 95% !important;
+                }
+            `}</style>
             <Container>
 
                 <Header>
@@ -768,7 +774,7 @@ const PaymentPage = () => {
 
 
                 {/* Due Payments Modal */}
-                <Modal show={showDueModal} onHide={() => setShowDueModal(false)} centered size="lg">
+                <Modal show={showDueModal} onHide={() => setShowDueModal(false)} centered dialogClassName="modal-95w">
                     <Modal.Header closeButton className="bg-primary text-white">
                         <Modal.Title className="w-100 text-center fw-bold">
                             <FaBell className="text-warning" />
@@ -785,6 +791,7 @@ const PaymentPage = () => {
                                         <th>Due Tk</th>
                                         <th>Teacher Name</th>
                                         <th>Teacher Number</th>
+                                        <th>Comment</th>
                                         <th>Actions</th>
                                     </tr>
                                 </thead>
@@ -796,6 +803,7 @@ const PaymentPage = () => {
                                             <td className="fw-bold text-danger">{payment.duePayment}</td>
                                             <td>{payment.tutorName}</td>
                                             <td>{payment.tutorNumber}</td>
+                                            <td>{payment.comment || '-'}</td>
                                             <td style={{ display: 'flex', justifyContent: 'flex-start', gap: '8px' }}>
                                                 <Button variant="warning" onClick={() => handleEditPayment(payment)} className="mr-2">
                                                     <FaEdit />

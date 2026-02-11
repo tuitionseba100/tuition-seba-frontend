@@ -134,22 +134,22 @@ const TuitionPage = () => {
         fetchTuitionRecords();
     }, [appliedFilters, currentPage]);
 
+    const fetchAlertData = async () => {
+        try {
+            const [alertRes, pendingRes] = await Promise.all([
+                axios.get('https://tuition-seba-backend-1.onrender.com/api/tuition/alert-today'),
+                axios.get('https://tuition-seba-backend-1.onrender.com/api/tuition/pending-payment-creation')
+            ]);
+
+            setTuitionNeedsUpdateList(alertRes.data);
+            setTuitionNeedsPaymentCreation(pendingRes.data);
+        } catch (err) {
+            console.error('Error fetching tuition data:', err);
+            toast.error("Failed to load tuition data.");
+        }
+    };
+
     useEffect(() => {
-        const fetchAlertData = async () => {
-            try {
-                const [alertRes, pendingRes] = await Promise.all([
-                    axios.get('https://tuition-seba-backend-1.onrender.com/api/tuition/alert-today'),
-                    axios.get('https://tuition-seba-backend-1.onrender.com/api/tuition/pending-payment-creation')
-                ]);
-
-                setTuitionNeedsUpdateList(alertRes.data);
-                setTuitionNeedsPaymentCreation(pendingRes.data);
-            } catch (err) {
-                console.error('Error fetching tuition data:', err);
-                toast.error("Failed to load tuition data.");
-            }
-        };
-
         fetchAlertData();
     }, []);
 
@@ -833,6 +833,7 @@ const TuitionPage = () => {
                     editingId={editingId}
                     fetchTuitionRecords={fetchTuitionRecords}
                     fetchSummaryCounts={fetchSummaryCounts}
+                    fetchAlertData={fetchAlertData}
                 />
 
                 <TuitionDetailsModal

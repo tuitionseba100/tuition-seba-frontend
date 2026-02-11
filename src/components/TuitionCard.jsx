@@ -62,9 +62,9 @@ Joining: ${tuitionDetails.joining}
                 transition: 'all 0.2s ease',
             }}
         >
-            <div className="d-flex align-items-center text-secondary fw-semibold">
+            <div className="d-flex align-items-center text-secondary">
                 <span className="me-2" style={{ color: '#0066cc', fontSize: '1rem' }}>{icon}</span>
-                <span style={{ fontSize: '0.85rem', color: '#64748b' }}>{label}</span>
+                <span style={{ fontSize: '0.9rem', color: '#0066cc', fontWeight: '900' }}>{label}</span>
             </div>
             <div className="text-dark fw-bold text-end" style={{ maxWidth: '65%', fontSize: '0.9rem' }}>
                 {value || '-'}

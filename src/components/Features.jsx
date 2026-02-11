@@ -35,7 +35,7 @@ const Features = () => {
     const containerStyle = {
         display: 'flex',
         gap: '25px',
-        padding: '40px',
+        padding: '20px 40px 40px 40px', // Reduced top padding
         backgroundColor: '#f7f9fb',
         justifyContent: 'center',
         flexWrap: 'wrap',

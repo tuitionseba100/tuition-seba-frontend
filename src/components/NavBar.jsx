@@ -25,8 +25,9 @@ const NavbarComponent = () => {
 
     const navbarStyle = {
         background: 'linear-gradient(135deg, #004085 0%, #0066cc 100%)',
-        borderBottom: 'none',
-        boxShadow: '0 2px 10px rgba(0,0,0,0.1)'
+        borderBottom: '1px solid rgba(255, 255, 255, 0.1)', // Subtle separator
+        boxShadow: '0 4px 30px rgba(0,0,0,0.3)', // Stronger shadow for depth
+        zIndex: 1000 // Ensure it stays on top
     };
 
     const logoStyle = {

@@ -52,39 +52,48 @@ Joining: ${tuitionDetails.joining}
     };
 
     const infoRow = (icon, label, value) => (
-        <ListGroup.Item
-            className="d-flex justify-content-between align-items-center"
+        <div
+            className="d-flex justify-content-between align-items-center mb-2 mx-3"
             style={{
-                padding: '10px 16px',
-                fontSize: '1rem',
-                border: 'none',
-                borderBottom: '1px solid #e9ecef',
-                background: '#fff'
+                padding: '10px 15px',
+                background: '#f8fafc',
+                borderRadius: '10px',
+                border: '1px solid #f1f5f9',
+                transition: 'all 0.2s ease',
             }}
         >
-            <div className="d-flex align-items-center text-primary fw-semibold">
-                <span className="me-2">{icon}</span>
-                {label}
+            <div className="d-flex align-items-center text-secondary fw-semibold">
+                <span className="me-2" style={{ color: '#0066cc', fontSize: '1rem' }}>{icon}</span>
+                <span style={{ fontSize: '0.85rem', color: '#64748b' }}>{label}</span>
             </div>
-            <div className="text-black fw-bold text-end" style={{ maxWidth: '55%' }}>
+            <div className="text-dark fw-bold text-end" style={{ maxWidth: '65%', fontSize: '0.9rem' }}>
                 {value || '-'}
             </div>
-        </ListGroup.Item>
+        </div>
     );
 
     return (
         <>
             <Card
-                className="mx-auto mb-2 shadow-sm position-relative"
+                className="mx-auto mb-4 border-0"
                 style={{
                     maxWidth: '460px',
-                    borderRadius: '0px',
-                    border: '1px solid #dee2e6',
+                    borderRadius: '16px',
+                    boxShadow: '0 10px 30px rgba(0,0,0,0.08)',
                     overflow: 'hidden',
                     background: '#fff',
                     height: '100%',
                     display: 'flex',
                     flexDirection: 'column',
+                    transition: 'transform 0.3s ease, boxShadow 0.3s ease',
+                }}
+                onMouseEnter={(e) => {
+                    e.currentTarget.style.transform = 'translateY(-5px)';
+                    e.currentTarget.style.boxShadow = '0 15px 35px rgba(0,0,0,0.12)';
+                }}
+                onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = 'translateY(0)';
+                    e.currentTarget.style.boxShadow = '0 10px 30px rgba(0,0,0,0.08)';
                 }}
             >
                 {isNewTuition() && (
@@ -102,21 +111,21 @@ Joining: ${tuitionDetails.joining}
                     </Badge>
                 )}
                 <Card.Header
-                    className="bg-primary text-white d-flex justify-content-center align-items-center gap-2"
+                    className="text-white d-flex justify-content-center align-items-center gap-2"
                     style={{
-                        fontSize: '1.4rem',
+                        background: 'linear-gradient(135deg, #004085 0%, #0066cc 100%)',
+                        fontSize: '1.2rem',
                         fontWeight: '700',
-                        padding: '10px 8px',
-                        letterSpacing: '0.05em',
-                        textShadow: '1px 1px 3px rgba(0,0,0,0.3)',
-                        borderBottom: '3px solid #0d6efd',
+                        padding: '15px 10px',
+                        letterSpacing: '0.5px',
+                        borderBottom: 'none',
                     }}
                 >
-                    <FaChalkboardTeacher style={{ fontSize: '1.6rem' }} />
+                    <FaChalkboardTeacher style={{ fontSize: '1.4rem', color: '#61dafb' }} />
                     <span>Tuition Code: {tuition.tuitionCode}</span>
                 </Card.Header>
 
-                <ListGroup variant="flush" style={{ flexGrow: 1 }}>
+                <div style={{ flexGrow: 1, paddingTop: '20px', paddingBottom: '10px' }}>
                     {infoRow(<FaChalkboardTeacher />, 'Wanted Teacher', tuition.wantedTeacher)}
                     {infoRow(<FaUsers />, 'Students', tuition.student)}
                     {infoRow(<FaUniversity />, 'Institute', tuition.institute)}
@@ -128,21 +137,35 @@ Joining: ${tuitionDetails.joining}
                     {infoRow(<FaMoneyBill />, 'Salary', tuition.salary && /taka|tk/i.test(tuition.salary.toString()) ? tuition.salary : (tuition.salary ? tuition.salary.toString().trim() + ' taka' : ''))}
                     {infoRow(<FaMapMarkerAlt />, 'Location', `${tuition.location}${tuition.area ? ', ' + tuition.area : ''}`)}
                     {infoRow(<FaCalendarCheck />, 'Joining', tuition.joining)}
-                </ListGroup>
+                </div>
 
-                <Card.Footer className="text-center" style={{ marginTop: 'auto' }}>
+                <Card.Footer className="text-center bg-white border-0 pb-4 pt-2">
                     <Button
                         variant="primary"
-                        className="rounded-pill px-4 d-inline-flex align-items-center gap-2"
+                        className="rounded-pill px-5 py-2 d-inline-flex align-items-center gap-2 fw-bold"
+                        style={{
+                            background: tuition.isWhatsappApply ? '#25D366' : 'linear-gradient(135deg, #004085 0%, #0066cc 100%)',
+                            border: 'none',
+                            boxShadow: '0 4px 15px rgba(0,0,0,0.15)',
+                            transition: 'all 0.3s ease'
+                        }}
+                        onMouseEnter={(e) => {
+                            e.currentTarget.style.transform = 'scale(1.05)';
+                            e.currentTarget.style.boxShadow = '0 6px 20px rgba(0,0,0,0.2)';
+                        }}
+                        onMouseLeave={(e) => {
+                            e.currentTarget.style.transform = 'scale(1)';
+                            e.currentTarget.style.boxShadow = '0 4px 15px rgba(0,0,0,0.15)';
+                        }}
                         onClick={() => handleApplyClick(tuition)}
                     >
                         {tuition.isWhatsappApply ? (
                             <>
-                                <FaWhatsapp /> Apply Now
+                                <FaWhatsapp fontSize="1.2rem" /> Apply Now
                             </>
                         ) : (
                             <>
-                                <FaGlobe /> Apply Now
+                                <FaGlobe fontSize="1.1rem" /> Apply Now
                             </>
                         )}
                     </Button>

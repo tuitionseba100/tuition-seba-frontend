@@ -1,6 +1,6 @@
 import React from "react";
 import { Container, Row, Col } from "react-bootstrap";
-import { FaFacebookF, FaWhatsapp, FaPhoneAlt, FaMapMarkerAlt, FaGlobe } from "react-icons/fa";
+import { FaFacebookF, FaWhatsapp, FaPhoneAlt, FaEnvelope, FaMapMarkerAlt, FaGlobe } from "react-icons/fa";
 import { Link } from "react-router-dom";
 
 const Footer = () => {
@@ -19,10 +19,10 @@ const Footer = () => {
                         {/* Column 1: Brand */}
                         <Col lg={4} md={6}>
                             <div className="mb-4">
-                                <h2 className="text-white fw-bold mb-3" style={{ letterSpacing: '1px' }}>Tuition Seba Forum</h2>
+                                <h2 className="text-white fw-bold mb-3" style={{ letterSpacing: '1px' }}>Tuition Seba</h2>
                                 <div style={{ width: '60px', height: '4px', backgroundColor: '#61dafb', borderRadius: '2px' }}></div>
                             </div>
-                            <p className="mb-4 text-white" style={{ lineHeight: "1.8", fontSize: '0.95rem' }}>
+                            <p className="mb-4 text-white-50" style={{ lineHeight: "1.8", fontSize: '0.95rem' }}>
                                 Connecting students with the perfect tutors. We are dedicated to providing quality education support through our platform.
                             </p>
                             <div className="d-flex gap-3">
@@ -68,13 +68,19 @@ const Footer = () => {
                                     <div className="icon-wrapper me-3">
                                         <FaMapMarkerAlt />
                                     </div>
-                                    <span className="text-white">২ নাম্বার গেইট, বিপ্লব উদ্যানের বিপরীতে, মোশারফ মার্কেট (৩য় তলা), চট্টগ্রাম।</span>
+                                    <span className="text-white-50">২ নাম্বার গেইট, বিপ্লব উদ্যানের বিপরীতে, মোশারফ মার্কেট (৩য় তলা), চট্টগ্রাম।</span>
                                 </li>
                                 <li className="d-flex mb-3">
                                     <div className="icon-wrapper me-3">
                                         <FaPhoneAlt />
                                     </div>
-                                    <a href="tel:01891644064" className="text-white text-decoration-none">01891-644064</a>
+                                    <a href="tel:01891644064" className="text-white-50 text-decoration-none">01891-644064</a>
+                                </li>
+                                <li className="d-flex mb-3">
+                                    <div className="icon-wrapper me-3">
+                                        <FaEnvelope />
+                                    </div>
+                                    <a href="mailto:info@tuitionsebaforum.com" className="text-white-50 text-decoration-none">info@tuitionsebaforum.com</a>
                                 </li>
                             </ul>
                         </Col>
@@ -84,14 +90,14 @@ const Footer = () => {
 
                     <div className="row align-items-center copyright-section">
                         <div className="col-md-6 text-center text-md-start mb-3 mb-md-0">
-                            <p className="mb-0 small text-white">
+                            <p className="mb-0 small text-white-50">
                                 &copy; {new Date().getFullYear()} <span className="text-white fw-bold">Tuition Seba Forum</span>. All rights reserved.
                             </p>
                         </div>
                         <div className="col-md-6 text-center text-md-end">
                             <ul className="list-inline mb-0">
-                                <li className="list-inline-item mx-2"><a href="#" className="text-white small text-decoration-none">Terms</a></li>
-                                <li className="list-inline-item mx-2"><a href="#" className="text-white small text-decoration-none">Privacy</a></li>
+                                <li className="list-inline-item mx-2"><a href="#" className="text-white-50 small text-decoration-none">Terms</a></li>
+                                <li className="list-inline-item mx-2"><a href="#" className="text-white-50 small text-decoration-none">Privacy</a></li>
                             </ul>
                         </div>
                     </div>
@@ -124,11 +130,10 @@ const Footer = () => {
                         margin-bottom: 12px;
                     }
                     .footer-links a {
-                        color: rgba(255, 255, 255, 0.9);
+                        color: rgba(255, 255, 255, 0.7);
                         text-decoration: none;
                         transition: all 0.3s ease;
                         display: inline-block;
-                        font-weight: 500;
                     }
                     .footer-links a:hover {
                         color: #ffffff;

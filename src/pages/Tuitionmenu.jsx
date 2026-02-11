@@ -270,7 +270,7 @@ const TuitionPage = () => {
             `Subject: ${tuitionDetails.subject}\n` +
             `Day: ${tuitionDetails.day}\n` +
             `Time: ${tuitionDetails.time}\n` +
-            `Salary: ${tuitionDetails.salary}\n` +
+            `Salary: ${tuitionDetails.salary && /taka|tk/i.test(tuitionDetails.salary.toString()) ? tuitionDetails.salary : (tuitionDetails.salary ? tuitionDetails.salary.toString().trim() + ' taka' : '')}\n` +
             `Location: ${tuitionDetails.location}, ${area}\n` +
             `Joining: ${tuitionDetails.joining}\n\n` +
             `Visit our website: www.tuitionsebaforum.com\n\n` +
@@ -639,7 +639,7 @@ const TuitionPage = () => {
                                                 <td>{tuition.subject}</td>
                                                 <td>{tuition.day}</td>
                                                 <td>{tuition.time === "undefined" ? " " : tuition.time}</td>
-                                                <td>{tuition.salary}</td>
+                                                <td>{tuition.salary && /taka|tk/i.test(tuition.salary.toString()) ? tuition.salary : (tuition.salary ? tuition.salary.toString().trim() + ' taka' : '')}</td>
                                                 <td>{tuition.location}</td>
                                                 <td>{tuition.area ? tuition.area : ""}</td>
                                                 <td>{tuition.guardianNumber}</td>

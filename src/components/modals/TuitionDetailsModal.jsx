@@ -79,6 +79,10 @@ export default function TuitionDetailsModal({ show, onHide, detailsData }) {
             return formatDateTimeDisplay(val);
         }
 
+        if (field.name === 'salary') {
+            return val && /taka|tk/i.test(val.toString()) ? val : (val ? val.toString().trim() + ' taka' : '-');
+        }
+
         return val || '-';
     };
 

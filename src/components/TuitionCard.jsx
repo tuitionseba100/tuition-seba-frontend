@@ -41,7 +41,7 @@ Medium: ${tuitionDetails.medium}
 Subject: ${tuitionDetails.subject}
 Day: ${tuitionDetails.day}
 Time: ${tuitionDetails.time}
-Salary: ${tuitionDetails.salary}
+Salary: ${tuitionDetails.salary && /taka|tk/i.test(tuitionDetails.salary.toString()) ? tuitionDetails.salary : (tuitionDetails.salary ? tuitionDetails.salary.toString().trim() + ' taka' : '')}
 Location: ${tuitionDetails.location}${area}
 Joining: ${tuitionDetails.joining}
 
@@ -125,7 +125,7 @@ Joining: ${tuitionDetails.joining}
                     {infoRow(<FaBookOpen />, 'Subject', tuition.subject)}
                     {infoRow(<FaCalendarDay />, 'Day', tuition.day)}
                     {infoRow(<FaClock />, 'Time', tuition.time)}
-                    {infoRow(<FaMoneyBill />, 'Salary', `${tuition.salary} Taka`)}
+                    {infoRow(<FaMoneyBill />, 'Salary', tuition.salary && /taka|tk/i.test(tuition.salary.toString()) ? tuition.salary : (tuition.salary ? tuition.salary.toString().trim() + ' taka' : ''))}
                     {infoRow(<FaMapMarkerAlt />, 'Location', `${tuition.location}${tuition.area ? ', ' + tuition.area : ''}`)}
                     {infoRow(<FaCalendarCheck />, 'Joining', tuition.joining)}
                 </ListGroup>

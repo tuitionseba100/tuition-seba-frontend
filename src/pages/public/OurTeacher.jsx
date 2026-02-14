@@ -192,10 +192,21 @@ export default function OurTeacher() {
             padding: '0 0 60px',
             fontFamily: '"Inter", sans-serif',
         },
-        header: { textAlign: 'center', marginBottom: '30px', padding: '25px 20px', background: 'linear-gradient(135deg, #667eea, #764ba2)', borderRadius: '20px', boxShadow: '0 8px 30px rgba(102, 126, 234, 0.5)', position: 'relative', overflow: 'hidden', border: '1px solid rgba(255, 255, 255, 0.4)', backdropFilter: 'blur(10px)', marginTop: '0px' },
-        title: { color: '#ffffff', fontSize: '2rem', fontWeight: '800', marginBottom: '8px', textShadow: '0 2px 8px rgba(0, 0, 0, 0.4)', position: 'relative', zIndex: 2, fontFamily: '"Poppins", sans-serif', letterSpacing: '0.5px' },
-        subtitle: { color: '#e2e8f0', fontSize: '1.1rem', fontWeight: '500', marginBottom: '12px', position: 'relative', zIndex: 2 },
-        stats: { color: '#f0fdfa', fontSize: '1.3rem', fontWeight: '600', marginTop: '12px', display: 'block', position: 'relative', zIndex: 2, textShadow: '0 1px 4px rgba(0, 0, 0, 0.3)', background: 'rgba(255, 255, 255, 0.2)', padding: '8px 16px', borderRadius: '10px', backdropFilter: 'blur(6px)', border: '1px solid rgba(255, 255, 255, 0.3)' },
+        header: {
+            textAlign: 'center',
+            marginBottom: '30px',
+            padding: '40px 20px 80px', // Increased padding for wave
+            background: 'linear-gradient(135deg, #004085 0%, #0066cc 100%)',
+            borderRadius: '0 0 20px 20px',
+            boxShadow: '0 8px 30px rgba(0, 64, 133, 0.3)',
+            position: 'relative',
+            overflow: 'hidden',
+            borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
+            marginTop: '0px'
+        },
+        title: { color: '#ffffff', fontSize: '2rem', fontWeight: '800', marginBottom: '8px', textShadow: '0 2px 8px rgba(0, 0, 0, 0.2)', position: 'relative', zIndex: 2, fontFamily: '"Poppins", sans-serif', letterSpacing: '0.5px' },
+        subtitle: { color: 'rgba(255, 255, 255, 0.9)', fontSize: '1.1rem', fontWeight: '500', marginBottom: '12px', position: 'relative', zIndex: 2 },
+        stats: { color: '#ffffff', fontSize: '1.3rem', fontWeight: '600', marginTop: '12px', display: 'block', position: 'relative', zIndex: 2, textShadow: '0 1px 4px rgba(0, 0, 0, 0.2)', background: 'rgba(255, 255, 255, 0.15)', padding: '8px 16px', borderRadius: '10px', backdropFilter: 'blur(6px)', border: '1px solid rgba(255, 255, 255, 0.2)' },
         searchWrapper: { maxWidth: '600px', margin: '0 auto 40px', position: 'relative' },
         searchInput: {
             width: '100%',
@@ -478,6 +489,28 @@ export default function OurTeacher() {
                     <h1 style={styles.title}>Our Verified Premium Teachers</h1>
                     <p style={styles.subtitle}>Quality tutors every class and subject</p>
                     <p style={styles.stats}>{count.toLocaleString()}+ Verified Tutors | Trusted by {guardianCount.toLocaleString()}+ Guardian and Student</p>
+
+                    {/* Wave Separator */}
+                    <div style={{
+                        position: 'absolute',
+                        bottom: 0,
+                        left: 0,
+                        width: '100%',
+                        overflow: 'hidden',
+                        lineHeight: 0,
+                        zIndex: 1
+                    }}>
+                        <svg
+                            viewBox="0 0 1200 120"
+                            preserveAspectRatio="none"
+                            style={{ position: 'relative', display: 'block', width: 'calc(100% + 1.3px)', height: '50px' }}
+                        >
+                            <path
+                                d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V120H0V27.35A600.21,600.21,0,0,0,321.39,56.44Z"
+                                fill="#f0f4f8" // Matches container background
+                            ></path>
+                        </svg>
+                    </div>
                 </div>
 
                 <div style={styles.filterContainer} className="filter-container">

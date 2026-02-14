@@ -159,8 +159,14 @@ const TeacherRegistrationForm = () => {
         <>
             <NavBar />
             <div style={{ backgroundColor: '#f4f7f9' }}>
-                <div style={{ background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', color: 'white', padding: '3rem 0' }}>
-                    <Container>
+                <div style={{
+                    background: 'linear-gradient(135deg, #004085 0%, #0066cc 100%)',
+                    color: 'white',
+                    padding: '4rem 0 6rem', // Increased bottom padding for wave
+                    position: 'relative',
+                    overflow: 'hidden'
+                }}>
+                    <Container style={{ position: 'relative', zIndex: 2 }}>
                         <Row className="align-items-center">
                             <Col lg={8}>
                                 <h1 className="display-4 fw-bold mb-3">
@@ -174,25 +180,45 @@ const TeacherRegistrationForm = () => {
                                         <FaPhoneAlt className="me-2" />
                                         <span className="fw-semibold">Call Us: 01633920928</span>
                                     </div>
-                                    {/*<Button variant="light" size="lg" onClick={() => setShowInfoModal(true)}>
-                                        <FaInfoCircle className="me-2" /> Benefits & Terms
-                                    </Button>*/}
                                     <Button
                                         variant="light"
                                         size="lg"
+                                        style={{ color: '#004085', fontWeight: 'bold' }}
                                         onClick={() => setShowStepsModal(true)}
                                     >
                                         <FaInfoCircle className="me-2" /> আপনাদের থেকে টিউশন পাওয়ার সিস্টেম কী?
                                     </Button>
                                 </div>
                             </Col>
-                            <Col lg={4} className="text-center">
+                            <Col lg={4} className="text-center d-none d-lg-block">
                                 <div className="bg-white bg-opacity-10 rounded-circle p-5 d-inline-block">
                                     <FaUser className="display-1" />
                                 </div>
                             </Col>
                         </Row>
                     </Container>
+
+                    {/* Wave Separator */}
+                    <div style={{
+                        position: 'absolute',
+                        bottom: 0,
+                        left: 0,
+                        width: '100%',
+                        overflow: 'hidden',
+                        lineHeight: 0,
+                        zIndex: 1
+                    }}>
+                        <svg
+                            viewBox="0 0 1200 120"
+                            preserveAspectRatio="none"
+                            style={{ position: 'relative', display: 'block', width: 'calc(100% + 1.3px)', height: '60px' }}
+                        >
+                            <path
+                                d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V120H0V27.35A600.21,600.21,0,0,0,321.39,56.44Z"
+                                fill="#f4f7f9" // Matches page background
+                            ></path>
+                        </svg>
+                    </div>
                 </div>
 
                 <Container className="my-5">
@@ -282,9 +308,10 @@ const TeacherRegistrationForm = () => {
                                                 <div
                                                     className="p-3 mb-4"
                                                     style={{
-                                                        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                                                        background: 'linear-gradient(135deg, #004085 0%, #0066cc 100%)',
                                                         color: 'white',
                                                         borderRadius: '10px',
+                                                        boxShadow: '0 4px 15px rgba(0, 64, 133, 0.2)'
                                                     }}
                                                 >
                                                     <h5 className="mb-0">
@@ -405,7 +432,17 @@ const TeacherRegistrationForm = () => {
                                             <p className="text-muted mb-3">
                                                 <small>* ফোন বা হোয়াটসঅ্যাপের মধ্যে অন্তত একটি অবশ্যই দিতে হবে, তারপরই আবেদন করতে পারবেন।</small>
                                             </p>
-                                            <Button type="submit" className="btn btn-primary btn-lg px-5 py-3" disabled={isSubmitting}>
+                                            <Button
+                                                type="submit"
+                                                className="btn btn-lg px-5 py-3"
+                                                disabled={isSubmitting}
+                                                style={{
+                                                    background: 'linear-gradient(135deg, #004085 0%, #0066cc 100%)',
+                                                    border: 'none',
+                                                    boxShadow: '0 4px 15px rgba(0, 64, 133, 0.3)',
+                                                    fontWeight: 'bold'
+                                                }}
+                                            >
                                                 <FaGraduationCap className="me-2" /> Submit Registration
                                             </Button>
                                         </div>

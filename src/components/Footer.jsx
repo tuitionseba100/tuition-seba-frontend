@@ -5,7 +5,7 @@ import { Link } from "react-router-dom";
 
 const Footer = () => {
     return (
-        <div style={{ position: 'relative', marginTop: 'auto' }}>
+        <div style={{ position: 'relative', marginTop: 'auto', overflow: 'hidden' }}>
             {/* Wave Separator */}
             <div style={{ position: 'absolute', top: '-50px', left: 0, width: '100%', overflow: 'hidden', lineHeight: 0, transform: 'rotate(180deg)' }}>
                 <svg data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120" preserveAspectRatio="none" style={{ position: 'relative', display: 'block', width: 'calc(138% + 1.3px)', height: '52px' }}>

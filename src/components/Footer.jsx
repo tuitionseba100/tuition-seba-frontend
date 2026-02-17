@@ -19,7 +19,7 @@ const Footer = () => {
                         {/* Column 1: Brand */}
                         <Col lg={4} md={6}>
                             <div className="mb-4">
-                                <h2 className="text-white fw-bold mb-3" style={{ letterSpacing: '1px' }}>Tuition Seba</h2>
+                                <h2 className="text-white fw-bold mb-3" style={{ letterSpacing: '1px' }}>Tuition Seba Forum</h2>
                                 <div style={{ width: '60px', height: '4px', backgroundColor: '#61dafb', borderRadius: '2px' }}></div>
                             </div>
                             <p className="mb-4 text-white-50" style={{ lineHeight: "1.8", fontSize: '0.95rem' }}>

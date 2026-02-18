@@ -493,6 +493,8 @@ const ApplyModal = ({ show, onClose, tuitionCode, tuitionId }) => {
                                         </div>
                                     </div>
                                 )}
+
+                                <ProcessingModal show={isSubmitting} />
                             </>
                         );
                     }}
@@ -510,7 +512,6 @@ const ApplyModal = ({ show, onClose, tuitionCode, tuitionId }) => {
                         }}
                     />
                 )}
-                <ProcessingModal show={isSubmitting} />
                 <CustomErrorModal
                     show={!!errorMessage}
                     message={errorMessage}

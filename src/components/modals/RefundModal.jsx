@@ -3,6 +3,7 @@ import { Modal, Button, Form } from 'react-bootstrap';
 import { toast } from 'react-toastify';
 import RefundTermsModal from './RefundTermsModal';
 import ApplySuccessModal from '../../components/modals/ApplySuccessModal';
+import ProcessingModal from '../../components/modals/ProcessingModal';
 
 const RefundModal = ({ show, handleClose }) => {
     const defaultForm = {
@@ -12,6 +13,7 @@ const RefundModal = ({ show, handleClose }) => {
     const [form, setForm] = useState(defaultForm);
     const [showRefundTerms, setShowRefundTerms] = useState(false);
     const [showSuccessModal, setShowSuccessModal] = useState(false);
+    const [loading, setLoading] = useState(false);
 
     const handleInput = (e) => {
         const { name, value, type, checked } = e.target;
@@ -21,6 +23,7 @@ const RefundModal = ({ show, handleClose }) => {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
+        setLoading(true);
         try {
             const res = await fetch('https://tuition-seba-backend-1.onrender.com/api/refund/add', {
                 method: 'POST',
@@ -35,6 +38,8 @@ const RefundModal = ({ show, handleClose }) => {
             } else toast.error('Submission failed.');
         } catch {
             toast.error('Something went wrong.');
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -114,7 +119,15 @@ const RefundModal = ({ show, handleClose }) => {
 
             {/* Refund Terms Modal */}
             <RefundTermsModal show={showRefundTerms} handleClose={() => setShowRefundTerms(false)} />
-            <ApplySuccessModal show={showSuccessModal} handleClose={() => setShowSuccessModal(false)} />
+            <ProcessingModal show={loading} />
+            {showSuccessModal && (
+                <ApplySuccessModal
+                    show={showSuccessModal}
+                    handleClose={() => setShowSuccessModal(false)}
+                    title="রিফান্ড আবেদন সফল!"
+                    message="আপনার রিফান্ড আবেদনটি সফলভাবে জমা হয়েছে।"
+                />
+            )}
         </>
     );
 };

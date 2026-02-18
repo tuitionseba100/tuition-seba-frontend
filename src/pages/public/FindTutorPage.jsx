@@ -4,6 +4,7 @@ import ApplySuccessModal from '../../components/modals/ApplySuccessModal';
 import { toast } from 'react-toastify';
 import NavBar from '../../components/NavBar';
 import Footer from '../../components/Footer';
+import ProcessingModal from '../../components/modals/ProcessingModal';
 
 const ApplyTutorPage = () => {
     const defaultForm = {
@@ -18,6 +19,7 @@ const ApplyTutorPage = () => {
     const [form, setForm] = useState(defaultForm);
     const [showSuccess, setShowSuccess] = useState(false);
     const [validated, setValidated] = useState(false);
+    const [loading, setLoading] = useState(false);
 
     const handleChange = (e) => {
         const { id, value } = e.target;
@@ -37,6 +39,7 @@ const ApplyTutorPage = () => {
             return;
         }
 
+        setLoading(true);
         try {
             const response = await fetch('https://tuition-seba-backend-1.onrender.com/api/guardianApply/add', {
                 method: 'POST',
@@ -54,6 +57,8 @@ const ApplyTutorPage = () => {
         } catch (err) {
             console.error(err);
             toast.error('An error occurred. Please try again later.');
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -356,8 +361,14 @@ const ApplyTutorPage = () => {
                     </Row>
 
                     {showSuccess && (
-                        <ApplySuccessModal show={showSuccess} onHide={() => setShowSuccess(false)} />
+                        <ApplySuccessModal
+                            show={showSuccess}
+                            handleClose={() => setShowSuccess(false)}
+                            title="শিক্ষক খোঁজার আবেদন সফল!"
+                            message="আপনার শিক্ষক খোঁজার আবেদনটি সফলভাবে জমা হয়েছে।"
+                        />
                     )}
+                    <ProcessingModal show={loading} />
                 </Container>
             </div>
             <Footer />

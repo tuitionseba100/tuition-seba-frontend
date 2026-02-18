@@ -3,6 +3,7 @@ import { Modal, Button, Form, Row, Col } from 'react-bootstrap';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import ApplySuccessModal from './ApplySuccessModal';
+import ProcessingModal from './ProcessingModal';
 
 export default function RequestTeacherModal({ show, onHide, teacher, onSaved }) {
     const [form, setForm] = useState({
@@ -16,6 +17,7 @@ export default function RequestTeacherModal({ show, onHide, teacher, onSaved }) 
         comment: ''
     });
     const [showSuccess, setShowSuccess] = useState(false);
+    const [loading, setLoading] = useState(false);
 
     useEffect(() => {
         if (show) {
@@ -37,6 +39,7 @@ export default function RequestTeacherModal({ show, onHide, teacher, onSaved }) 
             teacherCode: teacher?.premiumCode || null
         };
 
+        setLoading(true);
         try {
             const response = await axios.post('https://tuition-seba-backend-1.onrender.com/api/guardianApply/add', payload);
             if (response && (response.status === 200 || response.status === 201)) {
@@ -52,6 +55,8 @@ export default function RequestTeacherModal({ show, onHide, teacher, onSaved }) 
         } catch (err) {
             console.error(err);
             toast.error('An error occurred. Please try again later.');
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -108,12 +113,24 @@ export default function RequestTeacherModal({ show, onHide, teacher, onSaved }) 
                 </Modal.Body>
 
                 <Modal.Footer>
-                    <Button variant="secondary" onClick={onHide}>Close</Button>
-                    <Button variant="primary" onClick={handleSubmit}>Submit Request</Button>
+                    <Button variant="secondary" onClick={onHide} disabled={loading}>Close</Button>
+                    <Button variant="primary" onClick={handleSubmit} disabled={loading}>
+                        {loading ? 'Submitting...' : 'Submit Request'}
+                    </Button>
                 </Modal.Footer>
             </Modal>
-
-            <ApplySuccessModal show={showSuccess} handleClose={() => setShowSuccess(false)} />
+            <ProcessingModal show={loading} />
+            {showSuccess && (
+                <ApplySuccessModal
+                    show={showSuccess}
+                    handleClose={() => {
+                        setShowSuccess(false);
+                        onHide();
+                    }}
+                    title="শিক্ষক অনুরোধ সফল!"
+                    message="এই শিক্ষকের জন্য আপনার অনুরোধটি সফলভাবে জমা হয়েছে।"
+                />
+            )}
         </>
     );
 }

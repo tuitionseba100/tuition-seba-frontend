@@ -1081,6 +1081,7 @@ const PremiumTeacherPage = () => {
                                             <th>Tuition Code</th>
                                             <th>Phone</th>
                                             <th>Status</th>
+                                            <th>Comment For Teacher</th>
                                             <th>Applied At</th>
                                         </tr>
                                     </thead>
@@ -1117,6 +1118,7 @@ const PremiumTeacherPage = () => {
                                                         {apply.status}
                                                     </span>
                                                 </td>
+                                                <td>{apply.commentForTeacher}</td>
                                                 <td>{formatDate(apply.appliedAt)}</td>
                                             </tr>
                                         ))}

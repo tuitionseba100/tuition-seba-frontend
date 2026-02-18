@@ -5,6 +5,7 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import ApplySuccessModal from '../../components/modals/ApplySuccessModal';
 import CustomErrorModal from '../../components/modals/CustomErrorModal';
+import ProcessingModal from '../../components/modals/ProcessingModal';
 
 const spinnerStyle = {
     width: 24,
@@ -501,12 +502,15 @@ const ApplyModal = ({ show, onClose, tuitionCode, tuitionId }) => {
                 {showSuccess && (
                     <ApplySuccessModal
                         show={showSuccess}
+                        title="আবেদন সফল!"
+                        message="টিউশনটির জন্য আপনার আবেদনটি সফলভাবে জমা হয়েছে।"
                         handleClose={() => {
                             setShowSuccess(false);
                             onClose();
                         }}
                     />
                 )}
+                <ProcessingModal show={isSubmitting} />
                 <CustomErrorModal
                     show={!!errorMessage}
                     message={errorMessage}

@@ -4,6 +4,7 @@ import { toast } from 'react-toastify';
 import PaymentTermsModal from './PaymentTermsModal';
 import RefundTermsModal from './RefundTermsModal';
 import ApplySuccessModal from '../../components/modals/ApplySuccessModal';
+import ProcessingModal from '../../components/modals/ProcessingModal';
 
 const PaymentModal = ({ show, handleClose }) => {
     const defaultForm = {
@@ -14,6 +15,7 @@ const PaymentModal = ({ show, handleClose }) => {
     const [showPaymentTerms, setShowPaymentTerms] = useState(false);
     const [showRefundTerms, setShowRefundTerms] = useState(false);
     const [showSuccessModal, setShowSuccessModal] = useState(false);
+    const [loading, setLoading] = useState(false);
 
     const handleInput = (e) => {
         const { name, value, type, checked } = e.target;
@@ -26,6 +28,7 @@ const PaymentModal = ({ show, handleClose }) => {
             return toast.error('Please agree to all terms.');
         }
 
+        setLoading(true);
         try {
             const res = await fetch('https://tuition-seba-backend-1.onrender.com/api/teacherPayment/add', {
                 method: 'POST',
@@ -40,6 +43,8 @@ const PaymentModal = ({ show, handleClose }) => {
             } else toast.error('Submission failed.');
         } catch {
             toast.error('Something went wrong.');
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -145,8 +150,15 @@ const PaymentModal = ({ show, handleClose }) => {
             {/* Terms Modals */}
             <PaymentTermsModal show={showPaymentTerms} handleClose={() => setShowPaymentTerms(false)} />
             <RefundTermsModal show={showRefundTerms} handleClose={() => setShowRefundTerms(false)} />
-
-            <ApplySuccessModal show={showSuccessModal} handleClose={() => setShowSuccessModal(false)} />
+            <ProcessingModal show={loading} />
+            {showSuccessModal && (
+                <ApplySuccessModal
+                    show={showSuccessModal}
+                    handleClose={() => setShowSuccessModal(false)}
+                    title="পেমেন্ট সফল!"
+                    message="আপনার পেমেন্ট তথ্য সফলভাবে জমা হয়েছে।"
+                />
+            )}
         </>
     );
 };

@@ -18,6 +18,7 @@ import { ToastContainer, toast } from 'react-toastify';
 import axios from 'axios';
 import ApplySuccessModal from '../../components/modals/ApplySuccessModal';
 import { ButtonGroup } from 'react-bootstrap';
+import ProcessingModal from '../../components/modals/ProcessingModal';
 
 export default function OurTeacher() {
     const [teachers, setTeachers] = useState([]);
@@ -1248,7 +1249,18 @@ function RequestTeacherModal({ show, onHide, teacher, onSaved }) {
                 </Modal.Footer>
             </Modal>
 
-            <ApplySuccessModal show={showSuccess} handleClose={() => setShowSuccess(false)} />
+            <ProcessingModal show={isSubmitting} />
+            {showSuccess && (
+                <ApplySuccessModal
+                    show={showSuccess}
+                    handleClose={() => {
+                        setShowSuccess(false);
+                        onHide();
+                    }}
+                    title="শিক্ষক অনুরোধ সফল!"
+                    message="এই শিক্ষকের জন্য আপনার অনুরোধটি সফলভাবে জমা হয়েছে।"
+                />
+            )}
         </>
     );
 }

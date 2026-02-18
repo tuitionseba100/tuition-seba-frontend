@@ -3,7 +3,7 @@ import { Modal, Button } from 'react-bootstrap';
 
 import { FaCheckCircle } from 'react-icons/fa';
 
-const ApplySuccessModal = ({ show, handleClose }) => {
+const ApplySuccessModal = ({ show, handleClose, title, message }) => {
     return (
         <Modal show={show} onHide={handleClose} centered className="premium-modal">
             <Modal.Header
@@ -15,7 +15,7 @@ const ApplySuccessModal = ({ show, handleClose }) => {
                     padding: '1.2rem 1.5rem'
                 }}
             >
-                <Modal.Title className="fw-bold">আবেদন সফল!</Modal.Title>
+                <Modal.Title className="fw-bold">{title || 'আবেদন সফল!'}</Modal.Title>
             </Modal.Header>
 
             <Modal.Body style={{ padding: '2.5rem 2rem', backgroundColor: '#fcfdfc' }}>
@@ -24,7 +24,7 @@ const ApplySuccessModal = ({ show, handleClose }) => {
                         <FaCheckCircle className="text-success" style={{ fontSize: '3.5rem' }} />
                     </div>
                     <h3 className="fw-bold" style={{ color: '#1e7e34' }}>ধন্যবাদ!</h3>
-                    <h5 className="text-dark">আপনার আবেদনটি সফলভাবে জমা হয়েছে।</h5>
+                    <h5 className="text-dark">{message || 'আপনার আবেদনটি সফলভাবে জমা হয়েছে।'}</h5>
                 </div>
 
                 <div className="p-3 rounded-3 text-center" style={{ backgroundColor: '#f0fff4', border: '1px solid #c6f6d5', color: '#2f855a' }}>
@@ -32,7 +32,7 @@ const ApplySuccessModal = ({ show, handleClose }) => {
                 </div>
 
                 <div className="mt-4 text-center">
-                    <p className="text-muted small">Tuition Seba Forum-এর সাথে ক্যারিয়ার গড়ার জন্য আমরা আপনার সিদ্ধান্তের প্রশংসা করি।</p>
+                    <p className="text-muted small">Tuition Seba Forum-এর সাথে থাকার জন্য ধন্যবাদ।</p>
                 </div>
             </Modal.Body>
 

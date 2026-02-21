@@ -29,6 +29,7 @@ import TeacherRegistration from './pages/public/TeacherRegistration';
 import OurTeacher from './pages/public/OurTeacher';
 import LeadPage from './pages/LeadPage';
 import PrivacyPolicyPage from './pages/public/PrivacyPolicyPage';
+import Rules from './pages/public/Rules';
 
 const App = () => {
   return (
@@ -42,6 +43,7 @@ const App = () => {
         <Route path="/teacherRegistration" element={<TeacherRegistration />} />
         <Route path="/OurTeachers" element={<OurTeacher />} />
         <Route path="/privacy" element={<PrivacyPolicyPage />} />
+        <Route path="/rules" element={<Rules />} />
         <Route path="/admin/login" element={<Loginpage />} />
 
         <Route path="/admin" element={<PrivateRoute />}>

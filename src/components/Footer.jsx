@@ -5,11 +5,102 @@ import { Link } from "react-router-dom";
 
 const Footer = () => {
     return (
-        <div style={{ position: 'relative', marginTop: 'auto', overflow: 'hidden' }}>
-            {/* Wave Separator */}
-            <div style={{ position: 'absolute', top: '-50px', left: 0, width: '100%', overflow: 'hidden', lineHeight: 0, transform: 'rotate(180deg)' }}>
-                <svg data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120" preserveAspectRatio="none" style={{ position: 'relative', display: 'block', width: 'calc(138% + 1.3px)', height: '52px' }}>
-                    <path d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V0H0V27.35A600.21,600.21,0,0,0,321.39,56.44Z" fill="#004085"></path>
+        <div style={{ position: 'relative', marginTop: 'auto', overflow: 'visible' }}>
+            {/* Wave Animation Styles */}
+            <style>
+                {`
+                @keyframes wave-move {
+                    0% { transform: translateX(0); }
+                    50% { transform: translateX(-5%); }
+                    100% { transform: translateX(0); }
+                }
+                .sea-wave {
+                    animation: wave-move 10s ease-in-out infinite;
+                    will-change: transform;
+                }
+                .sea-wave-delayed {
+                    animation: wave-move 15s ease-in-out infinite;
+                    animation-delay: -2s;
+                    will-change: transform;
+                }
+                
+                .social-icon-btn {
+                    width: 45px;
+                    height: 45px;
+                    background: rgba(255, 255, 255, 0.1);
+                    backdrop-filter: blur(5px);
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    border-radius: 50%;
+                    color: white;
+                    text-decoration: none;
+                    transition: all 0.3s ease;
+                    border: 1px solid rgba(255, 255, 255, 0.1);
+                }
+                .social-icon-btn:hover {
+                    background: white;
+                    color: #004085;
+                    transform: translateY(-3px);
+                    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+                }
+
+                .footer-links li {
+                    margin-bottom: 12px;
+                }
+                .footer-links a {
+                    color: rgba(255, 255, 255, 0.7);
+                    text-decoration: none;
+                    transition: all 0.3s ease;
+                    display: inline-block;
+                }
+                .footer-links a:hover {
+                    color: #ffffff;
+                    transform: translateX(5px);
+                    text-shadow: 0 0 10px rgba(255,255,255,0.5);
+                }
+
+                .icon-wrapper {
+                    min-width: 35px;
+                    height: 35px;
+                    background: rgba(255, 255, 255, 0.1);
+                    border-radius: 50%;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    color: #61dafb;
+                    font-size: 0.9rem;
+                }
+
+                .contact-info a:hover {
+                    color: white !important;
+                }
+                `}
+            </style>
+
+            {/* Top Sea Tide Area (Animated Waves) */}
+            <div style={{
+                position: 'absolute',
+                top: '-51px',
+                left: 0,
+                width: '100%',
+                height: '55px',
+                overflow: 'hidden',
+                lineHeight: 0,
+                transform: 'rotate(180deg)',
+                zIndex: 3,
+                pointerEvents: 'none',
+                backfaceVisibility: 'hidden',
+                WebkitBackfaceVisibility: 'hidden'
+            }}>
+                <svg viewBox="0 0 1200 120" preserveAspectRatio="none" shapeRendering="geometricPrecision" style={{ position: 'absolute', width: '120%', height: '100%', left: '-10%', top: '-2px' }} className="sea-wave-delayed">
+                    <path d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V0H0V27.35A600.21,600.21,0,0,0,321.39,56.44Z" fill="#004085" opacity="0.4" />
+                </svg>
+                <svg viewBox="0 0 1200 120" preserveAspectRatio="none" shapeRendering="geometricPrecision" style={{ position: 'absolute', width: '115%', height: '100%', left: '-7.5%', top: '-1px' }} className="sea-wave">
+                    <path d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V0H0V27.35A600.21,600.21,0,0,0,321.39,56.44Z" fill="#004085" opacity="0.6" />
+                </svg>
+                <svg viewBox="0 0 1200 120" preserveAspectRatio="none" shapeRendering="geometricPrecision" style={{ position: 'absolute', width: '110%', height: '100%', left: '-5%', top: '-0.5px' }}>
+                    <path d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V0H0V27.35A600.21,600.21,0,0,0,321.39,56.44Z" fill="#004085" />
                 </svg>
             </div>
 
@@ -54,6 +145,7 @@ const Footer = () => {
                         <Col lg={2} md={6}>
                             <h5 className="text-white fw-bold mb-4">Support</h5>
                             <ul className="list-unstyled footer-links">
+                                <li><Link to="/rules">Rules</Link></li>
                                 <li><Link to="/privacy">Privacy Policy</Link></li>
                                 <li><Link to="/payment">Payment Methods</Link></li>
                                 <li><Link to="/#about-us">About Us</Link></li>
@@ -103,61 +195,7 @@ const Footer = () => {
                     </div>
                 </Container>
 
-                <style>
-                    {`
-                    .social-icon-btn {
-                        width: 45px;
-                        height: 45px;
-                        background: rgba(255, 255, 255, 0.1);
-                        backdrop-filter: blur(5px);
-                        display: flex;
-                        align-items: center;
-                        justify-content: center;
-                        border-radius: 50%;
-                        color: white;
-                        text-decoration: none;
-                        transition: all 0.3s ease;
-                        border: 1px solid rgba(255, 255, 255, 0.1);
-                    }
-                    .social-icon-btn:hover {
-                        background: white;
-                        color: #004085;
-                        transform: translateY(-3px);
-                        box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-                    }
 
-                    .footer-links li {
-                        margin-bottom: 12px;
-                    }
-                    .footer-links a {
-                        color: rgba(255, 255, 255, 0.7);
-                        text-decoration: none;
-                        transition: all 0.3s ease;
-                        display: inline-block;
-                    }
-                    .footer-links a:hover {
-                        color: #ffffff;
-                        transform: translateX(5px);
-                        text-shadow: 0 0 10px rgba(255,255,255,0.5);
-                    }
-
-                    .icon-wrapper {
-                        min-width: 35px;
-                        height: 35px;
-                        background: rgba(255, 255, 255, 0.1);
-                        border-radius: 50%;
-                        display: flex;
-                        align-items: center;
-                        justify-content: center;
-                        color: #61dafb;
-                        font-size: 0.9rem;
-                    }
-
-                    .contact-info a:hover {
-                        color: white !important;
-                    }
-                    `}
-                </style>
             </footer>
         </div>
     );

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import TuitionCard from '../../components/TuitionCard';
 import NavBar from '../../components/NavBar';
+import Footer from '../../components/Footer';
 import { Spinner } from 'react-bootstrap';
 import { FiRefreshCcw } from 'react-icons/fi';
 
@@ -154,6 +155,7 @@ const TuitionSection = () => {
                     )}
                 </div>
             </div>
+            <Footer />
         </>
     );
 };

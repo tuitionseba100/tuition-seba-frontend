@@ -2,6 +2,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Container, Row, Col } from 'react-bootstrap';
+import { FaGooglePlay } from 'react-icons/fa';
 
 const TutorSection = () => {
     const navigate = useNavigate();
@@ -13,6 +14,25 @@ const TutorSection = () => {
         background: 'linear-gradient(135deg, #004085 0%, #0066cc 100%)',
         color: 'white',
         textAlign: 'center',
+    };
+
+    const badgeStyle = {
+        display: 'inline-flex',
+        alignItems: 'center',
+        padding: '10px 24px',
+        background: 'rgba(255, 255, 255, 0.1)',
+        backdropFilter: 'blur(10px)',
+        borderRadius: '100px',
+        marginBottom: '30px',
+        border: '1px solid rgba(255, 255, 255, 0.2)',
+        color: 'white',
+        textDecoration: 'none',
+        fontSize: '0.9rem',
+        fontWeight: '600',
+        letterSpacing: '0.5px',
+        cursor: 'pointer',
+        transition: 'all 0.3s ease',
+        boxShadow: '0 4px 15px rgba(0,0,0,0.1)',
     };
 
     const titleStyle = {
@@ -87,6 +107,160 @@ const TutorSection = () => {
             <Container style={{ position: 'relative', zIndex: 2 }}>
                 <Row className="justify-content-center">
                     <Col lg={10}>
+                        {/* Stunning Play Store Highlight Badge */}
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.8, y: -40 }}
+                            animate={{ opacity: 1, scale: 1, y: 0 }}
+                            transition={{
+                                delay: 0.5,
+                                duration: 0.8,
+                                type: 'spring',
+                                stiffness: 100,
+                                damping: 15
+                            }}
+                            style={{
+                                marginBottom: '40px',
+                                display: 'inline-block',
+                                position: 'relative',
+                            }}
+                        >
+                            {/* Background Pulsing Glow */}
+                            <motion.div
+                                animate={{
+                                    scale: [1, 1.1, 1],
+                                    opacity: [0.3, 0.5, 0.3]
+                                }}
+                                transition={{ repeat: Infinity, duration: 4, ease: 'easeInOut' }}
+                                style={{
+                                    position: 'absolute',
+                                    top: '-20px',
+                                    left: '-20px',
+                                    right: '-20px',
+                                    bottom: '-20px',
+                                    background: 'radial-gradient(circle, rgba(97, 218, 251, 0.2) 0%, transparent 70%)',
+                                    zIndex: -1,
+                                    borderRadius: '100px',
+                                    filter: 'blur(20px)',
+                                }}
+                            />
+
+                            <motion.a
+                                href="https://play.google.com/store/apps/details?id=com.tuitionseba.forum"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                style={{
+                                    display: 'inline-flex',
+                                    alignItems: 'center',
+                                    padding: '14px 32px',
+                                    background: 'rgba(0, 0, 0, 0.6)',
+                                    backdropFilter: 'blur(20px)',
+                                    borderRadius: '100px',
+                                    border: '2px solid transparent',
+                                    position: 'relative',
+                                    overflow: 'hidden',
+                                    textDecoration: 'none',
+                                    transition: 'all 0.3s ease',
+                                    boxShadow: '0 15px 35px rgba(0, 0, 0, 0.3)',
+                                    // Simulated Gradient Border
+                                    backgroundImage: 'linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), linear-gradient(135deg, #61dafb, #3DDC84, #61dafb)',
+                                    backgroundOrigin: 'border-box',
+                                    backgroundClip: 'padding-box, border-box',
+                                }}
+                                whileHover={{
+                                    scale: 1.05,
+                                    boxShadow: '0 20px 45px rgba(0, 0, 0, 0.5)',
+                                    y: -5
+                                }}
+                                whileTap={{ scale: 0.98 }}
+                            >
+                                {/* Shimmering Highlight Effect */}
+                                <motion.div
+                                    animate={{
+                                        left: ['-100%', '200%']
+                                    }}
+                                    transition={{
+                                        repeat: Infinity,
+                                        duration: 2.5,
+                                        ease: 'easeInOut',
+                                        repeatDelay: 1
+                                    }}
+                                    style={{
+                                        position: 'absolute',
+                                        top: 0,
+                                        width: '40px',
+                                        height: '100%',
+                                        background: 'linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.15), transparent)',
+                                        zIndex: 1,
+                                        transform: 'skewX(-20deg)',
+                                    }}
+                                />
+
+                                <div className="d-flex align-items-center" style={{ position: 'relative', zIndex: 2 }}>
+                                    <div style={{
+                                        background: 'rgba(255, 255, 255, 0.1)',
+                                        borderRadius: '15px',
+                                        padding: '10px',
+                                        marginRight: '20px',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        boxShadow: '0 5px 15px rgba(0,0,0,0.2)',
+                                        border: '1px solid rgba(255, 255, 255, 0.1)',
+                                    }}>
+                                        <FaGooglePlay style={{ fontSize: '2.2rem', color: '#3DDC84' }} />
+                                    </div>
+                                    <div style={{ textAlign: 'left' }}>
+                                        <div style={{
+                                            fontSize: '0.75rem',
+                                            fontWeight: '800',
+                                            textTransform: 'uppercase',
+                                            letterSpacing: '2px',
+                                            color: '#61dafb', // Accent color
+                                            marginBottom: '2px',
+                                            textShadow: '0 0 10px rgba(97, 218, 251, 0.4)'
+                                        }}>
+                                            Experience the Official App
+                                        </div>
+                                        <div style={{
+                                            fontSize: '1.2rem',
+                                            fontWeight: '700',
+                                            color: 'white',
+                                            lineHeight: '1.1',
+                                            marginBottom: '4px'
+                                        }}>
+                                            Now on Google Play Store
+                                        </div>
+                                        <div style={{
+                                            fontSize: '0.85rem',
+                                            fontWeight: '400',
+                                            color: 'rgba(255, 255, 255, 0.8)',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            gap: '8px'
+                                        }}>
+                                            <span>One-Click Apply</span>
+                                            <span style={{ color: 'rgba(255, 255, 255, 0.3)' }}>|</span>
+                                            <span>Faster Search</span>
+                                            <span style={{ color: 'rgba(255, 255, 255, 0.3)' }}>|</span>
+                                            <span style={{ color: '#3DDC84', fontWeight: 'bold' }}>FREE Download</span>
+                                        </div>
+                                    </div>
+                                    <motion.div
+                                        animate={{ x: [0, 8, 0] }}
+                                        transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }}
+                                        style={{
+                                            marginLeft: '25px',
+                                            fontSize: '1.8rem',
+                                            color: '#61dafb',
+                                            textShadow: '0 0 15px rgba(97, 218, 251, 0.6)'
+                                        }}
+                                    >
+                                        →
+                                    </motion.div>
+                                </div>
+                            </motion.a>
+                        </motion.div>
+
                         <motion.h2
                             style={titleStyle}
                             initial={{ opacity: 0, y: 30 }}

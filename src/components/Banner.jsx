@@ -107,40 +107,41 @@ const TutorSection = () => {
             <Container style={{ position: 'relative', zIndex: 2 }}>
                 <Row className="justify-content-center">
                     <Col lg={10}>
-                        {/* Stunning Play Store Highlight Badge */}
+                        {/* Theme-Standard High-Highlight (Compact Full Bangla) */}
                         <motion.div
-                            initial={{ opacity: 0, scale: 0.8, y: -40 }}
+                            initial={{ opacity: 0, scale: 0.95, y: -20 }}
                             animate={{ opacity: 1, scale: 1, y: 0 }}
                             transition={{
-                                delay: 0.5,
-                                duration: 0.8,
+                                delay: 0.4,
+                                duration: 1.2,
                                 type: 'spring',
-                                stiffness: 100,
-                                damping: 15
+                                stiffness: 50,
+                                damping: 20
                             }}
                             style={{
                                 marginBottom: '40px',
-                                display: 'inline-block',
+                                display: 'flex',
+                                justifyContent: 'center',
                                 position: 'relative',
                             }}
                         >
-                            {/* Background Pulsing Glow */}
+                            {/* Theme Cyan Aura (Compact) */}
                             <motion.div
                                 animate={{
-                                    scale: [1, 1.1, 1],
-                                    opacity: [0.3, 0.5, 0.3]
+                                    rotate: [0, 360],
+                                    scale: [1, 1.2, 1],
                                 }}
-                                transition={{ repeat: Infinity, duration: 4, ease: 'easeInOut' }}
+                                transition={{ repeat: Infinity, duration: 15, ease: 'linear' }}
                                 style={{
                                     position: 'absolute',
-                                    top: '-20px',
-                                    left: '-20px',
-                                    right: '-20px',
-                                    bottom: '-20px',
-                                    background: 'radial-gradient(circle, rgba(97, 218, 251, 0.2) 0%, transparent 70%)',
+                                    top: '-70px',
+                                    left: '-70px',
+                                    right: '-70px',
+                                    bottom: '-70px',
+                                    background: 'radial-gradient(circle, rgba(97, 218, 251, 0.15) 0%, transparent 65%)',
                                     zIndex: -1,
-                                    borderRadius: '100px',
-                                    filter: 'blur(20px)',
+                                    filter: 'blur(50px)',
+                                    pointerEvents: 'none',
                                 }}
                             />
 
@@ -149,110 +150,154 @@ const TutorSection = () => {
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 style={{
-                                    display: 'inline-flex',
-                                    alignItems: 'center',
-                                    padding: '14px 32px',
-                                    background: 'rgba(0, 0, 0, 0.6)',
-                                    backdropFilter: 'blur(20px)',
-                                    borderRadius: '100px',
-                                    border: '2px solid transparent',
-                                    position: 'relative',
-                                    overflow: 'hidden',
                                     textDecoration: 'none',
-                                    transition: 'all 0.3s ease',
-                                    boxShadow: '0 15px 35px rgba(0, 0, 0, 0.3)',
-                                    // Simulated Gradient Border
-                                    backgroundImage: 'linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), linear-gradient(135deg, #61dafb, #3DDC84, #61dafb)',
-                                    backgroundOrigin: 'border-box',
-                                    backgroundClip: 'padding-box, border-box',
+                                    display: 'inline-block',
+                                    padding: '1.5px',
+                                    borderRadius: '100px',
+                                    background: 'linear-gradient(135deg, #61dafb, #00d2ff, #61dafb, #3498db)',
+                                    backgroundSize: '300% 300%',
+                                    animation: 'theme-glow 6s ease infinite',
+                                    boxShadow: '0 15px 40px rgba(97, 218, 251, 0.25)',
+                                    position: 'relative'
                                 }}
                                 whileHover={{
-                                    scale: 1.05,
-                                    boxShadow: '0 20px 45px rgba(0, 0, 0, 0.5)',
-                                    y: -5
+                                    scale: 1.03,
+                                    y: -4,
+                                    boxShadow: '0 25px 50px rgba(97, 218, 251, 0.35)',
                                 }}
                                 whileTap={{ scale: 0.98 }}
                             >
-                                {/* Shimmering Highlight Effect */}
-                                <motion.div
-                                    animate={{
-                                        left: ['-100%', '200%']
-                                    }}
-                                    transition={{
-                                        repeat: Infinity,
-                                        duration: 2.5,
-                                        ease: 'easeInOut',
-                                        repeatDelay: 1
-                                    }}
-                                    style={{
-                                        position: 'absolute',
-                                        top: 0,
-                                        width: '40px',
-                                        height: '100%',
-                                        background: 'linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.15), transparent)',
-                                        zIndex: 1,
-                                        transform: 'skewX(-20deg)',
-                                    }}
-                                />
+                                <style>
+                                    {`
+                                        @keyframes theme-glow {
+                                            0% { background-position: 0% 50%; }
+                                            50% { background-position: 100% 50%; }
+                                            100% { background-position: 0% 50%; }
+                                        }
+                                    `}
+                                </style>
 
-                                <div className="d-flex align-items-center" style={{ position: 'relative', zIndex: 2 }}>
+                                <div style={{
+                                    background: 'rgba(10, 20, 35, 0.94)',
+                                    backdropFilter: 'blur(30px) saturate(180%)',
+                                    borderRadius: '98px',
+                                    padding: '12px 32px',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '18px',
+                                    position: 'relative',
+                                    overflow: 'hidden',
+                                    border: '1px solid rgba(97, 218, 251, 0.25)',
+                                }}>
+                                    {/* Glass Shimmer */}
+                                    <motion.div
+                                        animate={{ left: ['-150%', '250%'] }}
+                                        transition={{ repeat: Infinity, duration: 4, ease: 'linear', repeatDelay: 2 }}
+                                        style={{
+                                            position: 'absolute',
+                                            top: 0,
+                                            width: '100px',
+                                            height: '100%',
+                                            background: 'linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.05), transparent)',
+                                            transform: 'skewX(-35deg)',
+                                            zIndex: 1,
+                                        }}
+                                    />
+
+                                    {/* Icon Package (Small) */}
                                     <div style={{
-                                        background: 'rgba(255, 255, 255, 0.1)',
-                                        borderRadius: '15px',
-                                        padding: '10px',
-                                        marginRight: '20px',
+                                        position: 'relative',
+                                        flexShrink: 0,
                                         display: 'flex',
                                         alignItems: 'center',
                                         justifyContent: 'center',
-                                        boxShadow: '0 5px 15px rgba(0,0,0,0.2)',
-                                        border: '1px solid rgba(255, 255, 255, 0.1)',
                                     }}>
-                                        <FaGooglePlay style={{ fontSize: '2.2rem', color: '#3DDC84' }} />
+                                        <motion.div
+                                            animate={{ scale: [1, 1.2, 1], opacity: [0.3, 0.6, 0.3] }}
+                                            transition={{ repeat: Infinity, duration: 3, ease: 'easeInOut' }}
+                                            style={{
+                                                position: 'absolute',
+                                                width: '50px',
+                                                height: '50px',
+                                                borderRadius: '50%',
+                                                background: 'rgba(61, 220, 132, 0.2)',
+                                                filter: 'blur(10px)',
+                                            }}
+                                        />
+                                        <FaGooglePlay style={{ fontSize: '2.2rem', color: '#3DDC84', zIndex: 1, filter: 'drop-shadow(0 0 10px rgba(61, 220, 132, 0.5))' }} />
                                     </div>
-                                    <div style={{ textAlign: 'left' }}>
-                                        <div style={{
-                                            fontSize: '0.75rem',
-                                            fontWeight: '800',
-                                            textTransform: 'uppercase',
-                                            letterSpacing: '2px',
-                                            color: '#61dafb', // Accent color
-                                            marginBottom: '2px',
-                                            textShadow: '0 0 10px rgba(97, 218, 251, 0.4)'
-                                        }}>
-                                            Experience the Official App
-                                        </div>
-                                        <div style={{
-                                            fontSize: '1.2rem',
-                                            fontWeight: '700',
-                                            color: 'white',
-                                            lineHeight: '1.1',
-                                            marginBottom: '4px'
-                                        }}>
-                                            Now on Google Play Store
-                                        </div>
+
+                                    {/* Content Area (Small Gap) */}
+                                    <div style={{ textAlign: 'left', flex: 1 }}>
                                         <div style={{
                                             fontSize: '0.85rem',
-                                            fontWeight: '400',
-                                            color: 'rgba(255, 255, 255, 0.8)',
+                                            fontWeight: '700',
+                                            color: 'rgba(255, 255, 255, 0.9)',
+                                            marginBottom: '4px',
                                             display: 'flex',
                                             alignItems: 'center',
+                                            flexWrap: 'wrap',
                                             gap: '8px'
                                         }}>
-                                            <span>One-Click Apply</span>
-                                            <span style={{ color: 'rgba(255, 255, 255, 0.3)' }}>|</span>
-                                            <span>Faster Search</span>
-                                            <span style={{ color: 'rgba(255, 255, 255, 0.3)' }}>|</span>
-                                            <span style={{ color: '#3DDC84', fontWeight: 'bold' }}>FREE Download</span>
+                                            <span style={{ opacity: 0.8 }}>আমরা এখন</span>
+                                            <motion.span
+                                                animate={{
+                                                    boxShadow: ['0 0 10px rgba(97, 218, 251, 0.2)', '0 0 20px rgba(97, 218, 251, 0.4)', '0 0 10px rgba(97, 218, 251, 0.2)'],
+                                                }}
+                                                transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
+                                                style={{
+                                                    background: 'rgba(97, 218, 251, 0.12)',
+                                                    color: '#61dafb',
+                                                    padding: '3px 14px',
+                                                    borderRadius: '40px',
+                                                    border: '1px solid rgba(97, 218, 251, 0.3)',
+                                                    fontWeight: '800',
+                                                    fontSize: '0.95rem',
+                                                    display: 'inline-flex',
+                                                    alignItems: 'center',
+                                                }}
+                                            >
+                                                গুগল প্লে স্টোরে
+                                            </motion.span>
+                                        </div>
+                                        <div style={{
+                                            fontSize: 'clamp(1.1rem, 2vw, 1.4rem)',
+                                            fontWeight: '800',
+                                            color: '#ffffff',
+                                            lineHeight: '1.2',
+                                            letterSpacing: '-0.3px',
+                                        }}>
+                                            এক ক্লিকে আবেদন করুন এবং সকল ফিচার আনলক করুন
+                                        </div>
+                                        <div style={{
+                                            marginTop: '4px',
+                                            fontSize: '0.9rem',
+                                            color: '#61dafb',
+                                            fontWeight: '600',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            gap: '6px'
+                                        }}>
+                                            <span style={{
+                                                fontSize: '0.75rem',
+                                                padding: '1px 8px',
+                                                background: 'rgba(97, 218, 251, 0.15)',
+                                                borderRadius: '3px',
+                                                border: '1px solid rgba(97, 218, 251, 0.25)',
+                                                fontWeight: '800'
+                                            }}>নতুন</span>
+                                            অফিসিয়াল অ্যাপ প্রস্তুত
                                         </div>
                                     </div>
+
+                                    {/* Simple Arrow (Small) */}
                                     <motion.div
                                         animate={{ x: [0, 8, 0] }}
                                         transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }}
                                         style={{
-                                            marginLeft: '25px',
-                                            fontSize: '1.8rem',
+                                            fontSize: '2rem',
                                             color: '#61dafb',
-                                            textShadow: '0 0 15px rgba(97, 218, 251, 0.6)'
+                                            opacity: 0.8
                                         }}
                                     >
                                         →

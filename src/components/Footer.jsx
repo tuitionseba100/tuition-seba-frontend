@@ -1,7 +1,8 @@
 import React from "react";
 import { Container, Row, Col } from "react-bootstrap";
-import { FaFacebookF, FaWhatsapp, FaPhoneAlt, FaEnvelope, FaMapMarkerAlt, FaGlobe } from "react-icons/fa";
+import { FaFacebookF, FaWhatsapp, FaPhoneAlt, FaEnvelope, FaMapMarkerAlt, FaGlobe, FaGooglePlay } from "react-icons/fa";
 import { Link } from "react-router-dom";
+import { motion } from "framer-motion";
 
 const Footer = () => {
     return (
@@ -104,7 +105,23 @@ const Footer = () => {
                 </svg>
             </div>
 
-            <footer style={{ background: "linear-gradient(135deg, #004085 0%, #0066cc 100%)", color: "#e0e6ed", paddingTop: "80px", paddingBottom: "30px", position: 'relative', zIndex: 1 }}>
+            <footer style={{
+                background: "linear-gradient(180deg, #004085 0%, #0056b3 50%, #003366 100%)",
+                color: "#e0e6ed",
+                paddingTop: "120px",
+                paddingBottom: "60px",
+                position: 'relative',
+                zIndex: 1,
+                boxShadow: '0 -10px 40px rgba(0,0,0,0.1)'
+            }}>
+                <div style={{
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    height: '1px',
+                    background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent)'
+                }}></div>
                 <Container>
                     <Row className="gy-5">
                         {/* Column 1: Brand */}
@@ -116,23 +133,156 @@ const Footer = () => {
                             <p className="mb-4 text-white-50" style={{ lineHeight: "1.8", fontSize: '0.95rem' }}>
                                 Connecting students with the perfect tutors. We are dedicated to providing quality education support through our platform.
                             </p>
-                            <div className="d-flex gap-3">
-                                <a href="https://facebook.com/groups/1003753066957594/" target="_blank" rel="noopener noreferrer" className="social-icon-btn">
-                                    <FaFacebookF />
-                                </a>
-                                <a href="https://wa.me/+8801571305804" target="_blank" rel="noopener noreferrer" className="social-icon-btn">
-                                    <FaWhatsapp />
-                                </a>
+                            <div className="d-flex flex-column gap-3">
+                                <div className="d-flex gap-3 align-items-center">
+                                    <motion.a
+                                        href="https://facebook.com/groups/1003753066957594/"
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        whileHover={{
+                                            scale: 1.05,
+                                            backgroundColor: 'rgba(24, 119, 242, 0.2)',
+                                            borderColor: '#1877f2',
+                                            boxShadow: '0 10px 30px rgba(24, 119, 242, 0.25)',
+                                            y: -3
+                                        }}
+                                        style={{
+                                            display: 'inline-flex',
+                                            alignItems: 'center',
+                                            padding: '12px 24px',
+                                            background: 'rgba(10, 25, 47, 0.6)',
+                                            borderRadius: '14px',
+                                            border: '1px solid rgba(24, 119, 242, 0.3)',
+                                            color: 'white',
+                                            textDecoration: 'none',
+                                            transition: 'all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
+                                            backdropFilter: 'blur(10px)',
+                                            position: 'relative',
+                                            overflow: 'hidden',
+                                            flex: 1
+                                        }}
+                                    >
+                                        <FaFacebookF style={{ fontSize: '1.8rem', color: '#1877f2', marginRight: '15px' }} />
+                                        <div style={{ textAlign: 'left' }}>
+                                            <div style={{ fontSize: '0.6rem', opacity: 0.8, marginBottom: '2px', letterSpacing: '1.2px', fontWeight: '600' }}>JOIN OUR GROUP</div>
+                                            <div style={{ fontSize: '1.1rem', fontWeight: '800', lineHeight: '1' }}>Facebook</div>
+                                        </div>
+                                    </motion.a>
+
+                                    <motion.a
+                                        href="https://wa.me/+8801571305804"
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        whileHover={{
+                                            scale: 1.05,
+                                            backgroundColor: 'rgba(37, 211, 102, 0.2)',
+                                            borderColor: '#25d366',
+                                            boxShadow: '0 10px 30px rgba(37, 211, 102, 0.25)',
+                                            y: -3
+                                        }}
+                                        style={{
+                                            display: 'inline-flex',
+                                            alignItems: 'center',
+                                            padding: '12px 24px',
+                                            background: 'rgba(10, 25, 47, 0.6)',
+                                            borderRadius: '14px',
+                                            border: '1px solid rgba(37, 211, 102, 0.3)',
+                                            color: 'white',
+                                            textDecoration: 'none',
+                                            transition: 'all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
+                                            backdropFilter: 'blur(10px)',
+                                            position: 'relative',
+                                            overflow: 'hidden',
+                                            flex: 1
+                                        }}
+                                    >
+                                        <FaWhatsapp style={{ fontSize: '2rem', color: '#25d366', marginRight: '15px' }} />
+                                        <div style={{ textAlign: 'left' }}>
+                                            <div style={{ fontSize: '0.6rem', opacity: 0.8, marginBottom: '2px', letterSpacing: '1.2px', fontWeight: '600' }}>MESSAGE US ON</div>
+                                            <div style={{ fontSize: '1.1rem', fontWeight: '800', lineHeight: '1' }}>WhatsApp</div>
+                                        </div>
+                                    </motion.a>
+                                </div>
+
                                 <a href="https://tuitionsebaforum.com" target="_blank" rel="noopener noreferrer" className="social-icon-btn">
                                     <FaGlobe />
                                 </a>
+                            </div>
+
+                            <motion.a
+                                href="https://play.google.com/store/apps/details?id=com.tuitionseba.forum"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                whileHover={{
+                                    scale: 1.05,
+                                    backgroundColor: 'rgba(255, 255, 255, 0.12)',
+                                    borderColor: '#61dafb',
+                                    boxShadow: '0 10px 30px rgba(97, 218, 251, 0.25)',
+                                    y: -3
+                                }}
+                                style={{
+                                    display: 'inline-flex',
+                                    alignItems: 'center',
+                                    padding: '12px 24px',
+                                    background: 'rgba(10, 25, 47, 0.6)',
+                                    borderRadius: '14px',
+                                    border: '1px solid rgba(97, 218, 251, 0.3)',
+                                    color: 'white',
+                                    textDecoration: 'none',
+                                    marginTop: '30px',
+                                    transition: 'all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
+                                    backdropFilter: 'blur(10px)',
+                                    position: 'relative',
+                                    overflow: 'hidden'
+                                }}
+                            >
+                                <div style={{
+                                    position: 'absolute',
+                                    top: 0,
+                                    left: 0,
+                                    width: '100%',
+                                    height: '100%',
+                                    background: 'radial-gradient(circle at center, rgba(61, 220, 132, 0.05) 0%, transparent 70%)',
+                                    pointerEvents: 'none'
+                                }}></div>
+                                <FaGooglePlay style={{ fontSize: '2rem', color: '#3DDC84', marginRight: '15px', filter: 'drop-shadow(0 0 5px rgba(61, 220, 132, 0.3))' }} />
+                                <div style={{ textAlign: 'left', position: 'relative', zIndex: 1 }}>
+                                    <div style={{ fontSize: '0.65rem', opacity: 0.8, marginBottom: '2px', letterSpacing: '1.2px', fontWeight: '600' }}>OFFICIAL TSF APP ON</div>
+                                    <div style={{ fontSize: '1.2rem', fontWeight: '800', lineHeight: '1', color: '#fff' }}>Google Play</div>
+                                </div>
+                            </motion.a>
+
+                            <div style={{
+                                marginTop: '25px',
+                                fontSize: '0.85rem',
+                                color: 'rgba(255, 255, 255, 0.6)',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '10px',
+                                background: 'rgba(255, 255, 255, 0.05)',
+                                padding: '8px 15px',
+                                borderRadius: '10px',
+                                width: 'fit-content',
+                                border: '1px solid rgba(255, 255, 255, 0.1)'
+                            }}>
+                                <span style={{
+                                    textTransform: 'uppercase',
+                                    fontSize: '0.7rem',
+                                    fontWeight: '800',
+                                    letterSpacing: '0.8px',
+                                    color: '#61dafb'
+                                }}>Trade License:</span>
+                                <span style={{ fontFamily: 'monospace', letterSpacing: '0.5px', color: '#fff' }}>TRAD/CHTG/008405/2025</span>
                             </div>
                         </Col>
 
                         {/* Column 2: Quick Links */}
                         <Col lg={2} md={6}>
-                            <h5 className="text-white fw-bold mb-4">Quick Links</h5>
-                            <ul className="list-unstyled footer-links">
+                            <h5 className="text-white fw-bold mb-4" style={{ position: 'relative', display: 'inline-block' }}>
+                                Quick Links
+                                <div style={{ position: 'absolute', bottom: '-8px', left: 0, width: '30px', height: '2px', background: '#61dafb', borderRadius: '1px' }}></div>
+                            </h5>
+                            <ul className="list-unstyled footer-links mt-4">
                                 <li><Link to="/">Home</Link></li>
                                 <li><Link to="/tuitions">Tuition Jobs</Link></li>
                                 <li><Link to="/findTutor">Hire a Tutor</Link></li>
@@ -143,8 +293,11 @@ const Footer = () => {
 
                         {/* Column 3: Support */}
                         <Col lg={2} md={6}>
-                            <h5 className="text-white fw-bold mb-4">Support</h5>
-                            <ul className="list-unstyled footer-links">
+                            <h5 className="text-white fw-bold mb-4" style={{ position: 'relative', display: 'inline-block' }}>
+                                Support
+                                <div style={{ position: 'absolute', bottom: '-8px', left: 0, width: '30px', height: '2px', background: '#61dafb', borderRadius: '1px' }}></div>
+                            </h5>
+                            <ul className="list-unstyled footer-links mt-4">
                                 <li><Link to="/rules">Rules</Link></li>
                                 <li><Link to="/privacy">Privacy Policy</Link></li>
                                 <li><Link to="/payment">Payment Methods</Link></li>
@@ -154,8 +307,11 @@ const Footer = () => {
 
                         {/* Column 4: Contact */}
                         <Col lg={4} md={6}>
-                            <h5 className="text-white fw-bold mb-4">Contact Us</h5>
-                            <ul className="list-unstyled contact-info">
+                            <h5 className="text-white fw-bold mb-4" style={{ position: 'relative', display: 'inline-block' }}>
+                                Contact Us
+                                <div style={{ position: 'absolute', bottom: '-8px', left: 0, width: '30px', height: '2px', background: '#61dafb', borderRadius: '1px' }}></div>
+                            </h5>
+                            <ul className="list-unstyled contact-info mt-4">
                                 <li className="d-flex mb-3">
                                     <div className="icon-wrapper me-3">
                                         <FaMapMarkerAlt />
@@ -172,7 +328,7 @@ const Footer = () => {
                                     <div className="icon-wrapper me-3">
                                         <FaEnvelope />
                                     </div>
-                                    <a href="mailto:info@tuitionsebaforum.com" className="text-white-50 text-decoration-none">info@tuitionsebaforum.com</a>
+                                    <a href="mailto:tuitionsebaforum@gmail.com" className="text-white-50 text-decoration-none">tuitionsebaforum@gmail.com</a>
                                 </li>
                             </ul>
                         </Col>

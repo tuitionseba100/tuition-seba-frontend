@@ -6,6 +6,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import ApplySuccessModal from '../../components/modals/ApplySuccessModal';
 import CustomErrorModal from '../../components/modals/CustomErrorModal';
 import ProcessingModal from '../../components/modals/ProcessingModal';
+import SuspendedWarningModal from '../../components/modals/SuspendedWarningModal';
 
 const spinnerStyle = {
     width: 24,
@@ -21,6 +22,7 @@ const ApplyModal = ({ show, onClose, tuitionCode, tuitionId }) => {
     const modalBodyRef = useRef(null);
     const [showSuccess, setShowSuccess] = useState(false);
     const [errorMessage, setErrorMessage] = useState('');
+    const [showSuspendedModal, setShowSuspendedModal] = useState(false);
     const [isVerified, setIsVerified] = useState(false);
     const [teacherData, setTeacherData] = useState(null);
     const [isVerifying, setIsVerifying] = useState(false);
@@ -71,7 +73,12 @@ const ApplyModal = ({ show, onClose, tuitionCode, tuitionId }) => {
             const checkData = await checkRes.json();
 
             if (!checkRes.ok) {
-                setErrorMessage(checkData.message || 'Invalid premium code or phone');
+                if (checkRes.status === 403) {
+                    // Teacher account is suspended — show dedicated Bangla warning modal
+                    setShowSuspendedModal(true);
+                } else {
+                    setErrorMessage(checkData.message || 'Invalid premium code or phone');
+                }
                 setIsVerifying(false);
                 return;
             }
@@ -516,6 +523,10 @@ const ApplyModal = ({ show, onClose, tuitionCode, tuitionId }) => {
                     show={!!errorMessage}
                     message={errorMessage}
                     onClose={() => setErrorMessage('')}
+                />
+                <SuspendedWarningModal
+                    show={showSuspendedModal}
+                    onClose={() => setShowSuspendedModal(false)}
                 />
             </div>
 

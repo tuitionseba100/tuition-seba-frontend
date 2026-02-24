@@ -301,84 +301,86 @@ const PaymentPage = () => {
                     </Button>
                 </Header>
 
-                <Card className="mt-4">
-                    <Card.Body>
-                        <div className="row text-center">
-                            <div className="col-6 col-sm-4 col-md-2 mb-3">
-                                <div className="card p-3 shadow border-primary">
-                                    <div className="d-flex flex-column align-items-center">
-                                        <span className="text-primary" style={{ fontWeight: 'bolder' }}>Total payments Count</span>
-                                        <span>{totalPaymentsCount}</span>
+                {role === 'superadmin' && (
+                    <Card className="mt-4">
+                        <Card.Body>
+                            <div className="row text-center">
+                                <div className="col-6 col-sm-4 col-md-2 mb-3">
+                                    <div className="card p-3 shadow border-primary">
+                                        <div className="d-flex flex-column align-items-center">
+                                            <span className="text-primary" style={{ fontWeight: 'bolder' }}>Total payments Count</span>
+                                            <span>{totalPaymentsCount}</span>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
 
-                            <div className="col-6 col-sm-4 col-md-2 mb-3">
-                                <div className="card p-3 shadow border-primary">
-                                    <div className="d-flex flex-column align-items-center">
-                                        {role === 'superadmin' ? (
-                                            <>
-                                                <span className="text-primary" style={{ fontWeight: 'bolder' }}>Total Payments(TK)</span>
-                                                <span>TK. {totalPaymentTK}</span>
-                                            </>
-                                        ) : (
-                                            <>
-                                                <span>&nbsp;</span>
-                                                <span>&nbsp;</span>
-                                            </>
-                                        )}
+                                <div className="col-6 col-sm-4 col-md-2 mb-3">
+                                    <div className="card p-3 shadow border-primary">
+                                        <div className="d-flex flex-column align-items-center">
+                                            {role === 'superadmin' ? (
+                                                <>
+                                                    <span className="text-primary" style={{ fontWeight: 'bolder' }}>Total Payments(TK)</span>
+                                                    <span>TK. {totalPaymentTK}</span>
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <span>&nbsp;</span>
+                                                    <span>&nbsp;</span>
+                                                </>
+                                            )}
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
 
-                            <div className="col-6 col-sm-4 col-md-2 mb-3">
-                                <div className="card p-3 shadow border-primary">
-                                    <div className="d-flex flex-column align-items-center">
-                                        <span className="text-primary" style={{ fontWeight: 'bolder' }}>Total Payments Count Today</span>
-                                        <span>{totalPaymentsTodayCount}</span>
+                                <div className="col-6 col-sm-4 col-md-2 mb-3">
+                                    <div className="card p-3 shadow border-primary">
+                                        <div className="d-flex flex-column align-items-center">
+                                            <span className="text-primary" style={{ fontWeight: 'bolder' }}>Total Payments Count Today</span>
+                                            <span>{totalPaymentsTodayCount}</span>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
 
-                            <div className="col-6 col-sm-4 col-md-2 mb-3">
-                                <div className="card p-3 shadow border-primary">
-                                    <div className="d-flex flex-column align-items-center">
-                                        <span className="text-primary" style={{ fontWeight: 'bolder' }}>Total Payments(TK) Today</span>
-                                        <span>TK. {totalPaymentTKToday}</span>
+                                <div className="col-6 col-sm-4 col-md-2 mb-3">
+                                    <div className="card p-3 shadow border-primary">
+                                        <div className="d-flex flex-column align-items-center">
+                                            <span className="text-primary" style={{ fontWeight: 'bolder' }}>Total Payments(TK) Today</span>
+                                            <span>TK. {totalPaymentTKToday}</span>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
 
-                            <div className="col-6 col-sm-4 col-md-2 mb-3">
-                                <div className="card p-3 shadow border-primary">
-                                    <div className="d-flex flex-column align-items-center">
-                                        <span className="text-primary" style={{ fontWeight: 'bolder' }}>Total Dues Count</span>
-                                        <span>{totalDuesCount}</span>
+                                <div className="col-6 col-sm-4 col-md-2 mb-3">
+                                    <div className="card p-3 shadow border-primary">
+                                        <div className="d-flex flex-column align-items-center">
+                                            <span className="text-primary" style={{ fontWeight: 'bolder' }}>Total Dues Count</span>
+                                            <span>{totalDuesCount}</span>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
 
-                            <div className="col-6 col-sm-4 col-md-2 mb-3">
-                                <div className="card p-3 shadow border-primary">
-                                    <div className="d-flex flex-column align-items-center">
-                                        {role === 'superadmin' ? (
-                                            <>
-                                                <span className="text-primary" style={{ fontWeight: 'bolder' }}>Total Dues(TK)</span>
-                                                <span>TK. {totalDues}</span>
-                                            </>
-                                        ) : (
-                                            <>
-                                                <span>&nbsp;</span>
-                                                <span>&nbsp;</span>
-                                            </>
-                                        )}
+                                <div className="col-6 col-sm-4 col-md-2 mb-3">
+                                    <div className="card p-3 shadow border-primary">
+                                        <div className="d-flex flex-column align-items-center">
+                                            {role === 'superadmin' ? (
+                                                <>
+                                                    <span className="text-primary" style={{ fontWeight: 'bolder' }}>Total Dues(TK)</span>
+                                                    <span>TK. {totalDues}</span>
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <span>&nbsp;</span>
+                                                    <span>&nbsp;</span>
+                                                </>
+                                            )}
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
 
-                        </div>
-                    </Card.Body>
-                </Card>
+                            </div>
+                        </Card.Body>
+                    </Card>
+                )}
 
                 {/* Search bar */}
                 <Row className="mt-2 mb-3">

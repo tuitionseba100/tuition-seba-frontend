@@ -215,7 +215,7 @@ const TuitionPage = () => {
                 await axios.put(`https://tuition-seba-backend-1.onrender.com/api/tuitionApply/edit/${editingId}`, updatedTuitionData);
                 toast.success("Tuition apply record updated successfully!");
             } else {
-                await axios.post('https://tuition-seba-backend-1.onrender.com/api/tuitionApply/add', updatedTuitionData);
+                await axios.post('https://tuition-seba-backend-1.onrender.com/api/tuitionApply/add-web', updatedTuitionData);
                 toast.success("Tuition apply record created successfully!");
             }
             setShowModal(false);

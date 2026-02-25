@@ -213,7 +213,7 @@ const ApplyModal = ({ show, onClose, tuitionCode, tuitionId }) => {
 
                         try {
                             const res = await fetch(
-                                'https://tuition-seba-backend-1.onrender.com/api/tuitionApply/add',
+                                'https://tuition-seba-backend-1.onrender.com/api/tuitionApply/add-web',
                                 {
                                     method: 'POST',
                                     headers: { 'Content-Type': 'application/json' },

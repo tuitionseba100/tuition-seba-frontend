@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Modal, Table, Button, Form, Row, Col, Spinner } from "react-bootstrap";
 import axios from "axios";
 import { toast } from "react-toastify";
-import { FaEdit, FaTrashAlt } from "react-icons/fa";
+import { FaEdit, FaTrashAlt, FaGlobe, FaGooglePlay } from "react-icons/fa";
 
 const inputStyle = {
     borderRadius: "5px",
@@ -204,7 +204,36 @@ function AppliedListModal({ tuitionId, tuitionCode, show, onHide }) {
                                         const style = getRowStyle(app);
                                         return (
                                             <tr key={app._id}>
-                                                <td style={style}>{index + 1}</td>
+                                                <td style={{ ...style, textAlign: 'center', verticalAlign: 'middle', minWidth: '80px' }}>
+                                                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px' }}>
+                                                        <span style={{ fontWeight: '700', fontSize: '1rem' }}>
+                                                            {index + 1} {app.isBest && <span title="Best">⭐</span>}
+                                                        </span>
+                                                        {app.isAppApply
+                                                            ? (
+                                                                <span style={{
+                                                                    display: 'inline-flex', alignItems: 'center', gap: '4px',
+                                                                    backgroundColor: '#01875f', color: '#fff',
+                                                                    padding: '2px 8px', borderRadius: '12px',
+                                                                    fontSize: '0.65rem', fontWeight: 'bold', textTransform: 'uppercase',
+                                                                    boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+                                                                }}>
+                                                                    <FaGooglePlay style={{ fontSize: '0.6rem' }} /> App
+                                                                </span>
+                                                            )
+                                                            : (
+                                                                <span style={{
+                                                                    display: 'inline-flex', alignItems: 'center', gap: '4px',
+                                                                    backgroundColor: '#1a73e8', color: '#fff',
+                                                                    padding: '2px 8px', borderRadius: '12px',
+                                                                    fontSize: '0.65rem', fontWeight: 'bold', textTransform: 'uppercase',
+                                                                    boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+                                                                }}>
+                                                                    <FaGlobe style={{ fontSize: '0.6rem' }} /> Web
+                                                                </span>
+                                                            )}
+                                                    </div>
+                                                </td>
                                                 <td style={style}>{app.updatedBy || ""}</td>
                                                 <td style={style}>{app.premiumCode}</td>
                                                 <td style={style}>{app.phone}</td>

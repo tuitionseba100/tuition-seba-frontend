@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Button, Table, Modal, Form, Row, Col, Card } from 'react-bootstrap';
-import { FaEdit, FaInfoCircle, FaTrashAlt, FaWhatsapp, FaChevronLeft, FaChevronRight, FaSearch, FaTimes } from 'react-icons/fa'; // React Icons
+import { FaEdit, FaInfoCircle, FaTrashAlt, FaWhatsapp, FaChevronLeft, FaChevronRight, FaSearch, FaTimes, FaGlobe, FaGooglePlay } from 'react-icons/fa'; // React Icons
 import axios from 'axios';
 import NavBarPage from './NavbarPage';
 import styled from 'styled-components';
@@ -1088,7 +1088,36 @@ const PremiumTeacherPage = () => {
                                     <tbody>
                                         {tuitionApplyList.map((apply, index) => (
                                             <tr key={index}>
-                                                <td>{index + 1}</td>
+                                                <td style={{ textAlign: 'center', verticalAlign: 'middle', minWidth: '80px' }}>
+                                                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px' }}>
+                                                        <span style={{ fontWeight: '700', fontSize: '1rem' }}>
+                                                            {index + 1}
+                                                        </span>
+                                                        {apply.isAppApply
+                                                            ? (
+                                                                <span style={{
+                                                                    display: 'inline-flex', alignItems: 'center', gap: '4px',
+                                                                    backgroundColor: '#01875f', color: '#fff',
+                                                                    padding: '2px 8px', borderRadius: '12px',
+                                                                    fontSize: '0.65rem', fontWeight: 'bold', textTransform: 'uppercase',
+                                                                    boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+                                                                }}>
+                                                                    <FaGooglePlay style={{ fontSize: '0.6rem' }} /> App
+                                                                </span>
+                                                            )
+                                                            : (
+                                                                <span style={{
+                                                                    display: 'inline-flex', alignItems: 'center', gap: '4px',
+                                                                    backgroundColor: '#1a73e8', color: '#fff',
+                                                                    padding: '2px 8px', borderRadius: '12px',
+                                                                    fontSize: '0.65rem', fontWeight: 'bold', textTransform: 'uppercase',
+                                                                    boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+                                                                }}>
+                                                                    <FaGlobe style={{ fontSize: '0.6rem' }} /> Web
+                                                                </span>
+                                                            )}
+                                                    </div>
+                                                </td>
 
                                                 <td>{apply.tuitionCode}</td>
 

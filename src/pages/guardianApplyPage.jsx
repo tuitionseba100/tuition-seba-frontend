@@ -52,7 +52,9 @@ const GuardianApplyPage = () => {
         'meeting scheduled',
         'meeting done',
         'confirmed',
-        'not interested'
+        'not interested',
+        'Try another way',
+        'Suspended'
     ];
 
     const [searchInputs, setSearchInputs] = useState({
@@ -426,6 +428,8 @@ const GuardianApplyPage = () => {
                             <option value="meeting done">Meeting Done</option>
                             <option value="confirmed">Confirmed</option>
                             <option value="not interested">Not Interested</option>
+                            <option value="Try another way">Try another way</option>
+                            <option value="Suspended">Suspended</option>
                         </Form.Select>
                     </Col>
 
@@ -520,6 +524,8 @@ const GuardianApplyPage = () => {
                                                             ${rowData.status === "meeting done" ? "bg-success text-light" : ""}  
                                                             ${rowData.status === "confirmed" ? "bg-success" : ""}  
                                                             ${rowData.status === "not interested" ? "bg-danger text-light" : ""}
+                                                            ${rowData.status === "Try another way" ? "bg-dark text-light" : ""}
+                                                            ${rowData.status === "Suspended" ? "bg-danger text-light" : ""}
                                                             `}
                                                     >
                                                         {rowData.status}
@@ -545,8 +551,8 @@ const GuardianApplyPage = () => {
                                                         placement="top"
                                                         overlay={<Tooltip>Delete Record</Tooltip>}
                                                     >
-                                                        <Button 
-                                                            variant="danger" 
+                                                        <Button
+                                                            variant="danger"
                                                             onClick={() => handleDeleteRecord(rowData._id)}
                                                             disabled={deleteLoading}
                                                         >

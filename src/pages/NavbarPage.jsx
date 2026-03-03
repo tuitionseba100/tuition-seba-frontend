@@ -76,6 +76,7 @@ const Navbar = () => {
                                 {renderNavItem("/admin/premiumTeacher", "Premium")}
                                 {renderNavItem("/admin/spamBest", "Spam/Best")}
                                 {renderNavItem("/admin/lead", "Lead")}
+                                {renderNavItem("/admin/general", "General")}
                             </>
                         ) : null}
 

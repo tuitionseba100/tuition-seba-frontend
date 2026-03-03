@@ -30,6 +30,8 @@ import OurTeacher from './pages/public/OurTeacher';
 import LeadPage from './pages/LeadPage';
 import PrivacyPolicyPage from './pages/public/PrivacyPolicyPage';
 import Rules from './pages/public/Rules';
+import GeneralPage from './pages/GeneralPage';
+
 
 const App = () => {
   return (
@@ -62,6 +64,8 @@ const App = () => {
             <Route path="premiumTeacher" element={<PremiumTeacherPage />} />
             <Route path="spamBest" element={<SpamBestPage />} />
             <Route path="lead" element={<LeadPage />} />
+            <Route path="general" element={<GeneralPage />} />
+
           </Route>
 
           <Route element={<PrivateRoute role="superadmin" />}>

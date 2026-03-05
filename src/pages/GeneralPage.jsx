@@ -3,15 +3,39 @@ import { Container, Row, Col, Card, Table, Form, Button, Spinner, Badge } from '
 import axios from 'axios';
 import NavBarPage from './NavbarPage';
 import { toast, ToastContainer } from 'react-toastify';
-import { FaSearch, FaSyncAlt } from 'react-icons/fa';
+import {
+    FaSearch,
+    FaSyncAlt,
+    FaUserPlus,
+    FaBullhorn,
+    FaShieldAlt,
+    FaUserTie,
+    FaBriefcase,
+    FaClipboardList,
+    FaHandHoldingUsd,
+    FaWallet,
+    FaHistory,
+    FaLayerGroup
+} from 'react-icons/fa';
 
 const cardStyle = {
-    padding: '20px',
-    borderRadius: '8px',
+    padding: '24px',
+    borderRadius: '12px',
     color: 'white',
     marginBottom: '20px',
     textAlign: 'center',
-    fontWeight: '600',
+    fontWeight: '700',
+    fontSize: '1.25rem',
+};
+
+const formatDate = (dateString) => {
+    if (!dateString) return '-';
+    const date = new Date(dateString);
+    const optionsDate = { day: '2-digit', month: 'long', year: 'numeric' };
+    const optionsTime = { hour: '2-digit', minute: '2-digit', hour12: true };
+    const formattedDate = new Intl.DateTimeFormat('en-GB', optionsDate).format(date);
+    const formattedTime = new Intl.DateTimeFormat('en-GB', optionsTime).format(date);
+    return `${formattedDate} || ${formattedTime}`;
 };
 
 const GeneralPage = () => {
@@ -23,16 +47,16 @@ const GeneralPage = () => {
     const matchSummary = useMemo(() => {
         if (!results) return [];
         const summary = [
-            { id: 'guardianApplies', label: 'Guardian Applies', count: results.guardianApplies?.length || 0, bgColor: '#007bff' },
-            { id: 'leads', label: 'Leads', count: results.leads?.length || 0, bgColor: '#6610f2' },
-            { id: 'phones', label: 'Spam/Best/Express', count: results.phones?.length || 0, bgColor: '#dc3545' },
-            { id: 'teachers', label: 'Teachers', count: results.teachers?.length || 0, bgColor: '#28a745' },
-            { id: 'tuitions', label: 'Tuitions', count: results.tuitions?.length || 0, bgColor: '#ffc107', color: 'black' },
-            { id: 'tuitionApplies', label: 'Tuition Application', count: results.tuitionApplies?.length || 0, bgColor: '#17a2b8' },
-            { id: 'teacherPayments', label: 'Teacher Payments', count: results.teacherPayments?.length || 0, bgColor: '#20c997' },
-            { id: 'payments', label: 'Payments', count: results.payments?.length || 0, bgColor: '#6f42c1' },
-            { id: 'refunds', label: 'Refunds', count: results.refunds?.length || 0, bgColor: '#fd7e14' },
-            { id: 'taskDatas', label: 'Task Data', count: results.taskDatas?.length || 0, bgColor: '#e83e8c' },
+            { id: 'guardianApplies', label: 'Guardian Applies', count: results.guardianApplies?.length || 0, icon: <FaUserPlus />, gradient: 'linear-gradient(135deg, #6a11cb 0%, #2575fc 100%)' },
+            { id: 'leads', label: 'Leads', count: results.leads?.length || 0, icon: <FaBullhorn />, gradient: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' },
+            { id: 'phones', label: 'Spam/Best/Express', count: results.phones?.length || 0, icon: <FaShieldAlt />, gradient: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)' },
+            { id: 'teachers', label: 'Teachers', count: results.teachers?.length || 0, icon: <FaUserTie />, gradient: 'linear-gradient(135deg, #00b09b 0%, #96c93d 100%)' },
+            { id: 'tuitions', label: 'Tuitions', count: results.tuitions?.length || 0, icon: <FaBriefcase />, gradient: 'linear-gradient(135deg, #f6d365 0%, #fda085 100%)' },
+            { id: 'tuitionApplies', label: 'Tuition Application', count: results.tuitionApplies?.length || 0, icon: <FaClipboardList />, gradient: 'linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%)' },
+            { id: 'teacherPayments', label: 'Teacher Payments', count: results.teacherPayments?.length || 0, icon: <FaHandHoldingUsd />, gradient: 'linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%)' },
+            { id: 'payments', label: 'Payments', count: results.payments?.length || 0, icon: <FaWallet />, gradient: 'linear-gradient(135deg, #cfd9df 0%, #e2ebf0 100%)' },
+            { id: 'refunds', label: 'Refunds', count: results.refunds?.length || 0, icon: <FaHistory />, gradient: 'linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%)' },
+            { id: 'taskDatas', label: 'Task Data', count: results.taskDatas?.length || 0, icon: <FaLayerGroup />, gradient: 'linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%)' },
         ];
         return summary.filter(item => item.count > 0);
     }, [results]);
@@ -78,14 +102,14 @@ const GeneralPage = () => {
         if (!data || data.length === 0) return null;
 
         return (
-            <Card id={id} className="mb-4 shadow-sm mt-4">
-                <Card.Header className="bg-primary text-white d-flex justify-content-between align-items-center" style={{ fontWeight: '900' }}>
+            <Card id={id} className="mb-4 shadow-sm mt-4" style={{ borderRadius: '15px', overflow: 'hidden' }}>
+                <Card.Header className="bg-primary text-white d-flex justify-content-between align-items-center py-3" style={{ fontWeight: '800', fontSize: '1.3rem' }}>
                     <span>{title}</span>
-                    <Badge bg="light" text="dark">{data.length}</Badge>
+                    <Badge bg="light" text="dark" className="fs-6">{data.length}</Badge>
                 </Card.Header>
                 <Card.Body className="p-0">
-                    <div style={{ maxHeight: '400px', overflowY: 'auto' }}>
-                        <Table striped bordered hover responsive className="mb-0">
+                    <div style={{ maxHeight: '500px', overflowY: 'auto' }}>
+                        <Table striped bordered hover responsive className="mb-0" style={{ fontSize: '1.15rem' }}>
                             <thead className="table-light sticky-top">
                                 <tr>
                                     {columns.map((col, idx) => <th key={idx}>{col.label}</th>)}
@@ -125,13 +149,13 @@ const GeneralPage = () => {
                         <Form onSubmit={handleSearch}>
                             <Row className="justify-content-center">
                                 <Col lg={10}>
-                                    <div className="search-bar-integrated d-flex flex-column flex-md-row gap-0 shadow-sm border rounded-pill p-1 bg-white">
-                                        <div className="px-3 py-1 border-end d-none d-md-flex align-items-center bg-light rounded-start-pill">
+                                    <div className="search-bar-integrated d-flex flex-column flex-md-row gap-0 shadow-sm border-0 bg-white" style={{ borderRadius: '12px', border: '2px solid #007bff', overflow: 'hidden' }}>
+                                        <div className="px-3 py-1 border-end d-none d-md-flex align-items-center bg-light">
                                             <Form.Select
                                                 value={searchType}
                                                 onChange={(e) => setSearchType(e.target.value)}
-                                                className="border-0 bg-transparent fw-bold text-primary py-0"
-                                                style={{ minWidth: '140px', cursor: 'pointer', outline: 'none', boxShadow: 'none' }}
+                                                className="border-0 bg-transparent fw-bold text-primary py-0 mt-1"
+                                                style={{ minWidth: '160px', cursor: 'pointer', outline: 'none', boxShadow: 'none', fontSize: '1.2rem' }}
                                             >
                                                 <option value="phone">Phone No</option>
                                                 <option value="tuition">Tuition Code</option>
@@ -156,7 +180,7 @@ const GeneralPage = () => {
                                                 placeholder={searchType === 'phone' ? "Enter phone number (e.g. 017...)" : "Enter tuition code (e.g. TS-1234)"}
                                                 value={searchTerm}
                                                 onChange={(e) => setSearchTerm(e.target.value)}
-                                                className="border-0 shadow-none fs-6 py-0"
+                                                className="border-0 shadow-none fs-4 py-0"
                                                 style={{ outline: 'none' }}
                                             />
                                         </div>
@@ -165,16 +189,16 @@ const GeneralPage = () => {
                                             variant="primary"
                                             type="submit"
                                             disabled={loading}
-                                            className="rounded-pill px-5 py-2 fw-bold d-flex align-items-center justify-content-center"
-                                            style={{ minWidth: '150px' }}
+                                            className="px-5 py-2 fw-bold d-flex align-items-center justify-content-center fs-5"
+                                            style={{ minWidth: '180px', borderRadius: '0' }}
                                         >
                                             {loading ? <Spinner animation="border" size="sm" /> : <><FaSearch className="me-2" /> SEARCH</>}
                                         </Button>
                                     </div>
-                                    <div className="mt-3 text-center text-muted small">
-                                        <span className="me-3">Quick Search:</span>
-                                        <Badge bg="light" text="dark" className="me-2 px-3 py-2 cursor-pointer grow-on-hover shadow-sm" style={{ cursor: 'pointer' }} onClick={() => setSearchType('phone')}>Phone Search</Badge>
-                                        <Badge bg="light" text="dark" className="px-3 py-2 cursor-pointer grow-on-hover shadow-sm" style={{ cursor: 'pointer' }} onClick={() => setSearchType('tuition')}>Tuition Code Search</Badge>
+                                    <div className="mt-3 text-center text-muted fs-6">
+                                        <span className="me-3 fw-bold">Quick Search:</span>
+                                        <Badge bg="light" text="dark" className="me-2 px-3 py-2 cursor-pointer grow-on-hover shadow-sm fs-6" style={{ cursor: 'pointer' }} onClick={() => setSearchType('phone')}>Phone Search</Badge>
+                                        <Badge bg="light" text="dark" className="px-3 py-2 cursor-pointer grow-on-hover shadow-sm fs-6" style={{ cursor: 'pointer' }} onClick={() => setSearchType('tuition')}>Tuition Code Search</Badge>
                                     </div>
                                 </Col>
                             </Row>
@@ -186,27 +210,49 @@ const GeneralPage = () => {
                 {results && !loading && matchSummary.length > 0 && (
                     <div className="mt-4 mb-5">
                         <div className="d-flex align-items-center mb-4">
-                            <h4 className="fw-bold mb-0 text-dark">Search Insights</h4>
+                            <h3 className="fw-bold mb-0 text-dark display-6" style={{ fontSize: '2rem' }}>Search Insights</h3>
                             <hr className="flex-grow-1 ms-3 opacity-10" />
                         </div>
                         <Row className="g-3">
                             {matchSummary.map((item) => (
-                                <Col key={item.id} xs={6} md={4} lg={2}>
+                                <Col key={item.id} xs={6} sm={4} md={3} lg={2} xl={2}>
                                     <div
                                         onClick={() => scrollToCategory(item.id)}
-                                        className="h-100 p-3 rounded-4 d-flex flex-column align-items-center justify-content-center text-center grow-on-hover shadow-sm bg-white"
+                                        className="summary-card-elegant h-100 p-3 rounded-4 shadow-sm d-flex flex-column align-items-center justify-content-center text-center transition-all position-relative"
                                         style={{
-                                            borderTop: `4px solid ${item.bgColor}`,
+                                            background: 'white',
                                             cursor: 'pointer',
-                                            minHeight: '110px'
+                                            minHeight: '110px',
+                                            border: '2px solid #007bff',
+                                            transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                                            boxShadow: '0 4px 12px rgba(0,123,255,0.08)'
                                         }}
                                     >
-                                        <div className="text-muted mb-1" style={{ fontSize: '0.75rem', fontWeight: '600', textTransform: 'uppercase' }}>{item.label}</div>
-                                        <div className="h3 mb-0 fw-bold" style={{ color: item.bgColor }}>{item.count}</div>
+                                        <div className="label-text mb-1 text-uppercase fw-black text-dark" style={{ fontSize: '0.9rem', letterSpacing: '0.02em' }}>
+                                            {item.label}
+                                        </div>
+                                        <div className="count-text h1 mb-0 fw-black" style={{ color: '#1a252f' }}>
+                                            {item.count}
+                                        </div>
                                     </div>
                                 </Col>
                             ))}
                         </Row>
+
+                        <style>{`
+                            .summary-card-elegant {
+                                border: 2px solid #007bff !important;
+                            }
+                            .summary-card-elegant:hover {
+                                transform: translateY(-8px);
+                                box-shadow: 0 12px 24px rgba(0,123,255,0.15) !important;
+                                border-color: #0056b3 !important;
+                                background-color: #f8fbff !important;
+                            }
+                            .fw-black {
+                                font-weight: 900;
+                            }
+                        `}</style>
                     </div>
                 )}
 
@@ -223,6 +269,7 @@ const GeneralPage = () => {
                             { key: 'studentName', label: 'Student Name' },
                             { key: 'phone', label: 'Phone' },
                             { key: 'tuitionCode', label: 'Tuition Code' },
+                            { key: 'appliedAt', label: 'Applied Date', render: (item) => formatDate(item.appliedAt) },
                             { key: 'status', label: 'Status' }
                         ])}
 
@@ -233,7 +280,7 @@ const GeneralPage = () => {
                             { key: 'tuitionCode', label: 'Code' }
                         ])}
 
-                        {renderTable("phones", "Phone Registry", results.phones, [
+                        {renderTable("phones", "Spam/Best/Express", results.phones, [
                             { key: 'phone', label: 'Phone' },
                             {
                                 label: 'Status',
@@ -250,6 +297,7 @@ const GeneralPage = () => {
                         ])}
 
                         {renderTable("teachers", "Registered Teachers", results.teachers, [
+                            { key: 'premiumCode', label: 'Premium Code' },
                             { key: 'name', label: 'Name' },
                             { key: 'phone', label: 'Primary Phone' },
                             { key: 'alternativePhone', label: 'Alt Phone' },
@@ -259,9 +307,15 @@ const GeneralPage = () => {
 
                         {renderTable("tuitions", "Tuition Records", results.tuitions, [
                             { key: 'tuitionCode', label: 'Code' },
+                            { key: 'city', label: 'Location' },
+                            { key: 'area', label: 'Area' },
                             { key: 'guardianNumber', label: 'Guardian' },
                             { key: 'tutorNumber', label: 'Tutor' },
-                            { key: 'status', label: 'Status' }
+                            { key: 'status', label: 'Status' },
+                            { key: 'lastUpdate', label: 'Last Update', render: (item) => formatDate(item.lastUpdate) },
+                            { key: 'lastUpdateComment', label: 'L. Update Comment' },
+                            { key: 'nextUpdateDate', label: 'Next Update', render: (item) => formatDate(item.nextUpdateDate) },
+                            { key: 'nextUpdateComment', label: 'N. Update Comment' }
                         ])}
 
                         {renderTable("tuitionApplies", "Tutor Applications", results.tuitionApplies, [
@@ -281,7 +335,9 @@ const GeneralPage = () => {
                         {renderTable("payments", "Payments", results.payments, [
                             { key: 'tuitionCode', label: 'Code' },
                             { key: 'tutorNumber', label: 'Teacher No' },
-                            { key: 'receivedTk', label: 'Amount' },
+                            { key: 'receivedTk', label: 'Last Received TK' },
+                            { key: 'duePayment', label: 'Due TK' },
+                            { key: 'totalReceivedTk', label: 'Total Received TK' },
                             { key: 'paymentStatus', label: 'Status' }
                         ])}
 

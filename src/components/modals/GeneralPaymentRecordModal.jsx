@@ -47,16 +47,24 @@ const GeneralPaymentRecordModal = ({ show, onHide, editingId, initialData, onSav
     useEffect(() => {
         if (show) {
             if (editingId && initialData) {
-                setPaymentData(initialData);
-                setServerData(initialData);
+                // Normalize initialData: replace nulls/undefineds with empty strings
+                const normalizedData = { ...initialData };
+                Object.keys(normalizedData).forEach(key => {
+                    if (normalizedData[key] === null || normalizedData[key] === undefined) {
+                        normalizedData[key] = '';
+                    }
+                });
+                setPaymentData(normalizedData);
+                setServerData(normalizedData);
 
                 // Determine how many installments to show based on data
                 let count = 2;
                 if (initialData.receivedTk4 || initialData.paymentReceivedDate4 || initialData.paymentNumber4) count = 4;
                 else if (initialData.receivedTk3 || initialData.paymentReceivedDate3 || initialData.paymentNumber3) count = 3;
                 setVisibleInstallments(count);
-                setAutoCalc(false); // Unchecked when data populated first (edit mode)
-                setAutoCalcFinance(true); // Checked by default
+                const isTotalMissing = !initialData.totalPaymentTk || parseFloat(initialData.totalPaymentTk) === 0;
+                setAutoCalc(isTotalMissing); // Checked if total is missing, else user preference
+                setAutoCalcFinance(true); // Always checked by default
             } else {
                 const defaultValues = {
                     tuitionCode: '',
@@ -97,6 +105,50 @@ const GeneralPaymentRecordModal = ({ show, onHide, editingId, initialData, onSav
                 setAutoCalc(true); // Default to checked for new records
                 setAutoCalcFinance(true); // Default to checked for new records
             }
+        } else {
+            // Reset everything when modal is hidden
+            const defaultValues = {
+                tuitionCode: '',
+                tuitionId: '',
+                paymentReceivedDate: '',
+                paymentReceivedDate2: '',
+                paymentReceivedDate3: '',
+                paymentReceivedDate4: '',
+                duePayDate: '',
+                tutorName: '',
+                tutorNumber: '',
+                paymentNumber: '',
+                paymentNumber2: '',
+                paymentNumber3: '',
+                paymentNumber4: '',
+                paymentType: '',
+                paymentType2: '',
+                paymentType3: '',
+                paymentType4: '',
+                receivedTk: '',
+                receivedTk2: '',
+                receivedTk3: '',
+                receivedTk4: '',
+                totalReceivedTk: '',
+                duePayment: '',
+                paymentStatus: '',
+                tuitionSalary: '',
+                totalPaymentTk: '',
+                discount: '',
+                comment: '',
+                comment1: '',
+                comment2: '',
+                comment3: '',
+            };
+            setPaymentData(defaultValues);
+            setServerData(null);
+            setVisibleInstallments(2);
+            setIsSaving(false);
+            setIsDeleting(false);
+            setShowConfirmModal(false);
+            setChangedFields([]);
+            setAutoCalc(true);
+            setAutoCalcFinance(true);
         }
     }, [show, editingId, initialData]);
 
@@ -105,7 +157,8 @@ const GeneralPaymentRecordModal = ({ show, onHide, editingId, initialData, onSav
         setPaymentData(prev => {
             const newData = { ...prev, [id]: value };
 
-            const isNumeric = (val) => val !== '' && !isNaN(parseFloat(val)) && isFinite(val);
+            const isNumeric = (val) => val !== null && val !== undefined && val !== '' && !isNaN(parseFloat(val)) && isFinite(val);
+            const getNum = (val) => (isNumeric(val) ? parseFloat(val) : 0);
 
             // 1. Auto-calculate Total Payment TK only if Tuition Salary changes and autoCalc is enabled
             if (id === 'tuitionSalary') {
@@ -115,39 +168,83 @@ const GeneralPaymentRecordModal = ({ show, onHide, editingId, initialData, onSav
                 }
             }
 
-            // 2. Recalculate sums if any financial field changed and autoCalcFinance is enabled
-            const financialIds = ['tuitionSalary', 'totalPaymentTk', 'receivedTk', 'receivedTk2', 'receivedTk3', 'receivedTk4', 'discount'];
+            // 2. Recalculate sums if any financial field changed and autoCalcFinance is enabled (including sync back from due/rec)
+            const financialIds = ['tuitionSalary', 'totalPaymentTk', 'receivedTk', 'receivedTk2', 'receivedTk3', 'receivedTk4', 'discount', 'duePayment', 'totalReceivedTk'];
             if (autoCalcFinance && financialIds.includes(id)) {
                 const r1v = id === 'receivedTk' ? value : prev.receivedTk;
                 const r2v = id === 'receivedTk2' ? value : prev.receivedTk2;
                 const r3v = id === 'receivedTk3' ? value : prev.receivedTk3;
                 const r4v = id === 'receivedTk4' ? value : prev.receivedTk4;
 
-                // Sum installments only if ALL present installments are numeric (or empty)
-                const installments = [r1v, r2v, r3v, r4v];
-                const allNumeric = installments.every(v => v === '' || isNumeric(v));
+                const r1 = getNum(r1v);
+                const r2 = getNum(r2v);
+                const r3 = getNum(r3v);
+                const r4 = getNum(r4v);
+                const instSum = parseFloat((r1 + r2 + r3 + r4).toFixed(2));
+                newData.totalReceivedTk = instSum.toString();
 
-                if (allNumeric) {
-                    const r1 = parseFloat(r1v) || 0;
-                    const r2 = parseFloat(r2v) || 0;
-                    const r3 = parseFloat(r3v) || 0;
-                    const r4 = parseFloat(r4v) || 0;
-                    const instSum = parseFloat((r1 + r2 + r3 + r4).toFixed(2));
-                    newData.totalReceivedTk = instSum.toString();
+                const discV = id === 'discount' ? value : prev.discount;
+                const discVal = getNum(discV);
 
+                if (id === 'duePayment') {
+                    // User is manually adjusting due - update total payment instead of due
+                    const dueVal = getNum(value);
+                    newData.totalPaymentTk = parseFloat((instSum + discVal + dueVal).toFixed(2)).toString();
+                } else {
+                    // General case (installment/disc/total changed): recalculate due
                     const totalV = id === 'totalPaymentTk' ? value : newData.totalPaymentTk;
-                    const discV = id === 'discount' ? value : prev.discount;
-
-                    if (isNumeric(totalV) && (discV === '' || isNumeric(discV))) {
-                        const totalVal = parseFloat(totalV) || 0;
-                        const discVal = parseFloat(discV) || 0;
+                    if (totalV === '' || isNumeric(totalV)) {
+                        const totalVal = getNum(totalV);
                         const calculatedDue = parseFloat((totalVal - (instSum + discVal)).toFixed(2));
                         newData.duePayment = calculatedDue.toString();
                     }
                 }
             }
 
+            // 3. Reset all financial fields if totalPaymentTk is cleared (Ensures it's not overwritten by logic above)
+            if (id === 'totalPaymentTk' && (value === '' || parseFloat(value) === 0)) {
+                newData.receivedTk = '';
+                newData.receivedTk2 = '';
+                newData.receivedTk3 = '';
+                newData.receivedTk4 = '';
+                newData.totalReceivedTk = '0';
+                newData.duePayment = '0';
+                newData.discount = '';
+            }
+
             return newData;
+        });
+    };
+
+    const handleCalculateTotal = () => {
+        const isNumeric = (val) => val !== null && val !== undefined && val !== '' && !isNaN(parseFloat(val)) && isFinite(val);
+        const getNum = (val) => (isNumeric(val) ? parseFloat(val) : 0);
+
+        setPaymentData(prev => {
+            const r1 = getNum(prev.receivedTk);
+            const r2 = getNum(prev.receivedTk2);
+            const r3 = getNum(prev.receivedTk3);
+            const r4 = getNum(prev.receivedTk4);
+            const disc = getNum(prev.discount);
+            const due = getNum(prev.duePayment);
+
+            let totalRec = parseFloat((r1 + r2 + r3 + r4).toFixed(2));
+            let calculatedTotal = parseFloat((totalRec + disc + due).toFixed(2));
+            let finalDue = due;
+
+            // Fallback: If everything is 0 but salary is present, use the 60% rule
+            if (calculatedTotal === 0 && isNumeric(prev.tuitionSalary) && autoCalc) {
+                const salary = parseFloat(prev.tuitionSalary);
+                calculatedTotal = parseFloat((salary * 0.6).toFixed(2));
+                finalDue = parseFloat((calculatedTotal - (totalRec + disc)).toFixed(2));
+            }
+
+            return {
+                ...prev,
+                totalPaymentTk: calculatedTotal.toString(),
+                totalReceivedTk: totalRec.toString(),
+                duePayment: finalDue.toString()
+            };
         });
     };
 
@@ -367,6 +464,21 @@ const GeneralPaymentRecordModal = ({ show, onHide, editingId, initialData, onSav
                                         onChange={handleChange}
                                         placeholder="0.00"
                                     />
+                                    {(!paymentData.totalPaymentTk || parseFloat(paymentData.totalPaymentTk) === 0) && (
+                                        <div className="mt-2 p-2 border border-danger rounded bg-danger bg-opacity-10">
+                                            <div className="text-danger small fw-bold mb-1">
+                                                ⚠️ no total payment tk is present
+                                            </div>
+                                            <Button
+                                                variant="outline-danger"
+                                                size="sm"
+                                                className="w-100 fw-bold"
+                                                onClick={handleCalculateTotal}
+                                            >
+                                                🔄 Calculate Total (Install + Disc + Due)
+                                            </Button>
+                                        </div>
+                                    )}
                                     {renderOldValue('totalPaymentTk')}
                                 </Form.Group>
                             </Col>
@@ -386,6 +498,11 @@ const GeneralPaymentRecordModal = ({ show, onHide, editingId, initialData, onSav
                                 onChange={(e) => setAutoCalcFinance(e.target.checked)}
                             />
                         </div>
+                        {(!paymentData.totalPaymentTk || parseFloat(paymentData.totalPaymentTk) === 0) && (
+                            <div className="alert alert-warning py-2 small fw-bold mb-3 border-warning border-2">
+                                ⚠️ লেনদেনের তথ্য পূরণ করতে প্রথমে **Total Payment TK** দিন অথবা ক্যালকুলেট করুন।
+                            </div>
+                        )}
                         <div className="table-responsive mb-3">
                             <table className="table table-sm table-borderless align-middle">
                                 <thead className="text-muted small">
@@ -407,6 +524,7 @@ const GeneralPaymentRecordModal = ({ show, onHide, editingId, initialData, onSav
                                                 value={paymentData.receivedTk}
                                                 onChange={handleChange}
                                                 placeholder="0.00"
+                                                disabled={!paymentData.totalPaymentTk || parseFloat(paymentData.totalPaymentTk) === 0}
                                             />
                                             {renderOldValue('receivedTk')}
                                         </td>
@@ -451,6 +569,7 @@ const GeneralPaymentRecordModal = ({ show, onHide, editingId, initialData, onSav
                                                 value={paymentData.receivedTk2}
                                                 onChange={handleChange}
                                                 placeholder="0.00"
+                                                disabled={!paymentData.totalPaymentTk || parseFloat(paymentData.totalPaymentTk) === 0}
                                             />
                                             {renderOldValue('receivedTk2')}
                                         </td>
@@ -496,6 +615,7 @@ const GeneralPaymentRecordModal = ({ show, onHide, editingId, initialData, onSav
                                                     value={paymentData.receivedTk3}
                                                     onChange={handleChange}
                                                     placeholder="0.00"
+                                                    disabled={!paymentData.totalPaymentTk || parseFloat(paymentData.totalPaymentTk) === 0}
                                                 />
                                                 {renderOldValue('receivedTk3')}
                                             </td>
@@ -542,6 +662,7 @@ const GeneralPaymentRecordModal = ({ show, onHide, editingId, initialData, onSav
                                                     value={paymentData.receivedTk4}
                                                     onChange={handleChange}
                                                     placeholder="0.00"
+                                                    disabled={!paymentData.totalPaymentTk || parseFloat(paymentData.totalPaymentTk) === 0}
                                                 />
                                                 {renderOldValue('receivedTk4')}
                                             </td>
@@ -588,7 +709,7 @@ const GeneralPaymentRecordModal = ({ show, onHide, editingId, initialData, onSav
                                         onClick={() => setVisibleInstallments(prev => prev + 1)}
                                         className="rounded-pill px-4 fw-bold shadow-sm"
                                         style={{ letterSpacing: '0.5px' }}
-                                        disabled={isSaving || isDeleting}
+                                        disabled={isSaving || isDeleting || !paymentData.totalPaymentTk || parseFloat(paymentData.totalPaymentTk) === 0}
                                     >
                                         ➕ Add {visibleInstallments === 2 ? '3rd' : '4th'} New Payment
                                     </Button>
@@ -605,6 +726,7 @@ const GeneralPaymentRecordModal = ({ show, onHide, editingId, initialData, onSav
                                         value={paymentData.discount}
                                         onChange={handleChange}
                                         placeholder="0.00"
+                                        disabled={!paymentData.totalPaymentTk || parseFloat(paymentData.totalPaymentTk) === 0}
                                     />
                                     {renderOldValue('discount')}
                                 </Form.Group>
@@ -620,6 +742,7 @@ const GeneralPaymentRecordModal = ({ show, onHide, editingId, initialData, onSav
                                         onChange={handleChange}
                                         placeholder="0.00"
                                         required
+                                        disabled={!paymentData.totalPaymentTk || parseFloat(paymentData.totalPaymentTk) === 0}
                                     />
                                     {renderOldValue('duePayment')}
                                 </Form.Group>
@@ -634,6 +757,7 @@ const GeneralPaymentRecordModal = ({ show, onHide, editingId, initialData, onSav
                                         onChange={handleChange}
                                         placeholder="0.00"
                                         required
+                                        disabled={!paymentData.totalPaymentTk || parseFloat(paymentData.totalPaymentTk) === 0}
                                     />
                                     {renderOldValue('totalReceivedTk')}
                                 </Form.Group>

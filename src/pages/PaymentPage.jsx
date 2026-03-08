@@ -19,6 +19,7 @@ const PaymentPage = () => {
     const [loading, setLoading] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
+    const [isDeleting, setIsDeleting] = useState(false);
 
     const [searchInputs, setSearchInputs] = useState({
         tuitionCode: '',
@@ -233,10 +234,12 @@ const PaymentPage = () => {
                 updatedPaymentData.updatedBy = username;
                 await axios.put(`https://tuition-seba-backend-1.onrender.com/api/payment/edit/${editingId}`, updatedPaymentData);
                 toast.success("Payment record updated successfully!");
+                setTimeout(() => window.location.reload(), 1500);
             } else {
                 updatedPaymentData.createdBy = username;
                 await axios.post('https://tuition-seba-backend-1.onrender.com/api/payment/add', updatedPaymentData);
                 toast.success("Payment record created successfully!");
+                setTimeout(() => window.location.reload(), 1500);
             }
             setShowModal(false);
             setEditingId(null);
@@ -264,13 +267,16 @@ const PaymentPage = () => {
         const confirmDelete = window.confirm("Are you sure you want to delete this payment record?");
 
         if (confirmDelete) {
+            setIsDeleting(true);
             try {
                 await axios.delete(`https://tuition-seba-backend-1.onrender.com/api/payment/delete/${id}`);
                 toast.success("Payment record deleted successfully!");
+                setTimeout(() => window.location.reload(), 1500);
                 fetchPaymentRecords();
             } catch (err) {
                 console.error('Error deleting payment record:', err);
                 toast.error("Error deleting payment record.");
+                setIsDeleting(false);
             }
         } else {
             toast.info("Deletion canceled");
@@ -282,6 +288,24 @@ const PaymentPage = () => {
     return (
         <>
             <NavBarPage />
+            {isDeleting && (
+                <div style={{
+                    position: 'fixed',
+                    top: 0,
+                    left: 0,
+                    width: '100%',
+                    height: '100%',
+                    backgroundColor: 'rgba(255, 255, 255, 0.7)',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    zIndex: 9999
+                }}>
+                    <Spinner animation="border" variant="danger" size="lg" />
+                    <h5 className="mt-3 text-danger fw-bold">Deleting...</h5>
+                </div>
+            )}
             <style>{`
                 .modal-95w {
                     max-width: 95% !important;
@@ -631,7 +655,11 @@ const PaymentPage = () => {
                 {/* Specialized Modals Extracted for Performance */}
                 <GeneralPaymentRecordModal
                     show={showModal}
-                    onHide={() => setShowModal(false)}
+                    onHide={() => {
+                        setShowModal(false);
+                        setEditingId(null);
+                        setSelectedPaymentForEdit(null);
+                    }}
                     editingId={editingId}
                     initialData={selectedPaymentForEdit}
                     onSave={handleSavePayment}

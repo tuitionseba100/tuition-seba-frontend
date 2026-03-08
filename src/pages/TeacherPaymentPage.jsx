@@ -52,6 +52,7 @@ const TeacherPaymentPage = () => {
     const [selectedExportStatus, setSelectedExportStatus] = useState('');
     const [selectedPayment, setSelectedPayment] = useState(null);
     const [showInvoiceModal, setShowInvoiceModal] = useState(false);
+    const [isDeleting, setIsDeleting] = useState(false);
     const role = localStorage.getItem('role');
 
     const handlePrintClick = (payment) => {
@@ -203,6 +204,7 @@ const TeacherPaymentPage = () => {
                 };
                 await axios.put(`https://tuition-seba-backend-1.onrender.com/api/teacherPayment/edit/${teacherEditingId}`, updatedData);
                 toast.success("Teacher payment record updated successfully!");
+                setTimeout(() => window.location.reload(), 1500);
             } else {
                 const newData = {
                     ...teacherPaymentData,
@@ -210,6 +212,7 @@ const TeacherPaymentPage = () => {
                 };
                 await axios.post('https://tuition-seba-backend-1.onrender.com/api/teacherPayment/add', newData);
                 toast.success("Teacher payment record created successfully!");
+                setTimeout(() => window.location.reload(), 1500);
             }
             setShowTeacherModal(false);
             fetchTeacherPaymentRecords();
@@ -229,13 +232,16 @@ const TeacherPaymentPage = () => {
         const confirmDelete = window.confirm("Are you sure you want to delete this payment record?");
 
         if (confirmDelete) {
+            setIsDeleting(true);
             try {
                 await axios.delete(`https://tuition-seba-backend-1.onrender.com/api/teacherPayment/delete/${id}`);
                 toast.success("Payment record deleted successfully!");
+                setTimeout(() => window.location.reload(), 1500);
                 fetchTeacherPaymentRecords();
             } catch (err) {
                 console.error('Error deleting payment record:', err);
                 toast.error("Error deleting payment record.");
+                setIsDeleting(false);
             }
         } else {
             toast.info("Deletion canceled");
@@ -258,6 +264,24 @@ const TeacherPaymentPage = () => {
     return (
         <>
             <NavBarPage />
+            {isDeleting && (
+                <div style={{
+                    position: 'fixed',
+                    top: 0,
+                    left: 0,
+                    width: '100%',
+                    height: '100%',
+                    backgroundColor: 'rgba(255, 255, 255, 0.7)',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    zIndex: 9999
+                }}>
+                    <Spinner animation="border" variant="danger" size="lg" />
+                    <h5 className="mt-3 text-danger fw-bold">Deleting...</h5>
+                </div>
+            )}
             <Container>
 
                 <Header>

@@ -721,13 +721,22 @@ const TeacherPaymentPage = () => {
                         </Form>
                     </Modal.Body>
 
-                    <Modal.Footer>
-                        <Button variant="secondary" onClick={() => setShowTeacherModal(false)}>
-                            Close
-                        </Button>
-                        <Button variant="primary" onClick={handleSaveTeacherPayment}>
-                            Save
-                        </Button>
+                    <Modal.Footer className="d-flex justify-content-between">
+                        <div>
+                            {teacherEditingId && (
+                                <Button variant="danger" onClick={() => handleTeacherDeletePayment(teacherEditingId)}>
+                                    Delete
+                                </Button>
+                            )}
+                        </div>
+                        <div>
+                            <Button variant="secondary" className="me-2" onClick={() => setShowTeacherModal(false)}>
+                                Close
+                            </Button>
+                            <Button variant="primary" onClick={handleSaveTeacherPayment}>
+                                Save
+                            </Button>
+                        </div>
                     </Modal.Footer>
                 </Modal>
 

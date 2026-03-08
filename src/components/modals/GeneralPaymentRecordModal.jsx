@@ -1,70 +1,293 @@
 import React, { useState, useEffect } from 'react';
-import { Modal, Button, Form, Row, Col } from 'react-bootstrap';
+import { Modal, Button, Form, Row, Col, Spinner, Table } from 'react-bootstrap';
 
-const GeneralPaymentRecordModal = ({ show, onHide, editingId, initialData, onSave }) => {
+const GeneralPaymentRecordModal = ({ show, onHide, editingId, initialData, onSave, onDelete }) => {
     const [paymentData, setPaymentData] = useState({
         tuitionCode: '',
         tuitionId: '',
         paymentReceivedDate: '',
+        paymentReceivedDate2: '',
+        paymentReceivedDate3: '',
+        paymentReceivedDate4: '',
         duePayDate: '',
         tutorName: '',
         tutorNumber: '',
         paymentNumber: '',
+        paymentNumber2: '',
+        paymentNumber3: '',
+        paymentNumber4: '',
         paymentType: '',
+        paymentType2: '',
+        paymentType3: '',
+        paymentType4: '',
         receivedTk: '',
+        receivedTk2: '',
+        receivedTk3: '',
+        receivedTk4: '',
         totalReceivedTk: '',
         duePayment: '',
         paymentStatus: '',
+        tuitionSalary: '',
+        totalPaymentTk: '',
+        discount: '',
         comment: '',
         comment1: '',
         comment2: '',
         comment3: '',
     });
+    const [serverData, setServerData] = useState(null);
+    const [visibleInstallments, setVisibleInstallments] = useState(2);
+    const [isSaving, setIsSaving] = useState(false);
+    const [isDeleting, setIsDeleting] = useState(false);
+    const [showConfirmModal, setShowConfirmModal] = useState(false);
+    const [changedFields, setChangedFields] = useState([]);
+    const [autoCalc, setAutoCalc] = useState(true);
+    const [autoCalcFinance, setAutoCalcFinance] = useState(true);
 
     useEffect(() => {
         if (show) {
             if (editingId && initialData) {
                 setPaymentData(initialData);
+                setServerData(initialData);
+
+                // Determine how many installments to show based on data
+                let count = 2;
+                if (initialData.receivedTk4 || initialData.paymentReceivedDate4 || initialData.paymentNumber4) count = 4;
+                else if (initialData.receivedTk3 || initialData.paymentReceivedDate3 || initialData.paymentNumber3) count = 3;
+                setVisibleInstallments(count);
+                setAutoCalc(false); // Unchecked when data populated first (edit mode)
+                setAutoCalcFinance(true); // Checked by default
             } else {
-                setPaymentData({
+                const defaultValues = {
                     tuitionCode: '',
                     tuitionId: '',
                     paymentReceivedDate: '',
+                    paymentReceivedDate2: '',
+                    paymentReceivedDate3: '',
+                    paymentReceivedDate4: '',
                     duePayDate: '',
                     tutorName: '',
                     tutorNumber: '',
                     paymentNumber: '',
+                    paymentNumber2: '',
+                    paymentNumber3: '',
+                    paymentNumber4: '',
                     paymentType: '',
+                    paymentType2: '',
+                    paymentType3: '',
+                    paymentType4: '',
                     receivedTk: '',
+                    receivedTk2: '',
+                    receivedTk3: '',
+                    receivedTk4: '',
                     totalReceivedTk: '',
                     duePayment: '',
                     paymentStatus: '',
+                    tuitionSalary: '',
+                    totalPaymentTk: '',
+                    discount: '',
                     comment: '',
                     comment1: '',
                     comment2: '',
                     comment3: '',
-                });
+                };
+                setPaymentData(defaultValues);
+                setServerData(null);
+                setVisibleInstallments(2);
+                setAutoCalc(true); // Default to checked for new records
+                setAutoCalcFinance(true); // Default to checked for new records
             }
         }
     }, [show, editingId, initialData]);
 
     const handleChange = (e) => {
         const { id, value } = e.target;
-        setPaymentData(prev => ({ ...prev, [id]: value }));
+        setPaymentData(prev => {
+            const newData = { ...prev, [id]: value };
+
+            const isNumeric = (val) => val !== '' && !isNaN(parseFloat(val)) && isFinite(val);
+
+            // 1. Auto-calculate Total Payment TK only if Tuition Salary changes and autoCalc is enabled
+            if (id === 'tuitionSalary') {
+                if (autoCalc && isNumeric(value)) {
+                    const salary = parseFloat(value);
+                    newData.totalPaymentTk = salary > 0 ? parseFloat((salary * 0.6).toFixed(2)).toString() : '0';
+                }
+            }
+
+            // 2. Recalculate sums if any financial field changed and autoCalcFinance is enabled
+            const financialIds = ['tuitionSalary', 'totalPaymentTk', 'receivedTk', 'receivedTk2', 'receivedTk3', 'receivedTk4', 'discount'];
+            if (autoCalcFinance && financialIds.includes(id)) {
+                const r1v = id === 'receivedTk' ? value : prev.receivedTk;
+                const r2v = id === 'receivedTk2' ? value : prev.receivedTk2;
+                const r3v = id === 'receivedTk3' ? value : prev.receivedTk3;
+                const r4v = id === 'receivedTk4' ? value : prev.receivedTk4;
+
+                // Sum installments only if ALL present installments are numeric (or empty)
+                const installments = [r1v, r2v, r3v, r4v];
+                const allNumeric = installments.every(v => v === '' || isNumeric(v));
+
+                if (allNumeric) {
+                    const r1 = parseFloat(r1v) || 0;
+                    const r2 = parseFloat(r2v) || 0;
+                    const r3 = parseFloat(r3v) || 0;
+                    const r4 = parseFloat(r4v) || 0;
+                    const instSum = parseFloat((r1 + r2 + r3 + r4).toFixed(2));
+                    newData.totalReceivedTk = instSum.toString();
+
+                    const totalV = id === 'totalPaymentTk' ? value : newData.totalPaymentTk;
+                    const discV = id === 'discount' ? value : prev.discount;
+
+                    if (isNumeric(totalV) && (discV === '' || isNumeric(discV))) {
+                        const totalVal = parseFloat(totalV) || 0;
+                        const discVal = parseFloat(discV) || 0;
+                        const calculatedDue = parseFloat((totalVal - (instSum + discVal)).toFixed(2));
+                        newData.duePayment = calculatedDue.toString();
+                    }
+                }
+            }
+
+            return newData;
+        });
     };
 
-    const handleDateChange = (id, value) => {
-        if (!value) {
-            setPaymentData(prev => ({ ...prev, [id]: '' }));
-        } else {
-            const localDate = new Date(value);
-            const utcDate = new Date(localDate.getTime() - localDate.getTimezoneOffset() * 60000);
-            setPaymentData(prev => ({ ...prev, [id]: utcDate.toISOString() }));
+    const formatDate = (isoString) => {
+        if (!isoString) return 'N/A';
+        const localString = isoString.endsWith('Z') ? isoString.slice(0, -1) : isoString;
+        const dt = new Date(localString);
+        if (isNaN(dt)) return isoString;
+        return dt.toLocaleString('en-GB', {
+            year: 'numeric',
+            month: 'short',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: true,
+        });
+    };
+
+    const getFieldLabel = (key) => {
+        const labels = {
+            tuitionCode: 'Tuition Code',
+            tuitionSalary: 'Salary',
+            totalPaymentTk: 'Total Payment',
+            discount: 'Discount',
+            duePayment: 'Due Payment',
+            receivedTk: '1st Installment',
+            receivedTk2: '2nd Installment',
+            receivedTk3: '3rd Installment',
+            receivedTk4: '4th Installment',
+            paymentType: '1st Method',
+            paymentType2: '2nd Method',
+            paymentType3: '3rd Method',
+            paymentType4: '4th Method',
+            paymentNumber: '1st Phone',
+            paymentNumber2: '2nd Phone',
+            paymentNumber3: '3rd Phone',
+            paymentNumber4: '4th Phone',
+            paymentReceivedDate: '1st Date',
+            paymentReceivedDate2: '2nd Date',
+            paymentReceivedDate3: '3rd Date',
+            paymentReceivedDate4: '4th Date',
+            duePayDate: 'Due Date',
+            comment: 'Note',
+            comment1: 'Note 1',
+            comment2: 'Note 2',
+            comment3: 'Note 3',
+        };
+        return labels[key] || key;
+    };
+
+    const handleLocalSave = async () => {
+        if (editingId && serverData) {
+            const changes = [];
+            Object.keys(paymentData).forEach(key => {
+                let oldVal = serverData[key] === null || serverData[key] === undefined ? '' : serverData[key];
+                let newVal = paymentData[key] === null || paymentData[key] === undefined ? '' : paymentData[key];
+
+                // Normalize dates for comparison
+                const isDateField = key.toLowerCase().includes('date') || key === 'duePayDate';
+
+                if (isDateField) {
+                    const dOld = oldVal ? new Date(oldVal).getTime() : 0;
+                    const dNew = newVal ? new Date(newVal).getTime() : 0;
+
+                    // Only compare if they actually represent different times
+                    if (Math.abs(dOld - dNew) > 1000) { // 1 second threshold
+                        changes.push({
+                            field: getFieldLabel(key),
+                            oldValue: oldVal ? formatDate(oldVal) : 'N/A',
+                            newValue: newVal ? formatDate(newVal) : 'N/A'
+                        });
+                    }
+                } else if (String(oldVal) !== String(newVal)) {
+                    changes.push({
+                        field: getFieldLabel(key),
+                        oldValue: oldVal || 'N/A',
+                        newValue: newVal || 'N/A'
+                    });
+                }
+            });
+
+            if (changes.length > 0) {
+                setChangedFields(changes);
+                setShowConfirmModal(true);
+                return;
+            }
+        }
+
+        // If no changes or creating new, proceed directly
+        saveToBackend();
+    };
+
+    const saveToBackend = async () => {
+        setShowConfirmModal(false);
+        setIsSaving(true);
+        try {
+            await onSave(paymentData);
+        } finally {
+            setIsSaving(false);
         }
     };
 
+    const handleLocalDelete = async () => {
+        setIsDeleting(true);
+        try {
+            await onDelete(editingId);
+        } finally {
+            setIsDeleting(false);
+        }
+    };
+
+    const handleDateChange = (id, value) => {
+        const dateVal = value ? new Date(new Date(value).getTime() - new Date(value).getTimezoneOffset() * 60000).toISOString() : '';
+        setPaymentData(prev => ({ ...prev, [id]: dateVal }));
+    };
+
+    const renderOldValue = (id) => {
+        if (!editingId || !serverData) return null;
+        let oldVal = serverData[id] === null || serverData[id] === undefined ? '' : serverData[id];
+        let newVal = paymentData[id] === null || paymentData[id] === undefined ? '' : paymentData[id];
+
+        if (String(oldVal) !== String(newVal)) {
+            return (
+                <div className="text-danger small mt-1 strike-through" style={{ fontSize: '0.75rem', opacity: 0.8 }}>
+                    Was: {oldVal || '0'}
+                </div>
+            );
+        }
+        return null;
+    };
+
     return (
-        <Modal show={show} onHide={onHide} size="lg" centered>
+        <Modal
+            show={show}
+            onHide={onHide}
+            dialogClassName="modal-95w"
+            centered
+            backdrop="static"
+            contentClassName="shadow-lg border-0 rounded-3"
+        >
             <Modal.Header closeButton style={{ background: 'linear-gradient(135deg, #0d6efd 0%, #004299 100%)', color: 'white' }}>
                 <Modal.Title className="fw-bold">{editingId ? "✏️ Edit Payment Record" : "➕ Create Payment Record"}</Modal.Title>
             </Modal.Header>
@@ -75,7 +298,7 @@ const GeneralPaymentRecordModal = ({ show, onHide, editingId, initialData, onSav
                     <div className="bg-white p-3 rounded shadow-sm mb-4 border-start border-primary border-4">
                         <h5 className="text-primary mb-3 fw-bold border-bottom pb-2">📋 Basic Information</h5>
                         <Row>
-                            <Col md={6}>
+                            <Col md={4}>
                                 <Form.Group className="mb-3" controlId="tuitionId">
                                     <Form.Label className="fw-bold">Tuition Code</Form.Label>
                                     <Form.Control
@@ -87,7 +310,7 @@ const GeneralPaymentRecordModal = ({ show, onHide, editingId, initialData, onSav
                                     />
                                 </Form.Group>
                             </Col>
-                            <Col md={6}>
+                            <Col md={4}>
                                 <Form.Group className="mb-3" controlId="tutorName">
                                     <Form.Label className="fw-bold">Tutor Name</Form.Label>
                                     <Form.Control
@@ -99,9 +322,7 @@ const GeneralPaymentRecordModal = ({ show, onHide, editingId, initialData, onSav
                                     />
                                 </Form.Group>
                             </Col>
-                        </Row>
-                        <Row>
-                            <Col md={6}>
+                            <Col md={4}>
                                 <Form.Group className="mb-3" controlId="tutorNumber">
                                     <Form.Label className="fw-bold">Tutor Number</Form.Label>
                                     <Form.Control
@@ -113,16 +334,40 @@ const GeneralPaymentRecordModal = ({ show, onHide, editingId, initialData, onSav
                                     />
                                 </Form.Group>
                             </Col>
+                        </Row>
+                        <Row>
                             <Col md={6}>
-                                <Form.Group className="mb-3" controlId="paymentNumber">
-                                    <Form.Label className="fw-bold">Payment Number</Form.Label>
+                                <Form.Group className="mb-3" controlId="tuitionSalary">
+                                    <Form.Label className="fw-bold">Tuition Salary</Form.Label>
                                     <Form.Control
-                                        type="text"
-                                        value={paymentData.paymentNumber}
+                                        type="number"
+                                        value={paymentData.tuitionSalary}
                                         onChange={handleChange}
-                                        placeholder="Enter Transaction Phone"
-                                        required
+                                        placeholder="0.00"
                                     />
+                                    {renderOldValue('tuitionSalary')}
+                                </Form.Group>
+                            </Col>
+                            <Col md={6}>
+                                <Form.Group className="mb-3" controlId="totalPaymentTk">
+                                    <div className="d-flex justify-content-between align-items-center mb-2">
+                                        <Form.Label className="fw-bold mb-0">Total Payment TK</Form.Label>
+                                        <Form.Check
+                                            type="switch"
+                                            id="autoCalcSwitch"
+                                            label="Auto Calc (60%)"
+                                            className="small text-muted fw-bold"
+                                            checked={autoCalc}
+                                            onChange={(e) => setAutoCalc(e.target.checked)}
+                                        />
+                                    </div>
+                                    <Form.Control
+                                        type="number"
+                                        value={paymentData.totalPaymentTk}
+                                        onChange={handleChange}
+                                        placeholder="0.00"
+                                    />
+                                    {renderOldValue('totalPaymentTk')}
                                 </Form.Group>
                             </Col>
                         </Row>
@@ -130,64 +375,272 @@ const GeneralPaymentRecordModal = ({ show, onHide, editingId, initialData, onSav
 
                     {/* Section: Financial Details */}
                     <div className="bg-white p-3 rounded shadow-sm mb-4 border-start border-success border-4">
-                        <h5 className="text-success mb-3 fw-bold border-bottom pb-2">💰 Financial Details</h5>
+                        <div className="d-flex justify-content-between align-items-center mb-3">
+                            <h5 className="text-success mb-0 fw-bold border-bottom pb-2 flex-grow-1">💰 Financial Details</h5>
+                            <Form.Check
+                                type="switch"
+                                id="autoCalcFinanceSwitch"
+                                label="Auto Calc Financials"
+                                className="small text-muted fw-bold ms-3"
+                                checked={autoCalcFinance}
+                                onChange={(e) => setAutoCalcFinance(e.target.checked)}
+                            />
+                        </div>
+                        <div className="table-responsive mb-3">
+                            <table className="table table-sm table-borderless align-middle">
+                                <thead className="text-muted small">
+                                    <tr>
+                                        <th style={{ width: '10%' }}>Inst.</th>
+                                        <th style={{ width: '20%' }}>Amount (TK)</th>
+                                        <th style={{ width: '25%' }}>Method</th>
+                                        <th style={{ width: '20%' }}>Phone/Num</th>
+                                        <th style={{ width: '25%' }}>Received Date</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr className="border-bottom">
+                                        <td className="fw-bold">1st</td>
+                                        <td>
+                                            <Form.Control
+                                                type="number"
+                                                id="receivedTk"
+                                                value={paymentData.receivedTk}
+                                                onChange={handleChange}
+                                                placeholder="0.00"
+                                            />
+                                            {renderOldValue('receivedTk')}
+                                        </td>
+                                        <td>
+                                            <Form.Select
+                                                id="paymentType"
+                                                value={paymentData.paymentType}
+                                                onChange={handleChange}
+                                            >
+                                                <option value="">Method</option>
+                                                <option value="bkash">Bkash</option>
+                                                <option value="nagad">Nagad</option>
+                                                <option value="rocket">Rocket</option>
+                                                <option value="cash">Cash</option>
+                                                <option value="bank">Bank</option>
+                                            </Form.Select>
+                                        </td>
+                                        <td>
+                                            <Form.Control
+                                                type="number"
+                                                id="paymentNumber"
+                                                value={paymentData.paymentNumber}
+                                                onChange={handleChange}
+                                                placeholder="Phone"
+                                            />
+                                            {renderOldValue('paymentNumber')}
+                                        </td>
+                                        <td>
+                                            <Form.Control
+                                                type="datetime-local"
+                                                value={paymentData.paymentReceivedDate ? paymentData.paymentReceivedDate.slice(0, 16) : ''}
+                                                onChange={(e) => handleDateChange('paymentReceivedDate', e.target.value)}
+                                            />
+                                        </td>
+                                    </tr>
+                                    <tr className="border-bottom">
+                                        <td className="fw-bold text-muted">2nd</td>
+                                        <td>
+                                            <Form.Control
+                                                type="number"
+                                                id="receivedTk2"
+                                                value={paymentData.receivedTk2}
+                                                onChange={handleChange}
+                                                placeholder="0.00"
+                                            />
+                                            {renderOldValue('receivedTk2')}
+                                        </td>
+                                        <td>
+                                            <Form.Select
+                                                id="paymentType2"
+                                                value={paymentData.paymentType2}
+                                                onChange={handleChange}
+                                            >
+                                                <option value="">Method</option>
+                                                <option value="bkash">Bkash</option>
+                                                <option value="nagad">Nagad</option>
+                                                <option value="rocket">Rocket</option>
+                                                <option value="cash">Cash</option>
+                                                <option value="bank">Bank</option>
+                                            </Form.Select>
+                                        </td>
+                                        <td>
+                                            <Form.Control
+                                                type="number"
+                                                id="paymentNumber2"
+                                                value={paymentData.paymentNumber2}
+                                                onChange={handleChange}
+                                                placeholder="Phone"
+                                            />
+                                            {renderOldValue('paymentNumber2')}
+                                        </td>
+                                        <td>
+                                            <Form.Control
+                                                type="datetime-local"
+                                                value={paymentData.paymentReceivedDate2 ? paymentData.paymentReceivedDate2.slice(0, 16) : ''}
+                                                onChange={(e) => handleDateChange('paymentReceivedDate2', e.target.value)}
+                                            />
+                                        </td>
+                                    </tr>
+                                    {visibleInstallments >= 3 && (
+                                        <tr className="border-bottom">
+                                            <td className="fw-bold text-muted">3rd</td>
+                                            <td>
+                                                <Form.Control
+                                                    type="number"
+                                                    id="receivedTk3"
+                                                    value={paymentData.receivedTk3}
+                                                    onChange={handleChange}
+                                                    placeholder="0.00"
+                                                />
+                                                {renderOldValue('receivedTk3')}
+                                            </td>
+                                            <td>
+                                                <Form.Select
+                                                    id="paymentType3"
+                                                    value={paymentData.paymentType3}
+                                                    onChange={handleChange}
+                                                >
+                                                    <option value="">Method</option>
+                                                    <option value="bkash">Bkash</option>
+                                                    <option value="nagad">Nagad</option>
+                                                    <option value="rocket">Rocket</option>
+                                                    <option value="cash">Cash</option>
+                                                    <option value="bank">Bank</option>
+                                                </Form.Select>
+                                            </td>
+                                            <td>
+                                                <Form.Control
+                                                    type="number"
+                                                    id="paymentNumber3"
+                                                    value={paymentData.paymentNumber3}
+                                                    onChange={handleChange}
+                                                    placeholder="Phone"
+                                                />
+                                                {renderOldValue('paymentNumber3')}
+                                            </td>
+                                            <td>
+                                                <Form.Control
+                                                    type="datetime-local"
+                                                    value={paymentData.paymentReceivedDate3 ? paymentData.paymentReceivedDate3.slice(0, 16) : ''}
+                                                    onChange={(e) => handleDateChange('paymentReceivedDate3', e.target.value)}
+                                                />
+                                            </td>
+                                        </tr>
+                                    )}
+                                    {visibleInstallments >= 4 && (
+                                        <tr className="border-bottom">
+                                            <td className="fw-bold text-muted">4th</td>
+                                            <td>
+                                                <Form.Control
+                                                    type="number"
+                                                    id="receivedTk4"
+                                                    value={paymentData.receivedTk4}
+                                                    onChange={handleChange}
+                                                    placeholder="0.00"
+                                                />
+                                                {renderOldValue('receivedTk4')}
+                                            </td>
+                                            <td>
+                                                <Form.Select
+                                                    id="paymentType4"
+                                                    value={paymentData.paymentType4}
+                                                    onChange={handleChange}
+                                                >
+                                                    <option value="">Method</option>
+                                                    <option value="bkash">Bkash</option>
+                                                    <option value="nagad">Nagad</option>
+                                                    <option value="rocket">Rocket</option>
+                                                    <option value="cash">Cash</option>
+                                                    <option value="bank">Bank</option>
+                                                </Form.Select>
+                                            </td>
+                                            <td>
+                                                <Form.Control
+                                                    type="number"
+                                                    id="paymentNumber4"
+                                                    value={paymentData.paymentNumber4}
+                                                    onChange={handleChange}
+                                                    placeholder="Phone"
+                                                />
+                                                {renderOldValue('paymentNumber4')}
+                                            </td>
+                                            <td>
+                                                <Form.Control
+                                                    type="datetime-local"
+                                                    value={paymentData.paymentReceivedDate4 ? paymentData.paymentReceivedDate4.slice(0, 16) : ''}
+                                                    onChange={(e) => handleDateChange('paymentReceivedDate4', e.target.value)}
+                                                />
+                                            </td>
+                                        </tr>
+                                    )}
+                                </tbody>
+                            </table>
+                            {visibleInstallments < 4 && (
+                                <div className="text-center mt-2">
+                                    <Button
+                                        variant="primary"
+                                        size="sm"
+                                        onClick={() => setVisibleInstallments(prev => prev + 1)}
+                                        className="rounded-pill px-4 fw-bold shadow-sm"
+                                        style={{ letterSpacing: '0.5px' }}
+                                        disabled={isSaving || isDeleting}
+                                    >
+                                        ➕ Add {visibleInstallments === 2 ? '3rd' : '4th'} New Payment
+                                    </Button>
+                                </div>
+                            )}
+                        </div>
+
                         <Row>
                             <Col md={4}>
-                                <Form.Group className="mb-3" controlId="receivedTk">
-                                    <Form.Label className="fw-bold">Received TK</Form.Label>
+                                <Form.Group className="mb-3" controlId="discount">
+                                    <Form.Label className="fw-bold">Discount</Form.Label>
                                     <Form.Control
-                                        type="number"
-                                        value={paymentData.receivedTk}
+                                        type="text"
+                                        value={paymentData.discount}
                                         onChange={handleChange}
                                         placeholder="0.00"
-                                        required
                                     />
+                                    {renderOldValue('discount')}
                                 </Form.Group>
                             </Col>
                             <Col md={4}>
-                                <Form.Group className="mb-3" controlId="duePayment">
-                                    <Form.Label className="fw-bold">Due Payment</Form.Label>
+                                <Form.Group className="mb-3 p-2 rounded border border-warning bg-warning bg-opacity-10 shadow-sm" controlId="duePayment">
+                                    <Form.Label className="fw-bold text-warning mb-1">⚠️ Due Payment</Form.Label>
                                     <Form.Control
-                                        type="number"
+                                        type="text"
+                                        className="fw-bold border-warning text-dark"
+                                        style={{ backgroundColor: '#fff9e6' }}
                                         value={paymentData.duePayment}
                                         onChange={handleChange}
                                         placeholder="0.00"
                                         required
                                     />
+                                    {renderOldValue('duePayment')}
                                 </Form.Group>
                             </Col>
                             <Col md={4}>
-                                <Form.Group className="mb-3" controlId="totalReceivedTk">
-                                    <Form.Label className="fw-bold">Total Received</Form.Label>
+                                <Form.Group className="mb-3 p-2 rounded border border-success bg-success bg-opacity-10 shadow-sm" controlId="totalReceivedTk">
+                                    <Form.Label className="fw-bold text-success mb-1">✅ Total Received</Form.Label>
                                     <Form.Control
-                                        type="number"
+                                        type="text"
+                                        className="fw-bold border-success text-success"
                                         value={paymentData.totalReceivedTk}
                                         onChange={handleChange}
                                         placeholder="0.00"
                                         required
                                     />
+                                    {renderOldValue('totalReceivedTk')}
                                 </Form.Group>
                             </Col>
                         </Row>
                         <Row>
-                            <Col md={6}>
-                                <Form.Group className="mb-3" controlId="paymentType">
-                                    <Form.Label className="fw-bold">Payment Method</Form.Label>
-                                    <Form.Select
-                                        value={paymentData.paymentType}
-                                        onChange={handleChange}
-                                        required
-                                    >
-                                        <option value="">Select Method</option>
-                                        <option value="bkash">Bkash</option>
-                                        <option value="nagad">Nagad</option>
-                                        <option value="rocket">Rocket</option>
-                                        <option value="cash">Cash</option>
-                                        <option value="bank">Bank</option>
-                                    </Form.Select>
-                                </Form.Group>
-                            </Col>
-                            <Col md={6}>
+                            <Col md={12}>
                                 <Form.Group className="mb-3" controlId="transactionId">
                                     <Form.Label className="fw-bold">Transaction ID</Form.Label>
                                     <Form.Control
@@ -205,7 +658,7 @@ const GeneralPaymentRecordModal = ({ show, onHide, editingId, initialData, onSav
                     <div className="bg-white p-3 rounded shadow-sm mb-4 border-start border-warning border-4">
                         <h5 className="text-warning mb-3 fw-bold border-bottom pb-2">📅 Status & Deadlines</h5>
                         <Row>
-                            <Col md={4}>
+                            <Col md={6}>
                                 <Form.Group className="mb-3" controlId="paymentStatus">
                                     <Form.Label className="fw-bold">Status</Form.Label>
                                     <Form.Select
@@ -220,18 +673,7 @@ const GeneralPaymentRecordModal = ({ show, onHide, editingId, initialData, onSav
                                     </Form.Select>
                                 </Form.Group>
                             </Col>
-                            <Col md={4}>
-                                <Form.Group className="mb-3" controlId="paymentReceivedDate">
-                                    <Form.Label className="fw-bold">Received Date</Form.Label>
-                                    <Form.Control
-                                        type="datetime-local"
-                                        value={paymentData.paymentReceivedDate ? paymentData.paymentReceivedDate.slice(0, 16) : ''}
-                                        onChange={(e) => handleDateChange('paymentReceivedDate', e.target.value)}
-                                        required
-                                    />
-                                </Form.Group>
-                            </Col>
-                            <Col md={4}>
+                            <Col md={6}>
                                 <Form.Group className="mb-3" controlId="duePayDate">
                                     <Form.Label className="fw-bold">Due Pay Date</Form.Label>
                                     <Form.Control
@@ -299,10 +741,95 @@ const GeneralPaymentRecordModal = ({ show, onHide, editingId, initialData, onSav
                     </div>
                 </Form>
             </Modal.Body>
-            <Modal.Footer className="bg-light">
-                <Button variant="outline-secondary" onClick={onHide}>Close</Button>
-                <Button variant="primary" className="px-5 shadow-sm" onClick={() => onSave(paymentData)}>
-                    {editingId ? "Update Record" : "Save Record"}
+            {/* Full-Page Loading Overlay */}
+            <Modal
+                show={isSaving || isDeleting}
+                centered
+                backdrop="static"
+                keyboard={false}
+                contentClassName="border-0 rounded-4 overflow-hidden"
+                style={{ zIndex: 2000 }}
+            >
+                <div style={{
+                    borderTop: '5px solid #0d6efd',
+                    boxShadow: '0 30px 60px -12px rgba(0, 0, 0, 0.6), 0 18px 36px -18px rgba(0, 0, 0, 0.7)' // Premium deep shadow
+                }}>
+                    <Modal.Body className="text-center p-5">
+                        <Spinner
+                            animation="border"
+                            variant="primary"
+                            className="mb-4"
+                            style={{ width: '4rem', height: '4rem', borderWidth: '0.35rem' }}
+                        />
+                        <h4 className="fw-bold text-primary mb-2">
+                            {isSaving ? 'Saving Record...' : 'Deleting Record...'}
+                        </h4>
+                        <p className="text-muted fw-medium mb-0">
+                            Processing your request. Please do not close this window.
+                        </p>
+                    </Modal.Body>
+                </div>
+            </Modal>
+
+            {/* Update Confirmation Modal */}
+            <Modal
+                show={showConfirmModal}
+                onHide={() => setShowConfirmModal(false)}
+                centered
+                size="lg"
+                contentClassName="shadow-lg border-0 rounded-4"
+            >
+                <Modal.Header className="bg-warning text-dark border-0 rounded-top-4">
+                    <Modal.Title className="fw-bold">⚠️ Confirm Changes</Modal.Title>
+                </Modal.Header>
+                <Modal.Body className="p-4">
+                    <p className="text-muted mb-4">You have modified the following information. Please review carefully before confirming.</p>
+                    <div className="table-responsive rounded shadow-sm border">
+                        <Table hover className="mb-0">
+                            <thead className="bg-light">
+                                <tr>
+                                    <th className="px-3">Field Name</th>
+                                    <th>Previous Data</th>
+                                    <th>Updated Data</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {changedFields.map((change, idx) => (
+                                    <tr key={idx}>
+                                        <td className="fw-bold text-muted px-3">{change.field}</td>
+                                        <td className="text-danger strike-through">{change.oldValue}</td>
+                                        <td className="text-success fw-bold">
+                                            <span className="me-2">➡️</span>
+                                            {change.newValue}
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </Table>
+                    </div>
+                </Modal.Body>
+                <Modal.Footer className="bg-light border-0 rounded-bottom-4 p-3">
+                    <Button variant="outline-secondary" className="px-4" onClick={() => setShowConfirmModal(false)}>
+                        Cancel
+                    </Button>
+                    <Button variant="primary" className="px-5 fw-bold shadow-sm" onClick={saveToBackend}>
+                        Confirm & Save
+                    </Button>
+                </Modal.Footer>
+            </Modal>
+
+            <Modal.Footer className="bg-light d-flex justify-content-between">
+                <Button variant="outline-danger" className="px-4" onClick={onHide} disabled={isSaving || isDeleting}>
+                    ❌ Close
+                </Button>
+                <Button
+                    variant="primary"
+                    className="px-5 shadow-sm d-flex align-items-center gap-2 fw-bold"
+                    onClick={handleLocalSave}
+                    disabled={isSaving || isDeleting}
+                >
+                    {isSaving ? <Spinner animation="border" size="sm" /> : (editingId ? '🔄' : '✅')}
+                    {isSaving ? 'Saving...' : (editingId ? "Update Record" : "Save Record")}
                 </Button>
             </Modal.Footer>
         </Modal>

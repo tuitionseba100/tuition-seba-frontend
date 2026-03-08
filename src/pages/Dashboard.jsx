@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import { FaSyncAlt, FaSun, FaCloudSun, FaMoon } from 'react-icons/fa';
 import {
     Container,
     Row,
@@ -8,7 +7,13 @@ import {
     Table,
     Tooltip,
     OverlayTrigger,
+    Button,
+    Modal,
+    Form,
 } from 'react-bootstrap';
+import { FaSyncAlt, FaSun, FaCloudSun, FaMoon, FaEdit, FaTrashAlt } from 'react-icons/fa';
+import axios from 'axios';
+import { toast, ToastContainer } from 'react-toastify';
 
 import NavBarPage from './NavbarPage';
 
@@ -50,6 +55,8 @@ const Dashboard = () => {
     const [monthlyPaymentInflow, setMonthlyPaymentInflow] = useState([]);
     const [refundTrends, setRefundTrends] = useState([]);
     const [paymentSummary, setPaymentSummary] = useState(null);
+    const [editingPayment, setEditingPayment] = useState(null);
+    const [showEditModal, setShowEditModal] = useState(false);
     const role = localStorage.getItem('role');
 
     const fetchPaymentSummary = () => {
@@ -92,6 +99,36 @@ const Dashboard = () => {
             })
             .catch((err) => console.error('Dashboard fetch error:', err))
             .finally(() => setLoading(false));
+    };
+
+    const handleDeletePayment = async (id) => {
+        if (window.confirm('Are you sure you want to delete this payment record?')) {
+            try {
+                await axios.delete(`https://tuition-seba-backend-1.onrender.com/api/teacherPayment/delete/${id}`);
+                toast.success('Payment deleted successfully');
+                fetchData();
+            } catch (err) {
+                console.error('Delete error:', err);
+                toast.error('Failed to delete payment');
+            }
+        }
+    };
+
+    const handleEditPayment = (payment) => {
+        setEditingPayment({ ...payment });
+        setShowEditModal(true);
+    };
+
+    const handleSaveEdit = async () => {
+        try {
+            await axios.put(`https://tuition-seba-backend-1.onrender.com/api/teacherPayment/edit/${editingPayment._id}`, editingPayment);
+            toast.success('Payment updated successfully');
+            setShowEditModal(false);
+            fetchData();
+        } catch (err) {
+            console.error('Update error:', err);
+            toast.error('Failed to update payment');
+        }
     };
 
     React.useEffect(() => {
@@ -440,6 +477,7 @@ const Dashboard = () => {
                                                 <th>Personal No.</th>
                                                 <th>Amount</th>
                                                 <th>Status</th>
+                                                <th>Actions</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -451,6 +489,16 @@ const Dashboard = () => {
                                                         <td>{p.personalPhone}</td>
                                                         <td>৳ {p.amount?.toLocaleString() || p.receivedTk?.toLocaleString()}</td>
                                                         <td>{p.status}</td>
+                                                        <td>
+                                                            <div className="d-flex gap-2">
+                                                                <Button variant="outline-warning" size="sm" onClick={() => handleEditPayment(p)}>
+                                                                    <FaEdit />
+                                                                </Button>
+                                                                <Button variant="outline-danger" size="sm" onClick={() => handleDeletePayment(p._id)}>
+                                                                    <FaTrashAlt />
+                                                                </Button>
+                                                            </div>
+                                                        </td>
                                                     </tr>
                                                 ))
                                             ) : (
@@ -592,6 +640,56 @@ const Dashboard = () => {
                     </Row>
                 )}
             </Container >
+
+            {/* Edit Modal */}
+            <Modal show={showEditModal} onHide={() => setShowEditModal(false)} centered>
+                <Modal.Header closeButton style={{ background: 'linear-gradient(135deg, #ffc107 0%, #e0a800 100%)' }}>
+                    <Modal.Title className="fw-bold">✏️ Edit Payment Status</Modal.Title>
+                </Modal.Header>
+                <Modal.Body className="p-4">
+                    {editingPayment && (
+                        <Form>
+                            <Form.Group className="mb-3">
+                                <Form.Label className="fw-bold">Status</Form.Label>
+                                <Form.Select
+                                    value={editingPayment.status}
+                                    onChange={(e) => setEditingPayment({ ...editingPayment, status: e.target.value })}
+                                >
+                                    <option value="pending">Pending</option>
+                                    <option value="under review">Under review</option>
+                                    <option value="received">Received</option>
+                                    <option value="cancelled">Cancelled</option>
+                                    <option value="returned">Returned</option>
+                                    <option value="deposit">Deposit</option>
+                                </Form.Select>
+                            </Form.Group>
+                            <Form.Group className="mb-3">
+                                <Form.Label className="fw-bold">Amount</Form.Label>
+                                <Form.Control
+                                    type="number"
+                                    value={editingPayment.amount || ''}
+                                    onChange={(e) => setEditingPayment({ ...editingPayment, amount: e.target.value })}
+                                />
+                            </Form.Group>
+                            <Form.Group className="mb-3">
+                                <Form.Label className="fw-bold">Note</Form.Label>
+                                <Form.Control
+                                    as="textarea"
+                                    rows={3}
+                                    value={editingPayment.note || ''}
+                                    onChange={(e) => setEditingPayment({ ...editingPayment, note: e.target.value })}
+                                />
+                            </Form.Group>
+                        </Form>
+                    )}
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="secondary" onClick={() => setShowEditModal(false)}>Cancel</Button>
+                    <Button variant="primary" onClick={handleSaveEdit}>Save Changes</Button>
+                </Modal.Footer>
+            </Modal>
+
+            <ToastContainer />
 
             {/* Refresh Icon Button */}
             < OverlayTrigger

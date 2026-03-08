@@ -486,15 +486,14 @@ const PaymentPage = () => {
                                         <th>Created By</th>
                                         <th>Updated By</th>
                                         <th>Payment Status</th>
-                                        <th>Payment Received Date</th>
-                                        <th>Due Payment Date</th>
+                                        <th>Installment Details</th>
                                         <th>Teacher Name</th>
                                         <th>Teacher Number</th>
                                         <th>Payment Number</th>
-                                        <th>Payment Type</th>
-                                        <th>Last Received TK</th>
-                                        <th>Due TK</th>
+                                        <th>Total Payment TK</th>
                                         <th>Total Received TK</th>
+                                        <th>Due TK</th>
+                                        <th>Due Payment Date</th>
                                         <th>Comment</th>
                                         <th>Actions</th>
                                     </tr>
@@ -512,7 +511,7 @@ const PaymentPage = () => {
                                         filteredPaymentList.map((payment, index) => (
                                             <tr key={payment._id}>
                                                 <td>{(currentPage - 1) * 50 + index + 1}</td>
-                                                <td>{payment.createdAt}</td>
+                                                <td>{formatDate(payment.createdAt)}</td>
                                                 <td>{payment.tuitionCode}</td>
                                                 <td>{payment.createdBy}</td>
                                                 <td>{payment.updatedBy}</td>
@@ -526,15 +525,62 @@ const PaymentPage = () => {
                                                         {payment.paymentStatus}
                                                     </span>
                                                 </td>
-                                                <td>{payment.paymentReceivedDate ? formatDate(payment.paymentReceivedDate) : ''}</td>
-                                                <td>{payment.duePayDate ? formatDate(payment.duePayDate) : ''}</td>
+                                                <td style={{ minWidth: "180px" }}>
+                                                    <table className="table table-sm table-borderless mb-0" style={{ fontSize: '0.75rem' }}>
+                                                        <thead className="border-bottom text-muted">
+                                                            <tr style={{ fontSize: '0.65rem' }}>
+                                                                <th className="p-0">Inst.</th>
+                                                                <th className="p-0 text-center">Amt</th>
+                                                                <th className="p-0 text-end">Date</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            {payment.receivedTk ? (
+                                                                <tr className="border-bottom-sm">
+                                                                    <td className="p-0">1st</td>
+                                                                    <td className="p-0 text-center text-primary">{payment.receivedTk}</td>
+                                                                    <td className="p-0 text-end text-muted" style={{ whiteSpace: 'nowrap' }}>
+                                                                        {formatDate(payment.paymentReceivedDate).split(',')[0]}
+                                                                    </td>
+                                                                </tr>
+                                                            ) : null}
+                                                            {payment.receivedTk2 || payment.paymentReceivedDate2 ? (
+                                                                <tr className="border-bottom-sm">
+                                                                    <td className="p-0">2nd</td>
+                                                                    <td className="p-0 text-center text-primary">{payment.receivedTk2 || 0}</td>
+                                                                    <td className="p-0 text-end text-muted" style={{ whiteSpace: 'nowrap' }}>
+                                                                        {formatDate(payment.paymentReceivedDate2).split(',')[0]}
+                                                                    </td>
+                                                                </tr>
+                                                            ) : null}
+                                                            {payment.receivedTk3 || payment.paymentReceivedDate3 ? (
+                                                                <tr className="border-bottom-sm">
+                                                                    <td className="p-0">3rd</td>
+                                                                    <td className="p-0 text-center text-primary">{payment.receivedTk3 || 0}</td>
+                                                                    <td className="p-0 text-end text-muted" style={{ whiteSpace: 'nowrap' }}>
+                                                                        {formatDate(payment.paymentReceivedDate3).split(',')[0]}
+                                                                    </td>
+                                                                </tr>
+                                                            ) : null}
+                                                            {payment.receivedTk4 || payment.paymentReceivedDate4 ? (
+                                                                <tr>
+                                                                    <td className="p-0">4th</td>
+                                                                    <td className="p-0 text-center text-primary">{payment.receivedTk4 || 0}</td>
+                                                                    <td className="p-0 text-end text-muted" style={{ whiteSpace: 'nowrap' }}>
+                                                                        {formatDate(payment.paymentReceivedDate4).split(',')[0]}
+                                                                    </td>
+                                                                </tr>
+                                                            ) : null}
+                                                        </tbody>
+                                                    </table>
+                                                </td>
                                                 <td>{payment.tutorName}</td>
                                                 <td>{payment.tutorNumber}</td>
                                                 <td>{payment.paymentNumber}</td>
-                                                <td>{payment.paymentType}</td>
-                                                <td>{payment.receivedTk}</td>
-                                                <td>{payment.duePayment}</td>
+                                                <td>{payment.totalPaymentTk}</td>
                                                 <td>{payment.totalReceivedTk}</td>
+                                                <td>{payment.duePayment}</td>
+                                                <td>{payment.duePayDate ? formatDate(payment.duePayDate) : ''}</td>
                                                 <td>{payment.comment}</td>
                                                 <td style={{ display: 'flex', justifyContent: 'flex-start', gap: '8px' }}>
                                                     <Button variant="info" onClick={() => handleViewDetails(payment)} className="mr-2">
@@ -587,6 +633,7 @@ const PaymentPage = () => {
                     editingId={editingId}
                     initialData={selectedPaymentForEdit}
                     onSave={handleSavePayment}
+                    onDelete={handleDeletePayment}
                 />
 
                 <GeneralPaymentViewModal
@@ -594,6 +641,8 @@ const PaymentPage = () => {
                     onHide={() => setShowDetailsModal(false)}
                     detailsData={detailsData}
                     formatDate={formatDate}
+                    onEdit={handleEditPayment}
+                    onDelete={handleDeletePayment}
                 />
 
                 {/* Other Modals */}

@@ -9,6 +9,18 @@ import { Spinner } from 'react-bootstrap';
 import PaymentInvoice from "../components/Invoice";
 
 const TeacherPaymentPage = () => {
+    useEffect(() => {
+        const style = document.createElement('style');
+        style.innerHTML = `
+            .modal-backdrop.show {
+                opacity: 0.7 !important;
+                backdrop-filter: blur(4px);
+            }
+        `;
+        document.head.appendChild(style);
+        return () => document.head.removeChild(style);
+    }, []);
+
     const [filteredTeacherPaymentList, setFilteredTeacherPaymentList] = useState([]);
     const [showTeacherModal, setShowTeacherModal] = useState(false);
     const [teacherEditingId, setTeacherEditingId] = useState(null);
@@ -535,7 +547,7 @@ const TeacherPaymentPage = () => {
                 </div>
 
                 {/* Teacher Create/Edit Payment Modal */}
-                <Modal show={showTeacherModal} onHide={() => setShowTeacherModal(false)} size="lg">
+                <Modal show={showTeacherModal} onHide={() => setShowTeacherModal(false)} size="lg" contentClassName="shadow-lg">
                     <Modal.Header closeButton>
                         <Modal.Title className="fw-bold">
                             {teacherEditingId ? "Edit Teacher Payment" : "Create Teacher Payment"}
@@ -779,7 +791,7 @@ const TeacherPaymentPage = () => {
             <Modal show={showExportModal} onHide={() => {
                 setShowExportModal(false);
                 setSelectedExportStatus('');
-            }} centered>
+            }} centered contentClassName="shadow-lg">
                 <Modal.Header closeButton className="bg-primary text-white">
                     <Modal.Title className="w-100 text-center fw-bold">
                         Select Status for Export

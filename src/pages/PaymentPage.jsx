@@ -307,6 +307,10 @@ const PaymentPage = () => {
                 </div>
             )}
             <style>{`
+                .modal-backdrop.show {
+                    opacity: 0.7 !important;
+                    backdrop-filter: blur(4px);
+                }
                 .modal-95w {
                     max-width: 95% !important;
                 }
@@ -676,7 +680,7 @@ const PaymentPage = () => {
                 />
 
                 {/* Other Modals */}
-                <Modal show={showDueModal} onHide={() => setShowDueModal(false)} centered dialogClassName="modal-95w">
+                <Modal show={showDueModal} onHide={() => setShowDueModal(false)} centered dialogClassName="modal-95w" contentClassName="shadow-lg">
                     <Modal.Header closeButton className="bg-primary text-white">
                         <Modal.Title className="w-100 text-center fw-bold">
                             <FaBell className="text-warning" />
@@ -707,6 +711,9 @@ const PaymentPage = () => {
                                             <td>{payment.tutorNumber}</td>
                                             <td>{payment.comment || '-'}</td>
                                             <td style={{ display: 'flex', justifyContent: 'flex-start', gap: '8px' }}>
+                                                <Button variant="info" onClick={() => handleViewDetails(payment)} className="mr-2">
+                                                    <FaInfoCircle />
+                                                </Button>
                                                 <Button variant="warning" onClick={() => handleEditPayment(payment)} className="mr-2">
                                                     <FaEdit />
                                                 </Button>
@@ -730,7 +737,7 @@ const PaymentPage = () => {
                 <Modal show={showExportModal} onHide={() => {
                     setShowExportModal(false);
                     setSelectedExportStatus('');
-                }} centered>
+                }} centered contentClassName="shadow-lg">
                     <Modal.Header closeButton className="bg-primary text-white">
                         <Modal.Title className="w-100 text-center fw-bold">
                             Select Status for Export

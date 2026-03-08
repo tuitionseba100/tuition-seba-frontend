@@ -3,7 +3,7 @@ import { Modal, Button, Row, Col, Table } from 'react-bootstrap';
 
 const GeneralPaymentViewModal = ({ show, onHide, detailsData, formatDate, onEdit, onDelete }) => {
     return (
-        <Modal show={show} onHide={onHide} size="lg" centered>
+        <Modal show={show} onHide={onHide} size="lg" centered contentClassName="shadow-lg">
             <Modal.Header closeButton style={{ background: '#0d6efd', color: 'white' }}>
                 <Modal.Title className="fw-bold">🔎 Payment Details</Modal.Title>
             </Modal.Header>

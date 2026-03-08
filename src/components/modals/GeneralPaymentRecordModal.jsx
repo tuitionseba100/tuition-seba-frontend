@@ -402,7 +402,7 @@ const GeneralPaymentRecordModal = ({ show, onHide, editingId, initialData, onSav
                                         <td className="fw-bold">1st</td>
                                         <td>
                                             <Form.Control
-                                                type="number"
+                                                type="text"
                                                 id="receivedTk"
                                                 value={paymentData.receivedTk}
                                                 onChange={handleChange}
@@ -426,7 +426,7 @@ const GeneralPaymentRecordModal = ({ show, onHide, editingId, initialData, onSav
                                         </td>
                                         <td>
                                             <Form.Control
-                                                type="number"
+                                                type="text"
                                                 id="paymentNumber"
                                                 value={paymentData.paymentNumber}
                                                 onChange={handleChange}
@@ -446,7 +446,7 @@ const GeneralPaymentRecordModal = ({ show, onHide, editingId, initialData, onSav
                                         <td className="fw-bold text-muted">2nd</td>
                                         <td>
                                             <Form.Control
-                                                type="number"
+                                                type="text"
                                                 id="receivedTk2"
                                                 value={paymentData.receivedTk2}
                                                 onChange={handleChange}
@@ -470,7 +470,7 @@ const GeneralPaymentRecordModal = ({ show, onHide, editingId, initialData, onSav
                                         </td>
                                         <td>
                                             <Form.Control
-                                                type="number"
+                                                type="text"
                                                 id="paymentNumber2"
                                                 value={paymentData.paymentNumber2}
                                                 onChange={handleChange}
@@ -491,7 +491,7 @@ const GeneralPaymentRecordModal = ({ show, onHide, editingId, initialData, onSav
                                             <td className="fw-bold text-muted">3rd</td>
                                             <td>
                                                 <Form.Control
-                                                    type="number"
+                                                    type="text"
                                                     id="receivedTk3"
                                                     value={paymentData.receivedTk3}
                                                     onChange={handleChange}
@@ -515,7 +515,7 @@ const GeneralPaymentRecordModal = ({ show, onHide, editingId, initialData, onSav
                                             </td>
                                             <td>
                                                 <Form.Control
-                                                    type="number"
+                                                    type="text"
                                                     id="paymentNumber3"
                                                     value={paymentData.paymentNumber3}
                                                     onChange={handleChange}
@@ -537,7 +537,7 @@ const GeneralPaymentRecordModal = ({ show, onHide, editingId, initialData, onSav
                                             <td className="fw-bold text-muted">4th</td>
                                             <td>
                                                 <Form.Control
-                                                    type="number"
+                                                    type="text"
                                                     id="receivedTk4"
                                                     value={paymentData.receivedTk4}
                                                     onChange={handleChange}
@@ -561,7 +561,7 @@ const GeneralPaymentRecordModal = ({ show, onHide, editingId, initialData, onSav
                                             </td>
                                             <td>
                                                 <Form.Control
-                                                    type="number"
+                                                    type="text"
                                                     id="paymentNumber4"
                                                     value={paymentData.paymentNumber4}
                                                     onChange={handleChange}

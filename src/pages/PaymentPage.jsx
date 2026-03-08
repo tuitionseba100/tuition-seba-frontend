@@ -492,6 +492,7 @@ const PaymentPage = () => {
                                         <th>Payment Number</th>
                                         <th>Total Payment TK</th>
                                         <th>Total Received TK</th>
+                                        <th>Discount</th>
                                         <th>Due TK</th>
                                         <th>Due Payment Date</th>
                                         <th>Comment</th>
@@ -579,6 +580,7 @@ const PaymentPage = () => {
                                                 <td>{payment.paymentNumber}</td>
                                                 <td>{payment.totalPaymentTk}</td>
                                                 <td>{payment.totalReceivedTk}</td>
+                                                <td>{payment.discount || 0}</td>
                                                 <td>{payment.duePayment}</td>
                                                 <td>{payment.duePayDate ? formatDate(payment.duePayDate) : ''}</td>
                                                 <td>{payment.comment}</td>

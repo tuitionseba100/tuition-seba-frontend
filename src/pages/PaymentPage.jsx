@@ -1,35 +1,21 @@
 import React, { useState, useEffect } from 'react';
-import { Button, Table, Modal, Form, Row, Col, Card } from 'react-bootstrap';
-import { FaEdit, FaTrashAlt, FaInfoCircle, FaBell, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
+import { Button, Table, Modal, Form, Row, Col, Card, Spinner, Tooltip, OverlayTrigger } from 'react-bootstrap';
+import { FaEdit, FaTrashAlt, FaInfoCircle, FaBell, FaChevronLeft, FaChevronRight, FaPlus, FaFilter, FaFileExport, FaMoneyBillWave, FaExclamationCircle, FaCheckCircle, FaSearch, FaHistory } from 'react-icons/fa';
+import GeneralPaymentRecordModal from '../components/modals/GeneralPaymentRecordModal';
+import GeneralPaymentViewModal from '../components/modals/GeneralPaymentViewModal';
 import axios from 'axios';
 import NavBarPage from './NavbarPage';
 import styled from 'styled-components';
 import { ToastContainer, toast } from 'react-toastify';
-import { Spinner } from 'react-bootstrap';
 import * as XLSX from 'xlsx';
 import Select from 'react-select';
-import { Tooltip, OverlayTrigger } from 'react-bootstrap';
 
 const PaymentPage = () => {
     const [paymentList, setPaymentList] = useState([]);
     const [filteredPaymentList, setFilteredPaymentList] = useState([]);
     const [showModal, setShowModal] = useState(false);
     const [editingId, setEditingId] = useState(null);
-    const [paymentData, setPaymentData] = useState({
-        tuitionCode: '',
-        tuitionId: '',
-        paymentReceivedDate: '',
-        duePayDate: '',
-        tutorName: '',
-        tutorNumber: '',
-        paymentNumber: '',
-        paymentType: '',
-        receivedTk: '',
-        totalReceivedTk: '',
-        duePayment: '',
-        paymentStatus: '',
-        comment: '',
-    });
+    const [selectedPaymentForEdit, setSelectedPaymentForEdit] = useState(null);
     const [loading, setLoading] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
@@ -69,6 +55,8 @@ const PaymentPage = () => {
     const [showDueModal, setShowDueModal] = useState(false);
     const [showExportModal, setShowExportModal] = useState(false);
     const [selectedExportStatus, setSelectedExportStatus] = useState('');
+    const [showDetailsModal, setShowDetailsModal] = useState(false);
+    const [detailsData, setDetailsData] = useState(null);
     const role = localStorage.getItem('role');
 
     useEffect(() => {
@@ -227,8 +215,8 @@ const PaymentPage = () => {
 
 
 
-    const handleSavePayment = async () => {
-        if (!paymentData.tuitionId || paymentData.tuitionId.trim() === '') {
+    const handleSavePayment = async (data) => {
+        if (!data.tuitionId || data.tuitionId.trim() === '') {
             toast.error("Please enter a tuition code.");
             return;
         }
@@ -236,8 +224,8 @@ const PaymentPage = () => {
         const username = localStorage.getItem('username');
 
         const updatedPaymentData = {
-            ...paymentData,
-            tuitionCode: paymentData.tuitionId
+            ...data,
+            tuitionCode: data.tuitionId
         };
 
         try {
@@ -251,6 +239,8 @@ const PaymentPage = () => {
                 toast.success("Payment record created successfully!");
             }
             setShowModal(false);
+            setEditingId(null);
+            setSelectedPaymentForEdit(null);
             fetchPaymentRecords();
             fetchTuitionAlertToday();
         } catch (err) {
@@ -260,9 +250,14 @@ const PaymentPage = () => {
     };
 
     const handleEditPayment = (payment) => {
-        setPaymentData(payment);
+        setSelectedPaymentForEdit(payment);
         setEditingId(payment._id);
         setShowModal(true);
+    };
+
+    const handleViewDetails = (payment) => {
+        setDetailsData(payment);
+        setShowDetailsModal(true);
     };
 
     const handleDeletePayment = async (id) => {
@@ -296,7 +291,7 @@ const PaymentPage = () => {
 
                 <Header>
                     <h2 className='text-primary fw-bold'>Payment Dashboard</h2>
-                    <Button variant="primary" onClick={() => { setShowModal(true); setEditingId(null); setPaymentData({ tuitionCode: '', tuitionId: '', paymentReceivedDate: '', paymentType: '', transactionId: '', receivedTk: '', duePayment: '', comment: '' }) }}>
+                    <Button variant="primary" onClick={() => { setEditingId(null); setSelectedPaymentForEdit(null); setShowModal(true); }}>
                         Create Payment Record
                     </Button>
                 </Header>
@@ -486,6 +481,7 @@ const PaymentPage = () => {
                                 <thead className="table-primary" style={{ position: "sticky", top: 0, zIndex: 2 }}>
                                     <tr>
                                         <th>SL</th>
+                                        <th>Created At</th>
                                         <th>Tuition Code</th>
                                         <th>Created By</th>
                                         <th>Updated By</th>
@@ -516,6 +512,7 @@ const PaymentPage = () => {
                                         filteredPaymentList.map((payment, index) => (
                                             <tr key={payment._id}>
                                                 <td>{(currentPage - 1) * 50 + index + 1}</td>
+                                                <td>{payment.createdAt}</td>
                                                 <td>{payment.tuitionCode}</td>
                                                 <td>{payment.createdBy}</td>
                                                 <td>{payment.updatedBy}</td>
@@ -540,13 +537,15 @@ const PaymentPage = () => {
                                                 <td>{payment.totalReceivedTk}</td>
                                                 <td>{payment.comment}</td>
                                                 <td style={{ display: 'flex', justifyContent: 'flex-start', gap: '8px' }}>
+                                                    <Button variant="info" onClick={() => handleViewDetails(payment)} className="mr-2">
+                                                        <FaInfoCircle />
+                                                    </Button>
                                                     <Button variant="warning" onClick={() => handleEditPayment(payment)} className="mr-2">
                                                         <FaEdit />
                                                     </Button>
                                                     <Button variant="danger" onClick={() => handleDeletePayment(payment._id)}>
                                                         <FaTrashAlt />
                                                     </Button>
-
                                                 </td>
                                             </tr>
                                         ))
@@ -581,201 +580,23 @@ const PaymentPage = () => {
                     </Card.Body>
                 </Card>
 
-                <Modal show={showModal} onHide={() => setShowModal(false)} size="lg">
-                    <Modal.Header closeButton>
-                        <Modal.Title className="fw-bold">{editingId ? "Edit Payment" : "Create Payment"}</Modal.Title>
-                    </Modal.Header>
+                {/* Specialized Modals Extracted for Performance */}
+                <GeneralPaymentRecordModal
+                    show={showModal}
+                    onHide={() => setShowModal(false)}
+                    editingId={editingId}
+                    initialData={selectedPaymentForEdit}
+                    onSave={handleSavePayment}
+                />
 
-                    <Modal.Body>
+                <GeneralPaymentViewModal
+                    show={showDetailsModal}
+                    onHide={() => setShowDetailsModal(false)}
+                    detailsData={detailsData}
+                    formatDate={formatDate}
+                />
 
-                        <Form>
-                            <Row>
-                                <Col md={6}>
-                                    <Form.Group controlId="tuitionId">
-                                        <Form.Label className="fw-bold">Tuition Code</Form.Label>
-                                        <Form.Control
-                                            type="text"
-                                            value={paymentData.tuitionId}
-                                            onChange={(e) => setPaymentData({ ...paymentData, tuitionId: e.target.value })}
-                                            required
-                                        />
-                                    </Form.Group>
-                                </Col>
-
-                                <Col md={4}>
-                                    <Form.Group controlId="paymentReceivedDate">
-                                        <Form.Label className="fw-bold">Payment Received Date</Form.Label>
-                                        <Form.Control
-                                            type="datetime-local"
-                                            value={paymentData.paymentReceivedDate
-                                                ? paymentData.paymentReceivedDate.slice(0, 16)
-                                                : ''
-                                            }
-                                            onChange={(e) => {
-                                                if (!e.target.value) {
-                                                    setPaymentData({ ...paymentData, paymentReceivedDate: '' });
-                                                } else {
-                                                    const localDate = new Date(e.target.value);
-                                                    const utcDate = new Date(localDate.getTime() - localDate.getTimezoneOffset() * 60000);
-                                                    setPaymentData({ ...paymentData, paymentReceivedDate: utcDate.toISOString() });
-                                                }
-                                            }}
-                                            required
-                                        />
-                                    </Form.Group>
-                                </Col>
-                            </Row>
-
-                            <Row>
-                                <Col md={4}>
-                                    <Form.Group controlId="tutorName">
-                                        <Form.Label className="fw-bold">Tutor Name</Form.Label>
-                                        <Form.Control
-                                            type="text"
-                                            value={paymentData.tutorName}
-                                            onChange={(e) => setPaymentData({ ...paymentData, tutorName: e.target.value })}
-                                            required
-                                        />
-                                    </Form.Group>
-                                </Col>
-                                <Col md={4}>
-                                    <Form.Group controlId="tutorNumber">
-                                        <Form.Label className="fw-bold">Tutor Number</Form.Label>
-                                        <Form.Control
-                                            type="text"
-                                            value={paymentData.tutorNumber}
-                                            onChange={(e) => setPaymentData({ ...paymentData, tutorNumber: e.target.value })}
-                                            required
-                                        />
-                                    </Form.Group>
-                                </Col>
-                                <Col md={4}>
-                                    <Form.Group controlId="paymentNumber">
-                                        <Form.Label className="fw-bold">Payment Number</Form.Label>
-                                        <Form.Control
-                                            type="text"
-                                            value={paymentData.paymentNumber}
-                                            onChange={(e) => setPaymentData({ ...paymentData, paymentNumber: e.target.value })}
-                                            required
-                                        />
-                                    </Form.Group>
-                                </Col>
-                            </Row>
-
-                            <Row>
-                                <Col md={4}>
-                                    <Form.Group controlId="receivedTk">
-                                        <Form.Label className="fw-bold">Received Tk</Form.Label>
-                                        <Form.Control
-                                            type="number"
-                                            value={paymentData.receivedTk}
-                                            onChange={(e) => setPaymentData({ ...paymentData, receivedTk: e.target.value })}
-                                            required
-                                        />
-                                    </Form.Group>
-                                </Col>
-
-                                <Col md={4}>
-                                    <Form.Group controlId="duePayment">
-                                        <Form.Label className="fw-bold">Due Payment</Form.Label>
-                                        <Form.Control
-                                            type="number"
-                                            value={paymentData.duePayment}
-                                            onChange={(e) => setPaymentData({ ...paymentData, duePayment: e.target.value })}
-                                            required
-                                        />
-                                    </Form.Group>
-                                </Col>
-
-                                <Col md={4}>
-                                    <Form.Group controlId="totalReceivedTk">
-                                        <Form.Label className="fw-bold">Total Received</Form.Label>
-                                        <Form.Control
-                                            type="number"
-                                            value={paymentData.totalReceivedTk}
-                                            onChange={(e) => setPaymentData({ ...paymentData, totalReceivedTk: e.target.value })}
-                                            required
-                                        />
-                                    </Form.Group>
-                                </Col>
-                            </Row>
-
-                            <Row>
-                                <Col md={4}>
-                                    <Form.Group controlId="paymentType">
-                                        <Form.Label className="fw-bold">Payment Type</Form.Label>
-                                        <Form.Control
-                                            type="text"
-                                            value={paymentData.paymentType}
-                                            onChange={(e) => setPaymentData({ ...paymentData, paymentType: e.target.value })}
-                                            required
-                                        />
-                                    </Form.Group>
-                                </Col>
-                                <Col md={4}>
-                                    <Form.Group controlId="paymentStatus">
-                                        <Form.Label className="fw-bold">Payment Status</Form.Label>
-                                        <Form.Control
-                                            as="select"
-                                            value={paymentData.paymentStatus}
-                                            onChange={(e) => setPaymentData({ ...paymentData, paymentStatus: e.target.value })}
-                                            required
-                                        >
-                                            <option value="">Select Payment Status</option>
-                                            <option value="pending payment">Pending Payment</option>
-                                            <option value="pending due">Pending Due</option>
-                                            <option value="fully paid">Fully Paid</option>
-
-                                        </Form.Control>
-                                    </Form.Group>
-                                </Col>
-
-                                <Col md={4}>
-                                    <Form.Group controlId="duePayDate">
-                                        <Form.Label className="fw-bold">Due Payment Date</Form.Label>
-                                        <Form.Control
-                                            type="datetime-local"
-                                            value={paymentData.duePayDate ? paymentData.duePayDate.slice(0, 16) : ''}
-                                            onChange={(e) => {
-                                                if (!e.target.value) {
-                                                    setPaymentData({ ...paymentData, duePayDate: '' });
-                                                } else {
-                                                    const localDate = new Date(e.target.value);
-                                                    const utcDate = new Date(localDate.getTime() - localDate.getTimezoneOffset() * 60000);
-                                                    setPaymentData({ ...paymentData, duePayDate: utcDate.toISOString() });
-                                                }
-                                            }}
-                                            required
-                                        />
-                                    </Form.Group>
-                                </Col>
-
-                            </Row>
-                            <Row>
-                                <Col md={4}>
-                                    <Form.Group controlId="comment">
-                                        <Form.Label className="fw-bold">Comment</Form.Label>
-                                        <Form.Control
-                                            as="textarea"
-                                            value={paymentData.comment}
-                                            onChange={(e) => setPaymentData({ ...paymentData, comment: e.target.value })}
-                                            required
-                                        />
-                                    </Form.Group>
-
-                                </Col>
-                            </Row>
-                        </Form>
-
-                    </Modal.Body>
-                    <Modal.Footer>
-                        <Button variant="secondary" onClick={() => setShowModal(false)}>Close</Button>
-                        <Button variant="primary" onClick={handleSavePayment}>Save</Button>
-                    </Modal.Footer>
-                </Modal>
-
-
-                {/* Due Payments Modal */}
+                {/* Other Modals */}
                 <Modal show={showDueModal} onHide={() => setShowDueModal(false)} centered dialogClassName="modal-95w">
                     <Modal.Header closeButton className="bg-primary text-white">
                         <Modal.Title className="w-100 text-center fw-bold">

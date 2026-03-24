@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Button, Table, Modal, Form, Row, Col, Card, Spinner, Tooltip, OverlayTrigger } from 'react-bootstrap';
-import { FaEdit, FaTrashAlt, FaInfoCircle, FaBell, FaChevronLeft, FaChevronRight, FaPlus, FaFilter, FaFileExport, FaMoneyBillWave, FaExclamationCircle, FaCheckCircle, FaSearch, FaHistory } from 'react-icons/fa';
+import { FaEdit, FaTrashAlt, FaInfoCircle, FaBell, FaChevronLeft, FaChevronRight, FaPlus, FaFilter, FaFileExport, FaMoneyBillWave, FaExclamationCircle, FaCheckCircle, FaSearch, FaHistory, FaWhatsapp } from 'react-icons/fa';
 import GeneralPaymentRecordModal from '../components/modals/GeneralPaymentRecordModal';
 import GeneralPaymentViewModal from '../components/modals/GeneralPaymentViewModal';
+import WhatsAppPaymentMessageModal from '../components/modals/WhatsAppPaymentMessageModal';
 import axios from 'axios';
 import NavBarPage from './NavbarPage';
 import styled from 'styled-components';
@@ -20,6 +21,9 @@ const PaymentPage = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
     const [isDeleting, setIsDeleting] = useState(false);
+
+    const [showWhatsappModal, setShowWhatsappModal] = useState(false);
+    const [whatsappPaymentData, setWhatsappPaymentData] = useState(null);
 
     const [searchInputs, setSearchInputs] = useState({
         tuitionCode: '',
@@ -285,7 +289,10 @@ const PaymentPage = () => {
         }
     };
 
-
+    const handleWhatsAppClick = (payment) => {
+        setWhatsappPaymentData(payment);
+        setShowWhatsappModal(true);
+    };
 
     return (
         <>
@@ -615,6 +622,9 @@ const PaymentPage = () => {
                                                 <td>{payment.duePayDate ? formatDate(payment.duePayDate) : ''}</td>
                                                 <td>{payment.comment}</td>
                                                 <td style={{ display: 'flex', justifyContent: 'flex-start', gap: '8px' }}>
+                                                    <Button variant="success" onClick={() => handleWhatsAppClick(payment)} className="mr-2" style={{ background: '#25D366', borderColor: '#25D366' }}>
+                                                        <FaWhatsapp />
+                                                    </Button>
                                                     <Button variant="info" onClick={() => handleViewDetails(payment)} className="mr-2">
                                                         <FaInfoCircle />
                                                     </Button>
@@ -713,6 +723,9 @@ const PaymentPage = () => {
                                             <td>{payment.tutorNumber}</td>
                                             <td>{payment.comment || '-'}</td>
                                             <td style={{ display: 'flex', justifyContent: 'flex-start', gap: '8px' }}>
+                                                <Button variant="success" onClick={() => handleWhatsAppClick(payment)} className="mr-2" style={{ background: '#25D366', borderColor: '#25D366' }}>
+                                                    <FaWhatsapp />
+                                                </Button>
                                                 <Button variant="info" onClick={() => handleViewDetails(payment)} className="mr-2">
                                                     <FaInfoCircle />
                                                 </Button>
@@ -780,6 +793,16 @@ const PaymentPage = () => {
                         </Button>
                     </Modal.Footer>
                 </Modal>
+
+                <WhatsAppPaymentMessageModal
+                    show={showWhatsappModal}
+                    onHide={() => {
+                        setShowWhatsappModal(false);
+                        setWhatsappPaymentData(null);
+                    }}
+                    paymentData={whatsappPaymentData}
+                    formatDate={formatDate}
+                />
 
                 <ToastContainer />
             </Container>

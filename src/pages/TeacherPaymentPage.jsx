@@ -216,7 +216,6 @@ const TeacherPaymentPage = () => {
                 };
                 await axios.put(`https://tuition-seba-backend-1.onrender.com/api/teacherPayment/edit/${teacherEditingId}`, updatedData);
                 toast.success("Teacher payment record updated successfully!");
-                setTimeout(() => window.location.reload(), 1500);
             } else {
                 const newData = {
                     ...teacherPaymentData,
@@ -224,9 +223,10 @@ const TeacherPaymentPage = () => {
                 };
                 await axios.post('https://tuition-seba-backend-1.onrender.com/api/teacherPayment/add', newData);
                 toast.success("Teacher payment record created successfully!");
-                setTimeout(() => window.location.reload(), 1500);
             }
             setShowTeacherModal(false);
+            setTeacherEditingId(null);
+            setTeacherPaymentData({ tuitionCode: '', paymentType: '', paymentNumber: '', transactionId: '', personalPhone: '', amount: '', discount: '', dueAmount: '', totalAmount: '', name: '', note: '', status: '' });
             fetchTeacherPaymentRecords();
         } catch (err) {
             console.error('Error saving payment record:', err);
@@ -248,8 +248,11 @@ const TeacherPaymentPage = () => {
             try {
                 await axios.delete(`https://tuition-seba-backend-1.onrender.com/api/teacherPayment/delete/${id}`);
                 toast.success("Payment record deleted successfully!");
-                setTimeout(() => window.location.reload(), 1500);
                 fetchTeacherPaymentRecords();
+                setIsDeleting(false);
+                setShowTeacherModal(false);
+                setTeacherEditingId(null);
+                setTeacherPaymentData({ tuitionCode: '', paymentType: '', paymentNumber: '', transactionId: '', personalPhone: '', amount: '', discount: '', dueAmount: '', totalAmount: '', name: '', note: '', status: '' });
             } catch (err) {
                 console.error('Error deleting payment record:', err);
                 toast.error("Error deleting payment record.");
@@ -298,7 +301,7 @@ const TeacherPaymentPage = () => {
 
                 <Header>
                     <h2 className='text-primary fw-bold'>Teacher Payment Dashboard</h2>
-                    <Button variant="primary" onClick={() => { setShowTeacherModal(true); setTeacherEditingId(null); setTeacherPaymentData({ tuitionCode: '', paymentType: '', paymentNumber: '', transactionId: '', personalPhone: '', amount: '', name: '', note: '', status: '' }) }}>
+                    <Button variant="primary" onClick={() => { setShowTeacherModal(true); setTeacherEditingId(null); setTeacherPaymentData({ tuitionCode: '', paymentType: '', paymentNumber: '', transactionId: '', personalPhone: '', amount: '', discount: '', dueAmount: '', totalAmount: '', name: '', note: '', status: '' }) }}>
                         Create Teacher Payment Record
                     </Button>
                 </Header>
@@ -547,7 +550,11 @@ const TeacherPaymentPage = () => {
                 </div>
 
                 {/* Teacher Create/Edit Payment Modal */}
-                <Modal show={showTeacherModal} onHide={() => setShowTeacherModal(false)} size="lg" contentClassName="shadow-lg">
+                <Modal show={showTeacherModal} onHide={() => {
+                    setShowTeacherModal(false);
+                    setTeacherEditingId(null);
+                    setTeacherPaymentData({ tuitionCode: '', paymentType: '', paymentNumber: '', transactionId: '', personalPhone: '', amount: '', discount: '', dueAmount: '', totalAmount: '', name: '', note: '', status: '' });
+                }} size="lg" contentClassName="shadow-lg">
                     <Modal.Header closeButton>
                         <Modal.Title className="fw-bold">
                             {teacherEditingId ? "Edit Teacher Payment" : "Create Teacher Payment"}
@@ -766,7 +773,11 @@ const TeacherPaymentPage = () => {
                             )}
                         </div>
                         <div>
-                            <Button variant="secondary" className="me-2" onClick={() => setShowTeacherModal(false)}>
+                            <Button variant="secondary" className="me-2" onClick={() => {
+                                setShowTeacherModal(false);
+                                setTeacherEditingId(null);
+                                setTeacherPaymentData({ tuitionCode: '', paymentType: '', paymentNumber: '', transactionId: '', personalPhone: '', amount: '', discount: '', dueAmount: '', totalAmount: '', name: '', note: '', status: '' });
+                            }}>
                                 Close
                             </Button>
                             <Button variant="primary" onClick={handleSaveTeacherPayment}>

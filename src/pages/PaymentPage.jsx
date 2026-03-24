@@ -234,12 +234,10 @@ const PaymentPage = () => {
                 updatedPaymentData.updatedBy = username;
                 await axios.put(`https://tuition-seba-backend-1.onrender.com/api/payment/edit/${editingId}`, updatedPaymentData);
                 toast.success("Payment record updated successfully!");
-                setTimeout(() => window.location.reload(), 1500);
             } else {
                 updatedPaymentData.createdBy = username;
                 await axios.post('https://tuition-seba-backend-1.onrender.com/api/payment/add', updatedPaymentData);
                 toast.success("Payment record created successfully!");
-                setTimeout(() => window.location.reload(), 1500);
             }
             setShowModal(false);
             setEditingId(null);
@@ -271,8 +269,12 @@ const PaymentPage = () => {
             try {
                 await axios.delete(`https://tuition-seba-backend-1.onrender.com/api/payment/delete/${id}`);
                 toast.success("Payment record deleted successfully!");
-                setTimeout(() => window.location.reload(), 1500);
                 fetchPaymentRecords();
+                setIsDeleting(false);
+                setShowModal(false);
+                setEditingId(null);
+                setSelectedPaymentForEdit(null);
+                setShowDetailsModal(false);
             } catch (err) {
                 console.error('Error deleting payment record:', err);
                 toast.error("Error deleting payment record.");

@@ -704,6 +704,7 @@ const PaymentPage = () => {
                             <Table responsive striped bordered hover className="shadow-sm">
                                 <thead className="bg-dark text-white text-center">
                                     <tr>
+                                        <th>SL</th>
                                         <th>Payment Received Date</th>
                                         <th>Tuition Code</th>
                                         <th>Due Tk</th>
@@ -716,6 +717,7 @@ const PaymentPage = () => {
                                 <tbody>
                                     {dueTodayList.map((payment, index) => (
                                         <tr key={index} className="align-middle text-center">
+                                            <td>{index + 1}</td>
                                             <td>{payment.paymentReceivedDate ? formatDate(payment.paymentReceivedDate) : '-'}</td>
                                             <td>{payment.tuitionCode}</td>
                                             <td className="fw-bold text-danger">{payment.duePayment}</td>

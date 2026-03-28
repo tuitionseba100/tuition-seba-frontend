@@ -462,6 +462,7 @@ const TeacherPaymentPage = () => {
                                         <th>Transaction ID</th>
                                         <th>Payment Type</th>
                                         <th>Amount</th>
+                                        <th>Discount</th>
                                         <th>Comment</th>
                                         <th>Actions</th>
                                     </tr>
@@ -503,6 +504,7 @@ const TeacherPaymentPage = () => {
                                                 <td>{payment.transactionId}</td>
                                                 <td>{payment.paymentType}</td>
                                                 <td>{payment.amount}</td>
+                                                <td>{payment.discount || 0}</td>
                                                 <td>{payment.note}</td>
                                                 <td style={{ display: 'flex', justifyContent: 'flex-start', gap: '8px' }}>
                                                     <Button variant="warning" onClick={() => handleEditTeacherPayment(payment)} className="mr-2">

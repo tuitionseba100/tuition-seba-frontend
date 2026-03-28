@@ -68,7 +68,7 @@ const PremiumTeacherPage = () => {
         { key: 'name', label: 'Name', type: 'text', col: 2 },
         { key: 'phone', label: 'Phone|Alt.|WhatsApp', type: 'text', col: 2 },
         { key: 'currentArea', label: 'Area', type: 'text', col: 2 },
-        { key: 'status', label: 'Status', type: 'select', options: ['pending', 'under review', 'pending payment', 'Must Advance', 'After Confirmation', 'After Salary', '30% Advance', 'rejected', 'verified', 'suspended'], col: 1 },
+        { key: 'status', label: 'Status', type: 'select', options: ['pending', 'under review', 'pending payment', 'Must Advance', 'After Confirmation', 'After Salary', '30% Advance', 'rejected', 'verified', 'suspended', 'Not interested'], col: 1 },
         { key: 'gender', label: 'Gender', type: 'select', options: ['male', 'female'], col: 1 }
     ];
 
@@ -114,7 +114,7 @@ const PremiumTeacherPage = () => {
         // Subscription & Payment Details
         { name: 'premiumCode', label: 'Premium Code', col: 6, group: 'Subscription & Payment Details' },
         { name: 'password', label: 'Password', col: 6, group: 'Subscription & Payment Details' },
-        { name: 'status', label: 'Subscription Status', type: 'select', col: 6, options: ['pending', 'under review', 'pending payment', 'Must Advance', 'After Confirmation', 'After Salary', '30% Advance', 'rejected', 'verified', 'suspended'], group: 'Subscription & Payment Details' },
+        { name: 'status', label: 'Subscription Status', type: 'select', col: 6, options: ['pending', 'under review', 'pending payment', 'Must Advance', 'After Confirmation', 'After Salary', '30% Advance', 'rejected', 'verified', 'suspended', 'Not interested'], group: 'Subscription & Payment Details' },
         { name: 'uniCode', label: 'Uni Code', type: 'select', col: 6, options: ['CMC', 'CUET', 'CU Science', 'CU Arts', 'CU Commerce', 'CVASU', 'Private Science', 'Private Commerce', 'Private Arts', 'National Science', 'National Arts', 'National Commerce', 'Arabic', 'NC English', 'BC English', 'Special'], group: 'Subscription & Payment Details' },
         { name: 'transactionId', label: 'Transaction ID', col: 6, group: 'Subscription & Payment Details' },
         { name: 'paymentType', label: 'Payment Method', col: 6, group: 'Subscription & Payment Details' },
@@ -448,6 +448,7 @@ const PremiumTeacherPage = () => {
         "verified": { bg: "#4CAF50", color: "#fff" }, // green
         "rejected": { bg: "#F44336", color: "#fff" }, // red
         "suspended": { bg: "#424242", color: "#fff" }, // dark gray
+        "Not interested": { bg: "#6c757d", color: "#fff" }, // gray
     };
 
     const defaultStatusStyle = { bg: "#BDBDBD", color: "#000" };

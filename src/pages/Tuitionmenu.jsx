@@ -239,6 +239,54 @@ const TuitionPage = () => {
         }
     };
 
+    const handleExportUpdateListAsExcel = () => {
+        if (!tuitionNeedsUpdateList || tuitionNeedsUpdateList.length === 0) {
+            toast.error("No data available to export.");
+            return;
+        }
+
+        try {
+            // Map data to a cleaner format for Excel
+            const exportData = tuitionNeedsUpdateList.map(t => ({
+                "Tuition Code": t.tuitionCode,
+                "Status": t.status,
+                "Comment": t.note,
+                "Last Update Comment": t.lastUpdateComment,
+                "Next Update Comment": t.nextUpdateComment,
+                "Teacher Number": t.tutorNumber,
+                "Guardian Number": t.guardianNumber,
+                "Created By": t.createdBy,
+                "Updated By": t.updatedBy
+            }));
+
+            const worksheet = XLSX.utils.json_to_sheet(exportData);
+
+            // Set custom column widths
+            worksheet['!cols'] = [
+                { wch: 15 }, // Tuition Code
+                { wch: 18 }, // Status
+                { wch: 40 }, // Comment
+                { wch: 40 }, // Last Update Comment
+                { wch: 40 }, // Next Update Comment
+                { wch: 15 }, // Teacher Number
+                { wch: 15 }, // Guardian Number
+                { wch: 15 }, // Created By
+                { wch: 15 }  // Updated By
+            ];
+
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, "Update List Today");
+            const now = new Date();
+            const dateStr = now.toISOString().split('T')[0];
+            const timeStr = now.getHours().toString().padStart(2, '0') + "-" + now.getMinutes().toString().padStart(2, '0');
+            XLSX.writeFile(workbook, `tuition_updates_${dateStr}_${timeStr}.xlsx`);
+            toast.success("Excel file downloaded successfully!");
+        } catch (error) {
+            console.error("Excel export error:", error);
+            toast.error("Failed to export Excel file.");
+        }
+    };
+
     const handleDeleteTuition = async (id) => {
         const confirmDelete = window.confirm("Are you sure you want to delete this tuition record?");
         if (confirmDelete) {
@@ -696,79 +744,96 @@ const TuitionPage = () => {
                     </Card.Body>
                 </Card>
 
-                {showUpdateListModal && (
-                    <div className="modal show d-block" style={{ backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 1050, padding: '20px' }}>
-                        <div className="modal-dialog" style={{ maxWidth: 'calc(100vw - 40px)', width: '100%', height: 'calc(100vh - 40px)', margin: '0' }}>
-                            <div className="modal-content">
-                                <div className="modal-header bg-primary text-white">
-                                    <h5 className="modal-title w-100 text-center fw-bold">
-                                        <FaBell className="text-warning" />
-                                        <span className="ms-2">Tuition needs update Today: {tuitionNeedsUpdateList.length}</span>
-                                    </h5>
-                                    <button type="button" className="btn-close btn-close-white" onClick={() => setShowUpdateListModal(false)}></button>
-                                </div>
-                                <div className="modal-body p-0 bg-light" style={{ maxHeight: 'calc(100vh - 120px)', overflowY: 'auto' }}>
-                                    {tuitionNeedsUpdateList.length > 0 ? (
-                                        <div className="table-responsive" style={{ maxHeight: 'calc(100vh - 180px)', overflowY: 'auto' }}>
-                                            <table className="table table-striped table-bordered table-hover mb-0">
-                                                <thead className="bg-dark text-white text-center sticky-header">
-                                                    <tr>
-                                                        <th>Tuition Code</th>
-                                                        <th>Created By/Updated By</th>
-                                                        <th>Comment</th>
-                                                        <th>Last Update Comment</th>
-                                                        <th>Next Update Comment</th>
-                                                        <th>Status</th>
-                                                        <th>Teacher Number</th>
-                                                        <th>Guardian Number</th>
-                                                        <th>Actions</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    {tuitionNeedsUpdateList.map((tuition, index) => (
-                                                        <tr key={index} className="align-middle text-center">
-                                                            <td>{tuition.tuitionCode}</td>
-                                                            <td className="text-start">
-                                                                <span className="badge bg-success text-white me-2">CB: {tuition.createdBy || '-'}</span>
-                                                                <span className="badge bg-primary text-white">UB: {tuition.updatedBy || '-'}</span>
-                                                            </td>
-                                                            <td>{tuition.note || '-'}</td>
-                                                            <td>{tuition.lastUpdateComment || '-'}</td>
-                                                            <td>{tuition.nextUpdateComment || '-'}</td>
-                                                            <td>{tuition.status}</td>
-                                                            <td>{tuition.tutorNumber}</td>
-                                                            <td>{tuition.guardianNumber}</td>
-                                                            <td style={{ display: 'flex', justifyContent: 'flex-start', gap: '8px' }}>
-                                                                <Button variant="info" onClick={() => handleShowDetails(tuition)} title="View Details">
-                                                                    <FaInfoCircle />
-                                                                </Button>
-
-                                                                <Button variant="warning" onClick={() => handleEdit(tuition)} className="mr-2">
-                                                                    <FaEdit />
-                                                                </Button>
-
-                                                                <Button variant="danger" onClick={() => handleDeleteTuition(tuition._id)}>
-                                                                    <FaTrashAlt />
-                                                                </Button>
-                                                                <Button variant="success" onClick={() => handleShare(tuition)}>
-                                                                    <FaWhatsapp />
-                                                                </Button>
-                                                            </td>
-                                                        </tr>
-                                                    ))}
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    ) : (
-                                        <div className="text-center text-muted py-4">
-                                            <h5>No tuition needs update check today.</h5>
-                                        </div>
-                                    )}
-                                </div>
+                <Modal 
+                    show={showUpdateListModal} 
+                    onHide={() => setShowUpdateListModal(false)} 
+                    size="xl"
+                    dialogClassName="modal-initial-size"
+                >
+                    <style>{`
+                        .modal-initial-size {
+                            max-width: calc(100vw - 40px) !important;
+                            width: calc(100vw - 40px) !important;
+                            height: calc(100vh - 40px) !important;
+                            margin: 20px !important;
+                            padding: 0 !important;
+                        }
+                        .modal-initial-size .modal-content {
+                            height: 100% !important;
+                            border-radius: 4px;
+                        }
+                    `}</style>
+                    <Modal.Header closeButton className="bg-primary text-white">
+                        <Modal.Title className="flex-grow-1 text-center fw-bold">
+                            <FaBell className="text-warning" />
+                            <span className="ms-2">Tuition needs update Today: {tuitionNeedsUpdateList.length}</span>
+                        </Modal.Title>
+                        <Button 
+                            variant="success" 
+                            size="sm" 
+                            onClick={handleExportUpdateListAsExcel}
+                            className="d-flex align-items-center gap-1 fw-bold me-2"
+                        >
+                            <FaGlobe /> Export List (Excel)
+                        </Button>
+                    </Modal.Header>
+                    <Modal.Body className="p-0 bg-light">
+                        {tuitionNeedsUpdateList.length > 0 ? (
+                            <div className="table-responsive" style={{ maxHeight: 'calc(100vh - 200px)', overflowY: 'auto' }}>
+                                <table className="table table-striped table-bordered table-hover mb-0">
+                                    <thead className="bg-dark text-white text-center sticky-header">
+                                        <tr>
+                                            <th>Tuition Code</th>
+                                            <th>Created By/Updated By</th>
+                                            <th>Comment</th>
+                                            <th>Last Update Comment</th>
+                                            <th>Next Update Comment</th>
+                                            <th>Status</th>
+                                            <th>Teacher Number</th>
+                                            <th>Guardian Number</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {tuitionNeedsUpdateList.map((tuition, index) => (
+                                            <tr key={index} className="align-middle text-center">
+                                                <td>{tuition.tuitionCode}</td>
+                                                <td className="text-start">
+                                                    <span className="badge bg-success text-white me-2">CB: {tuition.createdBy || '-'}</span>
+                                                    <span className="badge bg-primary text-white">UB: {tuition.updatedBy || '-'}</span>
+                                                </td>
+                                                <td>{tuition.note || '-'}</td>
+                                                <td>{tuition.lastUpdateComment || '-'}</td>
+                                                <td>{tuition.nextUpdateComment || '-'}</td>
+                                                <td>{tuition.status}</td>
+                                                <td>{tuition.tutorNumber}</td>
+                                                <td>{tuition.guardianNumber}</td>
+                                                <td style={{ display: 'flex', justifyContent: 'flex-start', gap: '8px' }}>
+                                                    <Button variant="info" onClick={() => handleShowDetails(tuition)} title="View Details">
+                                                        <FaInfoCircle />
+                                                    </Button>
+                                                    <Button variant="warning" onClick={() => handleEdit(tuition)} className="mr-2">
+                                                        <FaEdit />
+                                                    </Button>
+                                                    <Button variant="danger" onClick={() => handleDeleteTuition(tuition._id)}>
+                                                        <FaTrashAlt />
+                                                    </Button>
+                                                    <Button variant="success" onClick={() => handleShare(tuition)}>
+                                                        <FaWhatsapp />
+                                                    </Button>
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
                             </div>
-                        </div>
-                    </div>
-                )}
+                        ) : (
+                            <div className="text-center text-muted py-4">
+                                <h5>No tuition needs update check today.</h5>
+                            </div>
+                        )}
+                    </Modal.Body>
+                </Modal>
 
                 <Modal show={showPaymentPendingModal} onHide={() => setShowPaymentPendingModal(false)} centered size="xl">
                     <Modal.Header closeButton className="bg-primary text-white">

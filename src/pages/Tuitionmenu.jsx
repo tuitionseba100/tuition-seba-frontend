@@ -768,14 +768,16 @@ const TuitionPage = () => {
                             <FaBell className="text-warning" />
                             <span className="ms-2">Tuition needs update Today: {tuitionNeedsUpdateList.length}</span>
                         </Modal.Title>
-                        <Button 
-                            variant="success" 
-                            size="sm" 
-                            onClick={handleExportUpdateListAsExcel}
-                            className="d-flex align-items-center gap-1 fw-bold me-2"
-                        >
-                            <FaGlobe /> Export List (Excel)
-                        </Button>
+                        {role === "superadmin" && (
+                            <Button 
+                                variant="success" 
+                                size="sm" 
+                                onClick={handleExportUpdateListAsExcel}
+                                className="d-flex align-items-center gap-1 fw-bold me-2"
+                            >
+                                <FaGlobe /> Export List (Excel)
+                            </Button>
+                        )}
                     </Modal.Header>
                     <Modal.Body className="p-0 bg-light">
                         {tuitionNeedsUpdateList.length > 0 ? (

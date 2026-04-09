@@ -26,7 +26,7 @@ const fieldConfig = [
     { name: 'joining', label: 'Joining Date', group: 'details', col: 6, type: 'text' },
     { name: 'guardianNumber', label: 'Guardian Number', group: 'details', col: 4, type: 'text' },
 
-    { name: 'status', label: 'Status', group: 'admin', col: 6, type: 'select', options: ['available', 'given number', 'guardian meet', 'demo class running', 'confirm', 'cancel', 'refer BM', 'suspended'] },
+    { name: 'status', label: 'Status', group: 'admin', col: 6, type: 'select', options: ['available', 'given number', 'guardian meet', 'demo class running', 'confirm', 'cancel', 'refer BM', 'suspended', 'guardian no response', 'request for payment'] },
     { name: 'note', label: 'Comment', group: 'admin', col: 6, type: 'text' },
     { name: 'tutorNumber', label: 'Teacher Number', group: 'admin', col: 6, type: 'text' },
     { name: 'lastAvailableCheck', label: 'Last Available Check', group: 'admin', col: 6, type: 'datetime-local' },
@@ -129,10 +129,19 @@ export default function TuitionModal({ show, onHide, editingData = null, editing
         setSaving(true);
 
         const username = localStorage.getItem('username');
+        
+        let guardianNumber = formData.guardianNumber ? formData.guardianNumber.toString().trim() : '';
+        
+        if (guardianNumber && guardianNumber.length < 11) {
+            toast.error('Guardian number must be at least 11 digits long');
+            setSaving(false);
+            return;
+        }
 
         try {
             const updatedTuitionData = {
                 ...formData,
+                guardianNumber: guardianNumber,
                 status: formData.status || 'available',
                 updatedBy: username,
             };

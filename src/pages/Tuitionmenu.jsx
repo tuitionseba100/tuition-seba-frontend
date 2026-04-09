@@ -356,6 +356,8 @@ const TuitionPage = () => {
         "cancel": { bg: "bg-danger", text: "text-white" },
         "suspended": { bg: "bg-dark", text: "text-white" },
         "refer BM": { bg: "bg-info", text: "text-dark" },
+        "guardian no response": { bg: "bg-secondary", text: "text-white" },
+        "request for payment": { bg: "bg-warning", text: "text-dark" },
     };
 
     return (
@@ -515,6 +517,8 @@ const TuitionPage = () => {
                             <option value="cancel">Cancel</option>
                             <option value="refer BM">Refer BM</option>
                             <option value="suspended">Suspended</option>
+                            <option value="guardian no response">Guardian No response</option>
+                            <option value="request for payment">Request for payment</option>
                         </Form.Select>
                     </Col>
 

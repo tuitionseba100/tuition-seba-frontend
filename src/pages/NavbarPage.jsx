@@ -67,6 +67,7 @@ const Navbar = () => {
                             <>
                                 {renderNavItem("/admin/tuition", "Tuitions")}
                                 {role === "superadmin" && renderNavItem("/admin/user", "Users")}
+                                {role === "superadmin" && renderNavItem("/admin/finance", "Finance")}
                                 {renderNavItem("/admin/payment", "Payments")}
                                 {renderNavItem("/admin/teacherPayment", "Teacher Payments")}
                                 {renderNavItem("/admin/refund", "Refund")}

@@ -31,6 +31,7 @@ import LeadPage from './pages/LeadPage';
 import PrivacyPolicyPage from './pages/public/PrivacyPolicyPage';
 import Rules from './pages/public/Rules';
 import GeneralPage from './pages/GeneralPage';
+import IncomeExpensePage from './pages/IncomeExpensePage';
 
 
 const App = () => {
@@ -70,6 +71,7 @@ const App = () => {
 
           <Route element={<PrivateRoute role="superadmin" />}>
             <Route path="user" element={<UserPage />} />
+            <Route path="finance" element={<IncomeExpensePage />} />
           </Route>
         </Route>
 

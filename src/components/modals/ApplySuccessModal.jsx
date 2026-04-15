@@ -3,7 +3,7 @@ import { Modal, Button } from 'react-bootstrap';
 
 import { FaCheckCircle } from 'react-icons/fa';
 
-const ApplySuccessModal = ({ show, handleClose, title, message }) => {
+const ApplySuccessModal = ({ show, handleClose, title, message, autoComment }) => {
     return (
         <Modal show={show} onHide={handleClose} centered className="premium-modal">
             <Modal.Header
@@ -26,6 +26,12 @@ const ApplySuccessModal = ({ show, handleClose, title, message }) => {
                     <h3 className="fw-bold" style={{ color: '#1e7e34' }}>ধন্যবাদ!</h3>
                     <h5 className="text-dark">{message || 'আপনার আবেদনটি সফলভাবে জমা হয়েছে।'}</h5>
                 </div>
+
+                {autoComment && (
+                    <div className="p-3 mb-3 rounded-3 text-center" style={{ backgroundColor: '#fff8e1', border: '1px solid #ffecb3', color: '#795548' }}>
+                        <p className="mb-0 fw-bold" style={{ fontSize: '1.1rem', lineHeight: '1.6' }}>{autoComment}</p>
+                    </div>
+                )}
 
                 <div className="p-3 rounded-3 text-center" style={{ backgroundColor: '#f0fff4', border: '1px solid #c6f6d5', color: '#2f855a' }}>
                     <p className="mb-0 fw-medium">খুব দ্রুত আমাদের একজন প্রতিনিধি আপনার সাথে যোগাযোগ করবেন।</p>

@@ -26,6 +26,22 @@ const ApplyModal = ({ show, onClose, tuitionCode, tuitionId }) => {
     const [isVerified, setIsVerified] = useState(false);
     const [teacherData, setTeacherData] = useState(null);
     const [isVerifying, setIsVerifying] = useState(false);
+    const [autoComment, setAutoComment] = useState('');
+
+    useEffect(() => {
+        if (show && tuitionId) {
+            fetch(`https://tuition-seba-backend-1.onrender.com/api/tuitionApply/get-auto-comment/${tuitionId}`)
+                .then(res => res.json())
+                .then(data => setAutoComment(data.comment))
+                .catch(err => console.error('Error fetching auto comment:', err));
+        } else if (!show) {
+            setAutoComment('');
+            setIsVerified(false);
+            setTeacherData(null);
+            setShowSuccess(false);
+            setErrorMessage('');
+        }
+    }, [show, tuitionId]);
 
     const verificationSchema = Yup.object({
         premiumCode: Yup.string().required('Please enter your premium code'),
@@ -513,6 +529,7 @@ const ApplyModal = ({ show, onClose, tuitionCode, tuitionId }) => {
                         show={showSuccess}
                         title="আবেদন সফল!"
                         message="টিউশনটির জন্য আপনার আবেদনটি সফলভাবে জমা হয়েছে।"
+                        autoComment={autoComment}
                         handleClose={() => {
                             setShowSuccess(false);
                             onClose();

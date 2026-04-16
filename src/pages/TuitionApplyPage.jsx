@@ -9,6 +9,7 @@ import { Spinner } from 'react-bootstrap';
 
 import Select from 'react-select';
 import LoadingCard from '../components/modals/LoadingCard';
+import TuitionDetailsModal from '../components/modals/TuitionDetailsModal';
 
 const TuitionPage = () => {
     const [tuitionList, setTuitionApplyList] = useState([]);
@@ -45,6 +46,32 @@ const TuitionPage = () => {
         requestedForPayment: 0,
         total: 0
     });
+
+    const [detailsModalShow, setDetailsModalShow] = useState(false);
+    const [tuitionDetails, setTuitionDetails] = useState(null);
+    const [fetchingDetails, setFetchingDetails] = useState(false);
+
+    const handleShowDetails = async (tuitionId) => {
+        if (!tuitionId || tuitionId === 'admin_created') {
+            toast.info("No detailed tuition data available for this application.");
+            return;
+        }
+        setFetchingDetails(true);
+        try {
+            const response = await axios.get(`https://tuition-seba-backend-1.onrender.com/api/tuition/${tuitionId}`);
+            if (response.data) {
+                setTuitionDetails(response.data);
+                setDetailsModalShow(true);
+            } else {
+                toast.error("Details not found.");
+            }
+        } catch (err) {
+            console.error('Error fetching tuition details:', err);
+            toast.error("Failed to fetch tuition details.");
+        } finally {
+            setFetchingDetails(false);
+        }
+    };
     const spamStyle = { backgroundColor: '#dc3545', color: 'white' };
     const bestStyle = { backgroundColor: '#007bff', color: 'white' };
     const manualExpressStyle = { backgroundColor: '#28a745', color: 'white' };
@@ -502,7 +529,14 @@ const TuitionPage = () => {
                                                     </span>
                                                 </td>
                                                 <td style={getRowStyle(tuition)}>{tuition.premiumCode}</td>
-                                                <td style={getRowStyle(tuition)}>{tuition.tuitionCode}</td>
+                                                <td style={getRowStyle(tuition)}>
+                                                    <span 
+                                                        style={{ cursor: 'pointer', color: '#0d6efd', textDecoration: 'underline', fontWeight: '500' }} 
+                                                        onClick={() => handleShowDetails(tuition.tuitionId)}
+                                                    >
+                                                        {tuition.tuitionCode}
+                                                    </span>
+                                                </td>
                                                 <td style={getRowStyle(tuition)}>{tuition.name}</td>
                                                 <td style={getRowStyle(tuition)}>{tuition.phone}</td>
                                                 <td style={getRowStyle(tuition)}>{tuition.institute}</td>
@@ -787,6 +821,16 @@ const TuitionPage = () => {
                 {/* Loading spinners for save and delete operations */}
                 <LoadingCard show={saving} message="Saving tuition record..." />
                 <LoadingCard show={deleting} message="Deleting tuition record..." />
+
+                <LoadingCard show={fetchingDetails} message="Fetching tuition details..." />
+                
+                {detailsModalShow && tuitionDetails && !fetchingDetails && (
+                    <TuitionDetailsModal 
+                        show={detailsModalShow} 
+                        onHide={() => setDetailsModalShow(false)} 
+                        detailsData={tuitionDetails} 
+                    />
+                )}
 
                 {/* Export Modal */}
                 <Modal show={showExportModal} onHide={() => {

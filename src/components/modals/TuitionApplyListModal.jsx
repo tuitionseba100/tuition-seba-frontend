@@ -261,8 +261,9 @@ function AppliedListModal({ tuitionId, tuitionCode, show, onHide }) {
                                                                                 app.status === "requested for payment" ? "bg-warning text-dark" :
                                                                                     app.status === "meet to office" ? "bg-dark" :
                                                                                         app.status === "selected" ? "bg-success" :
-                                                                                            app.status === "refer to bm" ? "bg-info" :
-                                                                                                "bg-secondary"
+                                                                                            app.status === "confirmed" ? "bg-success" :
+                                                                                                app.status === "refer to bm" ? "bg-info" :
+                                                                                                    "bg-secondary"
                                                         }`}>
                                                         {app.status}
                                                     </span>
@@ -358,6 +359,7 @@ function AppliedListModal({ tuitionId, tuitionCode, show, onHide }) {
                                         <option value="requested for payment">Requested for Payment</option>
                                         <option value="meet to office">Meet to office</option>
                                         <option value="selected">Selected</option>
+                                        <option value="confirmed">Confirmed</option>
                                         <option value="refer to bm">Refer to BM</option>
                                     </Form.Control>
                                 </Form.Group>

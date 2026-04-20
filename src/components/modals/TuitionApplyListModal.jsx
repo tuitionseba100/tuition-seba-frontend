@@ -179,7 +179,6 @@ function AppliedListModal({ tuitionId, tuitionCode, show, onHide }) {
                             }}
                         >
                             <Table
-                                striped
                                 bordered
                                 hover
                                 style={{

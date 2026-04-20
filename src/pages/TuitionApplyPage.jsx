@@ -531,7 +531,7 @@ const TuitionPage = () => {
                                                 <td style={getRowStyle(tuition)}>{tuition.premiumCode}</td>
                                                 <td style={getRowStyle(tuition)}>
                                                     <span 
-                                                        style={{ cursor: 'pointer', color: '#0d6efd', textDecoration: 'underline', fontWeight: '500' }} 
+                                                        style={{ cursor: 'pointer', color: tuition.hasDue ? '#000' : (tuition.isSpam || tuition.isBest || tuition.isExpress) ? '#fff' : '#0d6efd', textDecoration: 'underline', fontWeight: '500' }} 
                                                         onClick={() => handleShowDetails(tuition.tuitionId)}
                                                     >
                                                         {tuition.tuitionCode}

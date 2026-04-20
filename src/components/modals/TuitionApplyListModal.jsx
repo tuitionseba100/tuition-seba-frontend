@@ -134,13 +134,21 @@ function AppliedListModal({ tuitionId, tuitionCode, show, onHide }) {
 
     const spamStyle = { backgroundColor: '#dc3545', color: 'white' };
     const bestStyle = { backgroundColor: '#007bff', color: 'white' };
+    const manualExpressStyle = { backgroundColor: '#28a745', color: 'white' };
     const dueStyle = { backgroundColor: '#FFFF00', color: 'black' };
 
     const getRowStyle = (tuition) => {
         if (tuition.hasDue) return dueStyle;
         if (tuition.isSpam) return spamStyle;
         if (tuition.isBest) return bestStyle;
+        if (tuition.isExpress) return manualExpressStyle;
         return {};
+    };
+
+    const getButtonVariant = (tuition, defaultVariant) => {
+        if (tuition.isSpam) return 'light';
+        if (tuition.isBest) return 'primary';
+        return defaultVariant;
     };
 
     return (
@@ -243,13 +251,29 @@ function AppliedListModal({ tuitionId, tuitionCode, show, onHide }) {
                                                 <td style={style}>{app.academicYear}</td>
                                                 <td style={style}>{app.address}</td>
                                                 <td style={style}>{formatDate(app.appliedAt)}</td>
-                                                <td style={style}>{app.status}</td>
+                                                <td style={style}>
+                                                    <span className={`badge 
+            ${app.status === "pending" ? "bg-success" :
+                                                            app.status === "called (no response)" ? "bg-primary" :
+                                                                app.status === "called (guardian no response)" ? "bg-info" :
+                                                                    app.status === "called (interested)" ? "bg-info" :
+                                                                        app.status === "cancel" ? "bg-danger" :
+                                                                            app.status === "shortlisted" ? "bg-secondary" :
+                                                                                app.status === "requested for payment" ? "bg-warning text-dark" :
+                                                                                    app.status === "meet to office" ? "bg-dark" :
+                                                                                        app.status === "selected" ? "bg-success" :
+                                                                                            app.status === "refer to bm" ? "bg-info" :
+                                                                                                "bg-secondary"
+                                                        }`}>
+                                                        {app.status}
+                                                    </span>
+                                                </td>
                                                 <td style={style}>{app.comment}</td>
                                                 <td style={style}>{app.commentForTeacher}</td>
                                                 <td style={style}>{app.agentComment}</td>
                                                 <td style={style} className="d-flex justify-content-center gap-2">
                                                     <Button
-                                                        variant="warning"
+                                                        variant={getButtonVariant(app, 'warning')}
                                                         onClick={() => handleEditTuition(app)}
                                                         disabled={deletingId === app._id}
                                                         aria-label={`Edit application for ${app.name}`}
@@ -257,7 +281,7 @@ function AppliedListModal({ tuitionId, tuitionCode, show, onHide }) {
                                                         <FaEdit />
                                                     </Button>
                                                     <Button
-                                                        variant="danger"
+                                                        variant={getButtonVariant(app, 'danger')}
                                                         onClick={() => handleDeleteTuition(app._id)}
                                                         disabled={deletingId === app._id}
                                                         aria-label={`Delete application for ${app.name}`}

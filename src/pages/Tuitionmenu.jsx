@@ -952,6 +952,8 @@ const TuitionPage = () => {
                                 <option value="cancel">Cancel</option>
                                 <option value="refer BM">Refer BM</option>
                                 <option value="suspended">Suspended</option>
+                                <option value="guardian no response">Guardian No response</option>
+                                <option value="request for payment">Request for payment</option>
                             </Form.Select>
                         </Form.Group>
                     </Modal.Body>

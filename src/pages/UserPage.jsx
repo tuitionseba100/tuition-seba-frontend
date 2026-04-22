@@ -156,6 +156,15 @@ const UserPage = () => {
         }
     };
 
+    const handleCheckAll = () => {
+        const allKeys = AVAILABLE_MODULES.map(m => m.key);
+        if (newUser.permissions.length === allKeys.length) {
+            setNewUser({ ...newUser, permissions: [] });
+        } else {
+            setNewUser({ ...newUser, permissions: allKeys });
+        }
+    };
+
     const handleSaveUser = async () => {
         setIsProcessing(true);
         setProcessMessage(editingUser ? 'Updating user...' : 'Creating user...');
@@ -364,7 +373,17 @@ const UserPage = () => {
 
                             {newUser.role === 'admin' && (
                                 <Form.Group className="mt-4">
-                                    <Form.Label className="fw-bold">Module Permissions</Form.Label>
+                                    <div className="d-flex justify-content-between align-items-center mb-2">
+                                        <Form.Label className="fw-bold mb-0">Module Permissions</Form.Label>
+                                        <Button 
+                                            variant="outline-primary" 
+                                            size="sm" 
+                                            onClick={handleCheckAll}
+                                            className="rounded-pill px-3"
+                                        >
+                                            {newUser.permissions.length === AVAILABLE_MODULES.length ? 'Uncheck All' : 'Check All'}
+                                        </Button>
+                                    </div>
                                     <div className="row g-2 p-3 border rounded bg-light">
                                         {AVAILABLE_MODULES.map((module) => (
                                             <div key={module.key} className="col-6">

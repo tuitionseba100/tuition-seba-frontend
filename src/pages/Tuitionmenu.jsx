@@ -205,7 +205,7 @@ const TuitionPage = () => {
                     isUrgent: appliedFilters.urgentFilter === "Yes" ? 'true' : appliedFilters.urgentFilter === "No" ? 'false' : undefined,
                     status: appliedFilters.statusFilter,
                     area: appliedFilters.areaFilter,
-                    assignedTo: role === 'superadmin' ? appliedFilters.assignedTo : currentUsername
+                    assignedTo: appliedFilters.assignedTo
                 }
             });
 
@@ -233,7 +233,7 @@ const TuitionPage = () => {
                 isUrgent: appliedFilters.urgentFilter === "Yes" ? 'true' : appliedFilters.urgentFilter === "No" ? 'false' : undefined,
                 status: appliedFilters.statusFilter,
                 area: appliedFilters.areaFilter,
-                assignedTo: role === 'superadmin' ? appliedFilters.assignedTo : currentUsername
+                assignedTo: appliedFilters.assignedTo
             };
 
             const res = await axios.get('https://tuition-seba-backend-1.onrender.com/api/tuition/summary', {

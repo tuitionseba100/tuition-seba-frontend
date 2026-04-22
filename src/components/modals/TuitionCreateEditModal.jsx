@@ -43,7 +43,37 @@ const fieldConfig = [
     { name: 'isUrgent', label: 'Is Emergency?', group: 'admin', col: 4, type: 'switch', defaultValue: false },
     { name: 'isWhatsappApply', label: 'Apply via WhatsApp?', group: 'admin', col: 4, type: 'switch', defaultValue: false },
     { name: 'isPaymentCreated', label: 'Payment Created?', group: 'admin', col: 4, type: 'switch', defaultValue: false },
+    { name: 'assignedTo', label: 'Assigned To', group: 'admin', col: 6, type: 'select', options: [] }, // Options will be populated dynamically
 ];
+
+const groups = fieldConfig.reduce((acc, field) => {
+    acc[field.group] = acc[field.group] || [];
+    acc[field.group].push(field);
+    return acc;
+}, {});
+
+const modalStyles = `
+    .form-control:focus,
+    .form-select:focus {
+        border-color: rgba(13, 110, 253, 0.6) !important;
+        box-shadow: 0 0 6px rgba(13, 110, 253, 0.25) !important;
+        outline: none !important;
+    }
+    /* Spinner overlay */
+    .saving-overlay {
+        position: absolute;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background: rgba(255, 255, 255, 0.85);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 0.75rem;
+        z-index: 1060; /* above modal content */
+        border-radius: 0.375rem;
+        pointer-events: none;
+        user-select: none;
+    }
+`;
 
 const formatForDatetimeLocal = (isoString) => {
     if (!isoString) return '';
@@ -53,9 +83,32 @@ const formatForDatetimeLocal = (isoString) => {
 export default function TuitionModal({ show, onHide, editingData = null, editingId, fetchTuitionRecords, fetchSummaryCounts, fetchAlertData }) {
     const [formData, setFormData] = useState({});
     const [areaOptions, setAreaOptions] = useState([]);
+    const [userOptions, setUserOptions] = useState([]);
     const [saving, setSaving] = useState(false);
+    const role = localStorage.getItem('role');
 
     const cityOptions = locationData.cityOptions.map(({ value, label }) => ({ value, label }));
+
+    useEffect(() => {
+        const fetchUsers = async () => {
+            if (role === 'superadmin') {
+                try {
+                    const token = localStorage.getItem('token');
+                    const response = await axios.get('https://tuition-seba-backend-1.onrender.com/api/user/users', {
+                        headers: { Authorization: token }
+                    });
+                    const users = response.data.map(user => ({
+                        value: user.username,
+                        label: `${user.name} (${user.username})`
+                    }));
+                    setUserOptions(users);
+                } catch (error) {
+                    console.error('Error fetching users:', error);
+                }
+            }
+        };
+        fetchUsers();
+    }, [role]);
 
     useEffect(() => {
         if (editingData) {
@@ -164,12 +217,6 @@ export default function TuitionModal({ show, onHide, editingData = null, editing
         setSaving(false);
     };
 
-    const groups = fieldConfig.reduce((acc, field) => {
-        acc[field.group] = acc[field.group] || [];
-        acc[field.group].push(field);
-        return acc;
-    }, {});
-
     const inputBorderStyle = {
         borderRadius: '0.375rem',
         border: '1.5px solid rgba(13, 110, 253, 0.3)',
@@ -180,28 +227,7 @@ export default function TuitionModal({ show, onHide, editingData = null, editing
 
     return (
         <>
-            <style>{`
-                .form-control:focus,
-                .form-select:focus {
-                    border-color: rgba(13, 110, 253, 0.6) !important;
-                    box-shadow: 0 0 6px rgba(13, 110, 253, 0.25) !important;
-                    outline: none !important;
-                }
-                /* Spinner overlay */
-                .saving-overlay {
-                    position: absolute;
-                    top: 0; left: 0; right: 0; bottom: 0;
-                    background: rgba(255, 255, 255, 0.85);
-                    display: flex;
-                    justify-content: center;
-                    align-items: center;
-                    gap: 0.75rem;
-                    z-index: 1060; /* above modal content */
-                    border-radius: 0.375rem;
-                    pointer-events: none;
-                    user-select: none;
-                }
-            `}</style>
+            <style>{modalStyles}</style>
 
             <Modal
                 show={show}
@@ -265,9 +291,47 @@ export default function TuitionModal({ show, onHide, editingData = null, editing
 
                                     <Row className="gy-3">
                                         {fields.map(field => {
-                                            const { name, label, col = 6, type = 'text', options } = field;
+                                            const { name, label, col = 6, type = 'text', options: fieldOptions } = field;
+                                            
+                                            // Only show assignedTo to superadmin
+                                            const options = fieldOptions;
+                                            
                                             let value = formData[name];
                                             if (value === undefined || value === null) value = type === 'switch' ? false : '';
+
+                                            if (name === 'assignedTo') {
+                                                if (role !== 'superadmin') return null;
+                                                return (
+                                                    <Col md={col} key={name}>
+                                                        <Form.Group controlId={name}>
+                                                            <Form.Label className="fw-semibold">{label}</Form.Label>
+                                                            <Select
+                                                                options={userOptions}
+                                                                value={userOptions.find(u => u.value === value) || null}
+                                                                onChange={(option) => setFormData(prev => ({ ...prev, assignedTo: option ? option.value : '' }))}
+                                                                isClearable
+                                                                placeholder={`Select or type ${label}...`}
+                                                                isDisabled={saving}
+                                                                menuPortalTarget={document.body}
+                                                                styles={{
+                                                                    control: (base, state) => ({
+                                                                        ...base,
+                                                                        border: '1.5px solid rgba(13,110,253,0.3)',
+                                                                        boxShadow: state.isFocused
+                                                                            ? '0 0 6px rgba(13,110,253,0.25)'
+                                                                            : '0 0 4px rgba(13,110,253,0.12)',
+                                                                        '&:hover': { borderColor: 'rgba(13,110,253,0.5)' },
+                                                                        minHeight: '38px',
+                                                                        borderRadius: '0.375rem',
+                                                                        backgroundColor: 'white',
+                                                                    }),
+                                                                    menuPortal: (base) => ({ ...base, zIndex: 9999 })
+                                                                }}
+                                                            />
+                                                        </Form.Group>
+                                                    </Col>
+                                                );
+                                            }
 
                                             if (name === 'city') {
                                                 return (
@@ -281,6 +345,7 @@ export default function TuitionModal({ show, onHide, editingData = null, editing
                                                                 isClearable
                                                                 placeholder={`Select or type ${label}...`}
                                                                 isDisabled={saving}
+                                                                menuPortalTarget={document.body}
                                                                 styles={{
                                                                     control: (base, state) => ({
                                                                         ...base,
@@ -293,6 +358,7 @@ export default function TuitionModal({ show, onHide, editingData = null, editing
                                                                         borderRadius: '0.375rem',
                                                                         backgroundColor: 'white',
                                                                     }),
+                                                                    menuPortal: (base) => ({ ...base, zIndex: 9999 })
                                                                 }}
                                                             />
                                                         </Form.Group>
@@ -312,6 +378,7 @@ export default function TuitionModal({ show, onHide, editingData = null, editing
                                                                 isClearable
                                                                 placeholder={`Select or type ${label}...`}
                                                                 isDisabled={saving}
+                                                                menuPortalTarget={document.body}
                                                                 styles={{
                                                                     control: (base, state) => ({
                                                                         ...base,
@@ -324,6 +391,7 @@ export default function TuitionModal({ show, onHide, editingData = null, editing
                                                                         borderRadius: '0.375rem',
                                                                         backgroundColor: 'white',
                                                                     }),
+                                                                    menuPortal: (base) => ({ ...base, zIndex: 9999 })
                                                                 }}
                                                             />
                                                         </Form.Group>

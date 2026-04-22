@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Button, Table, Modal, Form, Row, Col, Card, Tooltip, OverlayTrigger } from 'react-bootstrap';
-import { FaEdit, FaTrashAlt, FaWhatsapp, FaChevronLeft, FaChevronRight, FaGlobe, FaInfoCircle, FaBell, FaSearch, FaUndo } from 'react-icons/fa';
+import { FaEdit, FaTrashAlt, FaWhatsapp, FaChevronLeft, FaChevronRight, FaGlobe, FaInfoCircle, FaBell, FaSearch, FaUndo, FaUserPlus } from 'react-icons/fa';
+import Select from 'react-select';
 import axios from 'axios';
 import NavBarPage from './NavbarPage';
 import styled from 'styled-components';
@@ -11,6 +12,7 @@ import TuitionModal from '../components/modals/TuitionCreateEditModal';
 import TuitionDetailsModal from '../components/modals/TuitionDetailsModal';
 import LoadingCard from '../components/modals/LoadingCard';
 import AppliedListModal from '../components/modals/TuitionApplyListModal';
+import TuitionAssignModal from '../components/modals/TuitionAssignModal';
 import locationData from '../data/locations.json';
 
 const TuitionPage = () => {
@@ -25,7 +27,8 @@ const TuitionPage = () => {
         publishFilter: '',
         urgentFilter: '',
         statusFilter: '',
-        areaFilter: ''
+        areaFilter: '',
+        assignedTo: ''
     });
 
     const [appliedFilters, setAppliedFilters] = useState({
@@ -35,8 +38,11 @@ const TuitionPage = () => {
         publishFilter: '',
         urgentFilter: '',
         statusFilter: '',
-        areaFilter: ''
+        areaFilter: '',
+        assignedTo: ''
     });
+
+    const [userOptions, setUserOptions] = useState([]);
 
     const [loading, setLoading] = useState(false);
     const [publishCount, setPublishCount] = useState(0);
@@ -57,8 +63,11 @@ const TuitionPage = () => {
     const [selectedTuitionId, setSelectedTuitionId] = useState(null);
     const [selectedTuitionCode, setSelectedTuitionCode] = useState(null);
     const [showExportModal, setShowExportModal] = useState(false);
+    const [showAssignModal, setShowAssignModal] = useState(false);
+    const [selectedTuitionForAssign, setSelectedTuitionForAssign] = useState(null);
     const [selectedExportStatus, setSelectedExportStatus] = useState('');
     const role = localStorage.getItem('role');
+    const currentUsername = localStorage.getItem('username');
 
     const openAppliedListModal = (tuition) => {
         setSelectedTuitionId(tuition._id);
@@ -66,22 +75,27 @@ const TuitionPage = () => {
         setShowAppliedModal(true);
     };
 
-    const handleShowDetails = (tuition) => {
+    const handleShowDetails = React.useCallback((tuition) => {
         setDetailsData(tuition);
         setShowDetailsModal(true);
-    };
+    }, []);
 
-    const handleCreate = () => {
+    const handleCreate = React.useCallback(() => {
         setSelectedTuition(null);
         setEditingId(null);
         setShowModal(true);
-    };
+    }, []);
 
-    const handleEdit = (tuition) => {
+    const handleEdit = React.useCallback((tuition) => {
         setSelectedTuition(tuition);
         setEditingId(tuition._id);
         setShowModal(true);
-    };
+    }, []);
+
+    const handleOpenAssignModal = React.useCallback((tuition) => {
+        setSelectedTuitionForAssign(tuition);
+        setShowAssignModal(true);
+    }, []);
 
     const [statusCounts, setStatusCounts] = useState({
         available: 0,
@@ -113,7 +127,8 @@ const TuitionPage = () => {
             publishFilter: '',
             urgentFilter: '',
             statusFilter: '',
-            areaFilter: ''
+            areaFilter: '',
+            assignedTo: ''
         };
         setSearchInputs(resetFilters);
         setAppliedFilters(resetFilters);
@@ -136,9 +151,14 @@ const TuitionPage = () => {
 
     const fetchAlertData = async () => {
         try {
+            const params = {};
+            if (role !== 'superadmin') {
+                params.assignedTo = currentUsername;
+            }
+
             const [alertRes, pendingRes] = await Promise.all([
-                axios.get('https://tuition-seba-backend-1.onrender.com/api/tuition/alert-today'),
-                axios.get('https://tuition-seba-backend-1.onrender.com/api/tuition/pending-payment-creation')
+                axios.get('https://tuition-seba-backend-1.onrender.com/api/tuition/alert-today', { params }),
+                axios.get('https://tuition-seba-backend-1.onrender.com/api/tuition/pending-payment-creation', { params })
             ]);
 
             setTuitionNeedsUpdateList(alertRes.data);
@@ -151,6 +171,25 @@ const TuitionPage = () => {
 
     useEffect(() => {
         fetchAlertData();
+        
+        const fetchUsers = async () => {
+            if (role === 'superadmin') {
+                try {
+                    const token = localStorage.getItem('token');
+                    const response = await axios.get('https://tuition-seba-backend-1.onrender.com/api/user/users', {
+                        headers: { Authorization: token }
+                    });
+                    const users = response.data.map(user => ({
+                        value: user.username,
+                        label: `${user.name} (${user.username})`
+                    }));
+                    setUserOptions(users);
+                } catch (error) {
+                    console.error('Error fetching users:', error);
+                }
+            }
+        };
+        fetchUsers();
     }, []);
 
     const fetchTuitionRecords = async () => {
@@ -165,7 +204,8 @@ const TuitionPage = () => {
                     isPublish: appliedFilters.publishFilter === "Yes" ? 'true' : appliedFilters.publishFilter === "No" ? 'false' : undefined,
                     isUrgent: appliedFilters.urgentFilter === "Yes" ? 'true' : appliedFilters.urgentFilter === "No" ? 'false' : undefined,
                     status: appliedFilters.statusFilter,
-                    area: appliedFilters.areaFilter
+                    area: appliedFilters.areaFilter,
+                    assignedTo: role === 'superadmin' ? appliedFilters.assignedTo : currentUsername
                 }
             });
 
@@ -185,16 +225,19 @@ const TuitionPage = () => {
 
     const fetchSummaryCounts = async () => {
         try {
+            const params = {
+                tuitionCode: appliedFilters.tuitionCode,
+                guardianNumber: appliedFilters.guardianNumber,
+                tutorNumber: appliedFilters.teacherNumber,
+                isPublish: appliedFilters.publishFilter === "Yes" ? 'true' : appliedFilters.publishFilter === "No" ? 'false' : undefined,
+                isUrgent: appliedFilters.urgentFilter === "Yes" ? 'true' : appliedFilters.urgentFilter === "No" ? 'false' : undefined,
+                status: appliedFilters.statusFilter,
+                area: appliedFilters.areaFilter,
+                assignedTo: role === 'superadmin' ? appliedFilters.assignedTo : currentUsername
+            };
+
             const res = await axios.get('https://tuition-seba-backend-1.onrender.com/api/tuition/summary', {
-                params: {
-                    tuitionCode: appliedFilters.tuitionCode,
-                    guardianNumber: appliedFilters.guardianNumber,
-                    tutorNumber: appliedFilters.teacherNumber,
-                    isPublish: appliedFilters.publishFilter === "Yes" ? 'true' : appliedFilters.publishFilter === "No" ? 'false' : undefined,
-                    isUrgent: appliedFilters.urgentFilter === "Yes" ? 'true' : appliedFilters.urgentFilter === "No" ? 'false' : undefined,
-                    status: appliedFilters.statusFilter,
-                    area: appliedFilters.areaFilter
-                }
+                params: params
             });
             setExcelTuitionList(res.data.data);
             setPublishCount(res.data.isPublishTrueCount || 0);
@@ -307,7 +350,7 @@ const TuitionPage = () => {
         }
     };
 
-    const handleShare = (tuitionDetails) => {
+    const handleShare = React.useCallback((tuitionDetails) => {
         const phoneNumber = '+8801571305804';
         const area = tuitionDetails.area ? tuitionDetails.area : '';
         const message = `Tuition Code: ${tuitionDetails.tuitionCode}\n` +
@@ -326,7 +369,7 @@ const TuitionPage = () => {
 
         const url = `https://api.whatsapp.com/send?text=${encodeURIComponent(message)}`;
         window.open(url, '_blank');
-    };
+    }, []);
 
     const formatDateTimeDisplay = (isoString) => {
         if (!isoString) return '-';
@@ -446,32 +489,32 @@ const TuitionPage = () => {
 
                 <Row className="mt-2 mb-3">
                     <Col md={1}>
-                        <Form.Label className="fw-bold">Tuition Code</Form.Label>
+                        <Form.Label className="fw-bold text-nowrap">Code</Form.Label>
                         <Form.Control
                             type="text"
-                            placeholder="Search by Tuition Code"
+                            placeholder="Code"
                             value={searchInputs.tuitionCode}
                             onChange={(e) => handleSearchInputChange('tuitionCode', e.target.value)}
                             onKeyPress={handleKeyPress}
                         />
                     </Col>
 
-                    <Col md={2}>
-                        <Form.Label className="fw-bold">Search (Guardian Number)</Form.Label>
+                    <Col md={1}>
+                        <Form.Label className="fw-bold text-nowrap">Guardian</Form.Label>
                         <Form.Control
                             type="text"
-                            placeholder="Search by Guardian Number"
+                            placeholder="Num"
                             value={searchInputs.guardianNumber}
                             onChange={(e) => handleSearchInputChange('guardianNumber', e.target.value)}
                             onKeyPress={handleKeyPress}
                         />
                     </Col>
 
-                    <Col md={2}>
-                        <Form.Label className="fw-bold">Search (Teacher Number)</Form.Label>
+                    <Col md={1}>
+                        <Form.Label className="fw-bold text-nowrap">Teacher</Form.Label>
                         <Form.Control
                             type="text"
-                            placeholder="Search by Teacher Number"
+                            placeholder="Num"
                             value={searchInputs.teacherNumber}
                             onChange={(e) => handleSearchInputChange('teacherNumber', e.target.value)}
                             onKeyPress={handleKeyPress}
@@ -523,7 +566,7 @@ const TuitionPage = () => {
                     </Col>
 
                     <Col md={2}>
-                        <Form.Label className="fw-bold">Area (Chittagong)</Form.Label>
+                        <Form.Label className="fw-bold">Area</Form.Label>
                         <Form.Select
                             value={searchInputs.areaFilter}
                             onChange={(e) => handleSearchInputChange('areaFilter', e.target.value)}
@@ -534,6 +577,28 @@ const TuitionPage = () => {
                             ))}
                         </Form.Select>
                     </Col>
+
+                    {role === 'superadmin' && (
+                        <Col md={2}>
+                            <Form.Label className="fw-bold">Assigned To</Form.Label>
+                            <Select
+                                options={userOptions}
+                                value={userOptions.find(u => u.value === searchInputs.assignedTo) || null}
+                                onChange={(option) => handleSearchInputChange('assignedTo', option ? option.value : '')}
+                                isClearable
+                                placeholder="All"
+                                menuPortalTarget={document.body}
+                                styles={{
+                                    control: (base) => ({
+                                        ...base,
+                                        minHeight: '38px',
+                                        borderRadius: '0.375rem',
+                                    }),
+                                    menuPortal: (base) => ({ ...base, zIndex: 9999 })
+                                }}
+                            />
+                        </Col>
+                    )}
 
                     <Col md="auto" className="d-flex align-items-end">
                         <Button
@@ -602,123 +667,19 @@ const TuitionPage = () => {
                     <Card.Body>
                         <Card.Title>Tuition List</Card.Title>
                         <div style={{ maxHeight: "600px", overflowY: "auto" }}>
-                            <Table striped bordered hover responsive="lg">
-                                <thead className="table-primary" style={{ position: "sticky", top: 0, zIndex: 2 }}>
-                                    <tr>
-                                        <th>SL</th>
-                                        <th>Created By / Updated By</th>
-                                        <th>Tuition Code</th>
-                                        <th>Apply Type</th>
-                                        <th>Published?</th>
-                                        <th>Status</th>
-                                        <th>Payment Created?</th>
-                                        <th>Last Available Check</th>
-                                        <th>Last Update</th>
-                                        <th>Last Update Comment</th>
-                                        <th>Next Update</th>
-                                        <th>Next Update Comment</th>
-                                        <th>Joining Date</th>
-                                        <th>Teacher</th>
-                                        <th>Student</th>
-                                        <th>Class</th>
-                                        <th>Medium</th>
-                                        <th>Subject</th>
-                                        <th>Day</th>
-                                        <th>Time</th>
-                                        <th>Salary</th>
-                                        <th>Location</th>
-                                        <th>Area</th>
-                                        <th>Guardian No.</th>
-                                        <th>Teacher No.</th>
-                                        <th>Comment</th>
-                                        <th style={{ position: 'sticky', right: 0, zIndex: 3, minWidth: '150px' }}>Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {loading ? (
-                                        <tr>
-                                            <td colSpan="23" className="text-center">
-                                                <div className="d-flex justify-content-center align-items-center" style={{ position: 'absolute', top: '90%', left: '50%', transform: 'translate(-50%, -50%)', width: '100vw', height: '100vh' }}>
-                                                    <Spinner animation="border" variant="primary" size="lg" />
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    ) : (
-                                        filteredTuitionList.map((tuition, index) => (
-                                            <tr key={tuition._id}>
-                                                <td>{index + 1}</td>
-                                                <td><div className="d-flex flex-column"><span className="badge bg-success text-start mb-1" title="Created By">CB: {tuition.createdBy || '-'}</span><span className="badge bg-info text-start" title="Updated By">UB: {tuition.updatedBy || '-'}</span></div></td>
-                                                <td
-                                                    style={{ color: 'blue', cursor: 'pointer', textDecoration: 'none' }}
-                                                    onClick={() => openAppliedListModal(tuition)}
-                                                    title="Click to see applied list"
-                                                >
-                                                    {tuition.tuitionCode}
-                                                </td>
-                                                <td>
-                                                    {tuition.isWhatsappApply ? (
-                                                        <span style={{ color: 'green', fontWeight: 'bold' }}>
-                                                            <FaWhatsapp /> Whatsapp
-                                                        </span>
-                                                    ) : (
-                                                        <span style={{ color: 'blue', fontWeight: 'bold' }}>
-                                                            <FaGlobe /> Website
-                                                        </span>
-                                                    )}
-                                                </td>
-
-                                                <td className={tuition.isPublish ? "text-success fw-bold" : "text-danger fw-bold"}>
-                                                    {tuition.isPublish ? "Yes" : "No"}
-                                                </td>
-                                                <td>
-                                                    <span className={`badge ${statusColors[tuition.status]?.bg || "bg-light"} ${statusColors[tuition.status]?.text || "text-dark"}`}>
-                                                        {tuition.status}
-                                                    </span>
-                                                </td>
-                                                <td className={tuition.isPaymentCreated ? "text-success fw-bold" : "text-danger fw-bold"}>
-                                                    {tuition.isPaymentCreated ? "Yes" : "No"}
-                                                </td>
-                                                <td>{formatDateTimeDisplay(tuition.lastAvailableCheck)}</td>
-                                                <td>{formatDateTimeDisplay(tuition.lastUpdate)}</td>
-                                                <td>{tuition.lastUpdateComment || '-'}</td>
-                                                <td>{formatDateTimeDisplay(tuition.nextUpdateDate)}</td>
-                                                <td>{tuition.nextUpdateComment || '-'}</td>
-                                                <td>{tuition.joining}</td>
-                                                <td>{tuition.wantedTeacher}</td>
-                                                <td>{tuition.student}</td>
-                                                <td>{tuition.class}</td>
-                                                <td>{tuition.medium}</td>
-                                                <td>{tuition.subject}</td>
-                                                <td>{tuition.day}</td>
-                                                <td>{tuition.time === "undefined" ? " " : tuition.time}</td>
-                                                <td>{tuition.salary && /taka|tk/i.test(tuition.salary.toString()) ? tuition.salary : (tuition.salary ? tuition.salary.toString().trim() + ' taka' : '')}</td>
-                                                <td>{tuition.location}</td>
-                                                <td>{tuition.area ? tuition.area : ""}</td>
-                                                <td>{tuition.guardianNumber}</td>
-                                                <td>{tuition.tutorNumber}</td>
-                                                <td>{tuition.note}</td>
-                                                <td style={{ display: 'flex', justifyContent: 'flex-start', gap: '8px', position: 'sticky', right: 0, zIndex: 2 }}>
-
-                                                    <Button variant="info" onClick={() => handleShowDetails(tuition)} title="View Details">
-                                                        <FaInfoCircle />
-                                                    </Button>
-
-                                                    <Button variant="warning" onClick={() => handleEdit(tuition)} className="mr-2">
-                                                        <FaEdit />
-                                                    </Button>
-
-                                                    <Button variant="danger" onClick={() => handleDeleteTuition(tuition._id)}>
-                                                        <FaTrashAlt />
-                                                    </Button>
-                                                    <Button variant="success" onClick={() => handleShare(tuition)}>
-                                                        <FaWhatsapp />
-                                                    </Button>
-                                                </td>
-                                            </tr>
-                                        ))
-                                    )}
-                                </tbody>
-                            </Table>
+                        <MemoizedTuitionTable
+                            tuitionList={filteredTuitionList}
+                            loading={loading}
+                            role={role}
+                            formatDateTimeDisplay={formatDateTimeDisplay}
+                            statusColors={statusColors}
+                            handleShowDetails={handleShowDetails}
+                            handleEdit={handleEdit}
+                            handleDeleteTuition={handleDeleteTuition}
+                            handleShare={handleShare}
+                            handleOpenAssignModal={handleOpenAssignModal}
+                            openAppliedListModal={openAppliedListModal}
+                        />
 
                         </div>
                         <div className="d-flex justify-content-center align-items-center gap-3 mt-4 flex-wrap">
@@ -748,9 +709,9 @@ const TuitionPage = () => {
                     </Card.Body>
                 </Card>
 
-                <Modal 
-                    show={showUpdateListModal} 
-                    onHide={() => setShowUpdateListModal(false)} 
+                <Modal
+                    show={showUpdateListModal}
+                    onHide={() => setShowUpdateListModal(false)}
                     size="xl"
                     dialogClassName="modal-initial-size"
                 >
@@ -773,9 +734,9 @@ const TuitionPage = () => {
                             <span className="ms-2">Tuition needs update Today: {tuitionNeedsUpdateList.length}</span>
                         </Modal.Title>
                         {role === "superadmin" && (
-                            <Button 
-                                variant="success" 
-                                size="sm" 
+                            <Button
+                                variant="success"
+                                size="sm"
                                 onClick={handleExportUpdateListAsExcel}
                                 className="d-flex align-items-center gap-1 fw-bold me-2"
                             >
@@ -795,6 +756,7 @@ const TuitionPage = () => {
                                             <th>Last Update Comment</th>
                                             <th>Next Update Comment</th>
                                             <th>Status</th>
+                                            <th>Assigned To</th>
                                             <th>Teacher Number</th>
                                             <th>Guardian Number</th>
                                             <th>Actions</th>
@@ -812,6 +774,11 @@ const TuitionPage = () => {
                                                 <td>{tuition.lastUpdateComment || '-'}</td>
                                                 <td>{tuition.nextUpdateComment || '-'}</td>
                                                 <td>{tuition.status}</td>
+                                                <td>
+                                                    <span className="badge bg-secondary">
+                                                        {tuition.assignedTo || 'Unassigned'}
+                                                    </span>
+                                                </td>
                                                 <td>{tuition.tutorNumber}</td>
                                                 <td>{tuition.guardianNumber}</td>
                                                 <td style={{ display: 'flex', justifyContent: 'flex-start', gap: '8px' }}>
@@ -827,6 +794,11 @@ const TuitionPage = () => {
                                                     <Button variant="success" onClick={() => handleShare(tuition)}>
                                                         <FaWhatsapp />
                                                     </Button>
+                                                    {role === 'superadmin' && (
+                                                        <Button variant="dark" onClick={() => handleOpenAssignModal(tuition)} title="Assign Employee">
+                                                            <FaUserPlus />
+                                                        </Button>
+                                                    )}
                                                 </td>
                                             </tr>
                                         ))}
@@ -880,9 +852,11 @@ const TuitionPage = () => {
                                                     <Button variant="danger" onClick={() => handleDeleteTuition(tuition._id)}>
                                                         <FaTrashAlt />
                                                     </Button>
-                                                    <Button variant="success" onClick={() => handleShare(tuition)}>
-                                                        <FaWhatsapp />
-                                                    </Button>
+                                                    {role === 'superadmin' && (
+                                                        <Button variant="dark" onClick={() => handleOpenAssignModal(tuition)} title="Assign Employee">
+                                                            <FaUserPlus />
+                                                        </Button>
+                                                    )}
                                                 </td>
                                             </tr>
                                         ))}
@@ -977,10 +951,169 @@ const TuitionPage = () => {
                     </Modal.Footer>
                 </Modal>
 
+                <TuitionAssignModal
+                    show={showAssignModal}
+                    onHide={() => setShowAssignModal(false)}
+                    tuition={selectedTuitionForAssign}
+                    fetchTuitionRecords={fetchTuitionRecords}
+                />
             </Container >
         </>
     );
 };
+
+const MemoizedTuitionTable = React.memo(({
+    tuitionList,
+    loading,
+    role,
+    formatDateTimeDisplay,
+    statusColors,
+    handleShowDetails,
+    handleEdit,
+    handleDeleteTuition,
+    handleShare,
+    handleOpenAssignModal,
+    openAppliedListModal
+}) => {
+    return (
+        <Table striped bordered hover responsive="lg">
+            <thead className="table-primary" style={{ position: "sticky", top: 0, zIndex: 2 }}>
+                <tr>
+                    <th>SL</th>
+                    <th>Created By / Updated By</th>
+                    <th>Tuition Code</th>
+                    <th>Apply Type</th>
+                    <th>Published?</th>
+                    <th>Assigned To</th>
+                    <th>Status</th>
+                    <th>Payment Created?</th>
+                    <th>Last Available Check</th>
+                    <th>Last Update</th>
+                    <th>Last Update Comment</th>
+                    <th>Next Update</th>
+                    <th>Next Update Comment</th>
+                    <th>Joining Date</th>
+                    <th>Teacher</th>
+                    <th>Student</th>
+                    <th>Class</th>
+                    <th>Medium</th>
+                    <th>Subject</th>
+                    <th>Day</th>
+                    <th>Time</th>
+                    <th>Salary</th>
+                    <th>Location</th>
+                    <th>Area</th>
+                    <th>Guardian No.</th>
+                    <th>Teacher No.</th>
+                    <th>Comment</th>
+                    <th style={{ position: 'sticky', right: 0, zIndex: 3, minWidth: '150px' }}>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {loading ? (
+                    <tr>
+                        <td colSpan="28" className="text-center">
+                            <div className="d-flex justify-content-center align-items-center" style={{ minHeight: '200px' }}>
+                                <Spinner animation="border" variant="primary" size="lg" />
+                            </div>
+                        </td>
+                    </tr>
+                ) : tuitionList.length === 0 ? (
+                    <tr>
+                        <td colSpan="28" className="text-center py-4 text-muted">No records found matching your filters.</td>
+                    </tr>
+                ) : (
+                    tuitionList.map((tuition, index) => (
+                        <tr key={tuition._id}>
+                            <td>{index + 1}</td>
+                            <td>
+                                <div className="d-flex flex-column">
+                                    <span className="badge bg-success text-start mb-1" title="Created By">CB: {tuition.createdBy || '-'}</span>
+                                    <span className="badge bg-info text-start" title="Updated By">UB: {tuition.updatedBy || '-'}</span>
+                                </div>
+                            </td>
+                            <td
+                                style={{ color: 'blue', cursor: 'pointer', textDecoration: 'none' }}
+                                onClick={() => openAppliedListModal(tuition)}
+                                title="Click to see applied list"
+                            >
+                                {tuition.tuitionCode}
+                            </td>
+                            <td>
+                                {tuition.isWhatsappApply ? (
+                                    <span style={{ color: 'green', fontWeight: 'bold' }}>
+                                        <FaWhatsapp /> Whatsapp
+                                    </span>
+                                ) : (
+                                    <span style={{ color: 'blue', fontWeight: 'bold' }}>
+                                        <FaGlobe /> Website
+                                    </span>
+                                )}
+                            </td>
+
+                            <td className={tuition.isPublish ? "text-success fw-bold" : "text-danger fw-bold"}>
+                                {tuition.isPublish ? "Yes" : "No"}
+                            </td>
+                            <td>
+                                <span className="badge bg-secondary">
+                                    {tuition.assignedTo || 'Unassigned'}
+                                </span>
+                            </td>
+                            <td>
+                                <span className={`badge ${statusColors[tuition.status]?.bg || "bg-light"} ${statusColors[tuition.status]?.text || "text-dark"}`}>
+                                    {tuition.status}
+                                </span>
+                            </td>
+                            <td className={tuition.isPaymentCreated ? "text-success fw-bold" : "text-danger fw-bold"}>
+                                {tuition.isPaymentCreated ? "Yes" : "No"}
+                            </td>
+                            <td>{formatDateTimeDisplay(tuition.lastAvailableCheck)}</td>
+                            <td>{formatDateTimeDisplay(tuition.lastUpdate)}</td>
+                            <td>{tuition.lastUpdateComment || '-'}</td>
+                            <td>{formatDateTimeDisplay(tuition.nextUpdateDate)}</td>
+                            <td>{tuition.nextUpdateComment || '-'}</td>
+                            <td>{tuition.joining}</td>
+                            <td>{tuition.wantedTeacher}</td>
+                            <td>{tuition.student}</td>
+                            <td>{tuition.class}</td>
+                            <td>{tuition.medium}</td>
+                            <td>{tuition.subject}</td>
+                            <td>{tuition.day}</td>
+                            <td>{tuition.time === "undefined" ? " " : tuition.time}</td>
+                            <td>{tuition.salary && /taka|tk/i.test(tuition.salary.toString()) ? tuition.salary : (tuition.salary ? tuition.salary.toString().trim() + ' taka' : '')}</td>
+                            <td>{tuition.location}</td>
+                            <td>{tuition.area ? tuition.area : ""}</td>
+                            <td>{tuition.guardianNumber}</td>
+                            <td>{tuition.tutorNumber}</td>
+                            <td>{tuition.note}</td>
+                            <td style={{ display: 'flex', justifyContent: 'flex-start', gap: '8px', position: 'sticky', right: 0, zIndex: 2, backgroundColor: '#fff' }}>
+                                <Button variant="info" onClick={() => handleShowDetails(tuition)} title="View Details">
+                                    <FaInfoCircle />
+                                </Button>
+
+                                <Button variant="warning" onClick={() => handleEdit(tuition)} className="mr-2">
+                                    <FaEdit />
+                                </Button>
+
+                                <Button variant="danger" onClick={() => handleDeleteTuition(tuition._id)}>
+                                    <FaTrashAlt />
+                                </Button>
+                                <Button variant="success" onClick={() => handleShare(tuition)}>
+                                    <FaWhatsapp />
+                                </Button>
+                                {role === 'superadmin' && (
+                                    <Button variant="dark" onClick={() => handleOpenAssignModal(tuition)} title="Assign Employee">
+                                        <FaUserPlus />
+                                    </Button>
+                                )}
+                            </td>
+                        </tr>
+                    ))
+                )}
+            </tbody>
+        </Table>
+    );
+});
 
 export default TuitionPage;
 

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Button, Table, Modal, Form } from 'react-bootstrap';
+import { Button, Table, Modal, Form, Spinner } from 'react-bootstrap';
 import { FaTrashAlt, FaEdit } from 'react-icons/fa';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
@@ -7,17 +7,33 @@ import NavBarPage from './NavbarPage';
 import { ToastContainer, toast } from 'react-toastify';
 import ConfirmationModal from '../components/modals/ConfirmationModal';
 
+const AVAILABLE_MODULES = [
+    { key: 'tuition', label: 'Tuitions' },
+    { key: 'payment', label: 'Payments' },
+    { key: 'teacherPayment', label: 'Teacher Payments' },
+    { key: 'refund', label: 'Refund' },
+    { key: 'guardianApply', label: 'Guardian' },
+    { key: 'task', label: 'Task' },
+    { key: 'tuitionApply', label: 'Tuition Apply' },
+    { key: 'premiumTeacher', label: 'Premium' },
+    { key: 'spamBest', label: 'Spam/Best' },
+    { key: 'lead', label: 'Lead' },
+    { key: 'general', label: 'Search' }
+];
+
 const UserPage = () => {
     const navigate = useNavigate();
     const [userList, setUserList] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const [showModal, setShowModal] = useState(false);
-    const [newUser, setNewUser] = useState({ username: '', password: '', name: '', role: 'admin' });
+    const [newUser, setNewUser] = useState({ username: '', password: '', name: '', role: 'admin', permissions: [] });
     const [editingUser, setEditingUser] = useState(null);
     const [showConfirmModal, setShowConfirmModal] = useState(false);
     const [userToDelete, setUserToDelete] = useState(null);
     const [deleting, setDeleting] = useState(false);
+    const [isProcessing, setIsProcessing] = useState(false);
+    const [processMessage, setProcessMessage] = useState('');
     const token = localStorage.getItem('token');
 
     // Check if user has valid token, otherwise redirect to login
@@ -63,13 +79,14 @@ const UserPage = () => {
     const confirmDeleteUser = async () => {
         if (!userToDelete) return;
 
-        setDeleting(true);
+        setIsProcessing(true);
+        setProcessMessage('Deleting user...');
         setError(null);
         try {
             await axios.delete(`https://tuition-seba-backend-1.onrender.com/api/user/delete/${userToDelete}`, {
                 headers: { Authorization: token }
             });
-            fetchUsers();
+            await fetchUsers();
             toast.success('User deleted successfully');
             setShowConfirmModal(false);
             setUserToDelete(null);
@@ -85,7 +102,8 @@ const UserPage = () => {
             }
             console.error('Error deleting user:', err);
         } finally {
-            setDeleting(false);
+            setIsProcessing(false);
+            setProcessMessage('');
         }
     };
 
@@ -98,17 +116,23 @@ const UserPage = () => {
     const handleOpenModal = (user = null) => {
         if (user) {
             setEditingUser(user);
-            setNewUser({ username: user.username, password: user.password, name: user.name, role: user.role });
+            setNewUser({ 
+                username: user.username, 
+                password: user.password, 
+                name: user.name, 
+                role: user.role,
+                permissions: user.permissions || []
+            });
         } else {
             setEditingUser(null);
-            setNewUser({ username: '', password: '', name: '', role: 'admin' });
+            setNewUser({ username: '', password: '', name: '', role: 'admin', permissions: [] });
         }
         setShowModal(true);
     };
 
     const handleCloseModal = () => {
         setShowModal(false);
-        setNewUser({ username: '', password: '', name: '', role: 'admin' });
+        setNewUser({ username: '', password: '', name: '', role: 'admin', permissions: [] });
         setEditingUser(null);
     };
 
@@ -117,24 +141,38 @@ const UserPage = () => {
         setNewUser({ ...newUser, [name]: value });
     };
 
+    const handlePermissionChange = (moduleKey) => {
+        const currentPermissions = [...newUser.permissions];
+        if (currentPermissions.includes(moduleKey)) {
+            setNewUser({
+                ...newUser,
+                permissions: currentPermissions.filter(p => p !== moduleKey)
+            });
+        } else {
+            setNewUser({
+                ...newUser,
+                permissions: [...currentPermissions, moduleKey]
+            });
+        }
+    };
+
     const handleSaveUser = async () => {
-        setLoading(true);
+        setIsProcessing(true);
+        setProcessMessage(editingUser ? 'Updating user...' : 'Creating user...');
         setError(null);
         try {
             if (editingUser) {
-
                 await axios.put(`https://tuition-seba-backend-1.onrender.com/api/user/edit/${editingUser._id}`, newUser, {
                     headers: { Authorization: token }
                 });
                 toast.success('User updated successfully');
             } else {
-
                 await axios.post('https://tuition-seba-backend-1.onrender.com/api/user/register', newUser, {
                     headers: { Authorization: token }
                 });
                 toast.success('User added successfully');
             }
-            fetchUsers();
+            await fetchUsers();
             handleCloseModal();
         } catch (err) {
             if (err.response && (err.response.status === 401 || err.response.status === 403)) {
@@ -148,7 +186,8 @@ const UserPage = () => {
             }
             console.error('Error saving user:', err);
         } finally {
-            setLoading(false);
+            setIsProcessing(false);
+            setProcessMessage('');
         }
     };
 
@@ -163,14 +202,69 @@ const UserPage = () => {
                     <Button variant="primary" onClick={() => handleOpenModal()} className="btn btn-primary">Add New User</Button>
                 </div>
                 {loading ? (
-                    <div className="text-center py-4">
-                        <div className="spinner-border text-primary" role="status">
-                            <span className="visually-hidden">Loading...</span>
-                        </div>
-                        <p className="mt-2">Loading users...</p>
+                    <div className="mt-4">
+                        <Table striped bordered hover responsive>
+                            <thead className="table-primary">
+                                <tr>
+                                    <th>Username</th>
+                                    <th>Name</th>
+                                    <th>Status</th>
+                                    <th>Password</th>
+                                    <th>Role</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {[1, 2, 3, 4, 5].map((i) => (
+                                    <tr key={i}>
+                                        <td><div className="skeleton-text"></div></td>
+                                        <td><div className="skeleton-text w-75"></div></td>
+                                        <td><div className="skeleton-text w-50"></div></td>
+                                        <td><div className="skeleton-text"></div></td>
+                                        <td><div className="skeleton-text w-50"></div></td>
+                                        <td><div className="skeleton-text w-75"></div></td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </Table>
+                        <style>{`
+                            .skeleton-text {
+                                height: 20px;
+                                background-color: #e9ecef;
+                                border-radius: 4px;
+                                width: 100%;
+                                animation: pulse 1.5s infinite ease-in-out;
+                            }
+                            @keyframes pulse {
+                                0% { opacity: 0.6; }
+                                50% { opacity: 1; }
+                                100% { opacity: 0.6; }
+                            }
+                            .processing-overlay {
+                                position: fixed;
+                                top: 0;
+                                left: 0;
+                                width: 100%;
+                                height: 100%;
+                                background: rgba(255, 255, 255, 0.8);
+                                backdrop-filter: blur(4px);
+                                display: flex;
+                                flex-direction: column;
+                                align-items: center;
+                                justify-content: center;
+                                z-index: 10000;
+                            }
+                            .loader-content {
+                                background: white;
+                                padding: 2rem;
+                                border-radius: 1rem;
+                                box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+                                text-align: center;
+                            }
+                        `}</style>
                     </div>
                 ) : (
-                    <Table striped bordered hover responsive className="mt-4">
+                    <Table striped bordered hover responsive className="mt-4 shadow-sm">
                         <thead className="table-primary">
                             <tr>
                                 <th>Username</th>
@@ -267,6 +361,28 @@ const UserPage = () => {
                                     <option value="superadmin">Superadmin</option>
                                 </Form.Control>
                             </Form.Group>
+
+                            {newUser.role === 'admin' && (
+                                <Form.Group className="mt-4">
+                                    <Form.Label className="fw-bold">Module Permissions</Form.Label>
+                                    <div className="row g-2 p-3 border rounded bg-light">
+                                        {AVAILABLE_MODULES.map((module) => (
+                                            <div key={module.key} className="col-6">
+                                                <Form.Check
+                                                    type="checkbox"
+                                                    id={`perm-${module.key}`}
+                                                    label={module.label}
+                                                    checked={newUser.permissions.includes(module.key)}
+                                                    onChange={() => handlePermissionChange(module.key)}
+                                                />
+                                            </div>
+                                        ))}
+                                    </div>
+                                    <Form.Text className="text-muted mt-2">
+                                        Note: Attendance is visible to all users. Finance and Users are only for Superadmins.
+                                    </Form.Text>
+                                </Form.Group>
+                            )}
                         </Form>
                     </Modal.Body>
                     <Modal.Footer>
@@ -286,8 +402,19 @@ const UserPage = () => {
                     message="Are you sure you want to delete this user? This action cannot be undone."
                     confirmText="Delete User"
                     confirmVariant="danger"
-                    isLoading={deleting}
+                    isLoading={isProcessing}
                 />
+                
+                {isProcessing && (
+                    <div className="processing-overlay">
+                        <div className="loader-content">
+                            <Spinner animation="border" variant="primary" size="lg" />
+                            <h4 className="mt-3 fw-bold text-primary">{processMessage}</h4>
+                            <p className="text-muted mb-0">Please wait, performing action...</p>
+                        </div>
+                    </div>
+                )}
+                
                 <ToastContainer />
             </div>
         </>

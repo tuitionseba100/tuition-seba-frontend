@@ -9,6 +9,14 @@ const Navbar = () => {
     const location = useLocation();
     const [dayStarted, setDayStarted] = useState(true);
     const [role, setRole] = useState(localStorage.getItem("role"));
+    const [permissions, setPermissions] = useState(() => {
+        const stored = localStorage.getItem("permissions");
+        try {
+            return stored ? JSON.parse(stored) : [];
+        } catch (e) {
+            return [];
+        }
+    });
 
     useEffect(() => {
         const fetchDayStatus = async () => {
@@ -29,8 +37,20 @@ const Navbar = () => {
         navigate('/admin/login');
     };
 
-    const renderNavItem = (to, label) => {
+    const renderNavItem = (to, label, permissionKey = null) => {
         const isActive = location.pathname === to;
+
+        // Visibility logic
+        if (role !== "superadmin") {
+            // Finance and Users are strictly superadmin
+            if (to === "/admin/finance" || to === "/admin/user") return null;
+
+            // Other items require specific permission if key is provided
+            if (permissionKey && !permissions.includes(permissionKey)) {
+                return null;
+            }
+        }
+
         return (
             <li className="nav-item">
                 <Link
@@ -65,19 +85,19 @@ const Navbar = () => {
                     <ul className="navbar-nav ms-auto">
                         {role === "superadmin" || dayStarted ? (
                             <>
-                                {renderNavItem("/admin/tuition", "Tuitions")}
-                                {role === "superadmin" && renderNavItem("/admin/user", "Users")}
-                                {role === "superadmin" && renderNavItem("/admin/finance", "Finance")}
-                                {renderNavItem("/admin/payment", "Payments")}
-                                {renderNavItem("/admin/teacherPayment", "Teacher Payments")}
-                                {renderNavItem("/admin/refund", "Refund")}
-                                {renderNavItem("/admin/guardianApply", "Guardian")}
-                                {renderNavItem("/admin/task", "Task")}
-                                {renderNavItem("/admin/tuitionApply", "Tuition Apply")}
-                                {renderNavItem("/admin/premiumTeacher", "Premium")}
-                                {renderNavItem("/admin/spamBest", "Spam/Best")}
-                                {renderNavItem("/admin/lead", "Lead")}
-                                {renderNavItem("/admin/general", "Search")}
+                                {renderNavItem("/admin/tuition", "Tuitions", "tuition")}
+                                {renderNavItem("/admin/user", "Users")}
+                                {renderNavItem("/admin/finance", "Finance")}
+                                {renderNavItem("/admin/payment", "Payments", "payment")}
+                                {renderNavItem("/admin/teacherPayment", "Teacher Payments", "teacherPayment")}
+                                {renderNavItem("/admin/refund", "Refund", "refund")}
+                                {renderNavItem("/admin/guardianApply", "Guardian", "guardianApply")}
+                                {renderNavItem("/admin/task", "Task", "task")}
+                                {renderNavItem("/admin/tuitionApply", "Tuition Apply", "tuitionApply")}
+                                {renderNavItem("/admin/premiumTeacher", "Premium", "premiumTeacher")}
+                                {renderNavItem("/admin/spamBest", "Spam/Best", "spamBest")}
+                                {renderNavItem("/admin/lead", "Lead", "lead")}
+                                {renderNavItem("/admin/general", "Search", "general")}
                             </>
                         ) : null}
 

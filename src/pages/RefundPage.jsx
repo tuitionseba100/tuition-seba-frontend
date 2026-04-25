@@ -346,20 +346,7 @@ const RefundPage = () => {
             <NavBarPage />
             <Container>
                 <Header>
-                    <div className="d-flex align-items-center gap-3">
-                        <h2 className='text-primary fw-bold mb-0'>Refund Applications</h2>
-                        {refundsDueToday.length > 0 && (
-                            <Button 
-                                variant="warning" 
-                                className="rounded-pill shadow-sm d-flex align-items-center gap-2 animate-pulse"
-                                onClick={() => setShowDueTodayModal(true)}
-                                style={{ padding: '8px 20px', fontWeight: 'bold' }}
-                            >
-                                <FaBell className="shake-animation" />
-                                <span>Due Today: {refundsDueToday.length}</span>
-                            </Button>
-                        )}
-                    </div>
+                    <h2 className='text-primary fw-bold mb-0'>Refund Applications</h2>
                     <Button variant="primary" onClick={handleCreateNew} className="rounded-3 shadow-sm px-4">
                         + Create Refund
                     </Button>
@@ -441,6 +428,18 @@ const RefundPage = () => {
                         </Row>
                     </Card.Body>
                 </Card>
+
+                {refundsDueToday.length > 0 && (
+                    <div className="d-flex align-items-center justify-content-center my-4">
+                        <h5 className="me-3 d-flex align-items-center gap-2 mb-0 py-3 px-5 bg-warning-subtle rounded-pill border border-warning-subtle shadow-sm">
+                            <FaBell className="text-warning animate-bounce" />
+                            <span className="fw-bold text-dark">Refunds to be done today: {refundsDueToday.length}</span>
+                            <Button size="sm" variant="warning" onClick={() => setShowDueTodayModal(true)} className="ms-2 rounded-circle shadow-sm">
+                                <FaInfoCircle />
+                            </Button>
+                        </h5>
+                    </div>
+                )}
 
                 <div className="d-flex justify-content-between align-items-center mt-4">
                     {role === "superadmin" && (

@@ -220,8 +220,18 @@ const RefundPage = () => {
         return `${new Intl.DateTimeFormat('en-GB', optionsDate).format(date)} || ${new Intl.DateTimeFormat('en-GB', optionsTime).format(date)}`;
     };
 
+    const formatDateOnly = (dateString) => {
+        if (!dateString) return '-';
+        const date = new Date(dateString);
+        if (isNaN(date.getTime())) return dateString;
+        return new Intl.DateTimeFormat('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }).format(date);
+    };
+
     const handleEditApply = (data) => {
-        setRefundData(data);
+        setRefundData({
+            ...data,
+            returnDate: data.returnDate ? data.returnDate.split('T')[0] : ''
+        });
         setEditingId(data._id);
         setShowModal(true);
     };
@@ -402,7 +412,7 @@ const RefundPage = () => {
                                                         color: item.status === 'completed' ? '#155724' : '#0d6efd' 
                                                     }}
                                                 >
-                                                    {item.returnDate || '-'}
+                                                    {formatDateOnly(item.returnDate)}
                                                 </td>
                                                 <td>{item.personalPhone}</td>
                                                 <td className="small">{item.note}</td>
@@ -563,8 +573,7 @@ const RefundPage = () => {
                                     <Form.Group>
                                         <Form.Label className="fw-bold">Return Date</Form.Label>
                                         <Form.Control
-                                            type="text"
-                                            placeholder="e.g. 25th Oct"
+                                            type="date"
                                             value={refundData.returnDate || ''}
                                             onChange={(e) => setRefundData({ ...refundData, returnDate: e.target.value })}
                                         />

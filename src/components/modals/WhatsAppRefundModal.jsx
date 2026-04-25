@@ -7,7 +7,16 @@ const getRefundWhatsAppMessage = (refund) => {
     const tuitionCode = refund.tuitionCode || 'XXXX';
     const amount = refund.amount || '0';
     const status = (refund.status || '').toLowerCase();
-    const returnDateStr = refund.returnDate ? `\nReturn Date: ${refund.returnDate}` : '';
+    let formattedReturnDate = '';
+    if (refund.returnDate) {
+        const d = new Date(refund.returnDate);
+        if (!isNaN(d.getTime())) {
+            formattedReturnDate = new Intl.DateTimeFormat('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }).format(d);
+        } else {
+            formattedReturnDate = refund.returnDate;
+        }
+    }
+    const returnDateStr = formattedReturnDate ? `\nReturn Date: ${formattedReturnDate}` : '';
 
     if (status === 'completed') {
         return `Dear Respected Teacher,\n\nWe would like to inform you regarding your payment for Tuition Code: ${tuitionCode}.\n\nDue to unavoidable circumstances, this tuition has been cancelled, and your paid amount has been successfully refunded.\n\nRefund Amount: ${amount} BDT\nRefund Status: Completed${returnDateStr}\n\nThe amount has been sent to your provided account. Kindly check and confirm once received.\n\nWe sincerely apologize for any inconvenience caused and appreciate your understanding.\n\nIf you have any questions or need assistance, please feel free to contact us or call directly at 01633920928.\n\nRegards,\nPayment Department\nTuition Seba Forum`;

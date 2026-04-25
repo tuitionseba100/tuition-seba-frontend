@@ -430,11 +430,11 @@ const RefundPage = () => {
                 </Card>
 
                 {refundsDueToday.length > 0 && (
-                    <div className="d-flex align-items-center justify-content-center my-4">
-                        <h5 className="me-3 d-flex align-items-center gap-2 mb-0 py-3 px-5 bg-warning-subtle rounded-pill border border-warning-subtle shadow-sm">
-                            <FaBell className="text-warning animate-bounce" />
-                            <span className="fw-bold text-dark">Refunds to be done today: {refundsDueToday.length}</span>
-                            <Button size="sm" variant="warning" onClick={() => setShowDueTodayModal(true)} className="ms-2 rounded-circle shadow-sm">
+                    <div className="d-flex align-items-center justify-content-center mt-3">
+                        <h5 className="me-3 d-flex align-items-center gap-2">
+                            <FaBell className="text-primary" />
+                            <span>Refunds to be done today: {refundsDueToday.length}</span>
+                            <Button size="sm" onClick={() => setShowDueTodayModal(true)} className="ms-2">
                                 <FaInfoCircle />
                             </Button>
                         </h5>

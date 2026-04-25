@@ -1,18 +1,17 @@
-import React, { useState, useEffect } from 'react';
-import { Button, Table, Modal, Form, Row, Col, Card } from 'react-bootstrap';
-import { FaEdit, FaTrashAlt, FaWhatsapp } from 'react-icons/fa';
+import React, { useState, useEffect, useCallback } from 'react';
+import { Button, Table, Modal, Form, Row, Col, Card, Spinner, Pagination } from 'react-bootstrap';
+import { FaEdit, FaTrashAlt, FaWhatsapp, FaSearch, FaUndo, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 import axios from 'axios';
 import NavBarPage from './NavbarPage';
 import styled from 'styled-components';
 import { ToastContainer, toast } from 'react-toastify';
-import { Spinner } from 'react-bootstrap';
 import * as XLSX from 'xlsx';
 import Select from 'react-select';
 import WhatsAppRefundModal from '../components/modals/WhatsAppRefundModal';
 
 const RefundPage = () => {
     const [refundList, setRefundList] = useState([]);
-    const [filteredRefundList, setFilteredRefundList] = useState([]);
+    const [loading, setLoading] = useState(false);
     const [showModal, setShowModal] = useState(false);
     const [editingId, setEditingId] = useState(null);
     const [refundData, setRefundData] = useState({
@@ -28,12 +27,29 @@ const RefundPage = () => {
         commentFromAgent: '',
         returnDate: ''
     });
-    const [tuitionCodeSearchQuery, setTuitionCodeSearchQuery] = useState('');
-    const [paymentPhoneSearchQuery, setPaymentPhoneSearchQuery] = useState('');
-    const [personalPhoneSearchQuery, setPersonalPhoneSearchQuery] = useState('');
-    const [loading, setLoading] = useState(false);
-    const [statusFilter, setStatusFilter] = useState('');
+
+    // Pagination & Search States
+    const [currentPage, setCurrentPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
+    const [totalRecords, setTotalRecords] = useState(0);
+    const limit = 20;
+
+    const [searchInputs, setSearchInputs] = useState({
+        tuitionCode: '',
+        paymentNumber: '',
+        personalPhone: '',
+        status: ''
+    });
+
+    const [appliedFilters, setAppliedFilters] = useState({
+        tuitionCode: '',
+        paymentNumber: '',
+        personalPhone: '',
+        status: ''
+    });
+
     const [statusCounts, setStatusCounts] = useState({
+        total: 0,
         pending: 0,
         underReview: 0,
         approved: 0,
@@ -41,6 +57,7 @@ const RefundPage = () => {
         completed: 0,
         cancelled: 0
     });
+
     const role = localStorage.getItem('role');
 
     // WhatsApp share modal state
@@ -51,129 +68,124 @@ const RefundPage = () => {
         setWhatsAppRefund(refund);
         setShowWhatsAppModal(true);
     };
-    useEffect(() => {
-        fetchRefundApplyRecords();
-    }, []);
 
-    useEffect(() => {
-        let filteredData = refundList;
-        if (tuitionCodeSearchQuery) {
-            filteredData = filteredData.filter(tuition =>
-                tuition.tuitionCode.toLowerCase().includes(tuitionCodeSearchQuery.toLowerCase())
-            );
-        }
-        if (paymentPhoneSearchQuery) {
-            filteredData = filteredData.filter(tuition =>
-                String(tuition.paymentNumber).trim().toLowerCase().includes(String(paymentPhoneSearchQuery).trim().toLowerCase())
-            );
-        }
-
-        if (personalPhoneSearchQuery) {
-            filteredData = filteredData.filter(tuition =>
-                String(tuition.personalPhone).trim().toLowerCase().includes(String(personalPhoneSearchQuery).trim().toLowerCase())
-            );
-        }
-
-        if (statusFilter) {
-            filteredData = filteredData.filter(tuition => tuition.status === statusFilter);
-        }
-
-        const statusCounts = filteredData.reduce((counts, tuition) => {
-            if (tuition.status === 'pending') counts.pending++;
-            if (tuition.status === 'under review') counts.underReview++;
-            if (tuition.status === 'approved') counts.approved++;
-            if (tuition.status === 'rejected') counts.rejected++;
-            if (tuition.status === 'completed') counts.completed++;
-            if (tuition.status === 'cancelled') counts.cancelled++;
-            return counts;
-        }, {
-            pending: 0,
-            underReview: 0,
-            approved: 0,
-            rejected: 0,
-            completed: 0,
-            cancelled: 0
-        });
-
-        setStatusCounts(statusCounts);
-
-        setFilteredRefundList(filteredData);
-    }, [tuitionCodeSearchQuery, paymentPhoneSearchQuery, personalPhoneSearchQuery, statusFilter, refundList]);
-
-    const fetchRefundApplyRecords = async () => {
+    const fetchRefundApplyRecords = useCallback(async (page = 1, filters = appliedFilters) => {
         setLoading(true);
         try {
-            const response = await axios.get('https://tuition-seba-backend-1.onrender.com/api/refund/all');
-            setRefundList(response.data);
-            setFilteredRefundList(response.data);
+            const params = {
+                page,
+                limit,
+                tuitionCode: filters.tuitionCode,
+                paymentNumber: filters.paymentNumber,
+                personalPhone: filters.personalPhone,
+                status: filters.status
+            };
+            const response = await axios.get('https://tuition-seba-backend-1.onrender.com/api/refund/all', { params });
+            setRefundList(response.data.data);
+            setTotalPages(response.data.totalPages);
+            setCurrentPage(response.data.currentPage);
+            setTotalRecords(response.data.totalRecords);
         } catch (err) {
             console.error('Error:', err);
-            toast.error("Failed.");
+            toast.error("Failed to fetch records.");
         }
         setLoading(false);
+    }, [appliedFilters]);
+
+    const fetchSummaryCounts = async () => {
+        try {
+            const response = await axios.get('https://tuition-seba-backend-1.onrender.com/api/refund/summary');
+            setStatusCounts(response.data);
+        } catch (err) {
+            console.error('Error fetching summary:', err);
+        }
     };
 
-    const handleExportToExcel = () => {
-        const now = new Date();
-        const formattedDate = now.toLocaleDateString().replace(/\//g, '-');
-        const formattedTime = now.toLocaleTimeString().replace(/:/g, '-');
+    useEffect(() => {
+        fetchRefundApplyRecords(1);
+        fetchSummaryCounts();
+    }, [fetchRefundApplyRecords]);
 
-        const fileName = `Refund List_${formattedDate}_${formattedTime}`;
+    const handleSearchInputChange = (e) => {
+        const { name, value } = e.target;
+        setSearchInputs(prev => ({ ...prev, [name]: value }));
+    };
 
-        const tableHeaders = [
-            "Applied At",
-            "Status",
-            "Tuition Code",
-            "Created By",
-            "Updated By",
-            "Payment Number Type",
-            "Payment Number",
-            "Name",
-            "Return Amount",
-            "Return Date",
-            "Personal Phone",
-            "Comment (Teacher)",
-            "Comment From Agent"
-        ];
+    const handleSearch = () => {
+        setAppliedFilters(searchInputs);
+        setCurrentPage(1);
+        fetchRefundApplyRecords(1, searchInputs);
+    };
 
-        const tableData = filteredRefundList.map(item => [
-            item.requestedAt ? formatDate(item.requestedAt) : "",
-            String(item.status ?? ""),
-            String(item.tuitionCode ?? ""),
-            String(item.createdBy ?? ""),
-            String(item.updatedBy ?? ""),
-            String(item.paymentType ?? ""),
-            String(item.paymentNumber ?? ""),
-            String(item.name ?? ""),
-            String(item.amount ?? ""),
-            String(item.returnDate ?? ""),
-            String(item.personalPhone ?? ""),
-            String(item.note ?? ""),
-            String(item.commentFromAgent ?? "")
-        ]);
+    const handleResetFilters = () => {
+        const resetState = {
+            tuitionCode: '',
+            paymentNumber: '',
+            personalPhone: '',
+            status: ''
+        };
+        setSearchInputs(resetState);
+        setAppliedFilters(resetState);
+        setCurrentPage(1);
+        fetchRefundApplyRecords(1, resetState);
+    };
 
-        const worksheet = XLSX.utils.aoa_to_sheet([tableHeaders, ...tableData]);
+    const handlePageChange = (pageNumber) => {
+        fetchRefundApplyRecords(pageNumber);
+    };
 
-        worksheet['!cols'] = [
-            { wpx: 100 },
-            { wpx: 100 },
-            { wpx: 80 },
-            { wpx: 100 },
-            { wpx: 100 },
-            { wpx: 90 },
-            { wpx: 110 },
-            { wpx: 110 },
-            { wpx: 120 },
-            { wpx: 90 },
-            { wpx: 120 },
-            { wpx: 140 },
-            { wpx: 140 },
-        ];
+    const handleExportToExcel = async () => {
+        // For export, we might want to fetch ALL data based on current filters but without limit
+        // Or just export the current filtered list if we add an export-all endpoint
+        setLoading(true);
+        try {
+            const params = {
+                tuitionCode: appliedFilters.tuitionCode,
+                paymentNumber: appliedFilters.paymentNumber,
+                personalPhone: appliedFilters.personalPhone,
+                status: appliedFilters.status,
+                limit: 10000 // Large limit for export
+            };
+            const response = await axios.get('https://tuition-seba-backend-1.onrender.com/api/refund/all', { params });
+            const allFilteredData = response.data.data;
 
-        const workbook = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(workbook, worksheet, "Refund Applications");
+            const now = new Date();
+            const formattedDate = now.toLocaleDateString().replace(/\//g, '-');
+            const formattedTime = now.toLocaleTimeString().replace(/:/g, '-');
+            const fileName = `Refund List_${formattedDate}_${formattedTime}`;
 
-        XLSX.writeFile(workbook, `${fileName}.xlsx`);
+            const tableHeaders = [
+                "Applied At", "Status", "Tuition Code", "Created By", "Updated By",
+                "Payment Number Type", "Payment Number", "Name", "Return Amount",
+                "Return Date", "Personal Phone", "Comment (Teacher)", "Comment From Agent"
+            ];
+
+            const tableData = allFilteredData.map(item => [
+                item.requestedAt ? formatDate(item.requestedAt) : "",
+                String(item.status ?? ""),
+                String(item.tuitionCode ?? ""),
+                String(item.createdBy ?? ""),
+                String(item.updatedBy ?? ""),
+                String(item.paymentType ?? ""),
+                String(item.paymentNumber ?? ""),
+                String(item.name ?? ""),
+                String(item.amount ?? ""),
+                String(item.returnDate ?? ""),
+                String(item.personalPhone ?? ""),
+                String(item.note ?? ""),
+                String(item.commentFromAgent ?? "")
+            ]);
+
+            const worksheet = XLSX.utils.aoa_to_sheet([tableHeaders, ...tableData]);
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, "Refund Applications");
+            XLSX.writeFile(workbook, `${fileName}.xlsx`);
+            toast.success("Export successful!");
+        } catch (err) {
+            console.error('Export Error:', err);
+            toast.error("Export failed.");
+        }
+        setLoading(false);
     };
 
     const handleSaveRequest = async () => {
@@ -184,38 +196,28 @@ const RefundPage = () => {
         };
         try {
             if (editingId) {
-                const updatedData = {
-                    ...updatedTuitionData,
-                    updatedBy: username
-                };
+                const updatedData = { ...updatedTuitionData, updatedBy: username };
                 await axios.put(`https://tuition-seba-backend-1.onrender.com/api/refund/edit/${editingId}`, updatedData);
                 toast.success("Refund record updated successfully!");
             } else {
-                const newData = {
-                    ...updatedTuitionData,
-                    createdBy: username
-                };
+                const newData = { ...updatedTuitionData, createdBy: username };
                 await axios.post('https://tuition-seba-backend-1.onrender.com/api/refund/add', newData);
-                toast.success("Refund record updated successfully!");
+                toast.success("Refund record added successfully!");
             }
             setShowModal(false);
-            fetchRefundApplyRecords();
+            fetchRefundApplyRecords(currentPage);
+            fetchSummaryCounts();
         } catch (err) {
             console.error('Error:', err);
-            toast.error("Error.");
+            toast.error("Operation failed.");
         }
     };
 
     const formatDate = (dateString) => {
         const date = new Date(dateString);
-
         const optionsDate = { day: '2-digit', month: 'long', year: 'numeric', timeZone: 'UTC' };
         const optionsTime = { hour: '2-digit', minute: '2-digit', hour12: true, timeZone: 'UTC' };
-
-        const formattedDate = new Intl.DateTimeFormat('en-GB', optionsDate).format(date);
-        const formattedTime = new Intl.DateTimeFormat('en-GB', optionsTime).format(date);
-
-        return `${formattedDate} || ${formattedTime}`;
+        return `${new Intl.DateTimeFormat('en-GB', optionsDate).format(date)} || ${new Intl.DateTimeFormat('en-GB', optionsTime).format(date)}`;
     };
 
     const handleEditApply = (data) => {
@@ -225,28 +227,17 @@ const RefundPage = () => {
     };
 
     const handleDeleteRecord = async (id) => {
-        const confirmDelete = window.confirm("Are you sure you want to delete this  record?");
-
-        if (confirmDelete) {
+        if (window.confirm("Are you sure you want to delete this record?")) {
             try {
                 await axios.delete(`https://tuition-seba-backend-1.onrender.com/api/refund/delete/${id}`);
-                toast.success("Tuition record deleted successfully!");
-                fetchRefundApplyRecords();
+                toast.success("Record deleted successfully!");
+                fetchRefundApplyRecords(currentPage);
+                fetchSummaryCounts();
             } catch (err) {
-                console.error('Error deleting apply record:', err);
-                toast.error("Error deleting apply record.");
+                console.error('Error:', err);
+                toast.error("Deletion failed.");
             }
-        } else {
-            toast.info("Deletion canceled");
         }
-    };
-
-    const handleResetFilters = () => {
-        setTuitionCodeSearchQuery('');
-        setPersonalPhoneSearchQuery('');
-        setPaymentPhoneSearchQuery('');
-        setStatusFilter('');
-        setFilteredRefundList(refundList);
     };
 
     return (
@@ -259,132 +250,98 @@ const RefundPage = () => {
                         Create Refund
                     </Button>
                 </Header>
-                <Card className="mt-4">
+                
+                <Card className="mt-4 shadow-sm border-0">
                     <Card.Body>
-                        <div className="row text-center">
-                            <div className="col-6 col-sm-4 col-md-2 mb-3">
-                                <div className="card p-3 shadow border-dark">
-                                    <div className="d-flex flex-column align-items-center">
-                                        <span className="text-dark" style={{ fontWeight: 'bolder' }}>Total Applied</span>
-                                        <span>{filteredRefundList.length}</span>
+                        <Row className="text-center g-3">
+                            {[
+                                { label: 'Total', count: statusCounts.total, color: 'dark' },
+                                { label: 'Pending', count: statusCounts.pending, color: 'primary' },
+                                { label: 'Under Review', count: statusCounts.underReview, color: 'info' },
+                                { label: 'Approved', count: statusCounts.approved, color: 'success' },
+                                { label: 'Rejected', count: statusCounts.rejected, color: 'danger' },
+                                { label: 'Completed', count: statusCounts.completed, color: 'success' }
+                            ].map((stat, idx) => (
+                                <Col key={idx} xs={6} sm={4} md={2}>
+                                    <div className={`card p-2 shadow-sm border-${stat.color}`}>
+                                        <small className={`text-${stat.color} fw-bold`}>{stat.label}</small>
+                                        <h5 className="mb-0">{stat.count}</h5>
                                     </div>
-                                </div>
-                            </div>
-                            <div className="col-6 col-sm-4 col-md-2 mb-3">
-                                <div className="card p-3 shadow border-primary">
-                                    <div className="d-flex flex-column align-items-center">
-                                        <span className="text-primary" style={{ fontWeight: 'bolder' }}>Pending</span>
-                                        <span>{statusCounts.pending}</span>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div className="col-6 col-sm-4 col-md-2 mb-3">
-                                <div className="card p-3 shadow border-primary">
-                                    <div className="d-flex flex-column align-items-center">
-                                        <span className="text-primary" style={{ fontWeight: 'bolder' }}>Under Review</span>
-                                        <span>{statusCounts.underReview}</span>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div className="col-6 col-sm-4 col-md-2 mb-3">
-                                <div className="card p-3 shadow border-primary">
-                                    <div className="d-flex flex-column align-items-center">
-                                        <span className="text-primary" style={{ fontWeight: 'bolder' }}>Approved</span>
-                                        <span>{statusCounts.approved}</span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div className="col-6 col-sm-4 col-md-2 mb-3">
-                                <div className="card p-3 shadow border-primary">
-                                    <div className="d-flex flex-column align-items-center">
-                                        <span className="text-primary" style={{ fontWeight: 'bolder' }}>Rejected</span>
-                                        <span>{statusCounts.rejected}</span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div className="col-6 col-sm-4 col-md-2 mb-3">
-                                <div className="card p-3 shadow border-primary">
-                                    <div className="d-flex flex-column align-items-center">
-                                        <span className="text-primary" style={{ fontWeight: 'bolder' }}>Completed</span>
-                                        <span>{statusCounts.completed}</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                                </Col>
+                            ))}
+                        </Row>
                     </Card.Body>
                 </Card>
 
-                {/* Search bar */}
-                <Row className="mt-2 mb-3">
-                    <Col md={2}>
-                        <Form.Label className="fw-bold">Search (Tuition Code)</Form.Label>
-                        <Form.Control
-                            type="text"
-                            placeholder="Search by Tuition Code"
-                            value={tuitionCodeSearchQuery}
-                            onChange={(e) => setTuitionCodeSearchQuery(e.target.value)}
-                        />
-                    </Col>
-
-                    <Col md={2}>
-                        <Form.Label className="fw-bold">Search (Payment Phone Number)</Form.Label>
-                        <Form.Control
-                            type="text"
-                            placeholder="Search by Phone Number"
-                            value={paymentPhoneSearchQuery}
-                            onChange={(e) => setPaymentPhoneSearchQuery(e.target.value)}
-                        />
-                    </Col>
-
-                    <Col md={2}>
-                        <Form.Label className="fw-bold">Search (Personal Phone Number)</Form.Label>
-                        <Form.Control
-                            type="text"
-                            placeholder="Search by Phone Number"
-                            value={personalPhoneSearchQuery}
-                            onChange={(e) => setPersonalPhoneSearchQuery(e.target.value)}
-                        />
-                    </Col>
-
-                    <Col md={2}>
-                        <Form.Label className="fw-bold">Status</Form.Label>
-                        <Form.Select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
-                            <option value="">All</option>
-                            <option value="pending">Pending</option>
-                            <option value="under review">Under Review</option>
-                            <option value="approved">Approved</option>
-                            <option value="rejected">Rejected</option>
-                            <option value="completed">Completed</option>
-                            <option value="cancelled">Cancelled</option>
-                        </Form.Select>
-                    </Col>
-
-                    <Col md={1} className="d-flex align-items-end">
-                        <Button variant="danger" onClick={handleResetFilters} className="w-100">
-                            Reset Filters
-                        </Button>
-                    </Col>
-
-                </Row>
-
-                {role === "superadmin" && (
-                    <Button
-                        variant="success"
-                        className="mb-3"
-                        onClick={handleExportToExcel}
-                    >
-                        Export to Excel
-                    </Button>
-                )}
-
-                <Card className="mt-4">
+                {/* Search & Filter Bar */}
+                <Card className="mt-4 shadow-sm border-0">
                     <Card.Body>
-                        <Card.Title>Request List</Card.Title>
-                        <div style={{ maxHeight: "600px", overflowY: "auto" }}>
-                            <Table striped bordered hover responsive="lg">
-                                <thead className="table-primary" style={{ position: "sticky", top: 0, zIndex: 2 }}>
+                        <Row className="g-3 align-items-end">
+                            <Col md={3}>
+                                <Form.Label className="fw-bold small">Tuition Code</Form.Label>
+                                <Form.Control
+                                    name="tuitionCode"
+                                    placeholder="Search Tuition Code"
+                                    value={searchInputs.tuitionCode}
+                                    onChange={handleSearchInputChange}
+                                />
+                            </Col>
+                            <Col md={2}>
+                                <Form.Label className="fw-bold small">Payment Phone</Form.Label>
+                                <Form.Control
+                                    name="paymentNumber"
+                                    placeholder="Search Phone"
+                                    value={searchInputs.paymentNumber}
+                                    onChange={handleSearchInputChange}
+                                />
+                            </Col>
+                            <Col md={2}>
+                                <Form.Label className="fw-bold small">Personal Phone</Form.Label>
+                                <Form.Control
+                                    name="personalPhone"
+                                    placeholder="Search Phone"
+                                    value={searchInputs.personalPhone}
+                                    onChange={handleSearchInputChange}
+                                />
+                            </Col>
+                            <Col md={2}>
+                                <Form.Label className="fw-bold small">Status</Form.Label>
+                                <Form.Select name="status" value={searchInputs.status} onChange={handleSearchInputChange}>
+                                    <option value="">All Status</option>
+                                    <option value="pending">Pending</option>
+                                    <option value="under review">Under Review</option>
+                                    <option value="approved">Approved</option>
+                                    <option value="rejected">Rejected</option>
+                                    <option value="completed">Completed</option>
+                                    <option value="cancelled">Cancelled</option>
+                                </Form.Select>
+                            </Col>
+                            <Col md={3} className="d-flex gap-2">
+                                <Button variant="primary" onClick={handleSearch} className="flex-grow-1">
+                                    <FaSearch className="me-1" /> Search
+                                </Button>
+                                <Button variant="outline-secondary" onClick={handleResetFilters}>
+                                    <FaUndo />
+                                </Button>
+                            </Col>
+                        </Row>
+                    </Card.Body>
+                </Card>
+
+                <div className="d-flex justify-content-between align-items-center mt-4">
+                    {role === "superadmin" && (
+                        <Button variant="success" size="sm" onClick={handleExportToExcel}>
+                            Export to Excel ({totalRecords})
+                        </Button>
+                    )}
+                    <div className="text-muted small">Showing {refundList.length} of {totalRecords} records</div>
+                </div>
+
+                <Card className="mt-3 shadow-sm border-0">
+                    <Card.Body className="p-0">
+                        <div style={{ maxHeight: "700px", overflowY: "auto" }}>
+                            <Table striped hover responsive className="mb-0">
+                                <thead className="table-primary sticky-top">
                                     <tr>
                                         <th>SL</th>
                                         <th>Applied At</th>
@@ -397,36 +354,37 @@ const RefundPage = () => {
                                         <th>Name</th>
                                         <th>Return Amount</th>
                                         <th>Return Date</th>
-                                        <th>Personal Phone Number</th>
+                                        <th>Personal Phone</th>
                                         <th>Comment (Teacher)</th>
                                         <th>Comment From Agent</th>
-                                        <th>Actions</th>
+                                        <th className="text-center">Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {loading ? (
                                         <tr>
-                                            <td colSpan="20" className="text-center py-5">
+                                            <td colSpan="15" className="text-center py-5">
                                                 <Spinner animation="border" variant="primary" />
                                             </td>
                                         </tr>
+                                    ) : refundList.length === 0 ? (
+                                        <tr>
+                                            <td colSpan="15" className="text-center py-4">No records found.</td>
+                                        </tr>
                                     ) : (
-                                        filteredRefundList.slice().reverse().map((item, index) => (
+                                        refundList.map((item, index) => (
                                             <tr key={item._id}>
-                                                <td>{index + 1}</td>
-                                                <td>{item.requestedAt ? formatDate(item.requestedAt) : ''}</td>
+                                                <td>{(currentPage - 1) * limit + index + 1}</td>
+                                                <td className="small text-nowrap">{item.requestedAt ? formatDate(item.requestedAt) : '-'}</td>
                                                 <td>
-                                                    <span
-                                                        className={`badge 
-                                                        ${item.status === "pending" ? "bg-warning text-dark" :           
-                                                                item.status === "under review" ? "bg-info" :                
-                                                                    item.status === "approved" ? "bg-primary" :                       
-                                                                        item.status === "rejected" ? "bg-danger" :                     
-                                                                            item.status === "completed" ? "bg-success" :                   
-                                                                                item.status === "cancelled" ? "bg-secondary text-white" :      
-                                                                                    "bg-light text-dark"                                           
-                                                            }`}
-                                                    >
+                                                    <span className={`badge ${
+                                                        item.status === "pending" ? "bg-warning text-dark" :           
+                                                        item.status === "under review" ? "bg-info" :                
+                                                        item.status === "approved" ? "bg-primary" :                       
+                                                        item.status === "rejected" ? "bg-danger" :                     
+                                                        item.status === "completed" ? "bg-success" :                   
+                                                        item.status === "cancelled" ? "bg-secondary" : "bg-light text-dark"
+                                                    }`}>
                                                         {item.status}
                                                     </span>
                                                 </td>
@@ -447,18 +405,14 @@ const RefundPage = () => {
                                                     {item.returnDate || '-'}
                                                 </td>
                                                 <td>{item.personalPhone}</td>
-                                                <td>{item.note}</td>
-                                                <td>{item.commentFromAgent}</td>
-                                                <td style={{ display: 'flex', justifyContent: 'flex-start', gap: '8px' }}>
-                                                    <Button variant="warning" onClick={() => handleEditApply(item)} className="mr-2">
-                                                        <FaEdit />
-                                                    </Button>
-                                                    <Button variant="danger" onClick={() => handleDeleteRecord(item._id)}>
-                                                        <FaTrashAlt />
-                                                    </Button>
-                                                    <Button variant="success" onClick={() => handleOpenWhatsApp(item)} title="Share via WhatsApp">
-                                                        <FaWhatsapp />
-                                                    </Button>
+                                                <td className="small">{item.note}</td>
+                                                <td className="small">{item.commentFromAgent}</td>
+                                                <td>
+                                                    <div className="d-flex gap-1 justify-content-center">
+                                                        <Button variant="warning" size="sm" onClick={() => handleEditApply(item)}><FaEdit /></Button>
+                                                        <Button variant="danger" size="sm" onClick={() => handleDeleteRecord(item._id)}><FaTrashAlt /></Button>
+                                                        <Button variant="success" size="sm" onClick={() => handleOpenWhatsApp(item)}><FaWhatsapp /></Button>
+                                                    </div>
                                                 </td>
                                             </tr>
                                         ))
@@ -469,17 +423,56 @@ const RefundPage = () => {
                     </Card.Body>
                 </Card>
 
+                {/* Pagination Controls */}
+                {!loading && totalPages > 1 && (
+                    <div className="d-flex justify-content-center mt-4">
+                        <Pagination className="pagination-rounded-pill">
+                            <Pagination.Prev 
+                                onClick={() => handlePageChange(currentPage - 1)} 
+                                disabled={currentPage === 1}
+                            >
+                                <FaChevronLeft className="me-1" /> Prev
+                            </Pagination.Prev>
+                            
+                            {[...Array(totalPages)].map((_, i) => {
+                                const page = i + 1;
+                                // Show first, last, and pages around current
+                                if (page === 1 || page === totalPages || (page >= currentPage - 2 && page <= currentPage + 2)) {
+                                    return (
+                                        <Pagination.Item 
+                                            key={page} 
+                                            active={page === currentPage}
+                                            onClick={() => handlePageChange(page)}
+                                        >
+                                            {page}
+                                        </Pagination.Item>
+                                    );
+                                } else if (page === currentPage - 3 || page === currentPage + 3) {
+                                    return <Pagination.Ellipsis key={page} />;
+                                }
+                                return null;
+                            })}
+
+                            <Pagination.Next 
+                                onClick={() => handlePageChange(currentPage + 1)} 
+                                disabled={currentPage === totalPages}
+                            >
+                                Next <FaChevronRight className="ms-1" />
+                            </Pagination.Next>
+                        </Pagination>
+                    </div>
+                )}
+
                 {/* Create/Edit Refund Modal */}
                 <Modal show={showModal} onHide={() => setShowModal(false)} size="lg">
                     <Modal.Header closeButton>
                         <Modal.Title className="fw-bold">{editingId ? "Edit Refund Record" : "Create Refund Record"}</Modal.Title>
                     </Modal.Header>
-
                     <Modal.Body>
                         <Form>
-                            <Row>
+                            <Row className="g-3">
                                 <Col md={6}>
-                                    <Form.Group controlId="tuitionCode">
+                                    <Form.Group>
                                         <Form.Label className="fw-bold">Tuition Code</Form.Label>
                                         <Form.Control
                                             type="text"
@@ -489,42 +482,8 @@ const RefundPage = () => {
                                         />
                                     </Form.Group>
                                 </Col>
-                            </Row>
-
-                            <Row>
-                                <Col md={4}>
-                                    <Form.Group controlId="paymentType">
-                                        <Form.Label className="fw-bold">Payment Number Type</Form.Label>
-                                        <Form.Control
-                                            as="select"
-                                            value={refundData.paymentType}
-                                            onChange={(e) => setRefundData({ ...refundData, paymentType: e.target.value })}
-                                            required
-                                        >
-                                            <option value="">Select</option>
-                                            <option value="bkash">Bkash Personal</option>
-                                            <option value="nagad">Nagad Personal</option>
-                                            <option value="cash">Cash</option>
-                                        </Form.Control>
-
-                                    </Form.Group>
-                                </Col>
                                 <Col md={6}>
-                                    <Form.Group controlId="paymentNumber">
-                                        <Form.Label className="fw-bold">Payment Number</Form.Label>
-                                        <Form.Control
-                                            type="text"
-                                            value={refundData.paymentNumber}
-                                            onChange={(e) => setRefundData({ ...refundData, paymentNumber: e.target.value })}
-                                            required
-                                        />
-                                    </Form.Group>
-                                </Col>
-                            </Row>
-
-                            <Row>
-                                <Col md={4}>
-                                    <Form.Group controlId="name">
+                                    <Form.Group>
                                         <Form.Label className="fw-bold">Name</Form.Label>
                                         <Form.Control
                                             type="text"
@@ -534,22 +493,45 @@ const RefundPage = () => {
                                         />
                                     </Form.Group>
                                 </Col>
-                                <Col md={6}>
-                                    <Form.Group controlId="personalPhone">
-                                        <Form.Label className="fw-bold">Personal Phone No.</Form.Label>
+                                <Col md={4}>
+                                    <Form.Group>
+                                        <Form.Label className="fw-bold">Payment Type</Form.Label>
+                                        <Form.Select
+                                            value={refundData.paymentType}
+                                            onChange={(e) => setRefundData({ ...refundData, paymentType: e.target.value })}
+                                            required
+                                        >
+                                            <option value="">Select</option>
+                                            <option value="bkash">Bkash Personal</option>
+                                            <option value="nagad">Nagad Personal</option>
+                                            <option value="cash">Cash</option>
+                                        </Form.Select>
+                                    </Form.Group>
+                                </Col>
+                                <Col md={4}>
+                                    <Form.Group>
+                                        <Form.Label className="fw-bold">Payment Number</Form.Label>
                                         <Form.Control
-                                            type="number"
+                                            type="text"
+                                            value={refundData.paymentNumber}
+                                            onChange={(e) => setRefundData({ ...refundData, paymentNumber: e.target.value })}
+                                            required
+                                        />
+                                    </Form.Group>
+                                </Col>
+                                <Col md={4}>
+                                    <Form.Group>
+                                        <Form.Label className="fw-bold">Personal Phone</Form.Label>
+                                        <Form.Control
+                                            type="text"
                                             value={refundData.personalPhone}
                                             onChange={(e) => setRefundData({ ...refundData, personalPhone: e.target.value })}
                                             required
                                         />
                                     </Form.Group>
                                 </Col>
-                            </Row>
-
-                            <Row>
                                 <Col md={4}>
-                                    <Form.Group controlId="amount">
+                                    <Form.Group>
                                         <Form.Label className="fw-bold">Amount</Form.Label>
                                         <Form.Control
                                             type="number"
@@ -560,10 +542,9 @@ const RefundPage = () => {
                                     </Form.Group>
                                 </Col>
                                 <Col md={4}>
-                                    <Form.Group controlId="status">
+                                    <Form.Group>
                                         <Form.Label className="fw-bold">Status</Form.Label>
-                                        <Form.Control
-                                            as="select"
+                                        <Form.Select
                                             value={refundData.status}
                                             onChange={(e) => setRefundData({ ...refundData, status: e.target.value })}
                                             required
@@ -575,11 +556,11 @@ const RefundPage = () => {
                                             <option value="rejected">Rejected</option>
                                             <option value="completed">Completed</option>
                                             <option value="cancelled">Cancelled</option>
-                                        </Form.Control>
+                                        </Form.Select>
                                     </Form.Group>
                                 </Col>
                                 <Col md={4}>
-                                    <Form.Group controlId="returnDate">
+                                    <Form.Group>
                                         <Form.Label className="fw-bold">Return Date</Form.Label>
                                         <Form.Control
                                             type="text"
@@ -589,28 +570,25 @@ const RefundPage = () => {
                                         />
                                     </Form.Group>
                                 </Col>
-                            </Row>
-
-                            <Row>
                                 <Col md={6}>
-                                    <Form.Group controlId="note">
-                                        <Form.Label className="fw-bold">Comment From Teacher</Form.Label>
+                                    <Form.Group>
+                                        <Form.Label className="fw-bold">Teacher Comment</Form.Label>
                                         <Form.Control
-                                            type="text"
+                                            as="textarea"
+                                            rows={2}
                                             value={refundData.note}
                                             onChange={(e) => setRefundData({ ...refundData, note: e.target.value })}
-                                            required
                                         />
                                     </Form.Group>
                                 </Col>
                                 <Col md={6}>
-                                    <Form.Group controlId="commentFromAgent">
-                                        <Form.Label className="fw-bold">Comment From Agent</Form.Label>
+                                    <Form.Group>
+                                        <Form.Label className="fw-bold">Agent Comment</Form.Label>
                                         <Form.Control
-                                            type="text"
+                                            as="textarea"
+                                            rows={2}
                                             value={refundData.commentFromAgent}
                                             onChange={(e) => setRefundData({ ...refundData, commentFromAgent: e.target.value })}
-                                            required
                                         />
                                     </Form.Group>
                                 </Col>
@@ -619,7 +597,9 @@ const RefundPage = () => {
                     </Modal.Body>
                     <Modal.Footer>
                         <Button variant="secondary" onClick={() => setShowModal(false)}>Close</Button>
-                        <Button variant="primary" onClick={handleSaveRequest}>Save</Button>
+                        <Button variant="primary" onClick={handleSaveRequest} disabled={loading}>
+                            {loading ? <Spinner size="sm" /> : "Save Changes"}
+                        </Button>
                     </Modal.Footer>
                 </Modal>
 
@@ -628,7 +608,6 @@ const RefundPage = () => {
                     onHide={() => setShowWhatsAppModal(false)}
                     refundData={whatsAppRefund}
                 />
-
                 <ToastContainer />
             </Container>
         </>
@@ -639,8 +618,24 @@ export default RefundPage;
 
 // Styled Components
 const Container = styled.div`
-  padding: 30px;
-  background: #f4f4f9;
+  padding: 20px;
+  background: #f8f9fa;
+  min-height: 100vh;
+
+  .pagination-rounded-pill .page-item .page-link {
+    border-radius: 50px;
+    margin: 0 4px;
+    border: none;
+    padding: 8px 16px;
+    font-weight: 600;
+    color: #444;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  }
+
+  .pagination-rounded-pill .page-item.active .page-link {
+    background-color: #0d6efd;
+    color: white;
+  }
 `;
 
 const Header = styled.div`
@@ -648,8 +643,4 @@ const Header = styled.div`
   justify-content: space-between;
   align-items: center;
   margin-bottom: 20px;
-  h2 {
-    font-family: 'Arial', sans-serif;
-    color: #333;
-  }
 `;

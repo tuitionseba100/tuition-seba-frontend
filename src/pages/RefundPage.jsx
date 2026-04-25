@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Button, Table, Modal, Form, Row, Col, Card, Spinner, Pagination } from 'react-bootstrap';
-import { FaEdit, FaTrashAlt, FaWhatsapp, FaSearch, FaUndo, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
+import { FaEdit, FaTrashAlt, FaWhatsapp, FaSearch, FaUndo, FaChevronLeft, FaChevronRight, FaBell } from 'react-icons/fa';
 import axios from 'axios';
 import NavBarPage from './NavbarPage';
 import styled from 'styled-components';

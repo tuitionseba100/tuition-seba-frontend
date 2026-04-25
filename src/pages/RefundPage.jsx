@@ -334,6 +334,7 @@ const RefundPage = () => {
                 toast.success("Record deleted successfully!");
                 fetchRefundApplyRecords(currentPage);
                 fetchSummaryCounts();
+                fetchAlertToday();
             } catch (err) {
                 console.error('Error:', err);
                 toast.error("Deletion failed.");

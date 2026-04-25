@@ -122,7 +122,6 @@ const RefundPage = () => {
 
         const tableHeaders = [
             "Applied At",
-            "Return Date",
             "Status",
             "Tuition Code",
             "Created By",
@@ -131,6 +130,7 @@ const RefundPage = () => {
             "Payment Number",
             "Name",
             "Return Amount",
+            "Return Date",
             "Personal Phone",
             "Comment (Teacher)",
             "Comment From Agent"
@@ -138,7 +138,6 @@ const RefundPage = () => {
 
         const tableData = filteredRefundList.map(item => [
             item.requestedAt ? formatDate(item.requestedAt) : "",
-            String(item.returnDate ?? ""),
             String(item.status ?? ""),
             String(item.tuitionCode ?? ""),
             String(item.createdBy ?? ""),
@@ -147,6 +146,7 @@ const RefundPage = () => {
             String(item.paymentNumber ?? ""),
             String(item.name ?? ""),
             String(item.amount ?? ""),
+            String(item.returnDate ?? ""),
             String(item.personalPhone ?? ""),
             String(item.note ?? ""),
             String(item.commentFromAgent ?? "")
@@ -388,7 +388,6 @@ const RefundPage = () => {
                                     <tr>
                                         <th>SL</th>
                                         <th>Applied At</th>
-                                        <th>Return Date</th>
                                         <th>Status</th>
                                         <th>Tuition Code</th>
                                         <th>Created By</th>
@@ -397,6 +396,7 @@ const RefundPage = () => {
                                         <th>Payment Number</th>
                                         <th>Name</th>
                                         <th>Return Amount</th>
+                                        <th>Return Date</th>
                                         <th>Personal Phone Number</th>
                                         <th>Comment (Teacher)</th>
                                         <th>Comment From Agent</th>
@@ -415,15 +415,6 @@ const RefundPage = () => {
                                             <tr key={item._id}>
                                                 <td>{index + 1}</td>
                                                 <td>{item.requestedAt ? formatDate(item.requestedAt) : ''}</td>
-                                                <td 
-                                                    className="fw-bold" 
-                                                    style={{ 
-                                                        backgroundColor: item.status === 'completed' ? '#d4edda' : 'transparent',
-                                                        color: item.status === 'completed' ? '#155724' : '#0d6efd' 
-                                                    }}
-                                                >
-                                                    {item.returnDate || '-'}
-                                                </td>
                                                 <td>
                                                     <span
                                                         className={`badge 
@@ -446,6 +437,15 @@ const RefundPage = () => {
                                                 <td>{item.paymentNumber}</td>
                                                 <td>{item.name}</td>
                                                 <td>{item.amount}</td>
+                                                <td 
+                                                    className="fw-bold" 
+                                                    style={{ 
+                                                        backgroundColor: item.status === 'completed' ? '#d4edda' : 'transparent',
+                                                        color: item.status === 'completed' ? '#155724' : '#0d6efd' 
+                                                    }}
+                                                >
+                                                    {item.returnDate || '-'}
+                                                </td>
                                                 <td>{item.personalPhone}</td>
                                                 <td>{item.note}</td>
                                                 <td>{item.commentFromAgent}</td>

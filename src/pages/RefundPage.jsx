@@ -383,7 +383,7 @@ const RefundPage = () => {
                                         </tr>
                                     ) : (
                                         refundList.map((item, index) => (
-                                            <tr key={item._id}>
+                                            <tr key={item._id} style={{ backgroundColor: item.status === 'completed' ? '#d4edda' : 'transparent' }}>
                                                 <td>{(currentPage - 1) * limit + index + 1}</td>
                                                 <td className="small text-nowrap">{item.requestedAt ? formatDate(item.requestedAt) : '-'}</td>
                                                 <td>
@@ -408,7 +408,6 @@ const RefundPage = () => {
                                                 <td 
                                                     className="fw-bold" 
                                                     style={{ 
-                                                        backgroundColor: item.status === 'completed' ? '#d4edda' : 'transparent',
                                                         color: item.status === 'completed' ? '#155724' : '#0d6efd' 
                                                     }}
                                                 >

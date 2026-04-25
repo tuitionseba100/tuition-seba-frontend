@@ -25,6 +25,9 @@ const RefundPage = () => {
         comment: '',
         status: '',
         commentFromAgent: '',
+        returnDate: ''
+    });
+
     const [teacherSectionEditable, setTeacherSectionEditable] = useState(false);
     const [showConfirmModal, setShowConfirmModal] = useState(false);
     const [originalData, setOriginalData] = useState(null);

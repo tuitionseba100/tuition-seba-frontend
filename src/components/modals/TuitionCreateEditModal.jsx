@@ -212,7 +212,8 @@ export default function TuitionModal({ show, onHide, editingData = null, editing
             if (fetchAlertData) fetchAlertData();
         } catch (err) {
             console.error('Error saving tuition record:', err);
-            toast.error('Error saving tuition record.');
+            const errorMessage = err.response?.data?.message || 'Error saving tuition record.';
+            toast.error(errorMessage);
         }
         setSaving(false);
     };

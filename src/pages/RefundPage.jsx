@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Button, Table, Modal, Form, Row, Col, Card } from 'react-bootstrap';
-import { FaEdit, FaTrashAlt } from 'react-icons/fa'; // React Icons
+import { FaEdit, FaTrashAlt, FaWhatsapp } from 'react-icons/fa';
 import axios from 'axios';
 import NavBarPage from './NavbarPage';
 import styled from 'styled-components';
@@ -8,6 +8,7 @@ import { ToastContainer, toast } from 'react-toastify';
 import { Spinner } from 'react-bootstrap';
 import * as XLSX from 'xlsx';
 import Select from 'react-select';
+import WhatsAppRefundModal from '../components/modals/WhatsAppRefundModal';
 
 const RefundPage = () => {
     const [refundList, setRefundList] = useState([]);
@@ -40,6 +41,15 @@ const RefundPage = () => {
         cancelled: 0
     });
     const role = localStorage.getItem('role');
+
+    // WhatsApp share modal state
+    const [showWhatsAppModal, setShowWhatsAppModal] = useState(false);
+    const [whatsAppRefund, setWhatsAppRefund] = useState(null);
+
+    const handleOpenWhatsApp = (refund) => {
+        setWhatsAppRefund(refund);
+        setShowWhatsAppModal(true);
+    };
     useEffect(() => {
         fetchRefundApplyRecords();
     }, []);
@@ -436,6 +446,9 @@ const RefundPage = () => {
                                                     <Button variant="danger" onClick={() => handleDeleteRecord(item._id)}>
                                                         <FaTrashAlt />
                                                     </Button>
+                                                    <Button variant="success" onClick={() => handleOpenWhatsApp(item)} title="Share via WhatsApp">
+                                                        <FaWhatsapp />
+                                                    </Button>
                                                 </td>
                                             </tr>
                                         ))
@@ -590,6 +603,12 @@ const RefundPage = () => {
                         <Button variant="primary" onClick={handleSaveRequest}>Save</Button>
                     </Modal.Footer>
                 </Modal>
+
+                <WhatsAppRefundModal
+                    show={showWhatsAppModal}
+                    onHide={() => setShowWhatsAppModal(false)}
+                    refundData={whatsAppRefund}
+                />
 
                 <ToastContainer />
             </Container>

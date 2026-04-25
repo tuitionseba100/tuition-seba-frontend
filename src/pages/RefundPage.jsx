@@ -25,10 +25,9 @@ const RefundPage = () => {
         comment: '',
         status: '',
         commentFromAgent: '',
-        returnDate: ''
-    });
-
     const [teacherSectionEditable, setTeacherSectionEditable] = useState(false);
+    const [showConfirmModal, setShowConfirmModal] = useState(false);
+    const [originalData, setOriginalData] = useState(null);
 
     // Pagination & Search States
     const [currentPage, setCurrentPage] = useState(1);
@@ -190,12 +189,13 @@ const RefundPage = () => {
         setLoading(false);
     };
 
-    const handleSaveRequest = async () => {
+    const performSave = async () => {
         const username = localStorage.getItem('username');
         const updatedTuitionData = {
             ...refundData,
             status: refundData.status ? refundData.status : "pending"
         };
+        setLoading(true);
         try {
             if (editingId) {
                 const updatedData = { ...updatedTuitionData, updatedBy: username };
@@ -206,6 +206,7 @@ const RefundPage = () => {
                 await axios.post('https://tuition-seba-backend-1.onrender.com/api/refund/add', newData);
                 toast.success("Refund record added successfully!");
             }
+            setShowConfirmModal(false);
             setShowModal(false);
             fetchRefundApplyRecords(currentPage);
             fetchSummaryCounts();
@@ -213,6 +214,52 @@ const RefundPage = () => {
             console.error('Error:', err);
             toast.error("Operation failed.");
         }
+        setLoading(false);
+    };
+
+    const handleSaveRequest = () => {
+        if (editingId) {
+            const changes = getChanges();
+            if (changes.length === 0) {
+                toast.info("No changes detected.");
+                setShowModal(false);
+                return;
+            }
+            setShowConfirmModal(true);
+        } else {
+            performSave();
+        }
+    };
+
+    const getChanges = () => {
+        if (!originalData) return [];
+        const changes = [];
+        const fields = [
+            { key: 'tuitionCode', label: 'Tuition Code' },
+            { key: 'name', label: 'Name' },
+            { key: 'paymentType', label: 'Payment Type' },
+            { key: 'paymentNumber', label: 'Payment Number' },
+            { key: 'personalPhone', label: 'Personal Phone' },
+            { key: 'amount', label: 'Amount' },
+            { key: 'note', label: 'Teacher Comment' },
+            { key: 'status', label: 'Status' },
+            { key: 'returnDate', label: 'Return Date' },
+            { key: 'commentFromAgent', label: 'Agent Comment' }
+        ];
+
+        fields.forEach(field => {
+            const oldValue = String(originalData[field.key] || '').trim();
+            const newValue = String(refundData[field.key] || '').trim();
+            
+            if (oldValue !== newValue) {
+                changes.push({
+                    label: field.label,
+                    old: oldValue || '(empty)',
+                    new: newValue || '(empty)'
+                });
+            }
+        });
+        return changes;
     };
 
     const formatDate = (dateString) => {
@@ -230,10 +277,12 @@ const RefundPage = () => {
     };
 
     const handleEditApply = (data) => {
-        setRefundData({
+        const formattedData = {
             ...data,
             returnDate: data.returnDate ? data.returnDate.split('T')[0] : ''
-        });
+        };
+        setRefundData(formattedData);
+        setOriginalData(formattedData);
         setEditingId(data._id);
         setTeacherSectionEditable(false);
         setShowModal(true);
@@ -510,15 +559,26 @@ const RefundPage = () => {
                                         <div style={{ width: '4px', height: '20px', backgroundColor: '#0d6efd', borderRadius: '2px', marginRight: '10px' }}></div>
                                         <h6 className="mb-0 fw-bold text-dark" style={{ letterSpacing: '0.5px', fontSize: '0.95rem' }}>TEACHER INFORMATION</h6>
                                     </div>
-                                    {!teacherSectionEditable && editingId && (
-                                        <Button 
-                                            variant="outline-primary" 
-                                            size="sm" 
-                                            onClick={() => setTeacherSectionEditable(true)}
-                                            style={{ borderRadius: '20px', fontSize: '0.75rem', fontWeight: 'bold' }}
-                                        >
-                                            <FaEdit className="me-1" /> Edit Info
-                                        </Button>
+                                    {editingId && (
+                                        teacherSectionEditable ? (
+                                            <Button 
+                                                variant="outline-secondary" 
+                                                size="sm" 
+                                                onClick={() => setTeacherSectionEditable(false)}
+                                                style={{ borderRadius: '20px', fontSize: '0.75rem', fontWeight: 'bold' }}
+                                            >
+                                                <FaUndo className="me-1" /> Disable Edit
+                                            </Button>
+                                        ) : (
+                                            <Button 
+                                                variant="outline-primary" 
+                                                size="sm" 
+                                                onClick={() => setTeacherSectionEditable(true)}
+                                                style={{ borderRadius: '20px', fontSize: '0.75rem', fontWeight: 'bold' }}
+                                            >
+                                                <FaEdit className="me-1" /> Edit Info
+                                            </Button>
+                                        )
                                     )}
                                 </div>
                                 <div 
@@ -713,6 +773,35 @@ const RefundPage = () => {
                     onHide={() => setShowWhatsAppModal(false)}
                     refundData={whatsAppRefund}
                 />
+
+                {/* Save Confirmation Modal */}
+                <Modal show={showConfirmModal} onHide={() => setShowConfirmModal(false)} centered size="md">
+                    <Modal.Header closeButton className="bg-primary text-white">
+                        <Modal.Title className="fw-bold fs-5">Confirm Changes</Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body className="p-4">
+                        <p className="mb-3 text-muted fw-bold small">The following changes will be saved:</p>
+                        <div className="border rounded bg-light p-3">
+                            {getChanges().map((change, idx) => (
+                                <div key={idx} className="mb-3 last-child-mb-0">
+                                    <div className="fw-bold text-dark small mb-1">{change.label}</div>
+                                    <div className="d-flex align-items-center gap-2">
+                                        <span className="text-danger text-decoration-line-through small px-2 py-1 bg-white rounded border">{change.old}</span>
+                                        <FaChevronRight className="text-muted small" />
+                                        <span className="text-success fw-bold small px-2 py-1 bg-white rounded border">{change.new}</span>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </Modal.Body>
+                    <Modal.Footer className="border-0 p-3 pt-0">
+                        <Button variant="secondary" onClick={() => setShowConfirmModal(false)}>Cancel</Button>
+                        <Button variant="primary" onClick={performSave} disabled={loading}>
+                            {loading ? <Spinner size="sm" /> : "Confirm & Save"}
+                        </Button>
+                    </Modal.Footer>
+                </Modal>
+
                 <ToastContainer />
             </Container>
         </>

@@ -25,7 +25,8 @@ const RefundPage = () => {
         note: '',
         comment: '',
         status: '',
-        commentFromAgent: ''
+        commentFromAgent: '',
+        returnDate: ''
     });
     const [tuitionCodeSearchQuery, setTuitionCodeSearchQuery] = useState('');
     const [paymentPhoneSearchQuery, setPaymentPhoneSearchQuery] = useState('');
@@ -121,6 +122,7 @@ const RefundPage = () => {
 
         const tableHeaders = [
             "Applied At",
+            "Return Date",
             "Status",
             "Tuition Code",
             "Created By",
@@ -136,6 +138,7 @@ const RefundPage = () => {
 
         const tableData = filteredRefundList.map(item => [
             item.requestedAt ? formatDate(item.requestedAt) : "",
+            String(item.returnDate ?? ""),
             String(item.status ?? ""),
             String(item.tuitionCode ?? ""),
             String(item.createdBy ?? ""),
@@ -152,6 +155,7 @@ const RefundPage = () => {
         const worksheet = XLSX.utils.aoa_to_sheet([tableHeaders, ...tableData]);
 
         worksheet['!cols'] = [
+            { wpx: 100 },
             { wpx: 100 },
             { wpx: 80 },
             { wpx: 100 },
@@ -251,7 +255,7 @@ const RefundPage = () => {
             <Container>
                 <Header>
                     <h2 className='text-primary fw-bold'>Refund Applications</h2>
-                    <Button variant="primary" onClick={() => { setShowModal(true); setEditingId(null); setRefundData({ tuitionCode: '', paymentType: '', paymentNumber: '', personalPhone: '', amount: '', name: '', note: '', status: '', commentFromAgent: '' }) }}>
+                    <Button variant="primary" onClick={() => { setShowModal(true); setEditingId(null); setRefundData({ tuitionCode: '', paymentType: '', paymentNumber: '', personalPhone: '', amount: '', name: '', note: '', status: '', commentFromAgent: '', returnDate: '' }) }}>
                         Create Refund
                     </Button>
                 </Header>
@@ -384,6 +388,7 @@ const RefundPage = () => {
                                     <tr>
                                         <th>SL</th>
                                         <th>Applied At</th>
+                                        <th>Return Date</th>
                                         <th>Status</th>
                                         <th>Tuition Code</th>
                                         <th>Created By</th>
@@ -401,10 +406,8 @@ const RefundPage = () => {
                                 <tbody>
                                     {loading ? (
                                         <tr>
-                                            <td colSpan="20" className="text-center">
-                                                <div className="d-flex justify-content-center align-items-center" style={{ position: 'absolute', top: '90%', left: '50%', transform: 'translate(-50%, -50%)', width: '100vw', height: '100vh' }}>
-                                                    <Spinner animation="border" variant="primary" size="lg" />
-                                                </div>
+                                            <td colSpan="20" className="text-center py-5">
+                                                <Spinner animation="border" variant="primary" />
                                             </td>
                                         </tr>
                                     ) : (
@@ -412,23 +415,30 @@ const RefundPage = () => {
                                             <tr key={item._id}>
                                                 <td>{index + 1}</td>
                                                 <td>{item.requestedAt ? formatDate(item.requestedAt) : ''}</td>
+                                                <td 
+                                                    className="fw-bold" 
+                                                    style={{ 
+                                                        backgroundColor: item.status === 'completed' ? '#d4edda' : 'transparent',
+                                                        color: item.status === 'completed' ? '#155724' : '#0d6efd' 
+                                                    }}
+                                                >
+                                                    {item.returnDate || '-'}
+                                                </td>
                                                 <td>
                                                     <span
                                                         className={`badge 
-                                                        ${item.status === "pending" ? "bg-warning text-dark" :           // Yellow
-                                                                item.status === "under review" ? "bg-info" :                // Blue
-                                                                    item.status === "approved" ? "bg-primary" :                       // Light blue
-                                                                        item.status === "rejected" ? "bg-danger" :                     // Red
-                                                                            item.status === "completed" ? "bg-success" :                   // Green ✅
-                                                                                item.status === "cancelled" ? "bg-secondary text-white" :      // Gray
-                                                                                    "bg-light text-dark"                                           // Default fallback
+                                                        ${item.status === "pending" ? "bg-warning text-dark" :           
+                                                                item.status === "under review" ? "bg-info" :                
+                                                                    item.status === "approved" ? "bg-primary" :                       
+                                                                        item.status === "rejected" ? "bg-danger" :                     
+                                                                            item.status === "completed" ? "bg-success" :                   
+                                                                                item.status === "cancelled" ? "bg-secondary text-white" :      
+                                                                                    "bg-light text-dark"                                           
                                                             }`}
                                                     >
-
                                                         {item.status}
                                                     </span>
                                                 </td>
-
                                                 <td>{item.tuitionCode}</td>
                                                 <td>{item.createdBy || '-'}</td>
                                                 <td>{item.updatedBy || '-'}</td>
@@ -454,13 +464,12 @@ const RefundPage = () => {
                                         ))
                                     )}
                                 </tbody>
-
                             </Table>
                         </div>
                     </Card.Body>
                 </Card>
 
-                {/* Create/Edit Tuition Modal */}
+                {/* Create/Edit Refund Modal */}
                 <Modal show={showModal} onHide={() => setShowModal(false)} size="lg">
                     <Modal.Header closeButton>
                         <Modal.Title className="fw-bold">{editingId ? "Edit Refund Record" : "Create Refund Record"}</Modal.Title>
@@ -567,7 +576,17 @@ const RefundPage = () => {
                                             <option value="completed">Completed</option>
                                             <option value="cancelled">Cancelled</option>
                                         </Form.Control>
-
+                                    </Form.Group>
+                                </Col>
+                                <Col md={4}>
+                                    <Form.Group controlId="returnDate">
+                                        <Form.Label className="fw-bold">Return Date</Form.Label>
+                                        <Form.Control
+                                            type="text"
+                                            placeholder="e.g. 25th Oct"
+                                            value={refundData.returnDate || ''}
+                                            onChange={(e) => setRefundData({ ...refundData, returnDate: e.target.value })}
+                                        />
                                     </Form.Group>
                                 </Col>
                             </Row>

@@ -7,21 +7,22 @@ const getRefundWhatsAppMessage = (refund) => {
     const tuitionCode = refund.tuitionCode || 'XXXX';
     const amount = refund.amount || '0';
     const status = (refund.status || '').toLowerCase();
+    const returnDateStr = refund.returnDate ? `\nReturn Date: ${refund.returnDate}` : '';
 
     if (status === 'completed') {
-        return `Dear Respected Teacher,\n\nWe would like to inform you regarding your payment for Tuition Code: ${tuitionCode}.\n\nDue to unavoidable circumstances, this tuition has been cancelled, and your paid amount has been successfully refunded.\n\nRefund Amount: ${amount} BDT\nRefund Status: Completed\n\nThe amount has been sent to your provided account. Kindly check and confirm once received.\n\nWe sincerely apologize for any inconvenience caused and appreciate your understanding.\n\nIf you have any questions or need assistance, please feel free to contact us or call directly at 01633920928.\n\nRegards,\nPayment Department\nTuition Seba Forum`;
+        return `Dear Respected Teacher,\n\nWe would like to inform you regarding your payment for Tuition Code: ${tuitionCode}.\n\nDue to unavoidable circumstances, this tuition has been cancelled, and your paid amount has been successfully refunded.\n\nRefund Amount: ${amount} BDT\nRefund Status: Completed${returnDateStr}\n\nThe amount has been sent to your provided account. Kindly check and confirm once received.\n\nWe sincerely apologize for any inconvenience caused and appreciate your understanding.\n\nIf you have any questions or need assistance, please feel free to contact us or call directly at 01633920928.\n\nRegards,\nPayment Department\nTuition Seba Forum`;
     }
 
     if (status === 'approved') {
-        return `Dear Respected Teacher,\n\nWe would like to inform you that your refund request for Tuition Code: ${tuitionCode} has been approved.\n\nRefund Amount: ${amount} BDT\nRefund Status: Approved\n\nThe refund will be processed shortly and sent to your provided account. Please allow some time for the transaction to complete.\n\nIf you have any questions or need assistance, please feel free to contact us or call directly at 01633920928.\n\nRegards,\nPayment Department\nTuition Seba Forum`;
+        return `Dear Respected Teacher,\n\nWe would like to inform you that your refund request for Tuition Code: ${tuitionCode} has been approved.\n\nRefund Amount: ${amount} BDT\nRefund Status: Approved${returnDateStr}\n\nThe refund will be processed shortly and sent to your provided account. Please allow some time for the transaction to complete.\n\nIf you have any questions or need assistance, please feel free to contact us or call directly at 01633920928.\n\nRegards,\nPayment Department\nTuition Seba Forum`;
     }
 
     if (status === 'pending') {
-        return `Dear Respected Teacher,\n\nWe have received your refund request for Tuition Code: ${tuitionCode}.\n\nRefund Amount: ${amount} BDT\nRefund Status: Pending\n\nYour request is currently in queue and will be reviewed shortly. We will keep you updated on the progress.\n\nIf you have any questions or need assistance, please feel free to contact us or call directly at 01633920928.\n\nRegards,\nPayment Department\nTuition Seba Forum`;
+        return `Dear Respected Teacher,\n\nWe have received your refund request for Tuition Code: ${tuitionCode}.\n\nRefund Amount: ${amount} BDT\nRefund Status: Pending${returnDateStr}\n\nYour request is currently in queue and will be reviewed shortly. We will keep you updated on the progress.\n\nIf you have any questions or need assistance, please feel free to contact us or call directly at 01633920928.\n\nRegards,\nPayment Department\nTuition Seba Forum`;
     }
 
     if (status === 'under review') {
-        return `Dear Respected Teacher,\n\nWe would like to update you regarding your refund request for Tuition Code: ${tuitionCode}.\n\nRefund Amount: ${amount} BDT\nRefund Status: Under Review\n\nYour request is currently being reviewed by our team. We will notify you once a decision has been made.\n\nIf you have any questions or need assistance, please feel free to contact us or call directly at 01633920928.\n\nRegards,\nPayment Department\nTuition Seba Forum`;
+        return `Dear Respected Teacher,\n\nWe would like to update you regarding your refund request for Tuition Code: ${tuitionCode}.\n\nRefund Amount: ${amount} BDT\nRefund Status: Under Review${returnDateStr}\n\nYour request is currently being reviewed by our team. We will notify you once a decision has been made.\n\nIf you have any questions or need assistance, please feel free to contact us or call directly at 01633920928.\n\nRegards,\nPayment Department\nTuition Seba Forum`;
     }
 
     if (status === 'rejected') {
@@ -29,11 +30,11 @@ const getRefundWhatsAppMessage = (refund) => {
     }
 
     if (status === 'cancelled') {
-        return `Dear Respected Teacher,\n\nWe would like to inform you that your refund request for Tuition Code: ${tuitionCode} has been cancelled.\n\nRefund Amount: ${amount} BDT\nRefund Status: Cancelled\n\nIf this was done in error or you wish to resubmit a request, please feel free to contact us or call directly at 01633920928.\n\nRegards,\nPayment Department\nTuition Seba Forum`;
+        return `Dear Respected Teacher,\n\nWe would like to inform you that your refund request for Tuition Code: ${tuitionCode} has been cancelled.\n\nRefund Amount: ${amount} BDT\nRefund Status: Cancelled${returnDateStr}\n\nIf this was done in error or you wish to resubmit a request, please feel free to contact us or call directly at 01633920928.\n\nRegards,\nPayment Department\nTuition Seba Forum`;
     }
 
     // Default fallback
-    return `Dear Respected Teacher,\n\nThis is regarding your refund request for Tuition Code: ${tuitionCode}.\n\nRefund Amount: ${amount} BDT\nRefund Status: ${refund.status || 'N/A'}\n\nIf you have any questions or need assistance, please feel free to contact us or call directly at 01633920928.\n\nRegards,\nPayment Department\nTuition Seba Forum`;
+    return `Dear Respected Teacher,\n\nThis is regarding your refund request for Tuition Code: ${tuitionCode}.\n\nRefund Amount: ${amount} BDT\nRefund Status: ${refund.status || 'N/A'}${returnDateStr}\n\nIf you have any questions or need assistance, please feel free to contact us or call directly at 01633920928.\n\nRegards,\nPayment Department\nTuition Seba Forum`;
 };
 
 const WhatsAppRefundModal = ({ show, onHide, refundData }) => {

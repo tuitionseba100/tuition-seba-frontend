@@ -386,6 +386,7 @@ const RefundPage = () => {
                                     placeholder="Search Tuition Code"
                                     value={searchInputs.tuitionCode}
                                     onChange={handleSearchInputChange}
+                                    onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
                                 />
                             </Col>
                             <Col md={2}>
@@ -395,6 +396,7 @@ const RefundPage = () => {
                                     placeholder="Search Phone"
                                     value={searchInputs.paymentNumber}
                                     onChange={handleSearchInputChange}
+                                    onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
                                 />
                             </Col>
                             <Col md={2}>
@@ -404,6 +406,7 @@ const RefundPage = () => {
                                     placeholder="Search Phone"
                                     value={searchInputs.personalPhone}
                                     onChange={handleSearchInputChange}
+                                    onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
                                 />
                             </Col>
                             <Col md={2}>

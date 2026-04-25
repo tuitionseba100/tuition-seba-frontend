@@ -274,6 +274,7 @@ const PhonePage = () => {
                             placeholder="Search by Phone Number"
                             value={searchInputs.phone}
                             onChange={(e) => setSearchInputs({ ...searchInputs, phone: e.target.value })}
+                            onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
                         />
                     </Col>
 

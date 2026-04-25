@@ -171,7 +171,7 @@ const TuitionPage = () => {
 
     useEffect(() => {
         fetchAlertData();
-        
+
         const fetchUsers = async () => {
             if (role === 'superadmin') {
                 try {
@@ -187,6 +187,12 @@ const TuitionPage = () => {
                 } catch (error) {
                     console.error('Error fetching users:', error);
                 }
+            } else if (role === 'admin') {
+                const name = localStorage.getItem('name') || currentUsername;
+                setUserOptions([{
+                    value: currentUsername,
+                    label: `${name} (${currentUsername})`
+                }]);
             }
         };
         fetchUsers();
@@ -578,7 +584,7 @@ const TuitionPage = () => {
                         </Form.Select>
                     </Col>
 
-                    {role === 'superadmin' && (
+                    {(role === 'superadmin' || role === 'admin') && (
                         <Col md={2}>
                             <Form.Label className="fw-bold">Assigned To</Form.Label>
                             <Select
@@ -667,19 +673,19 @@ const TuitionPage = () => {
                     <Card.Body>
                         <Card.Title>Tuition List</Card.Title>
                         <div style={{ maxHeight: "600px", overflowY: "auto" }}>
-                        <MemoizedTuitionTable
-                            tuitionList={filteredTuitionList}
-                            loading={loading}
-                            role={role}
-                            formatDateTimeDisplay={formatDateTimeDisplay}
-                            statusColors={statusColors}
-                            handleShowDetails={handleShowDetails}
-                            handleEdit={handleEdit}
-                            handleDeleteTuition={handleDeleteTuition}
-                            handleShare={handleShare}
-                            handleOpenAssignModal={handleOpenAssignModal}
-                            openAppliedListModal={openAppliedListModal}
-                        />
+                            <MemoizedTuitionTable
+                                tuitionList={filteredTuitionList}
+                                loading={loading}
+                                role={role}
+                                formatDateTimeDisplay={formatDateTimeDisplay}
+                                statusColors={statusColors}
+                                handleShowDetails={handleShowDetails}
+                                handleEdit={handleEdit}
+                                handleDeleteTuition={handleDeleteTuition}
+                                handleShare={handleShare}
+                                handleOpenAssignModal={handleOpenAssignModal}
+                                openAppliedListModal={openAppliedListModal}
+                            />
 
                         </div>
                         <div className="d-flex justify-content-center align-items-center gap-3 mt-4 flex-wrap">

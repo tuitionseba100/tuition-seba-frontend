@@ -28,6 +28,8 @@ const RefundPage = () => {
         returnDate: ''
     });
 
+    const [teacherSectionEditable, setTeacherSectionEditable] = useState(false);
+
     // Pagination & Search States
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
@@ -233,6 +235,26 @@ const RefundPage = () => {
             returnDate: data.returnDate ? data.returnDate.split('T')[0] : ''
         });
         setEditingId(data._id);
+        setTeacherSectionEditable(false);
+        setShowModal(true);
+    };
+
+    const handleCreateNew = () => {
+        setRefundData({
+            tuitionCode: '',
+            paymentType: '',
+            paymentNumber: '',
+            personalPhone: '',
+            amount: '',
+            name: '',
+            note: '',
+            comment: '',
+            status: 'pending',
+            commentFromAgent: '',
+            returnDate: ''
+        });
+        setEditingId(null);
+        setTeacherSectionEditable(true);
         setShowModal(true);
     };
 
@@ -256,7 +278,7 @@ const RefundPage = () => {
             <Container>
                 <Header>
                     <h2 className='text-primary fw-bold'>Refund Applications</h2>
-                    <Button variant="primary" onClick={() => { setShowModal(true); setEditingId(null); setRefundData({ tuitionCode: '', paymentType: '', paymentNumber: '', personalPhone: '', amount: '', name: '', note: '', status: '', commentFromAgent: '', returnDate: '' }) }}>
+                    <Button variant="primary" onClick={handleCreateNew}>
                         Create Refund
                     </Button>
                 </Header>
@@ -487,7 +509,15 @@ const RefundPage = () => {
                                     <div style={{ width: '4px', height: '20px', backgroundColor: '#0d6efd', borderRadius: '2px', marginRight: '10px' }}></div>
                                     <h6 className="mb-0 fw-bold text-dark" style={{ letterSpacing: '0.5px', fontSize: '0.95rem' }}>TEACHER INFORMATION</h6>
                                 </div>
-                                <div className="p-4 rounded-3 border-0 shadow-sm bg-white" style={{ border: '1px solid #f0f0f0' }}>
+                                <div 
+                                    className="p-4 rounded-3 border shadow-sm bg-white" 
+                                    style={{ 
+                                        borderColor: '#f0f0f0',
+                                        cursor: !teacherSectionEditable ? 'pointer' : 'default',
+                                        transition: 'all 0.2s ease'
+                                    }}
+                                    onClick={() => !teacherSectionEditable && setTeacherSectionEditable(true)}
+                                >
                                     <Row className="g-4">
                                         <Col md={4}>
                                             <Form.Group>
@@ -495,11 +525,12 @@ const RefundPage = () => {
                                                 <Form.Control
                                                     type="text"
                                                     placeholder="Enter Code"
-                                                    className="border-0 bg-light p-2 px-3"
-                                                    style={{ borderRadius: '8px', fontSize: '0.9rem' }}
+                                                    className="border p-2 px-3"
+                                                    style={{ borderRadius: '8px', fontSize: '0.9rem', backgroundColor: !teacherSectionEditable ? '#f8f9fa' : '#fff' }}
                                                     value={refundData.tuitionCode}
                                                     onChange={(e) => setRefundData({ ...refundData, tuitionCode: e.target.value })}
                                                     required
+                                                    readOnly={!teacherSectionEditable}
                                                 />
                                             </Form.Group>
                                         </Col>
@@ -509,11 +540,12 @@ const RefundPage = () => {
                                                 <Form.Control
                                                     type="text"
                                                     placeholder="Teacher Name"
-                                                    className="border-0 bg-light p-2 px-3"
-                                                    style={{ borderRadius: '8px', fontSize: '0.9rem' }}
+                                                    className="border p-2 px-3"
+                                                    style={{ borderRadius: '8px', fontSize: '0.9rem', backgroundColor: !teacherSectionEditable ? '#f8f9fa' : '#fff' }}
                                                     value={refundData.name}
                                                     onChange={(e) => setRefundData({ ...refundData, name: e.target.value })}
                                                     required
+                                                    readOnly={!teacherSectionEditable}
                                                 />
                                             </Form.Group>
                                         </Col>
@@ -523,11 +555,12 @@ const RefundPage = () => {
                                                 <Form.Control
                                                     type="text"
                                                     placeholder="Contact No"
-                                                    className="border-0 bg-light p-2 px-3"
-                                                    style={{ borderRadius: '8px', fontSize: '0.9rem' }}
+                                                    className="border p-2 px-3"
+                                                    style={{ borderRadius: '8px', fontSize: '0.9rem', backgroundColor: !teacherSectionEditable ? '#f8f9fa' : '#fff' }}
                                                     value={refundData.personalPhone}
                                                     onChange={(e) => setRefundData({ ...refundData, personalPhone: e.target.value })}
                                                     required
+                                                    readOnly={!teacherSectionEditable}
                                                 />
                                             </Form.Group>
                                         </Col>
@@ -535,11 +568,12 @@ const RefundPage = () => {
                                             <Form.Group>
                                                 <Form.Label className="text-muted small fw-bold mb-2">PAYMENT TYPE</Form.Label>
                                                 <Form.Select
-                                                    className="border-0 bg-light p-2 px-3"
-                                                    style={{ borderRadius: '8px', fontSize: '0.9rem' }}
+                                                    className="border p-2 px-3"
+                                                    style={{ borderRadius: '8px', fontSize: '0.9rem', backgroundColor: !teacherSectionEditable ? '#f8f9fa' : '#fff' }}
                                                     value={refundData.paymentType}
                                                     onChange={(e) => setRefundData({ ...refundData, paymentType: e.target.value })}
                                                     required
+                                                    disabled={!teacherSectionEditable}
                                                 >
                                                     <option value="">Select</option>
                                                     <option value="bkash">Bkash Personal</option>
@@ -554,11 +588,12 @@ const RefundPage = () => {
                                                 <Form.Control
                                                     type="text"
                                                     placeholder="Account No"
-                                                    className="border-0 bg-light p-2 px-3"
-                                                    style={{ borderRadius: '8px', fontSize: '0.9rem' }}
+                                                    className="border p-2 px-3"
+                                                    style={{ borderRadius: '8px', fontSize: '0.9rem', backgroundColor: !teacherSectionEditable ? '#f8f9fa' : '#fff' }}
                                                     value={refundData.paymentNumber}
                                                     onChange={(e) => setRefundData({ ...refundData, paymentNumber: e.target.value })}
                                                     required
+                                                    readOnly={!teacherSectionEditable}
                                                 />
                                             </Form.Group>
                                         </Col>
@@ -568,11 +603,12 @@ const RefundPage = () => {
                                                 <Form.Control
                                                     type="number"
                                                     placeholder="Amount in BDT"
-                                                    className="border-0 bg-light p-2 px-3 fw-bold text-primary"
-                                                    style={{ borderRadius: '8px', fontSize: '1rem', backgroundColor: '#f0f7ff !important' }}
+                                                    className="border p-2 px-3 fw-bold text-primary"
+                                                    style={{ borderRadius: '8px', fontSize: '1rem', backgroundColor: !teacherSectionEditable ? '#f8f9fa' : '#f0f7ff' }}
                                                     value={refundData.amount}
                                                     onChange={(e) => setRefundData({ ...refundData, amount: e.target.value })}
                                                     required
+                                                    readOnly={!teacherSectionEditable}
                                                 />
                                             </Form.Group>
                                         </Col>
@@ -583,10 +619,11 @@ const RefundPage = () => {
                                                     as="textarea"
                                                     rows={2}
                                                     placeholder="Teacher's internal notes..."
-                                                    className="border-0 bg-light p-3"
-                                                    style={{ borderRadius: '12px', fontSize: '0.9rem' }}
+                                                    className="border p-3"
+                                                    style={{ borderRadius: '12px', fontSize: '0.9rem', backgroundColor: !teacherSectionEditable ? '#f8f9fa' : '#fff' }}
                                                     value={refundData.note}
                                                     onChange={(e) => setRefundData({ ...refundData, note: e.target.value })}
+                                                    readOnly={!teacherSectionEditable}
                                                 />
                                             </Form.Group>
                                         </Col>
@@ -600,14 +637,14 @@ const RefundPage = () => {
                                     <div style={{ width: '4px', height: '20px', backgroundColor: '#198754', borderRadius: '2px', marginRight: '10px' }}></div>
                                     <h6 className="mb-0 fw-bold text-dark" style={{ letterSpacing: '0.5px', fontSize: '0.95rem' }}>AGENT ACTION</h6>
                                 </div>
-                                <div className="p-4 rounded-3 border-0 shadow-sm" style={{ backgroundColor: '#f8fffb', border: '1px solid #e1f5e9' }}>
+                                <div className="p-4 rounded-3 border shadow-sm" style={{ backgroundColor: '#f8fffb', borderColor: '#e1f5e9' }}>
                                     <Row className="g-4">
                                         <Col md={4}>
                                             <Form.Group>
                                                 <Form.Label className="text-success small fw-bold mb-2 text-uppercase">Update Status</Form.Label>
                                                 <Form.Select
-                                                    className="border-0 shadow-sm p-2 px-3"
-                                                    style={{ borderRadius: '8px', fontSize: '0.9rem', backgroundColor: '#fff' }}
+                                                    className="border shadow-sm p-2 px-3"
+                                                    style={{ borderRadius: '8px', fontSize: '0.9rem', backgroundColor: '#fff', borderColor: '#ced4da' }}
                                                     value={refundData.status}
                                                     onChange={(e) => setRefundData({ ...refundData, status: e.target.value })}
                                                     required
@@ -627,8 +664,8 @@ const RefundPage = () => {
                                                 <Form.Label className="text-success small fw-bold mb-2 text-uppercase">Return Date</Form.Label>
                                                 <Form.Control
                                                     type="date"
-                                                    className="border-0 shadow-sm p-2 px-3"
-                                                    style={{ borderRadius: '8px', fontSize: '0.9rem', backgroundColor: '#fff' }}
+                                                    className="border shadow-sm p-2 px-3"
+                                                    style={{ borderRadius: '8px', fontSize: '0.9rem', backgroundColor: '#fff', borderColor: '#ced4da' }}
                                                     value={refundData.returnDate || ''}
                                                     onChange={(e) => setRefundData({ ...refundData, returnDate: e.target.value })}
                                                 />
@@ -641,8 +678,8 @@ const RefundPage = () => {
                                                     as="textarea"
                                                     rows={3}
                                                     placeholder="Resolution details or agent feedback..."
-                                                    className="border-0 shadow-sm p-3"
-                                                    style={{ borderRadius: '12px', fontSize: '0.9rem', backgroundColor: '#fff' }}
+                                                    className="border shadow-sm p-3"
+                                                    style={{ borderRadius: '12px', fontSize: '0.9rem', backgroundColor: '#fff', borderColor: '#ced4da' }}
                                                     value={refundData.commentFromAgent}
                                                     onChange={(e) => setRefundData({ ...refundData, commentFromAgent: e.target.value })}
                                                 />

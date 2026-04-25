@@ -505,18 +505,28 @@ const RefundPage = () => {
                         <Form>
                             {/* Teacher Information Section */}
                             <div className="mb-4">
-                                <div className="d-flex align-items-center mb-3">
-                                    <div style={{ width: '4px', height: '20px', backgroundColor: '#0d6efd', borderRadius: '2px', marginRight: '10px' }}></div>
-                                    <h6 className="mb-0 fw-bold text-dark" style={{ letterSpacing: '0.5px', fontSize: '0.95rem' }}>TEACHER INFORMATION</h6>
+                                <div className="d-flex align-items-center justify-content-between mb-3">
+                                    <div className="d-flex align-items-center">
+                                        <div style={{ width: '4px', height: '20px', backgroundColor: '#0d6efd', borderRadius: '2px', marginRight: '10px' }}></div>
+                                        <h6 className="mb-0 fw-bold text-dark" style={{ letterSpacing: '0.5px', fontSize: '0.95rem' }}>TEACHER INFORMATION</h6>
+                                    </div>
+                                    {!teacherSectionEditable && editingId && (
+                                        <Button 
+                                            variant="outline-primary" 
+                                            size="sm" 
+                                            onClick={() => setTeacherSectionEditable(true)}
+                                            style={{ borderRadius: '20px', fontSize: '0.75rem', fontWeight: 'bold' }}
+                                        >
+                                            <FaEdit className="me-1" /> Edit Info
+                                        </Button>
+                                    )}
                                 </div>
                                 <div 
                                     className="p-4 rounded-3 border shadow-sm bg-white" 
                                     style={{ 
                                         borderColor: '#f0f0f0',
-                                        cursor: !teacherSectionEditable ? 'pointer' : 'default',
                                         transition: 'all 0.2s ease'
                                     }}
-                                    onClick={() => !teacherSectionEditable && setTeacherSectionEditable(true)}
                                 >
                                     <Row className="g-4">
                                         <Col md={4}>

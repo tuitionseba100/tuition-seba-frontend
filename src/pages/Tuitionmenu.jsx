@@ -151,14 +151,14 @@ const TuitionPage = () => {
 
     const fetchAlertData = async () => {
         try {
-            const params = {};
+            const alertParams = {};
             if (role !== 'superadmin') {
-                params.assignedTo = currentUsername;
+                alertParams.assignedTo = currentUsername;
             }
 
             const [alertRes, pendingRes] = await Promise.all([
-                axios.get('https://tuition-seba-backend-1.onrender.com/api/tuition/alert-today', { params }),
-                axios.get('https://tuition-seba-backend-1.onrender.com/api/tuition/pending-payment-creation', { params })
+                axios.get('https://tuition-seba-backend-1.onrender.com/api/tuition/alert-today', { params: alertParams }),
+                axios.get('https://tuition-seba-backend-1.onrender.com/api/tuition/pending-payment-creation')
             ]);
 
             setTuitionNeedsUpdateList(alertRes.data);

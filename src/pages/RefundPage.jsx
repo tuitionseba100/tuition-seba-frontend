@@ -32,6 +32,9 @@ const RefundPage = () => {
     const [showConfirmModal, setShowConfirmModal] = useState(false);
     const [originalData, setOriginalData] = useState(null);
 
+    const [refundsDueToday, setRefundsDueToday] = useState([]);
+    const [showDueTodayModal, setShowDueTodayModal] = useState(false);
+
     // Pagination & Search States
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
@@ -104,6 +107,19 @@ const RefundPage = () => {
             console.error('Error fetching summary:', err);
         }
     };
+
+    const fetchAlertToday = async () => {
+        try {
+            const response = await axios.get('https://tuition-seba-backend-1.onrender.com/api/refund/alert-today');
+            setRefundsDueToday(response.data);
+        } catch (err) {
+            console.error('Error fetching today alerts:', err);
+        }
+    };
+
+    useEffect(() => {
+        fetchAlertToday();
+    }, []);
 
     useEffect(() => {
         fetchRefundApplyRecords(1);
@@ -213,6 +229,7 @@ const RefundPage = () => {
             setShowModal(false);
             fetchRefundApplyRecords(currentPage);
             fetchSummaryCounts();
+            fetchAlertToday();
         } catch (err) {
             console.error('Error:', err);
             toast.error("Operation failed.");
@@ -329,9 +346,22 @@ const RefundPage = () => {
             <NavBarPage />
             <Container>
                 <Header>
-                    <h2 className='text-primary fw-bold'>Refund Applications</h2>
-                    <Button variant="primary" onClick={handleCreateNew}>
-                        Create Refund
+                    <div className="d-flex align-items-center gap-3">
+                        <h2 className='text-primary fw-bold mb-0'>Refund Applications</h2>
+                        {refundsDueToday.length > 0 && (
+                            <Button 
+                                variant="warning" 
+                                className="rounded-pill shadow-sm d-flex align-items-center gap-2 animate-pulse"
+                                onClick={() => setShowDueTodayModal(true)}
+                                style={{ padding: '8px 20px', fontWeight: 'bold' }}
+                            >
+                                <FaBell className="shake-animation" />
+                                <span>Due Today: {refundsDueToday.length}</span>
+                            </Button>
+                        )}
+                    </div>
+                    <Button variant="primary" onClick={handleCreateNew} className="rounded-3 shadow-sm px-4">
+                        + Create Refund
                     </Button>
                 </Header>
                 
@@ -776,6 +806,68 @@ const RefundPage = () => {
                     onHide={() => setShowWhatsAppModal(false)}
                     refundData={whatsAppRefund}
                 />
+
+                {/* Refunds Due Today Modal */}
+                <Modal show={showDueTodayModal} onHide={() => setShowDueTodayModal(false)} centered size="xl">
+                    <Modal.Header closeButton className="bg-warning text-dark border-0">
+                        <Modal.Title className="w-100 text-center fw-bold d-flex align-items-center justify-content-center gap-2">
+                            <FaBell />
+                            <span>Refunds to be done today: {refundsDueToday.length}</span>
+                        </Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body className="p-4 bg-light">
+                        {refundsDueToday.length > 0 ? (
+                            <div className="table-responsive rounded-3 shadow-sm bg-white">
+                                <Table hover className="mb-0 align-middle">
+                                    <thead className="bg-dark text-white">
+                                        <tr className="text-center">
+                                            <th className="py-3">SL</th>
+                                            <th className="py-3">Tuition Code</th>
+                                            <th className="py-3">Name</th>
+                                            <th className="py-3">Phone</th>
+                                            <th className="py-3">Amount</th>
+                                            <th className="py-3">Status</th>
+                                            <th className="py-3">Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {refundsDueToday.map((refund, index) => (
+                                            <tr key={refund._id} className="text-center border-bottom">
+                                                <td className="fw-bold text-muted">{index + 1}</td>
+                                                <td className="fw-bold text-primary">{refund.tuitionCode}</td>
+                                                <td>{refund.name}</td>
+                                                <td>{refund.personalPhone}</td>
+                                                <td className="fw-bold text-success">{refund.amount} TK</td>
+                                                <td>
+                                                    <span className="badge bg-info-subtle text-info border border-info-subtle rounded-pill px-3">
+                                                        {refund.status}
+                                                    </span>
+                                                </td>
+                                                <td>
+                                                    <div className="d-flex justify-content-center gap-2">
+                                                        <Button variant="outline-primary" size="sm" onClick={() => { setShowDueTodayModal(false); handleEditApply(refund); }}>
+                                                            <FaEdit />
+                                                        </Button>
+                                                        <Button variant="outline-success" size="sm" onClick={() => handleOpenWhatsApp(refund)}>
+                                                            <FaWhatsapp />
+                                                        </Button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </Table>
+                            </div>
+                        ) : (
+                            <div className="text-center py-5">
+                                <h5 className="text-muted">No refunds scheduled for today.</h5>
+                            </div>
+                        )}
+                    </Modal.Body>
+                    <Modal.Footer className="border-0 bg-light">
+                        <Button variant="secondary" className="px-4" onClick={() => setShowDueTodayModal(false)}>Close</Button>
+                    </Modal.Footer>
+                </Modal>
 
                 {/* Save Confirmation Modal */}
                 <Modal show={showConfirmModal} onHide={() => setShowConfirmModal(false)} centered size="md">

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Button, Table, Modal, Form, Row, Col, Card } from 'react-bootstrap';
-import { FaEdit, FaTrashAlt } from 'react-icons/fa';
+import { FaEdit, FaTrashAlt, FaChevronLeft, FaChevronRight, FaSearch, FaUndo } from 'react-icons/fa';
 import axios from 'axios';
 import NavBarPage from './NavbarPage';
 import styled from 'styled-components';
@@ -21,90 +21,122 @@ const PhonePage = () => {
         isExpress: false,
         isActive: false,
     });
-    const [phoneSearchQuery, setPhoneSearchQuery] = useState('');
+    const [searchInputs, setSearchInputs] = useState({
+        phone: '',
+        type: ''
+    });
+    const [appliedFilters, setAppliedFilters] = useState({
+        phone: '',
+        type: ''
+    });
+
     const [loading, setLoading] = useState(false);
-    const [typeFilter, setTypeFilter] = useState('');
+    const [currentPage, setCurrentPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
+    const [summaryCounts, setSummaryCounts] = useState({
+        total: 0,
+        spam: 0,
+        best: 0,
+        express: 0
+    });
     const role = localStorage.getItem('role');
 
     useEffect(() => {
         fetchRecords();
-    }, []);
+        fetchSummaryCounts();
+    }, [currentPage, appliedFilters]);
 
-    useEffect(() => {
-        let filteredData = phoneList;
+    const handleSearch = () => {
+        setAppliedFilters({ ...searchInputs });
+        setCurrentPage(1);
+    };
 
-        if (phoneSearchQuery) {
-            filteredData = filteredData.filter(x =>
-                String(x.phone).trim().toLowerCase().includes(String(phoneSearchQuery).trim().toLowerCase())
-            );
-        }
-
-        if (typeFilter === "spam") {
-            filteredData = filteredData.filter(x => x.isSpam === true);
-        } else if (typeFilter === "best") {
-            filteredData = filteredData.filter(x => x.isBest === true);
-        }
-        else if (typeFilter === "express") {
-            filteredData = filteredData.filter(x => x.isExpress === true);
-        }
-
-        setFilteredPhoneList(filteredData);
-    }, [phoneSearchQuery, typeFilter, phoneList]);
+    const handleResetFilters = () => {
+        const resetState = { phone: '', type: '' };
+        setSearchInputs(resetState);
+        setAppliedFilters(resetState);
+        setCurrentPage(1);
+    };
 
     const fetchRecords = async () => {
         setLoading(true);
         try {
-            const response = await axios.get('https://tuition-seba-backend-1.onrender.com/api/phone/all');
-            setPhoneList(response.data);
-            setFilteredPhoneList(response.data);
+            const response = await axios.get('https://tuition-seba-backend-1.onrender.com/api/phone/all', {
+                params: {
+                    page: currentPage,
+                    limit: 20,
+                    phone: appliedFilters.phone,
+                    type: appliedFilters.type
+                }
+            });
+            setPhoneList(response.data.data);
+            setFilteredPhoneList(response.data.data);
+            setTotalPages(response.data.totalPages);
         } catch (err) {
             console.error('Error:', err);
-            toast.error("Failed.");
+            toast.error("Failed to load records.");
         }
         setLoading(false);
     };
 
-    const handleExportToExcel = () => {
-        const now = new Date();
-        const formattedDate = now.toLocaleDateString().replace(/\//g, '-');
-        const formattedTime = now.toLocaleTimeString().replace(/:/g, '-');
+    const fetchSummaryCounts = async () => {
+        try {
+            const response = await axios.get('https://tuition-seba-backend-1.onrender.com/api/phone/summary');
+            setSummaryCounts(response.data);
+        } catch (err) {
+            console.error('Error fetching summary:', err);
+        }
+    };
 
-        const fileName = `phone List_${formattedDate}_${formattedTime}`;
+    const handleExportToExcel = async () => {
+        try {
+            setLoading(true);
+            const response = await axios.get('https://tuition-seba-backend-1.onrender.com/api/phone/export', {
+                params: {
+                    phone: appliedFilters.phone,
+                    type: appliedFilters.type
+                }
+            });
+            const exportData = response.data;
 
-        const tableHeaders = [
-            "Created At",
-            "Phone",
-            "Note",
-            "IsActive",
-            "IsExpress",
-            "IsSpam",
-            "IsBest"
-        ];
+            const now = new Date();
+            const formattedDate = now.toLocaleDateString().replace(/\//g, '-');
+            const formattedTime = now.toLocaleTimeString().replace(/:/g, '-');
 
-        const tableData = filteredPhoneList.map(item => [
-            item.createdAt ? formatDate(item.createdAt) : "",
-            String(item.phone ?? ""),
-            String(item.note ?? ""),
-            String(item.isActive ?? ""),
-            String(item.isExpress ?? ""),
-            String(item.isSpam ?? ""),
-            String(item.isBest ?? ""),
-        ]);
+            const fileName = `phone List_${formattedDate}_${formattedTime}`;
 
-        const worksheet = XLSX.utils.aoa_to_sheet([tableHeaders, ...tableData]);
+            const tableHeaders = [
+                "Created At",
+                "Phone",
+                "Note",
+                "IsActive",
+                "IsExpress",
+                "IsSpam",
+                "IsBest"
+            ];
 
-        worksheet['!cols'] = [
-            { wpx: 100 },
-            { wpx: 50 },
-            { wpx: 50 },
-            { wpx: 150 },
-            { wpx: 100 },
-        ];
+            const tableData = exportData.map(item => [
+                item.createdAt ? formatDate(item.createdAt) : "",
+                String(item.phone ?? ""),
+                String(item.note ?? ""),
+                String(item.isActive ?? ""),
+                String(item.isExpress ?? ""),
+                String(item.isSpam ?? ""),
+                String(item.isBest ?? ""),
+            ]);
 
-        const workbook = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(workbook, worksheet, "SPAM_BEST");
+            const worksheet = XLSX.utils.aoa_to_sheet([tableHeaders, ...tableData]);
 
-        XLSX.writeFile(workbook, `${fileName}.xlsx`);
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, "SPAM_BEST");
+
+            XLSX.writeFile(workbook, `${fileName}.xlsx`);
+        } catch (err) {
+            console.error('Export error:', err);
+            toast.error("Failed to export.");
+        } finally {
+            setLoading(false);
+        }
     };
 
     const handleSaveRequest = async () => {
@@ -122,6 +154,7 @@ const PhonePage = () => {
             }
             setShowModal(false);
             fetchRecords();
+            fetchSummaryCounts();
         } catch (err) {
             console.error('Error:', err);
             toast.error("Error.");
@@ -161,6 +194,7 @@ const PhonePage = () => {
                 await axios.delete(`https://tuition-seba-backend-1.onrender.com/api/phone/delete/${id}`);
                 toast.success("Record deleted successfully!");
                 fetchRecords();
+                fetchSummaryCounts();
             } catch (err) {
                 console.error('Error deleting record:', err);
                 toast.error("Error deleting record.");
@@ -170,11 +204,7 @@ const PhonePage = () => {
         }
     };
 
-    const handleResetFilters = () => {
-        setPhoneSearchQuery('');
-        setTypeFilter('');
-        setFilteredPhoneList(phoneList);
-    };
+
 
     return (
         <>
@@ -200,7 +230,7 @@ const PhonePage = () => {
                                 <div className="card p-3 shadow border-dark">
                                     <div className="d-flex flex-column align-items-center">
                                         <span className="text-dark" style={{ fontWeight: 'bolder' }}>Total</span>
-                                        <span>{filteredPhoneList.length}</span>
+                                        <span>{summaryCounts.total}</span>
                                     </div>
                                 </div>
                             </div>
@@ -209,7 +239,7 @@ const PhonePage = () => {
                                 <div className="card p-3 shadow border border-danger">
                                     <div className="d-flex flex-column align-items-center text-danger">
                                         <span style={{ fontWeight: 'bolder' }}>Total Spam</span>
-                                        <span>{filteredPhoneList.filter(item => item.isSpam === true).length}</span>
+                                        <span>{summaryCounts.spam}</span>
                                     </div>
                                 </div>
                             </div>
@@ -218,7 +248,7 @@ const PhonePage = () => {
                                 <div className="card p-3 shadow border border-primary">
                                     <div className="d-flex flex-column align-items-center text-primary">
                                         <span style={{ fontWeight: 'bolder' }}>Total Best Teacher</span>
-                                        <span>{filteredPhoneList.filter(item => item.isBest === true).length}</span>
+                                        <span>{summaryCounts.best}</span>
                                     </div>
                                 </div>
                             </div>
@@ -227,7 +257,7 @@ const PhonePage = () => {
                                 <div className="card p-3 shadow border border-success">
                                     <div className="d-flex flex-column align-items-center text-success">
                                         <span style={{ fontWeight: 'bolder' }}>Total Express Teacher</span>
-                                        <span>{filteredPhoneList.filter(item => item.isExpress === true).length}</span>
+                                        <span>{summaryCounts.express}</span>
                                     </div>
                                 </div>
                             </div>
@@ -242,18 +272,16 @@ const PhonePage = () => {
                         <Form.Control
                             type="text"
                             placeholder="Search by Phone Number"
-                            value={phoneSearchQuery}
-                            onChange={(e) => setPhoneSearchQuery(e.target.value)}
+                            value={searchInputs.phone}
+                            onChange={(e) => setSearchInputs({ ...searchInputs, phone: e.target.value })}
                         />
                     </Col>
 
                     <Col md={1}>
                         <Form.Label className="fw-bold">Type Filter</Form.Label>
                         <Form.Select
-                            value={typeFilter}
-                            onChange={(e) => {
-                                setTypeFilter(e.target.value);
-                            }}
+                            value={searchInputs.type}
+                            onChange={(e) => setSearchInputs({ ...searchInputs, type: e.target.value })}
                         >
                             <option value="">All</option>
                             <option value="spam">Spam</option>
@@ -262,12 +290,30 @@ const PhonePage = () => {
                         </Form.Select>
                     </Col>
 
-                    <Col md={1} className="d-flex align-items-end">
-                        <Button variant="danger" onClick={handleResetFilters} className="w-100">
-                            Reset Filters
+                    <Col md="auto" className="d-flex align-items-end">
+                        <Button
+                            variant="success"
+                            onClick={handleSearch}
+                            className="d-flex align-items-center justify-content-center"
+                            disabled={loading}
+                            title="Search"
+                            style={{ width: "40px", height: "40px" }}
+                        >
+                            {loading ? <Spinner animation="border" size="sm" /> : <FaSearch />}
                         </Button>
                     </Col>
 
+                    <Col md="auto" className="d-flex align-items-end">
+                        <Button
+                            variant="danger"
+                            onClick={handleResetFilters}
+                            className="d-flex align-items-center justify-content-center ms-2"
+                            title="Reset Filters"
+                            style={{ width: "40px", height: "40px" }}
+                        >
+                            <FaUndo />
+                        </Button>
+                    </Col>
                 </Row>
 
                 {role === "superadmin" && (
@@ -302,16 +348,14 @@ const PhonePage = () => {
                                     {loading ? (
                                         <tr>
                                             <td colSpan="20" className="text-center">
-                                                <div className="d-flex justify-content-center align-items-center" style={{ position: 'absolute', top: '90%', left: '50%', transform: 'translate(-50%, -50%)', width: '100vw', height: '100vh' }}>
-                                                    <Spinner animation="border" variant="primary" size="lg" />
-                                                </div>
+                                                <Spinner animation="border" variant="primary" />
                                             </td>
                                         </tr>
                                     ) : (
-                                        filteredPhoneList.slice().reverse().map((item, index) => (
+                                        filteredPhoneList.map((item, index) => (
 
                                             <tr key={item._id}>
-                                                <td>{index + 1}</td>
+                                                <td>{(currentPage - 1) * 20 + index + 1}</td>
                                                 <td>{item.createdAt ? formatDate(item.createdAt) : ''}</td>
                                                 <td
                                                     style={{
@@ -355,6 +399,29 @@ const PhonePage = () => {
                                 </tbody>
 
                             </Table>
+                        </div>
+
+                        {/* Pagination Controls */}
+                        <div className="d-flex justify-content-center align-items-center gap-3 mt-4 flex-wrap">
+                            <Button
+                                variant="outline-primary"
+                                className="d-flex align-items-center gap-2 px-3 py-2 rounded-pill"
+                                disabled={currentPage === 1}
+                                onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                            >
+                                <FaChevronLeft /> Previous
+                            </Button>
+                            <span className="fw-semibold text-primary-emphasis fs-5">
+                                Page {currentPage} of {totalPages}
+                            </span>
+                            <Button
+                                variant="outline-primary"
+                                className="d-flex align-items-center gap-2 px-3 py-2 rounded-pill"
+                                disabled={currentPage === totalPages}
+                                onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                            >
+                                Next <FaChevronRight />
+                            </Button>
                         </div>
                     </Card.Body>
                 </Card>

@@ -473,144 +473,183 @@ const RefundPage = () => {
                 )}
 
                 {/* Create/Edit Refund Modal */}
-                <Modal show={showModal} onHide={() => setShowModal(false)} size="lg">
-                    <Modal.Header closeButton>
-                        <Modal.Title className="fw-bold">{editingId ? "Edit Refund Record" : "Create Refund Record"}</Modal.Title>
+                <Modal show={showModal} onHide={() => setShowModal(false)} size="xl" centered>
+                    <Modal.Header closeButton className="border-0 pb-0">
+                        <Modal.Title className="fw-bold ps-2">
+                            {editingId ? "Edit Refund Application" : "Create New Refund Request"}
+                        </Modal.Title>
                     </Modal.Header>
-                    <Modal.Body className="bg-light">
+                    <Modal.Body className="p-4" style={{ backgroundColor: '#fdfdfd' }}>
                         <Form>
-                            {/* Teacher Section */}
-                            <div className="bg-white p-3 rounded shadow-sm mb-4 border-start border-primary border-4">
-                                <h6 className="text-primary pb-2 mb-3 fw-bold uppercase">Teacher Section</h6>
-                                <Row className="g-3">
-                                    <Col md={6}>
-                                        <Form.Group>
-                                            <Form.Label className="fw-bold small">Tuition Code</Form.Label>
-                                            <Form.Control
-                                                type="text"
-                                                value={refundData.tuitionCode}
-                                                onChange={(e) => setRefundData({ ...refundData, tuitionCode: e.target.value })}
-                                                required
-                                            />
-                                        </Form.Group>
-                                    </Col>
-                                    <Col md={6}>
-                                        <Form.Group>
-                                            <Form.Label className="fw-bold small">Name</Form.Label>
-                                            <Form.Control
-                                                type="text"
-                                                value={refundData.name}
-                                                onChange={(e) => setRefundData({ ...refundData, name: e.target.value })}
-                                                required
-                                            />
-                                        </Form.Group>
-                                    </Col>
-                                    <Col md={4}>
-                                        <Form.Group>
-                                            <Form.Label className="fw-bold small">Payment Number Type</Form.Label>
-                                            <Form.Select
-                                                value={refundData.paymentType}
-                                                onChange={(e) => setRefundData({ ...refundData, paymentType: e.target.value })}
-                                                required
-                                            >
-                                                <option value="">Select</option>
-                                                <option value="bkash">Bkash Personal</option>
-                                                <option value="nagad">Nagad Personal</option>
-                                                <option value="cash">Cash</option>
-                                            </Form.Select>
-                                        </Form.Group>
-                                    </Col>
-                                    <Col md={4}>
-                                        <Form.Group>
-                                            <Form.Label className="fw-bold small">Payment Number</Form.Label>
-                                            <Form.Control
-                                                type="text"
-                                                value={refundData.paymentNumber}
-                                                onChange={(e) => setRefundData({ ...refundData, paymentNumber: e.target.value })}
-                                                required
-                                            />
-                                        </Form.Group>
-                                    </Col>
-                                    <Col md={4}>
-                                        <Form.Group>
-                                            <Form.Label className="fw-bold small">Personal Phone No.</Form.Label>
-                                            <Form.Control
-                                                type="text"
-                                                value={refundData.personalPhone}
-                                                onChange={(e) => setRefundData({ ...refundData, personalPhone: e.target.value })}
-                                                required
-                                            />
-                                        </Form.Group>
-                                    </Col>
-                                    <Col md={4}>
-                                        <Form.Group>
-                                            <Form.Label className="fw-bold small">Amount</Form.Label>
-                                            <Form.Control
-                                                type="number"
-                                                value={refundData.amount}
-                                                onChange={(e) => setRefundData({ ...refundData, amount: e.target.value })}
-                                                required
-                                            />
-                                        </Form.Group>
-                                    </Col>
-                                    <Col md={12}>
-                                        <Form.Group>
-                                            <Form.Label className="fw-bold small">Comment From Teacher</Form.Label>
-                                            <Form.Control
-                                                as="textarea"
-                                                rows={2}
-                                                value={refundData.note}
-                                                onChange={(e) => setRefundData({ ...refundData, note: e.target.value })}
-                                            />
-                                        </Form.Group>
-                                    </Col>
-                                </Row>
+                            {/* Teacher Information Section */}
+                            <div className="mb-4">
+                                <div className="d-flex align-items-center mb-3">
+                                    <div style={{ width: '4px', height: '20px', backgroundColor: '#0d6efd', borderRadius: '2px', marginRight: '10px' }}></div>
+                                    <h6 className="mb-0 fw-bold text-dark" style={{ letterSpacing: '0.5px', fontSize: '0.95rem' }}>TEACHER INFORMATION</h6>
+                                </div>
+                                <div className="p-4 rounded-3 border-0 shadow-sm bg-white" style={{ border: '1px solid #f0f0f0' }}>
+                                    <Row className="g-4">
+                                        <Col md={4}>
+                                            <Form.Group>
+                                                <Form.Label className="text-muted small fw-bold mb-2">TUITION CODE</Form.Label>
+                                                <Form.Control
+                                                    type="text"
+                                                    placeholder="Enter Code"
+                                                    className="border-0 bg-light p-2 px-3"
+                                                    style={{ borderRadius: '8px', fontSize: '0.9rem' }}
+                                                    value={refundData.tuitionCode}
+                                                    onChange={(e) => setRefundData({ ...refundData, tuitionCode: e.target.value })}
+                                                    required
+                                                />
+                                            </Form.Group>
+                                        </Col>
+                                        <Col md={4}>
+                                            <Form.Group>
+                                                <Form.Label className="text-muted small fw-bold mb-2">NAME</Form.Label>
+                                                <Form.Control
+                                                    type="text"
+                                                    placeholder="Teacher Name"
+                                                    className="border-0 bg-light p-2 px-3"
+                                                    style={{ borderRadius: '8px', fontSize: '0.9rem' }}
+                                                    value={refundData.name}
+                                                    onChange={(e) => setRefundData({ ...refundData, name: e.target.value })}
+                                                    required
+                                                />
+                                            </Form.Group>
+                                        </Col>
+                                        <Col md={4}>
+                                            <Form.Group>
+                                                <Form.Label className="text-muted small fw-bold mb-2">PERSONAL PHONE</Form.Label>
+                                                <Form.Control
+                                                    type="text"
+                                                    placeholder="Contact No"
+                                                    className="border-0 bg-light p-2 px-3"
+                                                    style={{ borderRadius: '8px', fontSize: '0.9rem' }}
+                                                    value={refundData.personalPhone}
+                                                    onChange={(e) => setRefundData({ ...refundData, personalPhone: e.target.value })}
+                                                    required
+                                                />
+                                            </Form.Group>
+                                        </Col>
+                                        <Col md={4}>
+                                            <Form.Group>
+                                                <Form.Label className="text-muted small fw-bold mb-2">PAYMENT TYPE</Form.Label>
+                                                <Form.Select
+                                                    className="border-0 bg-light p-2 px-3"
+                                                    style={{ borderRadius: '8px', fontSize: '0.9rem' }}
+                                                    value={refundData.paymentType}
+                                                    onChange={(e) => setRefundData({ ...refundData, paymentType: e.target.value })}
+                                                    required
+                                                >
+                                                    <option value="">Select</option>
+                                                    <option value="bkash">Bkash Personal</option>
+                                                    <option value="nagad">Nagad Personal</option>
+                                                    <option value="cash">Cash</option>
+                                                </Form.Select>
+                                            </Form.Group>
+                                        </Col>
+                                        <Col md={4}>
+                                            <Form.Group>
+                                                <Form.Label className="text-muted small fw-bold mb-2">PAYMENT NUMBER</Form.Label>
+                                                <Form.Control
+                                                    type="text"
+                                                    placeholder="Account No"
+                                                    className="border-0 bg-light p-2 px-3"
+                                                    style={{ borderRadius: '8px', fontSize: '0.9rem' }}
+                                                    value={refundData.paymentNumber}
+                                                    onChange={(e) => setRefundData({ ...refundData, paymentNumber: e.target.value })}
+                                                    required
+                                                />
+                                            </Form.Group>
+                                        </Col>
+                                        <Col md={4}>
+                                            <Form.Group>
+                                                <Form.Label className="text-muted small fw-bold mb-2">REFUND AMOUNT</Form.Label>
+                                                <Form.Control
+                                                    type="number"
+                                                    placeholder="Amount in BDT"
+                                                    className="border-0 bg-light p-2 px-3 fw-bold text-primary"
+                                                    style={{ borderRadius: '8px', fontSize: '1rem', backgroundColor: '#f0f7ff !important' }}
+                                                    value={refundData.amount}
+                                                    onChange={(e) => setRefundData({ ...refundData, amount: e.target.value })}
+                                                    required
+                                                />
+                                            </Form.Group>
+                                        </Col>
+                                        <Col md={12}>
+                                            <Form.Group>
+                                                <Form.Label className="text-muted small fw-bold mb-2">COMMENT FROM TEACHER</Form.Label>
+                                                <Form.Control
+                                                    as="textarea"
+                                                    rows={2}
+                                                    placeholder="Teacher's internal notes..."
+                                                    className="border-0 bg-light p-3"
+                                                    style={{ borderRadius: '12px', fontSize: '0.9rem' }}
+                                                    value={refundData.note}
+                                                    onChange={(e) => setRefundData({ ...refundData, note: e.target.value })}
+                                                />
+                                            </Form.Group>
+                                        </Col>
+                                    </Row>
+                                </div>
                             </div>
 
-                            {/* Agent Section */}
-                            <div className="p-3 rounded shadow-sm mb-2 border-start border-success border-4" style={{ backgroundColor: '#f0f9f4', border: '1px solid #dee2e6' }}>
-                                <h6 className="text-success pb-2 mb-3 fw-bold uppercase">Agent Section</h6>
-                                <Row className="g-3">
-                                    <Col md={6}>
-                                        <Form.Group>
-                                            <Form.Label className="fw-bold small text-success">Status</Form.Label>
-                                            <Form.Select
-                                                value={refundData.status}
-                                                onChange={(e) => setRefundData({ ...refundData, status: e.target.value })}
-                                                required
-                                            >
-                                                <option value="">Select</option>
-                                                <option value="pending">Pending</option>
-                                                <option value="under review">Under Review</option>
-                                                <option value="approved">Approved</option>
-                                                <option value="rejected">Rejected</option>
-                                                <option value="completed">Completed</option>
-                                                <option value="cancelled">Cancelled</option>
-                                            </Form.Select>
-                                        </Form.Group>
-                                    </Col>
-                                    <Col md={6}>
-                                        <Form.Group>
-                                            <Form.Label className="fw-bold small text-success">Return Date</Form.Label>
-                                            <Form.Control
-                                                type="date"
-                                                value={refundData.returnDate || ''}
-                                                onChange={(e) => setRefundData({ ...refundData, returnDate: e.target.value })}
-                                            />
-                                        </Form.Group>
-                                    </Col>
-                                    <Col md={12}>
-                                        <Form.Group>
-                                            <Form.Label className="fw-bold small text-success">Comment From Agent</Form.Label>
-                                            <Form.Control
-                                                as="textarea"
-                                                rows={3}
-                                                value={refundData.commentFromAgent}
-                                                onChange={(e) => setRefundData({ ...refundData, commentFromAgent: e.target.value })}
-                                            />
-                                        </Form.Group>
-                                    </Col>
-                                </Row>
+                            {/* Agent Action Section */}
+                            <div>
+                                <div className="d-flex align-items-center mb-3">
+                                    <div style={{ width: '4px', height: '20px', backgroundColor: '#198754', borderRadius: '2px', marginRight: '10px' }}></div>
+                                    <h6 className="mb-0 fw-bold text-dark" style={{ letterSpacing: '0.5px', fontSize: '0.95rem' }}>AGENT ACTION</h6>
+                                </div>
+                                <div className="p-4 rounded-3 border-0 shadow-sm" style={{ backgroundColor: '#f8fffb', border: '1px solid #e1f5e9' }}>
+                                    <Row className="g-4">
+                                        <Col md={4}>
+                                            <Form.Group>
+                                                <Form.Label className="text-success small fw-bold mb-2 text-uppercase">Update Status</Form.Label>
+                                                <Form.Select
+                                                    className="border-0 shadow-sm p-2 px-3"
+                                                    style={{ borderRadius: '8px', fontSize: '0.9rem', backgroundColor: '#fff' }}
+                                                    value={refundData.status}
+                                                    onChange={(e) => setRefundData({ ...refundData, status: e.target.value })}
+                                                    required
+                                                >
+                                                    <option value="">Select</option>
+                                                    <option value="pending">Pending</option>
+                                                    <option value="under review">Under Review</option>
+                                                    <option value="approved">Approved</option>
+                                                    <option value="rejected">Rejected</option>
+                                                    <option value="completed">Completed</option>
+                                                    <option value="cancelled">Cancelled</option>
+                                                </Form.Select>
+                                            </Form.Group>
+                                        </Col>
+                                        <Col md={4}>
+                                            <Form.Group>
+                                                <Form.Label className="text-success small fw-bold mb-2 text-uppercase">Return Date</Form.Label>
+                                                <Form.Control
+                                                    type="date"
+                                                    className="border-0 shadow-sm p-2 px-3"
+                                                    style={{ borderRadius: '8px', fontSize: '0.9rem', backgroundColor: '#fff' }}
+                                                    value={refundData.returnDate || ''}
+                                                    onChange={(e) => setRefundData({ ...refundData, returnDate: e.target.value })}
+                                                />
+                                            </Form.Group>
+                                        </Col>
+                                        <Col md={12}>
+                                            <Form.Group>
+                                                <Form.Label className="text-success small fw-bold mb-2 text-uppercase">Comment From Agent</Form.Label>
+                                                <Form.Control
+                                                    as="textarea"
+                                                    rows={3}
+                                                    placeholder="Resolution details or agent feedback..."
+                                                    className="border-0 shadow-sm p-3"
+                                                    style={{ borderRadius: '12px', fontSize: '0.9rem', backgroundColor: '#fff' }}
+                                                    value={refundData.commentFromAgent}
+                                                    onChange={(e) => setRefundData({ ...refundData, commentFromAgent: e.target.value })}
+                                                />
+                                            </Form.Group>
+                                        </Col>
+                                    </Row>
+                                </div>
                             </div>
                         </Form>
                     </Modal.Body>

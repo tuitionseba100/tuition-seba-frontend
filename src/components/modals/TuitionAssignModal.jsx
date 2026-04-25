@@ -4,7 +4,7 @@ import Select from 'react-select';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 
-const TuitionAssignModal = ({ show, onHide, tuition, fetchTuitionRecords }) => {
+const TuitionAssignModal = ({ show, onHide, tuition, fetchTuitionRecords, fetchAlertData }) => {
     const [assignedTo, setAssignedTo] = useState('');
     const [users, setUsers] = useState([]);
     const [loading, setLoading] = useState(false);
@@ -51,6 +51,7 @@ const TuitionAssignModal = ({ show, onHide, tuition, fetchTuitionRecords }) => {
             });
             toast.success(`Tuition assigned to ${assignedTo} successfully!`);
             fetchTuitionRecords();
+            if (fetchAlertData) fetchAlertData();
             onHide();
         } catch (error) {
             console.error('Error assigning tuition:', error);

@@ -345,6 +345,7 @@ const TuitionPage = () => {
                 toast.success("Tuition record deleted successfully!");
                 await fetchTuitionRecords();
                 await fetchSummaryCounts();
+                await fetchAlertData();
             } catch (err) {
                 console.error(err);
                 toast.error("Error deleting tuition record.");
@@ -771,7 +772,13 @@ const TuitionPage = () => {
                                     <tbody>
                                         {tuitionNeedsUpdateList.map((tuition, index) => (
                                             <tr key={index} className="align-middle text-center">
-                                                <td>{tuition.tuitionCode}</td>
+                                                <td
+                                                    style={{ color: 'blue', cursor: 'pointer', textDecoration: 'none' }}
+                                                    onClick={() => openAppliedListModal(tuition)}
+                                                    title="Click to see applied list"
+                                                >
+                                                    {tuition.tuitionCode}
+                                                </td>
                                                 <td className="text-start">
                                                     <span className="badge bg-success text-white me-2">CB: {tuition.createdBy || '-'}</span>
                                                     <span className="badge bg-primary text-white">UB: {tuition.updatedBy || '-'}</span>
@@ -845,7 +852,13 @@ const TuitionPage = () => {
                                         {tuitionNeedsPaymentCreation.map((tuition, index) => (
                                             <tr key={index} className="align-middle text-center">
                                                 <td>{index + 1}</td>
-                                                <td>{tuition.tuitionCode}</td>
+                                                <td
+                                                    style={{ color: 'blue', cursor: 'pointer', textDecoration: 'none' }}
+                                                    onClick={() => openAppliedListModal(tuition)}
+                                                    title="Click to see applied list"
+                                                >
+                                                    {tuition.tuitionCode}
+                                                </td>
                                                 <td>{tuition.tutorNumber}</td>
                                                 <td>{tuition.salary}</td>
                                                 <td style={{ display: 'flex', justifyContent: 'flex-start', gap: '8px' }}>
@@ -962,6 +975,7 @@ const TuitionPage = () => {
                     onHide={() => setShowAssignModal(false)}
                     tuition={selectedTuitionForAssign}
                     fetchTuitionRecords={fetchTuitionRecords}
+                    fetchAlertData={fetchAlertData}
                 />
             </Container >
         </>

@@ -430,17 +430,15 @@ const RefundPage = () => {
                     </Card.Body>
                 </Card>
 
-                {refundsDueToday.length > 0 && (
-                    <div className="d-flex align-items-center justify-content-center mt-3">
-                        <h5 className="me-3 d-flex align-items-center gap-2">
-                            <FaBell className="text-primary" />
-                            <span>Refunds to be done today: {refundsDueToday.length}</span>
-                            <Button size="sm" onClick={() => setShowDueTodayModal(true)} className="ms-2">
-                                <FaInfoCircle />
-                            </Button>
-                        </h5>
-                    </div>
-                )}
+                <div className="d-flex align-items-center justify-content-center mt-3">
+                    <h5 className="me-3 d-flex align-items-center gap-2">
+                        <FaBell className="text-primary" />
+                        <span>Refunds to be done today: {refundsDueToday.length}</span>
+                        <Button size="sm" onClick={() => setShowDueTodayModal(true)} className="ms-2">
+                            <FaInfoCircle />
+                        </Button>
+                    </h5>
+                </div>
 
                 <div className="d-flex justify-content-between align-items-center mt-4">
                     {role === "superadmin" && (

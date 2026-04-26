@@ -104,7 +104,8 @@ const TuitionPage = () => {
         demoClassRunning: 0,
         confirm: 0,
         cancel: 0,
-        total: 0
+        total: 0,
+        pendingApplyCount: 0
     });
 
     const handleSearchInputChange = (field, value) => {
@@ -254,7 +255,8 @@ const TuitionPage = () => {
                 demoClassRunning: res.data.demoClassRunning || 0,
                 confirm: res.data.confirm || 0,
                 cancel: res.data.cancel || 0,
-                total: res.data.total || 0
+                total: res.data.total || 0,
+                pendingApplyCount: res.data.pendingApplyCount || 0
             });
         } catch (err) {
             console.error('Error fetching summary counts:', err);
@@ -425,7 +427,7 @@ const TuitionPage = () => {
                 <Card className="mt-4">
                     <Card.Body>
                         <div className="row text-center" style={{ display: 'flex', flexWrap: 'wrap', margin: '0 -0.5rem' }}>
-                            <div className="col-6 col-sm-3 mb-3" style={{ flex: '0 0 12.5%', maxWidth: '12.5%', padding: '0 0.5rem' }}>
+                            <div className="col-6 col-sm-3 mb-3" style={{ flex: '0 0 11.11%', maxWidth: '11.11%', padding: '0 0.5rem' }}>
                                 <div className="card p-3 shadow border-primary" style={{ minHeight: '80px' }}>
                                     <div className="d-flex flex-column align-items-center">
                                         <span className="text-primary" style={{ fontWeight: 'bolder', fontSize: '0.9rem' }}>Published</span>
@@ -433,7 +435,7 @@ const TuitionPage = () => {
                                     </div>
                                 </div>
                             </div>
-                            <div className="col-6 col-sm-3 mb-3" style={{ flex: '0 0 12.5%', maxWidth: '12.5%', padding: '0 0.5rem' }}>
+                            <div className="col-6 col-sm-3 mb-3" style={{ flex: '0 0 11.11%', maxWidth: '11.11%', padding: '0 0.5rem' }}>
                                 <div className="card p-3 shadow border-primary" style={{ minHeight: '80px' }}>
                                     <div className="d-flex flex-column align-items-center">
                                         <span className="text-primary" style={{ fontWeight: 'bolder', fontSize: '0.9rem' }}>Total</span>
@@ -441,7 +443,7 @@ const TuitionPage = () => {
                                     </div>
                                 </div>
                             </div>
-                            <div className="col-6 col-sm-3 mb-3" style={{ flex: '0 0 12.5%', maxWidth: '12.5%', padding: '0 0.5rem' }}>
+                            <div className="col-6 col-sm-3 mb-3" style={{ flex: '0 0 11.11%', maxWidth: '11.11%', padding: '0 0.5rem' }}>
                                 <div className="card p-3 shadow border-primary" style={{ minHeight: '80px' }}>
                                     <div className="d-flex flex-column align-items-center">
                                         <span className="text-primary" style={{ fontWeight: 'bolder', fontSize: '0.9rem' }}>Available</span>
@@ -449,7 +451,7 @@ const TuitionPage = () => {
                                     </div>
                                 </div>
                             </div>
-                            <div className="col-6 col-sm-3 mb-3" style={{ flex: '0 0 12.5%', maxWidth: '12.5%', padding: '0 0.5rem' }}>
+                            <div className="col-6 col-sm-3 mb-3" style={{ flex: '0 0 11.11%', maxWidth: '11.11%', padding: '0 0.5rem' }}>
                                 <div className="card p-3 shadow border-primary" style={{ minHeight: '80px' }}>
                                     <div className="d-flex flex-column align-items-center">
                                         <span className="text-primary" style={{ fontWeight: 'bolder', fontSize: '0.9rem' }}>Given Number</span>
@@ -457,7 +459,7 @@ const TuitionPage = () => {
                                     </div>
                                 </div>
                             </div>
-                            <div className="col-6 col-sm-3 mb-3" style={{ flex: '0 0 12.5%', maxWidth: '12.5%', padding: '0 0.5rem' }}>
+                            <div className="col-6 col-sm-3 mb-3" style={{ flex: '0 0 11.11%', maxWidth: '11.11%', padding: '0 0.5rem' }}>
                                 <div className="card p-3 shadow border-primary" style={{ minHeight: '80px' }}>
                                     <div className="d-flex flex-column align-items-center">
                                         <span className="text-primary" style={{ fontWeight: 'bolder', fontSize: '0.9rem' }}>Guardian Meet</span>
@@ -465,7 +467,7 @@ const TuitionPage = () => {
                                     </div>
                                 </div>
                             </div>
-                            <div className="col-6 col-sm-3 mb-3" style={{ flex: '0 0 12.5%', maxWidth: '12.5%', padding: '0 0.5rem' }}>
+                            <div className="col-6 col-sm-3 mb-3" style={{ flex: '0 0 11.11%', maxWidth: '11.11%', padding: '0 0.5rem' }}>
                                 <div className="card p-3 shadow border-primary" style={{ minHeight: '80px' }}>
                                     <div className="d-flex flex-column align-items-center">
                                         <span className="text-primary" style={{ fontWeight: 'bolder', fontSize: '0.9rem' }}>Demo Class Running</span>
@@ -473,7 +475,7 @@ const TuitionPage = () => {
                                     </div>
                                 </div>
                             </div>
-                            <div className="col-6 col-sm-3 mb-3" style={{ flex: '0 0 12.5%', maxWidth: '12.5%', padding: '0 0.5rem' }}>
+                            <div className="col-6 col-sm-3 mb-3" style={{ flex: '0 0 11.11%', maxWidth: '11.11%', padding: '0 0.5rem' }}>
                                 <div className="card p-3 shadow border-primary" style={{ minHeight: '80px' }}>
                                     <div className="d-flex flex-column align-items-center">
                                         <span className="text-primary" style={{ fontWeight: 'bolder', fontSize: '0.9rem' }}>Confirm</span>
@@ -481,7 +483,15 @@ const TuitionPage = () => {
                                     </div>
                                 </div>
                             </div>
-                            <div className="col-6 col-sm-3 mb-3" style={{ flex: '0 0 12.5%', maxWidth: '12.5%', padding: '0 0.5rem' }}>
+                            <div className="col-6 col-sm-3 mb-3" style={{ flex: '0 0 11.11%', maxWidth: '11.11%', padding: '0 0.5rem' }}>
+                                <div className="card p-3 shadow border-danger" style={{ minHeight: '80px' }}>
+                                    <div className="d-flex flex-column align-items-center">
+                                        <span className="text-danger" style={{ fontWeight: 'bolder', fontSize: '0.85rem' }}>Pending Apply</span>
+                                        <span style={{ fontSize: '1.1rem', fontWeight: 'bold' }}>{statusCounts.pendingApplyCount}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="col-6 col-sm-3 mb-3" style={{ flex: '0 0 11.11%', maxWidth: '11.11%', padding: '0 0.5rem' }}>
                                 <div className="card p-3 shadow border-primary" style={{ minHeight: '80px' }}>
                                     <div className="d-flex flex-column align-items-center">
                                         <span className="text-primary" style={{ fontWeight: 'bolder', fontSize: '0.9rem' }}>Cancel</span>
@@ -738,7 +748,14 @@ const TuitionPage = () => {
                     <Modal.Header closeButton className="bg-primary text-white">
                         <Modal.Title className="flex-grow-1 text-center fw-bold">
                             <FaBell className="text-warning" />
-                            <span className="ms-2">Tuition needs update Today: {tuitionNeedsUpdateList.length}</span>
+                            <span className="ms-2">
+                                Tuition needs update Today: {tuitionNeedsUpdateList.length} 
+                                {tuitionNeedsUpdateList.filter(t => t.hasPendingApply).length > 0 && (
+                                    <span className="ms-2 badge bg-danger">
+                                        Pending Apply: {tuitionNeedsUpdateList.filter(t => t.hasPendingApply).length}
+                                    </span>
+                                )}
+                            </span>
                         </Modal.Title>
                         {role === "superadmin" && (
                             <Button
@@ -757,6 +774,7 @@ const TuitionPage = () => {
                                 <table className="table table-striped table-bordered table-hover mb-0">
                                     <thead className="bg-dark text-white text-center sticky-header">
                                         <tr>
+                                            <th>SL</th>
                                             <th>Tuition Code</th>
                                             <th>Created By/Updated By</th>
                                             <th>Comment</th>
@@ -772,12 +790,27 @@ const TuitionPage = () => {
                                     <tbody>
                                         {tuitionNeedsUpdateList.map((tuition, index) => (
                                             <tr key={index} className="align-middle text-center">
+                                                <td>{index + 1}</td>
                                                 <td
                                                     style={{ color: 'blue', cursor: 'pointer', textDecoration: 'none' }}
                                                     onClick={() => openAppliedListModal(tuition)}
                                                     title="Click to see applied list"
                                                 >
-                                                    {tuition.tuitionCode}
+                                                    <div className="d-flex align-items-center justify-content-center gap-2">
+                                                        {tuition.tuitionCode}
+                                                        {tuition.hasPendingApply && (
+                                                            <span 
+                                                                className="badge bg-danger animate-pulse" 
+                                                                style={{ 
+                                                                    fontSize: '0.65rem',
+                                                                    padding: '2px 4px',
+                                                                    animation: 'blinker 1.5s linear infinite'
+                                                                }}
+                                                            >
+                                                                Pending
+                                                            </span>
+                                                        )}
+                                                    </div>
                                                 </td>
                                                 <td className="text-start">
                                                     <span className="badge bg-success text-white me-2">CB: {tuition.createdBy || '-'}</span>
@@ -832,6 +865,11 @@ const TuitionPage = () => {
                             <FaBell className="text-warning" />
                             <span className="ms-2">
                                 Tuition needs payment creation: {tuitionNeedsPaymentCreation.length}
+                                {tuitionNeedsPaymentCreation.filter(t => t.hasPendingApply).length > 0 && (
+                                    <span className="ms-2 badge bg-danger">
+                                        Pending Apply: {tuitionNeedsPaymentCreation.filter(t => t.hasPendingApply).length}
+                                    </span>
+                                )}
                             </span>
                         </Modal.Title>
                     </Modal.Header>
@@ -857,7 +895,21 @@ const TuitionPage = () => {
                                                     onClick={() => openAppliedListModal(tuition)}
                                                     title="Click to see applied list"
                                                 >
-                                                    {tuition.tuitionCode}
+                                                    <div className="d-flex align-items-center justify-content-center gap-2">
+                                                        {tuition.tuitionCode}
+                                                        {tuition.hasPendingApply && (
+                                                            <span 
+                                                                className="badge bg-danger animate-pulse" 
+                                                                style={{ 
+                                                                    fontSize: '0.65rem',
+                                                                    padding: '2px 4px',
+                                                                    animation: 'blinker 1.5s linear infinite'
+                                                                }}
+                                                            >
+                                                                Pending
+                                                            </span>
+                                                        )}
+                                                    </div>
                                                 </td>
                                                 <td>{tuition.tutorNumber}</td>
                                                 <td>{tuition.salary}</td>
@@ -1057,7 +1109,21 @@ const MemoizedTuitionTable = React.memo(({
                                 onClick={() => openAppliedListModal(tuition)}
                                 title="Click to see applied list"
                             >
-                                {tuition.tuitionCode}
+                                <div className="d-flex align-items-center gap-2">
+                                    {tuition.tuitionCode}
+                                    {tuition.hasPendingApply && (
+                                        <span 
+                                            className="badge bg-danger animate-pulse" 
+                                            style={{ 
+                                                fontSize: '0.65rem',
+                                                padding: '2px 4px',
+                                                animation: 'blinker 1.5s linear infinite'
+                                            }}
+                                        >
+                                            Pending
+                                        </span>
+                                    )}
+                                </div>
                             </td>
                             <td>
                                 {tuition.isWhatsappApply ? (
@@ -1157,6 +1223,12 @@ const stickyHeaderStyles = `
   
   th {
     background-color: inherit;
+  }
+
+  @keyframes blinker {
+    50% {
+      opacity: 0;
+    }
   }
 `;
 

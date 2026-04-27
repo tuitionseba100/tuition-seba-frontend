@@ -8,6 +8,8 @@ import { ToastContainer, toast } from 'react-toastify';
 import { Spinner } from 'react-bootstrap';
 import * as XLSX from 'xlsx';
 
+const BASE_URL = 'https://tuition-seba-backend-1.onrender.com/api/phone';
+
 const PhonePage = () => {
     const [phoneList, setPhoneList] = useState([]);
     const [filteredPhoneList, setFilteredPhoneList] = useState([]);
@@ -61,7 +63,7 @@ const PhonePage = () => {
     const fetchRecords = async () => {
         setLoading(true);
         try {
-            const response = await axios.get('https://tuition-seba-backend-1.onrender.com/api/phone/all', {
+            const response = await axios.get(`${BASE_URL}/all`, {
                 params: {
                     page: currentPage,
                     limit: 20,
@@ -81,7 +83,7 @@ const PhonePage = () => {
 
     const fetchSummaryCounts = async () => {
         try {
-            const response = await axios.get('https://tuition-seba-backend-1.onrender.com/api/phone/summary');
+            const response = await axios.get(`${BASE_URL}/summary`);
             setSummaryCounts(response.data);
         } catch (err) {
             console.error('Error fetching summary:', err);
@@ -91,7 +93,7 @@ const PhonePage = () => {
     const handleExportToExcel = async () => {
         try {
             setLoading(true);
-            const response = await axios.get('https://tuition-seba-backend-1.onrender.com/api/phone/export', {
+            const response = await axios.get(`${BASE_URL}/export`, {
                 params: {
                     phone: appliedFilters.phone,
                     type: appliedFilters.type
@@ -146,10 +148,10 @@ const PhonePage = () => {
         };
         try {
             if (editingId) {
-                await axios.put(`https://tuition-seba-backend-1.onrender.com/api/phone/edit/${editingId}`, updatedData);
+                await axios.put(`${BASE_URL}/edit/${editingId}`, updatedData);
                 toast.success("phone record updated successfully!");
             } else {
-                await axios.post('https://tuition-seba-backend-1.onrender.com/api/phone/add', updatedData);
+                await axios.post(`${BASE_URL}/add`, updatedData);
                 toast.success("phone record updated successfully!");
             }
             setShowModal(false);
@@ -157,7 +159,8 @@ const PhonePage = () => {
             fetchSummaryCounts();
         } catch (err) {
             console.error('Error:', err);
-            toast.error("Error.");
+            const errorMessage = err.response?.data?.message || err.response?.data || err.message || "Error saving record.";
+            toast.error(errorMessage);
         }
     };
 
@@ -191,7 +194,7 @@ const PhonePage = () => {
 
         if (confirmDelete) {
             try {
-                await axios.delete(`https://tuition-seba-backend-1.onrender.com/api/phone/delete/${id}`);
+                await axios.delete(`${BASE_URL}/delete/${id}`);
                 toast.success("Record deleted successfully!");
                 fetchRecords();
                 fetchSummaryCounts();

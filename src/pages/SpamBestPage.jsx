@@ -22,6 +22,7 @@ const PhonePage = () => {
         isBest: false,
         isExpress: false,
         isActive: false,
+        isBestGuardian: false,
     });
     const [searchInputs, setSearchInputs] = useState({
         phone: '',
@@ -39,7 +40,8 @@ const PhonePage = () => {
         total: 0,
         spam: 0,
         best: 0,
-        express: 0
+        express: 0,
+        bestGuardian: 0
     });
     const role = localStorage.getItem('role');
 
@@ -114,7 +116,8 @@ const PhonePage = () => {
                 "IsActive",
                 "IsExpress",
                 "IsSpam",
-                "IsBest"
+                "IsBest",
+                "IsBest Guardian"
             ];
 
             const tableData = exportData.map(item => [
@@ -125,6 +128,7 @@ const PhonePage = () => {
                 String(item.isExpress ?? ""),
                 String(item.isSpam ?? ""),
                 String(item.isBest ?? ""),
+                String(item.isBestGuardian ?? ""),
             ]);
 
             const worksheet = XLSX.utils.aoa_to_sheet([tableHeaders, ...tableData]);
@@ -184,6 +188,7 @@ const PhonePage = () => {
             isExpress: !!data.isExpress,
             isBest: !!data.isBest,
             isActive: !!data.isActive,
+            isBestGuardian: !!data.isBestGuardian,
         });
         setEditingId(data._id);
         setShowModal(true);
@@ -220,7 +225,7 @@ const PhonePage = () => {
                         onClick={() => {
                             setShowModal(true);
                             setEditingId(null);
-                            setPhoneData({ phone: '', note: '', isSpam: false, isActive: false });
+                            setPhoneData({ phone: '', note: '', isSpam: false, isBest: false, isExpress: false, isActive: false, isBestGuardian: false });
                         }}
                     >
                         Create Phone Record
@@ -233,7 +238,7 @@ const PhonePage = () => {
                                 <div className="card p-3 shadow border-dark">
                                     <div className="d-flex flex-column align-items-center">
                                         <span className="text-dark" style={{ fontWeight: 'bolder' }}>Total</span>
-                                        <span>{summaryCounts.total}</span>
+                                        <span>{summaryCounts?.total || 0}</span>
                                     </div>
                                 </div>
                             </div>
@@ -242,7 +247,7 @@ const PhonePage = () => {
                                 <div className="card p-3 shadow border border-danger">
                                     <div className="d-flex flex-column align-items-center text-danger">
                                         <span style={{ fontWeight: 'bolder' }}>Total Spam</span>
-                                        <span>{summaryCounts.spam}</span>
+                                        <span>{summaryCounts?.spam || 0}</span>
                                     </div>
                                 </div>
                             </div>
@@ -251,7 +256,7 @@ const PhonePage = () => {
                                 <div className="card p-3 shadow border border-primary">
                                     <div className="d-flex flex-column align-items-center text-primary">
                                         <span style={{ fontWeight: 'bolder' }}>Total Best Teacher</span>
-                                        <span>{summaryCounts.best}</span>
+                                        <span>{summaryCounts?.best || 0}</span>
                                     </div>
                                 </div>
                             </div>
@@ -260,7 +265,16 @@ const PhonePage = () => {
                                 <div className="card p-3 shadow border border-success">
                                     <div className="d-flex flex-column align-items-center text-success">
                                         <span style={{ fontWeight: 'bolder' }}>Total Express Teacher</span>
-                                        <span>{summaryCounts.express}</span>
+                                        <span>{summaryCounts?.express || 0}</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="col-6 col-sm-4 col-md-2 mb-3">
+                                <div className="card p-3 shadow border border-info">
+                                    <div className="d-flex flex-column align-items-center text-info">
+                                        <span style={{ fontWeight: 'bolder' }}>Total Best Guardian</span>
+                                        <span>{summaryCounts?.bestGuardian || 0}</span>
                                     </div>
                                 </div>
                             </div>
@@ -281,17 +295,65 @@ const PhonePage = () => {
                         />
                     </Col>
 
-                    <Col md={1}>
-                        <Form.Label className="fw-bold">Type Filter</Form.Label>
-                        <Form.Select
-                            value={searchInputs.type}
-                            onChange={(e) => setSearchInputs({ ...searchInputs, type: e.target.value })}
-                        >
-                            <option value="">All</option>
-                            <option value="spam">Spam</option>
-                            <option value="best">Best Teacher</option>
-                            <option value="express">Express</option>
-                        </Form.Select>
+                    <Col md="auto">
+                        <Form.Label className="fw-bold d-block">Type Filter</Form.Label>
+                        <div className="d-flex flex-wrap align-items-center border rounded px-3 bg-white" style={{ minHeight: '38px', paddingBottom: '2px', paddingTop: '6px' }}>
+                            <Form.Check
+                                inline
+                                type="radio"
+                                id="typeFilterAll"
+                                label="All"
+                                name="typeFilter"
+                                value=""
+                                checked={searchInputs.type === ''}
+                                onChange={(e) => setSearchInputs({ ...searchInputs, type: e.target.value })}
+                                onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+                            />
+                            <Form.Check
+                                inline
+                                type="radio"
+                                id="typeFilterSpam"
+                                label="Spam"
+                                name="typeFilter"
+                                value="spam"
+                                checked={searchInputs.type === 'spam'}
+                                onChange={(e) => setSearchInputs({ ...searchInputs, type: e.target.value })}
+                                onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+                            />
+                            <Form.Check
+                                inline
+                                type="radio"
+                                id="typeFilterBest"
+                                label="Best Teacher"
+                                name="typeFilter"
+                                value="best"
+                                checked={searchInputs.type === 'best'}
+                                onChange={(e) => setSearchInputs({ ...searchInputs, type: e.target.value })}
+                                onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+                            />
+                            <Form.Check
+                                inline
+                                type="radio"
+                                id="typeFilterExpress"
+                                label="Express"
+                                name="typeFilter"
+                                value="express"
+                                checked={searchInputs.type === 'express'}
+                                onChange={(e) => setSearchInputs({ ...searchInputs, type: e.target.value })}
+                                onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+                            />
+                            <Form.Check
+                                inline
+                                type="radio"
+                                id="typeFilterBestGuardian"
+                                label="Best Guardian"
+                                name="typeFilter"
+                                value="bestGuardian"
+                                checked={searchInputs.type === 'bestGuardian'}
+                                onChange={(e) => setSearchInputs({ ...searchInputs, type: e.target.value })}
+                                onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+                            />
+                        </div>
                     </Col>
 
                     <Col md="auto" className="d-flex align-items-end">
@@ -341,9 +403,11 @@ const PhonePage = () => {
                                         <th>Created At</th>
                                         <th>Phone</th>
                                         <th>Note</th>
+                                        <th>Type</th>
                                         <th>Is Spam</th>
                                         <th>Is Best Teacher</th>
                                         <th>Is Express</th>
+                                        <th>Is Best Guardian</th>
                                         <th>Is Active</th>
                                         <th>Actions</th>
                                     </tr>
@@ -370,6 +434,18 @@ const PhonePage = () => {
                                                     {item.phone}
                                                 </td>
                                                 <td>{item.note}</td>
+                                                <td className="fw-bold">
+                                                    {[
+                                                        item.isBest && <span key="best" className="text-primary">Best Teacher</span>,
+                                                        item.isBestGuardian && <span key="bg" className="text-info">Best Guardian</span>,
+                                                        item.isSpam && <span key="spam" className="text-danger">Spam</span>,
+                                                        item.isExpress && <span key="express" className="text-success">Express Teacher</span>
+                                                    ]
+                                                        .filter(Boolean)
+                                                        .reduce((acc, curr, idx) => (
+                                                            acc === null ? [curr] : [...acc, <span key={`amp-${idx}`} className="text-dark mx-1">&</span>, curr]
+                                                        ), null)}
+                                                </td>
                                                 <td
                                                     style={{
                                                         fontWeight: 'bold',
@@ -388,6 +464,11 @@ const PhonePage = () => {
                                                 >
                                                     {item.isExpress ? 'Yes' : 'No'}
                                                 </td>
+                                                <td
+                                                    style={{
+                                                        fontWeight: 'bold',
+                                                        color: item.isBestGuardian ? '#dc3545' : '#007bff'
+                                                    }}>{item.isBestGuardian ? 'Yes' : 'No'}</td>
                                                 <td>{item.isActive ? 'Yes' : 'No'}</td>
                                                 <td style={{ display: 'flex', justifyContent: 'flex-start', gap: '8px' }}>
                                                     <Button variant="warning" onClick={() => handleEditRecord(item)} className="mr-2">
@@ -524,6 +605,21 @@ const PhonePage = () => {
                                     </Form.Group>
                                 </Col>
                             </Row>
+
+                            <Row className="mt-3">
+                                <Col md={3}>
+                                    <Form.Group controlId="isBestGuardian">
+                                        <Form.Check
+                                            type="checkbox"
+                                            label="Is Best Guardian?"
+                                            checked={!!phoneData.isBestGuardian}
+                                            onChange={(e) =>
+                                                setPhoneData({ ...phoneData, isBestGuardian: e.target.checked })
+                                            }
+                                        />
+                                    </Form.Group>
+                                </Col>
+                            </Row>
                         </Form>
                     </Modal.Body>
 
@@ -546,6 +642,16 @@ export default PhonePage;
 const Container = styled.div`
   padding: 30px;
   background: #f4f4f9;
+
+  .form-check-input[type="radio"] {
+    border: 2px solid #666;
+    cursor: pointer;
+  }
+  
+  .form-check-input[type="radio"]:checked {
+    border-color: #0d6efd;
+    background-color: #0d6efd;
+  }
 `;
 
 const Header = styled.div`

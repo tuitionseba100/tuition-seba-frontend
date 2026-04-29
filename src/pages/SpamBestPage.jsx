@@ -519,113 +519,150 @@ const PhonePage = () => {
                         </Modal.Title>
                     </Modal.Header>
 
-                    <Modal.Body>
+                    <Modal.Body className="p-4">
                         <Form>
-                            <Row>
-                                <Col md={6}>
-                                    <Form.Group controlId="phone">
-                                        <Form.Label className="fw-bold">Phone</Form.Label>
-                                        <Form.Control
-                                            type="text"
-                                            value={phoneData.phone ?? ''}
-                                            onChange={(e) =>
-                                                setPhoneData({ ...phoneData, phone: e.target.value })
-                                            }
-                                        />
-                                    </Form.Group>
-                                </Col>
-                            </Row>
+                            <div className="mb-4">
+                                <h6 className="text-muted fw-bold mb-3 border-bottom pb-2">Primary Information</h6>
+                                <Row className="g-3">
+                                    <Col md={12}>
+                                        <Form.Group controlId="phone">
+                                            <Form.Label className="fw-bold">Phone Number</Form.Label>
+                                            <Form.Control
+                                                type="text"
+                                                placeholder="Enter phone number(s), separated by /"
+                                                value={phoneData.phone ?? ''}
+                                                onChange={(e) =>
+                                                    setPhoneData({ ...phoneData, phone: e.target.value })
+                                                }
+                                                className="shadow-sm"
+                                            />
+                                        </Form.Group>
+                                    </Col>
+                                    <Col md={12}>
+                                        <Form.Group controlId="note">
+                                            <Form.Label className="fw-bold">Note</Form.Label>
+                                            <Form.Control
+                                                as="textarea"
+                                                rows={3}
+                                                placeholder="Add relevant notes here..."
+                                                value={phoneData.note ?? ''}
+                                                onChange={(e) =>
+                                                    setPhoneData({ ...phoneData, note: e.target.value })
+                                                }
+                                                className="shadow-sm"
+                                            />
+                                        </Form.Group>
+                                    </Col>
+                                </Row>
+                            </div>
 
-                            <Row className="mt-3">
-                                <Col md={12}>
-                                    <Form.Group controlId="note">
-                                        <Form.Label className="fw-bold">Note</Form.Label>
-                                        <Form.Control
-                                            as="textarea"
-                                            rows={3}
-                                            value={phoneData.note ?? ''}
-                                            onChange={(e) =>
-                                                setPhoneData({ ...phoneData, note: e.target.value })
-                                            }
-                                        />
-                                    </Form.Group>
-                                </Col>
-                            </Row>
+                            <div>
+                                <h6 className="text-muted fw-bold mb-3 border-bottom pb-2">Flags & Statuses</h6>
+                                <Row className="g-3">
+                                    <Col sm={6} md={4}>
+                                        <div className="p-3 border rounded shadow-sm h-100 d-flex align-items-center" style={{ backgroundColor: '#f8f9fa' }}>
+                                            <Form.Check
+                                                type="switch"
+                                                id="isActive"
+                                                label="Is Active?"
+                                                className="fw-bold text-dark w-100"
+                                                checked={!!phoneData.isActive}
+                                                onChange={(e) =>
+                                                    setPhoneData({ ...phoneData, isActive: e.target.checked })
+                                                }
+                                            />
+                                        </div>
+                                    </Col>
 
-                            <Row className="mt-3">
-                                <Col md={3}>
-                                    <Form.Group controlId="isSpam">
-                                        <Form.Check
-                                            type="checkbox"
-                                            label="Is Spam?"
-                                            checked={!!phoneData.isSpam}
-                                            onChange={(e) =>
-                                                setPhoneData({ ...phoneData, isSpam: e.target.checked })
-                                            }
-                                        />
-                                    </Form.Group>
-                                </Col>
+                                    <Col sm={6} md={4}>
+                                        <div className="p-3 border border-danger rounded shadow-sm h-100 d-flex align-items-center bg-white">
+                                            <Form.Check
+                                                type="switch"
+                                                id="isSpam"
+                                                label={<span className="text-danger">Is Spam?</span>}
+                                                className="fw-bold w-100"
+                                                checked={!!phoneData.isSpam}
+                                                onChange={(e) => {
+                                                    const isChecked = e.target.checked;
+                                                    if (isChecked && (phoneData.isBest || phoneData.isBestGuardian || phoneData.isExpress)) {
+                                                        toast.warning("A number cannot be Spam while having a positive tag!");
+                                                        return;
+                                                    }
+                                                    setPhoneData({ ...phoneData, isSpam: isChecked });
+                                                }}
+                                            />
+                                        </div>
+                                    </Col>
 
-                                <Col md={3}>
-                                    <Form.Group controlId="isBest">
-                                        <Form.Check
-                                            type="checkbox"
-                                            label="Is Best?"
-                                            checked={!!phoneData.isBest}
-                                            onChange={(e) =>
-                                                setPhoneData({ ...phoneData, isBest: e.target.checked })
-                                            }
-                                        />
-                                    </Form.Group>
-                                </Col>
+                                    <Col sm={6} md={4}>
+                                        <div className="p-3 border border-primary rounded shadow-sm h-100 d-flex align-items-center bg-white">
+                                            <Form.Check
+                                                type="switch"
+                                                id="isBest"
+                                                label={<span className="text-primary">Best Teacher?</span>}
+                                                className="fw-bold w-100"
+                                                checked={!!phoneData.isBest}
+                                                onChange={(e) => {
+                                                    const isChecked = e.target.checked;
+                                                    if (isChecked && phoneData.isSpam) {
+                                                        toast.warning("A number cannot be marked as Best Teacher if it is Spam!");
+                                                        return;
+                                                    }
+                                                    setPhoneData({ ...phoneData, isBest: isChecked });
+                                                }}
+                                            />
+                                        </div>
+                                    </Col>
 
-                                <Col md={3}>
-                                    <Form.Group controlId="isActive">
-                                        <Form.Check
-                                            type="checkbox"
-                                            label="Is Active?"
-                                            checked={!!phoneData.isActive}
-                                            onChange={(e) =>
-                                                setPhoneData({ ...phoneData, isActive: e.target.checked })
-                                            }
-                                        />
-                                    </Form.Group>
-                                </Col>
+                                    <Col sm={6} md={4}>
+                                        <div className="p-3 border border-success rounded shadow-sm h-100 d-flex align-items-center bg-white">
+                                            <Form.Check
+                                                type="switch"
+                                                id="isExpress"
+                                                label={<span className="text-success">Express Teacher?</span>}
+                                                className="fw-bold w-100"
+                                                checked={!!phoneData.isExpress}
+                                                onChange={(e) => {
+                                                    const isChecked = e.target.checked;
+                                                    if (isChecked && phoneData.isSpam) {
+                                                        toast.warning("A number cannot be marked as Express Teacher if it is Spam!");
+                                                        return;
+                                                    }
+                                                    setPhoneData({ ...phoneData, isExpress: isChecked });
+                                                }}
+                                            />
+                                        </div>
+                                    </Col>
 
-                                <Col md={3}>
-                                    <Form.Group controlId="isExpress">
-                                        <Form.Check
-                                            type="checkbox"
-                                            label="Is Express?"
-                                            checked={!!phoneData.isExpress}
-                                            onChange={(e) =>
-                                                setPhoneData({ ...phoneData, isExpress: e.target.checked })
-                                            }
-                                        />
-                                    </Form.Group>
-                                </Col>
-                            </Row>
-
-                            <Row className="mt-3">
-                                <Col md={3}>
-                                    <Form.Group controlId="isBestGuardian">
-                                        <Form.Check
-                                            type="checkbox"
-                                            label="Is Best Guardian?"
-                                            checked={!!phoneData.isBestGuardian}
-                                            onChange={(e) =>
-                                                setPhoneData({ ...phoneData, isBestGuardian: e.target.checked })
-                                            }
-                                        />
-                                    </Form.Group>
-                                </Col>
-                            </Row>
+                                    <Col sm={6} md={4}>
+                                        <div className="p-3 border border-info rounded shadow-sm h-100 d-flex align-items-center bg-white">
+                                            <Form.Check
+                                                type="switch"
+                                                id="isBestGuardian"
+                                                label={<span className="text-info">Best Guardian?</span>}
+                                                className="fw-bold w-100"
+                                                checked={!!phoneData.isBestGuardian}
+                                                onChange={(e) => {
+                                                    const isChecked = e.target.checked;
+                                                    if (isChecked && phoneData.isSpam) {
+                                                        toast.warning("A number cannot be marked as Best Guardian if it is Spam!");
+                                                        return;
+                                                    }
+                                                    setPhoneData({ ...phoneData, isBestGuardian: isChecked });
+                                                }}
+                                            />
+                                        </div>
+                                    </Col>
+                                </Row>
+                            </div>
                         </Form>
                     </Modal.Body>
 
-                    <Modal.Footer>
-                        <Button variant="secondary" onClick={() => setShowModal(false)}>Close</Button>
-                        <Button variant="primary" onClick={handleSaveRequest}>Save</Button>
+                    <Modal.Footer className="bg-light">
+                        <Button variant="outline-secondary" className="px-4 fw-bold" onClick={() => setShowModal(false)}>Cancel</Button>
+                        <Button variant="primary" className="px-4 fw-bold shadow-sm" onClick={handleSaveRequest}>
+                            {editingId ? "Save Changes" : "Create Record"}
+                        </Button>
                     </Modal.Footer>
                 </Modal>
 

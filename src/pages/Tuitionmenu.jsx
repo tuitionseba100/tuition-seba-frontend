@@ -28,7 +28,9 @@ const TuitionPage = () => {
         urgentFilter: '',
         statusFilter: '',
         areaFilter: '',
-        assignedTo: ''
+        assignedTo: '',
+        type: '',
+        isReviewDone: ''
     });
 
     const [appliedFilters, setAppliedFilters] = useState({
@@ -39,7 +41,9 @@ const TuitionPage = () => {
         urgentFilter: '',
         statusFilter: '',
         areaFilter: '',
-        assignedTo: ''
+        assignedTo: '',
+        type: '',
+        isReviewDone: ''
     });
 
     const [userOptions, setUserOptions] = useState([]);
@@ -129,7 +133,9 @@ const TuitionPage = () => {
             urgentFilter: '',
             statusFilter: '',
             areaFilter: '',
-            assignedTo: ''
+            assignedTo: '',
+            type: '',
+            isReviewDone: ''
         };
         setSearchInputs(resetFilters);
         setAppliedFilters(resetFilters);
@@ -212,7 +218,9 @@ const TuitionPage = () => {
                     isUrgent: appliedFilters.urgentFilter === "Yes" ? 'true' : appliedFilters.urgentFilter === "No" ? 'false' : undefined,
                     status: appliedFilters.statusFilter,
                     area: appliedFilters.areaFilter,
-                    assignedTo: appliedFilters.assignedTo
+                    assignedTo: appliedFilters.assignedTo,
+                    type: appliedFilters.type,
+                    isReviewDone: appliedFilters.isReviewDone === "Yes" ? 'true' : appliedFilters.isReviewDone === "No" ? 'false' : undefined
                 }
             });
 
@@ -240,7 +248,9 @@ const TuitionPage = () => {
                 isUrgent: appliedFilters.urgentFilter === "Yes" ? 'true' : appliedFilters.urgentFilter === "No" ? 'false' : undefined,
                 status: appliedFilters.statusFilter,
                 area: appliedFilters.areaFilter,
-                assignedTo: appliedFilters.assignedTo
+                assignedTo: appliedFilters.assignedTo,
+                type: appliedFilters.type,
+                isReviewDone: appliedFilters.isReviewDone === "Yes" ? 'true' : appliedFilters.isReviewDone === "No" ? 'false' : undefined
             };
 
             const res = await axios.get('https://tuition-seba-backend-1.onrender.com/api/tuition/summary', {
@@ -617,6 +627,78 @@ const TuitionPage = () => {
                         </Col>
                     )}
 
+                    <Col md="auto">
+                        <Form.Label className="fw-bold d-block">Type Filter</Form.Label>
+                        <div className="d-flex flex-wrap align-items-center border rounded px-3 bg-white" style={{ minHeight: '38px' }}>
+                            <Form.Check
+                                inline
+                                label="All"
+                                name="typeGroup"
+                                type="radio"
+                                id="type-all"
+                                checked={searchInputs.type === ''}
+                                onChange={() => handleSearchInputChange('type', '')}
+                                onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+                            />
+                            <Form.Check
+                                inline
+                                label={<span className="text-danger">Spam</span>}
+                                name="typeGroup"
+                                type="radio"
+                                id="type-spam"
+                                checked={searchInputs.type === 'spam'}
+                                onChange={() => handleSearchInputChange('type', 'spam')}
+                                onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+                            />
+                            <Form.Check
+                                inline
+                                label={<span className="text-info">Best Guardian</span>}
+                                name="typeGroup"
+                                type="radio"
+                                id="type-bestGuardian"
+                                checked={searchInputs.type === 'bestGuardian'}
+                                onChange={() => handleSearchInputChange('type', 'bestGuardian')}
+                                onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+                            />
+                        </div>
+                    </Col>
+
+                    <Col md="auto">
+                        <Form.Label className="fw-bold d-block">Review Filter</Form.Label>
+                        <div className="d-flex flex-wrap align-items-center border rounded px-3 bg-white" style={{ minHeight: '38px' }}>
+                            <Form.Check
+                                inline
+                                label="All"
+                                name="reviewGroup"
+                                type="radio"
+                                id="review-all"
+                                checked={searchInputs.isReviewDone === ''}
+                                onChange={() => handleSearchInputChange('isReviewDone', '')}
+                                onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+                            />
+                            <Form.Check
+                                inline
+                                label={<span className="text-success">Yes</span>}
+                                name="reviewGroup"
+                                type="radio"
+                                id="review-yes"
+                                checked={searchInputs.isReviewDone === 'Yes'}
+                                onChange={() => handleSearchInputChange('isReviewDone', 'Yes')}
+                                onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+                            />
+                            <Form.Check
+                                inline
+                                label={<span className="text-secondary">No</span>}
+                                name="reviewGroup"
+                                type="radio"
+                                id="review-no"
+                                checked={searchInputs.isReviewDone === 'No'}
+                                onChange={() => handleSearchInputChange('isReviewDone', 'No')}
+                                onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+                            />
+                        </div>
+                    </Col>
+
                     <Col md="auto" className="d-flex align-items-end">
                         <Button
                             variant="success"
@@ -789,7 +871,10 @@ const TuitionPage = () => {
                                     </thead>
                                     <tbody>
                                         {tuitionNeedsUpdateList.map((tuition, index) => (
-                                            <tr key={index} className="align-middle text-center">
+                                            <tr 
+                                                key={index} 
+                                                className={`align-middle text-center ${tuition.isSpamGuardian ? "table-danger" : tuition.isBestGuardian ? "table-info" : ""}`}
+                                            >
                                                 <td>{index + 1}</td>
                                                 <td
                                                     style={{ color: 'blue', cursor: 'pointer', textDecoration: 'none' }}
@@ -826,7 +911,15 @@ const TuitionPage = () => {
                                                     </span>
                                                 </td>
                                                 <td>{tuition.tutorNumber}</td>
-                                                <td>{tuition.guardianNumber}</td>
+                                                <td>
+                                                    <div className="d-flex flex-column align-items-center">
+                                                        <span>{tuition.guardianNumber}</span>
+                                                        <div className="d-flex gap-1 mt-1">
+                                                            {tuition.isSpamGuardian && <Badge bg="danger" style={{ fontSize: '0.6rem' }}>Spam</Badge>}
+                                                            {tuition.isBestGuardian && <Badge bg="primary" style={{ fontSize: '0.6rem' }}>Best</Badge>}
+                                                        </div>
+                                                    </div>
+                                                </td>
                                                 <td style={{ display: 'flex', justifyContent: 'flex-start', gap: '8px' }}>
                                                     <Button variant="info" onClick={() => handleShowDetails(tuition)} title="View Details">
                                                         <FaInfoCircle />
@@ -888,7 +981,10 @@ const TuitionPage = () => {
                                     </thead>
                                     <tbody>
                                         {tuitionNeedsPaymentCreation.map((tuition, index) => (
-                                            <tr key={index} className="align-middle text-center">
+                                            <tr 
+                                                key={index} 
+                                                className={`align-middle text-center ${tuition.isSpamGuardian ? "table-danger" : tuition.isBestGuardian ? "table-info" : ""}`}
+                                            >
                                                 <td>{index + 1}</td>
                                                 <td
                                                     style={{ color: 'blue', cursor: 'pointer', textDecoration: 'none' }}
@@ -1058,6 +1154,7 @@ const MemoizedTuitionTable = React.memo(({
                     <th>Published?</th>
                     <th>Assigned To</th>
                     <th>Status</th>
+                    <th>Reviewed?</th>
                     <th>Payment Created?</th>
                     <th>Last Available Check</th>
                     <th>Last Update</th>
@@ -1096,7 +1193,10 @@ const MemoizedTuitionTable = React.memo(({
                     </tr>
                 ) : (
                     tuitionList.map((tuition, index) => (
-                        <tr key={tuition._id}>
+                        <tr 
+                            key={tuition._id}
+                            className={tuition.isSpamGuardian ? "table-danger" : tuition.isBestGuardian ? "table-info" : ""}
+                        >
                             <td>{index + 1}</td>
                             <td>
                                 <div className="d-flex flex-column">
@@ -1150,6 +1250,13 @@ const MemoizedTuitionTable = React.memo(({
                                     {tuition.status}
                                 </span>
                             </td>
+                            <td>
+                                {tuition.isReviewDone ? (
+                                    <span className="badge bg-success">Yes</span>
+                                ) : (
+                                    <span className="badge bg-secondary">No</span>
+                                )}
+                            </td>
                             <td className={tuition.isPaymentCreated ? "text-success fw-bold" : "text-danger fw-bold"}>
                                 {tuition.isPaymentCreated ? "Yes" : "No"}
                             </td>
@@ -1169,7 +1276,15 @@ const MemoizedTuitionTable = React.memo(({
                             <td>{tuition.salary && /taka|tk/i.test(tuition.salary.toString()) ? tuition.salary : (tuition.salary ? tuition.salary.toString().trim() + ' taka' : '')}</td>
                             <td>{tuition.location}</td>
                             <td>{tuition.area ? tuition.area : ""}</td>
-                            <td>{tuition.guardianNumber}</td>
+                            <td>
+                                <div className="d-flex flex-column align-items-center">
+                                    <span>{tuition.guardianNumber}</span>
+                                    <div className="d-flex gap-1 mt-1">
+                                        {tuition.isSpamGuardian && <Badge bg="danger" style={{ fontSize: '0.6rem' }}>Spam</Badge>}
+                                        {tuition.isBestGuardian && <Badge bg="primary" style={{ fontSize: '0.6rem' }}>Best</Badge>}
+                                    </div>
+                                </div>
+                            </td>
                             <td>{tuition.tutorNumber}</td>
                             <td>{tuition.note}</td>
                             <td style={{ display: 'flex', justifyContent: 'flex-start', gap: '8px', position: 'sticky', right: 0, zIndex: 2, backgroundColor: '#fff' }}>
@@ -1240,6 +1355,16 @@ document.head.appendChild(styleElement);
 const Container = styled.div`
   padding: 30px;
   background: #f4f4f9;
+
+  .form-check-input[type="radio"] {
+    border: 2px solid #666;
+    cursor: pointer;
+  }
+  
+  .form-check-input[type="radio"]:checked {
+    border-color: #0d6efd;
+    background-color: #0d6efd;
+  }
 `;
 
 const Header = styled.div`

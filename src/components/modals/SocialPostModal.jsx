@@ -462,9 +462,9 @@ const SocialPostModal = ({ show, onHide }) => {
                                             />
                                         </th>
                                         <th>Code</th>
-                                        <th>Details</th>
                                         <th>Area</th>
-                                        <th>Salary</th>
+                                        <th>Class/Subject</th>
+                                        {filters.status.length > 1 && <th>Status</th>}
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -476,19 +476,24 @@ const SocialPostModal = ({ show, onHide }) => {
                                             style={{ cursor: 'pointer' }}
                                         >
                                             <td className="text-center">
-                                                <Form.Check
-                                                    type="checkbox"
-                                                    checked={selectedIds.includes(t._id)}
-                                                    readOnly
-                                                />
+                                                {selectedIds.includes(t._id) ? 
+                                                    <FaCheckSquare className="text-primary" /> : 
+                                                    <FaSquare className="text-light border" />
+                                                }
                                             </td>
-                                            <td className="fw-bold text-primary">{t.tuitionCode}</td>
+                                            <td className="fw-bold">{t.tuitionCode}</td>
+                                            <td>{t.area}</td>
                                             <td>
-                                                <div className="small fw-bold">{t.class}</div>
-                                                <div className="text-muted" style={{ fontSize: '0.75rem' }}>{t.subject}</div>
+                                                <div className="small fw-semibold">{t.class}</div>
+                                                <div className="text-muted small">{t.subject}</div>
                                             </td>
-                                            <td><Badge bg="info" className="text-dark fw-normal">{t.area}</Badge></td>
-                                            <td className="text-success fw-bold">{t.salary}</td>
+                                            {filters.status.length > 1 && (
+                                                <td>
+                                                    <Badge bg="info" className="text-capitalize" style={{ fontSize: '0.7rem' }}>
+                                                        {t.status}
+                                                    </Badge>
+                                                </td>
+                                            )}
                                         </tr>
                                     ))}
                                     {filteredTuitions.length === 0 && (

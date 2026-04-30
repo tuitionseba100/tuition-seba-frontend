@@ -186,8 +186,8 @@ const GuardianApplyPage = () => {
     const formatDate = (dateString) => {
         const date = new Date(dateString);
 
-        const optionsDate = { day: '2-digit', month: 'long', year: 'numeric' };
-        const optionsTime = { hour: '2-digit', minute: '2-digit', hour12: true, timeZone: 'UTC' };
+        const optionsDate = { day: '2-digit', month: 'long', year: 'numeric', timeZone: 'Asia/Dhaka' };
+        const optionsTime = { hour: '2-digit', minute: '2-digit', hour12: true, timeZone: 'Asia/Dhaka' };
 
         const formattedDate = new Intl.DateTimeFormat('en-GB', optionsDate).format(date);
         const formattedTime = new Intl.DateTimeFormat('en-GB', optionsTime).format(date);

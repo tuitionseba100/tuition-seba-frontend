@@ -532,8 +532,8 @@ const TuitionPage = () => {
                                                 </td>
                                                 <td style={getRowStyle(tuition)}>{tuition.premiumCode}</td>
                                                 <td style={getRowStyle(tuition)}>
-                                                    <span 
-                                                        style={{ cursor: 'pointer', color: tuition.hasDue ? '#000' : (tuition.isSpam || tuition.isBest || tuition.isExpress) ? '#fff' : '#0d6efd', textDecoration: 'underline', fontWeight: '500' }} 
+                                                    <span
+                                                        style={{ cursor: 'pointer', color: tuition.hasDue ? '#000' : (tuition.isSpam || tuition.isBest || tuition.isExpress) ? '#fff' : '#0d6efd', textDecoration: 'underline', fontWeight: '500' }}
                                                         onClick={() => handleShowDetails(tuition.tuitionId)}
                                                     >
                                                         {tuition.tuitionCode}
@@ -826,12 +826,12 @@ const TuitionPage = () => {
                 <LoadingCard show={deleting} message="Deleting tuition record..." />
 
                 <LoadingCard show={fetchingDetails} message="Fetching tuition details..." />
-                
+
                 {detailsModalShow && tuitionDetails && !fetchingDetails && (
-                    <TuitionDetailsModal 
-                        show={detailsModalShow} 
-                        onHide={() => setDetailsModalShow(false)} 
-                        detailsData={tuitionDetails} 
+                    <TuitionDetailsModal
+                        show={detailsModalShow}
+                        onHide={() => setDetailsModalShow(false)}
+                        detailsData={tuitionDetails}
                     />
                 )}
 

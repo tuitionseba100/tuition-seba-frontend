@@ -192,16 +192,24 @@ const TuitionPage = () => {
                         value: user.username,
                         label: `${user.name} (${user.username})`
                     }));
-                    setUserOptions(users);
+                    setUserOptions([
+                        { value: 'unassigned', label: 'Unassigned' },
+                        { value: 'assigned', label: 'Assigned' },
+                        ...users
+                    ]);
                 } catch (error) {
                     console.error('Error fetching users:', error);
                 }
             } else if (role === 'admin') {
                 const name = localStorage.getItem('name') || currentUsername;
-                setUserOptions([{
-                    value: currentUsername,
-                    label: `${name} (${currentUsername})`
-                }]);
+                setUserOptions([
+                    { value: 'unassigned', label: 'Unassigned' },
+                    { value: 'assigned', label: 'Assigned' },
+                    {
+                        value: currentUsername,
+                        label: `${name} (${currentUsername})`
+                    }
+                ]);
             }
         };
         fetchUsers();

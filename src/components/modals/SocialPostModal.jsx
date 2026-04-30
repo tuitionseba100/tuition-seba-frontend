@@ -216,7 +216,7 @@ const SocialPostModal = ({ show, onHide }) => {
     };
 
     const filteredTuitions = useMemo(() => {
-        return tuitions.filter(t => 
+        return tuitions.filter(t =>
             t.tuitionCode?.toLowerCase().includes(searchTerm.toLowerCase()) ||
             t.area?.toLowerCase().includes(searchTerm.toLowerCase()) ||
             t.class?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -252,7 +252,7 @@ const SocialPostModal = ({ show, onHide }) => {
             if (fieldConfig.salary) text += `Salary: ${t.salary || 'Negotiable'}\n`;
             if (fieldConfig.location) text += `Location: ${t.location || ''} ${t.area ? '(' + t.area + ')' : ''}\n`;
             if (fieldConfig.joining) text += `Joining: ${t.joining || 'As soon as'}\n`;
-            
+
             if (index < selected.length - 1) {
                 text += `--------------------------------\n\n`;
             }
@@ -310,16 +310,16 @@ const SocialPostModal = ({ show, onHide }) => {
                                     </Col>
                                     <Col md={3}>
                                         <InputGroup size="sm">
-                                            <Form.Control 
-                                                placeholder="Start Code" 
-                                                name="startCode" 
-                                                value={filters.startCode} 
+                                            <Form.Control
+                                                placeholder="Start Code"
+                                                name="startCode"
+                                                value={filters.startCode}
                                                 onChange={handleFilterChange}
                                             />
-                                            <Form.Control 
-                                                placeholder="End" 
-                                                name="endCode" 
-                                                value={filters.endCode} 
+                                            <Form.Control
+                                                placeholder="End"
+                                                name="endCode"
+                                                value={filters.endCode}
                                                 onChange={handleFilterChange}
                                             />
                                         </InputGroup>
@@ -336,8 +336,8 @@ const SocialPostModal = ({ show, onHide }) => {
                                 <SectionTitle><FaListUl /> Field Configuration</SectionTitle>
                                 <div className="d-flex flex-wrap gap-1">
                                     {Object.keys(fieldConfig).map(field => (
-                                        <ToggleBadge 
-                                            key={field} 
+                                        <ToggleBadge
+                                            key={field}
                                             className={fieldConfig[field] ? "bg-primary" : "bg-light"}
                                             onClick={() => toggleField(field)}
                                         >
@@ -353,8 +353,8 @@ const SocialPostModal = ({ show, onHide }) => {
                             <SectionTitle className="mb-0"><FaEye /> Preview List ({selectedIds.length}/{tuitions.length} Selected)</SectionTitle>
                             <InputGroup size="sm" style={{ width: '250px' }}>
                                 <InputGroup.Text><FaSearch /></InputGroup.Text>
-                                <Form.Control 
-                                    placeholder="Search in list..." 
+                                <Form.Control
+                                    placeholder="Search in list..."
                                     value={searchTerm}
                                     onChange={(e) => setSearchTerm(e.target.value)}
                                 />
@@ -383,9 +383,9 @@ const SocialPostModal = ({ show, onHide }) => {
                                 </thead>
                                 <tbody>
                                     {filteredTuitions.map(t => (
-                                        <tr 
-                                            key={t._id} 
-                                            onClick={() => handleToggleSelect(t._id)} 
+                                        <tr
+                                            key={t._id}
+                                            onClick={() => handleToggleSelect(t._id)}
                                             className={selectedIds.includes(t._id) ? "selected-row" : ""}
                                             style={{ cursor: 'pointer' }}
                                         >
@@ -434,9 +434,9 @@ const SocialPostModal = ({ show, onHide }) => {
                 {/* Bottom Action Bar */}
                 <Row className="mt-3 g-3">
                     <Col md={7}>
-                        <Button 
-                            variant="success" 
-                            className="w-100 py-2 fw-bold shadow-sm h-100 d-flex align-items-center justify-content-center" 
+                        <Button
+                            variant="success"
+                            className="w-100 py-2 fw-bold shadow-sm h-100 d-flex align-items-center justify-content-center"
                             onClick={generatePost}
                             disabled={selectedIds.length === 0}
                             style={{ fontSize: '1.1rem' }}

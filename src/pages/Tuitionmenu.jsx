@@ -13,6 +13,7 @@ import TuitionDetailsModal from '../components/modals/TuitionDetailsModal';
 import LoadingCard from '../components/modals/LoadingCard';
 import AppliedListModal from '../components/modals/TuitionApplyListModal';
 import TuitionAssignModal from '../components/modals/TuitionAssignModal';
+import SocialPostModal from '../components/modals/SocialPostModal';
 import locationData from '../data/locations.json';
 
 const TuitionPage = () => {
@@ -68,6 +69,7 @@ const TuitionPage = () => {
     const [selectedTuitionCode, setSelectedTuitionCode] = useState(null);
     const [showExportModal, setShowExportModal] = useState(false);
     const [showAssignModal, setShowAssignModal] = useState(false);
+    const [showSocialPostModal, setShowSocialPostModal] = useState(false);
     const [selectedTuitionForAssign, setSelectedTuitionForAssign] = useState(null);
     const [selectedExportStatus, setSelectedExportStatus] = useState('');
     const role = localStorage.getItem('role');
@@ -429,10 +431,12 @@ const TuitionPage = () => {
 
                 <Header>
                     <h2 className='text-primary fw-bold'>Tuition Dashboard</h2>
-                    <Button variant="primary" onClick={handleCreate}>
-                        Create Tuition
+                    <SocialPostButton onClick={() => setShowSocialPostModal(true)}>
+                        <FaWhatsapp /> Generate Social Post
+                    </SocialPostButton>
+                    <Button variant="primary" className="fw-bold" onClick={handleCreate} style={{ borderRadius: '30px', padding: '8px 24px' }}>
+                        + Create Tuition
                     </Button>
-
                 </Header>
                 <Card className="mt-4">
                     <Card.Body>
@@ -1063,6 +1067,11 @@ const TuitionPage = () => {
 
                 <LoadingCard show={deleteLoading} message="Deleting..." />
 
+                <SocialPostModal
+                    show={showSocialPostModal}
+                    onHide={() => setShowSocialPostModal(false)}
+                />
+
                 <ToastContainer />
 
                 {/* Export Modal */}
@@ -1375,5 +1384,36 @@ const Header = styled.div`
   h2 {
     font-family: 'Arial', sans-serif;
     color: #333;
+  }
+`;
+
+const SocialPostButton = styled(Button)`
+  background: linear-gradient(45deg, #128c7e, #25d366) !important;
+  border: none !important;
+  border-radius: 30px !important;
+  padding: 8px 24px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.5px !important;
+  color: white !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  box-shadow: 0 4px 12px rgba(37, 211, 102, 0.3) !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  position: relative;
+  overflow: hidden;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(37, 211, 102, 0.4) !important;
+    filter: brightness(1.1);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+  
+  svg {
+    font-size: 1.2rem;
   }
 `;

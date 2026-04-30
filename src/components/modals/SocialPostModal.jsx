@@ -232,7 +232,11 @@ const SocialPostModal = ({ show, onHide }) => {
         }
 
         let text = "TUITION SEBA FORUM \n";
-        text += `🔥 ${selected.length}+ Tuition Available Right Now 🔥\n`;
+        if (filters.area) {
+            text += `🔥 ${selected.length}+ Tuition Available at ${filters.area} 🔥\n`;
+        } else {
+            text += `🔥 ${selected.length}+ Tuition Available Right Now 🔥\n`;
+        }
         text += "Visit our Website and Apply Now \n\n";
 
         selected.forEach((t, index) => {

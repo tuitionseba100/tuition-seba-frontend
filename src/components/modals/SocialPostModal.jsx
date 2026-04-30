@@ -1,10 +1,40 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Modal, Button, Form, Row, Col, Spinner, Table, Card, Badge, InputGroup } from 'react-bootstrap';
+import Select from 'react-select';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import { FaCopy, FaWhatsapp, FaSearch, FaFilter, FaListUl, FaEye, FaCheckSquare, FaSquare, FaTimes } from 'react-icons/fa';
 import locationData from '../../data/locations.json';
 import styled from 'styled-components';
+
+// Custom styles for react-select to match the UI
+const selectStyles = {
+    control: (base) => ({
+        ...base,
+        minHeight: '31px',
+        fontSize: '0.85rem',
+        borderRadius: '4px',
+        borderColor: '#dee2e6',
+        boxShadow: 'none',
+        '&:hover': {
+            borderColor: '#0d6efd'
+        }
+    }),
+    valueContainer: (base) => ({
+        ...base,
+        padding: '0 8px',
+    }),
+    indicatorsContainer: (base) => ({
+        ...base,
+        height: '31px',
+    }),
+    multiValue: (base) => ({
+        ...base,
+        margin: '1px',
+        backgroundColor: '#e7f1ff',
+        borderRadius: '4px'
+    })
+};
 
 const StyledModal = styled(Modal)`
     .modal-dialog {
@@ -161,11 +191,30 @@ const SocialPostModal = ({ show, onHide }) => {
     const [searchTerm, setSearchTerm] = useState('');
     const [filters, setFilters] = useState({
         count: '10',
-        area: '',
+        area: [],
+        status: [{ value: 'available', label: 'Available' }],
         startCode: '',
         endCode: ''
     });
 
+    const statusOptions = [
+        { value: 'available', label: 'Available' },
+        { value: 'given number', label: 'Given Number' },
+        { value: 'guardian meet', label: 'Guardian Meet' },
+        { value: 'demo class running', label: 'Demo Class Running' },
+        { value: 'confirm', label: 'Confirm' },
+        { value: 'cancel', label: 'Cancel' },
+        { value: 'refer BM', label: 'Refer BM' },
+        { value: 'suspended', label: 'Suspended' },
+        { value: 'guardian no response', label: 'Guardian No response' },
+        { value: 'request for payment', label: 'Request for payment' }
+    ];
+
+    const areaOptions = useMemo(() => 
+        locationData.areaOptions.chittagong.map(area => ({ value: area, label: area }))
+    , []);
+
+    const [isWhatsAppFormat, setIsWhatsAppFormat] = useState(true);
     const [fieldConfig, setFieldConfig] = useState({
         tuitionCode: true,
         wantedTeacher: true,
@@ -186,6 +235,10 @@ const SocialPostModal = ({ show, onHide }) => {
         setFilters(prev => ({ ...prev, [name]: value }));
     };
 
+    const handleSelectChange = (selectedOptions, { name }) => {
+        setFilters(prev => ({ ...prev, [name]: selectedOptions || [] }));
+    };
+
     const toggleField = (field) => {
         setFieldConfig(prev => ({ ...prev, [field]: !prev[field] }));
     };
@@ -194,8 +247,14 @@ const SocialPostModal = ({ show, onHide }) => {
         setLoading(true);
         try {
             const token = localStorage.getItem('token');
+            const params = {
+                ...filters,
+                area: filters.area.map(a => a.value).join(','),
+                status: filters.status.map(s => s.value).join(',')
+            };
+            
             const response = await axios.get('https://tuition-seba-backend-1.onrender.com/api/tuition/post-data', {
-                params: filters,
+                params,
                 headers: { Authorization: token }
             });
             setTuitions(response.data);
@@ -231,30 +290,32 @@ const SocialPostModal = ({ show, onHide }) => {
             return;
         }
 
-        let text = "TUITION SEBA FORUM \n";
-        if (filters.area) {
-            text += `🔥 ${selected.length}+ Tuition Available at "${filters.area}" 🔥\n`;
+        const b = isWhatsAppFormat ? "*" : "";
+        let text = `${b}TUITION SEBA FORUM${b} \n`;
+        if (filters.area.length > 0) {
+            const areaNames = filters.area.map(a => a.label).join(', ');
+            text += `🔥 ${selected.length}+ Tuition Available at "${areaNames}" 🔥\n`;
         } else {
             text += `🔥 ${selected.length}+ Tuition Available Right Now 🔥\n`;
         }
         text += "Visit our Website and Apply Now \n\n";
 
         selected.forEach((t, index) => {
-            if (fieldConfig.tuitionCode) text += ` Tuition Code: ${t.tuitionCode}\n`;
-            if (fieldConfig.wantedTeacher) text += `Wanted Teacher: ${t.wantedTeacher || 'N/A'}\n`;
-            if (fieldConfig.student) text += `Number of Students: ${t.student || 'N/A'}\n`;
-            if (fieldConfig.class) text += `Class: ${t.class || 'N/A'}\n`;
-            if (fieldConfig.institute) text += `Institute: ${t.institute || 'Not specified'}\n`;
-            if (fieldConfig.medium) text += `Medium: ${t.medium || 'N/A'}\n`;
-            if (fieldConfig.subject) text += `Subject: ${t.subject || 'N/A'}\n`;
-            if (fieldConfig.day) text += `Day: ${t.day || 'N/A'}\n`;
-            if (fieldConfig.time) text += `Time: ${t.time || 'N/A'}\n`;
-            if (fieldConfig.salary) text += `Salary: ${t.salary || 'Negotiable'}\n`;
-            if (fieldConfig.location) text += `Location: ${t.location || ''} ${t.area ? '(' + t.area + ')' : ''}\n`;
-            if (fieldConfig.joining) text += `Joining: ${t.joining || 'As soon as'}\n`;
+            if (fieldConfig.tuitionCode) text += `${b}Tuition Code:${b} ${t.tuitionCode}\n`;
+            if (fieldConfig.wantedTeacher) text += `${b}Wanted Teacher:${b} ${t.wantedTeacher || 'N/A'}\n`;
+            if (fieldConfig.student) text += `${b}Number of Students:${b} ${t.student || 'N/A'}\n`;
+            if (fieldConfig.class) text += `${b}Class:${b} ${t.class || 'N/A'}\n`;
+            if (fieldConfig.institute) text += `${b}Institute:${b} ${t.institute || 'Not specified'}\n`;
+            if (fieldConfig.medium) text += `${b}Medium:${b} ${t.medium || 'N/A'}\n`;
+            if (fieldConfig.subject) text += `${b}Subject:${b} ${t.subject || 'N/A'}\n`;
+            if (fieldConfig.day) text += `${b}Day:${b} ${t.day || 'N/A'}\n`;
+            if (fieldConfig.time) text += `${b}Time:${b} ${t.time || 'N/A'}\n`;
+            if (fieldConfig.salary) text += `${b}Salary:${b} ${t.salary || 'Negotiable'}\n`;
+            if (fieldConfig.location) text += `${b}Location:${b} ${t.location || ''} ${t.area ? '(' + t.area + ')' : ''}\n`;
+            if (fieldConfig.joining) text += `${b}Joining:${b} ${t.joining || 'As soon as'}\n`;
             
-            text += `📲 Whatsapp: +8801571305804\n`;
-            text += `📌 Interested teachers—apply fast. Visit our Website/ Apps [Tuition Seba Forum]\n`;
+            text += `📲 ${b}Whatsapp:${b} +8801571305804\n`;
+            text += `📌 ${b}Interested teachers—apply fast. Visit our Website/ Apps [Tuition Seba Forum]${b}\n`;
 
             if (index < selected.length - 1) {
                 text += `--------------------------------\n\n`;
@@ -289,9 +350,9 @@ const SocialPostModal = ({ show, onHide }) => {
                     <Col md={7} className="d-flex flex-column h-100">
                         <FilterCard>
                             <Card.Body>
-                                <SectionTitle><FaFilter /> Quick Search & Filters</SectionTitle>
+                                <SectionTitle><FaFilter /> Advanced Filters</SectionTitle>
                                 <Row className="g-2">
-                                    <Col md={3}>
+                                    <Col md={2}>
                                         <Form.Select name="count" value={filters.count} onChange={handleFilterChange} className="form-control-sm">
                                             <option value="5">Latest 5</option>
                                             <option value="10">Latest 10</option>
@@ -300,18 +361,33 @@ const SocialPostModal = ({ show, onHide }) => {
                                             <option value="100">Latest 100</option>
                                         </Form.Select>
                                     </Col>
-                                    <Col md={4}>
-                                        <Form.Select name="area" value={filters.area} onChange={handleFilterChange} className="form-control-sm">
-                                            <option value="">All Areas</option>
-                                            {locationData.areaOptions.chittagong.map((area, idx) => (
-                                                <option key={idx} value={area}>{area}</option>
-                                            ))}
-                                        </Form.Select>
+                                    <Col md={5}>
+                                        <Select
+                                            isMulti
+                                            name="area"
+                                            options={areaOptions}
+                                            value={filters.area}
+                                            onChange={handleSelectChange}
+                                            placeholder="Select Areas"
+                                            styles={selectStyles}
+                                        />
                                     </Col>
-                                    <Col md={3}>
+                                    <Col md={5}>
+                                        <Select
+                                            isMulti
+                                            name="status"
+                                            options={statusOptions}
+                                            value={filters.status}
+                                            onChange={handleSelectChange}
+                                            placeholder="Select Status"
+                                            styles={selectStyles}
+                                        />
+                                    </Col>
+                                    <Col md={6}>
                                         <InputGroup size="sm">
+                                            <InputGroup.Text className="bg-light">Codes</InputGroup.Text>
                                             <Form.Control
-                                                placeholder="Start Code"
+                                                placeholder="Start"
                                                 name="startCode"
                                                 value={filters.startCode}
                                                 onChange={handleFilterChange}
@@ -324,9 +400,9 @@ const SocialPostModal = ({ show, onHide }) => {
                                             />
                                         </InputGroup>
                                     </Col>
-                                    <Col md={2}>
+                                    <Col md={6}>
                                         <Button variant="primary" size="sm" onClick={fetchTuitions} disabled={loading} className="w-100 fw-bold">
-                                            {loading ? <Spinner size="sm" animation="border" /> : "Fetch"}
+                                            {loading ? <Spinner size="sm" animation="border" /> : <><FaSearch className="me-1" /> Fetch Tuitions</>}
                                         </Button>
                                     </Col>
                                 </Row>
@@ -345,6 +421,16 @@ const SocialPostModal = ({ show, onHide }) => {
                                             {field.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}
                                         </ToggleBadge>
                                     ))}
+                                </div>
+                                <div className="mt-3 pt-2 border-top">
+                                    <Form.Check 
+                                        type="switch"
+                                        id="whatsapp-format-switch"
+                                        label="Format for WhatsApp (Bold Headers & Labels)"
+                                        checked={isWhatsAppFormat}
+                                        onChange={(e) => setIsWhatsAppFormat(e.target.checked)}
+                                        className="fw-bold text-success"
+                                    />
                                 </div>
                             </Card.Body>
                         </FilterCard>

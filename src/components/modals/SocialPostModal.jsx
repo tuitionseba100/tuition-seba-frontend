@@ -233,7 +233,7 @@ const SocialPostModal = ({ show, onHide }) => {
 
         let text = "TUITION SEBA FORUM \n";
         if (filters.area) {
-            text += `🔥 ${selected.length}+ Tuition Available at ${filters.area} 🔥\n`;
+            text += `🔥 ${selected.length}+ Tuition Available at "${filters.area}" 🔥\n`;
         } else {
             text += `🔥 ${selected.length}+ Tuition Available Right Now 🔥\n`;
         }
@@ -252,14 +252,14 @@ const SocialPostModal = ({ show, onHide }) => {
             if (fieldConfig.salary) text += `Salary: ${t.salary || 'Negotiable'}\n`;
             if (fieldConfig.location) text += `Location: ${t.location || ''} ${t.area ? '(' + t.area + ')' : ''}\n`;
             if (fieldConfig.joining) text += `Joining: ${t.joining || 'As soon as'}\n`;
+            
+            text += `📲 Whatsapp: +8801571305804\n`;
+            text += `📌 Interested teachers—apply fast. Visit our Website/ Apps [Tuition Seba Forum]\n`;
 
             if (index < selected.length - 1) {
                 text += `--------------------------------\n\n`;
             }
         });
-
-        text += `\n📲 Whatsapp: +8801571305804\n`;
-        text += `📌 Interested teachers—apply fast. Visit our Website/ Apps [Tuition Seba Forum]`;
 
         setGeneratedText(text);
         toast.success('Post generated!');

@@ -515,23 +515,38 @@ const GuardianApplyPage = () => {
                                                 <td>{rowData.name}</td>
                                                 <td>{rowData.appliedAt ? formatDate(rowData.appliedAt) : ''}</td>
                                                 <td>
-                                                    <span
-                                                        className={`badge 
-                                                            ${rowData.status === "pending" ? "bg-warning text-dark" : ""}  
-                                                            ${rowData.status === "called (interested)" ? "bg-primary text-light" : ""}  
-                                                            ${rowData.status === "called (no response)" ? "bg-secondary text-light" : ""}  
-                                                            ${rowData.status === "meeting scheduled" ? "bg-info text-dark" : ""}  
-                                                            ${rowData.status === "meeting done" ? "bg-success text-light" : ""}  
-                                                            ${rowData.status === "confirmed" ? "bg-success" : ""}  
-                                                            ${rowData.status === "not interested" ? "bg-danger text-light" : ""}
-                                                            ${rowData.status === "Try another way" ? "bg-dark text-light" : ""}
-                                                            ${rowData.status === "Suspended" ? "bg-danger text-light" : ""}
-                                                            `}
-                                                    >
-                                                        {rowData.status}
-                                                    </span>
+                                                    <div className="d-flex flex-column gap-1">
+                                                        <span
+                                                            className={`badge 
+                                                             ${rowData.status === "pending" ? "bg-warning text-dark" : ""}  
+                                                             ${rowData.status === "called (interested)" ? "bg-primary text-light" : ""}  
+                                                             ${rowData.status === "called (no response)" ? "bg-secondary text-light" : ""}  
+                                                             ${rowData.status === "meeting scheduled" ? "bg-info text-dark" : ""}  
+                                                             ${rowData.status === "meeting done" ? "bg-success text-light" : ""}  
+                                                             ${rowData.status === "confirmed" ? "bg-success" : ""}  
+                                                             ${rowData.status === "not interested" ? "bg-danger text-light" : ""}
+                                                             ${rowData.status === "Try another way" ? "bg-dark text-light" : ""}
+                                                             ${rowData.status === "Suspended" ? "bg-danger text-light" : ""}
+                                                             `}
+                                                        >
+                                                            {rowData.status}
+                                                        </span>
+                                                        {rowData.isSpam && (
+                                                            <span className="badge bg-danger">SPAM</span>
+                                                        )}
+                                                        {rowData.isBestGuardian && (
+                                                            <span className="badge bg-info text-dark">BEST GUARDIAN</span>
+                                                        )}
+                                                    </div>
                                                 </td>
-                                                <td>{rowData.phone}</td>
+                                                <td
+                                                    style={{
+                                                        fontWeight: 'bold',
+                                                        color: rowData.isSpam ? '#dc3545' : (rowData.isBestGuardian ? '#0dcaf0' : 'inherit')
+                                                    }}
+                                                >
+                                                    {rowData.phone}
+                                                </td>
                                                 <td>{rowData.address}</td>
                                                 <td>{rowData.teacherCode}</td>
                                                 <td>{rowData.studentClass}</td>

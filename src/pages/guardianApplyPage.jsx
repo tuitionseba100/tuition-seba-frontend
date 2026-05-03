@@ -508,7 +508,13 @@ const GuardianApplyPage = () => {
                                         </tr>
                                     ) : (
                                         filteredGuardianList.map((rowData, index) => (
-                                            <tr key={rowData._id}>
+                                            <tr 
+                                                key={rowData._id}
+                                                style={{
+                                                    backgroundColor: rowData.isSpam ? '#fff1f0' : (rowData.isBestGuardian ? '#e6f7ff' : 'inherit'),
+                                                    transition: 'background-color 0.3s'
+                                                }}
+                                            >
                                                 <td>{index + 1}</td>
                                                 <td>{rowData.createdBy}</td>
                                                 <td>{rowData.updatedBy}</td>

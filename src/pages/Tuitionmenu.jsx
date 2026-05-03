@@ -843,6 +843,14 @@ const TuitionPage = () => {
                             height: 100% !important;
                             border-radius: 4px;
                         }
+                        .row-spam td {
+                            background-color: #dc3545 !important;
+                            color: white !important;
+                        }
+                        .row-best td {
+                            background-color: #198754 !important;
+                            color: white !important;
+                        }
                     `}</style>
                     <Modal.Header closeButton className="bg-primary text-white">
                         <Modal.Title className="flex-grow-1 text-center fw-bold">
@@ -890,8 +898,7 @@ const TuitionPage = () => {
                                         {tuitionNeedsUpdateList.map((tuition, index) => (
                                             <tr
                                                 key={index}
-                                                className="align-middle text-center"
-                                                style={tuition.isSpamGuardian ? spamStyle : tuition.isBestGuardian ? bestStyle : {}}
+                                                className={`align-middle text-center ${tuition.isSpamGuardian ? "row-spam" : tuition.isBestGuardian ? "row-best" : ""}`}
                                             >
                                                 <td>{index + 1}</td>
                                                 <td
@@ -1220,7 +1227,7 @@ const MemoizedTuitionTable = React.memo(({
                     tuitionList.map((tuition, index) => (
                         <tr
                             key={tuition._id}
-                            style={tuition.isSpamGuardian ? spamStyle : tuition.isBestGuardian ? bestStyle : {}}
+                            className={`${tuition.isSpamGuardian ? "row-spam" : tuition.isBestGuardian ? "row-best" : ""}`}
                         >
                             <td>{index + 1}</td>
                             <td>
@@ -1312,7 +1319,7 @@ const MemoizedTuitionTable = React.memo(({
                             </td>
                             <td>{tuition.tutorNumber}</td>
                             <td>{tuition.note}</td>
-                            <td style={{ display: 'flex', justifyContent: 'flex-start', gap: '8px', position: 'sticky', right: 0, zIndex: 2, backgroundColor: tuition.isSpamGuardian ? '#dc3545' : tuition.isBestGuardian ? '#198754' : '#fff' }}>
+                            <td style={{ display: 'flex', justifyContent: 'flex-start', gap: '8px', position: 'sticky', right: 0, zIndex: 2, backgroundColor: 'inherit' }}>
                                 <Button variant="info" onClick={() => handleShowDetails(tuition)} title="View Details">
                                     <FaInfoCircle />
                                 </Button>
@@ -1363,6 +1370,15 @@ const stickyHeaderStyles = `
   
   th {
     background-color: inherit;
+  }
+
+  .row-spam td {
+    background-color: #dc3545 !important;
+    color: white !important;
+  }
+  .row-best td {
+    background-color: #198754 !important;
+    color: white !important;
   }
 
   @keyframes blinker {

@@ -39,6 +39,7 @@ const fieldConfig = [
     { name: 'isUrgent', label: 'Is Emergency?', group: 'admin', col: 4, type: 'switch', defaultValue: false },
     { name: 'isWhatsappApply', label: 'Apply via WhatsApp?', group: 'admin', col: 4, type: 'switch', defaultValue: false },
     { name: 'isReviewDone', label: 'Review Done?', group: 'admin', col: 4, type: 'switch', defaultValue: false },
+    { name: 'assignedTo', label: 'Assigned To', group: 'admin', col: 6, type: 'text' },
     { name: 'createdBy', label: 'Created By', group: 'admin', col: 6, type: 'text' },
     { name: 'updatedBy', label: 'Updated By', group: 'admin', col: 6, type: 'text' },
 ];
@@ -110,7 +111,40 @@ export default function TuitionDetailsModal({ show, onHide, detailsData }) {
                 }}
                 className="d-flex align-items-center justify-content-between"
             >
-                <Modal.Title className="fw-bold">Tuition Details</Modal.Title>
+                <Modal.Title className="fw-bold d-flex align-items-center gap-2">
+                    Tuition Details
+                    {detailsData?.assignedTo ? (
+                        <span
+                            style={{
+                                fontSize: '0.75rem',
+                                fontWeight: 600,
+                                backgroundColor: 'rgba(255,255,255,0.25)',
+                                border: '1px solid rgba(255,255,255,0.5)',
+                                borderRadius: '999px',
+                                padding: '2px 10px',
+                                letterSpacing: '0.02em',
+                                whiteSpace: 'nowrap',
+                            }}
+                        >
+                            👤 {detailsData.assignedTo}
+                        </span>
+                    ) : (
+                        <span
+                            style={{
+                                fontSize: '0.75rem',
+                                fontWeight: 500,
+                                backgroundColor: 'rgba(255,255,255,0.15)',
+                                border: '1px solid rgba(255,255,255,0.3)',
+                                borderRadius: '999px',
+                                padding: '2px 10px',
+                                opacity: 0.8,
+                                whiteSpace: 'nowrap',
+                            }}
+                        >
+                            Unassigned
+                        </span>
+                    )}
+                </Modal.Title>
             </Modal.Header>
 
             <Modal.Body

@@ -305,16 +305,17 @@ const SocialPostModal = ({ show, onHide }) => {
         let text = `${b}TUITION SEBA FORUM${b} \n`;
         
         if (areasWithTuition.length > 0) {
-            const areaNames = areasWithTuition.join(', ');
-            text += `🔥 ${selected.length}+ Tuition Available at "${areaNames}" 🔥\n`;
+            const areaNamesWithCounts = areasWithTuition.map(area => `${area} (${groupedByArea[area].length})`).join(', ');
+            text += `🔥 ${selected.length}+ Tuition Available at "${areaNamesWithCounts}" 🔥\n`;
         } else {
             text += `🔥 ${selected.length}+ Tuition Available Right Now 🔥\n`;
         }
         text += "Visit our Website and Apply Now \n\n";
 
         areasWithTuition.forEach((area, areaIndex) => {
-            // Section header for the area with count
-            text += `📍 ${b}${area.toUpperCase()} (${groupedByArea[area].length})${b} 📍\n\n`;
+            // Section header for the area with underline
+            text += `📍 ${b}${area.toUpperCase()}${b} 📍\n`;
+            text += `_________________________________\n\n`;
             
             groupedByArea[area].forEach((t, index) => {
                 if (fieldConfig.tuitionCode) text += `${b}Tuition Code:${b} ${t.tuitionCode}\n`;

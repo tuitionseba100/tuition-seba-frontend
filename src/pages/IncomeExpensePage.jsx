@@ -40,9 +40,9 @@ const IncomeExpensePage = () => {
     const [deletingId, setDeletingId] = useState(null);
 
     const categories = {
-        all: ['Media Fee', 'Premium Subscription Fee', 'Registration Fee', 'Consultancy', 'Salary', 'Office Rent', 'Electricity Bill', 'Marketing', 'Internet', 'Repairs', 'Food', 'Transport', 'Nasta Bill', 'Bonus', 'Other'],
-        income: ['Media Fee', 'Premium Subscription Fee', 'Registration Fee', 'Consultancy', 'Bonus', 'Other'],
-        expense: ['Salary', 'Office Rent', 'Electricity Bill', 'Marketing', 'Internet', 'Repairs', 'Food', 'Transport', 'Nasta Bill', 'Misc']
+        all: ['Media Fee', 'Premium Subscription Fee', 'Registration Fee', 'Consultancy', 'Salary', 'Office Rent', 'Electricity Bill', 'Marketing', 'Internet', 'Repairs', 'Food', 'Transport', 'Nasta Bill', 'Bonus', 'Facebook Advertisements', 'Offline Advertisements', 'Mobile Bills', 'Equipment Cost', 'BM Collect', 'Refund', 'Official Cost', 'Others'],
+        income: ['Media Fee', 'Premium Subscription Fee', 'Registration Fee', 'Consultancy', 'Bonus', 'Others'],
+        expense: ['Salary', 'Office Rent', 'Electricity Bill', 'Marketing', 'Internet', 'Repairs', 'Food', 'Transport', 'Nasta Bill', 'Facebook Advertisements', 'Offline Advertisements', 'Mobile Bills', 'Equipment Cost', 'BM Collect', 'Refund', 'Official Cost', 'Others']
     };
 
     useEffect(() => {

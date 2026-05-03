@@ -302,39 +302,39 @@ const SocialPostModal = ({ show, onHide }) => {
         const areasWithTuition = Object.keys(groupedByArea);
 
         const b = isWhatsAppFormat ? "*" : "";
-        let text = `${b}TUITION SEBA FORUM${b} \n`;
+        let text = `${b}🌟 TUITION SEBA FORUM 🌟${b} \n`;
+        text += `✨ ${b}Premium Tuition Opportunities${b} ✨\n\n`;
         
         if (areasWithTuition.length > 0) {
             const areaNames = areasWithTuition.join(', ');
-            text += `🔥 ${selected.length}+ Tuition Available at "${areaNames}" 🔥\n`;
+            text += `🔥 ${b}${selected.length}+${b} Tuition Available at "${areaNames}" 🔥\n`;
         } else {
-            text += `🔥 ${selected.length}+ Tuition Available Right Now 🔥\n`;
+            text += `🔥 ${b}${selected.length}+${b} Tuition Available Right Now 🔥\n`;
         }
-        text += "Visit our Website and Apply Now \n\n";
+        text += "━━━━━━━━━━━━━━━━━━━━\n\n";
 
         areasWithTuition.forEach((area, areaIndex) => {
-            // Section header for the area
-            text += `📍 ${b}${area.toUpperCase()}${b} 📍\n\n`;
+            // Section header for the area with count
+            text += `📍 ${b}${area.toUpperCase()} (${groupedByArea[area].length})${b} 📍\n\n`;
             
             groupedByArea[area].forEach((t, index) => {
-                if (fieldConfig.tuitionCode) text += `${b}Tuition Code:${b} ${t.tuitionCode}\n`;
-                if (fieldConfig.wantedTeacher) text += `${b}Wanted Teacher:${b} ${t.wantedTeacher || 'N/A'}\n`;
-                if (fieldConfig.student) text += `${b}Number of Students:${b} ${t.student || 'N/A'}\n`;
-                if (fieldConfig.class) text += `${b}Class:${b} ${t.class || 'N/A'}\n`;
-                if (fieldConfig.institute) text += `${b}Institute:${b} ${t.institute || 'Not specified'}\n`;
-                if (fieldConfig.medium) text += `${b}Medium:${b} ${t.medium || 'N/A'}\n`;
-                if (fieldConfig.subject) text += `${b}Subject:${b} ${t.subject || 'N/A'}\n`;
-                if (fieldConfig.day) text += `${b}Day:${b} ${t.day || 'N/A'}\n`;
-                if (fieldConfig.time) text += `${b}Time:${b} ${t.time || 'N/A'}\n`;
-                if (fieldConfig.salary) text += `${b}Salary:${b} ${t.salary || 'Negotiable'}\n`;
-                if (fieldConfig.location) text += `${b}Location:${b} ${t.location || ''} ${t.area ? '(' + t.area + ')' : ''}\n`;
-                if (fieldConfig.joining) text += `${b}Joining:${b} ${t.joining || 'As soon as'}\n`;
+                if (fieldConfig.tuitionCode) text += `🆔 ${b}Code:${b} ${t.tuitionCode}\n`;
+                if (fieldConfig.wantedTeacher) text += `👨‍🏫 ${b}Teacher:${b} ${t.wantedTeacher || 'N/A'}\n`;
+                if (fieldConfig.student) text += `👥 ${b}Student:${b} ${t.student || 'N/A'}\n`;
+                if (fieldConfig.class) text += `🎓 ${b}Class:${b} ${t.class || 'N/A'}\n`;
+                if (fieldConfig.medium) text += `🌐 ${b}Medium:${b} ${t.medium || 'N/A'}\n`;
+                if (fieldConfig.subject) text += `📚 ${b}Subject:${b} ${t.subject || 'N/A'}\n`;
+                if (fieldConfig.salary) text += `💰 ${b}Salary:${b} ${t.salary || 'Negotiable'}\n`;
+                if (fieldConfig.day) text += `📅 ${b}Days:${b} ${t.day || 'N/A'}\n`;
+                if (fieldConfig.time) text += `⏰ ${b}Time:${b} ${t.time || 'N/A'}\n`;
+                if (fieldConfig.location) text += `🏠 ${b}Location:${b} ${t.location || ''} ${t.area ? '(' + t.area + ')' : ''}\n`;
+                if (fieldConfig.joining) text += `🚀 ${b}Joining:${b} ${t.joining || 'As soon as'}\n`;
                 
-                text += `📲 ${b}Whatsapp:${b} +8801571305804\n`;
-                text += `📌 ${b}Interested teachers—apply fast. Visit our Website/ Apps [Tuition Seba Forum]${b}\n`;
+                text += `\n📲 ${b}WhatsApp:${b} +8801571305804\n`;
+                text += `📌 ${b}Apply Fast — Visit our Website/Apps${b}\n`;
 
                 if (index < groupedByArea[area].length - 1) {
-                    text += `--------------------------------\n\n`;
+                    text += `\n--------------------------------\n\n`;
                 }
             });
 
@@ -345,16 +345,22 @@ const SocialPostModal = ({ show, onHide }) => {
             }
         });
 
+        text += `━━━━━━━━━━━━━━━━━━━━\n`;
+        text += `🚀 ${b}TUITION SEBA FORUM${b}\n`;
+        text += `The Most Trusted Platform for Teachers & Guardians.`;
+
         setGeneratedText(text);
         toast.success('Post generated!');
     };
 
     const copyToClipboard = () => {
+        if (!generatedText) return;
         navigator.clipboard.writeText(generatedText);
         toast.success('Copied to clipboard!');
     };
 
     const sendToWhatsapp = () => {
+        if (!generatedText) return;
         const url = `https://api.whatsapp.com/send?text=${encodeURIComponent(generatedText)}`;
         window.open(url, '_blank');
     };

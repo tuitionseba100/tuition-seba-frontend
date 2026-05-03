@@ -508,7 +508,7 @@ const GuardianApplyPage = () => {
                                         </tr>
                                     ) : (
                                         filteredGuardianList.map((rowData, index) => (
-                                            <tr 
+                                            <tr
                                                 key={rowData._id}
                                                 style={{
                                                     backgroundColor: rowData.isSpam ? '#fff1f0' : (rowData.isBestGuardian ? '#e6f7ff' : 'inherit'),

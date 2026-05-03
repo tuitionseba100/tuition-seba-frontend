@@ -75,6 +75,9 @@ const TuitionPage = () => {
     const role = localStorage.getItem('role');
     const currentUsername = localStorage.getItem('username');
 
+    const spamStyle = { backgroundColor: '#dc3545', color: 'white' };
+    const bestStyle = { backgroundColor: '#198754', color: 'white' };
+
     const openAppliedListModal = (tuition) => {
         setSelectedTuitionId(tuition._id);
         setSelectedTuitionCode(tuition.tuitionCode);
@@ -790,6 +793,8 @@ const TuitionPage = () => {
                                 handleShare={handleShare}
                                 handleOpenAssignModal={handleOpenAssignModal}
                                 openAppliedListModal={openAppliedListModal}
+                                spamStyle={spamStyle}
+                                bestStyle={bestStyle}
                             />
 
                         </div>
@@ -843,7 +848,7 @@ const TuitionPage = () => {
                         <Modal.Title className="flex-grow-1 text-center fw-bold">
                             <FaBell className="text-warning" />
                             <span className="ms-2">
-                                Tuition needs update Today: {tuitionNeedsUpdateList.length} 
+                                Tuition needs update Today: {tuitionNeedsUpdateList.length}
                                 {tuitionNeedsUpdateList.filter(t => t.hasPendingApply).length > 0 && (
                                     <span className="ms-2 badge bg-danger">
                                         Pending Apply: {tuitionNeedsUpdateList.filter(t => t.hasPendingApply).length}
@@ -883,22 +888,23 @@ const TuitionPage = () => {
                                     </thead>
                                     <tbody>
                                         {tuitionNeedsUpdateList.map((tuition, index) => (
-                                            <tr 
-                                                key={index} 
-                                                className={`align-middle text-center ${tuition.isSpamGuardian ? "table-danger" : tuition.isBestGuardian ? "table-info" : ""}`}
+                                            <tr
+                                                key={index}
+                                                className="align-middle text-center"
+                                                style={tuition.isSpamGuardian ? spamStyle : tuition.isBestGuardian ? bestStyle : {}}
                                             >
                                                 <td>{index + 1}</td>
                                                 <td
-                                                    style={{ color: 'blue', cursor: 'pointer', textDecoration: 'none' }}
+                                                    style={{ color: tuition.isSpamGuardian || tuition.isBestGuardian ? 'white' : 'blue', cursor: 'pointer', textDecoration: 'none' }}
                                                     onClick={() => openAppliedListModal(tuition)}
                                                     title="Click to see applied list"
                                                 >
                                                     <div className="d-flex align-items-center justify-content-center gap-2">
                                                         {tuition.tuitionCode}
                                                         {tuition.hasPendingApply && (
-                                                            <span 
-                                                                className="badge bg-danger animate-pulse" 
-                                                                style={{ 
+                                                            <span
+                                                                className="badge bg-danger animate-pulse"
+                                                                style={{
                                                                     fontSize: '0.65rem',
                                                                     padding: '2px 4px',
                                                                     animation: 'blinker 1.5s linear infinite'
@@ -918,7 +924,7 @@ const TuitionPage = () => {
                                                 <td>{tuition.nextUpdateComment || '-'}</td>
                                                 <td>{tuition.status}</td>
                                                 <td>
-                                                    <span className="badge bg-secondary">
+                                                    <span className={`badge ${tuition.isSpamGuardian || tuition.isBestGuardian ? 'bg-light text-dark' : 'bg-secondary'}`}>
                                                         {tuition.assignedTo || 'Unassigned'}
                                                     </span>
                                                 </td>
@@ -927,8 +933,8 @@ const TuitionPage = () => {
                                                     <div className="d-flex flex-column align-items-center">
                                                         <span>{tuition.guardianNumber}</span>
                                                         <div className="d-flex gap-1 mt-1">
-                                                            {tuition.isSpamGuardian && <Badge bg="danger" style={{ fontSize: '0.6rem' }}>Spam</Badge>}
-                                                            {tuition.isBestGuardian && <Badge bg="primary" style={{ fontSize: '0.6rem' }}>Best</Badge>}
+                                                            {tuition.isSpamGuardian && <Badge bg="light" text="danger" style={{ fontSize: '0.6rem' }}>Spam</Badge>}
+                                                            {tuition.isBestGuardian && <Badge bg="light" text="success" style={{ fontSize: '0.6rem' }}>Best</Badge>}
                                                         </div>
                                                     </div>
                                                 </td>
@@ -993,8 +999,8 @@ const TuitionPage = () => {
                                     </thead>
                                     <tbody>
                                         {tuitionNeedsPaymentCreation.map((tuition, index) => (
-                                            <tr 
-                                                key={index} 
+                                            <tr
+                                                key={index}
                                                 className={`align-middle text-center ${tuition.isSpamGuardian ? "table-danger" : tuition.isBestGuardian ? "table-info" : ""}`}
                                             >
                                                 <td>{index + 1}</td>
@@ -1006,9 +1012,9 @@ const TuitionPage = () => {
                                                     <div className="d-flex align-items-center justify-content-center gap-2">
                                                         {tuition.tuitionCode}
                                                         {tuition.hasPendingApply && (
-                                                            <span 
-                                                                className="badge bg-danger animate-pulse" 
-                                                                style={{ 
+                                                            <span
+                                                                className="badge bg-danger animate-pulse"
+                                                                style={{
                                                                     fontSize: '0.65rem',
                                                                     padding: '2px 4px',
                                                                     animation: 'blinker 1.5s linear infinite'
@@ -1158,7 +1164,9 @@ const MemoizedTuitionTable = React.memo(({
     handleDeleteTuition,
     handleShare,
     handleOpenAssignModal,
-    openAppliedListModal
+    openAppliedListModal,
+    spamStyle,
+    bestStyle
 }) => {
     return (
         <Table striped bordered hover responsive="lg">
@@ -1210,9 +1218,9 @@ const MemoizedTuitionTable = React.memo(({
                     </tr>
                 ) : (
                     tuitionList.map((tuition, index) => (
-                        <tr 
+                        <tr
                             key={tuition._id}
-                            className={tuition.isSpamGuardian ? "table-danger" : tuition.isBestGuardian ? "table-info" : ""}
+                            style={tuition.isSpamGuardian ? spamStyle : tuition.isBestGuardian ? bestStyle : {}}
                         >
                             <td>{index + 1}</td>
                             <td>
@@ -1222,16 +1230,16 @@ const MemoizedTuitionTable = React.memo(({
                                 </div>
                             </td>
                             <td
-                                style={{ color: 'blue', cursor: 'pointer', textDecoration: 'none' }}
+                                style={{ color: tuition.isSpamGuardian || tuition.isBestGuardian ? 'white' : 'blue', cursor: 'pointer', textDecoration: 'none' }}
                                 onClick={() => openAppliedListModal(tuition)}
                                 title="Click to see applied list"
                             >
                                 <div className="d-flex align-items-center gap-2">
                                     {tuition.tuitionCode}
                                     {tuition.hasPendingApply && (
-                                        <span 
-                                            className="badge bg-danger animate-pulse" 
-                                            style={{ 
+                                        <span
+                                            className="badge bg-danger animate-pulse"
+                                            style={{
                                                 fontSize: '0.65rem',
                                                 padding: '2px 4px',
                                                 animation: 'blinker 1.5s linear infinite'
@@ -1258,7 +1266,7 @@ const MemoizedTuitionTable = React.memo(({
                                 {tuition.isPublish ? "Yes" : "No"}
                             </td>
                             <td>
-                                <span className="badge bg-secondary">
+                                <span className={`badge ${tuition.isSpamGuardian || tuition.isBestGuardian ? 'bg-light text-dark' : 'bg-secondary'}`}>
                                     {tuition.assignedTo || 'Unassigned'}
                                 </span>
                             </td>
@@ -1297,14 +1305,14 @@ const MemoizedTuitionTable = React.memo(({
                                 <div className="d-flex flex-column align-items-center">
                                     <span>{tuition.guardianNumber}</span>
                                     <div className="d-flex gap-1 mt-1">
-                                        {tuition.isSpamGuardian && <Badge bg="danger" style={{ fontSize: '0.6rem' }}>Spam</Badge>}
-                                        {tuition.isBestGuardian && <Badge bg="primary" style={{ fontSize: '0.6rem' }}>Best</Badge>}
+                                        {tuition.isSpamGuardian && <Badge bg="light" text="danger" style={{ fontSize: '0.6rem' }}>Spam</Badge>}
+                                        {tuition.isBestGuardian && <Badge bg="light" text="success" style={{ fontSize: '0.6rem' }}>Best</Badge>}
                                     </div>
                                 </div>
                             </td>
                             <td>{tuition.tutorNumber}</td>
                             <td>{tuition.note}</td>
-                            <td style={{ display: 'flex', justifyContent: 'flex-start', gap: '8px', position: 'sticky', right: 0, zIndex: 2, backgroundColor: '#fff' }}>
+                            <td style={{ display: 'flex', justifyContent: 'flex-start', gap: '8px', position: 'sticky', right: 0, zIndex: 2, backgroundColor: tuition.isSpamGuardian ? '#dc3545' : tuition.isBestGuardian ? '#198754' : '#fff' }}>
                                 <Button variant="info" onClick={() => handleShowDetails(tuition)} title="View Details">
                                     <FaInfoCircle />
                                 </Button>

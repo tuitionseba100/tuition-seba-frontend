@@ -290,35 +290,58 @@ const SocialPostModal = ({ show, onHide }) => {
             return;
         }
 
+        // Group selected tuitions by area
+        const groupedByArea = selected.reduce((acc, t) => {
+            const area = t.area || 'Other Areas';
+            if (!acc[area]) acc[area] = [];
+            acc[area].push(t);
+            return acc;
+        }, {});
+
+        // Get areas that actually have tuitions in the selected set
+        const areasWithTuition = Object.keys(groupedByArea);
+
         const b = isWhatsAppFormat ? "*" : "";
         let text = `${b}TUITION SEBA FORUM${b} \n`;
-        if (filters.area.length > 0) {
-            const areaNames = filters.area.map(a => a.label).join(', ');
+        
+        if (areasWithTuition.length > 0) {
+            const areaNames = areasWithTuition.join(', ');
             text += `🔥 ${selected.length}+ Tuition Available at "${areaNames}" 🔥\n`;
         } else {
             text += `🔥 ${selected.length}+ Tuition Available Right Now 🔥\n`;
         }
         text += "Visit our Website and Apply Now \n\n";
 
-        selected.forEach((t, index) => {
-            if (fieldConfig.tuitionCode) text += `${b}Tuition Code:${b} ${t.tuitionCode}\n`;
-            if (fieldConfig.wantedTeacher) text += `${b}Wanted Teacher:${b} ${t.wantedTeacher || 'N/A'}\n`;
-            if (fieldConfig.student) text += `${b}Number of Students:${b} ${t.student || 'N/A'}\n`;
-            if (fieldConfig.class) text += `${b}Class:${b} ${t.class || 'N/A'}\n`;
-            if (fieldConfig.institute) text += `${b}Institute:${b} ${t.institute || 'Not specified'}\n`;
-            if (fieldConfig.medium) text += `${b}Medium:${b} ${t.medium || 'N/A'}\n`;
-            if (fieldConfig.subject) text += `${b}Subject:${b} ${t.subject || 'N/A'}\n`;
-            if (fieldConfig.day) text += `${b}Day:${b} ${t.day || 'N/A'}\n`;
-            if (fieldConfig.time) text += `${b}Time:${b} ${t.time || 'N/A'}\n`;
-            if (fieldConfig.salary) text += `${b}Salary:${b} ${t.salary || 'Negotiable'}\n`;
-            if (fieldConfig.location) text += `${b}Location:${b} ${t.location || ''} ${t.area ? '(' + t.area + ')' : ''}\n`;
-            if (fieldConfig.joining) text += `${b}Joining:${b} ${t.joining || 'As soon as'}\n`;
+        areasWithTuition.forEach((area, areaIndex) => {
+            // Section header for the area
+            text += `📍 ${b}${area.toUpperCase()}${b} 📍\n\n`;
             
-            text += `📲 ${b}Whatsapp:${b} +8801571305804\n`;
-            text += `📌 ${b}Interested teachers—apply fast. Visit our Website/ Apps [Tuition Seba Forum]${b}\n`;
+            groupedByArea[area].forEach((t, index) => {
+                if (fieldConfig.tuitionCode) text += `${b}Tuition Code:${b} ${t.tuitionCode}\n`;
+                if (fieldConfig.wantedTeacher) text += `${b}Wanted Teacher:${b} ${t.wantedTeacher || 'N/A'}\n`;
+                if (fieldConfig.student) text += `${b}Number of Students:${b} ${t.student || 'N/A'}\n`;
+                if (fieldConfig.class) text += `${b}Class:${b} ${t.class || 'N/A'}\n`;
+                if (fieldConfig.institute) text += `${b}Institute:${b} ${t.institute || 'Not specified'}\n`;
+                if (fieldConfig.medium) text += `${b}Medium:${b} ${t.medium || 'N/A'}\n`;
+                if (fieldConfig.subject) text += `${b}Subject:${b} ${t.subject || 'N/A'}\n`;
+                if (fieldConfig.day) text += `${b}Day:${b} ${t.day || 'N/A'}\n`;
+                if (fieldConfig.time) text += `${b}Time:${b} ${t.time || 'N/A'}\n`;
+                if (fieldConfig.salary) text += `${b}Salary:${b} ${t.salary || 'Negotiable'}\n`;
+                if (fieldConfig.location) text += `${b}Location:${b} ${t.location || ''} ${t.area ? '(' + t.area + ')' : ''}\n`;
+                if (fieldConfig.joining) text += `${b}Joining:${b} ${t.joining || 'As soon as'}\n`;
+                
+                text += `📲 ${b}Whatsapp:${b} +8801571305804\n`;
+                text += `📌 ${b}Interested teachers—apply fast. Visit our Website/ Apps [Tuition Seba Forum]${b}\n`;
 
-            if (index < selected.length - 1) {
-                text += `--------------------------------\n\n`;
+                if (index < groupedByArea[area].length - 1) {
+                    text += `--------------------------------\n\n`;
+                }
+            });
+
+            if (areaIndex < areasWithTuition.length - 1) {
+                text += `\n================================\n\n`;
+            } else {
+                text += `\n`;
             }
         });
 

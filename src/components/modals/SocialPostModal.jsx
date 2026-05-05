@@ -192,7 +192,7 @@ const SocialPostModal = ({ show, onHide }) => {
     const [filters, setFilters] = useState({
         count: '10',
         area: [],
-        status: [{ value: 'available', label: 'Available' }],
+        status: [{ value: 'available', label: 'Available' }, { value: 'guardian no response', label: 'Guardian No response' }],
         startCode: '',
         endCode: ''
     });

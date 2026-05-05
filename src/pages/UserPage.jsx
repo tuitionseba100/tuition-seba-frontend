@@ -865,6 +865,7 @@ const UserPage = () => {
                                             name="username"
                                             value={newUser.username}
                                             onChange={handleInputChange}
+                                            disabled={!!editingUser}
                                         />
                                     </FormGroup>
                                 </div>

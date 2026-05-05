@@ -534,10 +534,7 @@ const GuardianApplyPage = () => {
                                         filteredGuardianList.map((rowData, index) => (
                                             <tr
                                                 key={rowData._id}
-                                                style={{
-                                                    backgroundColor: rowData.isSpam ? '#fff1f0' : (rowData.isBestGuardian ? '#e6f7ff' : 'inherit'),
-                                                    transition: 'background-color 0.3s'
-                                                }}
+                                                className={rowData.isSpam ? 'row-spam' : (rowData.isBestGuardian ? 'row-best-guardian' : '')}
                                             >
                                                 <td>{index + 1}</td>
                                                 <td>{rowData.createdBy}</td>
@@ -569,12 +566,7 @@ const GuardianApplyPage = () => {
                                                         )}
                                                     </div>
                                                 </td>
-                                                <td
-                                                    style={{
-                                                        fontWeight: 'bold',
-                                                        color: rowData.isSpam ? '#dc3545' : (rowData.isBestGuardian ? '#0dcaf0' : 'inherit')
-                                                    }}
-                                                >
+                                                <td style={{ fontWeight: 'bold', color: '#000' }}>
                                                     {rowData.phone}
                                                 </td>
                                                 <td>{rowData.address}</td>
@@ -662,6 +654,14 @@ const GuardianApplyPage = () => {
                         border-radius: 0.375rem;
                         pointer-events: none;
                         user-select: none;
+                    }
+                    tr.row-spam td {
+                        background-color: #e57373 !important;
+                        color: #000 !important;
+                    }
+                    tr.row-best-guardian td {
+                        background-color: #4caf6e !important;
+                        color: #000 !important;
                     }
                 `}</style>
                 <Modal

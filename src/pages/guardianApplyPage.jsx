@@ -34,6 +34,7 @@ const GuardianApplyPage = () => {
         status: '',
         comment: '',
     });
+    const [formErrors, setFormErrors] = useState({});
     const role = localStorage.getItem('role');
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
@@ -157,10 +158,32 @@ const GuardianApplyPage = () => {
 
     const handleSaveRequest = async () => {
         const username = localStorage.getItem('username');
+
+        // Inline validation
+        const phone = tuitionData.phone?.toString().trim();
+        const errors = {};
+
+        if (!phone) {
+            errors.phone = 'Phone number is required.';
+        } else if (!/^\d+$/.test(phone)) {
+            errors.phone = 'Phone number must contain digits only.';
+        } else if (phone.length !== 11) {
+            errors.phone = 'Phone number must be exactly 11 digits.';
+        } else if (!phone.startsWith('01')) {
+            errors.phone = "Phone number must start with '01'.";
+        }
+
+        if (Object.keys(errors).length > 0) {
+            setFormErrors(errors);
+            return;
+        }
+
+        setFormErrors({});
         setLoading(true);
 
         const updatedData = {
-            ...tuitionData
+            ...tuitionData,
+            phone,
         };
 
         try {
@@ -177,7 +200,7 @@ const GuardianApplyPage = () => {
             fetchGuardianApplyRecords();
         } catch (err) {
             console.error('Error:', err);
-            toast.error("Error.");
+            toast.error("Error saving record.");
         } finally {
             setLoading(false);
         }
@@ -318,6 +341,7 @@ const GuardianApplyPage = () => {
                         onClick={() => {
                             setShowModal(true);
                             setEditingId(null);
+                            setFormErrors({});
                             setTuitionData({
                                 name: '',
                                 phone: '',
@@ -618,147 +642,347 @@ const GuardianApplyPage = () => {
                     </Card.Body>
                 </Card>
 
-                {/* Create/Edit Tuition Modal */}
-                <Modal show={showModal} onHide={() => setShowModal(false)} size="lg">
-                    <Modal.Header closeButton>
+                {/* Create/Edit Guardian Apply Modal */}
+                <style>{`
+                    .guardian-modal .form-control:focus,
+                    .guardian-modal .form-select:focus {
+                        border-color: rgba(13, 110, 253, 0.6) !important;
+                        box-shadow: 0 0 6px rgba(13, 110, 253, 0.25) !important;
+                        outline: none !important;
+                    }
+                    .guardian-modal-saving-overlay {
+                        position: absolute;
+                        top: 0; left: 0; right: 0; bottom: 0;
+                        background: rgba(255, 255, 255, 0.85);
+                        display: flex;
+                        justify-content: center;
+                        align-items: center;
+                        gap: 0.75rem;
+                        z-index: 1060;
+                        border-radius: 0.375rem;
+                        pointer-events: none;
+                        user-select: none;
+                    }
+                `}</style>
+                <Modal
+                    show={showModal}
+                    onHide={loading ? null : () => setShowModal(false)}
+                    size="xl"
+                    centered
+                    backdrop="static"
+                    keyboard={false}
+                    contentClassName="shadow-lg rounded guardian-modal"
+                >
+                    <Modal.Header
+                        closeButton={!loading}
+                        style={{
+                            backgroundColor: '#0d6efd',
+                            color: 'white',
+                            borderBottom: 'none',
+                            position: 'sticky',
+                            top: 0,
+                            zIndex: 1050,
+                        }}
+                        className="d-flex align-items-center justify-content-between"
+                    >
                         <Modal.Title className="fw-bold">
-                            {editingId ? "Edit Record" : "Create Record"}
+                            {editingId ? '✏️ Edit Guardian Record' : '➕ Create Guardian Apply Record'}
                         </Modal.Title>
                     </Modal.Header>
 
-                    <Modal.Body>
-                        <Form>
-                            <Row>
-                                <Col md={6}>
-                                    <Form.Group controlId="name">
-                                        <Form.Label className="fw-bold">Name</Form.Label>
-                                        <Form.Control
-                                            type="text"
-                                            value={tuitionData.name}
-                                            onChange={(e) => setTuitionData({ ...tuitionData, name: e.target.value })}
-                                        />
-                                    </Form.Group>
-                                </Col>
+                    <Modal.Body
+                        className="bg-light"
+                        style={{
+                            maxHeight: 'calc(90vh - 140px)',
+                            overflowY: 'auto',
+                            position: 'relative',
+                            padding: '1rem 1.5rem',
+                        }}
+                    >
+                        <div style={{ position: 'relative' }}>
+                            {loading && (
+                                <div className="guardian-modal-saving-overlay" aria-live="polite" aria-busy="true">
+                                    <Spinner animation="grow" role="status" style={{ width: '3rem', height: '3rem' }} />
+                                    <span className="fs-5 fw-semibold text-primary">Saving...</span>
+                                </div>
+                            )}
 
-                                <Col md={6}>
-                                    <Form.Group controlId="phone">
-                                        <Form.Label className="fw-bold">Phone<span className="text-danger">*</span></Form.Label>
-                                        <Form.Control
-                                            type="text"
-                                            required
-                                            value={tuitionData.phone}
-                                            onChange={(e) => setTuitionData({ ...tuitionData, phone: e.target.value })}
-                                        />
-                                    </Form.Group>
-                                </Col>
-                            </Row>
+                            <Form>
+                                {/* Section: Guardian Info */}
+                                <div
+                                    className="mb-4 p-3 rounded"
+                                    style={{
+                                        backgroundColor: '#fefefe',
+                                        border: '1px solid rgba(13,110,253,0.2)',
+                                        boxShadow: '0 0 10px rgba(13,110,253,0.05)',
+                                    }}
+                                >
+                                    <h5
+                                        className="mb-3 fw-semibold"
+                                        style={{ borderBottom: '2px solid rgba(13,110,253,0.5)', paddingBottom: '0.5rem', color: '#0d6efd' }}
+                                    >
+                                        👤 Guardian Information
+                                    </h5>
+                                    <Row className="gy-3">
+                                        <Col md={6}>
+                                            <Form.Group controlId="guardianName">
+                                                <Form.Label className="fw-semibold">Name</Form.Label>
+                                                <Form.Control
+                                                    type="text"
+                                                    placeholder="Guardian full name"
+                                                    value={tuitionData.name}
+                                                    onChange={(e) => setTuitionData({ ...tuitionData, name: e.target.value })}
+                                                    disabled={loading}
+                                                    style={{
+                                                        borderRadius: '0.375rem',
+                                                        border: '1.5px solid rgba(13,110,253,0.3)',
+                                                        backgroundColor: '#fff',
+                                                        boxShadow: '0 0 6px rgba(13,110,253,0.12)',
+                                                        transition: 'border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out',
+                                                    }}
+                                                />
+                                            </Form.Group>
+                                        </Col>
+                                        <Col md={6}>
+                                            <Form.Group controlId="guardianPhone">
+                                                <Form.Label className="fw-semibold">
+                                                    Phone <span className="text-danger">*</span>
+                                                </Form.Label>
+                                                <Form.Control
+                                                    type="text"
+                                                    placeholder="e.g. 017xxxxxxxx"
+                                                    required
+                                                    value={tuitionData.phone}
+                                                    onChange={(e) => {
+                                                        setTuitionData({ ...tuitionData, phone: e.target.value });
+                                                        if (formErrors.phone) setFormErrors(prev => ({ ...prev, phone: '' }));
+                                                    }}
+                                                    disabled={loading}
+                                                    isInvalid={!!formErrors.phone}
+                                                    style={{
+                                                        borderRadius: '0.375rem',
+                                                        border: formErrors.phone
+                                                            ? '1.5px solid #dc3545'
+                                                            : '1.5px solid rgba(13,110,253,0.3)',
+                                                        backgroundColor: formErrors.phone ? '#fff8f8' : '#fff',
+                                                        boxShadow: formErrors.phone
+                                                            ? '0 0 6px rgba(220,53,69,0.25)'
+                                                            : '0 0 6px rgba(13,110,253,0.12)',
+                                                        transition: 'border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out',
+                                                    }}
+                                                />
+                                                {formErrors.phone && (
+                                                    <div style={{ color: '#dc3545', fontSize: '0.8rem', marginTop: '4px' }}>
+                                                        ⚠ {formErrors.phone}
+                                                    </div>
+                                                )}
+                                            </Form.Group>
+                                        </Col>
+                                        <Col md={12}>
+                                            <Form.Group controlId="guardianAddress">
+                                                <Form.Label className="fw-semibold">Address</Form.Label>
+                                                <Form.Control
+                                                    type="text"
+                                                    placeholder="e.g. Chittagong, Khulshi"
+                                                    value={tuitionData.address}
+                                                    onChange={(e) => setTuitionData({ ...tuitionData, address: e.target.value })}
+                                                    disabled={loading}
+                                                    style={{
+                                                        borderRadius: '0.375rem',
+                                                        border: '1.5px solid rgba(13,110,253,0.3)',
+                                                        backgroundColor: '#fff',
+                                                        boxShadow: '0 0 6px rgba(13,110,253,0.12)',
+                                                        transition: 'border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out',
+                                                    }}
+                                                />
+                                            </Form.Group>
+                                        </Col>
+                                    </Row>
+                                </div>
 
-                            <Row className="mt-3">
-                                <Col md={6}>
-                                    <Form.Group controlId="address">
-                                        <Form.Label className="fw-bold">Address</Form.Label>
-                                        <Form.Control
-                                            type="text"
-                                            value={tuitionData.address}
-                                            onChange={(e) => setTuitionData({ ...tuitionData, address: e.target.value })}
-                                        />
-                                    </Form.Group>
-                                </Col>
+                                {/* Section: Tuition Requirements */}
+                                <div
+                                    className="mb-4 p-3 rounded"
+                                    style={{
+                                        backgroundColor: '#e9f0ff',
+                                        border: '1px solid rgba(13,110,253,0.2)',
+                                        boxShadow: '0 0 10px rgba(13,110,253,0.05)',
+                                    }}
+                                >
+                                    <h5
+                                        className="mb-3 fw-semibold"
+                                        style={{ borderBottom: '2px solid rgba(13,110,253,0.5)', paddingBottom: '0.5rem', color: '#0d6efd' }}
+                                    >
+                                        📚 Tuition Requirements
+                                    </h5>
+                                    <Row className="gy-3">
+                                        <Col md={6}>
+                                            <Form.Group controlId="guardianStudentClass">
+                                                <Form.Label className="fw-semibold">Student Class</Form.Label>
+                                                <Form.Control
+                                                    type="text"
+                                                    placeholder="e.g. Class 9, HSC"
+                                                    value={tuitionData.studentClass}
+                                                    onChange={(e) => setTuitionData({ ...tuitionData, studentClass: e.target.value })}
+                                                    disabled={loading}
+                                                    style={{
+                                                        borderRadius: '0.375rem',
+                                                        border: '1.5px solid rgba(13,110,253,0.3)',
+                                                        backgroundColor: '#fff',
+                                                        boxShadow: '0 0 6px rgba(13,110,253,0.12)',
+                                                        transition: 'border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out',
+                                                    }}
+                                                />
+                                            </Form.Group>
+                                        </Col>
+                                        <Col md={6}>
+                                            <Form.Group controlId="guardianTeacherGender">
+                                                <Form.Label className="fw-semibold">Preferred Teacher Gender</Form.Label>
+                                                <Form.Select
+                                                    value={tuitionData.teacherGender}
+                                                    onChange={(e) => setTuitionData({ ...tuitionData, teacherGender: e.target.value })}
+                                                    disabled={loading}
+                                                    style={{
+                                                        borderRadius: '0.375rem',
+                                                        border: '1.5px solid rgba(13,110,253,0.3)',
+                                                        backgroundColor: '#fff',
+                                                        boxShadow: '0 0 6px rgba(13,110,253,0.12)',
+                                                        transition: 'border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out',
+                                                    }}
+                                                >
+                                                    <option value="">Select gender preference</option>
+                                                    <option value="Male">Male</option>
+                                                    <option value="Female">Female</option>
+                                                    <option value="Any">Any</option>
+                                                </Form.Select>
+                                            </Form.Group>
+                                        </Col>
+                                        <Col md={6}>
+                                            <Form.Group controlId="guardianTeacherCode">
+                                                <Form.Label className="fw-semibold">Teacher Code</Form.Label>
+                                                <Form.Control
+                                                    type="text"
+                                                    placeholder="e.g. TSF-T001"
+                                                    value={tuitionData.teacherCode}
+                                                    onChange={(e) => setTuitionData({ ...tuitionData, teacherCode: e.target.value })}
+                                                    disabled={loading}
+                                                    style={{
+                                                        borderRadius: '0.375rem',
+                                                        border: '1.5px solid rgba(13,110,253,0.3)',
+                                                        backgroundColor: '#fff',
+                                                        boxShadow: '0 0 6px rgba(13,110,253,0.12)',
+                                                        transition: 'border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out',
+                                                    }}
+                                                />
+                                            </Form.Group>
+                                        </Col>
+                                        <Col md={6}>
+                                            <Form.Group controlId="guardianCharacteristics">
+                                                <Form.Label className="fw-semibold">Characteristics</Form.Label>
+                                                <Form.Control
+                                                    type="text"
+                                                    placeholder="e.g. Experienced, patient"
+                                                    value={tuitionData.characteristics}
+                                                    onChange={(e) => setTuitionData({ ...tuitionData, characteristics: e.target.value })}
+                                                    disabled={loading}
+                                                    style={{
+                                                        borderRadius: '0.375rem',
+                                                        border: '1.5px solid rgba(13,110,253,0.3)',
+                                                        backgroundColor: '#fff',
+                                                        boxShadow: '0 0 6px rgba(13,110,253,0.12)',
+                                                        transition: 'border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out',
+                                                    }}
+                                                />
+                                            </Form.Group>
+                                        </Col>
+                                    </Row>
+                                </div>
 
-                                <Col md={6}>
-                                    <Form.Group controlId="studentClass">
-                                        <Form.Label className="fw-bold">Student Class</Form.Label>
-                                        <Form.Control
-                                            type="text"
-                                            value={tuitionData.studentClass}
-                                            onChange={(e) => setTuitionData({ ...tuitionData, studentClass: e.target.value })}
-                                        />
-                                    </Form.Group>
-                                </Col>
-                            </Row>
-
-                            <Row className="mt-3">
-                                <Col md={6}>
-                                    <Form.Group controlId="teacherGender">
-                                        <Form.Label className="fw-bold">Preferred Teacher Gender</Form.Label>
-                                        <Form.Control
-                                            type="text"
-                                            value={tuitionData.teacherGender}
-                                            onChange={(e) => setTuitionData({ ...tuitionData, teacherGender: e.target.value })}
-                                        />
-                                    </Form.Group>
-                                </Col>
-
-                                <Col md={6}>
-                                    <Form.Group controlId="characteristics">
-                                        <Form.Label className="fw-bold">Characteristics</Form.Label>
-                                        <Form.Control
-                                            type="text"
-                                            value={tuitionData.characteristics}
-                                            onChange={(e) => setTuitionData({ ...tuitionData, characteristics: e.target.value })}
-                                        />
-                                    </Form.Group>
-                                </Col>
-                            </Row>
-
-                            <Row className="mt-3">
-                                <Col md={6}>
-                                    <Form.Group controlId="teacherCode">
-                                        <Form.Label className="fw-bold">Teacher Code</Form.Label>
-                                        <Form.Control
-                                            type="text"
-                                            value={tuitionData.teacherCode}
-                                            onChange={(e) => setTuitionData({ ...tuitionData, teacherCode: e.target.value })}
-                                        />
-                                    </Form.Group>
-                                </Col>
-                            </Row>
-
-                            <Row className="mt-3">
-                                <Col md={6}>
-                                    <Form.Group controlId="status">
-                                        <Form.Label className="fw-bold">Status</Form.Label>
-                                        <Form.Select
-                                            value={tuitionData.status}
-                                            onChange={(e) => setTuitionData({ ...tuitionData, status: e.target.value })}
-                                        >
-                                            <option value="">Select Status</option>
-                                            {statusOptions.map((option, idx) => (
-                                                <option key={idx} value={option}>
-                                                    {option}
-                                                </option>
-                                            ))}
-                                        </Form.Select>
-                                    </Form.Group>
-
-                                </Col>
-                            </Row>
-
-                            <Row className="mt-3">
-                                <Col md={12}>
-                                    <Form.Group controlId="comment">
-                                        <Form.Label className="fw-bold">Comment</Form.Label>
-                                        <Form.Control
-                                            as="textarea"
-                                            rows={3}
-                                            value={tuitionData.comment}
-                                            onChange={(e) => setTuitionData({ ...tuitionData, comment: e.target.value })}
-                                        />
-                                    </Form.Group>
-                                </Col>
-                            </Row>
-                        </Form>
+                                {/* Section: Status & Notes */}
+                                <div
+                                    className="mb-2 p-3 rounded"
+                                    style={{
+                                        backgroundColor: '#fefefe',
+                                        border: '1px solid rgba(13,110,253,0.2)',
+                                        boxShadow: '0 0 10px rgba(13,110,253,0.05)',
+                                    }}
+                                >
+                                    <h5
+                                        className="mb-3 fw-semibold"
+                                        style={{ borderBottom: '2px solid rgba(13,110,253,0.5)', paddingBottom: '0.5rem', color: '#0d6efd' }}
+                                    >
+                                        📋 Status & Notes
+                                    </h5>
+                                    <Row className="gy-3">
+                                        <Col md={6}>
+                                            <Form.Group controlId="guardianStatus">
+                                                <Form.Label className="fw-semibold">Status</Form.Label>
+                                                <Form.Select
+                                                    value={tuitionData.status}
+                                                    onChange={(e) => setTuitionData({ ...tuitionData, status: e.target.value })}
+                                                    disabled={loading}
+                                                    style={{
+                                                        borderRadius: '0.375rem',
+                                                        border: '1.5px solid rgba(13,110,253,0.3)',
+                                                        backgroundColor: '#fff',
+                                                        boxShadow: '0 0 6px rgba(13,110,253,0.12)',
+                                                        transition: 'border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out',
+                                                    }}
+                                                >
+                                                    <option value="">Select Status</option>
+                                                    {statusOptions.map((option, idx) => (
+                                                        <option key={idx} value={option}>{option}</option>
+                                                    ))}
+                                                </Form.Select>
+                                            </Form.Group>
+                                        </Col>
+                                        <Col md={12}>
+                                            <Form.Group controlId="guardianComment">
+                                                <Form.Label className="fw-semibold">Comment</Form.Label>
+                                                <Form.Control
+                                                    as="textarea"
+                                                    rows={3}
+                                                    placeholder="Add any relevant notes or comments..."
+                                                    value={tuitionData.comment}
+                                                    onChange={(e) => setTuitionData({ ...tuitionData, comment: e.target.value })}
+                                                    disabled={loading}
+                                                    style={{
+                                                        borderRadius: '0.375rem',
+                                                        border: '1.5px solid rgba(13,110,253,0.3)',
+                                                        backgroundColor: '#fff',
+                                                        boxShadow: '0 0 6px rgba(13,110,253,0.12)',
+                                                        transition: 'border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out',
+                                                        resize: 'vertical',
+                                                    }}
+                                                />
+                                            </Form.Group>
+                                        </Col>
+                                    </Row>
+                                </div>
+                            </Form>
+                        </div>
                     </Modal.Body>
 
-                    <Modal.Footer>
-                        <Button variant="secondary" onClick={() => setShowModal(false)}>Close</Button>
+                    <Modal.Footer
+                        style={{
+                            backgroundColor: '#f8f9fa',
+                            borderTop: '3px solid rgba(13,110,253,0.3)',
+                            position: 'sticky',
+                            bottom: 0,
+                            zIndex: 1050,
+                        }}
+                        className="d-flex justify-content-end gap-2"
+                    >
+                        <Button variant="secondary" onClick={() => setShowModal(false)} disabled={loading}>
+                            Close
+                        </Button>
                         <Button variant="primary" onClick={handleSaveRequest} disabled={loading}>
                             {loading ? (
                                 <>
-                                    <Spinner animation="border" size="sm" className="me-2" />
+                                    <Spinner animation="grow" size="sm" role="status" aria-hidden="true" className="me-2" />
                                     Saving...
                                 </>
-                            ) : 'Save'}
+                            ) : (editingId ? 'Update Record' : 'Save Record')}
                         </Button>
                     </Modal.Footer>
                 </Modal>

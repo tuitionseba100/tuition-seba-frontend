@@ -62,6 +62,7 @@ const PhonePage = () => {
         setCurrentPage(1);
     };
 
+
     const fetchRecords = async () => {
         setLoading(true);
         try {
@@ -146,9 +147,32 @@ const PhonePage = () => {
     };
 
     const handleSaveRequest = async () => {
+        const phone = phoneData.phone?.trim();
+
+        if (!phone) {
+            toast.error("Phone number is required.");
+            return;
+        }
+
+        // Validation: Only digits and / are allowed
+        if (!/^[0-9/]+$/.test(phone)) {
+            toast.error("Only numbers (0-9) and '/' are allowed in phone field.");
+            return;
+        }
+
+        const inputNumbers = phone.split('/').map(n => n.trim()).filter(n => n);
+
+        // Validation: Each number must start with 0
+        for (const num of inputNumbers) {
+            if (!num.startsWith('0')) {
+                toast.error(`Each phone number must start with '0'. Invalid: ${num}`);
+                return;
+            }
+        }
 
         const updatedData = {
-            ...phoneData
+            ...phoneData,
+            phone: phone // use trimmed version
         };
         try {
             if (editingId) {
@@ -220,16 +244,18 @@ const PhonePage = () => {
             <Container>
                 <Header>
                     <h2 className='text-primary fw-bold'>SPAM & BEST Phone Numbers</h2>
-                    <Button
-                        variant="primary"
-                        onClick={() => {
-                            setShowModal(true);
-                            setEditingId(null);
-                            setPhoneData({ phone: '', note: '', isSpam: false, isBest: false, isExpress: false, isActive: false, isBestGuardian: false });
-                        }}
-                    >
-                        Create Phone Record
-                    </Button>
+                    <div className="d-flex gap-2">
+                        <Button
+                            variant="primary"
+                            onClick={() => {
+                                setShowModal(true);
+                                setEditingId(null);
+                                setPhoneData({ phone: '', note: '', isSpam: false, isBest: false, isExpress: false, isActive: false, isBestGuardian: false });
+                            }}
+                        >
+                            Create Phone Record
+                        </Button>
+                    </div>
                 </Header>
                 <Card className="mt-4">
                     <Card.Body>
@@ -536,6 +562,9 @@ const PhonePage = () => {
                                                 }
                                                 className="shadow-sm"
                                             />
+                                            <Form.Text className="d-block mt-1" style={{ fontSize: '0.9rem', color: '#e57373', fontWeight: '500' }}>
+                                                ফোন নম্বর অবশ্যই ০ দিয়ে শুরু হতে হবে। একাধিক নম্বর দিলে '/' ব্যবহার করুন (যেমন: ০১৭... / ০১৮...)।
+                                            </Form.Text>
                                         </Form.Group>
                                     </Col>
                                     <Col md={12}>

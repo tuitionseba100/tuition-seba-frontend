@@ -2,8 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { Modal, Button, Form, Row, Col } from 'react-bootstrap';
 import Select from 'react-select';
 
-const TaskModal = ({ show, handleClose, onSave, editingTask, userList, userRole }) => {
-    const isSuperAdmin = userRole === 'superadmin';
+const TaskModal = ({ show, handleClose, onSave, editingTask, userList, userRole, currentUserId }) => {
+    const isFullEditAllowed = userRole === 'superadmin' || 
+        (userRole === 'admin' && (!editingTask || editingTask.createdBy === currentUserId));
     const [taskData, setTaskData] = useState({
         tuitionCode: '',
         employeeName: '',
@@ -103,7 +104,7 @@ const TaskModal = ({ show, handleClose, onSave, editingTask, userList, userRole 
             >
                 <Form onSubmit={handleSubmit} className="h-100 d-flex flex-column">
                     <div className="flex-grow-1">
-                        {isSuperAdmin ? (
+                        {isFullEditAllowed ? (
                             <>
                                 {/* Section 1: Assignee Info */}
                                 <div

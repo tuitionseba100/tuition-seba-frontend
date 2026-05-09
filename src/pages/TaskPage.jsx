@@ -22,6 +22,13 @@ const TaskPage = () => {
     const [loading, setLoading] = useState(false);
     const [userList, setUserList] = useState([]);
     const token = localStorage.getItem('token');
+    let currentUserId = null;
+    if (token) {
+        try {
+            const payload = JSON.parse(atob(token.split('.')[1]));
+            currentUserId = payload.userId;
+        } catch(e) { console.error('Error decoding token', e); }
+    }
 
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
@@ -64,6 +71,12 @@ const TaskPage = () => {
             console.error('Error:', err);
             toast.error("Failed.");
         }
+    };
+
+    const getUserName = (id) => {
+        if (!id) return 'N/A';
+        const user = userList.find(u => u._id === id);
+        return user ? (user.name || user.username) : 'Unknown';
     };
 
     const fetchTaskRecords = async (page = 1, filters = appliedFilters) => {
@@ -194,10 +207,14 @@ const TaskPage = () => {
     const handleSaveTask = async (data) => {
         try {
             if (editingTask) {
-                await axios.put(`https://tuition-seba-backend-1.onrender.com/api/taskData/edit/${editingTask._id}`, data);
+                await axios.put(`https://tuition-seba-backend-1.onrender.com/api/taskData/edit/${editingTask._id}`, data, {
+                    headers: { Authorization: token }
+                });
                 toast.success("Task updated successfully!");
             } else {
-                await axios.post('https://tuition-seba-backend-1.onrender.com/api/taskData/add', data);
+                await axios.post('https://tuition-seba-backend-1.onrender.com/api/taskData/add', data, {
+                    headers: { Authorization: token }
+                });
                 toast.success("Task created successfully!");
             }
             setShowModal(false);
@@ -213,7 +230,9 @@ const TaskPage = () => {
 
         if (confirmDelete) {
             try {
-                await axios.delete(`https://tuition-seba-backend-1.onrender.com/api/taskData/delete/${id}`);
+                await axios.delete(`https://tuition-seba-backend-1.onrender.com/api/taskData/delete/${id}`, {
+                    headers: { Authorization: token }
+                });
                 toast.success("task record deleted successfully!");
                 fetchTaskRecords(currentPage);
             } catch (err) {
@@ -238,7 +257,9 @@ const TaskPage = () => {
                 status: 'completed',
                 comment: completionComment
             };
-            await axios.put(`https://tuition-seba-backend-1.onrender.com/api/taskData/edit/${completingTask._id}`, data);
+            await axios.put(`https://tuition-seba-backend-1.onrender.com/api/taskData/edit/${completingTask._id}`, data, {
+                headers: { Authorization: token }
+            });
             toast.success("Task completed successfully!");
             setShowCompleteModal(false);
             fetchTaskRecords(currentPage);
@@ -267,7 +288,7 @@ const TaskPage = () => {
             <Container>
                 <Header>
                     <h2 className='text-primary fw-bold'>Task Dashboard</h2>
-                    {userRole === 'superadmin' && (
+                    {(userRole === 'superadmin' || userRole === 'admin') && (
                         <Button variant="primary" onClick={() => { setEditingTask(null); setShowModal(true); }}>
                             Create Task
                         </Button>
@@ -403,6 +424,8 @@ const TaskPage = () => {
                                         <th>Employee Name</th>
                                         <th>Tuition Code</th>
                                         <th>Assigned At</th>
+                                        <th>Created By</th>
+                                        <th>Updated By</th>
                                         <th>Deadline</th>
                                         <th>Status</th>
                                         <th>Task</th>
@@ -426,6 +449,8 @@ const TaskPage = () => {
                                                 <td>{task.employeeName}</td>
                                                 <td>{task.tuitionCode}</td>
                                                 <td>{task.createdAt ? formatDate(task.createdAt) : ''}</td>
+                                                <td><span className="badge bg-light text-dark border">{getUserName(task.createdBy)}</span></td>
+                                                <td>{task.updatedBy ? <span className="badge bg-light text-secondary border">{getUserName(task.updatedBy)}</span> : 'N/A'}</td>
                                                 <td>
                                                     {task.deadline ? (
                                                         <div className={isOverdue(task.deadline, task.status) ? 'text-danger fw-bold' : ''}>
@@ -458,7 +483,7 @@ const TaskPage = () => {
                                                     <Button variant="warning" onClick={() => handleEditTask(task)} className="mr-2">
                                                         <FaEdit />
                                                     </Button>
-                                                    {userRole === 'superadmin' && (
+                                                    {(userRole === 'superadmin' || (userRole === 'admin' && task.createdBy === currentUserId)) && (
                                                         <Button variant="danger" onClick={() => handleDeleteTask(task._id)}>
                                                             <FaTrashAlt />
                                                         </Button>

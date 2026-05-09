@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Modal, Button, Form, Row, Col } from 'react-bootstrap';
 import Select from 'react-select';
 
-const TaskModal = ({ show, handleClose, onSave, editingTask, userList }) => {
+const TaskModal = ({ show, handleClose, onSave, editingTask, userList, userRole }) => {
+    const isSuperAdmin = userRole === 'superadmin';
     const [taskData, setTaskData] = useState({
         tuitionCode: '',
         employeeName: '',
@@ -102,14 +103,16 @@ const TaskModal = ({ show, handleClose, onSave, editingTask, userList }) => {
             >
                 <Form onSubmit={handleSubmit} className="h-100 d-flex flex-column">
                     <div className="flex-grow-1">
-                        {/* Section 1: Assignee Info */}
-                        <div
-                            className="mb-4 p-3 rounded bg-white"
-                            style={{
-                                border: '1px solid rgba(13, 110, 253, 0.2)',
-                                boxShadow: '0 0 10px rgba(13, 110, 253, 0.05)',
-                            }}
-                        >
+                        {isSuperAdmin ? (
+                            <>
+                                {/* Section 1: Assignee Info */}
+                                <div
+                                    className="mb-4 p-3 rounded bg-white"
+                                    style={{
+                                        border: '1px solid rgba(13, 110, 253, 0.2)',
+                                        boxShadow: '0 0 10px rgba(13, 110, 253, 0.05)',
+                                    }}
+                                >
                             <h6
                                 className="mb-3 fw-bold"
                                 style={{ borderBottom: '2px solid rgba(13, 110, 253, 0.5)', paddingBottom: '0.4rem', color: '#0d6efd', fontSize: '0.9rem' }}
@@ -241,6 +244,72 @@ const TaskModal = ({ show, handleClose, onSave, editingTask, userList }) => {
                                 </Col>
                             </Row>
                         </div>
+                            </>
+                        ) : (
+                            <>
+                                {/* Employee Read-Only View */}
+                                <div className="mb-4 p-4 rounded bg-white" style={{ border: '1px solid rgba(13, 110, 253, 0.2)', boxShadow: '0 0 10px rgba(13, 110, 253, 0.05)' }}>
+                                    <h6 className="mb-3 fw-bold text-primary" style={{ borderBottom: '2px solid rgba(13, 110, 253, 0.5)', paddingBottom: '0.4rem' }}>
+                                        Task Assignment Details
+                                    </h6>
+                                    <Row className="gy-3">
+                                        <Col md={6}>
+                                            <p className="mb-1 text-muted small fw-bold">Tuition Code</p>
+                                            <p className="fw-bold text-dark fs-5">{taskData.tuitionCode || 'N/A'}</p>
+                                        </Col>
+                                        <Col md={6}>
+                                            <p className="mb-1 text-muted small fw-bold">Deadline</p>
+                                            <p className="fw-bold text-danger fs-6">
+                                                {taskData.deadline ? new Date(taskData.deadline).toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' }) : 'No Deadline Assigned'}
+                                            </p>
+                                        </Col>
+                                        <Col md={12}>
+                                            <p className="mb-1 text-muted small fw-bold">Instructions from Admin</p>
+                                            <div className="p-3 bg-light rounded border" style={{ minHeight: '100px' }}>
+                                                <span style={{ whiteSpace: 'pre-wrap', color: '#333' }}>{taskData.task || 'No special instructions provided.'}</span>
+                                            </div>
+                                        </Col>
+                                    </Row>
+                                </div>
+
+                                {/* Employee Editable View */}
+                                <div className="mb-4 p-4 rounded bg-white" style={{ border: '1px solid rgba(25, 135, 84, 0.2)', boxShadow: '0 0 10px rgba(25, 135, 84, 0.05)' }}>
+                                    <h6 className="mb-3 fw-bold text-success" style={{ borderBottom: '2px solid rgba(25, 135, 84, 0.5)', paddingBottom: '0.4rem' }}>
+                                        Update Your Progress
+                                    </h6>
+                                    <Row className="gy-3">
+                                        <Col md={6}>
+                                            <Form.Group controlId="status">
+                                                <Form.Label className="fw-bold text-dark small">Current Status <span className="text-danger">*</span></Form.Label>
+                                                <Form.Select
+                                                    value={taskData.status}
+                                                    onChange={(e) => setTaskData({ ...taskData, status: e.target.value })}
+                                                    style={{...controlStyles, borderColor: '#198754'}}
+                                                    required
+                                                >
+                                                    <option value="pending">Pending</option>
+                                                    <option value="ongoing">Ongoing</option>
+                                                    <option value="completed">Completed</option>
+                                                </Form.Select>
+                                            </Form.Group>
+                                        </Col>
+                                        <Col md={12}>
+                                            <Form.Group controlId="comment">
+                                                <Form.Label className="fw-bold text-dark small">Your Report / Comment</Form.Label>
+                                                <Form.Control
+                                                    as="textarea"
+                                                    rows={4}
+                                                    placeholder="Type your progress report, notes, or outcome here..."
+                                                    value={taskData.comment}
+                                                    onChange={(e) => setTaskData({ ...taskData, comment: e.target.value })}
+                                                    style={{...controlStyles, borderColor: '#198754'}}
+                                                />
+                                            </Form.Group>
+                                        </Col>
+                                    </Row>
+                                </div>
+                            </>
+                        )}
                     </div>
 
                     <div className="d-flex justify-content-end gap-2 mt-auto pt-3 border-top">

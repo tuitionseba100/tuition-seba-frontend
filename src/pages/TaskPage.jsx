@@ -501,6 +501,7 @@ const TaskPage = () => {
                     onSave={handleSaveTask}
                     editingTask={editingTask}
                     userList={userList}
+                    userRole={userRole}
                 />
 
                 {/* Complete Task Modal */}

@@ -368,6 +368,12 @@ const Dashboard = () => {
                             <h3>{summaryData.totalTeachers}</h3>
                         </Card>
                     </Col>
+                    <Col md={4} lg={2}>
+                        <Card style={{ ...cardStyle, backgroundColor: '#6366f1', cursor: 'pointer' }} onClick={() => window.location.href = '/admin/task'}>
+                            Total Tasks
+                            <h3>{summaryData.totalTasks || '...'}</h3>
+                        </Card>
+                    </Col>
                 </Row>
 
                 {/* Recent Tuition Applications & Teacher Applications */}

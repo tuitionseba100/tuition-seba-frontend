@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
+import TaskModal from '../components/modals/TaskModal';
 import { Button, Table, Modal, Form, Row, Col, Card } from 'react-bootstrap';
-import { FaEdit, FaTrashAlt } from 'react-icons/fa';
+import { FaEdit, FaTrashAlt, FaCheckCircle } from 'react-icons/fa';
 import axios from 'axios';
 import NavBarPage from './NavbarPage';
 import styled from 'styled-components';
@@ -13,55 +14,45 @@ import CreatableSelect from 'react-select/creatable';
 
 const TaskPage = () => {
     const [taskList, setTaskList] = useState([]);
-    const [filteredTaskList, setFilteredTaskList] = useState([]);
     const [showModal, setShowModal] = useState(false);
-    const [editingId, setEditingId] = useState(null);
+    const [editingTask, setEditingTask] = useState(null);
     const [statusFilter, setStatusFilter] = useState('');
     const [tuitionCodeSearchQuery, setTuitionCodeSearchQuery] = useState('');
     const [employeeNameSearchQuery, setEmployeeNameSearchQuery] = useState('');
-    const [taskData, setTaskData] = useState({
-        tuitionCode: '',
-        tuitionId: '',
-        employeeName: '',
-        employeeId: '',
-        status: '',
-        task: '',
-        comment: '',
-    });
     const [loading, setLoading] = useState(false);
-    const [tuitionList, setTuitionList] = useState([]);
     const [userList, setUserList] = useState([]);
     const token = localStorage.getItem('token');
+
+    const [currentPage, setCurrentPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
+    const [totalRecords, setTotalRecords] = useState(0);
+    const limit = 20;
+
+    const [appliedFilters, setAppliedFilters] = useState({
+        tuitionCode: '',
+        employeeName: '',
+        status: ''
+    });
+
     const [totalTaskCount, setTotalTaskCount] = useState(0);
     const [todayTaskCount, setTodayTaskCount] = useState(0);
     const [completedTodayCount, setCompletedTodayCount] = useState(0);
     const [pendingTaskCount, setPendingTaskCount] = useState(0);
     const [completedTaskCount, setCompletedTaskCount] = useState(0);
     const [todayPendingTaskCount, setTodayPendingTaskCount] = useState(0);
+    const [todayOngoingTaskCount, setTodayOngoingTaskCount] = useState(0);
+    const [totalOngoingTaskCount, setTotalOngoingTaskCount] = useState(0);
+
+    const [showCompleteModal, setShowCompleteModal] = useState(false);
+    const [completingTask, setCompletingTask] = useState(null);
+    const [completionComment, setCompletionComment] = useState('');
+
     const userRole = localStorage.getItem('role');
 
     useEffect(() => {
-        fetchTaskRecords();
-        fetchTuitions();
+        fetchTaskRecords(1);
         fetchUsers();
     }, []);
-
-    const fetchTuitions = async () => {
-        try {
-            const response = await axios.get(
-                'https://tuition-seba-backend-1.onrender.com/api/tuition/all',
-                {
-                    headers: {
-                        Authorization: token
-                    }
-                }
-            );
-            setTuitionList(response.data);
-        } catch (err) {
-            console.error('Error fetching tuitions:', err);
-            toast.error("Failed to load tuitions.");
-        }
-    };
 
     const fetchUsers = async () => {
         try {
@@ -75,15 +66,25 @@ const TaskPage = () => {
         }
     };
 
-    const fetchTaskRecords = async () => {
+    const fetchTaskRecords = async (page = 1, filters = appliedFilters) => {
         setLoading(true);
         try {
-            console.log(token);
+            const params = {
+                page,
+                limit,
+                tuitionCode: filters.tuitionCode,
+                employeeName: filters.employeeName,
+                status: filters.status
+            };
             const response = await axios.get('https://tuition-seba-backend-1.onrender.com/api/taskData/all', {
                 headers: { Authorization: token },
+                params
             });
-            setTaskList(response.data);
-            setFilteredTaskList(response.data);
+            setTaskList(response.data.data);
+            setTotalPages(response.data.totalPages);
+            setTotalRecords(response.data.totalRecords);
+            setCurrentPage(response.data.currentPage);
+            fetchSummaryCounts(filters);
         } catch (err) {
             console.error('Error fetching task records:', err);
             toast.error("Failed to load task records.");
@@ -91,53 +92,48 @@ const TaskPage = () => {
         setLoading(false);
     };
 
-    useEffect(() => {
-        let filteredData = taskList;
-
-        if (employeeNameSearchQuery) {
-            filteredData = filteredData.filter(task =>
-                String(task.employeeName).toLowerCase().includes(String(employeeNameSearchQuery).toLowerCase())
-            );
+    const fetchSummaryCounts = async (filters = appliedFilters) => {
+        try {
+            const params = {
+                tuitionCode: filters.tuitionCode,
+                employeeName: filters.employeeName
+            };
+            const response = await axios.get('https://tuition-seba-backend-1.onrender.com/api/taskData/summary', {
+                headers: { Authorization: token },
+                params
+            });
+            const data = response.data;
+            setTotalTaskCount(data.total);
+            setTodayTaskCount(data.todayAssigned);
+            setTodayPendingTaskCount(data.todayPending);
+            setCompletedTodayCount(data.todayCompleted);
+            setCompletedTaskCount(data.totalCompleted);
+            setPendingTaskCount(data.totalPending);
+            setTotalOngoingTaskCount(data.totalOngoing);
+            setTodayOngoingTaskCount(data.todayOngoing);
+        } catch (err) {
+            console.error('Error fetching summary:', err);
         }
+    };
 
-        if (statusFilter) {
-            filteredData = filteredData.filter(task => task.status === statusFilter);
-        }
+    const handleSearch = () => {
+        const filters = {
+            tuitionCode: tuitionCodeSearchQuery,
+            employeeName: employeeNameSearchQuery,
+            status: statusFilter
+        };
+        setAppliedFilters(filters);
+        fetchTaskRecords(1, filters);
+    };
 
-        if (tuitionCodeSearchQuery) {
-            filteredData = filteredData.filter(task =>
-                String(task.tuitionCode).toLowerCase().includes(String(tuitionCodeSearchQuery).toLowerCase())
-            );
-        }
+    const handlePageChange = (page) => {
+        fetchTaskRecords(page);
+    };
 
-        const todayDate = new Date().toISOString().split('T')[0];
-
-        const total = filteredData.length;
-        const todayAssigned = filteredData.filter(task =>
-            new Date(task.createdAt).toISOString().split('T')[0] === todayDate
-        ).length;
-
-        const todayPending = filteredData.filter(task =>
-            task.status === 'pending' &&
-            new Date(task.createdAt).toISOString().split('T')[0] === todayDate
-        ).length;
-
-        const todayCompleted = filteredData.filter(task =>
-            task.status === 'completed' &&
-            new Date(task.createdAt).toISOString().split('T')[0] === todayDate
-        ).length;
-
-        const totalCompleted = filteredData.filter(task => task.status === 'completed').length;
-        const totalPending = filteredData.filter(task => task.status === 'pending').length;
-
-        setFilteredTaskList(filteredData);
-        setTotalTaskCount(total);
-        setTodayTaskCount(todayAssigned);
-        setTodayPendingTaskCount(todayPending);
-        setCompletedTodayCount(todayCompleted);
-        setCompletedTaskCount(totalCompleted);
-        setPendingTaskCount(totalPending);
-    }, [employeeNameSearchQuery, statusFilter, tuitionCodeSearchQuery, taskList]);
+    const isOverdue = (deadline, status) => {
+        if (!deadline || status === 'completed') return false;
+        return new Date(deadline) < new Date();
+    };
 
     const formatDate = (dateString) => {
         const date = new Date(dateString);
@@ -159,13 +155,14 @@ const TaskPage = () => {
         const fileName = `Task List_${formattedDate}_${formattedTime}`;
 
         const tableHeaders = [
-            "Employee Name", "Tuition Code", "Assigned At", "Status", "Task", "Comment"
+            "Employee Name", "Tuition Code", "Assigned At", "Deadline", "Status", "Task", "Comment"
         ];
 
-        const tableData = filteredTaskList.map(task => [
+        const tableData = taskList.map(task => [
             String(task.employeeName ?? ""),
             String(task.tuitionCode ?? ""),
             task.createdAt ? formatDate(task.createdAt) : "",
+            task.deadline ? formatDate(task.deadline) : "N/A",
             String(task.status ?? ""),
             String(task.task ?? ""),
             String(task.comment ?? ""),
@@ -175,6 +172,7 @@ const TaskPage = () => {
 
         worksheet['!cols'] = [
             { wpx: 90 },
+            { wpx: 140 },
             { wpx: 140 },
             { wpx: 140 },
             { wpx: 100 },
@@ -188,41 +186,26 @@ const TaskPage = () => {
         XLSX.writeFile(workbook, `${fileName}.xlsx`);
     };
 
-    const handleSaveTask = async () => {
-        if (!taskData.employeeId || taskData.employeeId.trim() === '') {
-            toast.error("Please select an employee.");
-            return;
-        }
-
-        const selectedTuition = tuitionList.find(tuition => tuition._id === taskData.tuitionId);
-        const selectedEmployee = userList.find(user => user._id === taskData.employeeId);
-        const updatedTaskData = {
-            ...taskData,
-            tuitionCode: selectedTuition.tuitionCode,
-            employeeName: selectedEmployee.name,
-            employeeRole: selectedEmployee.role,
-        };
-
-        try {
-            if (editingId) {
-                await axios.put(`https://tuition-seba-backend-1.onrender.com/api/taskData/edit/${editingId}`, updatedTaskData);
-                toast.success("Tuition record updated successfully!");
-            } else {
-                await axios.post('https://tuition-seba-backend-1.onrender.com/api/taskData/add', updatedTaskData);
-                toast.success("Tuition record created successfully!");
-            }
-            setShowModal(false);
-            fetchTaskRecords();
-        } catch (err) {
-            console.error('Error saving task record:', err);
-            toast.error("Error saving task record.");
-        }
+    const handleEditTask = (task) => {
+        setEditingTask(task);
+        setShowModal(true);
     };
 
-    const handleEditTask = (task) => {
-        setTaskData(task);
-        setEditingId(task._id);
-        setShowModal(true);
+    const handleSaveTask = async (data) => {
+        try {
+            if (editingTask) {
+                await axios.put(`https://tuition-seba-backend-1.onrender.com/api/taskData/edit/${editingTask._id}`, data);
+                toast.success("Task updated successfully!");
+            } else {
+                await axios.post('https://tuition-seba-backend-1.onrender.com/api/taskData/add', data);
+                toast.success("Task created successfully!");
+            }
+            setShowModal(false);
+            fetchTaskRecords(currentPage);
+        } catch (err) {
+            console.error('Error saving task:', err);
+            toast.error("Error saving task.");
+        }
     };
 
     const handleDeleteTask = async (id) => {
@@ -232,7 +215,7 @@ const TaskPage = () => {
             try {
                 await axios.delete(`https://tuition-seba-backend-1.onrender.com/api/taskData/delete/${id}`);
                 toast.success("task record deleted successfully!");
-                fetchTaskRecords();
+                fetchTaskRecords(currentPage);
             } catch (err) {
                 console.error('Error deleting task record:', err);
                 toast.error("Error deleting task record.");
@@ -242,11 +225,40 @@ const TaskPage = () => {
         }
     };
 
+    const handleCompleteTaskClick = (task) => {
+        setCompletingTask(task);
+        setCompletionComment(task.comment || '');
+        setShowCompleteModal(true);
+    };
+
+    const handleConfirmComplete = async () => {
+        try {
+            const data = {
+                ...completingTask,
+                status: 'completed',
+                comment: completionComment
+            };
+            await axios.put(`https://tuition-seba-backend-1.onrender.com/api/taskData/edit/${completingTask._id}`, data);
+            toast.success("Task completed successfully!");
+            setShowCompleteModal(false);
+            fetchTaskRecords(currentPage);
+        } catch (err) {
+            console.error('Error completing task:', err);
+            toast.error("Error updating task.");
+        }
+    };
+
     const handleResetFilters = () => {
         setStatusFilter('');
         setTuitionCodeSearchQuery('');
         setEmployeeNameSearchQuery('');
-        setFilteredTaskList(taskList);
+        const resetFilters = {
+            tuitionCode: '',
+            employeeName: '',
+            status: ''
+        };
+        setAppliedFilters(resetFilters);
+        fetchTaskRecords(1, resetFilters);
     };
 
     return (
@@ -255,7 +267,7 @@ const TaskPage = () => {
             <Container>
                 <Header>
                     <h2 className='text-primary fw-bold'>Task Dashboard</h2>
-                    <Button variant="primary" onClick={() => { setShowModal(true); setEditingId(null); setTaskData({ employeeName: '', employeeId: '', tuitionCode: '', tuitionId: '', employeeRole: '', task: '', status: '', comment: '' }) }}>
+                    <Button variant="primary" onClick={() => { setEditingTask(null); setShowModal(true); }}>
                         Create Task
                     </Button>
                 </Header>
@@ -264,7 +276,7 @@ const TaskPage = () => {
                     <Card.Body>
                         <div className="row text-center">
                             <div className="col-6 col-sm-4 col-md-2 mb-3">
-                                <div className="card p-3 shadow border-primary">
+                                <div className="card p-3 shadow border-primary h-100">
                                     <div className="d-flex flex-column align-items-center">
                                         <span className="text-primary" style={{ fontWeight: 'bolder' }}>Total Task</span>
                                         <span>{totalTaskCount}</span>
@@ -272,43 +284,41 @@ const TaskPage = () => {
                                 </div>
                             </div>
                             <div className="col-6 col-sm-4 col-md-2 mb-3">
-                                <div className="card p-3 shadow border-primary">
+                                <div className="card p-3 shadow border-primary h-100">
                                     <div className="d-flex flex-column align-items-center">
-                                        <span className="text-primary" style={{ fontWeight: 'bolder' }}>Total Task Assigned Today</span>
+                                        <span className="text-primary" style={{ fontWeight: 'bolder' }}>Assigned Today</span>
                                         <span>{todayTaskCount}</span>
                                     </div>
                                 </div>
                             </div>
                             <div className="col-6 col-sm-4 col-md-2 mb-3">
-                                <div className="card p-3 shadow border-primary">
+                                <div className="card p-3 shadow border-danger h-100">
                                     <div className="d-flex flex-column align-items-center">
-                                        <span className="text-primary" style={{ fontWeight: 'bolder' }}>Total Task Pending Today</span>
-                                        <span>
-                                            {todayPendingTaskCount}
-                                        </span>
+                                        <span className="text-danger" style={{ fontWeight: 'bolder' }}>Pending Today</span>
+                                        <span>{todayPendingTaskCount}</span>
                                     </div>
                                 </div>
                             </div>
                             <div className="col-6 col-sm-4 col-md-2 mb-3">
-                                <div className="card p-3 shadow border-primary">
+                                <div className="card p-3 shadow border-success h-100">
                                     <div className="d-flex flex-column align-items-center">
-                                        <span className="text-primary" style={{ fontWeight: 'bolder' }}>Total Task Completed Today</span>
+                                        <span className="text-success" style={{ fontWeight: 'bolder' }}>Completed Today</span>
                                         <span>{completedTodayCount}</span>
                                     </div>
                                 </div>
                             </div>
                             <div className="col-6 col-sm-4 col-md-2 mb-3">
-                                <div className="card p-3 shadow border-primary">
+                                <div className="card p-3 shadow border-danger h-100">
                                     <div className="d-flex flex-column align-items-center">
-                                        <span className="text-primary" style={{ fontWeight: 'bolder' }}>Total Task Pending</span>
+                                        <span className="text-danger" style={{ fontWeight: 'bolder' }}>Total Pending</span>
                                         <span>{pendingTaskCount}</span>
                                     </div>
                                 </div>
                             </div>
                             <div className="col-6 col-sm-4 col-md-2 mb-3">
-                                <div className="card p-3 shadow border-primary">
+                                <div className="card p-3 shadow border-success h-100">
                                     <div className="d-flex flex-column align-items-center">
-                                        <span className="text-primary" style={{ fontWeight: 'bolder' }}>Total Task Completed</span>
+                                        <span className="text-success" style={{ fontWeight: 'bolder' }}>Total Completed</span>
                                         <span>{completedTaskCount}</span>
                                     </div>
                                 </div>
@@ -361,13 +371,17 @@ const TaskPage = () => {
                         <Form.Select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
                             <option value="">All</option>
                             <option value="pending">Pending</option>
+                            <option value="ongoing">Ongoing</option>
                             <option value="completed">Completed</option>
                         </Form.Select>
                     </Col>
 
-                    <Col md={2} className="d-flex align-items-end">
+                    <Col md={2} className="d-flex align-items-end gap-2">
+                        <Button variant="primary" onClick={handleSearch} className="w-100">
+                            Search
+                        </Button>
                         <Button variant="danger" onClick={handleResetFilters} className="w-100">
-                            Reset Filters
+                            Reset
                         </Button>
                     </Col>
                 </Row>
@@ -387,6 +401,7 @@ const TaskPage = () => {
                                         <th>Employee Name</th>
                                         <th>Tuition Code</th>
                                         <th>Assigned At</th>
+                                        <th>Deadline</th>
                                         <th>Status</th>
                                         <th>Task</th>
                                         <th>Comment</th>
@@ -403,16 +418,27 @@ const TaskPage = () => {
                                             </td>
                                         </tr>
                                     ) : (
-                                        filteredTaskList.slice().reverse().map((task, index) => (
+                                        taskList.map((task, index) => (
                                             <tr key={task._id}>
-                                                <td>{index + 1}</td>
+                                                <td>{(currentPage - 1) * limit + index + 1}</td>
                                                 <td>{task.employeeName}</td>
                                                 <td>{task.tuitionCode}</td>
                                                 <td>{task.createdAt ? formatDate(task.createdAt) : ''}</td>
                                                 <td>
+                                                    {task.deadline ? (
+                                                        <div className={isOverdue(task.deadline, task.status) ? 'text-danger fw-bold' : ''}>
+                                                            {formatDate(task.deadline)}
+                                                            {isOverdue(task.deadline, task.status) && (
+                                                                <div><span className="badge bg-danger mt-1">OVERDUE</span></div>
+                                                            )}
+                                                        </div>
+                                                    ) : 'N/A'}
+                                                </td>
+                                                <td>
                                                     <span
                                                         className={`badge 
                                                             ${task.status === "pending" ? "bg-danger" : ""}  
+                                                            ${task.status === "ongoing" ? "bg-warning text-dark" : ""}
                                                             ${task.status === "completed" ? "bg-success" : ""}
                                                             `}
                                                     >
@@ -422,6 +448,11 @@ const TaskPage = () => {
                                                 <td>{task.task}</td>
                                                 <td>{task.comment}</td>
                                                 <td style={{ display: 'flex', justifyContent: 'flex-start', gap: '8px' }}>
+                                                    {task.status !== 'completed' && (
+                                                        <Button variant="success" onClick={() => handleCompleteTaskClick(task)} title="Complete Task">
+                                                            <FaCheckCircle />
+                                                        </Button>
+                                                    )}
                                                     <Button variant="warning" onClick={() => handleEditTask(task)} className="mr-2">
                                                         <FaEdit />
                                                     </Button>
@@ -436,112 +467,67 @@ const TaskPage = () => {
 
                             </Table>
                         </div>
+
+                        {/* Pagination Controls */}
+                        {!loading && totalPages > 1 && (
+                            <div className="d-flex justify-content-center mt-4">
+                                <Button
+                                    variant="outline-primary"
+                                    className="mx-1"
+                                    onClick={() => handlePageChange(currentPage - 1)}
+                                    disabled={currentPage === 1}
+                                >
+                                    Previous
+                                </Button>
+                                <span className="align-self-center mx-3">
+                                    Page {currentPage} of {totalPages}
+                                </span>
+                                <Button
+                                    variant="outline-primary"
+                                    className="mx-1"
+                                    onClick={() => handlePageChange(currentPage + 1)}
+                                    disabled={currentPage === totalPages}
+                                >
+                                    Next
+                                </Button>
+                            </div>
+                        )}
                     </Card.Body>
                 </Card>
 
-                {/* Create/Edit Task Modal */}
-                <Modal show={showModal} onHide={() => setShowModal(false)} size="lg">
+                <TaskModal
+                    show={showModal}
+                    handleClose={() => setShowModal(false)}
+                    onSave={handleSaveTask}
+                    editingTask={editingTask}
+                    userList={userList}
+                />
+
+                {/* Complete Task Modal */}
+                <Modal show={showCompleteModal} onHide={() => setShowCompleteModal(false)} centered>
                     <Modal.Header closeButton>
-                        <Modal.Title className="fw-bold">{editingId ? "Edit Task" : "Create Task"}</Modal.Title>
+                        <Modal.Title>Complete Task</Modal.Title>
                     </Modal.Header>
-
                     <Modal.Body>
-
-                        <Form>
-                            <Row>
-                                <Col md={6}>
-                                    <Form.Group controlId="employeeId">
-                                        <Form.Label className="fw-bold">Employee Name</Form.Label>
-                                        <Select
-                                            options={userList.map(user => ({
-                                                value: user._id,
-                                                label: user.name?.trim() ? user.name : user.username
-                                            }))}
-                                            value={userList.find(user => user._id === taskData.employeeId) ? {
-                                                value: userList.find(user => user._id === taskData.employeeId)._id,
-                                                label: userList.find(user => user._id === taskData.employeeId).name?.trim()
-                                                    ? userList.find(user => user._id === taskData.employeeId).name
-                                                    : userList.find(user => user._id === taskData.employeeId).username
-                                            } : null}
-                                            onChange={(selectedOption) => setTaskData({ ...taskData, employeeId: selectedOption.value })}
-                                            placeholder="Select Employee"
-                                            isSearchable
-                                        />
-                                    </Form.Group>
-
-                                </Col>
-
-                                <Col md={6}>
-                                    <Form.Group controlId="tuitionId">
-                                        <Form.Label className="fw-bold">Tuition Code</Form.Label>
-                                        <Select
-                                            options={tuitionList.map(tuition => ({
-                                                value: tuition._id,
-                                                label: tuition.tuitionCode
-                                            }))}
-                                            value={tuitionList.find(tuition => tuition._id === taskData.tuitionId) ? {
-                                                value: tuitionList.find(tuition => tuition._id === taskData.tuitionId)._id,
-                                                label: tuitionList.find(tuition => tuition._id === taskData.tuitionId).tuitionCode
-                                            } : null}
-
-                                            onChange={(selectedOption) => setTaskData({ ...taskData, tuitionId: selectedOption.value })}
-                                            placeholder="Select Tuition Code"
-                                            isSearchable
-                                        />
-                                    </Form.Group>
-                                </Col>
-
-                            </Row>
-
-                            <Row>
-                                <Col md={4}>
-                                    <Form.Group controlId="status">
-                                        <Form.Label className="fw-bold">Task Status</Form.Label>
-                                        <Form.Control
-                                            as="select"
-                                            value={taskData.status}
-                                            onChange={(e) => setTaskData({ ...taskData, status: e.target.value })}
-                                            required
-                                        >
-                                            <option value="">Select Task Status</option>
-                                            <option value="pending">Pending</option>
-                                            <option value="completed">Completed</option>
-                                        </Form.Control>
-                                    </Form.Group>
-                                </Col>
-                            </Row>
-
-                            <Row>
-                                <Col md={6}>
-                                    <Form.Group controlId="task">
-                                        <Form.Label className="fw-bold">Task</Form.Label>
-                                        <Form.Control
-                                            as="textarea"
-                                            value={taskData.task}
-                                            onChange={(e) => setTaskData({ ...taskData, task: e.target.value })}
-                                            required
-                                        />
-                                    </Form.Group>
-                                </Col>
-                                <Col md={6}>
-                                    <Form.Group controlId="comment">
-                                        <Form.Label className="fw-bold">Comment</Form.Label>
-                                        <Form.Control
-                                            as="textarea"
-                                            value={taskData.comment}
-                                            onChange={(e) => setTaskData({ ...taskData, comment: e.target.value })}
-                                            required
-                                        />
-                                    </Form.Group>
-
-                                </Col>
-                            </Row>
-                        </Form>
-
+                        <p>Are you sure you want to mark this task as <strong>Completed</strong>?</p>
+                        <Form.Group controlId="completeComment">
+                            <Form.Label className="fw-bold">Completion Comment (Optional)</Form.Label>
+                            <Form.Control
+                                as="textarea"
+                                rows={3}
+                                placeholder="Enter any final notes..."
+                                value={completionComment}
+                                onChange={(e) => setCompletionComment(e.target.value)}
+                            />
+                        </Form.Group>
                     </Modal.Body>
                     <Modal.Footer>
-                        <Button variant="secondary" onClick={() => setShowModal(false)}>Close</Button>
-                        <Button variant="primary" onClick={handleSaveTask}>Save</Button>
+                        <Button variant="secondary" onClick={() => setShowCompleteModal(false)}>
+                            Cancel
+                        </Button>
+                        <Button variant="success" onClick={handleConfirmComplete}>
+                            Confirm Completion
+                        </Button>
                     </Modal.Footer>
                 </Modal>
 

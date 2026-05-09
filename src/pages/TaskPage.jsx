@@ -267,9 +267,11 @@ const TaskPage = () => {
             <Container>
                 <Header>
                     <h2 className='text-primary fw-bold'>Task Dashboard</h2>
-                    <Button variant="primary" onClick={() => { setEditingTask(null); setShowModal(true); }}>
-                        Create Task
-                    </Button>
+                    {userRole === 'superadmin' && (
+                        <Button variant="primary" onClick={() => { setEditingTask(null); setShowModal(true); }}>
+                            Create Task
+                        </Button>
+                    )}
                 </Header>
 
                 <Card className="mt-4">
@@ -456,9 +458,11 @@ const TaskPage = () => {
                                                     <Button variant="warning" onClick={() => handleEditTask(task)} className="mr-2">
                                                         <FaEdit />
                                                     </Button>
-                                                    <Button variant="danger" onClick={() => handleDeleteTask(task._id)}>
-                                                        <FaTrashAlt />
-                                                    </Button>
+                                                    {userRole === 'superadmin' && (
+                                                        <Button variant="danger" onClick={() => handleDeleteTask(task._id)}>
+                                                            <FaTrashAlt />
+                                                        </Button>
+                                                    )}
                                                 </td>
                                             </tr>
                                         ))

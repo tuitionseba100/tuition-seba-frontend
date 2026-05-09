@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Button, Table, Modal, Form, Row, Col, Card } from 'react-bootstrap';
-import { FaEdit, FaTrashAlt, FaChevronLeft, FaChevronRight, FaSearch, FaGlobe, FaGooglePlay } from 'react-icons/fa'; // React Icons
+import { FaEdit, FaTrashAlt, FaChevronLeft, FaChevronRight, FaSearch, FaGlobe, FaGooglePlay, FaUndo } from 'react-icons/fa'; // React Icons
 import axios from 'axios';
 import NavBarPage from './NavbarPage';
 import styled from 'styled-components';
@@ -16,6 +16,7 @@ const TuitionPage = () => {
 
     const [filteredTuitionList, setFilteredTuitionApplyList] = useState([]);
     const [showModal, setShowModal] = useState(false);
+    const [isFullEditEnabled, setIsFullEditEnabled] = useState(false);
     const [editingId, setEditingId] = useState(null);
     const [tuitionData, setTuitionData] = useState({
         tuitionCode: '',
@@ -270,6 +271,7 @@ const TuitionPage = () => {
     const handleEditTuition = (tuition) => {
         setTuitionData(tuition);
         setEditingId(tuition._id);
+        setIsFullEditEnabled(false);
         setShowModal(true);
     };
 
@@ -300,7 +302,7 @@ const TuitionPage = () => {
 
                 <Header>
                     <h2 className='text-primary fw-bold'>Tuition Applications</h2>
-                    <Button variant="primary" onClick={() => { setShowModal(true); setEditingId(null); setTuitionData({ tuitionCode: '', tuitionId: 'admin_created', premiumCode: '', name: '', phone: '', institute: '', department: '', academicYear: '', address: '', status: '', comment: '', commentForTeacher: '' }) }}>
+                    <Button variant="primary" onClick={() => { setShowModal(true); setEditingId(null); setIsFullEditEnabled(true); setTuitionData({ tuitionCode: '', tuitionId: 'admin_created', premiumCode: '', name: '', phone: '', institute: '', department: '', academicYear: '', address: '', status: '', comment: '', commentForTeacher: '', agentComment: '' }) }}>
                         Create Tuition Apply
                     </Button>
                 </Header>
@@ -619,183 +621,274 @@ const TuitionPage = () => {
                 </Card>
 
                 {/* Create/Edit Tuition Modal */}
-                <Modal show={showModal} onHide={() => setShowModal(false)} size="lg">
+                <style>
+                    {`
+                    .custom-super-wide-modal {
+                        max-width: 90% !important;
+                        margin: 10px auto !important;
+                        height: calc(100vh - 20px) !important;
+                    }
+                    .custom-super-wide-modal .modal-content {
+                        height: 100% !important;
+                    }
+                    .custom-super-wide-modal .modal-body {
+                        overflow-y: auto;
+                    }
+                    `}
+                </style>
+                <Modal show={showModal} onHide={() => setShowModal(false)} size="xl" dialogClassName="custom-super-wide-modal">
                     <Modal.Header closeButton>
                         <Modal.Title className="fw-bold">{editingId ? "Edit Tuition" : "Create Tuition"}</Modal.Title>
                     </Modal.Header>
 
-                    <Modal.Body>
-
+                    <Modal.Body className="p-4" style={{ backgroundColor: '#fdfdfd' }}>
                         <Form>
-                            <Row>
-                                <Col md={6}>
-                                    <Form.Group controlId="tuitionCode">
-                                        <Form.Label className="fw-bold">Tuition Code</Form.Label>
-                                        <Form.Control
-                                            type="text"
-                                            value={tuitionData.tuitionCode}
-                                            onChange={(e) => setTuitionData({ ...tuitionData, tuitionCode: e.target.value })}
-                                            required
-                                        />
-                                    </Form.Group>
-                                </Col>
-                                <Col md={4}>
-                                    <Form.Group controlId="name">
-                                        <Form.Label className="fw-bold">Name</Form.Label>
-                                        <Form.Control
-                                            type="text"
-                                            value={tuitionData.name}
-                                            onChange={(e) => setTuitionData({ ...tuitionData, name: e.target.value })}
-                                            required
-                                        />
-                                    </Form.Group>
-                                </Col>
-                            </Row>
+                            {/* Student Information Section */}
+                            <div className="mb-4">
+                                <div className="d-flex align-items-center justify-content-between mb-3">
+                                    <div className="d-flex align-items-center">
+                                        <div style={{ width: '4px', height: '20px', backgroundColor: '#0d6efd', borderRadius: '2px', marginRight: '10px' }}></div>
+                                        <h6 className="mb-0 fw-bold text-dark" style={{ letterSpacing: '0.5px', fontSize: '0.95rem' }}>STUDENT INFORMATION</h6>
+                                    </div>
+                                    {editingId && (
+                                        isFullEditEnabled ? (
+                                            <Button 
+                                                variant="outline-secondary" 
+                                                size="sm" 
+                                                onClick={() => setIsFullEditEnabled(false)}
+                                                style={{ borderRadius: '20px', fontSize: '0.75rem', fontWeight: 'bold' }}
+                                            >
+                                                <FaUndo className="me-1" /> Disable Edit
+                                            </Button>
+                                        ) : (
+                                            <Button 
+                                                variant="outline-primary" 
+                                                size="sm" 
+                                                onClick={() => setIsFullEditEnabled(true)}
+                                                style={{ borderRadius: '20px', fontSize: '0.75rem', fontWeight: 'bold' }}
+                                            >
+                                                <FaEdit className="me-1" /> Edit Info
+                                            </Button>
+                                        )
+                                    )}
+                                </div>
+                                <div 
+                                    className="p-4 rounded-3 border shadow-sm bg-white" 
+                                    style={{ 
+                                        borderColor: '#f0f0f0',
+                                        transition: 'all 0.2s ease'
+                                    }}
+                                >
+                                    <Row className="g-4">
+                                        <Col md={3}>
+                                            <Form.Group controlId="tuitionCode">
+                                                <Form.Label className="text-muted small fw-bold mb-2">TUITION CODE</Form.Label>
+                                                <Form.Control
+                                                    type="text"
+                                                    placeholder="e.g. T-1234"
+                                                    className="border p-2 px-3"
+                                                    style={{ borderRadius: '8px', fontSize: '0.9rem', backgroundColor: !isFullEditEnabled ? '#f8f9fa' : '#fff' }}
+                                                    value={tuitionData.tuitionCode}
+                                                    onChange={(e) => setTuitionData({ ...tuitionData, tuitionCode: e.target.value })}
+                                                    required
+                                                    readOnly={!isFullEditEnabled}
+                                                />
+                                            </Form.Group>
+                                        </Col>
+                                        <Col md={3}>
+                                            <Form.Group controlId="name">
+                                                <Form.Label className="text-muted small fw-bold mb-2">NAME</Form.Label>
+                                                <Form.Control
+                                                    type="text"
+                                                    placeholder="Student Name"
+                                                    className="border p-2 px-3"
+                                                    style={{ borderRadius: '8px', fontSize: '0.9rem', backgroundColor: !isFullEditEnabled ? '#f8f9fa' : '#fff' }}
+                                                    value={tuitionData.name}
+                                                    onChange={(e) => setTuitionData({ ...tuitionData, name: e.target.value })}
+                                                    required
+                                                    readOnly={!isFullEditEnabled}
+                                                />
+                                            </Form.Group>
+                                        </Col>
+                                        <Col md={3}>
+                                            <Form.Group controlId="phone">
+                                                <Form.Label className="text-muted small fw-bold mb-2">PHONE</Form.Label>
+                                                <Form.Control
+                                                    type="text"
+                                                    placeholder="Contact Number"
+                                                    className="border p-2 px-3"
+                                                    style={{ borderRadius: '8px', fontSize: '0.9rem', backgroundColor: !isFullEditEnabled ? '#f8f9fa' : '#fff' }}
+                                                    value={tuitionData.phone}
+                                                    onChange={(e) => setTuitionData({ ...tuitionData, phone: e.target.value })}
+                                                    required
+                                                    readOnly={!isFullEditEnabled}
+                                                />
+                                            </Form.Group>
+                                        </Col>
+                                        
+                                        <Col md={3}>
+                                            <Form.Group controlId="institute">
+                                                <Form.Label className="text-muted small fw-bold mb-2">INSTITUTE</Form.Label>
+                                                <Form.Control
+                                                    type="text"
+                                                    placeholder="School/College"
+                                                    className="border p-2 px-3"
+                                                    style={{ borderRadius: '8px', fontSize: '0.9rem', backgroundColor: !isFullEditEnabled ? '#f8f9fa' : '#fff' }}
+                                                    value={tuitionData.institute}
+                                                    onChange={(e) => setTuitionData({ ...tuitionData, institute: e.target.value })}
+                                                    required
+                                                    readOnly={!isFullEditEnabled}
+                                                />
+                                            </Form.Group>
+                                        </Col>
+                                        <Col md={3}>
+                                            <Form.Group controlId="department">
+                                                <Form.Label className="text-muted small fw-bold mb-2">DEPARTMENT</Form.Label>
+                                                <Form.Control
+                                                    type="text"
+                                                    placeholder="Class/Department"
+                                                    className="border p-2 px-3"
+                                                    style={{ borderRadius: '8px', fontSize: '0.9rem', backgroundColor: !isFullEditEnabled ? '#f8f9fa' : '#fff' }}
+                                                    value={tuitionData.department}
+                                                    onChange={(e) => setTuitionData({ ...tuitionData, department: e.target.value })}
+                                                    required
+                                                    readOnly={!isFullEditEnabled}
+                                                />
+                                            </Form.Group>
+                                        </Col>
+                                        <Col md={3}>
+                                            <Form.Group controlId="academicYear">
+                                                <Form.Label className="text-muted small fw-bold mb-2">ACADEMIC YEAR</Form.Label>
+                                                <Form.Control
+                                                    type="text"
+                                                    placeholder="Year/Session"
+                                                    className="border p-2 px-3"
+                                                    style={{ borderRadius: '8px', fontSize: '0.9rem', backgroundColor: !isFullEditEnabled ? '#f8f9fa' : '#fff' }}
+                                                    value={tuitionData.academicYear}
+                                                    onChange={(e) => setTuitionData({ ...tuitionData, academicYear: e.target.value })}
+                                                    required
+                                                    readOnly={!isFullEditEnabled}
+                                                />
+                                            </Form.Group>
+                                        </Col>
 
-                            <Row>
-                                <Col md={6}>
-                                    <Form.Group controlId="phone">
-                                        <Form.Label className="fw-bold">Phone</Form.Label>
-                                        <Form.Control
-                                            type="text"
-                                            value={tuitionData.phone}
-                                            onChange={(e) => setTuitionData({ ...tuitionData, phone: e.target.value })}
-                                            required
-                                        />
-                                    </Form.Group>
-                                </Col>
-                                <Col md={6}>
-                                    <Form.Group controlId="institute">
-                                        <Form.Label className="fw-bold">Institute</Form.Label>
-                                        <Form.Control
-                                            type="text"
-                                            value={tuitionData.institute}
-                                            onChange={(e) => setTuitionData({ ...tuitionData, institute: e.target.value })}
-                                            required
-                                        />
-                                    </Form.Group>
-                                </Col>
-                            </Row>
+                                        <Col md={3}>
+                                            <Form.Group controlId="premiumCode">
+                                                <Form.Label className="text-muted small fw-bold mb-2">PREMIUM CODE</Form.Label>
+                                                <Form.Control
+                                                    type="text"
+                                                    placeholder="Premium Code"
+                                                    className="border p-2 px-3"
+                                                    style={{ borderRadius: '8px', fontSize: '0.9rem', backgroundColor: !isFullEditEnabled ? '#f8f9fa' : '#fff' }}
+                                                    value={tuitionData.premiumCode || ''}
+                                                    onChange={(e) => setTuitionData({ ...tuitionData, premiumCode: e.target.value })}
+                                                    required
+                                                    readOnly={!isFullEditEnabled}
+                                                />
+                                            </Form.Group>
+                                        </Col>
+                                        <Col md={6}>
+                                            <Form.Group controlId="address">
+                                                <Form.Label className="text-muted small fw-bold mb-2">ADDRESS</Form.Label>
+                                                <Form.Control
+                                                    as="textarea"
+                                                    rows={2}
+                                                    placeholder="Location"
+                                                    className="border p-3"
+                                                    style={{ borderRadius: '12px', fontSize: '0.9rem', backgroundColor: !isFullEditEnabled ? '#f8f9fa' : '#fff' }}
+                                                    value={tuitionData.address}
+                                                    onChange={(e) => setTuitionData({ ...tuitionData, address: e.target.value })}
+                                                    required
+                                                    readOnly={!isFullEditEnabled}
+                                                />
+                                            </Form.Group>
+                                        </Col>
+                                        <Col md={6}>
+                                            <Form.Group controlId="comment">
+                                                <Form.Label className="text-muted small fw-bold mb-2">GENERAL COMMENT</Form.Label>
+                                                <Form.Control
+                                                    as="textarea"
+                                                    rows={2}
+                                                    placeholder="General notes..."
+                                                    className="border p-3"
+                                                    style={{ borderRadius: '12px', fontSize: '0.9rem', backgroundColor: !isFullEditEnabled ? '#f8f9fa' : '#fff' }}
+                                                    value={tuitionData.comment}
+                                                    onChange={(e) => setTuitionData({ ...tuitionData, comment: e.target.value })}
+                                                    readOnly={!isFullEditEnabled}
+                                                />
+                                            </Form.Group>
+                                        </Col>
+                                    </Row>
+                                </div>
+                            </div>
 
-                            <Row>
-                                <Col md={6}>
-                                    <Form.Group controlId="premiumCode">
-                                        <Form.Label className="fw-bold">Premium Code</Form.Label>
-                                        <Form.Control
-                                            type="text"
-                                            value={tuitionData.premiumCode || ''}
-                                            onChange={(e) => setTuitionData({ ...tuitionData, premiumCode: e.target.value })}
-                                            required
-                                        />
-                                    </Form.Group>
-                                </Col>
-                                <Col md={6}>
-                                    <Form.Group controlId="department">
-                                        <Form.Label className="fw-bold">Department</Form.Label>
-                                        <Form.Control
-                                            type="text"
-                                            value={tuitionData.department}
-                                            onChange={(e) => setTuitionData({ ...tuitionData, department: e.target.value })}
-                                            required
-                                        />
-                                    </Form.Group>
-                                </Col>
-                            </Row>
-
-                            <Row>
-                                <Col md={6}>
-                                    <Form.Group controlId="academicYear">
-                                        <Form.Label className="fw-bold">Academic Year</Form.Label>
-                                        <Form.Control
-                                            type="text"
-                                            value={tuitionData.academicYear}
-                                            onChange={(e) => setTuitionData({ ...tuitionData, academicYear: e.target.value })}
-                                            required
-                                        />
-                                    </Form.Group>
-                                </Col>
-                            </Row>
-
-                            <Row>
-                                <Col md={6}>
-                                    <Form.Group controlId="address">
-                                        <Form.Label className="fw-bold">Address</Form.Label>
-                                        <Form.Control
-                                            type="text"
-                                            value={tuitionData.address}
-                                            onChange={(e) => setTuitionData({ ...tuitionData, address: e.target.value })}
-                                            required
-                                        />
-                                    </Form.Group>
-                                </Col>
-                            </Row>
-
-                            <Row>
-                                <Col md={6}>
-                                    <Form.Group controlId="status">
-                                        <Form.Label className="fw-bold">Status</Form.Label>
-                                        <Form.Control
-                                            as="select"
-                                            value={tuitionData.status}
-                                            onChange={(e) => setTuitionData({ ...tuitionData, status: e.target.value })}
-                                            required
-                                        >
-                                            <option value="pending">Pending</option>
-                                            <option value="called (interested)">Called (Interested)</option>
-                                            <option value="called (no response)">Called (No Response)</option>
-                                            <option value="called (guardian no response)">Called Guardian(No Response)</option>
-                                            <option value="cancel">Cancelled</option>
-                                            <option value="cancelled by guardian">Cancelled By Guardian</option>
-                                            <option value="cancelled by teacher">Cancelled By Teacher</option>
-                                            <option value="shortlisted">Shortlisted</option>
-                                            <option value="requested for payment">Requested for Payment</option>
-                                            <option value="meet to office">Meet to office</option>
-                                            <option value="selected">Selected</option>
-                                            <option value="confirmed">Confirmed</option>
-                                            <option value="refer to bm">Refer to BM</option>
-
-                                        </Form.Control>
-                                    </Form.Group>
-                                </Col>
-                            </Row>
-
-                            <Row>
-                                <Col md={6}>
-                                    <Form.Group controlId="comment">
-                                        <Form.Label className="fw-bold">Comment</Form.Label>
-                                        <Form.Control
-                                            type="text"
-                                            value={tuitionData.comment}
-                                            onChange={(e) => setTuitionData({ ...tuitionData, comment: e.target.value })}
-                                            required
-                                        />
-                                    </Form.Group>
-                                </Col>
-                                <Col md={6}>
-                                    <Form.Group controlId="commentForTeacher">
-                                        <Form.Label className="fw-bold">Comment For Teacher</Form.Label>
-                                        <Form.Control
-                                            type="text"
-                                            value={tuitionData.commentForTeacher}
-                                            onChange={(e) => setTuitionData({ ...tuitionData, commentForTeacher: e.target.value })}
-                                            required
-                                        />
-                                    </Form.Group>
-                                </Col>
-                            </Row>
-                            <Row>
-                                <Col md={12}>
-                                    <Form.Group controlId="agentComment">
-                                        <Form.Label className="fw-bold">Agent Comment</Form.Label>
-                                        <Form.Control
-                                            type="text"
-                                            value={tuitionData.agentComment}
-                                            onChange={(e) => setTuitionData({ ...tuitionData, agentComment: e.target.value })}
-                                            required
-                                        />
-                                    </Form.Group>
-                                </Col>
-                            </Row>
+                            {/* Agent Action Section */}
+                            <div>
+                                <div className="d-flex align-items-center mb-3">
+                                    <div style={{ width: '4px', height: '20px', backgroundColor: '#198754', borderRadius: '2px', marginRight: '10px' }}></div>
+                                    <h6 className="mb-0 fw-bold text-dark" style={{ letterSpacing: '0.5px', fontSize: '0.95rem' }}>AGENT ACTION</h6>
+                                </div>
+                                <div className="p-4 rounded-3 border shadow-sm" style={{ backgroundColor: '#f8fffb', borderColor: '#e1f5e9' }}>
+                                    <Row className="g-4">
+                                        <Col md={4}>
+                                            <Form.Group controlId="status">
+                                                <Form.Label className="text-success small fw-bold mb-2 text-uppercase">Update Status</Form.Label>
+                                                <Form.Select
+                                                    className="border shadow-sm p-2 px-3"
+                                                    style={{ borderRadius: '8px', fontSize: '0.95rem', borderColor: '#198754' }}
+                                                    value={tuitionData.status}
+                                                    onChange={(e) => setTuitionData({ ...tuitionData, status: e.target.value })}
+                                                    required
+                                                >
+                                                    <option value="pending">Pending</option>
+                                                    <option value="called (interested)">Called (Interested)</option>
+                                                    <option value="called (no response)">Called (No Response)</option>
+                                                    <option value="called (guardian no response)">Called Guardian(No Response)</option>
+                                                    <option value="cancel">Cancelled</option>
+                                                    <option value="cancelled by guardian">Cancelled By Guardian</option>
+                                                    <option value="cancelled by teacher">Cancelled By Teacher</option>
+                                                    <option value="shortlisted">Shortlisted</option>
+                                                    <option value="requested for payment">Requested for Payment</option>
+                                                    <option value="meet to office">Meet to office</option>
+                                                    <option value="selected">Selected</option>
+                                                    <option value="confirmed">Confirmed</option>
+                                                    <option value="refer to bm">Refer to BM</option>
+                                                </Form.Select>
+                                            </Form.Group>
+                                        </Col>
+                                        <Col md={4}>
+                                            <Form.Group controlId="commentForTeacher">
+                                                <Form.Label className="text-muted small fw-bold mb-2 text-uppercase">Comment For Teacher</Form.Label>
+                                                <Form.Control
+                                                    as="textarea"
+                                                    rows={6}
+                                                    placeholder="Public instructions for the teacher..."
+                                                    className="border p-3"
+                                                    style={{ borderRadius: '12px', fontSize: '0.9rem' }}
+                                                    value={tuitionData.commentForTeacher}
+                                                    onChange={(e) => setTuitionData({ ...tuitionData, commentForTeacher: e.target.value })}
+                                                    required
+                                                />
+                                            </Form.Group>
+                                        </Col>
+                                        <Col md={4}>
+                                            <Form.Group controlId="agentComment">
+                                                <Form.Label className="text-muted small fw-bold mb-2 text-uppercase">Agent Comment (Internal)</Form.Label>
+                                                <Form.Control
+                                                    as="textarea"
+                                                    rows={6}
+                                                    placeholder="Internal remarks by the agent..."
+                                                    className="border p-3"
+                                                    style={{ borderRadius: '12px', fontSize: '0.9rem' }}
+                                                    value={tuitionData.agentComment}
+                                                    onChange={(e) => setTuitionData({ ...tuitionData, agentComment: e.target.value })}
+                                                    required
+                                                />
+                                            </Form.Group>
+                                        </Col>
+                                    </Row>
+                                </div>
+                            </div>
                         </Form>
                     </Modal.Body>
                     <Modal.Footer>

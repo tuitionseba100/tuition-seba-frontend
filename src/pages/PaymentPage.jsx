@@ -233,7 +233,8 @@ const PaymentPage = () => {
         }
         try {
             const token = localStorage.getItem('token');
-            const response = await axios.put(`https://tuition-seba-backend-1.onrender.com/api/payment/verify/${id}`, {}, {
+            const username = localStorage.getItem('username');
+            const response = await axios.put(`https://tuition-seba-backend-1.onrender.com/api/payment/verify/${id}`, { verifiedBy: username }, {
                 headers: { Authorization: token }
             });
             if (response.status === 200) {

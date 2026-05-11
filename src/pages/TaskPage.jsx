@@ -27,7 +27,7 @@ const TaskPage = () => {
         try {
             const payload = JSON.parse(atob(token.split('.')[1]));
             currentUserId = payload.userId;
-        } catch(e) { console.error('Error decoding token', e); }
+        } catch (e) { console.error('Error decoding token', e); }
     }
 
     const [currentPage, setCurrentPage] = useState(1);

@@ -991,8 +991,8 @@ const PaymentPage = () => {
                                                         <span className="fw-bold">{payment.tuitionCode}</span>
                                                         {payment.isVerified ? (
                                                             <span className="text-success" style={{ fontSize: '0.65rem' }}>
-                                                            <FaCheckCircle /> Verified by <span className="text-primary fw-bold ms-1" style={{ fontSize: '0.75rem' }}>{payment.verifiedBy}</span>
-                                                        </span>
+                                                                <FaCheckCircle /> Verified by <span className="text-primary fw-bold ms-1" style={{ fontSize: '0.75rem' }}>{payment.verifiedBy}</span>
+                                                            </span>
                                                         ) : (
                                                             <Button
                                                                 variant="primary"

@@ -270,7 +270,7 @@ const RefundPage = () => {
         fields.forEach(field => {
             const oldValue = String(originalData[field.key] || '').trim();
             const newValue = String(refundData[field.key] || '').trim();
-            
+
             if (oldValue !== newValue) {
                 changes.push({
                     label: field.label,
@@ -352,7 +352,7 @@ const RefundPage = () => {
                         + Create Refund
                     </Button>
                 </Header>
-                
+
                 <Card className="mt-4 shadow-sm border-0">
                     <Card.Body>
                         <Row className="text-center g-3">
@@ -492,14 +492,13 @@ const RefundPage = () => {
                                                 <td>{(currentPage - 1) * limit + index + 1}</td>
                                                 <td className="small text-nowrap">{item.requestedAt ? formatDate(item.requestedAt) : '-'}</td>
                                                 <td>
-                                                    <span className={`badge ${
-                                                        item.status === "pending" ? "bg-warning text-dark" :           
-                                                        item.status === "under review" ? "bg-info" :                
-                                                        item.status === "approved" ? "bg-primary" :                       
-                                                        item.status === "rejected" ? "bg-danger" :                     
-                                                        item.status === "completed" ? "bg-success" :                   
-                                                        item.status === "cancelled" ? "bg-secondary" : "bg-light text-dark"
-                                                    }`}>
+                                                    <span className={`badge ${item.status === "pending" ? "bg-warning text-dark" :
+                                                            item.status === "under review" ? "bg-info" :
+                                                                item.status === "approved" ? "bg-primary" :
+                                                                    item.status === "rejected" ? "bg-danger" :
+                                                                        item.status === "completed" ? "bg-success" :
+                                                                            item.status === "cancelled" ? "bg-secondary" : "bg-light text-dark"
+                                                        }`}>
                                                         {item.status}
                                                     </span>
                                                 </td>
@@ -510,10 +509,10 @@ const RefundPage = () => {
                                                 <td>{item.paymentNumber}</td>
                                                 <td>{item.name}</td>
                                                 <td>{item.amount}</td>
-                                                <td 
-                                                    className="fw-bold" 
-                                                    style={{ 
-                                                        color: item.status === 'completed' ? '#155724' : '#0d6efd' 
+                                                <td
+                                                    className="fw-bold"
+                                                    style={{
+                                                        color: item.status === 'completed' ? '#155724' : '#0d6efd'
                                                     }}
                                                 >
                                                     {formatDateOnly(item.returnDate)}
@@ -541,20 +540,20 @@ const RefundPage = () => {
                 {!loading && totalPages > 1 && (
                     <div className="d-flex justify-content-center mt-4">
                         <Pagination className="pagination-rounded-pill">
-                            <Pagination.Prev 
-                                onClick={() => handlePageChange(currentPage - 1)} 
+                            <Pagination.Prev
+                                onClick={() => handlePageChange(currentPage - 1)}
                                 disabled={currentPage === 1}
                             >
                                 <FaChevronLeft className="me-1" /> Prev
                             </Pagination.Prev>
-                            
+
                             {[...Array(totalPages)].map((_, i) => {
                                 const page = i + 1;
                                 // Show first, last, and pages around current
                                 if (page === 1 || page === totalPages || (page >= currentPage - 2 && page <= currentPage + 2)) {
                                     return (
-                                        <Pagination.Item 
-                                            key={page} 
+                                        <Pagination.Item
+                                            key={page}
                                             active={page === currentPage}
                                             onClick={() => handlePageChange(page)}
                                         >
@@ -567,8 +566,8 @@ const RefundPage = () => {
                                 return null;
                             })}
 
-                            <Pagination.Next 
-                                onClick={() => handlePageChange(currentPage + 1)} 
+                            <Pagination.Next
+                                onClick={() => handlePageChange(currentPage + 1)}
                                 disabled={currentPage === totalPages}
                             >
                                 Next <FaChevronRight className="ms-1" />
@@ -595,18 +594,18 @@ const RefundPage = () => {
                                     </div>
                                     {editingId && (
                                         teacherSectionEditable ? (
-                                            <Button 
-                                                variant="outline-secondary" 
-                                                size="sm" 
+                                            <Button
+                                                variant="outline-secondary"
+                                                size="sm"
                                                 onClick={() => setTeacherSectionEditable(false)}
                                                 style={{ borderRadius: '20px', fontSize: '0.75rem', fontWeight: 'bold' }}
                                             >
                                                 <FaUndo className="me-1" /> Disable Edit
                                             </Button>
                                         ) : (
-                                            <Button 
-                                                variant="outline-primary" 
-                                                size="sm" 
+                                            <Button
+                                                variant="outline-primary"
+                                                size="sm"
                                                 onClick={() => setTeacherSectionEditable(true)}
                                                 style={{ borderRadius: '20px', fontSize: '0.75rem', fontWeight: 'bold' }}
                                             >
@@ -615,9 +614,9 @@ const RefundPage = () => {
                                         )
                                     )}
                                 </div>
-                                <div 
-                                    className="p-4 rounded-3 border shadow-sm bg-white" 
-                                    style={{ 
+                                <div
+                                    className="p-4 rounded-3 border shadow-sm bg-white"
+                                    style={{
                                         borderColor: '#f0f0f0',
                                         transition: 'all 0.2s ease'
                                     }}

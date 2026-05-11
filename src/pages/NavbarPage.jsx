@@ -42,8 +42,8 @@ const Navbar = () => {
 
         // Visibility logic
         if (role !== "superadmin") {
-            // Finance and Users are strictly superadmin
-            if (to === "/admin/finance" || to === "/admin/user") return null;
+            // Finance, Users, and Logs are strictly superadmin
+            if (to === "/admin/finance" || to === "/admin/user" || to === "/admin/activity-log") return null;
 
             // Other items require specific permission if key is provided
             if (permissionKey && !permissions.includes(permissionKey)) {
@@ -88,6 +88,7 @@ const Navbar = () => {
                                 {renderNavItem("/admin/tuition", "Tuitions", "tuition")}
                                 {renderNavItem("/admin/user", "Users")}
                                 {renderNavItem("/admin/finance", "Finance")}
+                                {renderNavItem("/admin/activity-log", "Logs")}
                                 {renderNavItem("/admin/payment", "Payments", "payment")}
                                 {renderNavItem("/admin/teacherPayment", "Teacher Payments", "teacherPayment")}
                                 {renderNavItem("/admin/refund", "Refund", "refund")}

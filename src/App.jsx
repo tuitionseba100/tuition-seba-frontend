@@ -10,8 +10,12 @@ import axios from 'axios';
 axios.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('token');
+    const username = localStorage.getItem('username');
     if (token) {
       config.headers.Authorization = token;
+    }
+    if (username) {
+      config.headers['x-user-name'] = username;
     }
     return config;
   },
@@ -61,6 +65,7 @@ import PrivacyPolicyPage from './pages/public/PrivacyPolicyPage';
 import Rules from './pages/public/Rules';
 import GeneralPage from './pages/GeneralPage';
 import IncomeExpensePage from './pages/IncomeExpensePage';
+import ActivityLogPage from './pages/ActivityLogPage';
 
 
 const App = () => {
@@ -101,6 +106,7 @@ const App = () => {
           <Route element={<PrivateRoute role="superadmin" />}>
             <Route path="user" element={<UserPage />} />
             <Route path="finance" element={<IncomeExpensePage />} />
+            <Route path="activity-log" element={<ActivityLogPage />} />
           </Route>
         </Route>
 

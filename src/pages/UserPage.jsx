@@ -725,12 +725,12 @@ const UserPage = () => {
                                         <div className="d-flex align-items-center mt-1 flex-wrap gap-2">
                                             {user.autoLock ? (
                                                 <div className="d-flex align-items-center gap-1 bg-dark text-white px-2 py-0.5 rounded" style={{ fontSize: '0.65rem', fontWeight: '700' }}>
-                                                    <FaMoon size={8} /> 
+                                                    <FaMoon size={8} />
                                                     <span>NIGHT LOCK</span>
                                                 </div>
                                             ) : (
                                                 <div className="d-flex align-items-center gap-1 bg-light text-secondary border px-2 py-0.5 rounded" style={{ fontSize: '0.65rem', fontWeight: '700' }}>
-                                                    <FaCheckCircle size={8} className="text-success" /> 
+                                                    <FaCheckCircle size={8} className="text-success" />
                                                     <span>24/7 ACCESS</span>
                                                 </div>
                                             )}
@@ -894,7 +894,7 @@ const UserPage = () => {
                                         </Form.Select>
                                     </FormGroup>
                                 </div>
-                                </div>
+                            </div>
 
                             {newUser.role === 'admin' && (
                                 <>
@@ -912,8 +912,8 @@ const UserPage = () => {
                                                 <span className={`small fw-bold ${newUser.autoLock ? 'text-primary' : 'text-muted'}`}>
                                                     {newUser.autoLock ? 'ACTIVE' : 'DISABLED'}
                                                 </span>
-                                                <ToggleSwitch 
-                                                    $active={newUser.autoLock} 
+                                                <ToggleSwitch
+                                                    $active={newUser.autoLock}
                                                     onClick={() => setNewUser({ ...newUser, autoLock: !newUser.autoLock })}
                                                 >
                                                     <div className="knob" />
@@ -923,36 +923,36 @@ const UserPage = () => {
                                     </div>
 
                                     <div className="mt-4 mb-3">
-                                    <div className="d-flex justify-content-between align-items-center mb-3">
-                                        <Form.Label className="fw-bold mb-0 text-dark">Access Permissions</Form.Label>
-                                        <Button
-                                            variant="link"
-                                            size="sm"
-                                            onClick={handleCheckAll}
-                                            className="text-decoration-none fw-semibold"
-                                        >
-                                            {newUser.permissions.length === AVAILABLE_MODULES.length ? 'Revoke All' : 'Grant All'}
-                                        </Button>
-                                    </div>
-                                    <PermissionSection>
-                                        <div className="permission-grid">
-                                            {AVAILABLE_MODULES.map((module) => (
-                                                <PermissionCheck
-                                                    key={module.key}
-                                                    type="checkbox"
-                                                    id={`perm-${module.key}`}
-                                                    label={module.label}
-                                                    checked={newUser.permissions.includes(module.key)}
-                                                    onChange={() => handlePermissionChange(module.key)}
-                                                />
-                                            ))}
+                                        <div className="d-flex justify-content-between align-items-center mb-3">
+                                            <Form.Label className="fw-bold mb-0 text-dark">Access Permissions</Form.Label>
+                                            <Button
+                                                variant="link"
+                                                size="sm"
+                                                onClick={handleCheckAll}
+                                                className="text-decoration-none fw-semibold"
+                                            >
+                                                {newUser.permissions.length === AVAILABLE_MODULES.length ? 'Revoke All' : 'Grant All'}
+                                            </Button>
                                         </div>
-                                    </PermissionSection>
-                                    <div className="mt-3 small text-muted d-flex align-items-center gap-2">
-                                        <FaInfoCircle color="#4299e1" />
-                                        <span>Attendance is public. Finance & User management are restricted to Super Admins.</span>
+                                        <PermissionSection>
+                                            <div className="permission-grid">
+                                                {AVAILABLE_MODULES.map((module) => (
+                                                    <PermissionCheck
+                                                        key={module.key}
+                                                        type="checkbox"
+                                                        id={`perm-${module.key}`}
+                                                        label={module.label}
+                                                        checked={newUser.permissions.includes(module.key)}
+                                                        onChange={() => handlePermissionChange(module.key)}
+                                                    />
+                                                ))}
+                                            </div>
+                                        </PermissionSection>
+                                        <div className="mt-3 small text-muted d-flex align-items-center gap-2">
+                                            <FaInfoCircle color="#4299e1" />
+                                            <span>Attendance is public. Finance & User management are restricted to Super Admins.</span>
+                                        </div>
                                     </div>
-                                </div>
                                 </>
                             )}
                         </Form>
@@ -978,8 +978,8 @@ const UserPage = () => {
                     isLoading={isProcessing}
                 />
 
-                <Modal 
-                    show={showHistoryModal} 
+                <Modal
+                    show={showHistoryModal}
                     onHide={() => setShowHistoryModal(false)}
                     centered
                     size="xl"

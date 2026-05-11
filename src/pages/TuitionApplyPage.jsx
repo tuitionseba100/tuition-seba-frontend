@@ -652,18 +652,18 @@ const TuitionPage = () => {
                                     </div>
                                     {editingId && (
                                         isFullEditEnabled ? (
-                                            <Button 
-                                                variant="outline-secondary" 
-                                                size="sm" 
+                                            <Button
+                                                variant="outline-secondary"
+                                                size="sm"
                                                 onClick={() => setIsFullEditEnabled(false)}
                                                 style={{ borderRadius: '20px', fontSize: '0.75rem', fontWeight: 'bold' }}
                                             >
                                                 <FaUndo className="me-1" /> Disable Edit
                                             </Button>
                                         ) : (
-                                            <Button 
-                                                variant="outline-primary" 
-                                                size="sm" 
+                                            <Button
+                                                variant="outline-primary"
+                                                size="sm"
                                                 onClick={() => setIsFullEditEnabled(true)}
                                                 style={{ borderRadius: '20px', fontSize: '0.75rem', fontWeight: 'bold' }}
                                             >
@@ -672,9 +672,9 @@ const TuitionPage = () => {
                                         )
                                     )}
                                 </div>
-                                <div 
-                                    className="p-4 rounded-3 border shadow-sm bg-white" 
-                                    style={{ 
+                                <div
+                                    className="p-4 rounded-3 border shadow-sm bg-white"
+                                    style={{
                                         borderColor: '#f0f0f0',
                                         transition: 'all 0.2s ease'
                                     }}
@@ -725,7 +725,7 @@ const TuitionPage = () => {
                                                 />
                                             </Form.Group>
                                         </Col>
-                                        
+
                                         <Col md={3}>
                                             <Form.Group controlId="institute">
                                                 <Form.Label className="text-muted small fw-bold mb-2">INSTITUTE</Form.Label>

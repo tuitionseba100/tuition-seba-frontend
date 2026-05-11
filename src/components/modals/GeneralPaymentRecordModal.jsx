@@ -38,6 +38,9 @@ const GeneralPaymentRecordModal = ({ show, onHide, editingId, initialData, onSav
         comment2: '',
         comment3: '',
         assignedTo: '',
+        followUpDate: '',
+        followUpComment: '',
+        duePayDateComment: '',
     });
     const [userOptions, setUserOptions] = useState([]);
     const role = localStorage.getItem('role');
@@ -127,6 +130,9 @@ const GeneralPaymentRecordModal = ({ show, onHide, editingId, initialData, onSav
                     comment2: '',
                     comment3: '',
                     assignedTo: '',
+                    followUpDate: '',
+                    followUpComment: '',
+                    duePayDateComment: '',
                 };
                 setPaymentData(defaultValues);
                 setServerData(null);
@@ -169,6 +175,9 @@ const GeneralPaymentRecordModal = ({ show, onHide, editingId, initialData, onSav
                 comment2: '',
                 comment3: '',
                 assignedTo: '',
+                followUpDate: '',
+                followUpComment: '',
+                duePayDateComment: '',
             };
             setPaymentData(defaultValues);
             setServerData(null);
@@ -313,6 +322,9 @@ const GeneralPaymentRecordModal = ({ show, onHide, editingId, initialData, onSav
             comment2: 'Note 2',
             comment3: 'Note 3',
             assignedTo: 'Assigned To',
+            followUpDate: 'Previous Follow Up Date',
+            followUpComment: 'Follow Up Note',
+            duePayDateComment: 'Next Due Pay Date Comment',
         };
         return labels[key] || key;
     };
@@ -832,7 +844,7 @@ const GeneralPaymentRecordModal = ({ show, onHide, editingId, initialData, onSav
                     <div className="bg-white p-3 rounded shadow-sm mb-4 border-start border-warning border-4">
                         <h5 className="text-warning mb-3 fw-bold border-bottom pb-2">📅 Status & Deadlines</h5>
                         <Row>
-                            <Col md={6}>
+                            <Col md={12}>
                                 <Form.Group className="mb-3" controlId="paymentStatus">
                                     <Form.Label className="fw-bold">Status</Form.Label>
                                     <Form.Select
@@ -847,13 +859,56 @@ const GeneralPaymentRecordModal = ({ show, onHide, editingId, initialData, onSav
                                     </Form.Select>
                                 </Form.Group>
                             </Col>
-                            <Col md={6}>
-                                <Form.Group className="mb-3" controlId="duePayDate">
-                                    <Form.Label className="fw-bold">Due Pay Date</Form.Label>
+                        </Row>
+                    </div>
+
+                    {/* Section: Follow Up & Deadline */}
+                    <div className="bg-white p-3 rounded shadow-sm mb-4 border-start border-warning border-4">
+                        <h5 className="text-warning mb-3 fw-bold border-bottom pb-2">📅 Follow Up & Deadline</h5>
+                        <Row className="align-items-end mb-3">
+                            <Col md={4}>
+                                <Form.Group controlId="duePayDate">
+                                    <Form.Label className="fw-bold">Next Due Pay Date</Form.Label>
                                     <Form.Control
                                         type="datetime-local"
                                         value={paymentData.duePayDate ? paymentData.duePayDate.slice(0, 16) : ''}
                                         onChange={(e) => handleDateChange('duePayDate', e.target.value)}
+                                    />
+                                </Form.Group>
+                            </Col>
+                            <Col md={8}>
+                                <Form.Group controlId="duePayDateComment">
+                                    <Form.Label className="fw-bold">Next Due Pay Date Comment</Form.Label>
+                                    <Form.Control
+                                        as="textarea"
+                                        rows={1}
+                                        value={paymentData.duePayDateComment}
+                                        onChange={handleChange}
+                                        placeholder="Note about due date..."
+                                    />
+                                </Form.Group>
+                            </Col>
+                        </Row>
+                        <Row className="align-items-end">
+                            <Col md={4}>
+                                <Form.Group className="mb-3" controlId="followUpDate">
+                                    <Form.Label className="fw-bold">Previous Follow Up Date</Form.Label>
+                                    <Form.Control
+                                        type="datetime-local"
+                                        value={paymentData.followUpDate ? paymentData.followUpDate.slice(0, 16) : ''}
+                                        onChange={(e) => handleDateChange('followUpDate', e.target.value)}
+                                    />
+                                </Form.Group>
+                            </Col>
+                            <Col md={8}>
+                                <Form.Group className="mb-3" controlId="followUpComment">
+                                    <Form.Label className="fw-bold">Follow Up Note</Form.Label>
+                                    <Form.Control
+                                        as="textarea"
+                                        rows={1}
+                                        value={paymentData.followUpComment}
+                                        onChange={handleChange}
+                                        placeholder="Follow up discussion..."
                                     />
                                 </Form.Group>
                             </Col>

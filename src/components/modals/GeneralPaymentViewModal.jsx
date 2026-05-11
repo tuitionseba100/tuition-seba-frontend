@@ -104,11 +104,38 @@ const GeneralPaymentViewModal = ({ show, onHide, detailsData, formatDate, onEdit
                         </Row>
 
                         <Row className="mb-4">
+                            <Col md={12}>
+                                <h6 className="text-muted text-uppercase small fw-bold">Follow Up & Deadline</h6>
+                                <div className="bg-light p-3 rounded">
+                                    <Row className="mb-3 border-bottom pb-2">
+                                        <Col md={4}>
+                                            <strong>Next Due Pay Date:</strong><br />
+                                            {formatDate(detailsData.duePayDate)}
+                                        </Col>
+                                        <Col md={8}>
+                                            <strong>Next Due Pay Date Comment:</strong><br />
+                                            <span className="small text-muted">{detailsData.duePayDateComment || '-'}</span>
+                                        </Col>
+                                    </Row>
+                                    <Row>
+                                        <Col md={4}>
+                                            <strong>Previous Follow Up Date:</strong><br />
+                                            {formatDate(detailsData.followUpDate)}
+                                        </Col>
+                                        <Col md={8}>
+                                            <strong>Follow Up Note:</strong><br />
+                                            <span className="small text-muted">{detailsData.followUpComment || '-'}</span>
+                                        </Col>
+                                    </Row>
+                                </div>
+                            </Col>
+                        </Row>
+
+                        <Row className="mb-4">
                             <Col md={6}>
                                 <h6 className="text-muted text-uppercase small fw-bold">Timeline</h6>
                                 <div className="bg-light p-3 rounded">
                                     <p className="mb-1 small text-muted">Created: {detailsData.createdAt}</p>
-                                    <p className="mb-1"><strong>Due Date:</strong> {formatDate(detailsData.duePayDate)}</p>
                                 </div>
                             </Col>
                             <Col md={6}>

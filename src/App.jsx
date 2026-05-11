@@ -5,12 +5,24 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import DayStartedRoute from './pages/DayStartedRoute';
 import { ToastContainer } from 'react-toastify';
 import axios from 'axios';
+import { isTokenExpired } from './utilities/authUtils';
 
 // Global Axios configuration
 axios.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('token');
     const username = localStorage.getItem('username');
+    const path = window.location.pathname;
+
+    // Only for admin pages (excluding login), if token is missing or expired, logout.
+    if (path.startsWith('/admin') && path !== '/admin/login' && (!token || isTokenExpired(token))) {
+      localStorage.removeItem('token');
+      localStorage.removeItem('role');
+      localStorage.removeItem('username');
+      window.location.href = '/admin/login';
+      return Promise.reject(new Error('Token missing or expired for admin request'));
+    }
+
     if (token) {
       config.headers.Authorization = token;
     }
@@ -25,14 +37,18 @@ axios.interceptors.request.use(
 axios.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response && (error.response.status === 401 || error.response.status === 403)) {
+    const path = window.location.pathname;
+    // Only logout on admin pages — never touch public pages
+    if (
+      path.startsWith('/admin') &&
+      path !== '/admin/login' &&
+      error.response &&
+      (error.response.status === 401 || error.response.status === 403)
+    ) {
       localStorage.removeItem('token');
       localStorage.removeItem('role');
       localStorage.removeItem('username');
-      // Redirect to login if not already there
-      if (!window.location.pathname.includes('/admin/login')) {
-        window.location.href = '/admin/login';
-      }
+      window.location.href = '/admin/login';
     }
     return Promise.reject(error);
   }

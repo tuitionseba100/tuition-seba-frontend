@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Modal, Button, Form, Row, Col, Spinner, Table } from 'react-bootstrap';
+import axios from 'axios';
+import Select from 'react-select';
+import moment from 'moment';
 
 const GeneralPaymentRecordModal = ({ show, onHide, editingId, initialData, onSave, onDelete }) => {
     const [paymentData, setPaymentData] = useState({
@@ -34,7 +37,10 @@ const GeneralPaymentRecordModal = ({ show, onHide, editingId, initialData, onSav
         comment1: '',
         comment2: '',
         comment3: '',
+        assignedTo: '',
     });
+    const [userOptions, setUserOptions] = useState([]);
+    const role = localStorage.getItem('role');
     const [serverData, setServerData] = useState(null);
     const [visibleInstallments, setVisibleInstallments] = useState(2);
     const [isSaving, setIsSaving] = useState(false);
@@ -43,6 +49,28 @@ const GeneralPaymentRecordModal = ({ show, onHide, editingId, initialData, onSav
     const [changedFields, setChangedFields] = useState([]);
     const [autoCalc, setAutoCalc] = useState(true);
     const [autoCalcFinance, setAutoCalcFinance] = useState(true);
+
+    useEffect(() => {
+        fetchUsers();
+    }, []);
+
+    const fetchUsers = async () => {
+        if (role === 'superadmin' || role === 'admin') {
+            try {
+                const token = localStorage.getItem('token');
+                const response = await axios.get('https://tuition-seba-backend-1.onrender.com/api/user/users', {
+                    headers: { Authorization: token }
+                });
+                const options = response.data.map(user => ({
+                    value: user.username,
+                    label: `${user.name} (${user.username})`
+                }));
+                setUserOptions(options);
+            } catch (err) {
+                console.error('Error fetching users:', err);
+            }
+        }
+    };
 
     useEffect(() => {
         if (show) {
@@ -98,6 +126,7 @@ const GeneralPaymentRecordModal = ({ show, onHide, editingId, initialData, onSav
                     comment1: '',
                     comment2: '',
                     comment3: '',
+                    assignedTo: '',
                 };
                 setPaymentData(defaultValues);
                 setServerData(null);
@@ -139,6 +168,7 @@ const GeneralPaymentRecordModal = ({ show, onHide, editingId, initialData, onSav
                 comment1: '',
                 comment2: '',
                 comment3: '',
+                assignedTo: '',
             };
             setPaymentData(defaultValues);
             setServerData(null);
@@ -250,17 +280,8 @@ const GeneralPaymentRecordModal = ({ show, onHide, editingId, initialData, onSav
 
     const formatDate = (isoString) => {
         if (!isoString) return 'N/A';
-        const localString = isoString.endsWith('Z') ? isoString.slice(0, -1) : isoString;
-        const dt = new Date(localString);
-        if (isNaN(dt)) return isoString;
-        return dt.toLocaleString('en-GB', {
-            year: 'numeric',
-            month: 'short',
-            day: '2-digit',
-            hour: '2-digit',
-            minute: '2-digit',
-            hour12: true,
-        });
+        // Treat stored UTC as local time to match existing data pattern
+        return moment(isoString.replace('Z', '')).format('DD MMM YYYY, hh:mm A');
     };
 
     const getFieldLabel = (key) => {
@@ -291,6 +312,7 @@ const GeneralPaymentRecordModal = ({ show, onHide, editingId, initialData, onSav
             comment1: 'Note 1',
             comment2: 'Note 2',
             comment3: 'Note 3',
+            assignedTo: 'Assigned To',
         };
         return labels[key] || key;
     };
@@ -357,7 +379,8 @@ const GeneralPaymentRecordModal = ({ show, onHide, editingId, initialData, onSav
     };
 
     const handleDateChange = (id, value) => {
-        const dateVal = value ? new Date(new Date(value).getTime() - new Date(value).getTimezoneOffset() * 60000).toISOString() : '';
+        // Save local numbers as UTC to maintain "Wall Clock" persistence without brittle math
+        const dateVal = value ? moment(value).format("YYYY-MM-DDTHH:mm:ss.SSS") + "Z" : '';
         setPaymentData(prev => ({ ...prev, [id]: dateVal }));
     };
 
@@ -431,6 +454,33 @@ const GeneralPaymentRecordModal = ({ show, onHide, editingId, initialData, onSav
                                     />
                                 </Form.Group>
                             </Col>
+                        </Row>
+                        <Row>
+                            {(role === 'superadmin' || role === 'admin') && (
+                                <Col md={6}>
+                                    <Form.Group className="mb-3">
+                                        <Form.Label className="fw-bold">Assigned To</Form.Label>
+                                        <Select
+                                            options={userOptions}
+                                            value={userOptions.find(u => u.value === paymentData.assignedTo) || null}
+                                            onChange={(option) => setPaymentData(prev => ({ ...prev, assignedTo: option ? option.value : '' }))}
+                                            isClearable
+                                            placeholder="Select Employee"
+                                            menuPortalTarget={document.body}
+                                            styles={{
+                                                control: (base) => ({
+                                                    ...base,
+                                                    minHeight: '38px',
+                                                    borderRadius: '0.375rem',
+                                                    borderColor: '#dee2e6'
+                                                }),
+                                                menuPortal: base => ({ ...base, zIndex: 9999 })
+                                            }}
+                                        />
+                                        {renderOldValue('assignedTo')}
+                                    </Form.Group>
+                                </Col>
+                            )}
                         </Row>
                         <Row>
                             <Col md={6}>

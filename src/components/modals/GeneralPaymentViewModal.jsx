@@ -28,6 +28,7 @@ const GeneralPaymentViewModal = ({ show, onHide, detailsData, formatDate, onEdit
                                         <strong>Status:</strong> <span className={`badge ${detailsData.paymentStatus === "fully paid" ? "bg-success" : "bg-danger"}`}>{detailsData.paymentStatus}</span>
                                     </div>
                                     <p className="mb-1"><strong>Reference:</strong> {detailsData.reference || 'N/A'}</p>
+                                    <p className="mb-1"><strong>Assigned To:</strong> {detailsData.assignedTo || 'Unassigned'}</p>
                                     <p className="mb-1"><strong>Created By:</strong> {detailsData.createdBy}</p>
                                 </div>
                             </Col>

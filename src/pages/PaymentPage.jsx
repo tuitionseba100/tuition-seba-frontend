@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Button, Table, Modal, Form, Row, Col, Card, Spinner, Tooltip, OverlayTrigger } from 'react-bootstrap';
-import { FaEdit, FaTrashAlt, FaInfoCircle, FaBell, FaChevronLeft, FaChevronRight, FaPlus, FaFilter, FaFileExport, FaMoneyBillWave, FaExclamationCircle, FaCheckCircle, FaSearch, FaHistory, FaWhatsapp } from 'react-icons/fa';
+import { FaEdit, FaTrashAlt, FaInfoCircle, FaBell, FaChevronLeft, FaChevronRight, FaPlus, FaFilter, FaFileExport, FaMoneyBillWave, FaExclamationCircle, FaCheckCircle, FaSearch, FaHistory, FaWhatsapp, FaUndo } from 'react-icons/fa';
 import GeneralPaymentRecordModal from '../components/modals/GeneralPaymentRecordModal';
 import GeneralPaymentViewModal from '../components/modals/GeneralPaymentViewModal';
 import WhatsAppPaymentMessageModal from '../components/modals/WhatsAppPaymentMessageModal';
@@ -10,6 +10,7 @@ import styled from 'styled-components';
 import { ToastContainer, toast } from 'react-toastify';
 import * as XLSX from 'xlsx';
 import Select from 'react-select';
+import moment from 'moment';
 
 const PaymentPage = () => {
     const [paymentList, setPaymentList] = useState([]);
@@ -30,7 +31,8 @@ const PaymentPage = () => {
         tutorNumber: '',
         paymentNumber: '',
         paymentStatus: '',
-        paymentType: ''
+        paymentType: '',
+        assignedTo: ''
     });
 
     const [appliedFilters, setAppliedFilters] = useState({
@@ -38,7 +40,8 @@ const PaymentPage = () => {
         tutorNumber: '',
         paymentNumber: '',
         paymentStatus: '',
-        paymentType: ''
+        paymentType: '',
+        assignedTo: ''
     });
 
     const [summaryCounts, setSummaryCounts] = useState({
@@ -62,10 +65,12 @@ const PaymentPage = () => {
     const [selectedExportStatus, setSelectedExportStatus] = useState('');
     const [showDetailsModal, setShowDetailsModal] = useState(false);
     const [detailsData, setDetailsData] = useState(null);
+    const [userOptions, setUserOptions] = useState([]);
     const role = localStorage.getItem('role');
 
     useEffect(() => {
         fetchPaymentRecords();
+        fetchUsers();
     }, []);
 
     useEffect(() => {
@@ -96,11 +101,34 @@ const PaymentPage = () => {
             tutorNumber: '',
             paymentNumber: '',
             paymentStatus: '',
-            paymentType: ''
+            paymentType: '',
+            assignedTo: ''
         };
         setSearchInputs(resetFilters);
         setAppliedFilters(resetFilters);
         setCurrentPage(1);
+    };
+
+    const fetchUsers = async () => {
+        if (role === 'superadmin' || role === 'admin') {
+            try {
+                const token = localStorage.getItem('token');
+                const response = await axios.get('https://tuition-seba-backend-1.onrender.com/api/user/users', {
+                    headers: { Authorization: token }
+                });
+                const options = [
+                    { value: 'assigned', label: '--- Assigned ---' },
+                    { value: 'unassigned', label: '--- Unassigned ---' },
+                    ...response.data.map(user => ({
+                        value: user.username,
+                        label: `${user.name} (${user.username})`
+                    }))
+                ];
+                setUserOptions(options);
+            } catch (err) {
+                console.error('Error fetching users:', err);
+            }
+        }
     };
 
     const fetchPaymentRecords = async () => {
@@ -113,7 +141,8 @@ const PaymentPage = () => {
                     tutorNumber: appliedFilters.tutorNumber,
                     paymentNumber: appliedFilters.paymentNumber,
                     paymentStatus: appliedFilters.paymentStatus,
-                    paymentType: appliedFilters.paymentType
+                    paymentType: appliedFilters.paymentType,
+                    assignedTo: appliedFilters.assignedTo
                 }
             });
 
@@ -139,7 +168,8 @@ const PaymentPage = () => {
                     tutorNumber: appliedFilters.tutorNumber,
                     paymentNumber: appliedFilters.paymentNumber,
                     paymentStatus: appliedFilters.paymentStatus,
-                    paymentType: appliedFilters.paymentType
+                    paymentType: appliedFilters.paymentType,
+                    assignedTo: appliedFilters.assignedTo
                 }
             });
 
@@ -187,7 +217,12 @@ const PaymentPage = () => {
 
     const fetchTuitionAlertToday = async () => {
         try {
-            const res = await axios.get('https://tuition-seba-backend-1.onrender.com/api/payment/alert-today');
+            const currentUsername = localStorage.getItem('username');
+            const alertParams = {};
+            if (role !== 'superadmin') {
+                alertParams.assignedTo = currentUsername;
+            }
+            const res = await axios.get('https://tuition-seba-backend-1.onrender.com/api/payment/alert-today', { params: alertParams });
             setDueTodayList(res.data);
         } catch (err) {
             console.error('Error fetching tuition due today:', err);
@@ -201,21 +236,8 @@ const PaymentPage = () => {
 
     const formatDate = (isoString) => {
         if (!isoString) return '';
-
-        const localString = isoString.endsWith('Z') ? isoString.slice(0, -1) : isoString;
-
-        const dt = new Date(localString);
-
-        if (isNaN(dt)) return isoString;
-
-        return dt.toLocaleString('en-GB', {
-            year: 'numeric',
-            month: 'short',
-            day: '2-digit',
-            hour: '2-digit',
-            minute: '2-digit',
-            hour12: true,
-        });
+        // Treat stored UTC as local time to match existing data pattern
+        return moment(isoString.replace('Z', '')).format('DD MMM YYYY, hh:mm A');
     };
 
 
@@ -463,27 +485,55 @@ const PaymentPage = () => {
                         />
                     </Col>
 
-                    <Col md={2} className="d-flex align-items-end">
+                    {(role === 'superadmin' || role === 'admin') && (
+                        <Col md={2}>
+                            <Form.Label className="fw-bold">Assigned To</Form.Label>
+                            <Select
+                                options={userOptions}
+                                value={userOptions.find(u => u.value === searchInputs.assignedTo) || null}
+                                onChange={(option) => handleSearchInputChange('assignedTo', option ? option.value : '')}
+                                isClearable
+                                placeholder="Employee"
+                                menuPortalTarget={document.body}
+                                styles={{
+                                    control: (base) => ({
+                                        ...base,
+                                        minHeight: '38px',
+                                        borderRadius: '0.375rem'
+                                    }),
+                                    menuPortal: base => ({ ...base, zIndex: 9999 })
+                                }}
+                            />
+                        </Col>
+                    )}
+
+                    <Col md={1} className="d-flex align-items-end">
                         <Button
                             variant="success"
                             onClick={handleSearch}
-                            className="w-100"
+                            className="w-100 d-flex align-items-center justify-content-center"
                             disabled={loading}
+                            title="Search"
+                            style={{ height: '38px' }}
                         >
-                            Search
+                            <FaSearch />
                         </Button>
                     </Col>
 
-                    <Col md={2} className="d-flex align-items-end">
+                    <Col md={1} className="d-flex align-items-end">
                         <Button
                             variant="danger"
                             onClick={handleResetFilters}
-                            className="w-100"
+                            className="w-100 d-flex align-items-center justify-content-center"
+                            title="Reset"
+                            style={{ height: '38px' }}
                         >
-                            Reset
+                            <FaUndo />
                         </Button>
                     </Col>
                 </Row>
+
+
 
                 <div className="d-flex align-items-center justify-content-center">
                     <h5 className="me-3 d-flex align-items-center gap-2">
@@ -523,6 +573,7 @@ const PaymentPage = () => {
                                         <th>Created By</th>
                                         <th>Updated By</th>
                                         <th>Payment Status</th>
+                                        <th>Assigned To</th>
                                         <th>Installment Details</th>
                                         <th>Teacher Name</th>
                                         <th>Teacher Number</th>
@@ -561,6 +612,11 @@ const PaymentPage = () => {
                                                             ${payment.paymentStatus === "fully paid" ? "bg-success" : ""}`}
                                                     >
                                                         {payment.paymentStatus}
+                                                    </span>
+                                                </td>
+                                                <td>
+                                                    <span className="badge bg-secondary">
+                                                        {payment.assignedTo || 'Unassigned'}
                                                     </span>
                                                 </td>
                                                 <td style={{ minWidth: "180px" }}>

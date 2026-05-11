@@ -510,9 +510,11 @@ const TeacherPaymentPage = () => {
                                                     <Button variant="warning" onClick={() => handleEditTeacherPayment(payment)} className="mr-2">
                                                         <FaEdit />
                                                     </Button>
-                                                    <Button variant="danger" onClick={() => handleTeacherDeletePayment(payment._id)}>
-                                                        <FaTrashAlt />
-                                                    </Button>
+                                                    {role === 'superadmin' && (
+                                                        <Button variant="danger" onClick={() => handleTeacherDeletePayment(payment._id)}>
+                                                            <FaTrashAlt />
+                                                        </Button>
+                                                    )}
                                                     <Button variant="info" onClick={() => handlePrintClick(payment)}>
                                                         <FaPrint />
                                                     </Button>
@@ -768,7 +770,7 @@ const TeacherPaymentPage = () => {
 
                     <Modal.Footer className="d-flex justify-content-between">
                         <div>
-                            {teacherEditingId && (
+                            {teacherEditingId && role === 'superadmin' && (
                                 <Button variant="danger" onClick={() => handleTeacherDeletePayment(teacherEditingId)}>
                                     Delete
                                 </Button>

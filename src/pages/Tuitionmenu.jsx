@@ -952,9 +952,11 @@ const TuitionPage = () => {
                                                     <Button variant="warning" onClick={() => handleEdit(tuition)} className="mr-2">
                                                         <FaEdit />
                                                     </Button>
-                                                    <Button variant="danger" onClick={() => handleDeleteTuition(tuition._id)}>
-                                                        <FaTrashAlt />
-                                                    </Button>
+                                                    {role === 'superadmin' && (
+                                                        <Button variant="danger" onClick={() => handleDeleteTuition(tuition._id)}>
+                                                            <FaTrashAlt />
+                                                        </Button>
+                                                    )}
                                                     <Button variant="success" onClick={() => handleShare(tuition)}>
                                                         <FaWhatsapp />
                                                     </Button>
@@ -1041,9 +1043,11 @@ const TuitionPage = () => {
                                                     <Button variant="warning" onClick={() => handleEdit(tuition)}>
                                                         <FaEdit />
                                                     </Button>
-                                                    <Button variant="danger" onClick={() => handleDeleteTuition(tuition._id)}>
-                                                        <FaTrashAlt />
-                                                    </Button>
+                                                    {role === 'superadmin' && (
+                                                        <Button variant="danger" onClick={() => handleDeleteTuition(tuition._id)}>
+                                                            <FaTrashAlt />
+                                                        </Button>
+                                                    )}
                                                     {role === 'superadmin' && (
                                                         <Button variant="dark" onClick={() => handleOpenAssignModal(tuition)} title="Assign Employee">
                                                             <FaUserPlus />
@@ -1328,9 +1332,11 @@ const MemoizedTuitionTable = React.memo(({
                                     <FaEdit />
                                 </Button>
 
-                                <Button variant="danger" onClick={() => handleDeleteTuition(tuition._id)}>
-                                    <FaTrashAlt />
-                                </Button>
+                                {role === 'superadmin' && (
+                                    <Button variant="danger" onClick={() => handleDeleteTuition(tuition._id)}>
+                                        <FaTrashAlt />
+                                    </Button>
+                                )}
                                 <Button variant="success" onClick={() => handleShare(tuition)}>
                                     <FaWhatsapp />
                                 </Button>

@@ -767,9 +767,11 @@ const PaymentPage = () => {
                                                     <Button variant="warning" onClick={() => handleEditPayment(payment)} className="mr-2">
                                                         <FaEdit />
                                                     </Button>
-                                                    <Button variant="danger" onClick={() => handleDeletePayment(payment._id)}>
-                                                        <FaTrashAlt />
-                                                    </Button>
+                                                    {role === 'superadmin' && (
+                                                        <Button variant="danger" onClick={() => handleDeletePayment(payment._id)}>
+                                                            <FaTrashAlt />
+                                                        </Button>
+                                                    )}
                                                     {role === 'superadmin' && (
                                                         <Button variant="dark" onClick={() => handleOpenAssignModal(payment)} title="Assign Employee">
                                                             <FaUserPlus />
@@ -882,9 +884,11 @@ const PaymentPage = () => {
                                                 <Button variant="warning" onClick={() => handleEditPayment(payment)} className="mr-2">
                                                     <FaEdit />
                                                 </Button>
-                                                <Button variant="danger" onClick={() => handleDeletePayment(payment._id)}>
-                                                    <FaTrashAlt />
-                                                </Button>
+                                                {role === 'superadmin' && (
+                                                    <Button variant="danger" onClick={() => handleDeletePayment(payment._id)}>
+                                                        <FaTrashAlt />
+                                                    </Button>
+                                                )}
                                                 {role === 'superadmin' && (
                                                     <Button variant="dark" onClick={() => handleOpenAssignModal(payment)} title="Assign Employee">
                                                         <FaUserPlus />

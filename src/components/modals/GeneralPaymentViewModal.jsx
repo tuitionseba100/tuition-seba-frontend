@@ -2,6 +2,7 @@ import React from 'react';
 import { Modal, Button, Row, Col, Table } from 'react-bootstrap';
 
 const GeneralPaymentViewModal = ({ show, onHide, detailsData, formatDate, onEdit, onDelete }) => {
+    const role = localStorage.getItem('role');
     return (
         <Modal show={show} onHide={onHide} size="lg" centered contentClassName="shadow-lg">
             <Modal.Header closeButton style={{ background: '#0d6efd', color: 'white' }}>
@@ -165,9 +166,11 @@ const GeneralPaymentViewModal = ({ show, onHide, detailsData, formatDate, onEdit
             </Modal.Body>
             <Modal.Footer className="d-flex justify-content-between bg-light">
                 <div>
-                    <Button variant="danger" onClick={() => onDelete(detailsData._id)} className="me-2">
-                        🗑️ Delete
-                    </Button>
+                    {role === 'superadmin' && (
+                        <Button variant="danger" onClick={() => onDelete(detailsData._id)} className="me-2">
+                            🗑️ Delete
+                        </Button>
+                    )}
                     <Button variant="warning" onClick={() => onEdit(detailsData)}>
                         ✏️ Edit
                     </Button>

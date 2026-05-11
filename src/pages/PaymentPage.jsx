@@ -214,9 +214,9 @@ const PaymentPage = () => {
         return (
             <div className="d-flex align-items-center justify-content-center gap-1">
                 <span className="text-truncate" style={{ maxWidth: '100px' }}>{text.substring(0, maxLength)}...</span>
-                <OverlayTrigger 
-                    trigger={['hover', 'focus']} 
-                    placement="top" 
+                <OverlayTrigger
+                    trigger={['hover', 'focus']}
+                    placement="top"
                     overlay={popover}
                 >
                     <span style={{ cursor: 'help' }} className="d-inline-flex">
@@ -784,14 +784,14 @@ const PaymentPage = () => {
                                                     <div className="d-flex flex-column align-items-center gap-1">
                                                         <span className="fw-bold">{payment.tuitionCode}</span>
                                                         {payment.isVerified ? (
-                                                            <span className="text-success fw-bold" style={{ fontSize: '0.65rem' }}>
-                                                                <FaCheckCircle /> Verified by {payment.verifiedBy}
+                                                            <span className="text-success" style={{ fontSize: '0.65rem' }}>
+                                                                <FaCheckCircle /> Verified by <span className="text-primary fw-bold ms-1" style={{ fontSize: '0.75rem' }}>{payment.verifiedBy}</span>
                                                             </span>
                                                         ) : (
-                                                            <Button 
-                                                                variant="primary" 
-                                                                size="sm" 
-                                                                className="d-flex align-items-center gap-1 px-2 py-1 shadow-sm border-0 rounded-pill" 
+                                                            <Button
+                                                                variant="primary"
+                                                                size="sm"
+                                                                className="d-flex align-items-center gap-1 px-2 py-1 shadow-sm border-0 rounded-pill"
                                                                 style={{ fontSize: '0.65rem', fontWeight: 'bold', transition: 'all 0.2s' }}
                                                                 onClick={() => handleVerifyPayment(payment._id)}
                                                             >
@@ -981,78 +981,78 @@ const PaymentPage = () => {
                                             <th style={{ width: '180px' }}>Actions</th>
                                         </tr>
                                     </thead>
-                                <tbody>
-                                    {dueTodayList.map((payment, index) => (
-                                        <tr key={index} className={`align-middle text-center ${!payment.isVerified ? 'unverified-row' : ''}`}>
-                                            <td>{index + 1}</td>
-                                            <td>{payment.paymentReceivedDate ? formatDate(payment.paymentReceivedDate) : '-'}</td>
-                                            <td>
-                                                <div className="d-flex flex-column align-items-center gap-1">
-                                                    <span className="fw-bold">{payment.tuitionCode}</span>
-                                                    {payment.isVerified ? (
-                                                        <span className="text-success fw-bold" style={{ fontSize: '0.65rem' }}>
-                                                            <FaCheckCircle /> Verified by {payment.verifiedBy}
+                                    <tbody>
+                                        {dueTodayList.map((payment, index) => (
+                                            <tr key={index} className={`align-middle text-center ${!payment.isVerified ? 'unverified-row' : ''}`}>
+                                                <td>{index + 1}</td>
+                                                <td>{payment.paymentReceivedDate ? formatDate(payment.paymentReceivedDate) : '-'}</td>
+                                                <td>
+                                                    <div className="d-flex flex-column align-items-center gap-1">
+                                                        <span className="fw-bold">{payment.tuitionCode}</span>
+                                                        {payment.isVerified ? (
+                                                            <span className="text-success" style={{ fontSize: '0.65rem' }}>
+                                                            <FaCheckCircle /> Verified by <span className="text-primary fw-bold ms-1" style={{ fontSize: '0.75rem' }}>{payment.verifiedBy}</span>
                                                         </span>
-                                                    ) : (
-                                                        <Button 
-                                                            variant="primary" 
-                                                            size="sm" 
-                                                            className="d-flex align-items-center gap-1 px-2 py-1 shadow-sm border-0 rounded-pill" 
-                                                            style={{ fontSize: '0.65rem', fontWeight: 'bold', transition: 'all 0.2s' }}
-                                                            onClick={() => handleVerifyPayment(payment._id)}
-                                                        >
-                                                            <FaCheckCircle /> Verify
+                                                        ) : (
+                                                            <Button
+                                                                variant="primary"
+                                                                size="sm"
+                                                                className="d-flex align-items-center gap-1 px-2 py-1 shadow-sm border-0 rounded-pill"
+                                                                style={{ fontSize: '0.65rem', fontWeight: 'bold', transition: 'all 0.2s' }}
+                                                                onClick={() => handleVerifyPayment(payment._id)}
+                                                            >
+                                                                <FaCheckCircle /> Verify
+                                                            </Button>
+                                                        )}
+                                                    </div>
+                                                </td>
+                                                <td className="fw-bold text-danger">{payment.duePayment}</td>
+                                                <td>{payment.tutorName}</td>
+                                                <td>{payment.tutorNumber}</td>
+                                                <td>
+                                                    <span className={`badge ${payment.assignedTo ? 'bg-success' : ''}`} style={!payment.assignedTo ? { backgroundColor: '#6c757d' } : {}}>
+                                                        {payment.assignedTo || 'Unassigned'}
+                                                    </span>
+                                                </td>
+                                                <td style={{ whiteSpace: 'nowrap' }}>
+                                                    {payment.followUpDate ? formatDate(payment.followUpDate) : '-'}
+                                                </td>
+                                                <td>
+                                                    {renderCommentWithPopover(payment.followUpComment)}
+                                                </td>
+                                                <td style={{ whiteSpace: 'nowrap' }}>
+                                                    {payment.duePayDate ? formatDate(payment.duePayDate) : '-'}
+                                                </td>
+                                                <td>
+                                                    {renderCommentWithPopover(payment.duePayDateComment)}
+                                                </td>
+                                                <td>
+                                                    {renderCommentWithPopover(payment.comment)}
+                                                </td>
+                                                <td style={{ display: 'flex', justifyContent: 'flex-start', gap: '8px' }}>
+                                                    <Button variant="success" onClick={() => handleWhatsAppClick(payment)} className="mr-2" style={{ background: '#25D366', borderColor: '#25D366' }}>
+                                                        <FaWhatsapp />
+                                                    </Button>
+                                                    <Button variant="info" onClick={() => handleViewDetails(payment)} className="mr-2">
+                                                        <FaInfoCircle />
+                                                    </Button>
+                                                    <Button variant="warning" onClick={() => handleEditPayment(payment)} className="mr-2">
+                                                        <FaEdit />
+                                                    </Button>
+                                                    {role === 'superadmin' && (
+                                                        <Button variant="danger" onClick={() => handleDeletePayment(payment._id)}>
+                                                            <FaTrashAlt />
                                                         </Button>
                                                     )}
-                                                </div>
-                                            </td>
-                                            <td className="fw-bold text-danger">{payment.duePayment}</td>
-                                            <td>{payment.tutorName}</td>
-                                            <td>{payment.tutorNumber}</td>
-                                            <td>
-                                                <span className={`badge ${payment.assignedTo ? 'bg-success' : ''}`} style={!payment.assignedTo ? { backgroundColor: '#6c757d' } : {}}>
-                                                    {payment.assignedTo || 'Unassigned'}
-                                                </span>
-                                            </td>
-                                            <td style={{ whiteSpace: 'nowrap' }}>
-                                                {payment.followUpDate ? formatDate(payment.followUpDate) : '-'}
-                                            </td>
-                                            <td>
-                                                {renderCommentWithPopover(payment.followUpComment)}
-                                            </td>
-                                            <td style={{ whiteSpace: 'nowrap' }}>
-                                                {payment.duePayDate ? formatDate(payment.duePayDate) : '-'}
-                                            </td>
-                                            <td>
-                                                {renderCommentWithPopover(payment.duePayDateComment)}
-                                            </td>
-                                            <td>
-                                                {renderCommentWithPopover(payment.comment)}
-                                            </td>
-                                            <td style={{ display: 'flex', justifyContent: 'flex-start', gap: '8px' }}>
-                                                <Button variant="success" onClick={() => handleWhatsAppClick(payment)} className="mr-2" style={{ background: '#25D366', borderColor: '#25D366' }}>
-                                                    <FaWhatsapp />
-                                                </Button>
-                                                <Button variant="info" onClick={() => handleViewDetails(payment)} className="mr-2">
-                                                    <FaInfoCircle />
-                                                </Button>
-                                                <Button variant="warning" onClick={() => handleEditPayment(payment)} className="mr-2">
-                                                    <FaEdit />
-                                                </Button>
-                                                {role === 'superadmin' && (
-                                                    <Button variant="danger" onClick={() => handleDeletePayment(payment._id)}>
-                                                        <FaTrashAlt />
-                                                    </Button>
-                                                )}
-                                                {role === 'superadmin' && (
-                                                    <Button variant="dark" onClick={() => handleOpenAssignModal(payment)} title="Assign Employee">
-                                                        <FaUserPlus />
-                                                    </Button>
-                                                )}
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
+                                                    {role === 'superadmin' && (
+                                                        <Button variant="dark" onClick={() => handleOpenAssignModal(payment)} title="Assign Employee">
+                                                            <FaUserPlus />
+                                                        </Button>
+                                                    )}
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
                                 </CustomTable>
                             </div>
                         ) : (

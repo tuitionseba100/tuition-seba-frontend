@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Button, Table, Modal, Form, Row, Col, Card, Spinner, Tooltip, OverlayTrigger } from 'react-bootstrap';
-import { FaEdit, FaTrashAlt, FaInfoCircle, FaBell, FaChevronLeft, FaChevronRight, FaPlus, FaFilter, FaFileExport, FaMoneyBillWave, FaExclamationCircle, FaCheckCircle, FaSearch, FaHistory, FaWhatsapp, FaUndo } from 'react-icons/fa';
+import { FaEdit, FaTrashAlt, FaInfoCircle, FaBell, FaChevronLeft, FaChevronRight, FaPlus, FaFilter, FaFileExport, FaMoneyBillWave, FaExclamationCircle, FaCheckCircle, FaSearch, FaHistory, FaWhatsapp, FaUndo, FaUserPlus } from 'react-icons/fa';
 import GeneralPaymentRecordModal from '../components/modals/GeneralPaymentRecordModal';
 import GeneralPaymentViewModal from '../components/modals/GeneralPaymentViewModal';
 import WhatsAppPaymentMessageModal from '../components/modals/WhatsAppPaymentMessageModal';
+import PaymentAssignModal from '../components/modals/PaymentAssignModal';
 import axios from 'axios';
 import NavBarPage from './NavbarPage';
 import styled from 'styled-components';
@@ -11,6 +12,78 @@ import { ToastContainer, toast } from 'react-toastify';
 import * as XLSX from 'xlsx';
 import Select from 'react-select';
 import moment from 'moment';
+
+const StyledModal = styled(Modal)`
+    .modal-dialog {
+        max-width: calc(100vw - 20px) !important;
+        height: calc(100vh - 20px) !important;
+        margin: 10px !important;
+        display: flex;
+        align-items: center;
+    }
+    .modal-content {
+        max-height: calc(100vh - 20px) !important;
+        height: calc(100vh - 20px) !important;
+        border-radius: 12px;
+        border: none;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+    }
+    .modal-body {
+        flex: 1;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+    }
+`;
+
+const CustomTable = styled(Table)`
+    border-collapse: collapse;
+    width: 100%;
+    margin-bottom: 0;
+    
+    thead th {
+        background-color: #0d6efd !important; /* Professional Blue */
+        color: white !important;
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 0.8rem;
+        letter-spacing: 0.05em;
+        padding: 12px 10px;
+        position: sticky;
+        top: 0;
+        z-index: 20;
+        border: 1px solid rgba(255, 255, 255, 0.2) !important;
+        white-space: nowrap;
+    }
+
+    tbody td {
+        padding: 10px;
+        vertical-align: middle;
+        border: 1px solid #dee2e6 !important;
+        font-size: 0.95rem; /* Larger text */
+        color: #000000 !important;
+        font-weight: 600;
+    }
+
+    /* Target the Due Tk column (4th column) */
+    tbody td:nth-child(4) {
+        color: #dc3545 !important;
+        font-weight: 900; /* Maximum boldness */
+        font-size: 1.05rem; /* Even larger for emphasis */
+    }
+
+    tbody tr {
+        transition: background-color 0.15s ease;
+        &:hover {
+            background-color: #f1f5f9 !important;
+        }
+    }
+
+    /* Fixed widths for specific columns if needed */
+    th:nth-child(1), td:nth-child(1) { width: 50px; text-align: center; }
+`;
 
 const PaymentPage = () => {
     const [paymentList, setPaymentList] = useState([]);
@@ -66,6 +139,13 @@ const PaymentPage = () => {
     const [showDetailsModal, setShowDetailsModal] = useState(false);
     const [detailsData, setDetailsData] = useState(null);
     const [userOptions, setUserOptions] = useState([]);
+    const [showAssignModal, setShowAssignModal] = useState(false);
+    const [selectedPaymentForAssign, setSelectedPaymentForAssign] = useState(null);
+
+    const handleOpenAssignModal = (payment) => {
+        setSelectedPaymentForAssign(payment);
+        setShowAssignModal(true);
+    };
     const role = localStorage.getItem('role');
 
     useEffect(() => {
@@ -690,6 +770,11 @@ const PaymentPage = () => {
                                                     <Button variant="danger" onClick={() => handleDeletePayment(payment._id)}>
                                                         <FaTrashAlt />
                                                     </Button>
+                                                    {role === 'superadmin' && (
+                                                        <Button variant="dark" onClick={() => handleOpenAssignModal(payment)} title="Assign Employee">
+                                                            <FaUserPlus />
+                                                        </Button>
+                                                    )}
                                                 </td>
                                             </tr>
                                         ))
@@ -748,28 +833,30 @@ const PaymentPage = () => {
                 />
 
                 {/* Other Modals */}
-                <Modal show={showDueModal} onHide={() => setShowDueModal(false)} centered dialogClassName="modal-95w" contentClassName="shadow-lg">
-                    <Modal.Header closeButton className="bg-primary text-white">
-                        <Modal.Title className="w-100 text-center fw-bold">
+                <StyledModal show={showDueModal} onHide={() => setShowDueModal(false)} centered>
+                    <Modal.Header closeButton className="bg-primary text-white border-0 py-3">
+                        <Modal.Title className="w-100 text-center fw-bold d-flex align-items-center justify-content-center gap-2">
                             <FaBell className="text-warning" />
-                            <span className="ms-2">Due Payments Today: {dueTodayList.length}</span>
+                            <span>Due Payments Today: {dueTodayList.length}</span>
                         </Modal.Title>
                     </Modal.Header>
-                    <Modal.Body className="p-4 bg-light">
+                    <Modal.Body className="p-0 bg-white d-flex flex-column">
                         {dueTodayList.length > 0 ? (
-                            <Table responsive striped bordered hover className="shadow-sm">
-                                <thead className="bg-dark text-white text-center">
-                                    <tr>
-                                        <th>SL</th>
-                                        <th>Payment Received Date</th>
-                                        <th>Tuition Code</th>
-                                        <th>Due Tk</th>
-                                        <th>Teacher Name</th>
-                                        <th>Teacher Number</th>
-                                        <th>Comment</th>
-                                        <th>Actions</th>
-                                    </tr>
-                                </thead>
+                            <div style={{ flex: 1, overflow: "auto", width: '100%' }}>
+                                <CustomTable striped hover>
+                                    <thead className="text-center">
+                                        <tr>
+                                            <th>SL</th>
+                                            <th>Payment Received Date</th>
+                                            <th>Tuition Code</th>
+                                            <th>Due Tk</th>
+                                            <th>Teacher Name</th>
+                                            <th>Teacher Number</th>
+                                            <th>Assigned To</th>
+                                            <th>Comment</th>
+                                            <th style={{ width: '180px' }}>Actions</th>
+                                        </tr>
+                                    </thead>
                                 <tbody>
                                     {dueTodayList.map((payment, index) => (
                                         <tr key={index} className="align-middle text-center">
@@ -779,6 +866,7 @@ const PaymentPage = () => {
                                             <td className="fw-bold text-danger">{payment.duePayment}</td>
                                             <td>{payment.tutorName}</td>
                                             <td>{payment.tutorNumber}</td>
+                                            <td>{payment.assignedTo || '-'}</td>
                                             <td>{payment.comment || '-'}</td>
                                             <td style={{ display: 'flex', justifyContent: 'flex-start', gap: '8px' }}>
                                                 <Button variant="success" onClick={() => handleWhatsAppClick(payment)} className="mr-2" style={{ background: '#25D366', borderColor: '#25D366' }}>
@@ -793,18 +881,25 @@ const PaymentPage = () => {
                                                 <Button variant="danger" onClick={() => handleDeletePayment(payment._id)}>
                                                     <FaTrashAlt />
                                                 </Button>
+                                                {role === 'superadmin' && (
+                                                    <Button variant="dark" onClick={() => handleOpenAssignModal(payment)} title="Assign Employee">
+                                                        <FaUserPlus />
+                                                    </Button>
+                                                )}
                                             </td>
                                         </tr>
                                     ))}
                                 </tbody>
-                            </Table>
+                                </CustomTable>
+                            </div>
                         ) : (
-                            <div className="text-center text-muted py-4">
+                            <div className="text-center text-muted py-5 my-auto">
+                                <FaExclamationCircle size={48} className="mb-3 opacity-20" />
                                 <h5>No due payments to be paid today</h5>
                             </div>
                         )}
                     </Modal.Body>
-                </Modal>
+                </StyledModal>
 
                 {/* Export Modal */}
                 <Modal show={showExportModal} onHide={() => {
@@ -860,6 +955,14 @@ const PaymentPage = () => {
                     }}
                     paymentData={whatsappPaymentData}
                     formatDate={formatDate}
+                />
+
+                <PaymentAssignModal
+                    show={showAssignModal}
+                    onHide={() => setShowAssignModal(false)}
+                    payment={selectedPaymentForAssign}
+                    fetchPaymentRecords={fetchPaymentRecords}
+                    fetchAlertData={fetchTuitionAlertToday}
                 />
 
                 <ToastContainer />

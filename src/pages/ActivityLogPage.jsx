@@ -230,6 +230,31 @@ const ActivityLogPage = () => {
         }
     };
 
+    const setQuickDate = (type) => {
+        const today = moment().format('YYYY-MM-DD');
+        let start = '';
+        let end = today;
+
+        switch(type) {
+            case 'today':
+                start = today;
+                break;
+            case 'yesterday':
+                start = moment().subtract(1, 'days').format('YYYY-MM-DD');
+                end = start;
+                break;
+            case 'last7':
+                start = moment().subtract(7, 'days').format('YYYY-MM-DD');
+                break;
+            case 'thisMonth':
+                start = moment().startOf('month').format('YYYY-MM-DD');
+                break;
+            default:
+                break;
+        }
+        setFilters(prev => ({ ...prev, startDate: start, endDate: end }));
+    };
+
     // Advanced Pagination Items
     const getPaginationItems = () => {
         const items = [];
@@ -402,6 +427,18 @@ const ActivityLogPage = () => {
                                 >
                                     <FaUndo />
                                 </Button>
+                            </Col>
+                        </Row>
+                        <Row className="mt-2">
+                            <Col className="d-flex gap-2 small">
+                                <span className="text-muted fw-bold me-1">Quick Select:</span>
+                                <span className="text-primary cursor-pointer fw-bold" style={{ cursor: 'pointer' }} onClick={() => setQuickDate('today')}>Today</span>
+                                <span className="text-muted">|</span>
+                                <span className="text-primary cursor-pointer fw-bold" style={{ cursor: 'pointer' }} onClick={() => setQuickDate('yesterday')}>Yesterday</span>
+                                <span className="text-muted">|</span>
+                                <span className="text-primary cursor-pointer fw-bold" style={{ cursor: 'pointer' }} onClick={() => setQuickDate('last7')}>Last 7 Days</span>
+                                <span className="text-muted">|</span>
+                                <span className="text-primary cursor-pointer fw-bold" style={{ cursor: 'pointer' }} onClick={() => setQuickDate('thisMonth')}>This Month</span>
                             </Col>
                         </Row>
                     </Card.Body>

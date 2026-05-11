@@ -1018,13 +1018,13 @@ const PaymentPage = () => {
                                                     {payment.followUpDate ? formatDate(payment.followUpDate) : '-'}
                                                 </td>
                                                 <td>
-                                                    {renderCommentWithPopover(payment.followUpComment)}
+                                                    {payment.followUpComment || '-'}
                                                 </td>
                                                 <td style={{ whiteSpace: 'nowrap' }}>
                                                     {payment.duePayDate ? formatDate(payment.duePayDate) : '-'}
                                                 </td>
                                                 <td>
-                                                    {renderCommentWithPopover(payment.duePayDateComment)}
+                                                    {payment.duePayDateComment || '-'}
                                                 </td>
                                                 <td>
                                                     {renderCommentWithPopover(payment.comment)}

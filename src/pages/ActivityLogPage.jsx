@@ -141,7 +141,7 @@ const ActivityLogPage = () => {
 
     const API_URL = 'https://tuition-seba-backend-1.onrender.com';
 
-    const fetchLogs = useCallback(async (page = 1) => {
+    const fetchLogs = async (page = 1) => {
         setLoading(true);
         try {
             const params = {
@@ -162,7 +162,7 @@ const ActivityLogPage = () => {
         } finally {
             setLoading(false);
         }
-    }, [filters]);
+    };
 
     const fetchOptions = async () => {
         try {
@@ -177,12 +177,16 @@ const ActivityLogPage = () => {
     useEffect(() => {
         fetchOptions();
         fetchLogs(1);
-    }, [fetchLogs]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []); 
 
     const handleSearch = () => fetchLogs(1);
     
     const handleReset = () => {
-        setFilters({ user: '', module: '', startDate: '', endDate: '', tuitionCode: '', action: '' });
+        const resetFilters = { user: '', module: '', startDate: '', endDate: '', tuitionCode: '', action: '' };
+        setFilters(resetFilters);
+        // We might want to trigger a search with empty filters immediately
+        setTimeout(() => fetchLogs(1), 0);
     };
 
     const handleExport = () => {

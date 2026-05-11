@@ -107,7 +107,9 @@ const PaymentAssignModal = ({ show, onHide, payment, fetchPaymentRecords, fetchA
                     )}
                 </Form.Group>
                 <div className="text-muted small">
-                    <p>Current Assignment: <strong>{payment?.assignedTo || 'Unassigned'}</strong></p>
+                    <p>Current Assignment: <span className={`badge ${payment?.assignedTo ? 'bg-success' : ''}`} style={!payment?.assignedTo ? { backgroundColor: '#6c757d' } : {}}>
+                        {payment?.assignedTo || 'Unassigned'}
+                    </span></p>
                 </div>
             </Modal.Body>
             <Modal.Footer>

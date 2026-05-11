@@ -695,7 +695,7 @@ const PaymentPage = () => {
                                                     </span>
                                                 </td>
                                                 <td>
-                                                    <span className="badge bg-secondary">
+                                                    <span className={`badge ${payment.assignedTo ? 'bg-success' : ''}`} style={!payment.assignedTo ? { backgroundColor: '#6c757d' } : {}}>
                                                         {payment.assignedTo || 'Unassigned'}
                                                     </span>
                                                 </td>
@@ -866,7 +866,11 @@ const PaymentPage = () => {
                                             <td className="fw-bold text-danger">{payment.duePayment}</td>
                                             <td>{payment.tutorName}</td>
                                             <td>{payment.tutorNumber}</td>
-                                            <td>{payment.assignedTo || '-'}</td>
+                                            <td>
+                                                <span className={`badge ${payment.assignedTo ? 'bg-success' : ''}`} style={!payment.assignedTo ? { backgroundColor: '#6c757d' } : {}}>
+                                                    {payment.assignedTo || 'Unassigned'}
+                                                </span>
+                                            </td>
                                             <td>{payment.comment || '-'}</td>
                                             <td style={{ display: 'flex', justifyContent: 'flex-start', gap: '8px' }}>
                                                 <Button variant="success" onClick={() => handleWhatsAppClick(payment)} className="mr-2" style={{ background: '#25D366', borderColor: '#25D366' }}>

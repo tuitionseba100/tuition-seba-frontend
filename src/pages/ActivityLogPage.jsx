@@ -1,548 +1,495 @@
-import React, { useState, useEffect } from 'react';
-import { Button, Modal, Form, Spinner } from 'react-bootstrap';
-import { FaSearch, FaHistory, FaFilter, FaCalendarAlt, FaUser, FaLayerGroup, FaEye, FaFileCsv, FaUndo, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
+import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
-import NavBarPage from './NavbarPage';
-import styled, { keyframes } from 'styled-components';
-import { toast } from 'react-toastify';
-
-const fadeIn = keyframes`
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
-`;
+import { Container as BootstrapContainer, Card, Table, Form, Button, Spinner, Badge as BootstrapBadge, Modal, Row, Col } from 'react-bootstrap';
+import styled from 'styled-components';
+import { FaSearch, FaUndo, FaEye, FaFileCsv, FaHistory } from 'react-icons/fa';
+import moment from 'moment';
 
 const PageContainer = styled.div`
-  background-color: #f8fafc;
+  padding: 30px;
+  background: #f4f4f9;
   min-height: 100vh;
-  padding-bottom: 5rem;
-  font-family: 'Poppins', sans-serif;
 `;
 
-const ContentWrapper = styled.div`
-  width: 100%;
-  max-width: 100%;
-  margin: 0;
-  padding: 3rem 10px;
-  animation: ${fadeIn} 0.6s cubic-bezier(0.16, 1, 0.3, 1);
-`;
-
-const HeaderSection = styled.div`
+const Header = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 2rem;
-  flex-wrap: wrap;
-  gap: 1rem;
-`;
-
-const TitleArea = styled.div`
+  margin-bottom: 25px;
   h2 {
+    font-family: 'Arial', sans-serif;
+    color: #333;
     font-weight: 700;
-    color: #1a202c;
-    margin-bottom: 0.25rem;
-  }
-  p {
-    color: #718096;
-    margin-bottom: 0;
-  }
-`;
-
-const FilterSection = styled.div`
-  background: white;
-  padding: 1.5rem;
-  border-radius: 1rem;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-  margin-bottom: 2rem;
-  display: flex;
-  gap: 1.5rem;
-  flex-wrap: wrap;
-  align-items: flex-end;
-  border: 1px solid #edf2f7;
-`;
-
-const FilterItem = styled.div`
-  flex: 1;
-  min-width: 200px;
-
-  label {
+    margin: 0;
     display: flex;
     align-items: center;
-    gap: 0.5rem;
-    font-size: 0.85rem;
-    font-weight: 600;
-    color: #4a5568;
-    margin-bottom: 0.5rem;
-    
-    svg {
-      color: #718096;
-    }
-  }
-
-  input, select {
-    width: 100%;
-    padding: 0.6rem 1rem;
-    border-radius: 10px;
-    border: 1px solid #e2e8f0;
-    font-size: 0.9rem;
-    transition: all 0.2s;
-
-    &:focus {
-      outline: none;
-      border-color: #4299e1;
-      box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.1);
-    }
+    gap: 12px;
   }
 `;
 
-const LogTableContainer = styled.div`
+const FilterCard = styled(Card)`
+  border: none;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  border-radius: 12px;
+  margin-bottom: 25px;
+`;
+
+const StyledTable = styled(Table)`
   background: white;
-  border-radius: 1rem;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  border-radius: 12px;
   overflow: hidden;
-  border: 1px solid #edf2f7;
-`;
-
-const TableHeader = styled.div`
-  display: grid;
-  grid-template-columns: 1.5fr 1fr 1.2fr 2fr 1fr 80px;
-  gap: 1rem;
-  padding: 1rem 1.5rem;
-  background: #f8fafc;
-  border-bottom: 1px solid #e2e8f0;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
   
-  span {
-    font-size: 0.75rem;
-    font-weight: 700;
-    color: #94a3b8;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-  }
-`;
-
-const LogRow = styled.div`
-  display: grid;
-  grid-template-columns: 1.5fr 1fr 1.2fr 2fr 1fr 80px;
-  gap: 1rem;
-  padding: 1.25rem 1.5rem;
-  border-bottom: 1px solid #f1f5f9;
-  align-items: center;
-  transition: all 0.2s;
-
-  &:hover {
+  thead {
     background: #f8fafc;
+    th {
+      border-bottom: 2px solid #e2e8f0;
+      color: #475569;
+      font-weight: 700;
+      text-transform: uppercase;
+      font-size: 0.75rem;
+      letter-spacing: 0.05em;
+      padding: 15px;
+    }
   }
-
-  &:last-child {
-    border-bottom: none;
+  
+  tbody td {
+    padding: 15px;
+    vertical-align: middle;
+    color: #1e293b;
+    border-bottom: 1px solid #f1f5f9;
   }
 `;
 
-const Badge = styled.span`
-  padding: 0.35rem 0.75rem;
-  border-radius: 50px;
-  font-size: 0.75rem;
-  font-weight: 700;
-  display: inline-flex;
-  align-items: center;
+const ActionBadge = styled(BootstrapBadge)`
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-weight: 600;
   text-transform: uppercase;
-  
-  ${props => props.action === 'Create' && `
-    background: #ecfdf5;
-    color: #059669;
-  `}
-  
-  ${props => props.action === 'Edit' && `
-    background: #eff6ff;
-    color: #2563eb;
-  `}
-  
-  ${props => props.action === 'Delete' && `
-    background: #fef2f2;
-    color: #dc2626;
-  `}
+  font-size: 0.7rem;
+  background-color: ${props => 
+    props.action === 'Create' ? '#dcfce7' : 
+    props.action === 'Edit' ? '#fef9c3' : 
+    props.action === 'Delete' ? '#fee2e2' : '#f1f5f9'};
+  color: ${props => 
+    props.action === 'Create' ? '#166534' : 
+    props.action === 'Edit' ? '#854d0e' : 
+    props.action === 'Delete' ? '#991b1b' : '#475569'};
 `;
 
 const ModuleBadge = styled.span`
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: #4a5568;
-  background: #f1f5f9;
-  padding: 0.25rem 0.6rem;
+  background: #e0f2fe;
+  color: #0369a1;
+  padding: 4px 8px;
   border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 700;
 `;
 
-const ActionBtn = styled.button`
-  width: 36px;
-  height: 36px;
-  border-radius: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: 1px solid #e2e8f0;
-  background: white;
-  color: #64748b;
-  transition: all 0.2s;
-
-  &:hover {
-    background: #f1f5f9;
-    color: #1e293b;
-    border-color: #cbd5e1;
-  }
-`;
-
-const PaginationContainer = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-top: 2rem;
-  padding: 0 1rem;
+const TuitionCodeBadge = styled.span`
+  background: #f3f4f6;
+  color: #374151;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  font-family: monospace;
+  border: 1px solid #e5e7eb;
 `;
 
 const DiffContainer = styled.div`
-  font-family: 'Fira Code', monospace;
-  font-size: 0.85rem;
-  max-height: 400px;
-  overflow-y: auto;
-  padding: 1rem;
-  background: #1e293b;
-  color: #e2e8f0;
-  border-radius: 8px;
-
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  
   .diff-item {
-    margin-bottom: 0.75rem;
-    border-bottom: 1px solid #334155;
-    padding-bottom: 0.5rem;
-    
-    &:last-child {
-      border-bottom: none;
-    }
+    display: grid;
+    grid-template-columns: 120px 1fr 1fr;
+    gap: 10px;
+    align-items: center;
+    padding: 8px;
+    border-radius: 6px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    font-size: 0.85rem;
   }
-
-  .field-name {
-    color: #94a3b8;
-    font-weight: 700;
-    margin-bottom: 0.25rem;
-    display: block;
-  }
-
-  .val-before {
-    color: #fca5a5;
-    display: block;
-    &::before { content: "- "; }
-  }
-
-  .val-after {
-    color: #86efac;
-    display: block;
-    &::before { content: "+ "; }
-  }
+  
+  .field-name { font-weight: 700; color: #64748b; }
+  .val-before { color: #b91c1c; text-decoration: line-through; background: #fee2e2; padding: 2px 4px; border-radius: 3px; }
+  .val-after { color: #15803d; background: #dcfce7; padding: 2px 4px; border-radius: 3px; font-weight: 600; }
 `;
 
 const ActivityLogPage = () => {
-    const navigate = useNavigate();
     const [logs, setLogs] = useState([]);
-    const [loading, setLoading] = useState(false);
-    const [searchInputs, setSearchInputs] = useState({
-        user: '',
-        module: '',
-        startDate: '',
-        endDate: ''
-    });
-    const [appliedFilters, setAppliedFilters] = useState({
-        user: '',
-        module: '',
-        startDate: '',
-        endDate: ''
-    });
-    const [filterOptions, setFilterOptions] = useState({ users: [], modules: [] });
+    const [loading, setLoading] = useState(true);
+    const [totalLogs, setTotalLogs] = useState(0);
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
-    const [totalLogs, setTotalLogs] = useState(0);
-    const [selectedLog, setSelectedLog] = useState(null);
-    const [showModal, setShowModal] = useState(false);
-
-    const token = localStorage.getItem('token');
-    const role = localStorage.getItem('role');
+    const [users, setUsers] = useState([]);
+    const [modules, setModules] = useState([]);
     const [exporting, setExporting] = useState(false);
+    const [summary, setSummary] = useState({ total: 0, today: 0, create: 0, edit: 0, delete: 0 });
 
-    useEffect(() => {
-        if (!token || role !== 'superadmin') {
-            navigate('/admin/dashboard');
-            toast.error('Only superadmin can access activity logs');
-            return;
-        }
-        fetchFilterOptions();
-    }, []);
+    // Filter states
+    const [filters, setFilters] = useState({
+        user: '',
+        module: '',
+        startDate: '',
+        endDate: '',
+        tuitionCode: ''
+    });
 
-    useEffect(() => {
-        fetchLogs();
-    }, [currentPage, appliedFilters]);
-
-    const fetchFilterOptions = async () => {
-        try {
-            const res = await axios.get('https://tuition-seba-backend-1.onrender.com/api/activityLog/filters', {
-                headers: { Authorization: token }
-            });
-            setFilterOptions(res.data);
-        } catch (err) {
-            console.error('Error fetching filter options:', err);
-        }
-    };
-
-    const fetchLogs = async () => {
+    const fetchLogs = useCallback(async (page = 1) => {
         setLoading(true);
         try {
-            const queryParams = new URLSearchParams({
-                ...appliedFilters,
-                page: currentPage,
-                limit: 50
-            });
-            const res = await axios.get(`https://tuition-seba-backend-1.onrender.com/api/activityLog/all?${queryParams}`, {
-                headers: { Authorization: token }
-            });
-            setLogs(res.data.data);
+            const params = {
+                page,
+                limit: 50,
+                user: filters.user,
+                module: filters.module,
+                startDate: filters.startDate,
+                endDate: filters.endDate,
+                tuitionCode: filters.tuitionCode
+            };
+            const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/activity-log`, { params });
+            setLogs(res.data.logs || []);
             setTotalLogs(res.data.total);
             setTotalPages(res.data.totalPages);
+            setCurrentPage(res.data.currentPage);
+            
+            // Also fetch summary for cards
+            const summaryRes = await axios.get(`${import.meta.env.VITE_API_URL}/api/activity-log/summary`, { params });
+            setSummary(summaryRes.data);
         } catch (err) {
-            toast.error('Error fetching activity logs');
+            console.error('Failed to fetch logs', err);
         } finally {
             setLoading(false);
         }
+    }, [filters]);
+
+    const fetchOptions = async () => {
+        try {
+            const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/activity-log/filter-options`);
+            setUsers(res.data.users);
+            setModules(res.data.modules);
+        } catch (err) {
+            console.error('Failed to fetch options', err);
+        }
     };
 
-    const handleFilterInputChange = (e) => {
-        const { name, value } = e.target;
-        setSearchInputs(prev => ({ ...prev, [name]: value }));
-    };
+    useEffect(() => {
+        fetchOptions();
+        fetchLogs(1);
+    }, [fetchLogs]);
 
-    const handleSearch = () => {
-        setAppliedFilters(searchInputs);
-        setCurrentPage(1);
-    };
-
-    const handleResetFilters = () => {
-        const reset = { user: '', module: '', startDate: '', endDate: '' };
-        setSearchInputs(reset);
-        setAppliedFilters(reset);
-        setCurrentPage(1);
+    const handleSearch = () => fetchLogs(1);
+    
+    const handleReset = () => {
+        setFilters({ user: '', module: '', startDate: '', endDate: '', tuitionCode: '' });
+        // fetchLogs will be triggered by the useEffect due to dependency on filters
     };
 
     const handleExport = async () => {
         setExporting(true);
         try {
-            const queryParams = new URLSearchParams(appliedFilters);
-            window.open(`https://tuition-seba-backend-1.onrender.com/api/activityLog/exportData?${queryParams}&token=${token}`, '_blank');
-            toast.success('Export started...');
+            const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/activity-log/export`, {
+                params: filters,
+                responseType: 'blob'
+            });
+            const url = window.URL.createObjectURL(new Blob([res.data]));
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', `activity_logs_${new Date().toISOString().split('T')[0]}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
         } catch (err) {
-            toast.error('Export failed');
+            console.error('Export failed', err);
         } finally {
             setExporting(false);
         }
     };
 
-    const formatDetails = (log) => {
-        if (!log.details) return 'N/A';
-        
-        if (log.action === 'Delete') {
-            const fields = log.details.importantFields || {};
-            return Object.entries(fields).map(([k, v]) => `${k}: ${v}`).join(', ');
-        }
-        
-        if (log.action === 'Create') {
-            return 'New resource created';
-        }
+    const [selectedLog, setSelectedLog] = useState(null);
+    const [showModal, setShowModal] = useState(false);
 
-        if (log.action === 'Edit') {
-            const diff = log.details.before || {};
-            return `${Object.keys(diff).length} fields updated`;
+    const formatDetailsSummary = (log) => {
+        if (log.action === 'Create') return `New ${log.module} created`;
+        if (log.action === 'Delete') return `${log.module} removed`;
+        if (log.action === 'Edit' && log.details.after) {
+            const keys = Object.keys(log.details.after);
+            return `Updated: ${keys.join(', ')}`;
         }
-
         return 'N/A';
     };
 
     return (
         <PageContainer>
-            <NavBarPage />
-            <ContentWrapper>
-                <HeaderSection>
-                    <TitleArea>
-                        <h2>System Activity Log</h2>
-                        <p>Track all administrative actions across the system</p>
-                    </TitleArea>
-                </HeaderSection>
-
-                <FilterSection>
-                    <FilterItem>
-                        <label><FaUser /> User</label>
-                        <select name="user" value={searchInputs.user} onChange={handleFilterInputChange}>
-                            <option value="">All Users</option>
-                            {filterOptions.users.map(u => <option key={u} value={u}>{u}</option>)}
-                        </select>
-                    </FilterItem>
-                    
-                    <FilterItem>
-                        <label><FaLayerGroup /> Module</label>
-                        <select name="module" value={searchInputs.module} onChange={handleFilterInputChange}>
-                            <option value="">All Modules</option>
-                            {filterOptions.modules.map(m => <option key={m} value={m}>{m}</option>)}
-                        </select>
-                    </FilterItem>
-
-                    <FilterItem>
-                        <label><FaCalendarAlt /> Start Date</label>
-                        <input type="date" name="startDate" value={searchInputs.startDate} onChange={handleFilterInputChange} />
-                    </FilterItem>
-
-                    <FilterItem>
-                        <label><FaCalendarAlt /> End Date</label>
-                        <input type="date" name="endDate" value={searchInputs.endDate} onChange={handleFilterInputChange} />
-                    </FilterItem>
-
-                    <div className="d-flex gap-2">
-                        <Button variant="primary" style={{ borderRadius: '10px', height: '42px', fontWeight: '600' }} onClick={handleSearch} disabled={loading}>
-                            {loading ? <Spinner size="sm" /> : <FaSearch style={{ marginRight: '8px' }} />} Search
-                        </Button>
-                        <Button variant="danger" style={{ borderRadius: '10px', height: '42px', fontWeight: '600' }} onClick={handleResetFilters}>
-                            <FaUndo style={{ marginRight: '8px' }} /> Reset
-                        </Button>
-                    </div>
-                </FilterSection>
-
-                <div className="d-flex justify-content-between align-items-center mb-3 px-2">
-                    <div className="text-muted fw-bold">
-                        Total Logs found: <span className="text-primary">{totalLogs}</span>
-                    </div>
-                    <Button variant="success" style={{ borderRadius: '10px', height: '42px', fontWeight: '600' }} onClick={handleExport} disabled={exporting}>
-                        {exporting ? <Spinner size="sm" /> : <FaFileCsv style={{ marginRight: '8px' }} />} Export CSV
+            <BootstrapContainer fluid>
+                <Header>
+                    <h2><FaHistory /> System Activity Logs</h2>
+                    <Button variant="success" onClick={handleExport} disabled={exporting || loading}>
+                        {exporting ? <Spinner size="sm" /> : <FaFileCsv className="me-2" />} Export CSV
                     </Button>
-                </div>
+                </Header>
 
-                <LogTableContainer>
-                    <TableHeader>
-                        <span>Date & Time</span>
-                        <span>User</span>
-                        <span>Action</span>
-                        <span>Module</span>
-                        <span>Summary</span>
-                        <span>Details</span>
-                    </TableHeader>
+                {/* Summary Cards */}
+                <Row className="mb-4">
+                    {[
+                        { label: 'Total Logs', value: summary.total, color: 'primary' },
+                        { label: 'Today', value: summary.today, color: 'info' },
+                        { label: 'Created', value: summary.create, color: 'success' },
+                        { label: 'Edited', value: summary.edit, color: 'warning' },
+                        { label: 'Deleted', value: summary.delete, color: 'danger' }
+                    ].map((item, idx) => (
+                        <Col key={idx} xs={6} md={2} className="mb-3">
+                            <Card className={`text-center shadow-sm border-${item.color}`}>
+                                <Card.Body className="p-3">
+                                    <div className={`text-${item.color} fw-bold small text-uppercase`}>{item.label}</div>
+                                    <div className="fs-4 fw-bold">{item.value}</div>
+                                </Card.Body>
+                            </Card>
+                        </Col>
+                    ))}
+                </Row>
 
-                    {loading ? (
-                        <div className="p-5 text-center">
-                            <Spinner animation="border" variant="primary" />
-                            <p className="mt-3 text-muted">Loading logs...</p>
-                        </div>
-                    ) : logs.length > 0 ? (
-                        logs.map(log => (
-                            <LogRow key={log._id}>
-                                <div className="text-secondary small fw-medium">
-                                    {new Date(log.timestamp).toLocaleString()}
-                                </div>
-                                <div className="fw-bold text-dark">{log.user}</div>
-                                <div><Badge action={log.action}>{log.action}</Badge></div>
-                                <div><ModuleBadge>{log.module}</ModuleBadge></div>
-                                <div className="text-muted small truncate">{formatDetails(log)}</div>
-                                <div>
-                                    <ActionBtn onClick={() => { setSelectedLog(log); setShowModal(true); }}>
-                                        <FaEye />
-                                    </ActionBtn>
-                                </div>
-                            </LogRow>
-                        ))
-                    ) : (
-                        <div className="p-5 text-center text-muted">No activity logs found matching the filters.</div>
-                    )}
-                </LogTableContainer>
+                {/* Filters */}
+                <FilterCard>
+                    <Card.Body className="p-4">
+                        <Row className="g-3 align-items-end">
+                            <Col md={2}>
+                                <Form.Group>
+                                    <Form.Label className="small fw-bold">User</Form.Label>
+                                    <Form.Select 
+                                        value={filters.user} 
+                                        onChange={e => setFilters({...filters, user: e.target.value})}
+                                    >
+                                        <option value="">All Users</option>
+                                        {users?.map(u => <option key={u} value={u}>{u}</option>)}
+                                    </Form.Select>
+                                </Form.Group>
+                            </Col>
+                            <Col md={2}>
+                                <Form.Group>
+                                    <Form.Label className="small fw-bold">Module</Form.Label>
+                                    <Form.Select 
+                                        value={filters.module} 
+                                        onChange={e => setFilters({...filters, module: e.target.value})}
+                                    >
+                                        <option value="">All Modules</option>
+                                        {modules?.map(m => <option key={m} value={m}>{m}</option>)}
+                                    </Form.Select>
+                                </Form.Group>
+                            </Col>
+                            <Col md={2}>
+                                <Form.Group>
+                                    <Form.Label className="small fw-bold">Tuition Code</Form.Label>
+                                    <Form.Control 
+                                        type="text" 
+                                        placeholder="Search Code..."
+                                        value={filters.tuitionCode} 
+                                        onChange={e => setFilters({...filters, tuitionCode: e.target.value})}
+                                    />
+                                </Form.Group>
+                            </Col>
+                            <Col md={2}>
+                                <Form.Group>
+                                    <Form.Label className="small fw-bold">Start Date</Form.Label>
+                                    <Form.Control 
+                                        type="date" 
+                                        value={filters.startDate} 
+                                        onChange={e => setFilters({...filters, startDate: e.target.value})}
+                                    />
+                                </Form.Group>
+                            </Col>
+                            <Col md={2}>
+                                <Form.Group>
+                                    <Form.Label className="small fw-bold">End Date</Form.Label>
+                                    <Form.Control 
+                                        type="date" 
+                                        value={filters.endDate} 
+                                        onChange={e => setFilters({...filters, endDate: e.target.value})}
+                                    />
+                                </Form.Group>
+                            </Col>
+                            <Col md={2} className="d-flex gap-2">
+                                <Button variant="primary" className="flex-grow-1" onClick={handleSearch} disabled={loading}>
+                                    <FaSearch className="me-2" /> Search
+                                </Button>
+                                <Button variant="outline-secondary" onClick={handleReset}>
+                                    <FaUndo />
+                                </Button>
+                            </Col>
+                        </Row>
+                    </Card.Body>
+                </FilterCard>
 
-                <PaginationContainer>
+                {/* Table */}
+                <Card className="border-0 shadow-sm" style={{ borderRadius: '12px', overflow: 'hidden' }}>
+                    <StyledTable hover responsive className="mb-0">
+                        <thead>
+                            <tr>
+                                <th>Timestamp</th>
+                                <th>User</th>
+                                <th>Module</th>
+                                <th>Action / Tuition Code</th>
+                                <th>Summary</th>
+                                <th className="text-center">Details</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {loading ? (
+                                <tr>
+                                    <td colSpan="6" className="text-center p-5">
+                                        <Spinner animation="border" variant="primary" />
+                                        <div className="mt-2 text-muted">Loading activity data...</div>
+                                    </td>
+                                </tr>
+                            ) : logs.length > 0 ? (
+                                logs.map(log => (
+                                    <tr key={log._id}>
+                                        <td>
+                                            <div className="fw-semibold">{moment(log.timestamp).format('DD MMM YYYY')}</div>
+                                            <div className="text-muted small">{moment(log.timestamp).format('hh:mm A')}</div>
+                                        </td>
+                                        <td><div className="fw-bold">{log.user}</div></td>
+                                        <td><ModuleBadge>{log.module}</ModuleBadge></td>
+                                        <td>
+                                            <div className="d-flex flex-column gap-1">
+                                                <ActionBadge action={log.action}>{log.action}</ActionBadge>
+                                                {log.tuitionCode && <TuitionCodeBadge>{log.tuitionCode}</TuitionCodeBadge>}
+                                            </div>
+                                        </td>
+                                        <td><span className="text-muted small">{formatDetailsSummary(log)}</span></td>
+                                        <td className="text-center">
+                                            <Button variant="link" size="sm" onClick={() => { setSelectedLog(log); setShowModal(true); }}>
+                                                <FaEye size={18} />
+                                            </Button>
+                                        </td>
+                                    </tr>
+                                ))
+                            ) : (
+                                <tr>
+                                    <td colSpan="6" className="text-center p-5 text-muted">No logs found matching your criteria.</td>
+                                </tr>
+                            )}
+                        </tbody>
+                    </StyledTable>
+                </Card>
+
+                {/* Pagination */}
+                <div className="mt-4 d-flex justify-content-between align-items-center">
                     <div className="text-muted small fw-bold">
-                        Showing page {currentPage} of {totalPages} ({totalLogs} total logs)
+                        Showing page {currentPage} of {totalPages} ({totalLogs} total)
                     </div>
-                    <div className="d-flex gap-2 align-items-center">
+                    <div className="d-flex gap-1">
                         <Button 
                             variant="outline-primary" 
-                            style={{ borderRadius: '50px', padding: '0.5rem 1.25rem', fontWeight: '600' }}
-                            disabled={currentPage === 1}
-                            onClick={() => setCurrentPage(prev => prev - 1)}
+                            size="sm" 
+                            disabled={currentPage === 1 || loading}
+                            onClick={() => fetchLogs(currentPage - 1)}
                         >
-                            <FaChevronLeft style={{ marginRight: '5px' }} /> Previous
+                            Previous
                         </Button>
-                        <span className="fw-bold px-3">Page {currentPage}</span>
+                        {[...Array(Math.max(0, Math.min(5, Number(totalPages) || 0)))].map((_, i) => {
+                            const pageNum = i + 1; // Simplification
+                            return (
+                                <Button 
+                                    key={pageNum}
+                                    variant={currentPage === pageNum ? 'primary' : 'outline-primary'}
+                                    size="sm"
+                                    onClick={() => fetchLogs(pageNum)}
+                                    disabled={loading}
+                                >
+                                    {pageNum}
+                                </Button>
+                            );
+                        })}
                         <Button 
-                            variant="outline-primary"
-                            style={{ borderRadius: '50px', padding: '0.5rem 1.25rem', fontWeight: '600' }}
-                            disabled={currentPage === totalPages || totalPages === 0}
-                            onClick={() => setCurrentPage(prev => prev + 1)}
+                            variant="outline-primary" 
+                            size="sm" 
+                            disabled={currentPage === totalPages || loading}
+                            onClick={() => fetchLogs(currentPage + 1)}
                         >
-                            Next <FaChevronRight style={{ marginLeft: '5px' }} />
+                            Next
                         </Button>
                     </div>
-                </PaginationContainer>
-            </ContentWrapper>
+                </div>
 
-            <Modal show={showModal} onHide={() => setShowModal(false)} size="lg" centered>
-                <Modal.Header closeButton style={{ background: '#f8fafc' }}>
-                    <Modal.Title style={{ fontWeight: '700', fontSize: '1.25rem' }}>
-                        Log Details - {selectedLog?.module}
-                    </Modal.Title>
-                </Modal.Header>
-                <Modal.Body style={{ padding: '2rem' }}>
-                    {selectedLog && (
-                        <div>
-                            <div className="row mb-4">
-                                <div className="col-md-6">
-                                    <label className="text-muted small fw-bold text-uppercase">Action Performed</label>
-                                    <div className="mt-1"><Badge action={selectedLog.action}>{selectedLog.action}</Badge></div>
-                                </div>
-                                <div className="col-md-6">
-                                    <label className="text-muted small fw-bold text-uppercase">Timestamp</label>
-                                    <div className="mt-1 fw-semibold">{new Date(selectedLog.timestamp).toLocaleString()}</div>
-                                </div>
-                            </div>
+                {/* Details Modal */}
+                <Modal show={showModal} onHide={() => setShowModal(false)} size="lg" centered>
+                    <Modal.Header closeButton className="bg-light">
+                        <Modal.Title className="fw-bold h5">Activity Details</Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body className="p-4">
+                        {selectedLog && (
+                            <>
+                                <Row className="mb-4">
+                                    <Col md={4}>
+                                        <label className="text-muted small fw-bold text-uppercase">Module</label>
+                                        <div className="mt-1"><ModuleBadge className="fs-6">{selectedLog.module}</ModuleBadge></div>
+                                    </Col>
+                                    <Col md={4}>
+                                        <label className="text-muted small fw-bold text-uppercase">Action</label>
+                                        <div className="mt-1"><ActionBadge action={selectedLog.action} className="fs-6">{selectedLog.action}</ActionBadge></div>
+                                    </Col>
+                                    <Col md={4}>
+                                        <label className="text-muted small fw-bold text-uppercase">Tuition Code</label>
+                                        <div className="mt-1"><TuitionCodeBadge className="fs-6">{selectedLog.tuitionCode || 'N/A'}</TuitionCodeBadge></div>
+                                    </Col>
+                                </Row>
 
-                            <div className="row mb-4">
-                                <div className="col-md-6">
-                                    <label className="text-muted small fw-bold text-uppercase">User</label>
-                                    <div className="mt-1 fw-bold">{selectedLog.user}</div>
-                                </div>
-                                <div className="col-md-6">
+                                <Row className="mb-4">
+                                    <Col md={4}>
+                                        <label className="text-muted small fw-bold text-uppercase">User</label>
+                                        <div className="mt-1 fw-bold">{selectedLog.user}</div>
+                                    </Col>
+                                    <Col md={8}>
+                                        <label className="text-muted small fw-bold text-uppercase">Timestamp</label>
+                                        <div className="mt-1 text-secondary">{moment(selectedLog.timestamp).format('DD MMMM YYYY, hh:mm:ss A')}</div>
+                                    </Col>
+                                </Row>
+
+                                <div className="mb-2">
                                     <label className="text-muted small fw-bold text-uppercase">Resource ID</label>
-                                    <div className="mt-1 text-secondary small" style={{ fontFamily: 'monospace' }}>{selectedLog.resourceId}</div>
+                                    <div className="text-secondary small font-monospace">{selectedLog.resourceId}</div>
                                 </div>
-                            </div>
 
-                            <label className="text-muted small fw-bold text-uppercase mb-2">Data Changes</label>
-                            {selectedLog.action === 'Edit' ? (
-                                <DiffContainer>
-                                    {Object.keys(selectedLog.details.after || {}).map(key => (
-                                        <div className="diff-item" key={key}>
-                                            <span className="field-name">{key}</span>
-                                            <span className="val-before">{JSON.stringify(selectedLog.details.before[key])}</span>
-                                            <span className="val-after">{JSON.stringify(selectedLog.details.after[key])}</span>
-                                        </div>
-                                    ))}
-                                </DiffContainer>
-                            ) : selectedLog.action === 'Delete' ? (
-                                <div style={{ background: '#fef2f2', padding: '1rem', borderRadius: '8px', border: '1px solid #fee2e2' }}>
-                                    {Object.entries(selectedLog.details.importantFields || {}).map(([k, v]) => (
-                                        <div key={k} className="mb-1">
-                                            <strong className="text-danger">{k}:</strong> {v}
-                                        </div>
-                                    ))}
-                                </div>
-                            ) : (
-                                <div className="p-3 bg-light rounded text-center text-muted border">
-                                    Full resource data available in the system.
-                                </div>
-                            )}
-                        </div>
-                    )}
-                </Modal.Body>
-                <Modal.Footer>
-                    <Button variant="secondary" onClick={() => setShowModal(false)}>Close</Button>
-                </Modal.Footer>
-            </Modal>
+                                <hr className="my-4" />
+
+                                <label className="text-muted small fw-bold text-uppercase mb-3 d-block">Data Changes</label>
+                                {selectedLog.action === 'Edit' ? (
+                                    <DiffContainer>
+                                        {Object.keys(selectedLog.details.after || {}).map(key => (
+                                            <div className="diff-item" key={key}>
+                                                <span className="field-name">{key}</span>
+                                                <span className="val-before">{JSON.stringify(selectedLog.details.before[key])}</span>
+                                                <span className="val-after">{JSON.stringify(selectedLog.details.after[key])}</span>
+                                            </div>
+                                        ))}
+                                    </DiffContainer>
+                                ) : selectedLog.action === 'Delete' ? (
+                                    <div className="bg-danger-subtle p-3 rounded border border-danger-subtle">
+                                        <div className="fw-bold text-danger mb-2">Deleted Record Data:</div>
+                                        {Object.entries(selectedLog.details.importantFields || {}).map(([k, v]) => (
+                                            <div key={k} className="small mb-1">
+                                                <strong className="text-uppercase">{k}:</strong> {v}
+                                            </div>
+                                        ))}
+                                    </div>
+                                ) : (
+                                    <div className="p-4 bg-light rounded text-center text-muted border border-dashed">
+                                        Full resource created. Navigate to the {selectedLog.module} module to view.
+                                    </div>
+                                )}
+                            </>
+                        )}
+                    </Modal.Body>
+                    <Modal.Footer className="bg-light">
+                        <Button variant="secondary" onClick={() => setShowModal(false)}>Close</Button>
+                    </Modal.Footer>
+                </Modal>
+            </BootstrapContainer>
         </PageContainer>
     );
 };

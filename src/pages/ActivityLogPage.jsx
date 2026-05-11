@@ -1,14 +1,16 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import axios from 'axios';
 import { Container as BootstrapContainer, Card, Table, Form, Button, Spinner, Badge as BootstrapBadge, Modal, Row, Col } from 'react-bootstrap';
 import styled from 'styled-components';
-import { FaSearch, FaUndo, FaEye, FaFileCsv, FaHistory } from 'react-icons/fa';
+import { FaSearch, FaUndo, FaEye, FaFileCsv, FaHistory, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 import moment from 'moment';
+import NavBarPage from './NavbarPage';
+import axios from 'axios';
 
 const PageContainer = styled.div`
   padding: 30px;
-  background: #f4f4f9;
+  background-color: #f4f4f9;
   min-height: 100vh;
+  font-family: 'Poppins', sans-serif;
 `;
 
 const Header = styled.div`
@@ -17,9 +19,8 @@ const Header = styled.div`
   align-items: center;
   margin-bottom: 25px;
   h2 {
-    font-family: 'Arial', sans-serif;
-    color: #333;
     font-weight: 700;
+    color: #1e293b;
     margin: 0;
     display: flex;
     align-items: center;
@@ -27,11 +28,22 @@ const Header = styled.div`
   }
 `;
 
+const StatCard = styled(Card)`
+  border: none;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  transition: transform 0.2s;
+  &:hover { transform: translateY(-5px); }
+  .card-title { font-size: 0.85rem; color: #64748b; font-weight: 600; text-transform: uppercase; }
+  .card-value { font-size: 1.8rem; font-weight: 700; color: #1e293b; }
+`;
+
 const FilterCard = styled(Card)`
   border: none;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
   border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
   margin-bottom: 25px;
+  background: white;
 `;
 
 const StyledTable = styled(Table)`
@@ -67,28 +79,28 @@ const ActionBadge = styled(BootstrapBadge)`
   font-weight: 600;
   text-transform: uppercase;
   font-size: 0.7rem;
-  background-color: ${props => 
-    props.action === 'Create' ? '#dcfce7' : 
-    props.action === 'Edit' ? '#fef9c3' : 
-    props.action === 'Delete' ? '#fee2e2' : '#f1f5f9'};
-  color: ${props => 
-    props.action === 'Create' ? '#166534' : 
-    props.action === 'Edit' ? '#854d0e' : 
-    props.action === 'Delete' ? '#991b1b' : '#475569'};
+  background-color: ${props => {
+    switch(props.action) {
+      case 'Create': return '#dcfce7 !important; color: #15803d !important;';
+      case 'Edit': return '#fef9c3 !important; color: #854d0e !important;';
+      case 'Delete': return '#fee2e2 !important; color: #b91c1c !important;';
+      default: return '#f1f5f9 !important; color: #475569 !important;';
+    }
+  }};
 `;
 
-const ModuleBadge = styled.span`
-  background: #e0f2fe;
-  color: #0369a1;
-  padding: 4px 8px;
-  border-radius: 6px;
+const ModuleBadge = styled(BootstrapBadge)`
+  background-color: #e0f2fe !important;
+  color: #0369a1 !important;
+  padding: 5px 10px;
+  border-radius: 5px;
+  font-weight: 600;
   font-size: 0.75rem;
-  font-weight: 700;
 `;
 
 const TuitionCodeBadge = styled.span`
-  background: #f3f4f6;
-  color: #374151;
+  background: #f1f5f9;
+  color: #475569;
   padding: 2px 8px;
   border-radius: 4px;
   font-size: 0.75rem;
@@ -129,6 +141,8 @@ const ActivityLogPage = () => {
     const [modules, setModules] = useState([]);
     const [exporting, setExporting] = useState(false);
     const [summary, setSummary] = useState({ total: 0, today: 0, create: 0, edit: 0, delete: 0 });
+    const [selectedLog, setSelectedLog] = useState(null);
+    const [showModal, setShowModal] = useState(false);
 
     // Filter states
     const [filters, setFilters] = useState({
@@ -136,8 +150,11 @@ const ActivityLogPage = () => {
         module: '',
         startDate: '',
         endDate: '',
-        tuitionCode: ''
+        tuitionCode: '',
+        action: ''
     });
+
+    const API_URL = 'https://tuition-seba-backend-1.onrender.com';
 
     const fetchLogs = useCallback(async (page = 1) => {
         setLoading(true);
@@ -149,16 +166,16 @@ const ActivityLogPage = () => {
                 module: filters.module,
                 startDate: filters.startDate,
                 endDate: filters.endDate,
-                tuitionCode: filters.tuitionCode
+                tuitionCode: filters.tuitionCode,
+                action: filters.action
             };
-            const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/activity-log`, { params });
+            const res = await axios.get(`${API_URL}/api/activity-log`, { params });
             setLogs(res.data.logs || []);
             setTotalLogs(res.data.total);
             setTotalPages(res.data.totalPages);
             setCurrentPage(res.data.currentPage);
             
-            // Also fetch summary for cards
-            const summaryRes = await axios.get(`${import.meta.env.VITE_API_URL}/api/activity-log/summary`, { params });
+            const summaryRes = await axios.get(`${API_URL}/api/activity-log/summary`, { params: filters });
             setSummary(summaryRes.data);
         } catch (err) {
             console.error('Failed to fetch logs', err);
@@ -169,9 +186,9 @@ const ActivityLogPage = () => {
 
     const fetchOptions = async () => {
         try {
-            const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/activity-log/filter-options`);
-            setUsers(res.data.users);
-            setModules(res.data.modules);
+            const res = await axios.get(`${API_URL}/api/activity-log/filter-options`);
+            setUsers(res.data.users || []);
+            setModules(res.data.modules || []);
         } catch (err) {
             console.error('Failed to fetch options', err);
         }
@@ -185,24 +202,15 @@ const ActivityLogPage = () => {
     const handleSearch = () => fetchLogs(1);
     
     const handleReset = () => {
-        setFilters({ user: '', module: '', startDate: '', endDate: '', tuitionCode: '' });
-        // fetchLogs will be triggered by the useEffect due to dependency on filters
+        setFilters({ user: '', module: '', startDate: '', endDate: '', tuitionCode: '', action: '' });
     };
 
     const handleExport = async () => {
         setExporting(true);
         try {
-            const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/activity-log/export`, {
-                params: filters,
-                responseType: 'blob'
-            });
-            const url = window.URL.createObjectURL(new Blob([res.data]));
-            const link = document.createElement('a');
-            link.href = url;
-            link.setAttribute('download', `activity_logs_${new Date().toISOString().split('T')[0]}.csv`);
-            document.body.appendChild(link);
-            link.click();
-            link.remove();
+            const params = new URLSearchParams(filters).toString();
+            const token = localStorage.getItem('token');
+            window.open(`${API_URL}/api/activity-log/export?${params}&token=${token}`, '_blank');
         } catch (err) {
             console.error('Export failed', err);
         } finally {
@@ -210,45 +218,78 @@ const ActivityLogPage = () => {
         }
     };
 
-    const [selectedLog, setSelectedLog] = useState(null);
-    const [showModal, setShowModal] = useState(false);
+    const handlePageChange = (newPage) => {
+        if (newPage >= 1 && newPage <= totalPages) {
+            fetchLogs(newPage);
+        }
+    };
+
+    // Advanced Pagination Items
+    const getPaginationItems = () => {
+        const items = [];
+        const maxVisible = 7;
+        
+        if (totalPages <= maxVisible) {
+            for (let i = 1; i <= totalPages; i++) items.push(i);
+        } else {
+            items.push(1);
+            if (currentPage > 4) items.push('...');
+            
+            const start = Math.max(2, currentPage - 2);
+            const end = Math.min(totalPages - 1, currentPage + 2);
+            
+            for (let i = start; i <= end; i++) {
+                if (!items.includes(i)) items.push(i);
+            }
+            
+            if (currentPage < totalPages - 3) items.push('...');
+            if (!items.includes(totalPages)) items.push(totalPages);
+        }
+        return items;
+    };
 
     const formatDetailsSummary = (log) => {
         if (log.action === 'Create') return `New ${log.module} created`;
-        if (log.action === 'Delete') return `${log.module} removed`;
-        if (log.action === 'Edit' && log.details.after) {
-            const keys = Object.keys(log.details.after);
-            return `Updated: ${keys.join(', ')}`;
+        if (log.action === 'Delete') {
+            const important = log.details?.importantFields || {};
+            const identifier = important.guardianNumber || important.tutorNumber || important.personalPhone || 'record';
+            return `Removed ${log.module} (${identifier})`;
         }
-        return 'N/A';
+        if (log.action === 'Edit' && log.details?.after) {
+            const fields = Object.keys(log.details.after);
+            return `Updated: ${fields.join(', ')}`;
+        }
+        return 'View details for information';
     };
 
     return (
-        <PageContainer>
+        <>
+            <NavBarPage />
+            <PageContainer>
             <BootstrapContainer fluid>
                 <Header>
                     <h2><FaHistory /> System Activity Logs</h2>
-                    <Button variant="success" onClick={handleExport} disabled={exporting || loading}>
-                        {exporting ? <Spinner size="sm" /> : <FaFileCsv className="me-2" />} Export CSV
+                    <Button variant="success" onClick={handleExport} disabled={exporting}>
+                        <FaFileCsv className="me-2" /> {exporting ? 'Exporting...' : 'Export to CSV'}
                     </Button>
                 </Header>
 
                 {/* Summary Cards */}
                 <Row className="mb-4">
                     {[
-                        { label: 'Total Logs', value: summary.total, color: 'primary' },
-                        { label: 'Today', value: summary.today, color: 'info' },
-                        { label: 'Created', value: summary.create, color: 'success' },
-                        { label: 'Edited', value: summary.edit, color: 'warning' },
-                        { label: 'Deleted', value: summary.delete, color: 'danger' }
+                        { title: 'Total Logs', value: summary.total, color: '#3b82f6' },
+                        { title: "Today's Logs", value: summary.today, color: '#8b5cf6' },
+                        { title: 'Created', value: summary.create, color: '#10b981' },
+                        { title: 'Edited', value: summary.edit, color: '#f59e0b' },
+                        { title: 'Deleted', value: summary.delete, color: '#ef4444' }
                     ].map((item, idx) => (
-                        <Col key={idx} xs={6} md={2} className="mb-3">
-                            <Card className={`text-center shadow-sm border-${item.color}`}>
-                                <Card.Body className="p-3">
-                                    <div className={`text-${item.color} fw-bold small text-uppercase`}>{item.label}</div>
-                                    <div className="fs-4 fw-bold">{item.value}</div>
+                        <Col key={idx}>
+                            <StatCard>
+                                <Card.Body>
+                                    <div className="card-title">{item.title}</div>
+                                    <div className="card-value" style={{ color: item.color }}>{item.value}</div>
                                 </Card.Body>
-                            </Card>
+                            </StatCard>
                         </Col>
                     ))}
                 </Row>
@@ -262,10 +303,18 @@ const ActivityLogPage = () => {
                                     <Form.Label className="small fw-bold">User</Form.Label>
                                     <Form.Select 
                                         value={filters.user} 
-                                        onChange={e => setFilters({...filters, user: e.target.value})}
+                                        onChange={e => {
+                                            const val = e.target.value;
+                                            setFilters(prev => ({...prev, user: val}));
+                                            // fetchLogs(1) will be triggered by useEffect
+                                        }}
                                     >
                                         <option value="">All Users</option>
-                                        {users?.map(u => <option key={u} value={u}>{u}</option>)}
+                                        <option value="Teacher">Teacher (Public)</option>
+                                        <option value="System">System (Auto)</option>
+                                        {users?.filter(u => u !== 'Teacher' && u !== 'System').map(u => (
+                                            <option key={u} value={u}>{u}</option>
+                                        ))}
                                     </Form.Select>
                                 </Form.Group>
                             </Col>
@@ -274,10 +323,24 @@ const ActivityLogPage = () => {
                                     <Form.Label className="small fw-bold">Module</Form.Label>
                                     <Form.Select 
                                         value={filters.module} 
-                                        onChange={e => setFilters({...filters, module: e.target.value})}
+                                        onChange={e => setFilters(prev => ({...prev, module: e.target.value}))}
                                     >
                                         <option value="">All Modules</option>
                                         {modules?.map(m => <option key={m} value={m}>{m}</option>)}
+                                    </Form.Select>
+                                </Form.Group>
+                            </Col>
+                            <Col md={1}>
+                                <Form.Group>
+                                    <Form.Label className="small fw-bold">Action</Form.Label>
+                                    <Form.Select 
+                                        value={filters.action} 
+                                        onChange={e => setFilters(prev => ({...prev, action: e.target.value}))}
+                                    >
+                                        <option value="">All</option>
+                                        <option value="Create">Create</option>
+                                        <option value="Edit">Edit</option>
+                                        <option value="Delete">Delete</option>
                                     </Form.Select>
                                 </Form.Group>
                             </Col>
@@ -286,9 +349,10 @@ const ActivityLogPage = () => {
                                     <Form.Label className="small fw-bold">Tuition Code</Form.Label>
                                     <Form.Control 
                                         type="text" 
-                                        placeholder="Search Code..."
+                                        placeholder="T-XXXX"
                                         value={filters.tuitionCode} 
                                         onChange={e => setFilters({...filters, tuitionCode: e.target.value})}
+                                        onKeyDown={e => e.key === 'Enter' && handleSearch()}
                                     />
                                 </Form.Group>
                             </Col>
@@ -313,7 +377,7 @@ const ActivityLogPage = () => {
                                 </Form.Group>
                             </Col>
                             <Col md={2} className="d-flex gap-2">
-                                <Button variant="primary" className="flex-grow-1" onClick={handleSearch} disabled={loading}>
+                                <Button variant="primary" className="flex-grow-1" onClick={handleSearch}>
                                     <FaSearch className="me-2" /> Search
                                 </Button>
                                 <Button variant="outline-secondary" onClick={handleReset}>
@@ -325,172 +389,184 @@ const ActivityLogPage = () => {
                 </FilterCard>
 
                 {/* Table */}
-                <Card className="border-0 shadow-sm" style={{ borderRadius: '12px', overflow: 'hidden' }}>
-                    <StyledTable hover responsive className="mb-0">
-                        <thead>
+                <StyledTable responsive hover bordered striped>
+                    <thead>
+                        <tr className="table-primary">
+                            <th>SL</th>
+                            <th>Timestamp</th>
+                            <th>User</th>
+                            <th>Module</th>
+                            <th>Tuition Code</th>
+                            <th>Action</th>
+                            <th>Summary</th>
+                            <th className="text-center">Details</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {loading ? (
                             <tr>
-                                <th>Timestamp</th>
-                                <th>User</th>
-                                <th>Module</th>
-                                <th>Action / Tuition Code</th>
-                                <th>Summary</th>
-                                <th className="text-center">Details</th>
+                                <td colSpan="7" className="text-center p-5">
+                                    <Spinner animation="border" variant="primary" />
+                                    <div className="mt-2 text-muted">Loading activity data...</div>
+                                </td>
                             </tr>
-                        </thead>
-                        <tbody>
-                            {loading ? (
-                                <tr>
-                                    <td colSpan="6" className="text-center p-5">
-                                        <Spinner animation="border" variant="primary" />
-                                        <div className="mt-2 text-muted">Loading activity data...</div>
+                        ) : logs.length > 0 ? (
+                            logs.map((log, index) => (
+                                <tr key={log._id}>
+                                    <td>{(currentPage - 1) * 50 + index + 1}</td>
+                                    <td>
+                                        <div className="fw-semibold">{moment(log.timestamp).format('DD MMM YYYY')}</div>
+                                        <div className="text-muted small">{moment(log.timestamp).format('hh:mm A')}</div>
+                                    </td>
+                                    <td><div className="fw-bold">{log.user}</div></td>
+                                    <td><ModuleBadge>{log.module}</ModuleBadge></td>
+                                    <td>
+                                        {log.tuitionCode ? <TuitionCodeBadge>{log.tuitionCode}</TuitionCodeBadge> : <span className="text-muted small">-</span>}
+                                    </td>
+                                    <td>
+                                        <ActionBadge action={log.action}>{log.action}</ActionBadge>
+                                    </td>
+                                    <td><div className="small text-muted">{formatDetailsSummary(log)}</div></td>
+                                    <td className="text-center">
+                                        <Button 
+                                            variant="outline-info" 
+                                            size="sm"
+                                            onClick={() => { setSelectedLog(log); setShowModal(true); }}
+                                        >
+                                            <FaEye />
+                                        </Button>
                                     </td>
                                 </tr>
-                            ) : logs.length > 0 ? (
-                                logs.map(log => (
-                                    <tr key={log._id}>
-                                        <td>
-                                            <div className="fw-semibold">{moment(log.timestamp).format('DD MMM YYYY')}</div>
-                                            <div className="text-muted small">{moment(log.timestamp).format('hh:mm A')}</div>
-                                        </td>
-                                        <td><div className="fw-bold">{log.user}</div></td>
-                                        <td><ModuleBadge>{log.module}</ModuleBadge></td>
-                                        <td>
-                                            <div className="d-flex flex-column gap-1">
-                                                <ActionBadge action={log.action}>{log.action}</ActionBadge>
-                                                {log.tuitionCode && <TuitionCodeBadge>{log.tuitionCode}</TuitionCodeBadge>}
-                                            </div>
-                                        </td>
-                                        <td><span className="text-muted small">{formatDetailsSummary(log)}</span></td>
-                                        <td className="text-center">
-                                            <Button variant="link" size="sm" onClick={() => { setSelectedLog(log); setShowModal(true); }}>
-                                                <FaEye size={18} />
-                                            </Button>
-                                        </td>
-                                    </tr>
-                                ))
-                            ) : (
-                                <tr>
-                                    <td colSpan="6" className="text-center p-5 text-muted">No logs found matching your criteria.</td>
-                                </tr>
-                            )}
-                        </tbody>
-                    </StyledTable>
-                </Card>
+                            ))
+                        ) : (
+                            <tr>
+                                <td colSpan="7" className="text-center p-5 text-muted">
+                                    No logs found matching your criteria.
+                                </td>
+                            </tr>
+                        )}
+                    </tbody>
+                </StyledTable>
 
-                {/* Pagination */}
-                <div className="mt-4 d-flex justify-content-between align-items-center">
-                    <div className="text-muted small fw-bold">
-                        Showing page {currentPage} of {totalPages} ({totalLogs} total)
-                    </div>
-                    <div className="d-flex gap-1">
-                        <Button 
-                            variant="outline-primary" 
-                            size="sm" 
-                            disabled={currentPage === 1 || loading}
-                            onClick={() => fetchLogs(currentPage - 1)}
-                        >
-                            Previous
-                        </Button>
-                        {[...Array(Math.max(0, Math.min(5, Number(totalPages) || 0)))].map((_, i) => {
-                            const pageNum = i + 1; // Simplification
-                            return (
-                                <Button 
-                                    key={pageNum}
-                                    variant={currentPage === pageNum ? 'primary' : 'outline-primary'}
-                                    size="sm"
-                                    onClick={() => fetchLogs(pageNum)}
-                                    disabled={loading}
-                                >
-                                    {pageNum}
-                                </Button>
-                            );
-                        })}
-                        <Button 
-                            variant="outline-primary" 
-                            size="sm" 
-                            disabled={currentPage === totalPages || loading}
-                            onClick={() => fetchLogs(currentPage + 1)}
-                        >
-                            Next
-                        </Button>
-                    </div>
+                {/* Advanced Pagination */}
+                <div className="d-flex justify-content-center align-items-center gap-2 mt-4 flex-wrap pb-5">
+                    <Button
+                        variant="outline-primary"
+                        className="rounded-pill px-3"
+                        disabled={currentPage === 1 || loading}
+                        onClick={() => handlePageChange(currentPage - 1)}
+                    >
+                        <FaChevronLeft className="me-1" /> Previous
+                    </Button>
+
+                    {getPaginationItems().map((item, idx) => (
+                        item === '...' ? (
+                            <span key={`dots-${idx}`} className="px-2 text-muted">...</span>
+                        ) : (
+                            <Button
+                                key={item}
+                                variant={currentPage === item ? 'primary' : 'outline-primary'}
+                                className="rounded-circle"
+                                style={{ width: '40px', height: '40px', padding: 0 }}
+                                onClick={() => handlePageChange(item)}
+                                disabled={loading}
+                            >
+                                {item}
+                            </Button>
+                        )
+                    ))}
+
+                    <Button
+                        variant="outline-primary"
+                        className="rounded-pill px-3"
+                        disabled={currentPage === totalPages || loading}
+                        onClick={() => handlePageChange(currentPage + 1)}
+                    >
+                        Next <FaChevronRight className="ms-1" />
+                    </Button>
                 </div>
 
                 {/* Details Modal */}
                 <Modal show={showModal} onHide={() => setShowModal(false)} size="lg" centered>
                     <Modal.Header closeButton className="bg-light">
-                        <Modal.Title className="fw-bold h5">Activity Details</Modal.Title>
+                        <Modal.Title className="fw-bold">Activity Details</Modal.Title>
                     </Modal.Header>
                     <Modal.Body className="p-4">
                         {selectedLog && (
-                            <>
-                                <Row className="mb-4">
-                                    <Col md={4}>
-                                        <label className="text-muted small fw-bold text-uppercase">Module</label>
-                                        <div className="mt-1"><ModuleBadge className="fs-6">{selectedLog.module}</ModuleBadge></div>
-                                    </Col>
-                                    <Col md={4}>
-                                        <label className="text-muted small fw-bold text-uppercase">Action</label>
-                                        <div className="mt-1"><ActionBadge action={selectedLog.action} className="fs-6">{selectedLog.action}</ActionBadge></div>
-                                    </Col>
-                                    <Col md={4}>
-                                        <label className="text-muted small fw-bold text-uppercase">Tuition Code</label>
-                                        <div className="mt-1"><TuitionCodeBadge className="fs-6">{selectedLog.tuitionCode || 'N/A'}</TuitionCodeBadge></div>
-                                    </Col>
-                                </Row>
-
-                                <Row className="mb-4">
-                                    <Col md={4}>
-                                        <label className="text-muted small fw-bold text-uppercase">User</label>
-                                        <div className="mt-1 fw-bold">{selectedLog.user}</div>
-                                    </Col>
-                                    <Col md={8}>
-                                        <label className="text-muted small fw-bold text-uppercase">Timestamp</label>
-                                        <div className="mt-1 text-secondary">{moment(selectedLog.timestamp).format('DD MMMM YYYY, hh:mm:ss A')}</div>
-                                    </Col>
-                                </Row>
-
-                                <div className="mb-2">
-                                    <label className="text-muted small fw-bold text-uppercase">Resource ID</label>
-                                    <div className="text-secondary small font-monospace">{selectedLog.resourceId}</div>
-                                </div>
-
-                                <hr className="my-4" />
-
-                                <label className="text-muted small fw-bold text-uppercase mb-3 d-block">Data Changes</label>
-                                {selectedLog.action === 'Edit' ? (
-                                    <DiffContainer>
-                                        {Object.keys(selectedLog.details.after || {}).map(key => (
-                                            <div className="diff-item" key={key}>
-                                                <span className="field-name">{key}</span>
-                                                <span className="val-before">{JSON.stringify(selectedLog.details.before[key])}</span>
-                                                <span className="val-after">{JSON.stringify(selectedLog.details.after[key])}</span>
-                                            </div>
-                                        ))}
-                                    </DiffContainer>
-                                ) : selectedLog.action === 'Delete' ? (
-                                    <div className="bg-danger-subtle p-3 rounded border border-danger-subtle">
-                                        <div className="fw-bold text-danger mb-2">Deleted Record Data:</div>
-                                        {Object.entries(selectedLog.details.importantFields || {}).map(([k, v]) => (
-                                            <div key={k} className="small mb-1">
-                                                <strong className="text-uppercase">{k}:</strong> {v}
-                                            </div>
-                                        ))}
+                            <Row className="g-4">
+                                <Col md={6}>
+                                    <div className="mb-3">
+                                        <label className="text-muted small fw-bold">TIMESTAMP</label>
+                                        <div className="fw-bold">{moment(selectedLog.timestamp).format('DD MMMM YYYY, hh:mm:ss A')}</div>
                                     </div>
-                                ) : (
-                                    <div className="p-4 bg-light rounded text-center text-muted border border-dashed">
-                                        Full resource created. Navigate to the {selectedLog.module} module to view.
+                                    <div className="mb-3">
+                                        <label className="text-muted small fw-bold">USER</label>
+                                        <div className="fw-bold">{selectedLog.user}</div>
                                     </div>
+                                </Col>
+                                <Col md={6}>
+                                    <div className="mb-3">
+                                        <label className="text-muted small fw-bold">MODULE</label>
+                                        <div><ModuleBadge>{selectedLog.module}</ModuleBadge></div>
+                                    </div>
+                                    <div className="mb-3">
+                                        <label className="text-muted small fw-bold">ACTION</label>
+                                        <div><ActionBadge action={selectedLog.action}>{selectedLog.action}</ActionBadge></div>
+                                    </div>
+                                </Col>
+                                
+                                {selectedLog.tuitionCode && (
+                                    <Col md={12}>
+                                        <div className="p-3 rounded bg-light border">
+                                            <label className="text-muted small fw-bold d-block mb-1">ASSOCIATED TUITION CODE</label>
+                                            <TuitionCodeBadge style={{ fontSize: '1rem' }}>{selectedLog.tuitionCode}</TuitionCodeBadge>
+                                        </div>
+                                    </Col>
                                 )}
-                            </>
+
+                                <Col md={12}>
+                                    <label className="text-muted small fw-bold mb-2">MODIFIED DATA</label>
+                                    
+                                    {selectedLog.action === 'Edit' && selectedLog.details.after ? (
+                                        <DiffContainer>
+                                            <div className="diff-header small fw-bold text-muted px-2 mb-1">
+                                                <span>FIELD</span>
+                                                <span>BEFORE</span>
+                                                <span>AFTER</span>
+                                            </div>
+                                            {Object.keys(selectedLog.details.after).map(key => (
+                                                <div key={key} className="diff-item">
+                                                    <span className="field-name">{key}</span>
+                                                    <span className="val-before">{String(selectedLog.details.before?.[key] || 'N/A')}</span>
+                                                    <span className="val-after">{String(selectedLog.details.after[key])}</span>
+                                                </div>
+                                            ))}
+                                        </DiffContainer>
+                                    ) : selectedLog.action === 'Delete' ? (
+                                        <div className="p-3 rounded bg-danger bg-opacity-10 border border-danger border-opacity-20">
+                                            <div className="fw-bold text-danger mb-2">Record Deleted</div>
+                                            <div className="small">
+                                                {Object.entries(selectedLog.details.importantFields || {}).map(([k, v]) => (
+                                                    <div key={k}><strong>{k}:</strong> {String(v)}</div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        <div className="p-3 rounded bg-success bg-opacity-10 border border-success border-opacity-20 text-success fw-bold text-center">
+                                            Initial creation of the record.
+                                        </div>
+                                    )}
+                                </Col>
+                            </Row>
                         )}
                     </Modal.Body>
-                    <Modal.Footer className="bg-light">
+                    <Modal.Footer>
                         <Button variant="secondary" onClick={() => setShowModal(false)}>Close</Button>
                     </Modal.Footer>
                 </Modal>
             </BootstrapContainer>
         </PageContainer>
+        </>
     );
 };
 

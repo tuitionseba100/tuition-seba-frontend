@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Button, Table, Modal, Form, Row, Col, Card, Spinner, Tooltip, OverlayTrigger } from 'react-bootstrap';
+import { Button, Table, Modal, Form, Row, Col, Card, Spinner, Tooltip, OverlayTrigger, Popover } from 'react-bootstrap';
 import { FaEdit, FaTrashAlt, FaInfoCircle, FaBell, FaChevronLeft, FaChevronRight, FaPlus, FaFilter, FaFileExport, FaMoneyBillWave, FaExclamationCircle, FaCheckCircle, FaSearch, FaHistory, FaWhatsapp, FaUndo, FaUserPlus } from 'react-icons/fa';
 import GeneralPaymentRecordModal from '../components/modals/GeneralPaymentRecordModal';
 import GeneralPaymentViewModal from '../components/modals/GeneralPaymentViewModal';
@@ -146,7 +146,51 @@ const PaymentPage = () => {
         setSelectedPaymentForAssign(payment);
         setShowAssignModal(true);
     };
+    const [expandedComments, setExpandedComments] = useState({});
+    const toggleComment = (id, type) => {
+        setExpandedComments(prev => ({
+            ...prev,
+            [`${id}-${type}`]: !prev[`${id}-${type}`]
+        }));
+    };
+
     const role = localStorage.getItem('role');
+
+    const renderCommentWithPopover = (text, maxLength = 20) => {
+        if (!text) return '-';
+        if (text.length <= maxLength) return text;
+
+        const popover = (
+            <Popover id="comment-popover" className="shadow-lg border-primary rounded-3" style={{ minWidth: '350px' }}>
+                <Popover.Header as="h3" className="bg-primary text-white py-2 fw-bold d-flex align-items-center gap-2 fs-6">
+                    <FaHistory /> Administrative Log
+                </Popover.Header>
+                <Popover.Body className="p-3 bg-light rounded-bottom-3" style={{ maxWidth: '450px' }}>
+                    <div className="d-flex gap-2 align-items-start">
+                        <div className="bg-white p-3 rounded-2 border shadow-sm w-100 position-relative">
+                            <span className="text-muted small d-block mb-2 border-bottom pb-1 fw-bold fst-italic">Full Details</span>
+                            <p className="mb-0 text-dark" style={{ lineHeight: '1.5', whiteSpace: 'pre-wrap', fontSize: '1.1rem' }}>{text}</p>
+                        </div>
+                    </div>
+                </Popover.Body>
+            </Popover>
+        );
+
+        return (
+            <div className="d-flex align-items-center justify-content-center gap-1">
+                <span className="text-truncate" style={{ maxWidth: '100px' }}>{text.substring(0, maxLength)}...</span>
+                <OverlayTrigger 
+                    trigger={['hover', 'focus']} 
+                    placement="top" 
+                    overlay={popover}
+                >
+                    <span style={{ cursor: 'help' }} className="d-inline-flex">
+                        <FaInfoCircle className="text-primary" style={{ fontSize: '0.85rem' }} />
+                    </span>
+                </OverlayTrigger>
+            </div>
+        );
+    };
 
     useEffect(() => {
         fetchPaymentRecords();
@@ -855,6 +899,10 @@ const PaymentPage = () => {
                                             <th>Teacher Name</th>
                                             <th>Teacher Number</th>
                                             <th>Assigned To</th>
+                                            <th>Follow Up Date</th>
+                                            <th>Follow Up Comment</th>
+                                            <th>Next Due Pay Date</th>
+                                            <th>Next Due Pay Date Comment</th>
                                             <th>Comment</th>
                                             <th style={{ width: '180px' }}>Actions</th>
                                         </tr>
@@ -873,7 +921,21 @@ const PaymentPage = () => {
                                                     {payment.assignedTo || 'Unassigned'}
                                                 </span>
                                             </td>
-                                            <td>{payment.comment || '-'}</td>
+                                            <td style={{ whiteSpace: 'nowrap' }}>
+                                                {payment.followUpDate ? formatDate(payment.followUpDate) : '-'}
+                                            </td>
+                                            <td>
+                                                {renderCommentWithPopover(payment.followUpComment)}
+                                            </td>
+                                            <td style={{ whiteSpace: 'nowrap' }}>
+                                                {payment.duePayDate ? formatDate(payment.duePayDate) : '-'}
+                                            </td>
+                                            <td>
+                                                {renderCommentWithPopover(payment.duePayDateComment)}
+                                            </td>
+                                            <td>
+                                                {renderCommentWithPopover(payment.comment)}
+                                            </td>
                                             <td style={{ display: 'flex', justifyContent: 'flex-start', gap: '8px' }}>
                                                 <Button variant="success" onClick={() => handleWhatsAppClick(payment)} className="mr-2" style={{ background: '#25D366', borderColor: '#25D366' }}>
                                                     <FaWhatsapp />

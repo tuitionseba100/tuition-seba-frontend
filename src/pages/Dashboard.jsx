@@ -61,19 +61,21 @@ const Dashboard = () => {
 
     const fetchPaymentSummary = () => {
         Promise.all([
-            fetch('https://tuition-seba-backend-1.onrender.com/api/payment/summary').then(res => res.json()),
-            fetch('https://tuition-seba-backend-1.onrender.com/api/teacherPayment/summary').then(res => res.json())
+            axios.get('https://tuition-seba-backend-1.onrender.com/api/payment/summary'),
+            axios.get('https://tuition-seba-backend-1.onrender.com/api/teacherPayment/summary')
         ])
             .then(([paymentRes, teacherPaymentRes]) => {
+                const paymentData = paymentRes.data;
+                const teacherPaymentData = teacherPaymentRes.data;
                 setPaymentSummary({
-                    totalPaymentsCount: paymentRes.totalPaymentsCount,
-                    totalPaymentTK: paymentRes.totalPaymentTK,
-                    totalPaymentsTodayCount: paymentRes.totalPaymentsTodayCount,
-                    totalPaymentTKToday: paymentRes.totalPaymentTKToday,
-                    totalDues: paymentRes.totalDues,
-                    totalDuesCount: paymentRes.totalDuesCount,
-                    totalTeacherPayments: teacherPaymentRes.totalPayments,
-                    totalTeacherPaymentsCount: teacherPaymentRes.totalPaymentsCount
+                    totalPaymentsCount: paymentData.totalPaymentsCount,
+                    totalPaymentTK: paymentData.totalPaymentTK,
+                    totalPaymentsTodayCount: paymentData.totalPaymentsTodayCount,
+                    totalPaymentTKToday: paymentData.totalPaymentTKToday,
+                    totalDues: paymentData.totalDues,
+                    totalDuesCount: paymentData.totalDuesCount,
+                    totalTeacherPayments: teacherPaymentData.totalPayments,
+                    totalTeacherPaymentsCount: teacherPaymentData.totalPaymentsCount
                 });
             })
             .catch(err => console.error('Error fetching payment summaries:', err));
@@ -84,9 +86,9 @@ const Dashboard = () => {
         if (role === 'superadmin') {
             fetchPaymentSummary();
         }
-        fetch('https://tuition-seba-backend-1.onrender.com/api/dashboard/all')
-            .then((res) => res.json())
-            .then((data) => {
+        axios.get('https://tuition-seba-backend-1.onrender.com/api/dashboard/all')
+            .then((res) => {
+                const data = res.data;
                 setSummaryData(data.summaryData);
                 setRecentTuitionApplications(data.recentTuitionApplications);
                 setRecentTeacherApplications(data.recentTeacherApplications);
@@ -100,6 +102,7 @@ const Dashboard = () => {
             .catch((err) => console.error('Dashboard fetch error:', err))
             .finally(() => setLoading(false));
     };
+
 
     const handleDeletePayment = async (id) => {
         if (window.confirm('Are you sure you want to delete this payment record?')) {

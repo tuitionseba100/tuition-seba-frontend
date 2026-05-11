@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Container as BootstrapContainer, Card, Table, Form, Button, Spinner, Badge as BootstrapBadge, Modal, Row, Col } from 'react-bootstrap';
+import { Container as BootstrapContainer, Card, Table, Form, Button, Spinner, Badge as BootstrapBadge, Modal, Row, Col, Alert, ProgressBar } from 'react-bootstrap';
 import styled from 'styled-components';
-import { FaSearch, FaUndo, FaEye, FaFileCsv, FaHistory, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
+import { FaSearch, FaUndo, FaEye, FaFileCsv, FaHistory, FaChevronLeft, FaChevronRight, FaTrashAlt, FaExclamationTriangle, FaCheckCircle, FaDownload } from 'react-icons/fa';
 import moment from 'moment';
 import NavBarPage from './NavbarPage';
 import axios from 'axios';
+import { toast, ToastContainer } from 'react-toastify';
 
 const PageContainer = styled.div`
   padding: 30px;
@@ -80,7 +81,7 @@ const ActionBadge = styled(BootstrapBadge)`
   text-transform: uppercase;
   font-size: 0.7rem;
   background-color: ${props => {
-    switch(props.action) {
+    switch(props.$action) {
       case 'Create': return '#dcfce7 !important; color: #15803d !important;';
       case 'Edit': return '#fef9c3 !important; color: #854d0e !important;';
       case 'Delete': return '#fee2e2 !important; color: #b91c1c !important;';
@@ -109,28 +110,6 @@ const TuitionCodeBadge = styled.span`
   border: 1px solid #e5e7eb;
 `;
 
-const DiffContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  
-  .diff-item {
-    display: grid;
-    grid-template-columns: 120px 1fr 1fr;
-    gap: 10px;
-    align-items: center;
-    padding: 8px;
-    border-radius: 6px;
-    background: #f8fafc;
-    border: 1px solid #e2e8f0;
-    font-size: 0.85rem;
-  }
-  
-  .field-name { font-weight: 700; color: #64748b; }
-  .val-before { color: #b91c1c; text-decoration: line-through; background: #fee2e2; padding: 2px 4px; border-radius: 3px; }
-  .val-after { color: #15803d; background: #dcfce7; padding: 2px 4px; border-radius: 3px; font-weight: 600; }
-`;
-
 const ActivityLogPage = () => {
     const [logs, setLogs] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -139,10 +118,16 @@ const ActivityLogPage = () => {
     const [totalPages, setTotalPages] = useState(1);
     const [users, setUsers] = useState([]);
     const [modules, setModules] = useState([]);
-    const [exporting, setExporting] = useState(false);
     const [summary, setSummary] = useState({ total: 0, today: 0, create: 0, edit: 0, delete: 0 });
     const [selectedLog, setSelectedLog] = useState(null);
-    const [showModal, setShowModal] = useState(false);
+    const [showDetailsModal, setShowDetailsModal] = useState(false);
+    const [showClearModal, setShowClearModal] = useState(false);
+    const [showSecondConfirm, setShowSecondConfirm] = useState(false);
+    const [showExportModal, setShowExportModal] = useState(false);
+    const [clearAll, setClearAll] = useState(false);
+    const [exportAll, setExportAll] = useState(false);
+    const [clearLoading, setClearLoading] = useState(false);
+    const [exporting, setExporting] = useState(false);
 
     // Filter states
     const [filters, setFilters] = useState({
@@ -162,12 +147,7 @@ const ActivityLogPage = () => {
             const params = {
                 page,
                 limit: 50,
-                user: filters.user,
-                module: filters.module,
-                startDate: filters.startDate,
-                endDate: filters.endDate,
-                tuitionCode: filters.tuitionCode,
-                action: filters.action
+                ...filters
             };
             const res = await axios.get(`${API_URL}/api/activity-log`, { params });
             setLogs(res.data.logs || []);
@@ -205,16 +185,42 @@ const ActivityLogPage = () => {
         setFilters({ user: '', module: '', startDate: '', endDate: '', tuitionCode: '', action: '' });
     };
 
-    const handleExport = async () => {
+    const handleExport = () => {
         setExporting(true);
         try {
-            const params = new URLSearchParams(filters).toString();
+            const queryParams = new URLSearchParams({
+                ...filters,
+                exportAll: exportAll ? 'true' : 'false'
+            }).toString();
             const token = localStorage.getItem('token');
-            window.open(`${API_URL}/api/activity-log/export?${params}&token=${token}`, '_blank');
+            window.open(`${API_URL}/api/activity-log/export?${queryParams}&token=${token}`, '_blank');
+            toast.info('Export started. Your download will begin shortly.');
+            setShowExportModal(false);
         } catch (err) {
             console.error('Export failed', err);
+            toast.error('Export failed. Please try again.');
         } finally {
             setExporting(false);
+        }
+    };
+
+    const handleClearLogs = async () => {
+        setClearLoading(true);
+        try {
+            const params = { ...filters, clearAll: clearAll ? 'true' : 'false' };
+            const token = localStorage.getItem('token');
+            await axios.delete(`${API_URL}/api/activity-log/clear`, { 
+                params,
+                headers: { Authorization: token }
+            });
+            toast.success('Logs cleared successfully');
+            setShowSecondConfirm(false);
+            setShowClearModal(false);
+            fetchLogs(1);
+        } catch (err) {
+            toast.error(err.response?.data?.message || 'Failed to clear logs');
+        } finally {
+            setClearLoading(false);
         }
     };
 
@@ -262,6 +268,8 @@ const ActivityLogPage = () => {
         return 'View details for information';
     };
 
+    const activeFiltersCount = Object.entries(filters).filter(([_, v]) => v).length;
+
     return (
         <>
             <NavBarPage />
@@ -269,9 +277,14 @@ const ActivityLogPage = () => {
             <BootstrapContainer fluid>
                 <Header>
                     <h2><FaHistory /> System Activity Logs</h2>
-                    <Button variant="success" onClick={handleExport} disabled={exporting}>
-                        <FaFileCsv className="me-2" /> {exporting ? 'Exporting...' : 'Export to CSV'}
-                    </Button>
+                    <div className="d-flex gap-2">
+                        <Button variant="danger" onClick={() => { setClearAll(false); setShowClearModal(true); }}>
+                            <FaTrashAlt className="me-2" /> Clear Logs
+                        </Button>
+                        <Button variant="success" onClick={() => { setExportAll(false); setShowExportModal(true); }}>
+                            <FaFileCsv className="me-2" /> Export
+                        </Button>
+                    </div>
                 </Header>
 
                 {/* Summary Cards */}
@@ -303,11 +316,7 @@ const ActivityLogPage = () => {
                                     <Form.Label className="small fw-bold">User</Form.Label>
                                     <Form.Select 
                                         value={filters.user} 
-                                        onChange={e => {
-                                            const val = e.target.value;
-                                            setFilters(prev => ({...prev, user: val}));
-                                            // fetchLogs(1) will be triggered by useEffect
-                                        }}
+                                        onChange={e => setFilters(prev => ({...prev, user: e.target.value}))}
                                     >
                                         <option value="">All Users</option>
                                         <option value="Teacher">Teacher (Public)</option>
@@ -315,18 +324,6 @@ const ActivityLogPage = () => {
                                         {users?.filter(u => u !== 'Teacher' && u !== 'System').map(u => (
                                             <option key={u} value={u}>{u}</option>
                                         ))}
-                                    </Form.Select>
-                                </Form.Group>
-                            </Col>
-                            <Col md={2}>
-                                <Form.Group>
-                                    <Form.Label className="small fw-bold">Module</Form.Label>
-                                    <Form.Select 
-                                        value={filters.module} 
-                                        onChange={e => setFilters(prev => ({...prev, module: e.target.value}))}
-                                    >
-                                        <option value="">All Modules</option>
-                                        {modules?.map(m => <option key={m} value={m}>{m}</option>)}
                                     </Form.Select>
                                 </Form.Group>
                             </Col>
@@ -346,6 +343,18 @@ const ActivityLogPage = () => {
                             </Col>
                             <Col md={2}>
                                 <Form.Group>
+                                    <Form.Label className="small fw-bold">Module</Form.Label>
+                                    <Form.Select 
+                                        value={filters.module} 
+                                        onChange={e => setFilters(prev => ({...prev, module: e.target.value}))}
+                                    >
+                                        <option value="">All Modules</option>
+                                        {modules?.map(m => <option key={m} value={m}>{m}</option>)}
+                                    </Form.Select>
+                                </Form.Group>
+                            </Col>
+                            <Col md={2}>
+                                <Form.Group>
                                     <Form.Label className="small fw-bold">Tuition Code</Form.Label>
                                     <Form.Control 
                                         type="text" 
@@ -356,9 +365,9 @@ const ActivityLogPage = () => {
                                     />
                                 </Form.Group>
                             </Col>
-                            <Col md={2}>
+                            <Col md={1}>
                                 <Form.Group>
-                                    <Form.Label className="small fw-bold">Start Date</Form.Label>
+                                    <Form.Label className="small fw-bold">Start</Form.Label>
                                     <Form.Control 
                                         type="date" 
                                         value={filters.startDate} 
@@ -366,9 +375,9 @@ const ActivityLogPage = () => {
                                     />
                                 </Form.Group>
                             </Col>
-                            <Col md={2}>
+                            <Col md={1}>
                                 <Form.Group>
-                                    <Form.Label className="small fw-bold">End Date</Form.Label>
+                                    <Form.Label className="small fw-bold">End</Form.Label>
                                     <Form.Control 
                                         type="date" 
                                         value={filters.endDate} 
@@ -376,11 +385,21 @@ const ActivityLogPage = () => {
                                     />
                                 </Form.Group>
                             </Col>
-                            <Col md={2} className="d-flex gap-2">
-                                <Button variant="primary" className="flex-grow-1" onClick={handleSearch}>
-                                    <FaSearch className="me-2" /> Search
+                            <Col md="auto" className="d-flex gap-2">
+                                <Button 
+                                    variant="primary" 
+                                    onClick={handleSearch}
+                                    style={{ width: "45px", height: "38px", display: "flex", alignItems: "center", justifyContent: "center" }}
+                                    title="Search"
+                                >
+                                    <FaSearch />
                                 </Button>
-                                <Button variant="outline-secondary" onClick={handleReset}>
+                                <Button 
+                                    variant="outline-secondary" 
+                                    onClick={handleReset}
+                                    style={{ width: "45px", height: "38px", display: "flex", alignItems: "center", justifyContent: "center" }}
+                                    title="Reset"
+                                >
                                     <FaUndo />
                                 </Button>
                             </Col>
@@ -405,7 +424,7 @@ const ActivityLogPage = () => {
                     <tbody>
                         {loading ? (
                             <tr>
-                                <td colSpan="7" className="text-center p-5">
+                                <td colSpan="8" className="text-center p-5">
                                     <Spinner animation="border" variant="primary" />
                                     <div className="mt-2 text-muted">Loading activity data...</div>
                                 </td>
@@ -424,14 +443,14 @@ const ActivityLogPage = () => {
                                         {log.tuitionCode ? <TuitionCodeBadge>{log.tuitionCode}</TuitionCodeBadge> : <span className="text-muted small">-</span>}
                                     </td>
                                     <td>
-                                        <ActionBadge action={log.action}>{log.action}</ActionBadge>
+                                        <ActionBadge $action={log.action}>{log.action}</ActionBadge>
                                     </td>
                                     <td><div className="small text-muted">{formatDetailsSummary(log)}</div></td>
                                     <td className="text-center">
                                         <Button 
                                             variant="outline-info" 
                                             size="sm"
-                                            onClick={() => { setSelectedLog(log); setShowModal(true); }}
+                                            onClick={() => { setSelectedLog(log); setShowDetailsModal(true); }}
                                         >
                                             <FaEye />
                                         </Button>
@@ -440,7 +459,7 @@ const ActivityLogPage = () => {
                             ))
                         ) : (
                             <tr>
-                                <td colSpan="7" className="text-center p-5 text-muted">
+                                <td colSpan="8" className="text-center p-5 text-muted">
                                     No logs found matching your criteria.
                                 </td>
                             </tr>
@@ -487,7 +506,7 @@ const ActivityLogPage = () => {
                 </div>
 
                 {/* Details Modal */}
-                <Modal show={showModal} onHide={() => setShowModal(false)} size="lg" centered>
+                <Modal show={showDetailsModal} onHide={() => setShowDetailsModal(false)} size="lg" centered>
                     <Modal.Header closeButton className="bg-light">
                         <Modal.Title className="fw-bold">Activity Details</Modal.Title>
                     </Modal.Header>
@@ -511,7 +530,7 @@ const ActivityLogPage = () => {
                                     </div>
                                     <div className="mb-3">
                                         <label className="text-muted small fw-bold">ACTION</label>
-                                        <div><ActionBadge action={selectedLog.action}>{selectedLog.action}</ActionBadge></div>
+                                        <div><ActionBadge $action={selectedLog.action}>{selectedLog.action}</ActionBadge></div>
                                     </div>
                                 </Col>
                                 
@@ -528,20 +547,28 @@ const ActivityLogPage = () => {
                                     <label className="text-muted small fw-bold mb-2">MODIFIED DATA</label>
                                     
                                     {selectedLog.action === 'Edit' && selectedLog.details.after ? (
-                                        <DiffContainer>
-                                            <div className="diff-header small fw-bold text-muted px-2 mb-1">
-                                                <span>FIELD</span>
-                                                <span>BEFORE</span>
-                                                <span>AFTER</span>
-                                            </div>
-                                            {Object.keys(selectedLog.details.after).map(key => (
-                                                <div key={key} className="diff-item">
-                                                    <span className="field-name">{key}</span>
-                                                    <span className="val-before">{String(selectedLog.details.before?.[key] || 'N/A')}</span>
-                                                    <span className="val-after">{String(selectedLog.details.after[key])}</span>
-                                                </div>
-                                            ))}
-                                        </DiffContainer>
+                                        <Table bordered hover size="sm" className="mt-2">
+                                            <thead className="bg-light">
+                                                <tr className="small text-muted fw-bold">
+                                                    <th>FIELD</th>
+                                                    <th className="text-danger">BEFORE</th>
+                                                    <th className="text-success">AFTER</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {Object.keys(selectedLog.details.after).map(key => (
+                                                    <tr key={key} style={{ fontSize: '0.85rem' }}>
+                                                        <td className="fw-bold text-secondary">{key}</td>
+                                                        <td className="text-danger bg-danger bg-opacity-10">
+                                                            {String(selectedLog.details.before?.[key] || 'N/A')}
+                                                        </td>
+                                                        <td className="text-success bg-success bg-opacity-10 fw-bold">
+                                                            {String(selectedLog.details.after[key])}
+                                                        </td>
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </Table>
                                     ) : selectedLog.action === 'Delete' ? (
                                         <div className="p-3 rounded bg-danger bg-opacity-10 border border-danger border-opacity-20">
                                             <div className="fw-bold text-danger mb-2">Record Deleted</div>
@@ -561,13 +588,159 @@ const ActivityLogPage = () => {
                         )}
                     </Modal.Body>
                     <Modal.Footer>
-                        <Button variant="secondary" onClick={() => setShowModal(false)}>Close</Button>
+                        <Button variant="secondary" onClick={() => setShowDetailsModal(false)}>Close</Button>
                     </Modal.Footer>
                 </Modal>
+
+                {/* Clear Logs Config Modal */}
+                <Modal show={showClearModal} onHide={() => setShowClearModal(false)} centered>
+                    <Modal.Header closeButton className="bg-danger text-white">
+                        <Modal.Title><FaExclamationTriangle className="me-2" /> Clear Activity Logs</Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body className="p-4">
+                        <Alert variant="warning" className="d-flex align-items-center gap-3">
+                            <FaExclamationTriangle size={24} />
+                            <div>
+                                <div className="fw-bold">CAUTION: DATA DELETION</div>
+                                <div className="small">Logs matching the filters below will be permanently removed.</div>
+                            </div>
+                        </Alert>
+                        
+                        <div className="bg-light p-3 rounded border mb-3">
+                            <div className="d-flex justify-content-between align-items-center mb-2">
+                                <span className="small text-muted fw-bold">SELECTED FILTERS</span>
+                                <Form.Check 
+                                    type="switch"
+                                    id="select-all-switch"
+                                    label={<span className="small fw-bold text-danger">SELECT ALL (WIPE ALL LOGS)</span>}
+                                    checked={clearAll}
+                                    onChange={(e) => setClearAll(e.target.checked)}
+                                />
+                            </div>
+                            
+                            {clearAll ? (
+                                <div className="text-center py-3 border border-danger rounded bg-danger bg-opacity-10">
+                                    <FaExclamationTriangle className="text-danger mb-2" size={24} />
+                                    <div className="text-danger fw-bold">EVERY SINGLE LOG RECORD WILL BE DELETED</div>
+                                    <div className="text-muted small">No filters will be applied. Entire history will be wiped.</div>
+                                </div>
+                            ) : activeFiltersCount > 0 ? (
+                                <div className="filter-list">
+                                    {Object.entries(filters).filter(([_, v]) => v).map(([k, v]) => (
+                                        <div key={k} className="d-flex justify-content-between align-items-center py-2 border-bottom">
+                                            <span className="text-capitalize small fw-bold"><FaCheckCircle className="text-success me-2" /> {k}</span>
+                                            <Badge bg="primary">{v}</Badge>
+                                        </div>
+                                    ))}
+                                </div>
+                            ) : (
+                                <div className="text-center py-3 text-muted border border-dashed rounded">
+                                    No filters active. Please select filters or "Select All".
+                                </div>
+                            )}
+                        </div>
+                    </Modal.Body>
+                    <Modal.Footer>
+                        <Button variant="secondary" onClick={() => setShowClearModal(false)}>Cancel</Button>
+                        <Button 
+                            variant="danger" 
+                            onClick={() => setShowSecondConfirm(true)} 
+                            disabled={!clearAll && activeFiltersCount === 0}
+                        >
+                            Proceed to Delete
+                        </Button>
+                    </Modal.Footer>
+                </Modal>
+
+                {/* Layer 2: Final Critical Warning */}
+                <Modal show={showSecondConfirm} onHide={() => setShowSecondConfirm(false)} centered size="sm">
+                    <Modal.Body className="p-4 text-center">
+                        <div className="text-danger mb-3">
+                            <FaExclamationTriangle size={64} />
+                        </div>
+                        <h4 className="fw-bold mb-3">Final Confirmation</h4>
+                        <p className="text-muted">
+                            Are you absolutely sure? This action is <strong>permanent</strong> and cannot be reversed.
+                        </p>
+                        <div className="d-grid gap-2">
+                            <Button variant="danger" size="lg" onClick={handleClearLogs} disabled={clearLoading}>
+                                {clearLoading ? <Spinner animation="border" size="sm" /> : 'YES, PERMANENTLY DELETE'}
+                            </Button>
+                            <Button variant="outline-secondary" onClick={() => setShowSecondConfirm(false)}>No, take me back</Button>
+                        </div>
+                    </Modal.Body>
+                </Modal>
+
+                {/* Export Modal */}
+                <Modal show={showExportModal} onHide={() => setShowExportModal(false)} centered>
+                    <Modal.Header closeButton className="bg-success text-white">
+                        <Modal.Title><FaFileCsv className="me-2" /> Export Activity Logs</Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body className="p-4">
+                        <p className="text-muted small">
+                            Prepare your data for export. For large datasets (over 10,000 records), the system will stream the file row-by-row to ensure stability.
+                        </p>
+                        
+                        <div className="bg-light p-3 rounded border mb-3">
+                            <div className="d-flex justify-content-between align-items-center mb-2">
+                                <span className="small text-muted fw-bold">EXPORT SCOPE</span>
+                                <Form.Check 
+                                    type="switch"
+                                    id="export-all-switch"
+                                    label={<span className="small fw-bold">EXPORT ALL RECORDS</span>}
+                                    checked={exportAll}
+                                    onChange={(e) => setExportAll(e.target.checked)}
+                                />
+                            </div>
+                            
+                            {exportAll ? (
+                                <div className="text-center py-3 border border-success rounded bg-success bg-opacity-10">
+                                    <div className="text-success fw-bold">ENTIRE LOG HISTORY</div>
+                                    <div className="text-muted small">Exporting approx. {summary.total} records.</div>
+                                </div>
+                            ) : activeFiltersCount > 0 ? (
+                                <div className="filter-list">
+                                    {Object.entries(filters).filter(([_, v]) => v).map(([k, v]) => (
+                                        <div key={k} className="d-flex justify-content-between align-items-center py-1 border-bottom small">
+                                            <span className="text-capitalize fw-bold">{k}:</span>
+                                            <span className="text-primary">{v}</span>
+                                        </div>
+                                    ))}
+                                </div>
+                            ) : (
+                                <div className="text-center py-2 text-muted border border-dashed rounded small">
+                                    No filters active. All visible logs will be exported.
+                                </div>
+                            )}
+                        </div>
+
+                        {exporting && (
+                            <div className="mt-3">
+                                <div className="d-flex justify-content-between small mb-1">
+                                    <span>Processing Export...</span>
+                                    <span>Please do not close this window</span>
+                                </div>
+                                <ProgressBar animated now={100} variant="success" />
+                            </div>
+                        )}
+                    </Modal.Body>
+                    <Modal.Footer>
+                        <Button variant="secondary" onClick={() => setShowExportModal(false)}>Cancel</Button>
+                        <Button variant="success" onClick={handleExport} disabled={exporting}>
+                            <FaDownload className="me-2" /> {exporting ? 'Preparing...' : 'Start Download'}
+                        </Button>
+                    </Modal.Footer>
+                </Modal>
+
+                <ToastContainer />
             </BootstrapContainer>
         </PageContainer>
         </>
     );
 };
+
+const Badge = ({ children, bg }) => (
+    <span className={`badge bg-${bg} px-2 py-1`}>{children}</span>
+);
 
 export default ActivityLogPage;

@@ -81,8 +81,43 @@ const CustomTable = styled(Table)`
         }
     }
 
-    /* Fixed widths for specific columns if needed */
-    th:nth-child(1), td:nth-child(1) { width: 50px; text-align: center; }
+    &.unverified-table .unverified-row td {
+        background-color: #ffd1d1 !important;
+    }
+
+    /* Sticky Actions Column - Only applied when .sticky-actions is present */
+    &.sticky-actions {
+        thead th:last-child {
+            position: sticky !important;
+            right: 0;
+            z-index: 30;
+            background-color: #0d6efd !important;
+            box-shadow: -2px 0 5px rgba(0,0,0,0.1);
+        }
+
+        tbody td:last-child {
+            position: sticky !important;
+            right: 0;
+            z-index: 10;
+            background-color: white !important;
+            box-shadow: -2px 0 5px rgba(0,0,0,0.05);
+            border-left: 2px solid #dee2e6 !important;
+        }
+
+        /* Override sticky background for unverified rows */
+        .unverified-row td:last-child {
+            background-color: #ffd1d1 !important;
+        }
+
+        /* Maintain hover effect for sticky cell */
+        tbody tr:hover td:last-child {
+            background-color: #f1f5f9 !important;
+        }
+
+        .unverified-row:hover td:last-child {
+            background-color: #ffb3b3 !important; /* Slightly darker red on hover */
+        }
+    }
 `;
 
 const PaymentPage = () => {
@@ -190,6 +225,25 @@ const PaymentPage = () => {
                 </OverlayTrigger>
             </div>
         );
+    };
+
+    const handleVerifyPayment = async (id) => {
+        if (!window.confirm("Are you sure you want to verify this payment? This action cannot be undone.")) {
+            return;
+        }
+        try {
+            const token = localStorage.getItem('token');
+            const response = await axios.put(`https://tuition-seba-backend-1.onrender.com/api/payment/verify/${id}`, {}, {
+                headers: { Authorization: token }
+            });
+            if (response.status === 200) {
+                toast.success('Payment verified successfully!');
+                fetchPaymentRecords(); // Refresh data
+            }
+        } catch (err) {
+            console.error(err);
+            toast.error('Failed to verify payment');
+        }
     };
 
     useEffect(() => {
@@ -688,7 +742,7 @@ const PaymentPage = () => {
                     <Card.Body>
                         <Card.Title>Payment List</Card.Title>
                         <div style={{ maxHeight: "600px", overflowY: "auto" }}>
-                            <Table striped bordered hover responsive="lg">
+                            <CustomTable striped hover className="unverified-table sticky-actions">
                                 <thead className="table-primary" style={{ position: "sticky", top: 0, zIndex: 2 }}>
                                     <tr>
                                         <th>SL</th>
@@ -722,10 +776,29 @@ const PaymentPage = () => {
                                         </tr>
                                     ) : (
                                         filteredPaymentList.map((payment, index) => (
-                                            <tr key={payment._id}>
+                                            <tr key={payment._id} className={!payment.isVerified ? 'unverified-row' : ''}>
                                                 <td>{(currentPage - 1) * 50 + index + 1}</td>
                                                 <td>{formatDate(payment.createdAt)}</td>
-                                                <td>{payment.tuitionCode}</td>
+                                                <td>
+                                                    <div className="d-flex flex-column align-items-center gap-1">
+                                                        <span className="fw-bold">{payment.tuitionCode}</span>
+                                                        {payment.isVerified ? (
+                                                            <span className="text-success fw-bold" style={{ fontSize: '0.65rem' }}>
+                                                                <FaCheckCircle /> Verified by {payment.verifiedBy}
+                                                            </span>
+                                                        ) : (
+                                                            <Button 
+                                                                variant="primary" 
+                                                                size="sm" 
+                                                                className="d-flex align-items-center gap-1 px-2 py-1 shadow-sm border-0 rounded-pill" 
+                                                                style={{ fontSize: '0.65rem', fontWeight: 'bold', transition: 'all 0.2s' }}
+                                                                onClick={() => handleVerifyPayment(payment._id)}
+                                                            >
+                                                                <FaCheckCircle /> Verify
+                                                            </Button>
+                                                        )}
+                                                    </div>
+                                                </td>
                                                 <td>{payment.createdBy}</td>
                                                 <td>{payment.updatedBy}</td>
                                                 <td>
@@ -827,7 +900,7 @@ const PaymentPage = () => {
                                     )}
                                 </tbody>
 
-                            </Table>
+                            </CustomTable>
                         </div>
                         <div className="d-flex justify-content-center align-items-center gap-3 mt-4 flex-wrap">
                             <Button
@@ -889,7 +962,7 @@ const PaymentPage = () => {
                     <Modal.Body className="p-0 bg-white d-flex flex-column">
                         {dueTodayList.length > 0 ? (
                             <div style={{ flex: 1, overflow: "auto", width: '100%' }}>
-                                <CustomTable striped hover>
+                                <CustomTable striped hover className="unverified-table">
                                     <thead className="text-center">
                                         <tr>
                                             <th>SL</th>
@@ -909,10 +982,29 @@ const PaymentPage = () => {
                                     </thead>
                                 <tbody>
                                     {dueTodayList.map((payment, index) => (
-                                        <tr key={index} className="align-middle text-center">
+                                        <tr key={index} className={`align-middle text-center ${!payment.isVerified ? 'unverified-row' : ''}`}>
                                             <td>{index + 1}</td>
                                             <td>{payment.paymentReceivedDate ? formatDate(payment.paymentReceivedDate) : '-'}</td>
-                                            <td>{payment.tuitionCode}</td>
+                                            <td>
+                                                <div className="d-flex flex-column align-items-center gap-1">
+                                                    <span className="fw-bold">{payment.tuitionCode}</span>
+                                                    {payment.isVerified ? (
+                                                        <span className="text-success fw-bold" style={{ fontSize: '0.65rem' }}>
+                                                            <FaCheckCircle /> Verified by {payment.verifiedBy}
+                                                        </span>
+                                                    ) : (
+                                                        <Button 
+                                                            variant="primary" 
+                                                            size="sm" 
+                                                            className="d-flex align-items-center gap-1 px-2 py-1 shadow-sm border-0 rounded-pill" 
+                                                            style={{ fontSize: '0.65rem', fontWeight: 'bold', transition: 'all 0.2s' }}
+                                                            onClick={() => handleVerifyPayment(payment._id)}
+                                                        >
+                                                            <FaCheckCircle /> Verify
+                                                        </Button>
+                                                    )}
+                                                </div>
+                                            </td>
                                             <td className="fw-bold text-danger">{payment.duePayment}</td>
                                             <td>{payment.tutorName}</td>
                                             <td>{payment.tutorNumber}</td>

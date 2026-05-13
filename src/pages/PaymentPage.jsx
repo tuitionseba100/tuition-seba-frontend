@@ -176,6 +176,10 @@ const PaymentPage = () => {
     const [userOptions, setUserOptions] = useState([]);
     const [showAssignModal, setShowAssignModal] = useState(false);
     const [selectedPaymentForAssign, setSelectedPaymentForAssign] = useState(null);
+    const [showAutoMigrate, setShowAutoMigrate] = useState(false);
+    const [isMigrating, setIsMigrating] = useState(false);
+    const [showMigrateModal, setShowMigrateModal] = useState(false);
+    const [selectedMigrationIds, setSelectedMigrationIds] = useState([]);
 
     const handleOpenAssignModal = (payment) => {
         setSelectedPaymentForAssign(payment);
@@ -413,6 +417,72 @@ const PaymentPage = () => {
         fetchTuitionAlertToday();
     }, []);
 
+    useEffect(() => {
+        const checkTime = () => {
+            const now = new Date();
+            const hours = now.getHours();
+
+            // Only show between 11:00 PM and 11:59 PM
+            const isNightTime = hours === 23;
+            const hasData = dueTodayList.length > 0;
+            setShowAutoMigrate(isNightTime && hasData);
+        };
+
+        checkTime();
+        const interval = setInterval(checkTime, 60000); // Check every minute
+        return () => clearInterval(interval);
+    }, [dueTodayList]);
+
+    const handleAutoMigrate = async () => {
+        if (selectedMigrationIds.length === 0) {
+            toast.error("Please select at least one payment to migrate.");
+            return;
+        }
+
+        if (!window.confirm(`Are you sure you want to migrate ${selectedMigrationIds.length} selected payment(s) from today to tomorrow?`)) {
+            return;
+        }
+
+        setIsMigrating(true);
+        try {
+            const token = localStorage.getItem('token');
+            const response = await axios.post('https://tuition-seba-backend-1.onrender.com/api/payment/auto-migrate', {
+                paymentIds: selectedMigrationIds
+            }, {
+                headers: { Authorization: token }
+            });
+            toast.success(response.data.message);
+            setShowMigrateModal(false);
+            setSelectedMigrationIds([]);
+            await fetchTuitionAlertToday();
+            await fetchPaymentRecords();
+        } catch (error) {
+            console.error('Migration failed:', error);
+            toast.error(error.response?.data?.message || 'Migration failed. Please try again.');
+        } finally {
+            setIsMigrating(false);
+        }
+    };
+
+    const toggleMigrationSelection = (id) => {
+        setSelectedMigrationIds(prev =>
+            prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]
+        );
+    };
+
+    const handleSelectAllMigration = () => {
+        if (selectedMigrationIds.length === dueTodayList.length) {
+            setSelectedMigrationIds([]);
+        } else {
+            setSelectedMigrationIds(dueTodayList.map(p => p._id));
+        }
+    };
+
+    const openMigrateModal = () => {
+        setSelectedMigrationIds(dueTodayList.map(p => p._id));
+        setShowMigrateModal(true);
+    };
+
     const formatDate = (isoString) => {
         if (!isoString) return '';
         // Treat stored UTC as local time to match existing data pattern
@@ -529,9 +599,21 @@ const PaymentPage = () => {
 
                 <Header>
                     <h2 className='text-primary fw-bold'>Payment Dashboard</h2>
-                    <Button variant="primary" onClick={() => { setEditingId(null); setSelectedPaymentForEdit(null); setShowModal(true); }}>
-                        Create Payment Record
-                    </Button>
+                    <div className="d-flex gap-2">
+                        {showAutoMigrate && (
+                            <Button 
+                                variant="warning" 
+                                className="fw-bold" 
+                                onClick={openMigrateModal} 
+                                style={{ borderRadius: '30px', padding: '8px 24px' }}
+                            >
+                                Auto Migrate Update Today
+                            </Button>
+                        )}
+                        <Button variant="primary" onClick={() => { setEditingId(null); setSelectedPaymentForEdit(null); setShowModal(true); }}>
+                            Create Payment Record
+                        </Button>
+                    </div>
                 </Header>
 
                 {role === 'superadmin' && (
@@ -1125,8 +1207,70 @@ const PaymentPage = () => {
                     onHide={() => setShowAssignModal(false)}
                     payment={selectedPaymentForAssign}
                     fetchPaymentRecords={fetchPaymentRecords}
-                    fetchAlertData={fetchTuitionAlertToday}
+                    fetchTuitionAlertToday={fetchTuitionAlertToday}
                 />
+
+                {/* Auto Migrate Modal */}
+                <Modal show={showMigrateModal} onHide={() => !isMigrating && setShowMigrateModal(false)} size="lg" backdrop={isMigrating ? 'static' : true} keyboard={!isMigrating}>
+                    <Modal.Header closeButton={!isMigrating}>
+                        <Modal.Title>Auto Migrate Payments (Today to Tomorrow)</Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body>
+                        <div className="mb-3 d-flex justify-content-between align-items-center">
+                            <span className="fw-bold">Total payments due today: {dueTodayList.length}</span>
+                            <Button variant="outline-primary" size="sm" onClick={handleSelectAllMigration}>
+                                {selectedMigrationIds.length === dueTodayList.length ? 'Deselect All' : 'Select All'}
+                            </Button>
+                        </div>
+                        <div style={{ maxHeight: '450px', overflowY: 'auto' }}>
+                            <Table striped bordered hover size="sm">
+                                <thead style={{ position: 'sticky', top: 0, backgroundColor: 'white', zIndex: 1 }}>
+                                    <tr>
+                                        <th className="text-center">Select</th>
+                                        <th>Tuition Code</th>
+                                        <th>Status</th>
+                                        <th>Current Due Pay Date</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {dueTodayList.map(p => (
+                                        <tr key={p._id}>
+                                            <td className="text-center">
+                                                <Form.Check 
+                                                    type="checkbox"
+                                                    checked={selectedMigrationIds.includes(p._id)}
+                                                    onChange={() => toggleMigrationSelection(p._id)}
+                                                />
+                                            </td>
+                                            <td>{p.tuitionCode}</td>
+                                            <td>
+                                                <span className={`badge ${p.paymentStatus === 'fully paid' ? 'bg-success' : 'bg-warning text-dark'}`}>
+                                                    {p.paymentStatus}
+                                                </span>
+                                            </td>
+                                            <td>{formatDate(p.duePayDate)}</td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </Table>
+                        </div>
+                        <div className="mt-3 text-muted small">
+                            * Selected payments will have their "Due Payment Date" moved to tomorrow and "Updated By" set to "auto migration".
+                        </div>
+                    </Modal.Body>
+                    <Modal.Footer>
+                        {isMigrating && <span className="text-danger fw-bold me-auto">⚠️ Please don't close while updating...</span>}
+                        <Button variant="secondary" onClick={() => setShowMigrateModal(false)} disabled={isMigrating}>Cancel</Button>
+                        <Button 
+                            variant="warning" 
+                            className="fw-bold"
+                            onClick={handleAutoMigrate} 
+                            disabled={isMigrating || selectedMigrationIds.length === 0}
+                        >
+                            {isMigrating ? <Spinner animation="border" size="sm" /> : `Migrate Selected (${selectedMigrationIds.length})`}
+                        </Button>
+                    </Modal.Footer>
+                </Modal>
 
                 <ToastContainer />
             </Container>

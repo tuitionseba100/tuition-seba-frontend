@@ -1145,8 +1145,8 @@ const TuitionPage = () => {
                 </Modal>
 
                 {/* Auto Migrate Modal */}
-                <Modal show={showMigrateModal} onHide={() => setShowMigrateModal(false)} size="lg">
-                        <Modal.Header closeButton>
+                <Modal show={showMigrateModal} onHide={() => !isMigrating && setShowMigrateModal(false)} size="lg" backdrop={isMigrating ? 'static' : true} keyboard={!isMigrating}>
+                        <Modal.Header closeButton={!isMigrating}>
                             <Modal.Title>Auto Migrate Tuitions (Today to Tomorrow)</Modal.Title>
                         </Modal.Header>
                         <Modal.Body>
@@ -1193,7 +1193,8 @@ const TuitionPage = () => {
                             </div>
                         </Modal.Body>
                         <Modal.Footer>
-                            <Button variant="secondary" onClick={() => setShowMigrateModal(false)}>Cancel</Button>
+                            {isMigrating && <span className="text-danger fw-bold me-auto">⚠️ Please don't close while updating...</span>}
+                            <Button variant="secondary" onClick={() => setShowMigrateModal(false)} disabled={isMigrating}>Cancel</Button>
                             <Button
                                 variant="warning"
                                 className="fw-bold"

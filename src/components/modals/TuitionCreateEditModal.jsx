@@ -95,7 +95,7 @@ export default function TuitionModal({ show, onHide, editingData = null, editing
             if (role === 'superadmin') {
                 try {
                     const token = localStorage.getItem('token');
-                    const response = await axios.get('https://api.tuitionsebaforum.com/api/user/users', {
+                    const response = await axios.get('https://tuition-seba-backend-1.onrender.com/api/user/users', {
                         headers: { Authorization: token }
                     });
                     const users = response.data.map(user => ({
@@ -200,11 +200,11 @@ export default function TuitionModal({ show, onHide, editingData = null, editing
                 updatedBy: username,
             };
             if (editingId) {
-                await axios.put(`https://api.tuitionsebaforum.com/api/tuition/edit/${editingId}`, updatedTuitionData);
+                await axios.put(`https://tuition-seba-backend-1.onrender.com/api/tuition/edit/${editingId}`, updatedTuitionData);
                 toast.success('Tuition record updated successfully!');
             } else {
                 updatedTuitionData.createdBy = username;
-                await axios.post('https://api.tuitionsebaforum.com/api/tuition/add', updatedTuitionData);
+                await axios.post('https://tuition-seba-backend-1.onrender.com/api/tuition/add', updatedTuitionData);
                 toast.success('Tuition record created successfully!');
             }
             onHide();

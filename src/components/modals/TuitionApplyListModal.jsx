@@ -37,7 +37,7 @@ function AppliedListModal({ tuitionId, tuitionCode, show, onHide }) {
         setLoading(true);
         axios
             .get(
-                `https://api.tuitionsebaforum.com/api/tuitionApply/appliedListByTuitionId?tuitionId=${tuitionId}`
+                `https://tuition-seba-backend-1.onrender.com/api/tuitionApply/appliedListByTuitionId?tuitionId=${tuitionId}`
             )
             .then((res) => setAppliedList(res.data))
             .catch(() => setAppliedList([]))
@@ -63,7 +63,7 @@ function AppliedListModal({ tuitionId, tuitionCode, show, onHide }) {
             try {
                 setDeletingId(id);
                 await axios.delete(
-                    `https://api.tuitionsebaforum.com/api/tuitionApply/delete/${id}`
+                    `https://tuition-seba-backend-1.onrender.com/api/tuitionApply/delete/${id}`
                 );
                 toast.success("Tuition record deleted successfully!");
                 setAppliedList(appliedList.filter((item) => item._id !== id));
@@ -88,7 +88,7 @@ function AppliedListModal({ tuitionId, tuitionCode, show, onHide }) {
             };
 
             await axios.put(
-                `https://api.tuitionsebaforum.com/api/tuitionApply/edit/${editingId}`,
+                `https://tuition-seba-backend-1.onrender.com/api/tuitionApply/edit/${editingId}`,
                 updatedTuitionData
             );
             toast.success("Tuition apply record updated successfully!");

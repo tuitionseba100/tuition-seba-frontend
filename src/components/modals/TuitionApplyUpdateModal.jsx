@@ -18,7 +18,7 @@ const TuitionUpdateModal = ({ show, handleClose }) => {
 
         try {
             const response = await fetch(
-                `https://api.tuitionsebaforum.com/api/tuitionApply/getTuitionStatusesByPhone?phone=${phone}`
+                `https://tuition-seba-backend-1.onrender.com/api/tuitionApply/getTuitionStatusesByPhone?phone=${phone}`
             );
             if (!response.ok) {
                 throw new Error('Server error occurred!');

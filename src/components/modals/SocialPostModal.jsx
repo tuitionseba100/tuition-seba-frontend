@@ -253,7 +253,7 @@ const SocialPostModal = ({ show, onHide }) => {
                 status: filters.status.map(s => s.value).join(',')
             };
 
-            const response = await axios.get('https://api.tuitionsebaforum.com/api/tuition/post-data', {
+            const response = await axios.get('https://tuition-seba-backend-1.onrender.com/api/tuition/post-data', {
                 params,
                 headers: { Authorization: token }
             });

@@ -210,9 +210,9 @@ const SocialPostModal = ({ show, onHide }) => {
         { value: 'request for payment', label: 'Request for payment' }
     ];
 
-    const areaOptions = useMemo(() => 
+    const areaOptions = useMemo(() =>
         locationData.areaOptions.chittagong.map(area => ({ value: area, label: area }))
-    , []);
+        , []);
 
     const [isWhatsAppFormat, setIsWhatsAppFormat] = useState(true);
     const [fieldConfig, setFieldConfig] = useState({
@@ -252,8 +252,8 @@ const SocialPostModal = ({ show, onHide }) => {
                 area: filters.area.map(a => a.value).join(','),
                 status: filters.status.map(s => s.value).join(',')
             };
-            
-            const response = await axios.get('https://tuition-seba-backend-1.onrender.com/api/tuition/post-data', {
+
+            const response = await axios.get('https://api.tuitionsebaforum.com/api/tuition/post-data', {
                 params,
                 headers: { Authorization: token }
             });
@@ -303,7 +303,7 @@ const SocialPostModal = ({ show, onHide }) => {
 
         const b = isWhatsAppFormat ? "*" : "";
         let text = `${b}TUITION SEBA FORUM${b} \n`;
-        
+
         if (areasWithTuition.length > 0) {
             const areaNamesWithCounts = areasWithTuition.map(area => `${area} (${groupedByArea[area].length})`).join(', ');
             text += `🔥 ${selected.length}+ Tuition Available at "${areaNamesWithCounts}" 🔥\n`;
@@ -316,7 +316,7 @@ const SocialPostModal = ({ show, onHide }) => {
             // Section header for the area with underline
             text += `📍 ${b}${area.toUpperCase()}${b} 📍\n`;
             text += `_________________________________\n\n`;
-            
+
             groupedByArea[area].forEach((t, index) => {
                 if (fieldConfig.tuitionCode) text += `${b}Tuition Code:${b} ${t.tuitionCode}\n`;
                 if (fieldConfig.wantedTeacher) text += `${b}Wanted Teacher:${b} ${t.wantedTeacher || 'N/A'}\n`;
@@ -330,7 +330,7 @@ const SocialPostModal = ({ show, onHide }) => {
                 if (fieldConfig.salary) text += `${b}Salary:${b} ${t.salary || 'Negotiable'}\n`;
                 if (fieldConfig.location) text += `${b}Location:${b} ${t.location || ''} ${t.area ? '(' + t.area + ')' : ''}\n`;
                 if (fieldConfig.joining) text += `${b}Joining:${b} ${t.joining || 'As soon as'}\n`;
-                
+
                 text += `📲 ${b}Whatsapp:${b} +8801571305804\n`;
                 text += `📌 ${b}Interested teachers—apply fast. Visit our Website/ Apps [Tuition Seba Forum]${b}\n`;
 
@@ -449,7 +449,7 @@ const SocialPostModal = ({ show, onHide }) => {
                                     ))}
                                 </div>
                                 <div className="mt-3 pt-2 border-top">
-                                    <Form.Check 
+                                    <Form.Check
                                         type="switch"
                                         id="whatsapp-format-switch"
                                         label="Format for WhatsApp (Bold Headers & Labels)"
@@ -502,8 +502,8 @@ const SocialPostModal = ({ show, onHide }) => {
                                             style={{ cursor: 'pointer' }}
                                         >
                                             <td className="text-center">
-                                                {selectedIds.includes(t._id) ? 
-                                                    <FaCheckSquare className="text-primary" /> : 
+                                                {selectedIds.includes(t._id) ?
+                                                    <FaCheckSquare className="text-primary" /> :
                                                     <FaSquare className="text-light border" />
                                                 }
                                             </td>

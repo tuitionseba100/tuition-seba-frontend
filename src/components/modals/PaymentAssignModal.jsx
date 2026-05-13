@@ -21,7 +21,7 @@ const PaymentAssignModal = ({ show, onHide, payment, fetchPaymentRecords, fetchA
         setFetchingUsers(true);
         try {
             const token = localStorage.getItem('token');
-            const response = await axios.get('https://tuition-seba-backend-1.onrender.com/api/user/users', {
+            const response = await axios.get('https://api.tuitionsebaforum.com/api/user/users', {
                 headers: { Authorization: token }
             });
             setUsers(response.data);
@@ -45,7 +45,7 @@ const PaymentAssignModal = ({ show, onHide, payment, fetchPaymentRecords, fetchA
         setLoading(true);
         try {
             const username = localStorage.getItem('username');
-            await axios.put(`https://tuition-seba-backend-1.onrender.com/api/payment/edit/${payment._id}`, {
+            await axios.put(`https://api.tuitionsebaforum.com/api/payment/edit/${payment._id}`, {
                 assignedTo: assignedTo,
                 updatedBy: username
             });
@@ -76,13 +76,13 @@ const PaymentAssignModal = ({ show, onHide, payment, fetchPaymentRecords, fetchA
                         </div>
                     ) : (
                         <Select
-                            options={users.map(user => ({ 
-                                value: user.username, 
-                                label: `${user.name} (${user.username})` 
+                            options={users.map(user => ({
+                                value: user.username,
+                                label: `${user.name} (${user.username})`
                             }))}
-                            value={users.find(u => u.username === assignedTo) ? { 
-                                value: assignedTo, 
-                                label: `${users.find(u => u.username === assignedTo).name} (${assignedTo})` 
+                            value={users.find(u => u.username === assignedTo) ? {
+                                value: assignedTo,
+                                label: `${users.find(u => u.username === assignedTo).name} (${assignedTo})`
                             } : null}
                             onChange={(option) => setAssignedTo(option ? option.value : '')}
                             isClearable

@@ -30,7 +30,7 @@ const PaymentModal = ({ show, handleClose }) => {
 
         setLoading(true);
         try {
-            const res = await fetch('https://tuition-seba-backend-1.onrender.com/api/teacherPayment/add', {
+            const res = await fetch('https://api.tuitionsebaforum.com/api/teacherPayment/add', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(form)

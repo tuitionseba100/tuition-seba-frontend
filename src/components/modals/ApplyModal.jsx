@@ -30,7 +30,7 @@ const ApplyModal = ({ show, onClose, tuitionCode, tuitionId }) => {
 
     useEffect(() => {
         if (show && tuitionId) {
-            fetch(`https://tuition-seba-backend-1.onrender.com/api/tuitionApply/get-auto-comment/${tuitionId}`)
+            fetch(`https://api.tuitionsebaforum.com/api/tuitionApply/get-auto-comment/${tuitionId}`)
                 .then(res => res.json())
                 .then(data => setAutoComment(data.comment))
                 .catch(err => console.error('Error fetching auto comment:', err));
@@ -76,7 +76,7 @@ const ApplyModal = ({ show, onClose, tuitionCode, tuitionId }) => {
         setIsVerifying(true);
         try {
             const checkRes = await fetch(
-                'https://tuition-seba-backend-1.onrender.com/api/regTeacher/check-apply-possible',
+                'https://api.tuitionsebaforum.com/api/regTeacher/check-apply-possible',
                 {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -229,7 +229,7 @@ const ApplyModal = ({ show, onClose, tuitionCode, tuitionId }) => {
 
                         try {
                             const res = await fetch(
-                                'https://tuition-seba-backend-1.onrender.com/api/tuitionApply/add-web',
+                                'https://api.tuitionsebaforum.com/api/tuitionApply/add-web',
                                 {
                                     method: 'POST',
                                     headers: { 'Content-Type': 'application/json' },

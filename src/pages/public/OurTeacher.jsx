@@ -104,7 +104,7 @@ export default function OurTeacher() {
 
     const fetchTeachers = async () => {
         try {
-            const response = await fetch('https://tuition-seba-backend-1.onrender.com/api/regTeacher/public-teachers');
+            const response = await fetch('https://api.tuitionsebaforum.com/api/regTeacher/public-teachers');
             const data = await response.json();
             setTeachers(data);
             setLoading(false);
@@ -988,7 +988,7 @@ function RequestTeacherModal({ show, onHide, teacher, onSaved }) {
         };
 
         try {
-            const response = await axios.post('https://tuition-seba-backend-1.onrender.com/api/guardianApply/add', payload);
+            const response = await axios.post('https://api.tuitionsebaforum.com/api/guardianApply/add', payload);
             if (response && (response.status === 200 || response.status === 201)) {
                 toast.success('Request submitted successfully');
                 setShowSuccess(true);

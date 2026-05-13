@@ -28,7 +28,7 @@ const Login = () => {
         setLoading(true);
         try {
             const response = await axios.post(
-                "https://tuition-seba-backend-1.onrender.com/api/user/login",
+                "https://api.tuitionsebaforum.com/api/user/login",
                 {
                     username: values.username,
                     password: values.password,

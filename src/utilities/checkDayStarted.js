@@ -5,7 +5,7 @@ export const checkDayStarted = async () => {
     if (!token) return false;
 
     try {
-        const response = await axios.get("https://tuition-seba-backend-1.onrender.com/api/attendance/is-day-started", {
+        const response = await axios.get("https://api.tuitionsebaforum.com/api/attendance/is-day-started", {
             headers: {
                 Authorization: token,
             },

@@ -63,7 +63,7 @@ const TaskPage = () => {
 
     const fetchUsers = async () => {
         try {
-            const response = await axios.get('https://tuition-seba-backend-1.onrender.com/api/user/users', {
+            const response = await axios.get('https://api.tuitionsebaforum.com/api/user/users', {
                 headers: { Authorization: token },
             });
             setUserList(response.data);
@@ -89,7 +89,7 @@ const TaskPage = () => {
                 employeeName: filters.employeeName,
                 status: filters.status
             };
-            const response = await axios.get('https://tuition-seba-backend-1.onrender.com/api/taskData/all', {
+            const response = await axios.get('https://api.tuitionsebaforum.com/api/taskData/all', {
                 headers: { Authorization: token },
                 params
             });
@@ -111,7 +111,7 @@ const TaskPage = () => {
                 tuitionCode: filters.tuitionCode,
                 employeeName: filters.employeeName
             };
-            const response = await axios.get('https://tuition-seba-backend-1.onrender.com/api/taskData/summary', {
+            const response = await axios.get('https://api.tuitionsebaforum.com/api/taskData/summary', {
                 headers: { Authorization: token },
                 params
             });
@@ -207,12 +207,12 @@ const TaskPage = () => {
     const handleSaveTask = async (data) => {
         try {
             if (editingTask) {
-                await axios.put(`https://tuition-seba-backend-1.onrender.com/api/taskData/edit/${editingTask._id}`, data, {
+                await axios.put(`https://api.tuitionsebaforum.com/api/taskData/edit/${editingTask._id}`, data, {
                     headers: { Authorization: token }
                 });
                 toast.success("Task updated successfully!");
             } else {
-                await axios.post('https://tuition-seba-backend-1.onrender.com/api/taskData/add', data, {
+                await axios.post('https://api.tuitionsebaforum.com/api/taskData/add', data, {
                     headers: { Authorization: token }
                 });
                 toast.success("Task created successfully!");
@@ -230,7 +230,7 @@ const TaskPage = () => {
 
         if (confirmDelete) {
             try {
-                await axios.delete(`https://tuition-seba-backend-1.onrender.com/api/taskData/delete/${id}`, {
+                await axios.delete(`https://api.tuitionsebaforum.com/api/taskData/delete/${id}`, {
                     headers: { Authorization: token }
                 });
                 toast.success("task record deleted successfully!");
@@ -257,7 +257,7 @@ const TaskPage = () => {
                 status: 'completed',
                 comment: completionComment
             };
-            await axios.put(`https://tuition-seba-backend-1.onrender.com/api/taskData/edit/${completingTask._id}`, data, {
+            await axios.put(`https://api.tuitionsebaforum.com/api/taskData/edit/${completingTask._id}`, data, {
                 headers: { Authorization: token }
             });
             toast.success("Task completed successfully!");

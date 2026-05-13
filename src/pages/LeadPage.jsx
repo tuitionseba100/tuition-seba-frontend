@@ -67,7 +67,7 @@ const LeadPage = () => {
         setLoadingDueToday(true);
         try {
             const response = await axios.get(
-                'https://tuition-seba-backend-1.onrender.com/api/lead/today-followups',
+                'https://api.tuitionsebaforum.com/api/lead/today-followups',
                 { headers: { Authorization: token } }
             );
             setDueTodayList(response.data);
@@ -89,7 +89,7 @@ const LeadPage = () => {
     const fetchUsers = async () => {
         try {
             const response = await axios.get(
-                'https://tuition-seba-backend-1.onrender.com/api/user/users',
+                'https://api.tuitionsebaforum.com/api/user/users',
                 { headers: { Authorization: token } }
             );
             setUserList(response.data);
@@ -125,7 +125,7 @@ const LeadPage = () => {
     const fetchLeadRecords = async () => {
         setLoading(true);
         try {
-            const response = await axios.get('https://tuition-seba-backend-1.onrender.com/api/lead/getTableData', {
+            const response = await axios.get('https://api.tuitionsebaforum.com/api/lead/getTableData', {
                 params: {
                     page: currentPage,
                     tuitionCode: appliedFilters.tuitionCode,
@@ -146,7 +146,7 @@ const LeadPage = () => {
     };
 
     const fetchCardSummary = () => {
-        axios.get('https://tuition-seba-backend-1.onrender.com/api/lead/summary', {
+        axios.get('https://api.tuitionsebaforum.com/api/lead/summary', {
             params: {
                 tuitionCode: appliedFilters.tuitionCode,
                 phone: appliedFilters.phone,
@@ -179,12 +179,12 @@ const LeadPage = () => {
             if (editingId) {
                 // Include updatedBy field when updating
                 updatedData.updatedBy = username;
-                await axios.put(`https://tuition-seba-backend-1.onrender.com/api/lead/edit/${editingId}`, updatedData, {
+                await axios.put(`https://api.tuitionsebaforum.com/api/lead/edit/${editingId}`, updatedData, {
                     headers: { Authorization: token },
                 });
                 toast.success("Record updated successfully!");
             } else {
-                await axios.post('https://tuition-seba-backend-1.onrender.com/api/lead/add', updatedData, {
+                await axios.post('https://api.tuitionsebaforum.com/api/lead/add', updatedData, {
                     headers: { Authorization: token },
                 });
                 toast.success("Record created successfully!");
@@ -199,7 +199,7 @@ const LeadPage = () => {
     const handleDeleteRecord = async (id) => {
         if (window.confirm("Are you sure you want to delete this record?")) {
             try {
-                await axios.delete(`https://tuition-seba-backend-1.onrender.com/api/lead/delete/${id}`, {
+                await axios.delete(`https://api.tuitionsebaforum.com/api/lead/delete/${id}`, {
                     headers: { Authorization: token },
                 });
                 toast.success("Record deleted successfully!");

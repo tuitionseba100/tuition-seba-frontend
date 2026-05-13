@@ -169,8 +169,8 @@ const TuitionPage = () => {
             }
 
             const [alertRes, pendingRes] = await Promise.all([
-                axios.get('https://tuition-seba-backend-1.onrender.com/api/tuition/alert-today', { params: alertParams }),
-                axios.get('https://tuition-seba-backend-1.onrender.com/api/tuition/pending-payment-creation')
+                axios.get('https://api.tuitionsebaforum.com/api/tuition/alert-today', { params: alertParams }),
+                axios.get('https://api.tuitionsebaforum.com/api/tuition/pending-payment-creation')
             ]);
 
             setTuitionNeedsUpdateList(alertRes.data);
@@ -188,7 +188,7 @@ const TuitionPage = () => {
             if (role === 'superadmin') {
                 try {
                     const token = localStorage.getItem('token');
-                    const response = await axios.get('https://tuition-seba-backend-1.onrender.com/api/user/users', {
+                    const response = await axios.get('https://api.tuitionsebaforum.com/api/user/users', {
                         headers: { Authorization: token }
                     });
                     const users = response.data.map(user => ({
@@ -221,7 +221,7 @@ const TuitionPage = () => {
     const fetchTuitionRecords = async () => {
         setLoading(true);
         try {
-            const response = await axios.get('https://tuition-seba-backend-1.onrender.com/api/tuition/getTableData', {
+            const response = await axios.get('https://api.tuitionsebaforum.com/api/tuition/getTableData', {
                 params: {
                     page: currentPage,
                     tuitionCode: appliedFilters.tuitionCode,
@@ -266,7 +266,7 @@ const TuitionPage = () => {
                 isReviewDone: appliedFilters.isReviewDone === "Yes" ? 'true' : appliedFilters.isReviewDone === "No" ? 'false' : undefined
             };
 
-            const res = await axios.get('https://tuition-seba-backend-1.onrender.com/api/tuition/summary', {
+            const res = await axios.get('https://api.tuitionsebaforum.com/api/tuition/summary', {
                 params: params
             });
             setExcelTuitionList(res.data.data);
@@ -295,7 +295,7 @@ const TuitionPage = () => {
             try {
                 const statusForFileName = selectedExportStatus.replace(/\s+/g, '_').toLowerCase();
                 const link = document.createElement('a');
-                link.href = `https://tuition-seba-backend-1.onrender.com/api/tuition/exportData?status=${selectedExportStatus}`;
+                link.href = `https://api.tuitionsebaforum.com/api/tuition/exportData?status=${selectedExportStatus}`;
                 link.target = '_blank';
                 // Match backend file naming and CSV extension
                 link.download = `tuition_apply_${statusForFileName}.csv`;
@@ -366,7 +366,7 @@ const TuitionPage = () => {
         if (confirmDelete) {
             try {
                 setDeleteLoading(true);
-                await axios.delete(`https://tuition-seba-backend-1.onrender.com/api/tuition/delete/${id}`);
+                await axios.delete(`https://api.tuitionsebaforum.com/api/tuition/delete/${id}`);
                 toast.success("Tuition record deleted successfully!");
                 await fetchTuitionRecords();
                 await fetchSummaryCounts();

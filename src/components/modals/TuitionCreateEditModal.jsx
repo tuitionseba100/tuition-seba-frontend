@@ -95,7 +95,7 @@ export default function TuitionModal({ show, onHide, editingData = null, editing
             if (role === 'superadmin') {
                 try {
                     const token = localStorage.getItem('token');
-                    const response = await axios.get('https://tuition-seba-backend-1.onrender.com/api/user/users', {
+                    const response = await axios.get('https://api.tuitionsebaforum.com/api/user/users', {
                         headers: { Authorization: token }
                     });
                     const users = response.data.map(user => ({
@@ -183,9 +183,9 @@ export default function TuitionModal({ show, onHide, editingData = null, editing
         setSaving(true);
 
         const username = localStorage.getItem('username');
-        
+
         let guardianNumber = formData.guardianNumber ? formData.guardianNumber.toString().trim() : '';
-        
+
         if (guardianNumber && guardianNumber.length < 11) {
             toast.error('Guardian number must be at least 11 digits long');
             setSaving(false);
@@ -200,11 +200,11 @@ export default function TuitionModal({ show, onHide, editingData = null, editing
                 updatedBy: username,
             };
             if (editingId) {
-                await axios.put(`https://tuition-seba-backend-1.onrender.com/api/tuition/edit/${editingId}`, updatedTuitionData);
+                await axios.put(`https://api.tuitionsebaforum.com/api/tuition/edit/${editingId}`, updatedTuitionData);
                 toast.success('Tuition record updated successfully!');
             } else {
                 updatedTuitionData.createdBy = username;
-                await axios.post('https://tuition-seba-backend-1.onrender.com/api/tuition/add', updatedTuitionData);
+                await axios.post('https://api.tuitionsebaforum.com/api/tuition/add', updatedTuitionData);
                 toast.success('Tuition record created successfully!');
             }
             onHide();
@@ -294,10 +294,10 @@ export default function TuitionModal({ show, onHide, editingData = null, editing
                                     <Row className="gy-3">
                                         {fields.map(field => {
                                             const { name, label, col = 6, type = 'text', options: fieldOptions } = field;
-                                            
+
                                             // Only show assignedTo to superadmin
                                             const options = fieldOptions;
-                                            
+
                                             let value = formData[name];
                                             if (value === undefined || value === null) value = type === 'switch' ? false : '';
 

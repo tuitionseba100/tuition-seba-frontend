@@ -242,7 +242,7 @@ const TeacherRegistrationForm = () => {
                                 }
 
                                 try {
-                                    const res = await fetch('https://tuition-seba-backend-1.onrender.com/api/regTeacher/add', {
+                                    const res = await fetch('https://api.tuitionsebaforum.com/api/regTeacher/add', {
                                         method: 'POST',
                                         headers: { 'Content-Type': 'application/json' },
                                         body: JSON.stringify(values),

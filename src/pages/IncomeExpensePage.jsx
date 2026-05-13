@@ -79,11 +79,11 @@ const IncomeExpensePage = () => {
 
         try {
             const [transRes, summaryRes, todayRes, monthRes, overallRes] = await Promise.all([
-                axios.get(`https://api.tuitionsebaforum.com/api/transaction/all?startDate=${start}&endDate=${end}&category=${selectedCategory}`, { headers }),
-                axios.get(`https://api.tuitionsebaforum.com/api/transaction/summary?startDate=${start}&endDate=${end}&category=${selectedCategory}`, { headers }),
-                axios.get(`https://api.tuitionsebaforum.com/api/transaction/summary?startDate=${todayStart}&endDate=${todayEnd}`, { headers }),
-                axios.get(`https://api.tuitionsebaforum.com/api/transaction/summary?startDate=${monthStart}&endDate=${monthEnd}`, { headers }),
-                axios.get(`https://api.tuitionsebaforum.com/api/transaction/summary`, { headers })
+                axios.get(`https://tuition-seba-backend-1.onrender.com/api/transaction/all?startDate=${start}&endDate=${end}&category=${selectedCategory}`, { headers }),
+                axios.get(`https://tuition-seba-backend-1.onrender.com/api/transaction/summary?startDate=${start}&endDate=${end}&category=${selectedCategory}`, { headers }),
+                axios.get(`https://tuition-seba-backend-1.onrender.com/api/transaction/summary?startDate=${todayStart}&endDate=${todayEnd}`, { headers }),
+                axios.get(`https://tuition-seba-backend-1.onrender.com/api/transaction/summary?startDate=${monthStart}&endDate=${monthEnd}`, { headers }),
+                axios.get(`https://tuition-seba-backend-1.onrender.com/api/transaction/summary`, { headers })
             ]);
             setTransactions(transRes.data);
             setSummary(summaryRes.data);
@@ -135,10 +135,10 @@ const IncomeExpensePage = () => {
 
         try {
             if (editMode) {
-                await axios.put(`https://api.tuitionsebaforum.com/api/transaction/edit/${currentId}`, submitData, { headers });
+                await axios.put(`https://tuition-seba-backend-1.onrender.com/api/transaction/edit/${currentId}`, submitData, { headers });
                 toast.success('Transaction updated');
             } else {
-                await axios.post('https://api.tuitionsebaforum.com/api/transaction/add', submitData, { headers });
+                await axios.post('https://tuition-seba-backend-1.onrender.com/api/transaction/add', submitData, { headers });
                 toast.success('Transaction added');
             }
             setShowModal(false);
@@ -155,7 +155,7 @@ const IncomeExpensePage = () => {
         setDeletingId(id);
         const token = localStorage.getItem('token');
         try {
-            await axios.delete(`https://api.tuitionsebaforum.com/api/transaction/delete/${id}`, {
+            await axios.delete(`https://tuition-seba-backend-1.onrender.com/api/transaction/delete/${id}`, {
                 headers: { Authorization: token }
             });
             toast.success('Deleted');

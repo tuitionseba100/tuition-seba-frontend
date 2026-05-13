@@ -440,7 +440,7 @@ const UserPage = () => {
     const handleToggleLock = async (userId) => {
         setLockingUserId(userId);
         try {
-            await axios.put(`https://api.tuitionsebaforum.com/api/user/toggle-lock/${userId}`, {}, {
+            await axios.put(`https://tuition-seba-backend-1.onrender.com/api/user/toggle-lock/${userId}`, {}, {
                 headers: { Authorization: token }
             });
             await fetchUsers();
@@ -458,7 +458,7 @@ const UserPage = () => {
         setIsProcessing(true);
         setProcessMessage('Fetching login history...');
         try {
-            const response = await axios.get(`https://api.tuitionsebaforum.com/api/user/history/${user._id}`, {
+            const response = await axios.get(`https://tuition-seba-backend-1.onrender.com/api/user/history/${user._id}`, {
                 headers: { Authorization: token }
             });
             setHistoryData(response.data);
@@ -487,7 +487,7 @@ const UserPage = () => {
         setLoading(true);
         setError(null);
         try {
-            const response = await axios.get('https://api.tuitionsebaforum.com/api/user/users', {
+            const response = await axios.get('https://tuition-seba-backend-1.onrender.com/api/user/users', {
                 headers: { Authorization: token }
             });
             setUserList(response.data);
@@ -519,7 +519,7 @@ const UserPage = () => {
         setProcessMessage('Deleting user...');
         setError(null);
         try {
-            await axios.delete(`https://api.tuitionsebaforum.com/api/user/delete/${userToDelete}`, {
+            await axios.delete(`https://tuition-seba-backend-1.onrender.com/api/user/delete/${userToDelete}`, {
                 headers: { Authorization: token }
             });
             await fetchUsers();
@@ -626,12 +626,12 @@ const UserPage = () => {
         setError(null);
         try {
             if (editingUser) {
-                await axios.put(`https://api.tuitionsebaforum.com/api/user/edit/${editingUser._id}`, newUser, {
+                await axios.put(`https://tuition-seba-backend-1.onrender.com/api/user/edit/${editingUser._id}`, newUser, {
                     headers: { Authorization: token }
                 });
                 toast.success('User updated successfully');
             } else {
-                await axios.post('https://api.tuitionsebaforum.com/api/user/register', newUser, {
+                await axios.post('https://tuition-seba-backend-1.onrender.com/api/user/register', newUser, {
                     headers: { Authorization: token }
                 });
                 toast.success('User added successfully');

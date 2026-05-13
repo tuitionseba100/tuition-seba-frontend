@@ -99,7 +99,7 @@ const GuardianApplyPage = () => {
     const fetchGuardianApplyRecords = async (page = 1) => {
         setLoading(true);
         try {
-            const response = await axios.get('https://api.tuitionsebaforum.com/api/guardianApply/getTableData', {
+            const response = await axios.get('https://tuition-seba-backend-1.onrender.com/api/guardianApply/getTableData', {
                 params: {
                     page: currentPage,
                     phone: appliedFilters.phone,
@@ -132,7 +132,7 @@ const GuardianApplyPage = () => {
     };
 
     const fetchCardSummary = () => {
-        axios.get('https://api.tuitionsebaforum.com/api/guardianApply/summary', {
+        axios.get('https://tuition-seba-backend-1.onrender.com/api/guardianApply/summary', {
             params: {
                 page: currentPage,
                 phone: appliedFilters.phone,
@@ -189,11 +189,11 @@ const GuardianApplyPage = () => {
         try {
             if (editingId) {
                 updatedData.updatedBy = username;
-                await axios.put(`https://api.tuitionsebaforum.com/api/guardianApply/edit/${editingId}`, updatedData);
+                await axios.put(`https://tuition-seba-backend-1.onrender.com/api/guardianApply/edit/${editingId}`, updatedData);
                 toast.success("Record updated successfully!");
             } else {
                 updatedData.createdBy = username;
-                await axios.post('https://api.tuitionsebaforum.com/api/guardianApply/add', updatedData);
+                await axios.post('https://tuition-seba-backend-1.onrender.com/api/guardianApply/add', updatedData);
                 toast.success("Record created successfully!");
             }
             setShowModal(false);
@@ -283,7 +283,7 @@ const GuardianApplyPage = () => {
 
         try {
             const response = await axios.put(
-                `https://api.tuitionsebaforum.com/api/guardianApply/update-status/${selectedRecord._id}`,
+                `https://tuition-seba-backend-1.onrender.com/api/guardianApply/update-status/${selectedRecord._id}`,
                 { status: newStatus, comment: newComment, updatedBy: username }
             );
 
@@ -315,7 +315,7 @@ const GuardianApplyPage = () => {
         if (confirmDelete) {
             setDeleteLoading(true);
             try {
-                await axios.delete(`https://api.tuitionsebaforum.com/api/guardianApply/delete/${id}`);
+                await axios.delete(`https://tuition-seba-backend-1.onrender.com/api/guardianApply/delete/${id}`);
                 toast.success("Record deleted successfully!");
                 fetchGuardianApplyRecords();
             } catch (err) {

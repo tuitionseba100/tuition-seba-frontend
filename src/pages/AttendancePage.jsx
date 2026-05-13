@@ -286,7 +286,7 @@ const AttendancePage = () => {
     const fetchAttendance = async () => {
         setIsLoadingData(true);
         try {
-            const response = await axios.get('https://api.tuitionsebaforum.com/api/attendance', {
+            const response = await axios.get('https://tuition-seba-backend-1.onrender.com/api/attendance', {
                 headers: { Authorization: token },
             });
             setAttendance(response.data);
@@ -303,7 +303,7 @@ const AttendancePage = () => {
 
     const fetchUsers = async () => {
         try {
-            const response = await axios.get('https://api.tuitionsebaforum.com/api/user/users', {
+            const response = await axios.get('https://tuition-seba-backend-1.onrender.com/api/user/users', {
                 headers: { Authorization: token },
             });
             setUsers(response.data);
@@ -465,8 +465,8 @@ const AttendancePage = () => {
 
         try {
             const url = actionType === 'start'
-                ? 'https://api.tuitionsebaforum.com/api/attendance/start'
-                : 'https://api.tuitionsebaforum.com/api/attendance/end';
+                ? 'https://tuition-seba-backend-1.onrender.com/api/attendance/start'
+                : 'https://tuition-seba-backend-1.onrender.com/api/attendance/end';
 
             const method = actionType === 'start' ? axios.post : axios.put;
 
@@ -494,7 +494,7 @@ const AttendancePage = () => {
     const deleteAttendance = async (id) => {
         if (!window.confirm('Are you sure you want to delete this record?')) return;
         try {
-            await axios.delete(`https://api.tuitionsebaforum.com/api/attendance/${id}`, {
+            await axios.delete(`https://tuition-seba-backend-1.onrender.com/api/attendance/${id}`, {
                 headers: { Authorization: token },
             });
             toast.success('Attendance record deleted');
@@ -506,7 +506,7 @@ const AttendancePage = () => {
 
     const handleEditSubmit = async () => {
         try {
-            await axios.put(`https://api.tuitionsebaforum.com/api/attendance/edit/${editingAttendance._id}`, {
+            await axios.put(`https://tuition-seba-backend-1.onrender.com/api/attendance/edit/${editingAttendance._id}`, {
                 startTime: editStartTime.toISOString(),
                 endTime: editEndTime ? editEndTime.toISOString() : '',
             }, {

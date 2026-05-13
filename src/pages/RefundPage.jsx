@@ -87,7 +87,7 @@ const RefundPage = () => {
                 personalPhone: filters.personalPhone,
                 status: filters.status
             };
-            const response = await axios.get('https://api.tuitionsebaforum.com/api/refund/all', { params });
+            const response = await axios.get('https://tuition-seba-backend-1.onrender.com/api/refund/all', { params });
             setRefundList(response.data.data);
             setTotalPages(response.data.totalPages);
             setCurrentPage(response.data.currentPage);
@@ -101,7 +101,7 @@ const RefundPage = () => {
 
     const fetchSummaryCounts = async () => {
         try {
-            const response = await axios.get('https://api.tuitionsebaforum.com/api/refund/summary');
+            const response = await axios.get('https://tuition-seba-backend-1.onrender.com/api/refund/summary');
             setStatusCounts(response.data);
         } catch (err) {
             console.error('Error fetching summary:', err);
@@ -110,7 +110,7 @@ const RefundPage = () => {
 
     const fetchAlertToday = async () => {
         try {
-            const response = await axios.get('https://api.tuitionsebaforum.com/api/refund/alert-today');
+            const response = await axios.get('https://tuition-seba-backend-1.onrender.com/api/refund/alert-today');
             setRefundsDueToday(response.data);
         } catch (err) {
             console.error('Error fetching today alerts:', err);
@@ -166,7 +166,7 @@ const RefundPage = () => {
                 status: appliedFilters.status,
                 limit: 10000 // Large limit for export
             };
-            const response = await axios.get('https://api.tuitionsebaforum.com/api/refund/all', { params });
+            const response = await axios.get('https://tuition-seba-backend-1.onrender.com/api/refund/all', { params });
             const allFilteredData = response.data.data;
 
             const now = new Date();
@@ -218,11 +218,11 @@ const RefundPage = () => {
         try {
             if (editingId) {
                 const updatedData = { ...updatedTuitionData, updatedBy: username };
-                await axios.put(`https://api.tuitionsebaforum.com/api/refund/edit/${editingId}`, updatedData);
+                await axios.put(`https://tuition-seba-backend-1.onrender.com/api/refund/edit/${editingId}`, updatedData);
                 toast.success("Refund record updated successfully!");
             } else {
                 const newData = { ...updatedTuitionData, createdBy: username };
-                await axios.post('https://api.tuitionsebaforum.com/api/refund/add', newData);
+                await axios.post('https://tuition-seba-backend-1.onrender.com/api/refund/add', newData);
                 toast.success("Refund record added successfully!");
             }
             setShowConfirmModal(false);
@@ -330,7 +330,7 @@ const RefundPage = () => {
     const handleDeleteRecord = async (id) => {
         if (window.confirm("Are you sure you want to delete this record?")) {
             try {
-                await axios.delete(`https://api.tuitionsebaforum.com/api/refund/delete/${id}`);
+                await axios.delete(`https://tuition-seba-backend-1.onrender.com/api/refund/delete/${id}`);
                 toast.success("Record deleted successfully!");
                 fetchRefundApplyRecords(currentPage);
                 fetchSummaryCounts();

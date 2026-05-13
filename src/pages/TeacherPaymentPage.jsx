@@ -106,7 +106,7 @@ const TeacherPaymentPage = () => {
     const fetchTeacherPaymentRecords = async () => {
         setLoading(true);
         try {
-            const response = await axios.get('https://api.tuitionsebaforum.com/api/teacherPayment/getTableData', {
+            const response = await axios.get('https://tuition-seba-backend-1.onrender.com/api/teacherPayment/getTableData', {
                 params: {
                     page: currentPage,
                     tuitionCode: appliedFilters.tuitionCode,
@@ -131,7 +131,7 @@ const TeacherPaymentPage = () => {
 
     const fetchTeacherSummary = async () => {
         try {
-            const res = await axios.get('https://api.tuitionsebaforum.com/api/teacherPayment/summary', {
+            const res = await axios.get('https://tuition-seba-backend-1.onrender.com/api/teacherPayment/summary', {
                 params: {
                     tuitionCode: appliedFilters.tuitionCode,
                     personalPhone: appliedFilters.personalPhone,
@@ -179,7 +179,7 @@ const TeacherPaymentPage = () => {
             try {
                 const statusForFileName = selectedExportStatus.replace(/\s+/g, '_').toLowerCase();
                 const link = document.createElement('a');
-                link.href = `https://api.tuitionsebaforum.com/api/teacherPayment/exportData?status=${selectedExportStatus}`;
+                link.href = `https://tuition-seba-backend-1.onrender.com/api/teacherPayment/exportData?status=${selectedExportStatus}`;
                 link.target = '_blank';
                 link.download = selectedExportStatus.toLowerCase() === 'all'
                     ? 'teacher_payments_all.csv'
@@ -214,14 +214,14 @@ const TeacherPaymentPage = () => {
                     ...teacherPaymentData,
                     updatedBy: username
                 };
-                await axios.put(`https://api.tuitionsebaforum.com/api/teacherPayment/edit/${teacherEditingId}`, updatedData);
+                await axios.put(`https://tuition-seba-backend-1.onrender.com/api/teacherPayment/edit/${teacherEditingId}`, updatedData);
                 toast.success("Teacher payment record updated successfully!");
             } else {
                 const newData = {
                     ...teacherPaymentData,
                     createdBy: username
                 };
-                await axios.post('https://api.tuitionsebaforum.com/api/teacherPayment/add', newData);
+                await axios.post('https://tuition-seba-backend-1.onrender.com/api/teacherPayment/add', newData);
                 toast.success("Teacher payment record created successfully!");
             }
             setShowTeacherModal(false);
@@ -246,7 +246,7 @@ const TeacherPaymentPage = () => {
         if (confirmDelete) {
             setIsDeleting(true);
             try {
-                await axios.delete(`https://api.tuitionsebaforum.com/api/teacherPayment/delete/${id}`);
+                await axios.delete(`https://tuition-seba-backend-1.onrender.com/api/teacherPayment/delete/${id}`);
                 toast.success("Payment record deleted successfully!");
                 fetchTeacherPaymentRecords();
                 setIsDeleting(false);

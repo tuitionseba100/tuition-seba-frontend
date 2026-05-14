@@ -66,10 +66,11 @@ const SettingsPage = () => {
         }
     };
 
-    const handleSaveSetting = async (key) => {
-        const value = settings[key];
+    const handleSaveSetting = async (key, valueOverride = null) => {
+        const value = valueOverride !== null ? valueOverride : settings[key];
         
-        if (!value || (Array.isArray(value) && value.length === 0)) {
+        // If it's a manual save from dropdown, we want to ensure selection
+        if (valueOverride === null && (!value || (Array.isArray(value) && value.length === 0))) {
             toast.error('Please select at least one user');
             return;
         }
@@ -86,6 +87,27 @@ const SettingsPage = () => {
         } catch (error) {
             console.error('Error saving setting:', error);
             toast.error('Failed to save setting');
+        }
+    };
+
+    const handleRemoveUser = async (key, userId) => {
+        const currentSetting = allSettings.find(s => s.key === key);
+        if (!currentSetting) return;
+
+        const user = users.find(u => u.username === userId || u._id === userId);
+        const userName = user ? user.username : userId;
+
+        if (!window.confirm(`Are you sure you want to unassign ${userName} from "${key.replace(/_/g, ' ')}"?`)) {
+            return;
+        }
+
+        const currentValues = Array.isArray(currentSetting.value) ? currentSetting.value : (currentSetting.value ? [currentSetting.value] : []);
+        const newValues = currentValues.filter(id => id !== userId);
+
+        try {
+            await handleSaveSetting(key, newValues);
+        } catch (error) {
+            console.error('Error removing user:', error);
         }
     };
 
@@ -442,6 +464,14 @@ const SettingsPage = () => {
                                                                             <span className="fw-bold" style={{ color: themeColor, letterSpacing: '0.1px' }}>
                                                                                 {name}
                                                                             </span>
+                                                                            <button 
+                                                                                onClick={() => handleRemoveUser(s.key, val)}
+                                                                                className="btn btn-link p-0 ms-2 text-muted hover-danger border-0 d-flex align-items-center"
+                                                                                style={{ textDecoration: 'none', transition: 'color 0.2s' }}
+                                                                                title={`Unassign ${name}`}
+                                                                            >
+                                                                                <i className="fas fa-times-circle" style={{ fontSize: '0.85rem' }}></i>
+                                                                            </button>
                                                                         </div>
                                                                     );
                                                                 });
@@ -486,6 +516,10 @@ const SettingsPage = () => {
                         box-shadow: 0 4px 12px rgba(0,0,0,0.1) !important;
                         background-color: #f8fafc !important;
                         z-index: 1;
+                    }
+                    .hover-danger:hover {
+                        color: #dc3545 !important;
+                        transform: scale(1.2);
                     }
                     .transition-all {
                         transition: all 0.2s ease-in-out;

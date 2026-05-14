@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Modal, Button, Form, Row, Col, Spinner, Table, Card, Badge, InputGroup } from 'react-bootstrap';
+import { Modal, Button, Form, Row, Col, Spinner, Table, Card, Badge, InputGroup, OverlayTrigger, Tooltip } from 'react-bootstrap';
 import Select from 'react-select';
 import axios from 'axios';
 import { toast } from 'react-toastify';
@@ -30,9 +30,26 @@ const selectStyles = {
     }),
     multiValue: (base) => ({
         ...base,
-        margin: '1px',
-        backgroundColor: '#e7f1ff',
-        borderRadius: '4px'
+        margin: '2px',
+        backgroundColor: '#dcfce7',
+        borderRadius: '50px',
+        border: '1px solid #bbf7d0',
+        padding: '1px 8px'
+    }),
+    multiValueLabel: (base) => ({
+        ...base,
+        color: '#14532d',
+        fontWeight: '600',
+        fontSize: '0.8rem'
+    }),
+    multiValueRemove: (base) => ({
+        ...base,
+        color: '#14532d',
+        '&:hover': {
+            backgroundColor: '#14532d',
+            color: 'white',
+            borderRadius: '50px'
+        }
     })
 };
 
@@ -95,14 +112,14 @@ const FilterCard = styled(Card)`
     background: #fdfdfd;
     box-shadow: 0 2px 8px rgba(0,0,0,0.05);
     .card-body {
-        padding: 15px;
+        padding: 12px;
     }
 `;
 
 const SectionTitle = styled.h6`
     font-weight: 700;
     color: #444;
-    margin-bottom: 15px;
+    margin-bottom: 8px;
     display: flex;
     align-items: center;
     gap: 8px;
@@ -183,6 +200,34 @@ const ToggleBadge = styled(Badge)`
     }
 `;
 
+const AreaGroupChip = styled.span`
+    cursor: pointer;
+    padding: 6px 16px;
+    background-color: #dcfce7 !important;
+    color: #14532d !important;
+    border: 1.5px solid #bbf7d0 !important;
+    border-radius: 50px !important;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    font-size: 0.75rem;
+    font-weight: 700;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    
+    &:hover {
+        background-color: #15803d !important;
+        color: white !important;
+        border-color: #15803d !important;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(21, 128, 61, 0.2);
+    }
+
+    &:active {
+        transform: translateY(0);
+    }
+`;
+
 const SocialPostModal = ({ show, onHide }) => {
     const [loading, setLoading] = useState(false);
     const [tuitions, setTuitions] = useState([]);
@@ -196,6 +241,7 @@ const SocialPostModal = ({ show, onHide }) => {
         startCode: '',
         endCode: ''
     });
+    const [areaGroups, setAreaGroups] = useState([]);
 
     const statusOptions = [
         { value: 'available', label: 'Available' },
@@ -212,7 +258,48 @@ const SocialPostModal = ({ show, onHide }) => {
 
     const areaOptions = useMemo(() =>
         locationData.areaOptions.chittagong.map(area => ({ value: area, label: area }))
-        , []);
+    , []);
+
+    // Fetch area groups from settings
+    useEffect(() => {
+        if (show) {
+            const fetchAreaGroups = async () => {
+                try {
+                    const token = localStorage.getItem('token');
+                    const response = await axios.get('https://tuition-seba-backend-1.onrender.com/api/settings', {
+                        headers: { Authorization: token }
+                    });
+                    const areaSetting = response.data.find(s => s.key === 'area_groups');
+                    if (areaSetting && Array.isArray(areaSetting.value)) {
+                        setAreaGroups(areaSetting.value);
+                    }
+                } catch (error) {
+                    console.error('Error fetching area groups:', error);
+                }
+            };
+            fetchAreaGroups();
+        }
+    }, [show]);
+
+    const handleAreaGroupClick = (group) => {
+        const groupAreas = group.areas.map(area => ({ value: area, label: area }));
+        
+        // Merge with existing selected areas, avoiding duplicates
+        setFilters(prev => {
+            const currentAreaValues = prev.area.map(a => a.value);
+            const newAreas = [...prev.area];
+            
+            groupAreas.forEach(ga => {
+                if (!currentAreaValues.includes(ga.value)) {
+                    newAreas.push(ga);
+                }
+            });
+            
+            return { ...prev, area: newAreas };
+        });
+        
+        toast.info(`Added areas from group: ${group.name}`);
+    };
 
     const [isWhatsAppFormat, setIsWhatsAppFormat] = useState(true);
     const [fieldConfig, setFieldConfig] = useState({
@@ -377,9 +464,33 @@ const SocialPostModal = ({ show, onHide }) => {
                         <FilterCard>
                             <Card.Body>
                                 <SectionTitle><FaFilter /> Advanced Filters</SectionTitle>
-                                <Row className="g-2">
-                                    <Col md={2}>
-                                        <Form.Select name="count" value={filters.count} onChange={handleFilterChange} className="form-control-sm">
+                                <Row className="gx-2 gy-1">
+                                    {areaGroups.length > 0 && (
+                                        <Col md={12} className="mb-1">
+                                            <div className="d-flex flex-wrap gap-1 align-items-center">
+                                                <span className="text-success fw-bold small me-1">Quick Select:</span>
+                                                {areaGroups.map((group, idx) => (
+                                                    <OverlayTrigger
+                                                        key={idx}
+                                                        placement="top"
+                                                        overlay={
+                                                            <Tooltip id={`tooltip-group-${idx}`}>
+                                                                {group.areas.join(', ')}
+                                                            </Tooltip>
+                                                        }
+                                                    >
+                                                        <AreaGroupChip 
+                                                            onClick={() => handleAreaGroupClick(group)}
+                                                        >
+                                                            {group.name}
+                                                        </AreaGroupChip>
+                                                    </OverlayTrigger>
+                                                ))}
+                                            </div>
+                                        </Col>
+                                    )}
+                                    <Col md={3}>
+                                        <Form.Select name="count" value={filters.count} onChange={handleFilterChange} className="form-control-sm h-100">
                                             <option value="5">Latest 5</option>
                                             <option value="10">Latest 10</option>
                                             <option value="20">Latest 20</option>
@@ -387,7 +498,7 @@ const SocialPostModal = ({ show, onHide }) => {
                                             <option value="100">Latest 100</option>
                                         </Form.Select>
                                     </Col>
-                                    <Col md={5}>
+                                    <Col md={4}>
                                         <Select
                                             isMulti
                                             name="area"
@@ -409,31 +520,31 @@ const SocialPostModal = ({ show, onHide }) => {
                                             styles={selectStyles}
                                         />
                                     </Col>
-                                    <Col md={6}>
+                                    <Col md={8}>
                                         <InputGroup size="sm">
-                                            <InputGroup.Text className="bg-light">Codes</InputGroup.Text>
+                                            <InputGroup.Text className="bg-light fw-bold">Code Range</InputGroup.Text>
                                             <Form.Control
-                                                placeholder="Start"
+                                                placeholder="Start Code"
                                                 name="startCode"
                                                 value={filters.startCode}
                                                 onChange={handleFilterChange}
                                             />
                                             <Form.Control
-                                                placeholder="End"
+                                                placeholder="End Code"
                                                 name="endCode"
                                                 value={filters.endCode}
                                                 onChange={handleFilterChange}
                                             />
                                         </InputGroup>
                                     </Col>
-                                    <Col md={6}>
-                                        <Button variant="primary" size="sm" onClick={fetchTuitions} disabled={loading} className="w-100 fw-bold">
+                                    <Col md={4}>
+                                        <Button variant="success" size="sm" onClick={fetchTuitions} disabled={loading} className="w-100 fw-bold h-100 shadow-sm">
                                             {loading ? <Spinner size="sm" animation="border" /> : <><FaSearch className="me-1" /> Fetch Tuitions</>}
                                         </Button>
                                     </Col>
                                 </Row>
 
-                                <hr className="my-3" />
+                                <hr className="my-2" />
 
                                 <SectionTitle><FaListUl /> Field Configuration</SectionTitle>
                                 <div className="d-flex flex-wrap gap-1">
@@ -515,7 +626,7 @@ const SocialPostModal = ({ show, onHide }) => {
                                             </td>
                                             {filters.status.length > 1 && (
                                                 <td>
-                                                    <Badge bg="info" className="text-capitalize" style={{ fontSize: '0.7rem' }}>
+                                                    <Badge bg="success" className="text-capitalize rounded-pill px-2" style={{ fontSize: '0.7rem', opacity: 0.85 }}>
                                                         {t.status}
                                                     </Badge>
                                                 </td>

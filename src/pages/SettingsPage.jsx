@@ -11,9 +11,9 @@ const SettingsPage = () => {
     const [users, setUsers] = useState([]);
     const [allSettings, setAllSettings] = useState([]);
     const [settings, setSettings] = useState({
-        payment_auto_assign_user: '',
-        tuition_auto_assign_user: '',
-        status_change_auto_assign_user: ''
+        payment_auto_assign_user: [],
+        tuition_auto_assign_user: [],
+        status_change_auto_assign_user: []
     });
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
@@ -39,18 +39,25 @@ const SettingsPage = () => {
             setAllSettings(settingsData);
 
             const settingsObj = {
-                payment_auto_assign_user: '',
-                tuition_auto_assign_user: '',
-                status_change_auto_assign_user: ''
+                payment_auto_assign_user: [],
+                tuition_auto_assign_user: [],
+                status_change_auto_assign_user: []
             };
 
             settingsData.forEach(s => {
                 if (settingsObj.hasOwnProperty(s.key)) {
-                    settingsObj[s.key] = s.value;
+                    // Normalize value to an array
+                    if (Array.isArray(s.value)) {
+                        settingsObj[s.key] = s.value;
+                    } else if (s.value) {
+                        settingsObj[s.key] = [s.value];
+                    } else {
+                        settingsObj[s.key] = [];
+                    }
                 }
             });
 
-            setSettings(settingsObj);
+            // setSettings(settingsObj);
         } catch (error) {
             console.error('Error fetching settings:', error);
             toast.error('Failed to load settings');
@@ -62,15 +69,8 @@ const SettingsPage = () => {
     const handleSaveSetting = async (key) => {
         const value = settings[key];
         
-        if (!value) {
-            toast.error('Please select a user');
-            return;
-        }
-
-        // Check if this user is already assigned to another setting
-        const alreadyAssigned = allSettings.find(s => s.key !== key && s.value === value);
-        if (alreadyAssigned) {
-            toast.error(`This user is already assigned to "${alreadyAssigned.key.replace(/_/g, ' ')}"`);
+        if (!value || (Array.isArray(value) && value.length === 0)) {
+            toast.error('Please select at least one user');
             return;
         }
 
@@ -94,8 +94,14 @@ const SettingsPage = () => {
     };
 
     const getDisplayName = (username) => {
+        if (Array.isArray(username)) {
+            return username.map(u => {
+                const user = users.find(usr => usr.username === u);
+                return user ? `${user.name} (${user.username})` : u;
+            }).join(', ');
+        }
         const user = users.find(u => u.username === username);
-        return user ? `${user.name} (${user.username})` : username;
+        return user ? `${user.name} (${user.username})` : (username || '');
     };
 
     const userOptions = Array.isArray(users) ? users.map(user => ({
@@ -104,9 +110,9 @@ const SettingsPage = () => {
     })) : [];
 
     const filteredSettings = allSettings.filter(s => {
-        const keyMatch = s.key.toLowerCase().includes(searchTerm.toLowerCase());
-        const valueMatch = String(s.value).toLowerCase().includes(searchTerm.toLowerCase());
-        const userMatch = s.key.includes('user') && getDisplayName(s.value).toLowerCase().includes(searchTerm.toLowerCase());
+        const keyMatch = String(s.key || '').toLowerCase().includes(searchTerm.toLowerCase());
+        const valueMatch = String(s.value || '').toLowerCase().includes(searchTerm.toLowerCase());
+        const userMatch = s.key.includes('user') && String(getDisplayName(s.value)).toLowerCase().includes(searchTerm.toLowerCase());
         return keyMatch || valueMatch || userMatch;
     });
 
@@ -130,15 +136,15 @@ const SettingsPage = () => {
                 <ToastContainer />
                 <div className="row g-2 justify-content-center">
                     <div className="col-12">
-                        <div className="card border-0 shadow-lg mb-3" style={{ borderRadius: '15px' }}>
-                            <div className="card-header bg-primary text-white p-3">
-                                <h2 className="mb-0 fw-bold fs-4">
-                                    <i className="fas fa-cog me-2"></i>
-                                    Superadmin Settings
+                        <div className="card border-0 shadow-lg mb-4 overflow-hidden" style={{ borderRadius: '20px' }}>
+                            <div className="card-header py-2 px-4 border-0" style={{ background: 'linear-gradient(135deg, #0d6efd 0%, #0b5ed7 100%)', color: 'white' }}>
+                                <h2 className="mb-0 fw-bold d-flex align-items-center fs-4">
+                                    <i className="fas fa-sliders-h me-3"></i>
+                                    System Management
                                 </h2>
-                                <p className="mb-0 opacity-75 small">Configure system-wide automation settings</p>
+                                <p className="mb-0 opacity-80 extra-small">Control system automation and personnel assignments</p>
                             </div>
-                            <div className="card-body p-3 bg-light">
+                            <div className="card-body p-3 bg-white">
                                 
                                 <div className="row g-3">
                                     {/* Payment Auto Assign */}
@@ -156,27 +162,55 @@ const SettingsPage = () => {
                                             <Select 
                                                 className="mb-3 shadow-sm"
                                                 classNamePrefix="select"
-                                                value={userOptions.find(opt => opt.value === settings.payment_auto_assign_user) || null}
-                                                onChange={(selected) => handleChange('payment_auto_assign_user', selected ? selected.value : '')}
+                                                isMulti
+                                                value={userOptions.filter(opt => (settings.payment_auto_assign_user || []).includes(opt.value))}
+                                                onChange={(selected) => handleChange('payment_auto_assign_user', selected ? selected.map(opt => opt.value) : [])}
                                                 options={userOptions}
                                                 placeholder="Search & Select User..."
                                                 isClearable
                                                 menuPosition="fixed"
                                                 styles={{
-                                                    control: (base) => ({
+                                                    control: (base, state) => ({
                                                         ...base,
-                                                        border: 'none',
-                                                        backgroundColor: '#f8f9fa',
-                                                        borderRadius: '0.5rem',
-                                                        padding: '2px'
+                                                        border: '2px solid #f1f5f9',
+                                                        backgroundColor: 'white',
+                                                        borderRadius: '0.75rem',
+                                                        padding: '2px',
+                                                        minHeight: 'auto',
+                                                        boxShadow: state.isFocused ? '0 0 0 0.25rem rgba(13, 110, 253, 0.1)' : 'none',
+                                                        borderColor: state.isFocused ? '#0d6efd' : '#f1f5f9',
+                                                        '&:hover': {
+                                                            borderColor: '#0d6efd'
+                                                        }
+                                                    }),
+                                                    multiValue: (base) => ({
+                                                        ...base,
+                                                        backgroundColor: '#e7f1ff',
+                                                        borderRadius: '6px',
+                                                        padding: '2px 4px'
+                                                    }),
+                                                    multiValueLabel: (base) => ({
+                                                        ...base,
+                                                        color: '#0d6efd',
+                                                        fontWeight: '600'
+                                                    }),
+                                                    multiValueRemove: (base) => ({
+                                                        ...base,
+                                                        color: '#0d6efd',
+                                                        '&:hover': {
+                                                            backgroundColor: '#0d6efd',
+                                                            color: 'white',
+                                                            borderRadius: '4px'
+                                                        }
                                                     })
                                                 }}
                                             />
                                             <button 
-                                                className="btn btn-primary w-100 rounded-3 shadow-sm hover-lift"
+                                                className="btn w-100 rounded-3 shadow-sm hover-lift text-white fw-bold py-2 mt-1"
+                                                style={{ background: 'linear-gradient(to right, #0d6efd, #0b5ed7)', border: 'none' }}
                                                 onClick={() => handleSaveSetting('payment_auto_assign_user')}
                                             >
-                                                Save
+                                                Update Assignment
                                             </button>
                                         </div>
                                     </div>
@@ -196,27 +230,55 @@ const SettingsPage = () => {
                                             <Select 
                                                 className="mb-3 shadow-sm"
                                                 classNamePrefix="select"
-                                                value={userOptions.find(opt => opt.value === settings.tuition_auto_assign_user) || null}
-                                                onChange={(selected) => handleChange('tuition_auto_assign_user', selected ? selected.value : '')}
+                                                isMulti
+                                                value={userOptions.filter(opt => (settings.tuition_auto_assign_user || []).includes(opt.value))}
+                                                onChange={(selected) => handleChange('tuition_auto_assign_user', selected ? selected.map(opt => opt.value) : [])}
                                                 options={userOptions}
                                                 placeholder="Search & Select User..."
                                                 isClearable
                                                 menuPosition="fixed"
                                                 styles={{
-                                                    control: (base) => ({
+                                                    control: (base, state) => ({
                                                         ...base,
-                                                        border: 'none',
-                                                        backgroundColor: '#f8f9fa',
-                                                        borderRadius: '0.5rem',
-                                                        padding: '2px'
+                                                        border: '2px solid #f1f5f9',
+                                                        backgroundColor: 'white',
+                                                        borderRadius: '0.75rem',
+                                                        padding: '2px',
+                                                        minHeight: 'auto',
+                                                        boxShadow: state.isFocused ? '0 0 0 0.25rem rgba(16, 185, 129, 0.1)' : 'none',
+                                                        borderColor: state.isFocused ? '#10b981' : '#f1f5f9',
+                                                        '&:hover': {
+                                                            borderColor: '#10b981'
+                                                        }
+                                                    }),
+                                                    multiValue: (base) => ({
+                                                        ...base,
+                                                        backgroundColor: '#ecfdf5',
+                                                        borderRadius: '6px',
+                                                        padding: '2px 4px'
+                                                    }),
+                                                    multiValueLabel: (base) => ({
+                                                        ...base,
+                                                        color: '#059669',
+                                                        fontWeight: '600'
+                                                    }),
+                                                    multiValueRemove: (base) => ({
+                                                        ...base,
+                                                        color: '#059669',
+                                                        '&:hover': {
+                                                            backgroundColor: '#059669',
+                                                            color: 'white',
+                                                            borderRadius: '4px'
+                                                        }
                                                     })
                                                 }}
                                             />
                                             <button 
-                                                className="btn btn-success w-100 rounded-3 shadow-sm hover-lift"
+                                                className="btn w-100 rounded-3 shadow-sm hover-lift text-white fw-bold py-2 mt-1"
+                                                style={{ background: 'linear-gradient(to right, #10b981, #059669)', border: 'none' }}
                                                 onClick={() => handleSaveSetting('tuition_auto_assign_user')}
                                             >
-                                                Save
+                                                Update Assignment
                                             </button>
                                         </div>
                                     </div>
@@ -236,27 +298,55 @@ const SettingsPage = () => {
                                             <Select 
                                                 className="mb-3 shadow-sm"
                                                 classNamePrefix="select"
-                                                value={userOptions.find(opt => opt.value === settings.status_change_auto_assign_user) || null}
-                                                onChange={(selected) => handleChange('status_change_auto_assign_user', selected ? selected.value : '')}
+                                                isMulti
+                                                value={userOptions.filter(opt => (settings.status_change_auto_assign_user || []).includes(opt.value))}
+                                                onChange={(selected) => handleChange('status_change_auto_assign_user', selected ? selected.map(opt => opt.value) : [])}
                                                 options={userOptions}
                                                 placeholder="Search & Select User..."
                                                 isClearable
                                                 menuPosition="fixed"
                                                 styles={{
-                                                    control: (base) => ({
+                                                    control: (base, state) => ({
                                                         ...base,
-                                                        border: 'none',
-                                                        backgroundColor: '#f8f9fa',
-                                                        borderRadius: '0.5rem',
-                                                        padding: '2px'
+                                                        border: '2px solid #f1f5f9',
+                                                        backgroundColor: 'white',
+                                                        borderRadius: '0.75rem',
+                                                        padding: '2px',
+                                                        minHeight: 'auto',
+                                                        boxShadow: state.isFocused ? '0 0 0 0.25rem rgba(245, 158, 11, 0.1)' : 'none',
+                                                        borderColor: state.isFocused ? '#f59e0b' : '#f1f5f9',
+                                                        '&:hover': {
+                                                            borderColor: '#f59e0b'
+                                                        }
+                                                    }),
+                                                    multiValue: (base) => ({
+                                                        ...base,
+                                                        backgroundColor: '#fffbeb',
+                                                        borderRadius: '6px',
+                                                        padding: '2px 4px'
+                                                    }),
+                                                    multiValueLabel: (base) => ({
+                                                        ...base,
+                                                        color: '#d97706',
+                                                        fontWeight: '600'
+                                                    }),
+                                                    multiValueRemove: (base) => ({
+                                                        ...base,
+                                                        color: '#d97706',
+                                                        '&:hover': {
+                                                            backgroundColor: '#d97706',
+                                                            color: 'white',
+                                                            borderRadius: '4px'
+                                                        }
                                                     })
                                                 }}
                                             />
                                             <button 
-                                                className="btn btn-warning w-100 rounded-3 shadow-sm hover-lift"
+                                                className="btn w-100 rounded-3 shadow-sm hover-lift text-white fw-bold py-2 mt-1"
+                                                style={{ background: 'linear-gradient(to right, #f59e0b, #d97706)', border: 'none' }}
                                                 onClick={() => handleSaveSetting('status_change_auto_assign_user')}
                                             >
-                                                Save
+                                                Update Assignment
                                             </button>
                                         </div>
                                     </div>
@@ -266,14 +356,15 @@ const SettingsPage = () => {
                         </div>
 
                         {/* Settings Summary List */}
-                        <div className="card border-0 shadow-lg overflow-hidden" style={{ borderRadius: '15px' }}>
-                            <div className="card-header bg-secondary text-white p-3 d-flex justify-content-between align-items-center flex-wrap gap-2">
+                        <div className="card border-0 shadow-lg overflow-hidden" style={{ borderRadius: '20px' }}>
+                            <div className="card-header py-2 px-4 border-0 d-flex justify-content-between align-items-center flex-wrap gap-3" 
+                                                                 style={{ background: 'linear-gradient(135deg, #0d6efd 0%, #0b5ed7 100%)', color: 'white' }}>
                                 <div>
                                     <h3 className="mb-0 fw-bold fs-5">
-                                        <i className="fas fa-list-ul me-2"></i>
-                                        Active Configurations
+                                        <i className="fas fa-tasks me-2 text-warning"></i>
+                                        System Configuration Overview
                                     </h3>
-                                    <p className="mb-0 opacity-75 extra-small">Summary of currently active system settings</p>
+                                    <p className="mb-0 opacity-75 extra-small">Detailed view of currently active automation rules</p>
                                 </div>
                                 <div className="position-relative" style={{ width: '250px' }}>
                                     <input 
@@ -289,27 +380,77 @@ const SettingsPage = () => {
                             <div className="card-body p-0">
                                 <div className="table-responsive">
                                     <table className="table table-hover mb-0">
-                                        <thead className="bg-light">
+                                        <thead className="bg-white border-bottom">
                                             <tr>
-                                                <th className="px-3 py-2 border-0 small">Setting Key</th>
-                                                <th className="px-3 py-2 border-0 small">Assigned Value</th>
-                                                <th className="px-3 py-2 border-0 text-end small">Status</th>
+                                                <th className="px-4 py-2 border-0 text-muted text-uppercase extra-small fw-bold" style={{ letterSpacing: '0.5px' }}>Configuration Key</th>
+                                                <th className="px-4 py-2 border-0 text-muted text-uppercase extra-small fw-bold" style={{ letterSpacing: '0.5px' }}>Assigned Personnel</th>
+                                                <th className="px-4 py-2 border-0 text-end text-muted text-uppercase extra-small fw-bold" style={{ letterSpacing: '0.5px' }}>Status</th>
                                             </tr>
                                         </thead>
                                         <tbody>
                                             {filteredSettings.length > 0 ? filteredSettings.map((s, index) => (
-                                                <tr key={index}>
-                                                    <td className="px-3 py-2 align-middle">
-                                                        <span className="badge bg-secondary-subtle text-secondary text-uppercase border px-2 py-1">
-                                                            {s.key.replace(/_/g, ' ')}
-                                                        </span>
+                                                <tr key={index} className="align-middle">
+                                                    <td className="px-4 py-2">
+                                                        <div className="d-flex align-items-center">
+                                                            <div className="bg-light p-2 rounded-3 me-3 text-secondary" style={{ width: '35px', height: '35px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                                                <i className={s.key.includes('payment') ? 'fas fa-credit-card' : s.key.includes('tuition') ? 'fas fa-graduation-cap' : 'fas fa-sync-alt'}></i>
+                                                            </div>
+                                                            <span className="fw-semibold text-dark text-capitalize">
+                                                                {s.key.replace(/_/g, ' ')}
+                                                            </span>
+                                                        </div>
                                                     </td>
-                                                    <td className="px-3 py-2 align-middle fw-bold small">
-                                                        {s.key.includes('user') ? getDisplayName(s.value) : s.value}
+                                                    <td className="px-4 py-2">
+                                                        <div className="d-flex flex-wrap gap-2">
+                                                            {(() => {
+                                                                const values = Array.isArray(s.value) ? s.value : (s.value ? [s.value] : []);
+                                                                if (values.length === 0) return <span className="text-muted extra-small italic">Not assigned</span>;
+                                                                
+                                                                return values.map((val, i) => {
+                                                                    const user = users.find(u => u.username === val || u._id === val);
+                                                                    const name = user ? user.username : val;
+                                                                    const initials = name.charAt(0).toUpperCase();
+                                                                    
+                                                                    // Color logic based on setting type
+                                                                    let themeColor = "#0d6efd"; // Default Primary
+                                                                    let bgSubtle = "#e7f1ff";
+                                                                    if (s.key.includes('tuition')) { themeColor = "#198754"; bgSubtle = "#d1e7dd"; }
+                                                                    if (s.key.includes('status')) { themeColor = "#d97706"; bgSubtle = "#fff3cd"; }
+                                                                    
+                                                                    return (
+                                                                        <div 
+                                                                            key={i} 
+                                                                            className="d-flex align-items-center rounded-pill shadow-sm px-2 py-1 user-pill-hover transition-all border"
+                                                                            style={{ 
+                                                                                fontSize: '0.8rem', 
+                                                                                backgroundColor: 'white',
+                                                                                borderColor: bgSubtle
+                                                                            }}
+                                                                        >
+                                                                            <div 
+                                                                                className="rounded-circle d-flex align-items-center justify-content-center me-2 text-white shadow-sm" 
+                                                                                style={{ 
+                                                                                    width: '20px', 
+                                                                                    height: '20px', 
+                                                                                    fontSize: '0.65rem', 
+                                                                                    fontWeight: '800',
+                                                                                    backgroundColor: themeColor
+                                                                                }}
+                                                                            >
+                                                                                {initials}
+                                                                            </div>
+                                                                            <span className="fw-bold" style={{ color: themeColor, letterSpacing: '0.1px' }}>
+                                                                                {name}
+                                                                            </span>
+                                                                        </div>
+                                                                    );
+                                                                });
+                                                            })()}
+                                                        </div>
                                                     </td>
-                                                    <td className="px-3 py-2 align-middle text-end">
-                                                        <span className="text-success small">
-                                                            <i className="fas fa-check-circle me-1"></i>
+                                                    <td className="px-4 py-3 text-end">
+                                                        <span className="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-3 py-2">
+                                                            <i className="fas fa-circle me-1 small"></i>
                                                             Active
                                                         </span>
                                                     </td>
@@ -334,7 +475,23 @@ const SettingsPage = () => {
                     }
                     .hover-lift:hover {
                         transform: translateY(-2px);
-                        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+                        box-shadow: 0 5px 15px rgba(0,0,0,0.1) !important;
+                    }
+                    .user-pill-hover {
+                        cursor: default;
+                        transition: all 0.2s ease;
+                    }
+                    .user-pill-hover:hover {
+                        transform: scale(1.05);
+                        box-shadow: 0 4px 12px rgba(0,0,0,0.1) !important;
+                        background-color: #f8fafc !important;
+                        z-index: 1;
+                    }
+                    .transition-all {
+                        transition: all 0.2s ease-in-out;
+                    }
+                    .italic {
+                        font-style: italic;
                     }
                     .rounded-4 { border-radius: 1rem !important; }
                     .bg-primary-subtle { background-color: #cfe2ff; }

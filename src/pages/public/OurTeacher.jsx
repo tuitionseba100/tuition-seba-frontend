@@ -242,7 +242,7 @@ export default function OurTeacher() {
             backdropFilter: 'blur(10px)',
             border: '1px solid rgba(255, 255, 255, 0.3)'
         },
-        searchWrapper: {
+        filterSearchWrapper: {
             width: '100%',
             maxWidth: '320px',
             position: 'relative'
@@ -516,7 +516,7 @@ export default function OurTeacher() {
 
                 <div style={styles.filterContainer} className="filter-container">
                     {/* General Search */}
-                    <div style={styles.searchWrapper} className="search-wrapper">
+                    <div style={styles.filterSearchWrapper} className="search-wrapper">
                         <FaSearch style={styles.searchIcon} className="search-icon" size={18} />
                         <input
                             type="text"
@@ -537,7 +537,7 @@ export default function OurTeacher() {
                     </div>
 
                     {/* Area Search */}
-                    <div style={styles.searchWrapper} className="search-wrapper">
+                    <div style={styles.filterSearchWrapper} className="search-wrapper">
                         <FaMapMarkerAlt style={styles.searchIcon} className="search-icon" size={18} />
                         <input
                             type="text"
@@ -558,7 +558,7 @@ export default function OurTeacher() {
                     </div>
 
                     {/* Subject Search */}
-                    <div style={styles.searchWrapper} className="search-wrapper">
+                    <div style={styles.filterSearchWrapper} className="search-wrapper">
                         <FaBookOpen style={styles.searchIcon} className="search-icon" size={18} />
                         <input
                             type="text"
@@ -579,7 +579,7 @@ export default function OurTeacher() {
                     </div>
 
                     {/* University Search */}
-                    <div style={styles.searchWrapper} className="search-wrapper">
+                    <div style={styles.filterSearchWrapper} className="search-wrapper">
                         <FaUniversity style={styles.searchIcon} className="search-icon" size={18} />
                         <input
                             type="text"

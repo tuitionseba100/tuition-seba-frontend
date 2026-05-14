@@ -244,6 +244,7 @@ const PaymentPage = () => {
             if (response.status === 200) {
                 toast.success('Payment verified successfully!');
                 fetchPaymentRecords(); // Refresh data
+                fetchTuitionAlertToday(); // Refresh alerts
             }
         } catch (err) {
             console.error(err);
@@ -545,6 +546,7 @@ const PaymentPage = () => {
                 await axios.delete(`https://tuition-seba-backend-1.onrender.com/api/payment/delete/${id}`);
                 toast.success("Payment record deleted successfully!");
                 fetchPaymentRecords();
+                fetchTuitionAlertToday();
                 setIsDeleting(false);
                 setShowModal(false);
                 setEditingId(null);
@@ -1207,7 +1209,7 @@ const PaymentPage = () => {
                     onHide={() => setShowAssignModal(false)}
                     payment={selectedPaymentForAssign}
                     fetchPaymentRecords={fetchPaymentRecords}
-                    fetchTuitionAlertToday={fetchTuitionAlertToday}
+                    fetchAlertData={fetchTuitionAlertToday}
                 />
 
                 {/* Auto Migrate Modal */}

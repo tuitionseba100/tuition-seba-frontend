@@ -42,8 +42,8 @@ const Navbar = () => {
 
         // Visibility logic
         if (role !== "superadmin") {
-            // Finance, Users, and Logs are strictly superadmin
-            if (to === "/admin/finance" || to === "/admin/user" || to === "/admin/activity-log") return null;
+            // Finance, Users, Logs, and Settings are strictly superadmin
+            if (to === "/admin/finance" || to === "/admin/user" || to === "/admin/activity-log" || to === "/admin/settings") return null;
 
             // Other items require specific permission if key is provided
             if (permissionKey && !permissions.includes(permissionKey)) {
@@ -54,7 +54,7 @@ const Navbar = () => {
         return (
             <li className="nav-item">
                 <Link
-                    className={`nav-link text-white fw-bold px-3 ${isActive ? 'active' : ''}`}
+                    className={`nav-link fw-bold px-3 ${isActive ? 'active' : ''}`}
                     to={to}
                 >
                     {label}
@@ -64,11 +64,10 @@ const Navbar = () => {
     };
 
     return (
-        <nav className="navbar navbar-expand-lg navbar-dark admin-navbar shadow-lg">
+        <nav className="navbar navbar-expand-xl navbar-dark admin-navbar shadow-lg">
             <div className="container-fluid px-4">
-                <Link className="navbar-brand fw-bold text-white fs-3" to="/admin">
-                    <i className="fas fa-graduation-cap me-2"></i>
-                    Tuition Seba Forum
+                <Link className="navbar-brand fw-bold text-white fs-3 me-4" to="/admin">
+                    <img src="/img/TUITION SEBA FORUM TF.png" alt="Logo" style={{ height: '40px', filter: 'brightness(0) invert(1)' }} />
                 </Link>
                 <button
                     className="navbar-toggler border-0"
@@ -82,13 +81,14 @@ const Navbar = () => {
                     <span className="navbar-toggler-icon"></span>
                 </button>
                 <div className="collapse navbar-collapse" id="navbarNav">
-                    <ul className="navbar-nav ms-auto">
+                    <ul className="navbar-nav ms-auto nav-scroll-container">
                         {role === "superadmin" || dayStarted ? (
                             <>
                                 {renderNavItem("/admin/tuition", "Tuitions", "tuition")}
                                 {renderNavItem("/admin/user", "Users")}
                                 {renderNavItem("/admin/finance", "Finance")}
                                 {renderNavItem("/admin/activity-log", "Logs")}
+                                {renderNavItem("/admin/settings", "Settings")}
                                 {renderNavItem("/admin/payment", "Payments", "payment")}
                                 {renderNavItem("/admin/teacherPayment", "Teacher Payments", "teacherPayment")}
                                 {renderNavItem("/admin/refund", "Refund", "refund")}
@@ -105,9 +105,8 @@ const Navbar = () => {
                         {renderNavItem("/admin/attendance", "Attendance")}
 
                         <li className="nav-item">
-                            <button className="btn btn-light text-primary fw-bold rounded-pill px-4 py-2 ms-2" onClick={handleLogout}>
-                                <i className="fas fa-sign-out-alt me-1"></i>
-                                Logout
+                            <button className="btn btn-light text-primary fw-bold rounded-pill px-3 py-2 ms-2" onClick={handleLogout} title="Logout">
+                                <i className="fas fa-sign-out-alt"></i>
                             </button>
                         </li>
                     </ul>

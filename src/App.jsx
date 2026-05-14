@@ -82,6 +82,7 @@ import Rules from './pages/public/Rules';
 import GeneralPage from './pages/GeneralPage';
 import IncomeExpensePage from './pages/IncomeExpensePage';
 import ActivityLogPage from './pages/ActivityLogPage';
+import SettingsPage from './pages/SettingsPage';
 
 
 const App = () => {
@@ -123,6 +124,7 @@ const App = () => {
             <Route path="user" element={<UserPage />} />
             <Route path="finance" element={<IncomeExpensePage />} />
             <Route path="activity-log" element={<ActivityLogPage />} />
+            <Route path="settings" element={<SettingsPage />} />
           </Route>
         </Route>
 

@@ -10,6 +10,7 @@ import { Spinner } from 'react-bootstrap';
 import Select from 'react-select';
 import LoadingCard from '../components/modals/LoadingCard';
 import TuitionDetailsModal from '../components/modals/TuitionDetailsModal';
+import CustomErrorModal from '../components/modals/CustomErrorModal';
 
 const TuitionPage = () => {
     const [tuitionList, setTuitionApplyList] = useState([]);
@@ -51,6 +52,7 @@ const TuitionPage = () => {
     const [detailsModalShow, setDetailsModalShow] = useState(false);
     const [tuitionDetails, setTuitionDetails] = useState(null);
     const [fetchingDetails, setFetchingDetails] = useState(false);
+    const [errorMessage, setErrorMessage] = useState('');
 
     const handleShowDetails = async (tuitionId) => {
         if (!tuitionId || tuitionId === 'admin_created') {
@@ -250,7 +252,12 @@ const TuitionPage = () => {
             fetchTuitionApplyRecords();
         } catch (err) {
             console.error('Error saving tuition apply record:', err);
-            toast.error("Error saving tuition apply record.");
+            // Handle duplicate or specific error messages from backend
+            if (err.response && err.response.data && err.response.data.message) {
+                setErrorMessage(err.response.data.message);
+            } else {
+                toast.error("Error saving tuition apply record.");
+            }
         } finally {
             setSaving(false);
         }
@@ -982,7 +989,11 @@ const TuitionPage = () => {
                         </Button>
                     </Modal.Footer>
                 </Modal>
-
+                <CustomErrorModal 
+                    show={!!errorMessage} 
+                    message={errorMessage} 
+                    onClose={() => setErrorMessage('')} 
+                />
             </Container>
         </>
     );

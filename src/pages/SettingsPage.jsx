@@ -31,6 +31,7 @@ const SettingsPage = () => {
         status_change_auto_assign_user: [],
         cancel_status_change_auto_assign_user: []
     });
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
     useEffect(() => {
         fetchInitialData();
@@ -303,11 +304,24 @@ const SettingsPage = () => {
     return (
         <>
             <NavbarPage />
-            <div className="container-fluid p-3">
+            <div className="container-fluid p-0 p-md-3">
                 <ToastContainer />
-                <div className="d-flex g-0">
-                    {/* Ultra-Slim Sidebar with Border */}
-                    <div className="pe-3 border-end" style={{ width: '170px', flexShrink: 0, minHeight: 'calc(100vh - 100px)' }}>
+                
+                {/* Mobile Header with Hamburger */}
+                <div className="d-flex d-md-none align-items-center justify-content-between p-3 bg-white border-bottom shadow-sm mb-3">
+                    <h5 className="fw-bold mb-0 text-dark">Settings</h5>
+                    <button 
+                        className="btn btn-primary btn-sm rounded-3 px-3"
+                        onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+                    >
+                        <i className={`fas ${isSidebarOpen ? 'fa-times' : 'fa-bars'} me-2`}></i>
+                        Menu
+                    </button>
+                </div>
+
+                <div className="d-flex flex-column flex-md-row g-0">
+                    {/* Ultra-Slim Sidebar - Mobile Overlay / Desktop Sidebar */}
+                    <div className={`settings-sidebar pe-md-3 border-end ${isSidebarOpen ? 'active' : ''}`} style={{ width: '170px', flexShrink: 0, minHeight: 'calc(100vh - 100px)' }}>
                         <div className="card border-0 shadow-sm rounded-4 overflow-hidden sticky-top" style={{ top: '20px' }}>
                             <div className="card-header border-0 bg-white p-2 px-3">
                                 <h6 className="fw-bold mb-0 text-dark">Settings</h6>
@@ -315,7 +329,7 @@ const SettingsPage = () => {
                             <div className="card-body p-1 bg-light">
                                 <div className="d-flex flex-column gap-1">
                                     <button 
-                                        onClick={() => setActiveTab('assignment')}
+                                        onClick={() => { setActiveTab('assignment'); setIsSidebarOpen(false); }}
                                         className={`btn w-100 text-start d-flex align-items-start p-2 px-3 rounded-3 transition-all border-0 ${activeTab === 'assignment' ? 'bg-primary text-white shadow-sm' : 'bg-transparent text-secondary hover-bg-white'}`}
                                     >
                                         <i className={`fas fa-user-tag mt-1 me-2 ${activeTab === 'assignment' ? 'text-white' : 'text-primary'}`} style={{ fontSize: '0.8rem' }}></i>
@@ -323,7 +337,7 @@ const SettingsPage = () => {
                                     </button>
                                     
                                     <button 
-                                        onClick={() => setActiveTab('area')}
+                                        onClick={() => { setActiveTab('area'); setIsSidebarOpen(false); }}
                                         className={`btn w-100 text-start d-flex align-items-start p-2 px-3 rounded-3 transition-all border-0 ${activeTab === 'area' ? 'bg-primary text-white shadow-sm' : 'bg-transparent text-secondary hover-bg-white'}`}
                                     >
                                         <i className={`fas fa-map-marked-alt mt-1 me-2 ${activeTab === 'area' ? 'text-white' : 'text-success'}`} style={{ fontSize: '0.8rem' }}></i>
@@ -333,9 +347,18 @@ const SettingsPage = () => {
                             </div>
                         </div>
                     </div>
+                    
+                    {/* Backdrop for mobile sidebar */}
+                    {isSidebarOpen && (
+                        <div 
+                            className="d-md-none position-fixed top-0 start-0 w-100 h-100 bg-black bg-opacity-25 z-index-dropdown"
+                            style={{ zIndex: 1040 }}
+                            onClick={() => setIsSidebarOpen(false)}
+                        ></div>
+                    )}
 
                     {/* Content Area */}
-                    <div className="flex-grow-1 ps-4">
+                    <div className="flex-grow-1 ps-md-4 p-3 p-md-0 overflow-hidden">
                         {activeTab === 'assignment' ? (
                             <>
                                 <div className="card border-0 shadow-lg mb-4 overflow-hidden" style={{ borderRadius: '20px' }}>
@@ -347,10 +370,9 @@ const SettingsPage = () => {
                                         <p className="mb-0 opacity-80 extra-small">Control system automation and personnel assignments</p>
                                     </div>
                             <div className="card-body p-3 bg-white">
-                                
-                                <div className="row g-3">
+                                                                <div className="row g-3">
                                     {/* Payment Auto Assign */}
-                                    <div className="col-md-3">
+                                    <div className="col-12 col-md-6 col-lg-3">
                                         <div className="bg-white p-3 rounded-4 shadow-sm border-start border-primary border-4 h-100">
                                             <div className="d-flex align-items-center mb-3">
                                                 <div className="bg-primary-subtle text-primary p-2 rounded-circle me-3">
@@ -422,7 +444,7 @@ const SettingsPage = () => {
                                     </div>
 
                                     {/* Tuition Auto Assign */}
-                                    <div className="col-md-3">
+                                    <div className="col-12 col-md-6 col-lg-3">
                                         <div className="bg-white p-3 rounded-4 shadow-sm border-start border-success border-4 h-100">
                                             <div className="d-flex align-items-center mb-3">
                                                 <div className="bg-success-subtle text-success p-2 rounded-circle me-3">
@@ -494,7 +516,7 @@ const SettingsPage = () => {
                                     </div>
 
                                     {/* Status Change Auto Assign */}
-                                    <div className="col-md-3">
+                                    <div className="col-12 col-md-6 col-lg-3">
                                         <div className="bg-white p-3 rounded-4 shadow-sm border-start border-warning border-4 h-100">
                                             <div className="d-flex align-items-center mb-3">
                                                 <div className="bg-warning-subtle text-warning p-2 rounded-circle me-3">
@@ -566,7 +588,7 @@ const SettingsPage = () => {
                                     </div>
 
                                     {/* Cancel Status Change Auto Assign */}
-                                    <div className="col-md-3">
+                                    <div className="col-12 col-md-6 col-lg-3">
                                         <div className="bg-white p-3 rounded-4 shadow-sm border-start border-danger border-4 h-100">
                                             <div className="d-flex align-items-center mb-3">
                                                 <div className="bg-danger-subtle text-danger p-2 rounded-circle me-3">
@@ -642,8 +664,8 @@ const SettingsPage = () => {
                         </div>
 
                         {/* Settings Summary List */}
-                        <div className="card border-0 shadow-lg overflow-hidden" style={{ borderRadius: '20px' }}>
-                            <div className="card-header py-2 px-4 border-0 d-flex justify-content-between align-items-center flex-wrap gap-3" 
+                         <div className="card border-0 shadow-lg overflow-hidden" style={{ borderRadius: '20px' }}>
+                            <div className="card-header py-3 px-4 border-0 d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-3" 
                                                                  style={{ background: 'linear-gradient(135deg, #0d6efd 0%, #0b5ed7 100%)', color: 'white' }}>
                                 <div>
                                     <h3 className="mb-0 fw-bold fs-5">
@@ -652,7 +674,7 @@ const SettingsPage = () => {
                                     </h3>
                                     <p className="mb-0 opacity-75 extra-small">Detailed view of currently active automation rules</p>
                                 </div>
-                                <div className="position-relative" style={{ width: '250px' }}>
+                                <div className="position-relative w-100" style={{ maxWidth: '250px' }}>
                                     <input 
                                         type="text" 
                                         className="form-control form-control-sm ps-4 rounded-pill border-0 shadow-sm"
@@ -771,7 +793,7 @@ const SettingsPage = () => {
                                             )}
                                         </div>
                                         <div className="row g-3 align-items-end">
-                                            <div className="col-md-4">
+                                            <div className="col-12 col-md-4">
                                                 <label className="form-label fw-semibold text-secondary small">Group Name</label>
                                                 <input 
                                                     type="text" 
@@ -782,7 +804,7 @@ const SettingsPage = () => {
                                                     disabled={isSaving}
                                                 />
                                             </div>
-                                            <div className="col-md-6">
+                                            <div className="col-12 col-md-6">
                                                 <label className="form-label fw-semibold text-secondary small">Select Areas</label>
                                                 <Select 
                                                     isMulti
@@ -803,7 +825,7 @@ const SettingsPage = () => {
                                                     }}
                                                 />
                                             </div>
-                                            <div className="col-md-2">
+                                            <div className="col-12 col-md-2">
                                                 <button 
                                                     className={`btn w-100 rounded-3 fw-bold py-2 shadow-sm hover-lift d-flex align-items-center justify-content-center ${isEditingArea !== null ? 'btn-warning' : 'btn-success'}`} 
                                                     onClick={addAreaGroup}
@@ -921,6 +943,32 @@ const SettingsPage = () => {
                     .bg-warning-subtle { background-color: #fff3cd; }
                     .badge { font-size: 0.65rem; letter-spacing: 0.5px; }
                     .extra-small { font-size: 0.75rem; }
+
+                    @media (max-width: 768px) {
+                        .settings-sidebar {
+                            position: fixed;
+                            top: 0;
+                            left: -170px;
+                            height: 100vh !important;
+                            background: white;
+                            z-index: 1050;
+                            transition: all 0.3s ease;
+                            padding-top: 20px;
+                            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+                        }
+                        .settings-sidebar.active {
+                            left: 0;
+                        }
+                        .table-responsive {
+                            font-size: 0.8rem;
+                        }
+                        .card-header h2 {
+                            font-size: 1.2rem !important;
+                        }
+                        .card-header h3 {
+                            font-size: 1.1rem !important;
+                        }
+                    }
                 `}</style>
             </div>
         </>

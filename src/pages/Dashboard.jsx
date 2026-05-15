@@ -54,6 +54,7 @@ const Dashboard = () => {
     const [applicationStatusBreakdown, setApplicationStatusBreakdown] = useState([]);
     const [monthlyPaymentInflow, setMonthlyPaymentInflow] = useState([]);
     const [refundTrends, setRefundTrends] = useState([]);
+    const [assignmentSummary, setAssignmentSummary] = useState([]);
     const [paymentSummary, setPaymentSummary] = useState(null);
     const [editingPayment, setEditingPayment] = useState(null);
     const [showEditModal, setShowEditModal] = useState(false);
@@ -98,6 +99,7 @@ const Dashboard = () => {
                 setApplicationStatusBreakdown(data.applicationStatusBreakdown);
                 setMonthlyPaymentInflow(data.monthlyPaymentInflow);
                 setRefundTrends(data.refundTrends);
+                setAssignmentSummary(data.assignmentSummary || []);
             })
             .catch((err) => console.error('Dashboard fetch error:', err))
             .finally(() => setLoading(false));
@@ -378,6 +380,43 @@ const Dashboard = () => {
                         </Card>
                     </Col>
                 </Row>
+
+                {/* Assignment Summary Table */}
+                {assignmentSummary.length > 0 && (
+                    <Row className="mb-4">
+                        <Col lg={12}>
+                            <Card>
+                                <Card.Header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                    <span style={{ fontWeight: 900, color: '#0d6efd' }}>
+                                        {role === 'superadmin' ? 'User Assignments Overview' : 'Your Assignments Overview'}
+                                    </span>
+                                </Card.Header>
+                                <Card.Body style={{ padding: 0, maxHeight: 300, overflowY: 'auto' }}>
+                                    <Table striped hover responsive="md" style={{ marginBottom: 0 }}>
+                                        <thead>
+                                            <tr>
+                                                <th>User</th>
+                                                <th>Assigned Tuitions</th>
+                                                <th>Assigned Payments</th>
+                                                <th>Total Assignments</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {assignmentSummary.map((user, idx) => (
+                                                <tr key={idx}>
+                                                    <td style={{ fontWeight: 'bold' }}>{user.username}</td>
+                                                    <td>{user.tuitionCount}</td>
+                                                    <td>{user.paymentCount}</td>
+                                                    <td><span className="badge bg-primary" style={{ fontSize: '0.9rem' }}>{user.tuitionCount + user.paymentCount}</span></td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </Table>
+                                </Card.Body>
+                            </Card>
+                        </Col>
+                    </Row>
+                )}
 
                 {/* Recent Tuition Applications & Teacher Applications */}
                 <Row className="mb-4">

@@ -226,9 +226,9 @@ const TuitionPage = () => {
         const checkTime = () => {
             const now = new Date();
             const hours = now.getHours();
-            // Show only between 11:00 PM and 11:59 PM (23:00 - 23:59)
+            // Show only between 10:00 PM and 10:59 PM (22:00 - 22:59)
             // AND only if there are tuitions needing update today
-            setShowAutoMigrate(hours === 23 && tuitionNeedsUpdateList.length > 0);
+            setShowAutoMigrate(hours === 22 && tuitionNeedsUpdateList.length > 0);
         };
         checkTime();
         const interval = setInterval(checkTime, 60000); // Check every minute

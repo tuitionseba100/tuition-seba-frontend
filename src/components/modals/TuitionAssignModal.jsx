@@ -34,13 +34,13 @@ const TuitionAssignModal = ({ show, onHide, tuition, fetchTuitionRecords, fetchA
     };
 
     const handleAssign = async () => {
-        if (!assignedTo) {
-            toast.warning('Please select an employee');
-            return;
-        }
+        const isUnassigning = !assignedTo;
+        const confirmMessage = isUnassigning 
+            ? "Are you sure you want to unassign this tuition?" 
+            : `Are you sure you want to assign this tuition to ${assignedTo}?`;
 
-        const confirmAssign = window.confirm(`Are you sure you want to assign this tuition to ${assignedTo}?`);
-        if (!confirmAssign) return;
+        const confirmAction = window.confirm(confirmMessage);
+        if (!confirmAction) return;
 
         setLoading(true);
         try {
@@ -49,16 +49,23 @@ const TuitionAssignModal = ({ show, onHide, tuition, fetchTuitionRecords, fetchA
                 assignedTo: assignedTo,
                 updatedBy: username
             });
-            toast.success(`Tuition assigned to ${assignedTo} successfully!`);
+            toast.success(isUnassigning ? "Tuition unassigned successfully!" : `Tuition assigned to ${assignedTo} successfully!`);
             fetchTuitionRecords();
             if (fetchAlertData) fetchAlertData();
             onHide();
         } catch (error) {
-            console.error('Error assigning tuition:', error);
-            toast.error('Failed to assign tuition');
+            console.error('Error updating assignment:', error);
+            toast.error(isUnassigning ? 'Failed to unassign tuition' : 'Failed to assign tuition');
         } finally {
             setLoading(false);
         }
+    };
+
+    const handleUnassignClick = () => {
+        setAssignedTo('');
+        // We call handleAssign directly after setting assignedTo to empty
+        // But since setState is async, we should probably pass the value directly or use a timeout
+        // Better: just call the logic with empty value
     };
 
     return (
@@ -111,12 +118,23 @@ const TuitionAssignModal = ({ show, onHide, tuition, fetchTuitionRecords, fetchA
                 </div>
             </Modal.Body>
             <Modal.Footer>
-                <Button variant="secondary" onClick={onHide} disabled={loading}>
-                    Cancel
-                </Button>
-                <Button variant="primary" onClick={handleAssign} disabled={loading || fetchingUsers}>
-                    {loading ? <Spinner animation="border" size="sm" /> : 'Assign & Update'}
-                </Button>
+                <div className="d-flex w-100 justify-content-between align-items-center">
+                    <div>
+                        {tuition?.assignedTo && (
+                            <Button variant="outline-danger" onClick={handleUnassignClick} disabled={loading || !assignedTo}>
+                                Clear Selection
+                            </Button>
+                        )}
+                    </div>
+                    <div className="d-flex gap-2">
+                        <Button variant="secondary" onClick={onHide} disabled={loading}>
+                            Cancel
+                        </Button>
+                        <Button variant="primary" onClick={handleAssign} disabled={loading || fetchingUsers}>
+                            {loading ? <Spinner animation="border" size="sm" /> : (assignedTo ? 'Assign & Update' : 'Unassign & Update')}
+                        </Button>
+                    </div>
+                </div>
             </Modal.Footer>
         </Modal>
     );

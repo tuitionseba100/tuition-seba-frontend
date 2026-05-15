@@ -1008,9 +1008,16 @@ const TuitionPage = () => {
                                                 <td>{tuition.nextUpdateComment || '-'}</td>
                                                 <td>{tuition.status}</td>
                                                 <td>
-                                                    <span className={`badge ${tuition.isSpamGuardian || tuition.isBestGuardian ? 'bg-light text-dark' : 'bg-secondary'}`}>
-                                                        {tuition.assignedTo || 'Unassigned'}
-                                                    </span>
+                                                    <div className="d-flex flex-column align-items-center">
+                                                        <span className={`badge ${tuition.isSpamGuardian || tuition.isBestGuardian ? 'bg-light text-dark' : 'bg-secondary'}`}>
+                                                            {tuition.assignedTo || 'Unassigned'}
+                                                        </span>
+                                                        {tuition.previousAssignedTo && (
+                                                            <span className="badge bg-light text-muted mt-1" style={{ fontSize: '0.65rem' }}>
+                                                                Prev: {tuition.previousAssignedTo}
+                                                            </span>
+                                                        )}
+                                                    </div>
                                                 </td>
                                                 <td>{tuition.tutorNumber}</td>
                                                 <td>
@@ -1416,9 +1423,16 @@ const MemoizedTuitionTable = React.memo(({
                                 {tuition.isPublish ? "Yes" : "No"}
                             </td>
                             <td>
-                                <span className={`badge ${tuition.isSpamGuardian || tuition.isBestGuardian ? 'bg-light text-dark' : 'bg-secondary'}`}>
-                                    {tuition.assignedTo || 'Unassigned'}
-                                </span>
+                                <div className="d-flex flex-column align-items-center">
+                                    <span className={`badge ${tuition.isSpamGuardian || tuition.isBestGuardian ? 'bg-light text-dark' : 'bg-secondary'}`}>
+                                        {tuition.assignedTo || 'Unassigned'}
+                                    </span>
+                                    {tuition.previousAssignedTo && (
+                                        <span className="badge bg-light text-muted mt-1" style={{ fontSize: '0.65rem' }}>
+                                            Prev: {tuition.previousAssignedTo}
+                                        </span>
+                                    )}
+                                </div>
                             </td>
                             <td>
                                 <span className={`badge ${statusColors[tuition.status]?.bg || "bg-light"} ${statusColors[tuition.status]?.text || "text-dark"}`}>

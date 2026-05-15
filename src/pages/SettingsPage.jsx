@@ -14,7 +14,8 @@ const SettingsPage = () => {
     const [settings, setSettings] = useState({
         payment_auto_assign_user: [],
         tuition_auto_assign_user: [],
-        status_change_auto_assign_user: []
+        status_change_auto_assign_user: [],
+        cancel_status_change_auto_assign_user: []
     });
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
@@ -27,7 +28,8 @@ const SettingsPage = () => {
     const [selectedAssignments, setSelectedAssignments] = useState({
         payment_auto_assign_user: [],
         tuition_auto_assign_user: [],
-        status_change_auto_assign_user: []
+        status_change_auto_assign_user: [],
+        cancel_status_change_auto_assign_user: []
     });
 
     useEffect(() => {
@@ -54,7 +56,8 @@ const SettingsPage = () => {
             const settingsObj = {
                 payment_auto_assign_user: [],
                 tuition_auto_assign_user: [],
-                status_change_auto_assign_user: []
+                status_change_auto_assign_user: [],
+                cancel_status_change_auto_assign_user: []
             };
 
             settingsData.forEach(s => {
@@ -248,12 +251,26 @@ const SettingsPage = () => {
         label: `${user.name} (${user.username})`
     })) : [];
 
-    const filteredSettings = allSettings.filter(s => {
-        // Only show personnel assignment submodule in this table
-        // We also show legacy settings that don't have a submodule yet but contain 'user' in the key
-        const isPersonnel = s.submodule === 'personnel_assignment' || (!s.submodule && s.key.includes('user'));
-        if (!isPersonnel) return false;
-        
+    const targetKeys = [
+        'payment_auto_assign_user',
+        'tuition_auto_assign_user',
+        'status_change_auto_assign_user',
+        'cancel_status_change_auto_assign_user'
+    ];
+
+    // Create a base list from allSettings that are personnel assignments
+    let baseSettings = allSettings.filter(s => {
+        return s.submodule === 'personnel_assignment' || (!s.submodule && s.key.includes('user'));
+    });
+
+    // Ensure all target keys are present
+    targetKeys.forEach(key => {
+        if (!baseSettings.find(s => s.key === key)) {
+            baseSettings.push({ key, value: [], submodule: 'personnel_assignment' });
+        }
+    });
+
+    const filteredSettings = baseSettings.filter(s => {
         const keyMatch = String(s.key || '').toLowerCase().includes(searchTerm.toLowerCase());
         const valueMatch = String(s.value || '').toLowerCase().includes(searchTerm.toLowerCase());
         const userMatch = String(getDisplayName(s.value)).toLowerCase().includes(searchTerm.toLowerCase());
@@ -262,7 +279,8 @@ const SettingsPage = () => {
         const order = {
             'payment_auto_assign_user': 1,
             'tuition_auto_assign_user': 2,
-            'status_change_auto_assign_user': 3
+            'status_change_auto_assign_user': 3,
+            'cancel_status_change_auto_assign_user': 4
         };
         const orderA = order[a.key] || 99;
         const orderB = order[b.key] || 99;
@@ -332,14 +350,14 @@ const SettingsPage = () => {
                                 
                                 <div className="row g-3">
                                     {/* Payment Auto Assign */}
-                                    <div className="col-md-4">
+                                    <div className="col-md-3">
                                         <div className="bg-white p-3 rounded-4 shadow-sm border-start border-primary border-4 h-100">
                                             <div className="d-flex align-items-center mb-3">
                                                 <div className="bg-primary-subtle text-primary p-2 rounded-circle me-3">
                                                     <i className="fas fa-credit-card"></i>
                                                 </div>
                                                 <div>
-                                                    <h5 className="mb-0 fw-bold">Payment</h5>
+                                                    <h5 className="mb-0 fw-bold" style={{ fontSize: '0.85rem' }}>Payment</h5>
                                                     <p className="text-muted extra-small mb-0">Auto-assign new payments</p>
                                                 </div>
                                             </div>
@@ -377,7 +395,8 @@ const SettingsPage = () => {
                                                     multiValueLabel: (base) => ({
                                                         ...base,
                                                         color: '#0d6efd',
-                                                        fontWeight: '600'
+                                                        fontWeight: '600',
+                                                        fontSize: '0.75rem'
                                                     }),
                                                     multiValueRemove: (base) => ({
                                                         ...base,
@@ -391,8 +410,8 @@ const SettingsPage = () => {
                                                 }}
                                             />
                                             <button 
-                                                className="btn w-100 rounded-3 shadow-sm hover-lift text-white fw-bold py-2 mt-1 d-flex align-items-center justify-content-center"
-                                                style={{ background: 'linear-gradient(to right, #0d6efd, #0b5ed7)', border: 'none' }}
+                                                className="btn w-100 rounded-3 shadow-sm hover-lift text-white fw-bold py-2 mt-auto d-flex align-items-center justify-content-center"
+                                                style={{ background: 'linear-gradient(to right, #0d6efd, #0b5ed7)', border: 'none', fontSize: '0.85rem' }}
                                                 onClick={() => handleSaveSetting('payment_auto_assign_user')}
                                                 disabled={isSaving}
                                             >
@@ -403,14 +422,14 @@ const SettingsPage = () => {
                                     </div>
 
                                     {/* Tuition Auto Assign */}
-                                    <div className="col-md-4">
+                                    <div className="col-md-3">
                                         <div className="bg-white p-3 rounded-4 shadow-sm border-start border-success border-4 h-100">
                                             <div className="d-flex align-items-center mb-3">
                                                 <div className="bg-success-subtle text-success p-2 rounded-circle me-3">
                                                     <i className="fas fa-graduation-cap"></i>
                                                 </div>
                                                 <div>
-                                                    <h5 className="mb-0 fw-bold">Tuition</h5>
+                                                    <h5 className="mb-0 fw-bold" style={{ fontSize: '0.85rem' }}>Tuition</h5>
                                                     <p className="text-muted extra-small mb-0">Auto-assign new tuitions</p>
                                                 </div>
                                             </div>
@@ -448,7 +467,8 @@ const SettingsPage = () => {
                                                     multiValueLabel: (base) => ({
                                                         ...base,
                                                         color: '#059669',
-                                                        fontWeight: '600'
+                                                        fontWeight: '600',
+                                                        fontSize: '0.75rem'
                                                     }),
                                                     multiValueRemove: (base) => ({
                                                         ...base,
@@ -462,8 +482,8 @@ const SettingsPage = () => {
                                                 }}
                                             />
                                             <button 
-                                                className="btn w-100 rounded-3 shadow-sm hover-lift text-white fw-bold py-2 mt-1 d-flex align-items-center justify-content-center"
-                                                style={{ background: 'linear-gradient(to right, #10b981, #059669)', border: 'none' }}
+                                                className="btn w-100 rounded-3 shadow-sm hover-lift text-white fw-bold py-2 mt-auto d-flex align-items-center justify-content-center"
+                                                style={{ background: 'linear-gradient(to right, #10b981, #059669)', border: 'none', fontSize: '0.85rem' }}
                                                 onClick={() => handleSaveSetting('tuition_auto_assign_user')}
                                                 disabled={isSaving}
                                             >
@@ -474,15 +494,15 @@ const SettingsPage = () => {
                                     </div>
 
                                     {/* Status Change Auto Assign */}
-                                    <div className="col-md-4">
+                                    <div className="col-md-3">
                                         <div className="bg-white p-3 rounded-4 shadow-sm border-start border-warning border-4 h-100">
                                             <div className="d-flex align-items-center mb-3">
                                                 <div className="bg-warning-subtle text-warning p-2 rounded-circle me-3">
                                                     <i className="fas fa-exchange-alt"></i>
                                                 </div>
                                                 <div>
-                                                    <h5 className="mb-0 fw-bold">Status Change</h5>
-                                                    <p className="text-muted extra-small mb-0">Tuition status change auto assign user</p>
+                                                    <h5 className="mb-0 fw-bold" style={{ fontSize: '0.85rem' }}>Status Change</h5>
+                                                    <p className="text-muted extra-small mb-0" style={{ fontSize: '0.65rem', lineHeight: '1.2' }}>Given Number, Guardian Meet, Demo Running</p>
                                                 </div>
                                             </div>
                                             <Select 
@@ -519,7 +539,8 @@ const SettingsPage = () => {
                                                     multiValueLabel: (base) => ({
                                                         ...base,
                                                         color: '#d97706',
-                                                        fontWeight: '600'
+                                                        fontWeight: '600',
+                                                        fontSize: '0.75rem'
                                                     }),
                                                     multiValueRemove: (base) => ({
                                                         ...base,
@@ -533,9 +554,81 @@ const SettingsPage = () => {
                                                 }}
                                             />
                                             <button 
-                                                className="btn w-100 rounded-3 shadow-sm hover-lift text-white fw-bold py-2 mt-1 d-flex align-items-center justify-content-center"
-                                                style={{ background: 'linear-gradient(to right, #f59e0b, #d97706)', border: 'none' }}
+                                                className="btn w-100 rounded-3 shadow-sm hover-lift text-white fw-bold py-2 mt-auto d-flex align-items-center justify-content-center"
+                                                style={{ background: 'linear-gradient(to right, #f59e0b, #d97706)', border: 'none', fontSize: '0.85rem' }}
                                                 onClick={() => handleSaveSetting('status_change_auto_assign_user')}
+                                                disabled={isSaving}
+                                            >
+                                                {isSaving ? <span className="spinner-border spinner-border-sm me-2"></span> : <i className="fas fa-user-plus me-2"></i>}
+                                                Update Assignment
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    {/* Cancel Status Change Auto Assign */}
+                                    <div className="col-md-3">
+                                        <div className="bg-white p-3 rounded-4 shadow-sm border-start border-danger border-4 h-100">
+                                            <div className="d-flex align-items-center mb-3">
+                                                <div className="bg-danger-subtle text-danger p-2 rounded-circle me-3">
+                                                    <i className="fas fa-times-circle"></i>
+                                                </div>
+                                                <div>
+                                                    <h5 className="mb-0 fw-bold" style={{ fontSize: '0.85rem' }}>Cancel Status</h5>
+                                                    <p className="text-muted extra-small mb-0" style={{ fontSize: '0.65rem', lineHeight: '1.2' }}>Tuition status change to Cancel</p>
+                                                </div>
+                                            </div>
+                                            <Select 
+                                                className="mb-3 shadow-sm"
+                                                classNamePrefix="select"
+                                                isMulti
+                                                value={userOptions.filter(opt => (selectedAssignments.cancel_status_change_auto_assign_user || []).includes(opt.value))}
+                                                onChange={(selected) => handleChange('cancel_status_change_auto_assign_user', selected ? selected.map(opt => opt.value) : [])}
+                                                options={userOptions}
+                                                placeholder="Add personnel..."
+                                                isClearable
+                                                isDisabled={isSaving}
+                                                menuPosition="fixed"
+                                                styles={{
+                                                    control: (base, state) => ({
+                                                        ...base,
+                                                        border: '2px solid #f1f5f9',
+                                                        backgroundColor: 'white',
+                                                        borderRadius: '0.75rem',
+                                                        padding: '2px',
+                                                        minHeight: 'auto',
+                                                        boxShadow: state.isFocused ? '0 0 0 0.25rem rgba(220, 53, 69, 0.1)' : 'none',
+                                                        borderColor: state.isFocused ? '#dc3545' : '#f1f5f9',
+                                                        '&:hover': {
+                                                            borderColor: '#dc3545'
+                                                        }
+                                                    }),
+                                                    multiValue: (base) => ({
+                                                        ...base,
+                                                        backgroundColor: '#f8d7da',
+                                                        borderRadius: '6px',
+                                                        padding: '2px 4px'
+                                                    }),
+                                                    multiValueLabel: (base) => ({
+                                                        ...base,
+                                                        color: '#dc3545',
+                                                        fontWeight: '600',
+                                                        fontSize: '0.75rem'
+                                                    }),
+                                                    multiValueRemove: (base) => ({
+                                                        ...base,
+                                                        color: '#dc3545',
+                                                        '&:hover': {
+                                                            backgroundColor: '#dc3545',
+                                                            color: 'white',
+                                                            borderRadius: '4px'
+                                                        }
+                                                    })
+                                                }}
+                                            />
+                                            <button 
+                                                className="btn w-100 rounded-3 shadow-sm hover-lift text-white fw-bold py-2 mt-auto d-flex align-items-center justify-content-center"
+                                                style={{ background: 'linear-gradient(to right, #dc3545, #b02a37)', border: 'none', fontSize: '0.85rem' }}
+                                                onClick={() => handleSaveSetting('cancel_status_change_auto_assign_user')}
                                                 disabled={isSaving}
                                             >
                                                 {isSaving ? <span className="spinner-border spinner-border-sm me-2"></span> : <i className="fas fa-user-plus me-2"></i>}
@@ -586,10 +679,14 @@ const SettingsPage = () => {
                                                     <td className="px-4 py-2">
                                                         <div className="d-flex align-items-center">
                                                             <div className="bg-light p-2 rounded-3 me-3 text-secondary" style={{ width: '35px', height: '35px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                                                <i className={s.key.includes('payment') ? 'fas fa-credit-card' : s.key.includes('tuition') ? 'fas fa-graduation-cap' : 'fas fa-sync-alt'}></i>
+                                                                <i className={s.key.includes('payment') ? 'fas fa-credit-card' : (s.key.includes('tuition') || s.key.includes('status_change')) ? 'fas fa-graduation-cap' : 'fas fa-sync-alt'}></i>
                                                             </div>
-                                                            <span className="fw-semibold text-dark text-capitalize">
-                                                                {s.key === 'status_change_auto_assign_user' ? 'Tuition status change auto assign user' : s.key.replace(/_/g, ' ')}
+                                                            <span className="fw-semibold text-dark text-capitalize" style={{ fontSize: '0.85rem' }}>
+                                                                {s.key === 'status_change_auto_assign_user' 
+                                                                    ? 'Tuition status change auto assign user (Given Number, Guardian Meet, Demo class Running)' 
+                                                                    : s.key === 'cancel_status_change_auto_assign_user'
+                                                                    ? 'Tuition status change auto assign user (Cancel)'
+                                                                    : s.key.replace(/_/g, ' ')}
                                                             </span>
                                                         </div>
                                                     </td>

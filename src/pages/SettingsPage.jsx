@@ -27,6 +27,11 @@ const SettingsPage = () => {
     const [isEditingArea, setIsEditingArea] = useState(null); // index of group being edited
     const [deletingGroupIdx, setDeletingGroupIdx] = useState(null);
 
+    const [guidelines, setGuidelines] = useState([]); // [{ id, topic, reply }]
+    const [newGuideline, setNewGuideline] = useState({ topic: '', reply: '' });
+    const [isEditingGuideline, setIsEditingGuideline] = useState(null); // index of guideline being edited
+    const [deletingGuidelineIdx, setDeletingGuidelineIdx] = useState(null);
+
     const [cityAreas, setCityAreas] = useState([]); // [{ cityName: '', areas: [] }]
     const [newCityNameOnly, setNewCityNameOnly] = useState('');
     const [selectedCityForArea, setSelectedCityForArea] = useState('');
@@ -99,6 +104,12 @@ const SettingsPage = () => {
             const cityAreaSetting = settingsData.find(s => s.key === 'city_areas');
             if (cityAreaSetting && Array.isArray(cityAreaSetting.value)) {
                 setCityAreas(cityAreaSetting.value);
+            }
+
+            // Extract response guidelines
+            const guidelinesSetting = settingsData.find(s => s.key === 'response_guidelines');
+            if (guidelinesSetting && Array.isArray(guidelinesSetting.value)) {
+                setGuidelines(guidelinesSetting.value);
             }
 
             setSettings(settingsObj);
@@ -180,6 +191,12 @@ const SettingsPage = () => {
             const cityAreaSetting = freshSettings.find(s => s.key === 'city_areas');
             if (cityAreaSetting && Array.isArray(cityAreaSetting.value)) {
                 setCityAreas(cityAreaSetting.value);
+            }
+
+            // Extract response guidelines if exists
+            const guidelinesSetting = freshSettings.find(s => s.key === 'response_guidelines');
+            if (guidelinesSetting && Array.isArray(guidelinesSetting.value)) {
+                setGuidelines(guidelinesSetting.value);
             }
         } catch (error) {
             console.error('Error saving setting:', error);
@@ -369,6 +386,60 @@ const SettingsPage = () => {
         setDeletingAreaTarget(null);
     };
 
+    const handleSaveGuidelines = async (updatedGuidelines = guidelines) => {
+        try {
+            setIsSaving(true);
+            const token = localStorage.getItem('token');
+            await axios.post(`${API_BASE_URL}/api/settings`, {
+                key: 'response_guidelines',
+                value: updatedGuidelines,
+                submodule: 'response_guideline'
+            }, {
+                headers: { Authorization: token }
+            });
+            toast.success('Guidelines saved successfully');
+            setGuidelines(updatedGuidelines);
+            setIsEditingGuideline(null);
+            setNewGuideline({ topic: '', reply: '' });
+        } catch (error) {
+            console.error('Error saving guidelines:', error);
+            toast.error('Failed to save guidelines');
+        } finally {
+            setIsSaving(false);
+        }
+    };
+
+    const addGuideline = () => {
+        if (!newGuideline.topic.trim() || !newGuideline.reply.trim()) {
+            toast.warning('Please provide both a topic/scenario and a reply');
+            return;
+        }
+
+        let updated;
+        if (isEditingGuideline !== null) {
+            updated = guidelines.map((g, i) => i === isEditingGuideline ? newGuideline : g);
+        } else {
+            updated = [...guidelines, { ...newGuideline, id: Date.now().toString() }];
+        }
+
+        handleSaveGuidelines(updated);
+    };
+
+    const editGuideline = (index) => {
+        const guideline = guidelines[index];
+        setNewGuideline({ ...guideline });
+        setIsEditingGuideline(index);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
+    const deleteGuideline = async (index) => {
+        if (!window.confirm('Are you sure you want to delete this guideline?')) return;
+        setDeletingGuidelineIdx(index);
+        const updated = guidelines.filter((_, i) => i !== index);
+        await handleSaveGuidelines(updated);
+        setDeletingGuidelineIdx(null);
+    };
+
     // Prepare all areas from JSON
     const allAvailableAreas = Object.values(locationData.areaOptions).flat().filter(a => a !== 'Coming Soon').map(a => ({ value: a, label: a }));
 
@@ -490,6 +561,14 @@ const SettingsPage = () => {
                                     >
                                         <i className={`fas fa-city mt-1 me-2 ${activeTab === 'cityArea' ? 'text-white' : 'text-info'}`} style={{ fontSize: '0.8rem' }}></i>
                                         <span className="fw-bold" style={{ fontSize: '0.7rem', lineHeight: '1.2' }}>City(Area) Settings</span>
+                                    </button>
+
+                                    <button
+                                        onClick={() => { setActiveTab('guidelines'); setIsSidebarOpen(false); }}
+                                        className={`btn w-100 text-start d-flex align-items-start p-2 px-3 rounded-3 transition-all border-0 ${activeTab === 'guidelines' ? 'bg-primary text-white shadow-sm' : 'bg-transparent text-secondary hover-bg-white'}`}
+                                    >
+                                        <i className={`fas fa-comment-dots mt-1 me-2 ${activeTab === 'guidelines' ? 'text-white' : 'text-warning'}`} style={{ fontSize: '0.8rem' }}></i>
+                                        <span className="fw-bold" style={{ fontSize: '0.7rem', lineHeight: '1.2' }}>Response Guidelines</span>
                                     </button>
                                 </div>
                             </div>
@@ -1183,8 +1262,8 @@ const SettingsPage = () => {
                                                             {newAreasList.map((area, idx) => (
                                                                 <div key={idx} className="area-capsule" style={{ background: '#eef2ff', borderColor: '#e0e7ff', color: '#4338ca' }}>
                                                                     <span>{area}</span>
-                                                                    <button 
-                                                                        className="delete-area-btn" 
+                                                                    <button
+                                                                        className="delete-area-btn"
                                                                         onClick={() => handleRemoveAreaFromDraftList(idx)}
                                                                         title="Remove from list"
                                                                     >
@@ -1229,7 +1308,7 @@ const SettingsPage = () => {
                                                                         {(() => {
                                                                             const allAreas = city.areas || [];
                                                                             const searchTerm = cityAreaSearch.toLowerCase();
-                                                                            const filteredAreas = searchTerm 
+                                                                            const filteredAreas = searchTerm
                                                                                 ? allAreas.filter(a => a.toLowerCase().includes(searchTerm))
                                                                                 : allAreas;
 
@@ -1240,8 +1319,8 @@ const SettingsPage = () => {
                                                                                         return (
                                                                                             <div key={aIdx} className="area-capsule">
                                                                                                 <span>{area}</span>
-                                                                                                <button 
-                                                                                                    className="delete-area-btn" 
+                                                                                                <button
+                                                                                                    className="delete-area-btn"
                                                                                                     onClick={() => deleteAreaFromCity(idx, actualIdx)}
                                                                                                     disabled={isSaving}
                                                                                                     title="Remove area"
@@ -1287,6 +1366,129 @@ const SettingsPage = () => {
                                                             <i className="fas fa-city opacity-25 mb-3 d-block" style={{ fontSize: '3rem' }}></i>
                                                             <p className="mb-0">{cityAreaSearch ? 'No results matching your search.' : 'No City/Areas configured yet.'}</p>
                                                             <small>{cityAreaSearch ? 'Try a different search term.' : 'Use the form above to add your first City and its Areas.'}</small>
+                                                        </td>
+                                                    </tr>
+                                                )}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        ) : activeTab === 'guidelines' ? (
+                            <div className="card border-0 shadow-lg overflow-hidden bangla-font" style={{ borderRadius: '20px' }}>
+                                <div className="card-header py-3 px-4 border-0 d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-3"
+                                    style={{ background: 'linear-gradient(135deg, #ffc107 0%, #ff9800 100%)', color: 'white' }}>
+                                    <div>
+                                        <h2 className="mb-0 fw-bold d-flex align-items-center fs-4">
+                                            <i className="fas fa-comment-dots me-3 text-dark"></i>
+                                            <span className="text-dark">রেসপন্স গাইডলাইন (Response Guidelines)</span>
+                                        </h2>
+                                        <p className="mb-0 text-dark opacity-80 extra-small">Add preset scenarios and guidelines for employees to reply to queries</p>
+                                    </div>
+                                </div>
+                                <div className="card-body p-4 bg-white">
+                                    {/* Create/Edit Guidelines Form */}
+                                    <div className={`p-4 rounded-4 mb-4 border shadow-sm transition-all ${isEditingGuideline !== null ? 'bg-warning-subtle border-warning' : 'bg-light border-warning-subtle'}`}>
+                                        <div className="d-flex justify-content-between align-items-center mb-3">
+                                            <h5 className={`fw-bold mb-0 text-dark`}>
+                                                {isEditingGuideline !== null ? <><i className="fas fa-edit me-2 text-warning"></i>গাইডলাইন এডিট করুন (Edit Guideline)</> : <><i className="fas fa-plus-circle me-2 text-success"></i>নতুন গাইডলাইন যোগ করুন (Create Guideline)</>}
+                                            </h5>
+                                            {isEditingGuideline !== null && (
+                                                <button className="btn btn-sm btn-outline-secondary rounded-pill px-3" onClick={() => { setIsEditingGuideline(null); setNewGuideline({ topic: '', reply: '' }); }}>
+                                                    Cancel Edit
+                                                </button>
+                                            )}
+                                        </div>
+                                        <div className="row g-3">
+                                            <div className="col-12 col-md-5">
+                                                <label className="form-label fw-semibold text-secondary small">টপিক / বিষয় / প্রশ্ন (Topic or Scenario Query)</label>
+                                                <input
+                                                    type="text"
+                                                    className="form-control rounded-3 border-0 shadow-sm font-sans"
+                                                    placeholder="যেমন: শিক্ষক রিফান্ড চাইলে..."
+                                                    value={newGuideline.topic}
+                                                    onChange={(e) => setNewGuideline(prev => ({ ...prev, topic: e.target.value }))}
+                                                    disabled={isSaving}
+                                                />
+                                            </div>
+                                            <div className="col-12 col-md-5">
+                                                <label className="form-label fw-semibold text-secondary small">preset উত্তর / রেসপন্স (Preset Reply Guideline)</label>
+                                                <textarea
+                                                    className="form-control rounded-3 border-0 shadow-sm font-sans"
+                                                    placeholder="যেমন: ৩ দিনের মধ্যে দিচ্ছি।"
+                                                    rows="1"
+                                                    value={newGuideline.reply}
+                                                    onChange={(e) => setNewGuideline(prev => ({ ...prev, reply: e.target.value }))}
+                                                    disabled={isSaving}
+                                                    style={{ resize: 'none' }}
+                                                />
+                                            </div>
+                                            <div className="col-12 col-md-2 d-flex align-items-end">
+                                                <button
+                                                    className={`btn w-100 rounded-3 fw-bold py-2 shadow-sm hover-lift d-flex align-items-center justify-content-center text-white ${isEditingGuideline !== null ? 'btn-warning' : 'btn-success'}`}
+                                                    onClick={addGuideline}
+                                                    disabled={isSaving}
+                                                >
+                                                    {isSaving ? (
+                                                        <span className="spinner-border spinner-border-sm me-2"></span>
+                                                    ) : (
+                                                        <i className={`fas ${isEditingGuideline !== null ? 'fa-save' : 'fa-plus'} me-2`}></i>
+                                                    )}
+                                                    {isEditingGuideline !== null ? 'Update' : 'Add'}
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Existing Guidelines List */}
+                                    <div className="table-responsive rounded-4 border">
+                                        <table className="table table-hover mb-0">
+                                            <thead className="bg-light border-bottom">
+                                                <tr>
+                                                    <th className="px-4 py-3 border-0 text-muted extra-small fw-bold" style={{ width: '40%' }}>টপিক / বিষয় (Topic / Scenario)</th>
+                                                    <th className="px-4 py-3 border-0 text-muted extra-small fw-bold" style={{ width: '45%' }}>preset উত্তর (Preset Reply)</th>
+                                                    <th className="px-4 py-3 border-0 text-end text-muted extra-small fw-bold" style={{ width: '15%' }}>অ্যাকশন (Actions)</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {guidelines.length > 0 ? guidelines.map((g, idx) => (
+                                                    <tr key={idx} className="align-middle">
+                                                        <td className="px-4 py-3">
+                                                            <span className="fw-bold text-dark font-sans">{g.topic}</span>
+                                                        </td>
+                                                        <td className="px-4 py-3">
+                                                            <span className="text-secondary font-sans">{g.reply}</span>
+                                                        </td>
+                                                        <td className="px-4 py-3 text-end">
+                                                            <div className="d-flex justify-content-end gap-2">
+                                                                <button
+                                                                    className="btn btn-outline-primary btn-sm rounded-pill px-3 hover-lift"
+                                                                    onClick={() => editGuideline(idx)}
+                                                                    disabled={isSaving}
+                                                                >
+                                                                    <i className="fas fa-edit me-1"></i> Edit
+                                                                </button>
+                                                                <button
+                                                                    className="btn btn-outline-danger btn-sm rounded-pill px-3 hover-lift d-flex align-items-center justify-content-center"
+                                                                    onClick={() => deleteGuideline(idx)}
+                                                                    disabled={isSaving}
+                                                                >
+                                                                    {isSaving && deletingGuidelineIdx === idx ? (
+                                                                        <span className="spinner-border spinner-border-sm me-1"></span>
+                                                                    ) : (
+                                                                        <i className="fas fa-trash-alt me-1"></i>
+                                                                    )}
+                                                                    Delete
+                                                                </button>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                )) : (
+                                                    <tr>
+                                                        <td colSpan="3" className="text-center py-5 text-muted">
+                                                            <i className="fas fa-comment-slash opacity-25 mb-3 d-block" style={{ fontSize: '3rem' }}></i>
+                                                            <p className="mb-0">কোনো গাইডলাইন এখনও তৈরি করা হয়নি।</p>
+                                                            <small>উপরের ফর্মটি ব্যবহার করে আপনার প্রথম রেসপন্স গাইডলাইন তৈরি করুন।</small>
                                                         </td>
                                                     </tr>
                                                 )}

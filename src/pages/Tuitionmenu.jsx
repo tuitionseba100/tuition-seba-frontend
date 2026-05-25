@@ -1000,8 +1000,8 @@ const TuitionPage = () => {
                                                     </div>
                                                 </td>
                                                 <td className="text-start">
-                                                    <span className="badge rounded-pill fw-normal me-2 mb-1" style={{ backgroundColor: '#e8f5e9', color: '#2e7d32', border: '1px solid #c8e6c9', padding: '0.4em 0.8em' }} title="Created By">CB: {tuition.createdBy || '-'}</span>
-                                                    <span className="badge rounded-pill fw-normal" style={{ backgroundColor: '#e3f2fd', color: '#1565c0', border: '1px solid #bbdefb', padding: '0.4em 0.8em' }} title="Updated By">UB: {tuition.updatedBy || '-'}</span>
+                                                    <span className="badge rounded-pill fw-bold me-2 mb-1" style={{ backgroundColor: '#e8f5e9', color: '#2e7d32', border: '1px solid #c8e6c9', padding: '0.4em 0.8em' }} title="Created By">CB: {tuition.createdBy || '-'}</span>
+                                                    <span className="badge rounded-pill fw-bold" style={{ backgroundColor: '#e3f2fd', color: '#1565c0', border: '1px solid #bbdefb', padding: '0.4em 0.8em' }} title="Updated By">UB: {tuition.updatedBy || '-'}</span>
                                                 </td>
                                                 <td>{tuition.note || '-'}</td>
                                                 <td>{tuition.lastUpdateComment || '-'}</td>
@@ -1153,158 +1153,158 @@ const TuitionPage = () => {
 
                 {/* Auto Migrate Modal */}
                 <Modal show={showMigrateModal} onHide={() => !isMigrating && setShowMigrateModal(false)} size="lg" backdrop={isMigrating ? 'static' : true} keyboard={!isMigrating}>
-                        <Modal.Header closeButton={!isMigrating}>
-                            <Modal.Title>Auto Migrate Tuitions (Today to Tomorrow)</Modal.Title>
-                        </Modal.Header>
-                        <Modal.Body>
-                            <div className="mb-3 d-flex justify-content-between align-items-center">
-                                <span className="fw-bold">Total tuitions needing update: {tuitionNeedsUpdateList.length}</span>
-                                <Button variant="outline-primary" size="sm" onClick={handleSelectAllMigration}>
-                                    {selectedMigrationIds.length === tuitionNeedsUpdateList.length ? 'Deselect All' : 'Select All'}
-                                </Button>
-                            </div>
-                            <div style={{ maxHeight: '450px', overflowY: 'auto' }}>
-                                <Table striped bordered hover size="sm">
-                                    <thead style={{ position: 'sticky', top: 0, backgroundColor: 'white', zIndex: 1 }}>
-                                        <tr>
-                                            <th className="text-center">Select</th>
-                                            <th>Code</th>
-                                            <th>Status</th>
-                                            <th>Current Next Update Date</th>
+                    <Modal.Header closeButton={!isMigrating}>
+                        <Modal.Title>Auto Migrate Tuitions (Today to Tomorrow)</Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body>
+                        <div className="mb-3 d-flex justify-content-between align-items-center">
+                            <span className="fw-bold">Total tuitions needing update: {tuitionNeedsUpdateList.length}</span>
+                            <Button variant="outline-primary" size="sm" onClick={handleSelectAllMigration}>
+                                {selectedMigrationIds.length === tuitionNeedsUpdateList.length ? 'Deselect All' : 'Select All'}
+                            </Button>
+                        </div>
+                        <div style={{ maxHeight: '450px', overflowY: 'auto' }}>
+                            <Table striped bordered hover size="sm">
+                                <thead style={{ position: 'sticky', top: 0, backgroundColor: 'white', zIndex: 1 }}>
+                                    <tr>
+                                        <th className="text-center">Select</th>
+                                        <th>Code</th>
+                                        <th>Status</th>
+                                        <th>Current Next Update Date</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {tuitionNeedsUpdateList.map(t => (
+                                        <tr key={t._id}>
+                                            <td className="text-center">
+                                                <Form.Check
+                                                    type="checkbox"
+                                                    checked={selectedMigrationIds.includes(t._id)}
+                                                    onChange={() => toggleMigrationSelection(t._id)}
+                                                />
+                                            </td>
+                                            <td>{t.tuitionCode}</td>
+                                            <td>
+                                                <Badge className={statusColors[t.status?.toLowerCase()]?.bg || 'bg-secondary'}>
+                                                    {t.status}
+                                                </Badge>
+                                            </td>
+                                            <td>{formatDateTimeDisplay(t.nextUpdateDate)}</td>
                                         </tr>
-                                    </thead>
-                                    <tbody>
-                                        {tuitionNeedsUpdateList.map(t => (
-                                            <tr key={t._id}>
-                                                <td className="text-center">
-                                                    <Form.Check
-                                                        type="checkbox"
-                                                        checked={selectedMigrationIds.includes(t._id)}
-                                                        onChange={() => toggleMigrationSelection(t._id)}
-                                                    />
-                                                </td>
-                                                <td>{t.tuitionCode}</td>
-                                                <td>
-                                                    <Badge className={statusColors[t.status?.toLowerCase()]?.bg || 'bg-secondary'}>
-                                                        {t.status}
-                                                    </Badge>
-                                                </td>
-                                                <td>{formatDateTimeDisplay(t.nextUpdateDate)}</td>
-                                            </tr>
-                                        ))}
-                                    </tbody>
-                                </Table>
-                            </div>
-                            <div className="mt-3 text-muted small">
-                                * Selected tuitions will have their "Next Update Date" moved to tomorrow and "Updated By" set to "auto migration".
-                            </div>
-                        </Modal.Body>
-                        <Modal.Footer>
-                            {isMigrating && <span className="text-danger fw-bold me-auto">⚠️ Please don't close while updating...</span>}
-                            <Button variant="secondary" onClick={() => setShowMigrateModal(false)} disabled={isMigrating}>Cancel</Button>
-                            <Button
-                                variant="warning"
-                                className="fw-bold"
-                                onClick={handleAutoMigrate}
-                                disabled={isMigrating || selectedMigrationIds.length === 0}
+                                    ))}
+                                </tbody>
+                            </Table>
+                        </div>
+                        <div className="mt-3 text-muted small">
+                            * Selected tuitions will have their "Next Update Date" moved to tomorrow and "Updated By" set to "auto migration".
+                        </div>
+                    </Modal.Body>
+                    <Modal.Footer>
+                        {isMigrating && <span className="text-danger fw-bold me-auto">⚠️ Please don't close while updating...</span>}
+                        <Button variant="secondary" onClick={() => setShowMigrateModal(false)} disabled={isMigrating}>Cancel</Button>
+                        <Button
+                            variant="warning"
+                            className="fw-bold"
+                            onClick={handleAutoMigrate}
+                            disabled={isMigrating || selectedMigrationIds.length === 0}
+                        >
+                            {isMigrating ? <Spinner animation="border" size="sm" /> : `Migrate Selected (${selectedMigrationIds.length})`}
+                        </Button>
+                    </Modal.Footer>
+                </Modal>
+
+                <TuitionModal
+                    show={showModal}
+                    onHide={() => setShowModal(false)}
+                    editingData={selectedTuition}
+                    editingId={editingId}
+                    fetchTuitionRecords={fetchTuitionRecords}
+                    fetchSummaryCounts={fetchSummaryCounts}
+                    fetchAlertData={fetchAlertData}
+                />
+
+                <TuitionDetailsModal
+                    show={showDetailsModal}
+                    onHide={() => setShowDetailsModal(false)}
+                    detailsData={detailsData}
+                />
+
+                <AppliedListModal
+                    tuitionId={selectedTuitionId}
+                    tuitionCode={selectedTuitionCode}
+                    show={showAppliedModal}
+                    onHide={() => setShowAppliedModal(false)}
+                />
+
+                <LoadingCard show={deleteLoading} message="Deleting..." />
+
+                <SocialPostModal
+                    show={showSocialPostModal}
+                    onHide={() => setShowSocialPostModal(false)}
+                />
+
+                <ToastContainer />
+
+                {/* Export Modal */}
+                <Modal show={showExportModal} onHide={() => {
+                    setShowExportModal(false);
+                    setSelectedExportStatus('');
+                }} centered>
+                    <Modal.Header closeButton className="bg-primary text-white">
+                        <Modal.Title className="w-100 text-center fw-bold">
+                            Select Status for Export
+                        </Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body className="p-4 bg-light">
+                        <Form.Group className="mb-3">
+                            <Form.Label className="fw-bold">Select Status:</Form.Label>
+                            <Form.Select
+                                value={selectedExportStatus}
+                                onChange={(e) => setSelectedExportStatus(e.target.value)}
+                                className="form-control-lg"
                             >
-                                {isMigrating ? <Spinner animation="border" size="sm" /> : `Migrate Selected (${selectedMigrationIds.length})`}
-                            </Button>
-                        </Modal.Footer>
-                    </Modal>
+                                <option value="">-- Select Status --</option>
+                                <option value="all">All</option>
+                                <option value="available">Available</option>
+                                <option value="given number">Given Number</option>
+                                <option value="guardian meet">Guardian Meet</option>
+                                <option value="demo class running">Demo Class Running</option>
+                                <option value="confirm">Confirm</option>
+                                <option value="cancel">Cancel</option>
+                                <option value="refer BM">Refer BM</option>
+                                <option value="suspended">Suspended</option>
+                                <option value="guardian no response">Guardian No response</option>
+                                <option value="request for payment">Request for payment</option>
+                            </Form.Select>
+                        </Form.Group>
+                    </Modal.Body>
+                    <Modal.Footer className="bg-light">
+                        <Button
+                            variant="secondary"
+                            onClick={() => {
+                                setShowExportModal(false);
+                                setSelectedExportStatus('');
+                            }}
+                        >
+                            Cancel
+                        </Button>
+                        <Button
+                            variant="primary"
+                            onClick={handleExportWithStatus}
+                            disabled={!selectedExportStatus}
+                        >
+                            Export
+                        </Button>
+                    </Modal.Footer>
+                </Modal>
 
-                    <TuitionModal
-                        show={showModal}
-                        onHide={() => setShowModal(false)}
-                        editingData={selectedTuition}
-                        editingId={editingId}
-                        fetchTuitionRecords={fetchTuitionRecords}
-                        fetchSummaryCounts={fetchSummaryCounts}
-                        fetchAlertData={fetchAlertData}
-                    />
-
-                    <TuitionDetailsModal
-                        show={showDetailsModal}
-                        onHide={() => setShowDetailsModal(false)}
-                        detailsData={detailsData}
-                    />
-
-                    <AppliedListModal
-                        tuitionId={selectedTuitionId}
-                        tuitionCode={selectedTuitionCode}
-                        show={showAppliedModal}
-                        onHide={() => setShowAppliedModal(false)}
-                    />
-
-                    <LoadingCard show={deleteLoading} message="Deleting..." />
-
-                    <SocialPostModal
-                        show={showSocialPostModal}
-                        onHide={() => setShowSocialPostModal(false)}
-                    />
-
-                    <ToastContainer />
-
-                    {/* Export Modal */}
-                    <Modal show={showExportModal} onHide={() => {
-                        setShowExportModal(false);
-                        setSelectedExportStatus('');
-                    }} centered>
-                        <Modal.Header closeButton className="bg-primary text-white">
-                            <Modal.Title className="w-100 text-center fw-bold">
-                                Select Status for Export
-                            </Modal.Title>
-                        </Modal.Header>
-                        <Modal.Body className="p-4 bg-light">
-                            <Form.Group className="mb-3">
-                                <Form.Label className="fw-bold">Select Status:</Form.Label>
-                                <Form.Select
-                                    value={selectedExportStatus}
-                                    onChange={(e) => setSelectedExportStatus(e.target.value)}
-                                    className="form-control-lg"
-                                >
-                                    <option value="">-- Select Status --</option>
-                                    <option value="all">All</option>
-                                    <option value="available">Available</option>
-                                    <option value="given number">Given Number</option>
-                                    <option value="guardian meet">Guardian Meet</option>
-                                    <option value="demo class running">Demo Class Running</option>
-                                    <option value="confirm">Confirm</option>
-                                    <option value="cancel">Cancel</option>
-                                    <option value="refer BM">Refer BM</option>
-                                    <option value="suspended">Suspended</option>
-                                    <option value="guardian no response">Guardian No response</option>
-                                    <option value="request for payment">Request for payment</option>
-                                </Form.Select>
-                            </Form.Group>
-                        </Modal.Body>
-                        <Modal.Footer className="bg-light">
-                            <Button
-                                variant="secondary"
-                                onClick={() => {
-                                    setShowExportModal(false);
-                                    setSelectedExportStatus('');
-                                }}
-                            >
-                                Cancel
-                            </Button>
-                            <Button
-                                variant="primary"
-                                onClick={handleExportWithStatus}
-                                disabled={!selectedExportStatus}
-                            >
-                                Export
-                            </Button>
-                        </Modal.Footer>
-                    </Modal>
-
-                    <TuitionAssignModal
-                        show={showAssignModal}
-                        onHide={() => setShowAssignModal(false)}
-                        tuition={selectedTuitionForAssign}
-                        fetchTuitionRecords={fetchTuitionRecords}
-                        fetchAlertData={fetchAlertData}
-                    />
+                <TuitionAssignModal
+                    show={showAssignModal}
+                    onHide={() => setShowAssignModal(false)}
+                    tuition={selectedTuitionForAssign}
+                    fetchTuitionRecords={fetchTuitionRecords}
+                    fetchAlertData={fetchAlertData}
+                />
             </Container >
         </>
     );
@@ -1382,8 +1382,8 @@ const MemoizedTuitionTable = React.memo(({
                             <td>{index + 1}</td>
                             <td>
                                 <div className="d-flex flex-column">
-                                    <span className="badge rounded-pill fw-normal text-start mb-1" style={{ backgroundColor: '#e8f5e9', color: '#2e7d32', border: '1px solid #c8e6c9', padding: '0.4em 0.8em' }} title="Created By">CB: {tuition.createdBy || '-'}</span>
-                                    <span className="badge rounded-pill fw-normal text-start" style={{ backgroundColor: '#e3f2fd', color: '#1565c0', border: '1px solid #bbdefb', padding: '0.4em 0.8em' }} title="Updated By">UB: {tuition.updatedBy || '-'}</span>
+                                    <span className="badge rounded-pill fw-bold text-start mb-1" style={{ backgroundColor: '#e8f5e9', color: '#2e7d32', border: '1px solid #c8e6c9', padding: '0.4em 0.8em' }} title="Created By">CB: {tuition.createdBy || '-'}</span>
+                                    <span className="badge rounded-pill fw-bold text-start" style={{ backgroundColor: '#e3f2fd', color: '#1565c0', border: '1px solid #bbdefb', padding: '0.4em 0.8em' }} title="Updated By">UB: {tuition.updatedBy || '-'}</span>
                                 </div>
                             </td>
                             <td

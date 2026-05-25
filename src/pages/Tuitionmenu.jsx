@@ -226,9 +226,9 @@ const TuitionPage = () => {
         const checkTime = () => {
             const now = new Date();
             const hours = now.getHours();
-            // Show only between 10:00 PM and 10:59 PM (22:00 - 22:59)
+            // Show only between 10:00 PM and 11:59 PM (22:00 - 23:59)
             // AND only if there are tuitions needing update today
-            setShowAutoMigrate(hours === 22 && tuitionNeedsUpdateList.length > 0);
+            setShowAutoMigrate((hours === 22 || hours === 23) && tuitionNeedsUpdateList.length > 0);
         };
         checkTime();
         const interval = setInterval(checkTime, 60000); // Check every minute
@@ -1000,8 +1000,8 @@ const TuitionPage = () => {
                                                     </div>
                                                 </td>
                                                 <td className="text-start">
-                                                    <span className="badge bg-success text-white me-2">CB: {tuition.createdBy || '-'}</span>
-                                                    <span className="badge bg-primary text-white">UB: {tuition.updatedBy || '-'}</span>
+                                                    <span className="badge rounded-pill fw-normal me-2 mb-1" style={{ backgroundColor: '#e8f5e9', color: '#2e7d32', border: '1px solid #c8e6c9', padding: '0.4em 0.8em' }} title="Created By">CB: {tuition.createdBy || '-'}</span>
+                                                    <span className="badge rounded-pill fw-normal" style={{ backgroundColor: '#e3f2fd', color: '#1565c0', border: '1px solid #bbdefb', padding: '0.4em 0.8em' }} title="Updated By">UB: {tuition.updatedBy || '-'}</span>
                                                 </td>
                                                 <td>{tuition.note || '-'}</td>
                                                 <td>{tuition.lastUpdateComment || '-'}</td>
@@ -1382,8 +1382,8 @@ const MemoizedTuitionTable = React.memo(({
                             <td>{index + 1}</td>
                             <td>
                                 <div className="d-flex flex-column">
-                                    <span className="badge bg-success text-start mb-1" title="Created By">CB: {tuition.createdBy || '-'}</span>
-                                    <span className="badge bg-info text-start" title="Updated By">UB: {tuition.updatedBy || '-'}</span>
+                                    <span className="badge rounded-pill fw-normal text-start mb-1" style={{ backgroundColor: '#e8f5e9', color: '#2e7d32', border: '1px solid #c8e6c9', padding: '0.4em 0.8em' }} title="Created By">CB: {tuition.createdBy || '-'}</span>
+                                    <span className="badge rounded-pill fw-normal text-start" style={{ backgroundColor: '#e3f2fd', color: '#1565c0', border: '1px solid #bbdefb', padding: '0.4em 0.8em' }} title="Updated By">UB: {tuition.updatedBy || '-'}</span>
                                 </div>
                             </td>
                             <td

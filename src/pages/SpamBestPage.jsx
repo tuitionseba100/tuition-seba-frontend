@@ -118,7 +118,9 @@ const PhonePage = () => {
                 "IsExpress",
                 "IsSpam",
                 "IsBest",
-                "IsBest Guardian"
+                "IsBest Guardian",
+                "Created By",
+                "Updated By"
             ];
 
             const tableData = exportData.map(item => [
@@ -130,6 +132,8 @@ const PhonePage = () => {
                 String(item.isSpam ?? ""),
                 String(item.isBest ?? ""),
                 String(item.isBestGuardian ?? ""),
+                String(item.createdBy ?? ""),
+                String(item.updatedBy ?? ""),
             ]);
 
             const worksheet = XLSX.utils.aoa_to_sheet([tableHeaders, ...tableData]);
@@ -170,17 +174,21 @@ const PhonePage = () => {
             }
         }
 
+        const username = localStorage.getItem('username');
+
         const updatedData = {
             ...phoneData,
             phone: phone // use trimmed version
         };
         try {
             if (editingId) {
+                updatedData.updatedBy = username;
                 await axios.put(`${BASE_URL}/edit/${editingId}`, updatedData);
                 toast.success("phone record updated successfully!");
             } else {
+                updatedData.createdBy = username;
                 await axios.post(`${BASE_URL}/add`, updatedData);
-                toast.success("phone record updated successfully!");
+                toast.success("phone record created successfully!");
             }
             setShowModal(false);
             fetchRecords();
@@ -426,6 +434,7 @@ const PhonePage = () => {
                                 <thead className="table-primary" style={{ position: "sticky", top: 0, zIndex: 2 }}>
                                     <tr>
                                         <th>SL</th>
+                                        <th>Created By / Updated By</th>
                                         <th>Created At</th>
                                         <th>Phone</th>
                                         <th>Note</th>
@@ -450,6 +459,12 @@ const PhonePage = () => {
 
                                             <tr key={item._id}>
                                                 <td>{(currentPage - 1) * 20 + index + 1}</td>
+                                                <td>
+                                                    <div className="d-flex flex-column">
+                                                        <span className="badge rounded-pill fw-normal text-start mb-1" style={{ backgroundColor: '#e8f5e9', color: '#2e7d32', border: '1px solid #c8e6c9', padding: '0.4em 0.8em' }} title="Created By">CB: {item.createdBy || '-'}</span>
+                                                        <span className="badge rounded-pill fw-normal text-start" style={{ backgroundColor: '#e3f2fd', color: '#1565c0', border: '1px solid #bbdefb', padding: '0.4em 0.8em' }} title="Updated By">UB: {item.updatedBy || '-'}</span>
+                                                    </div>
+                                                </td>
                                                 <td>{item.createdAt ? formatDate(item.createdAt) : ''}</td>
                                                 <td
                                                     style={{

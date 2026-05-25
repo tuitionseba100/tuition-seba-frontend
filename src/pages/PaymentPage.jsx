@@ -423,8 +423,8 @@ const PaymentPage = () => {
             const now = new Date();
             const hours = now.getHours();
 
-            // Only show between 10:00 PM and 10:59 PM
-            const isNightTime = hours === 22;
+            // Only show between 10:00 PM and 11:59 PM
+            const isNightTime = hours === 22 || hours === 23;
             const hasData = dueTodayList.length > 0;
             setShowAutoMigrate(isNightTime && hasData);
         };

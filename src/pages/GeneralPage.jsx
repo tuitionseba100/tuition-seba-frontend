@@ -28,11 +28,11 @@ const cardStyle = {
     fontSize: '1.25rem',
 };
 
-const formatDate = (dateString) => {
+const formatDate = (dateString, timeZone = 'UTC') => {
     if (!dateString) return '-';
     const date = new Date(dateString);
-    const optionsDate = { day: '2-digit', month: 'long', year: 'numeric' };
-    const optionsTime = { hour: '2-digit', minute: '2-digit', hour12: true };
+    const optionsDate = { day: '2-digit', month: 'long', year: 'numeric', timeZone };
+    const optionsTime = { hour: '2-digit', minute: '2-digit', hour12: true, timeZone };
     const formattedDate = new Intl.DateTimeFormat('en-GB', optionsDate).format(date);
     const formattedTime = new Intl.DateTimeFormat('en-GB', optionsTime).format(date);
     return `${formattedDate} || ${formattedTime}`;
@@ -269,7 +269,7 @@ const GeneralPage = () => {
                             { key: 'studentName', label: 'Student Name' },
                             { key: 'phone', label: 'Phone' },
                             { key: 'tuitionCode', label: 'Tuition Code' },
-                            { key: 'appliedAt', label: 'Applied Date', render: (item) => formatDate(item.appliedAt) },
+                            { key: 'appliedAt', label: 'Applied Date', render: (item) => formatDate(item.appliedAt, 'Asia/Dhaka') },
                             { key: 'status', label: 'Status' }
                         ])}
 
@@ -312,9 +312,9 @@ const GeneralPage = () => {
                             { key: 'guardianNumber', label: 'Guardian' },
                             { key: 'tutorNumber', label: 'Tutor' },
                             { key: 'status', label: 'Status' },
-                            { key: 'lastUpdate', label: 'Last Update', render: (item) => formatDate(item.lastUpdate) },
+                            { key: 'lastUpdate', label: 'Last Update', render: (item) => formatDate(item.lastUpdate, 'UTC') },
                             { key: 'lastUpdateComment', label: 'L. Update Comment' },
-                            { key: 'nextUpdateDate', label: 'Next Update', render: (item) => formatDate(item.nextUpdateDate) },
+                            { key: 'nextUpdateDate', label: 'Next Update', render: (item) => formatDate(item.nextUpdateDate, 'UTC') },
                             { key: 'nextUpdateComment', label: 'N. Update Comment' }
                         ])}
 

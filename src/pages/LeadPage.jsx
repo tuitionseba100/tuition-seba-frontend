@@ -245,8 +245,8 @@ const LeadPage = () => {
 
     const formatMongoDate = (mongoDate) => {
         const date = new Date(mongoDate); // MongoDB ISODate or timestamp
-        const optionsDate = { day: '2-digit', month: 'long', year: 'numeric' };
-        const optionsTime = { hour: '2-digit', minute: '2-digit', hour12: true };
+        const optionsDate = { day: '2-digit', month: 'long', year: 'numeric', timeZone: 'UTC' };
+        const optionsTime = { hour: '2-digit', minute: '2-digit', hour12: true, timeZone: 'UTC' };
 
         const formattedDate = new Intl.DateTimeFormat('en-GB', optionsDate).format(date);
         const formattedTime = new Intl.DateTimeFormat('en-GB', optionsTime).format(date);

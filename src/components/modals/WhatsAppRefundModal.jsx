@@ -7,6 +7,7 @@ const getRefundWhatsAppMessage = (refund) => {
     const tuitionCode = refund.tuitionCode || 'XXXX';
     const amount = refund.amount || '0';
     const status = (refund.status || '').toLowerCase();
+    const paymentNumber = refund.paymentNumber || 'N/A';
     let formattedReturnDate = '';
     if (refund.returnDate) {
         const d = new Date(refund.returnDate);
@@ -23,7 +24,7 @@ const getRefundWhatsAppMessage = (refund) => {
     }
 
     if (status === 'approved') {
-        return `Dear Respected Teacher,\n\nWe would like to inform you that your refund request for Tuition Code: ${tuitionCode} has been approved.\n\nRefund Amount: ${amount} Payment Number: ${paymentNumber} \nBDT\nRefund Status: Approved${returnDateStr}\n\nThe refund will be processed shortly and sent to your provided account. Please allow some time for the transaction to complete.\n\nIf you have any questions or need assistance, please feel free to contact us or call directly at 01633920928.\n\nRegards,\nPayment Department\nTuition Seba Forum`;
+        return `Dear Respected Teacher,\n\nWe would like to inform you that your refund request for Tuition Code: ${tuitionCode} has been approved.\n\nRefund Amount: ${amount} BDT\nPayment Number: ${paymentNumber} \nRefund Status: Approved${returnDateStr}\n\nThe refund will be processed shortly and sent to your provided account. Please allow some time for the transaction to complete.\n\nIf you have any questions or need assistance, please feel free to contact us or call directly at 01633920928.\n\nRegards,\nPayment Department\nTuition Seba Forum`;
     }
 
     if (status === 'pending') {

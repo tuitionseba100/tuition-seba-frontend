@@ -403,9 +403,7 @@ const PaymentPage = () => {
         try {
             const currentUsername = localStorage.getItem('username');
             const alertParams = {};
-            if (role !== 'superadmin') {
-                alertParams.assignedTo = currentUsername;
-            }
+
             const res = await axios.get('https://tuition-seba-backend-1.onrender.com/api/payment/alert-today', { params: alertParams });
             setDueTodayList(res.data);
         } catch (err) {

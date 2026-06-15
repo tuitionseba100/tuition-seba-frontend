@@ -4,6 +4,7 @@ import { toast } from 'react-toastify';
 import RefundTermsModal from './RefundTermsModal';
 import ApplySuccessModal from '../../components/modals/ApplySuccessModal';
 import ProcessingModal from '../../components/modals/ProcessingModal';
+import DuplicateAlertModal from '../../components/modals/DuplicateAlertModal';
 
 const RefundModal = ({ show, handleClose }) => {
     const defaultForm = {
@@ -13,6 +14,8 @@ const RefundModal = ({ show, handleClose }) => {
     const [form, setForm] = useState(defaultForm);
     const [showRefundTerms, setShowRefundTerms] = useState(false);
     const [showSuccessModal, setShowSuccessModal] = useState(false);
+    const [showDuplicateModal, setShowDuplicateModal] = useState(false);
+    const [duplicateMessage, setDuplicateMessage] = useState('');
     const [loading, setLoading] = useState(false);
 
     const handleInput = (e) => {
@@ -35,7 +38,16 @@ const RefundModal = ({ show, handleClose }) => {
                 setForm(defaultForm);
                 handleClose();
                 setShowSuccessModal(true);
-            } else toast.error('Submission failed.');
+            } else {
+                const data = await res.json().catch(() => ({}));
+                if (res.status === 409) {
+                    setDuplicateMessage(data.message || 'এই তথ্য দিয়ে আগেই রিফান্ড আবেদন করা হয়েছে।');
+                    handleClose();
+                    setShowDuplicateModal(true);
+                } else {
+                    toast.error(data.message || 'Submission failed.');
+                }
+            }
         } catch {
             toast.error('Something went wrong.');
         } finally {
@@ -128,6 +140,11 @@ const RefundModal = ({ show, handleClose }) => {
                     message="আপনার রিফান্ড আবেদনটি সফলভাবে জমা হয়েছে।"
                 />
             )}
+            <DuplicateAlertModal
+                show={showDuplicateModal}
+                handleClose={() => setShowDuplicateModal(false)}
+                message={duplicateMessage}
+            />
         </>
     );
 };

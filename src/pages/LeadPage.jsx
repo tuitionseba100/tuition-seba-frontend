@@ -169,9 +169,30 @@ const LeadPage = () => {
             .catch(() => { });
     };
 
+    const toBangladeshInputString = (utcDateString) => {
+        if (!utcDateString) return '';
+        const date = new Date(utcDateString);
+        if (isNaN(date.getTime())) return '';
+        const bdDate = new Date(date.getTime() + 6 * 60 * 60 * 1000);
+        return bdDate.toISOString().slice(0, 16);
+    };
+
+    const toUTCStringFromBangladesh = (bdDateString) => {
+        if (!bdDateString) return null;
+        if (bdDateString.endsWith('Z') || bdDateString.includes('+') || (bdDateString.lastIndexOf('-') > 10)) {
+            return new Date(bdDateString).toISOString();
+        }
+        let formatted = bdDateString;
+        if (bdDateString.length === 16) {
+            formatted += ':00';
+        }
+        return new Date(formatted + '+06:00').toISOString();
+    };
+
     const handleSaveRequest = async () => {
         const updatedData = {
             ...leadData,
+            followUpDate: leadData.followUpDate ? toUTCStringFromBangladesh(leadData.followUpDate) : null,
             createdBy: username
         };
 
@@ -218,35 +239,31 @@ const LeadPage = () => {
             name: rowData.name || '',
             status: rowData.status || '',
             note: rowData.note || '',
-            followUpDate: rowData.followUpDate ? new Date(rowData.followUpDate).toISOString().slice(0, 16) : '',
+            followUpDate: rowData.followUpDate ? toBangladeshInputString(rowData.followUpDate) : '',
             followUpComment: rowData.followUpComment || ''
         });
         setShowModal(true);
     };
 
     const formatDate = (dateString) => {
-        const [datePart, timePart] = dateString.split('T');
-        const [year, month, day] = datePart.split('-');
-        const [hour24, minute] = timePart.split(':');
+        if (!dateString) return '-';
+        const date = new Date(dateString);
+        if (isNaN(date.getTime())) return '-';
+        const optionsDate = { day: '2-digit', month: 'long', year: 'numeric', timeZone: 'Asia/Dhaka' };
+        const optionsTime = { hour: '2-digit', minute: '2-digit', hour12: true, timeZone: 'Asia/Dhaka' };
 
-        const hour12 = ((+hour24 + 11) % 12) + 1;
-        const ampm = +hour24 >= 12 ? 'PM' : 'AM';
-
-        const monthNames = [
-            'January', 'February', 'March', 'April', 'May', 'June',
-            'July', 'August', 'September', 'October', 'November', 'December'
-        ];
-
-        const formattedDate = `${day} ${monthNames[+month - 1]} ${year}`;
-        const formattedTime = `${hour12.toString().padStart(2, '0')}:${minute} ${ampm}`;
+        const formattedDate = new Intl.DateTimeFormat('en-GB', optionsDate).format(date);
+        const formattedTime = new Intl.DateTimeFormat('en-GB', optionsTime).format(date);
 
         return `${formattedDate} || ${formattedTime}`;
     };
 
     const formatMongoDate = (mongoDate) => {
+        if (!mongoDate) return '-';
         const date = new Date(mongoDate); // MongoDB ISODate or timestamp
-        const optionsDate = { day: '2-digit', month: 'long', year: 'numeric', timeZone: 'UTC' };
-        const optionsTime = { hour: '2-digit', minute: '2-digit', hour12: true, timeZone: 'UTC' };
+        if (isNaN(date.getTime())) return '-';
+        const optionsDate = { day: '2-digit', month: 'long', year: 'numeric', timeZone: 'Asia/Dhaka' };
+        const optionsTime = { hour: '2-digit', minute: '2-digit', hour12: true, timeZone: 'Asia/Dhaka' };
 
         const formattedDate = new Intl.DateTimeFormat('en-GB', optionsDate).format(date);
         const formattedTime = new Intl.DateTimeFormat('en-GB', optionsTime).format(date);

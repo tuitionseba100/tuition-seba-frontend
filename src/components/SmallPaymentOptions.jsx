@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Container, Row, Col } from 'react-bootstrap';
-import { FaCopy, FaCheck, FaMobileAlt, FaStore, FaWallet, FaRocket } from 'react-icons/fa';
+import { FaCopy, FaCheck, FaMobileAlt, FaStore, FaWallet, FaRocket, FaUniversity } from 'react-icons/fa';
 
 const paymentOptions = [
     {
@@ -26,6 +26,15 @@ const paymentOptions = [
         number: '016339209284',
         image: '/img/rocket main ogo.jpg',
         icon: FaRocket
+    },
+    {
+        title: 'Brac Bank PLC',
+        number: '2079470810001',
+        accountName: 'TUITION SEBA FORUM.COM',
+        branch: 'Chawkbazar Branch',
+        image: '/img/brac-bank-logo.png',
+        icon: FaUniversity,
+        isBank: true
     }
 ];
 
@@ -66,7 +75,7 @@ const SmallPaymentOptions = () => {
                                         minHeight: '140px',
                                         display: 'flex',
                                         flexDirection: 'column',
-                                        justifyContent: 'center',
+                                        justifyContent: 'space-between',
                                         boxShadow: '0 6px 25px rgba(0,0,0,0.08), inset 0 1px 0 rgba(255,255,255,0.6)'
                                     }}
                                     onClick={() => handleCopy(option.number, index)}
@@ -79,43 +88,58 @@ const SmallPaymentOptions = () => {
                                         e.currentTarget.style.boxShadow = '0 6px 25px rgba(0,0,0,0.08), inset 0 1px 0 rgba(255,255,255,0.6)';
                                     }}
                                 >
-                                    <div className="d-flex justify-content-center mb-2">
-                                        <div className="position-relative">
-                                            <img
-                                                src={option.image}
-                                                alt={option.title}
-                                                style={{
-                                                    maxWidth: '45px',
-                                                    maxHeight: '30px',
-                                                    objectFit: 'contain',
-                                                    transition: 'transform 0.3s ease',
-                                                    filter: 'drop-shadow(0 2px 3px rgba(0,0,0,0.1))'
-                                                }}
-                                                className="payment-icon"
-                                            />
-                                            <div
-                                                style={{
-                                                    position: 'absolute',
-                                                    top: '-3px',
-                                                    left: '50%',
-                                                    transform: 'translateX(-50%)',
-                                                    width: '8px',
-                                                    height: '8px',
-                                                    borderRadius: '50%',
-                                                    background: 'radial-gradient(circle, #4CAF50, #2E7D32)',
-                                                    opacity: '0.8'
-                                                }}
-                                            ></div>
+                                    <div>
+                                        <div className="d-flex justify-content-center mb-2">
+                                            <div className="position-relative">
+                                                <img
+                                                    src={option.image}
+                                                    alt={option.title}
+                                                    style={{
+                                                        maxWidth: '45px',
+                                                        maxHeight: '30px',
+                                                        objectFit: 'contain',
+                                                        transition: 'transform 0.3s ease',
+                                                        filter: 'drop-shadow(0 2px 3px rgba(0,0,0,0.1))'
+                                                    }}
+                                                    className="payment-icon"
+                                                />
+                                                <div
+                                                    style={{
+                                                        position: 'absolute',
+                                                        top: '-3px',
+                                                        left: '50%',
+                                                        transform: 'translateX(-50%)',
+                                                        width: '8px',
+                                                        height: '8px',
+                                                        borderRadius: '50%',
+                                                        background: 'radial-gradient(circle, #4CAF50, #2E7D32)',
+                                                        opacity: '0.8'
+                                                    }}
+                                                ></div>
+                                            </div>
                                         </div>
+                                        <div
+                                            className="mb-2"
+                                            style={{ fontSize: '1rem', fontWeight: '700', color: '#212529', textShadow: '0 1px 1px rgba(0,0,0,0.05)' }}
+                                        >
+                                            {option.title}
+                                        </div>
+
+                                        {option.isBank && (
+                                            <div className="mb-2 text-start extra-small text-muted border-top pt-2" style={{ fontSize: '0.75rem' }}>
+                                                <div className="d-flex justify-content-between mb-1 gap-2">
+                                                    <span>Name:</span>
+                                                    <span className="fw-bold text-dark text-end">{option.accountName}</span>
+                                                </div>
+                                                <div className="d-flex justify-content-between gap-2 mb-2">
+                                                    <span>Branch:</span>
+                                                    <span className="fw-bold text-dark text-end">{option.branch}</span>
+                                                </div>
+                                            </div>
+                                        )}
                                     </div>
                                     <div
-                                        className="mb-2"
-                                        style={{ fontSize: '1rem', fontWeight: '700', color: '#212529', textShadow: '0 1px 1px rgba(0,0,0,0.05)' }}
-                                    >
-                                        {option.title}
-                                    </div>
-                                    <div
-                                        className="d-flex align-items-center justify-content-center gap-2"
+                                        className="d-flex align-items-center justify-content-center gap-2 mt-auto"
                                         style={{
                                             background: 'rgba(255, 255, 255, 0.8)',
                                             border: '1px solid rgba(0,0,0,0.15)',

@@ -159,10 +159,6 @@ const TuitionPage = () => {
 
     useEffect(() => {
         fetchTuitionRecords();
-    }, []);
-
-    useEffect(() => {
-        fetchTuitionRecords();
     }, [appliedFilters, currentPage]);
 
     const fetchAlertData = async () => {

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Button, Table, Modal, Form, Row, Col, Card } from 'react-bootstrap';
-import { FaEdit, FaTrashAlt, FaSearch, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
+import { FaEdit, FaTrashAlt, FaSearch, FaChevronLeft, FaChevronRight, FaBell, FaInfoCircle } from 'react-icons/fa';
 import axios from 'axios';
 import NavBarPage from './NavbarPage';
 import styled from 'styled-components';
@@ -21,6 +21,7 @@ const GuardianApplyPage = () => {
     const [selectedRecord, setSelectedRecord] = useState(null);
     const [newStatus, setNewStatus] = useState('');
     const [newComment, setNewComment] = useState('');
+    const [newNextUpdateDate, setNewNextUpdateDate] = useState('');
     const [showModal, setShowModal] = useState(false);
     const [editingId, setEditingId] = useState(null);
     const [tuitionData, setTuitionData] = useState({
@@ -33,6 +34,7 @@ const GuardianApplyPage = () => {
         characteristics: '',
         status: '',
         comment: '',
+        nextUpdateDate: '',
     });
     const [formErrors, setFormErrors] = useState({});
     const role = localStorage.getItem('role');
@@ -45,6 +47,9 @@ const GuardianApplyPage = () => {
         confirmed: 0,
         not_interested: 0
     });
+    const [dueTodayList, setDueTodayList] = useState([]);
+    const [showDueModal, setShowDueModal] = useState(false);
+    const [loadingDueToday, setLoadingDueToday] = useState(false);
 
     const statusOptions = [
         'pending',
@@ -55,8 +60,40 @@ const GuardianApplyPage = () => {
         'confirmed',
         'not interested',
         'Try another way',
-        'Suspended'
+        'Suspended',
+        'Follow Up Scheduled'
     ];
+
+    const toBangladeshInputString = (utcDateString) => {
+        if (!utcDateString) return '';
+        const date = new Date(utcDateString);
+        if (isNaN(date.getTime())) return '';
+        const bdDate = new Date(date.getTime() + 6 * 60 * 60 * 1000);
+        return bdDate.toISOString().slice(0, 16);
+    };
+
+    const toUTCStringFromBangladesh = (bdDateString) => {
+        if (!bdDateString) return null;
+        if (bdDateString.endsWith('Z') || bdDateString.includes('+') || (bdDateString.lastIndexOf('-') > 10)) {
+            return new Date(bdDateString).toISOString();
+        }
+        let formatted = bdDateString;
+        if (bdDateString.length === 16) {
+            formatted += ':00';
+        }
+        return new Date(formatted + '+06:00').toISOString();
+    };
+
+    const fetchDueTodayList = async () => {
+        setLoadingDueToday(true);
+        try {
+            const response = await axios.get('https://tuition-seba-backend-1.onrender.com/api/guardianApply/today-followups');
+            setDueTodayList(response.data);
+        } catch (err) {
+            toast.error("Failed to fetch today's follow-ups.");
+        }
+        setLoadingDueToday(false);
+    };
 
     const [searchInputs, setSearchInputs] = useState({
         phone: '',
@@ -72,6 +109,7 @@ const GuardianApplyPage = () => {
 
     useEffect(() => {
         fetchGuardianApplyRecords();
+        fetchDueTodayList();
     }, []);
 
     useEffect(() => {
@@ -184,6 +222,7 @@ const GuardianApplyPage = () => {
         const updatedData = {
             ...tuitionData,
             phone,
+            nextUpdateDate: tuitionData.nextUpdateDate ? toUTCStringFromBangladesh(tuitionData.nextUpdateDate) : null,
         };
 
         try {
@@ -198,6 +237,7 @@ const GuardianApplyPage = () => {
             }
             setShowModal(false);
             fetchGuardianApplyRecords();
+            fetchDueTodayList();
         } catch (err) {
             console.error('Error:', err);
             toast.error("Error saving record.");
@@ -207,6 +247,7 @@ const GuardianApplyPage = () => {
     };
 
     const formatDate = (dateString) => {
+        if (!dateString) return '';
         const date = new Date(dateString);
 
         const optionsDate = { day: '2-digit', month: 'long', year: 'numeric', timeZone: 'Asia/Dhaka' };
@@ -226,13 +267,14 @@ const GuardianApplyPage = () => {
         const fileName = `Guardian Apply List_${formattedDate}_${formattedTime}`;
 
         const tableHeaders = [
-            "Guardian Name", "Status", "Applied Date", "Phone No.", "Address", "Teacher Code", "Student Class", "Teacher Gender", "Characteristics", "Comment", "Created By", "Updated By"
+            "Guardian Name", "Status", "Applied Date", "Next Update Date", "Phone No.", "Address", "Teacher Code", "Student Class", "Teacher Gender", "Characteristics", "Comment", "Created By", "Updated By"
         ];
 
         const tableData = [...exportList].reverse().map(data => [
             String(data.name ?? ""),
-            String(data.Status ?? ""),
+            String(data.status ?? ""),
             data.appliedAt ? formatDate(data.appliedAt) : "",
+            data.nextUpdateDate ? formatDate(data.nextUpdateDate) : "",
             String(data.phone ?? ""),
             String(data.address ?? ""),
             String(data.teacherCode ?? ""),
@@ -247,6 +289,7 @@ const GuardianApplyPage = () => {
         const worksheet = XLSX.utils.aoa_to_sheet([tableHeaders, ...tableData]);
 
         worksheet['!cols'] = [
+            { wpx: 140 },
             { wpx: 140 },
             { wpx: 140 },
             { wpx: 140 },
@@ -273,7 +316,8 @@ const GuardianApplyPage = () => {
             return;
         }
 
-        if (selectedRecord.status === newStatus && selectedRecord.comment === newComment) {
+        const originalNextUpdateLocal = selectedRecord.nextUpdateDate ? toBangladeshInputString(selectedRecord.nextUpdateDate) : '';
+        if (selectedRecord.status === newStatus && selectedRecord.comment === newComment && originalNextUpdateLocal === newNextUpdateDate) {
             toast.info("No changes detected. Nothing to update!");
             return;
         }
@@ -284,14 +328,21 @@ const GuardianApplyPage = () => {
         try {
             const response = await axios.put(
                 `https://tuition-seba-backend-1.onrender.com/api/guardianApply/update-status/${selectedRecord._id}`,
-                { status: newStatus, comment: newComment, updatedBy: username }
+                { 
+                    status: newStatus, 
+                    comment: newComment, 
+                    nextUpdateDate: newNextUpdateDate ? toUTCStringFromBangladesh(newNextUpdateDate) : null,
+                    updatedBy: username 
+                }
             );
 
             fetchGuardianApplyRecords();
+            fetchDueTodayList();
             setShowStatusModal(false);
             setSelectedRecord(null);
             setNewStatus('');
             setNewComment('');
+            setNewNextUpdateDate('');
 
             toast.success("Status updated successfully!");
         } catch (err) {
@@ -306,6 +357,7 @@ const GuardianApplyPage = () => {
         setSelectedRecord(record);
         setNewStatus(record.status || '');
         setNewComment(record.comment || '');
+        setNewNextUpdateDate(record.nextUpdateDate ? toBangladeshInputString(record.nextUpdateDate) : '');
         setShowStatusModal(true);
     };
 
@@ -318,6 +370,7 @@ const GuardianApplyPage = () => {
                 await axios.delete(`https://tuition-seba-backend-1.onrender.com/api/guardianApply/delete/${id}`);
                 toast.success("Record deleted successfully!");
                 fetchGuardianApplyRecords();
+                fetchDueTodayList();
             } catch (err) {
                 console.error('Error deleting record:', err);
                 toast.error("Error deleting record.");
@@ -351,6 +404,7 @@ const GuardianApplyPage = () => {
                                 characteristics: '',
                                 status: '',
                                 comment: '',
+                                nextUpdateDate: '',
                             });
                         }}
                     >
@@ -454,6 +508,7 @@ const GuardianApplyPage = () => {
                             <option value="not interested">Not Interested</option>
                             <option value="Try another way">Try another way</option>
                             <option value="Suspended">Suspended</option>
+                            <option value="Follow Up Scheduled">Follow Up Scheduled</option>
                         </Form.Select>
                     </Col>
 
@@ -479,6 +534,25 @@ const GuardianApplyPage = () => {
                     </Col>
 
                 </Row>
+
+                <div className="d-flex align-items-center justify-content-center mb-3 mt-3">
+                    <h5 className="me-3 d-flex align-items-center gap-2">
+                        <FaBell className="text-primary" />
+                        <span>
+                            Follow up today: {loadingDueToday ? (
+                                <Spinner animation="border" size="sm" className="ms-2" />
+                            ) : dueTodayList.length}
+                        </span>
+                        <OverlayTrigger
+                            placement="top"
+                            overlay={<Tooltip id="tooltip-details">Click to see details</Tooltip>}
+                        >
+                            <Button size="sm" onClick={() => setShowDueModal(true)} className="ms-2">
+                                <FaInfoCircle />
+                            </Button>
+                        </OverlayTrigger>
+                    </h5>
+                </div>
 
                 {role === "superadmin" && (
                     <Button
@@ -510,6 +584,7 @@ const GuardianApplyPage = () => {
                                         <th>Updated By</th>
                                         <th>Guardian Name</th>
                                         <th>Applied Date</th>
+                                        <th>Next Update Date</th>
                                         <th>Status</th>
                                         <th>Phone No.</th>
                                         <th>Address</th>
@@ -541,6 +616,7 @@ const GuardianApplyPage = () => {
                                                 <td>{rowData.updatedBy}</td>
                                                 <td>{rowData.name}</td>
                                                 <td>{rowData.appliedAt ? formatDate(rowData.appliedAt) : ''}</td>
+                                                <td>{rowData.nextUpdateDate ? formatDate(rowData.nextUpdateDate) : ''}</td>
                                                 <td>
                                                     <div className="d-flex flex-column gap-1">
                                                         <span
@@ -554,6 +630,7 @@ const GuardianApplyPage = () => {
                                                              ${rowData.status === "not interested" ? "bg-danger text-light" : ""}
                                                              ${rowData.status === "Try another way" ? "bg-dark text-light" : ""}
                                                              ${rowData.status === "Suspended" ? "bg-danger text-light" : ""}
+                                                             ${rowData.status === "Follow Up Scheduled" ? "bg-info text-dark" : ""}
                                                              `}
                                                         >
                                                             {rowData.status}
@@ -936,6 +1013,24 @@ const GuardianApplyPage = () => {
                                                 </Form.Select>
                                             </Form.Group>
                                         </Col>
+                                        <Col md={6}>
+                                            <Form.Group controlId="guardianNextUpdateDate">
+                                                <Form.Label className="fw-semibold">Next Update Date</Form.Label>
+                                                <Form.Control
+                                                    type="datetime-local"
+                                                    value={tuitionData.nextUpdateDate}
+                                                    onChange={(e) => setTuitionData({ ...tuitionData, nextUpdateDate: e.target.value })}
+                                                    disabled={loading}
+                                                    style={{
+                                                        borderRadius: '0.375rem',
+                                                        border: '1.5px solid rgba(13,110,253,0.3)',
+                                                        backgroundColor: '#fff',
+                                                        boxShadow: '0 0 6px rgba(13,110,253,0.12)',
+                                                        transition: 'border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out',
+                                                    }}
+                                                />
+                                            </Form.Group>
+                                        </Col>
                                         <Col md={12}>
                                             <Form.Group controlId="guardianComment">
                                                 <Form.Label className="fw-semibold">Comment</Form.Label>
@@ -1032,6 +1127,14 @@ const GuardianApplyPage = () => {
                                 </Form.Select>
                             </Form.Group>
                             <Form.Group className="mt-3">
+                                <Form.Label className="fw-bold">Next Update Date</Form.Label>
+                                <Form.Control
+                                    type="datetime-local"
+                                    value={newNextUpdateDate}
+                                    onChange={(e) => setNewNextUpdateDate(e.target.value)}
+                                />
+                            </Form.Group>
+                            <Form.Group className="mt-3">
                                 <Form.Label className="fw-bold">Comment</Form.Label>
                                 <Form.Control
                                     as="textarea"
@@ -1054,6 +1157,85 @@ const GuardianApplyPage = () => {
                                     Updating...
                                 </>
                             ) : 'Update Status'}
+                        </Button>
+                    </Modal.Footer>
+                </Modal>
+
+                <style>{`
+                    .custom-due-modal {
+                        --bs-modal-width: 95vw !important;
+                        max-width: 95vw !important;
+                    }
+                    .custom-due-modal .modal-dialog {
+                        max-width: 95vw !important;
+                        width: 95vw !important;
+                    }
+                `}</style>
+                <Modal
+                    show={showDueModal}
+                    onHide={() => setShowDueModal(false)}
+                    dialogClassName="custom-due-modal"
+                    size="xl"
+                    centered
+                >
+                    <Modal.Header closeButton>
+                        <Modal.Title className="fw-bold text-primary">Today's Guardian Follow-Ups</Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body>
+                        {loadingDueToday ? (
+                            <div className="text-center my-4">
+                                <Spinner animation="border" variant="primary" />
+                            </div>
+                        ) : dueTodayList.length === 0 ? (
+                            <p className="text-center">No follow-ups scheduled for today.</p>
+                        ) : (
+                            <div style={{ maxHeight: '700px', overflowY: 'auto' }}>
+                                <Table striped bordered hover responsive>
+                                    <thead className="table-primary">
+                                        <tr>
+                                            <th>SL</th>
+                                            <th>Created By</th>
+                                            <th>Updated By</th>
+                                            <th>Guardian Name</th>
+                                            <th>Phone No.</th>
+                                            <th>Address</th>
+                                            <th>Teacher Code</th>
+                                            <th>Student Class</th>
+                                            <th>Teacher Gender</th>
+                                            <th>Status</th>
+                                            <th>Next Update Date</th>
+                                            <th>Comment</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {dueTodayList.map((rowData, index) => (
+                                            <tr key={rowData._id}>
+                                                <td>{index + 1}</td>
+                                                <td>{rowData.createdBy}</td>
+                                                <td>{rowData.updatedBy}</td>
+                                                <td>{rowData.name}</td>
+                                                <td style={{ fontWeight: 'bold' }}>{rowData.phone}</td>
+                                                <td>{rowData.address}</td>
+                                                <td>{rowData.teacherCode}</td>
+                                                <td>{rowData.studentClass}</td>
+                                                <td>{rowData.teacherGender}</td>
+                                                <td>
+                                                    <span className="badge bg-info text-dark">
+                                                        {rowData.status}
+                                                    </span>
+                                                </td>
+                                                <td>{rowData.nextUpdateDate ? formatDate(rowData.nextUpdateDate) : ''}</td>
+                                                <td>{rowData.comment}</td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </Table>
+                            </div>
+                        )}
+                    </Modal.Body>
+                    <Modal.Footer>
+                        <Button variant="secondary" onClick={() => setShowDueModal(false)}>
+                            Close
                         </Button>
                     </Modal.Footer>
                 </Modal>

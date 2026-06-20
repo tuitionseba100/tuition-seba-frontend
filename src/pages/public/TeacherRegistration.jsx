@@ -43,24 +43,70 @@ import locationData from '../../data/locations.json';
 import NavBar from '../../components/NavBar';
 import Footer from '../../components/Footer';
 
-const PhoneRequiredModal = ({ show, handleClose }) => (
-    <Modal show={show} onHide={handleClose} centered>
-        <Modal.Header closeButton className="bg-warning text-white">
-            <Modal.Title>
+const getPhoneErrorMessage = (label, value) => {
+    if (!value) return '';
+    const trimmed = value.trim();
+    if (/[^\d+]/g.test(trimmed)) {
+        return `${label} নম্বরটি সঠিক নয় (নম্বরে কোনো অক্ষর, স্পেস বা প্রতীক থাকা যাবে না)। যেমন: 017xxxxxxxx এভাবে দিন।`;
+    }
+    if (trimmed.length < 11) {
+        return `${label} নম্বরটি সঠিক নয় (১১ ডিজিটের কম দেওয়া হয়েছে)। যেমন: 017xxxxxxxx এভাবে দিন।`;
+    }
+    if (trimmed.length > 15) {
+        return `${label} নম্বরটি সঠিক নয় (১৫ ডিজিটের বেশি দেওয়া হয়েছে)। যেমন: 017xxxxxxxx এভাবে দিন।`;
+    }
+    return `${label} নম্বরটি সঠিক নয়। যেমন: 017xxxxxxxx এভাবে দিন।`;
+};
+
+const PhoneRequiredModal = ({ show, handleClose, validationErrors = [] }) => (
+    <Modal show={show} onHide={handleClose} centered style={{ borderRadius: '15px', overflow: 'hidden' }}>
+        <Modal.Header closeButton className="bg-danger text-white border-0">
+            <Modal.Title className="fw-bold">
                 <FaExclamationTriangle className="me-2" />
-                তথ্য মিসিং
+                {validationErrors.length > 0 ? 'ভুল তথ্য সংশোধন করুন' : 'যোগাযোগের তথ্য প্রয়োজন'}
             </Modal.Title>
         </Modal.Header>
-        <Modal.Body className="text-center py-4">
-            <FaExclamationTriangle size={50} className="text-warning mb-3" />
-            <h5 className="mb-3">ফোন বা হোয়াটসঅ্যাপ প্রয়োজন</h5>
-            <p className="text-muted">
-                দয়া করে কমপক্ষে একটি যোগাযোগ নম্বর দিন: <br />
-                <strong>ফোন</strong> অথবা <strong>হোয়াটসঅ্যাপ</strong>
-            </p>
+        <Modal.Body className="text-center py-4 px-4" style={{ backgroundColor: '#fffdfd' }}>
+            <div className="mb-3">
+                <FaExclamationTriangle size={60} className="text-danger animate__animated animate__shakeX" />
+            </div>
+            {validationErrors.length > 0 ? (
+                <>
+                    <h5 className="fw-bold text-dark mb-3">নিম্নোক্ত তথ্যগুলো সঠিকভাবে পূরণ করা হয়নি:</h5>
+                    <div className="text-start mb-3" style={{ maxHeight: '200px', overflowY: 'auto' }}>
+                        {validationErrors.map((err, i) => (
+                            <div key={i} className="d-flex align-items-center bg-danger bg-opacity-10 border-start border-danger border-3 p-3 rounded mb-2 shadow-sm">
+                                <FaExclamationTriangle className="text-danger me-3 fs-5" />
+                                <span className="text-danger fw-semibold" style={{ fontSize: '0.95rem' }}>{err}</span>
+                            </div>
+                        ))}
+                    </div>
+                    <p className="text-muted mb-0" style={{ fontSize: '0.9rem' }}>
+                        দয়া করে লাল চিহ্নিত নম্বরগুলো যাচাই করে আবার চেষ্টা করুন।
+                    </p>
+                </>
+            ) : (
+                <>
+                    <h5 className="fw-bold text-dark mb-3">ফোন অথবা হোয়াটসঅ্যাপ নম্বর প্রয়োজন</h5>
+                    <p className="text-muted mb-4" style={{ fontSize: '1rem', lineHeight: '1.6' }}>
+                        আপনার সাথে যোগাযোগের জন্য কমপক্ষে একটি নম্বর প্রদান করা আবশ্যক। <br />
+                        দয়া করে <strong>ফোন</strong> অথবা <strong>হোয়াটসঅ্যাপ</strong> ঘরটি পূরণ করুন।
+                    </p>
+                    <div className="bg-warning bg-opacity-10 border-start border-warning border-3 p-3 rounded text-start shadow-sm mb-2">
+                        <span className="text-warning-emphasis fw-semibold" style={{ fontSize: '0.9rem' }}>
+                            * রেজিস্ট্রেশন সম্পন্ন করতে অন্তত যেকোনো একটি চালু নম্বর দিন।
+                        </span>
+                    </div>
+                </>
+            )}
         </Modal.Body>
-        <Modal.Footer>
-            <Button variant="warning" onClick={handleClose}>
+        <Modal.Footer className="border-0 bg-light justify-content-center">
+            <Button
+                variant={validationErrors.length > 0 ? "danger" : "warning"}
+                className="px-4 py-2 fw-bold text-white"
+                onClick={handleClose}
+                style={{ borderRadius: '8px' }}
+            >
                 ঠিক আছে
             </Button>
         </Modal.Footer>
@@ -74,6 +120,7 @@ const TeacherRegistrationForm = () => {
     const [showErrorModal, setShowErrorModal] = useState(false);
     const [showStepsModal, setShowStepsModal] = useState(false);
     const [showPhoneRequiredModal, setShowPhoneRequiredModal] = useState(false);
+    const [phoneModalErrors, setPhoneModalErrors] = useState([]);
     const [errorMessage, setErrorMessage] = useState('');
     const [areas, setAreas] = useState([]);
 
@@ -133,21 +180,28 @@ const TeacherRegistrationForm = () => {
 
     const validationSchemaFields = {};
     fieldConfig.forEach(({ name, label }) => {
-        if (name === 'phone') {
+        if (name === 'phone' || name === 'whatsapp' || name === 'alternativePhone' || name === 'familyPhone' || name === 'friendPhone') {
+            const labelMap = {
+                phone: 'ফোন',
+                whatsapp: 'হোয়াটসঅ্যাপ',
+                alternativePhone: 'বিকল্প ফোন',
+                familyPhone: 'পারিবারিক ফোন',
+                friendPhone: 'বন্ধুর ফোন'
+            };
+            const displayLabel = labelMap[name] || label;
             validationSchemaFields[name] = Yup.string()
-                .matches(/^\+?\d{7,15}$/, `${label} must be a valid phone number`)
-                .nullable();
-        } else if (name === 'whatsapp') {
-            validationSchemaFields[name] = Yup.string()
-                .matches(/^\+?\d{7,15}$/, `${label} must be a valid phone number`)
+                .test('phone-format', function (value) {
+                    if (!value || value.trim() === '') return true;
+                    const isValid = /^\+?\d{7,15}$/.test(value.trim());
+                    if (!isValid) {
+                        return this.createError({ message: getPhoneErrorMessage(displayLabel, value) });
+                    }
+                    return true;
+                })
                 .nullable();
         } else if (name === 'email') {
             validationSchemaFields[name] = Yup.string()
-                .email('Invalid email address')
-                .nullable();
-        } else if (name === 'alternativePhone' || name === 'familyPhone' || name === 'friendPhone') {
-            validationSchemaFields[name] = Yup.string()
-                .matches(/^\+?\d{7,15}$/, `${label} must be a valid phone number`)
+                .email('সঠিক ইমেইল এড্রেস দিন')
                 .nullable();
         } else {
             validationSchemaFields[name] = Yup.string().nullable();
@@ -234,8 +288,37 @@ const TeacherRegistrationForm = () => {
                             initialValues={initialValues}
                             validationSchema={validationSchema}
                             onSubmit={async (values, { resetForm, setSubmitting }) => {
+                                // Collect phone-related validation errors
+                                const phoneFields = ['phone', 'whatsapp', 'alternativePhone', 'familyPhone', 'friendPhone'];
+                                const phoneFieldLabels = {
+                                    phone: 'ফোন',
+                                    whatsapp: 'হোয়াটসঅ্যাপ',
+                                    alternativePhone: 'বিকল্প ফোন',
+                                    familyPhone: 'পারিবারিক ফোন',
+                                    friendPhone: 'বন্ধুর ফোন',
+                                };
+                                const phoneErrors = [];
+                                for (const fieldName of phoneFields) {
+                                    const val = values[fieldName];
+                                    if (val && val.trim() !== '') {
+                                        const isValid = /^\+?\d{7,15}$/.test(val.trim());
+                                        if (!isValid) {
+                                            phoneErrors.push(getPhoneErrorMessage(phoneFieldLabels[fieldName], val));
+                                        }
+                                    }
+                                }
+
                                 // Check if at least phone or whatsapp is provided
                                 if (!values.phone && !values.whatsapp) {
+                                    setPhoneModalErrors([]);
+                                    setShowPhoneRequiredModal(true);
+                                    setSubmitting(false);
+                                    return;
+                                }
+
+                                // Show phone format errors in modal
+                                if (phoneErrors.length > 0) {
+                                    setPhoneModalErrors(phoneErrors);
                                     setShowPhoneRequiredModal(true);
                                     setSubmitting(false);
                                     return;
@@ -287,6 +370,7 @@ const TeacherRegistrationForm = () => {
                                 handleSubmit,
                                 isSubmitting,
                                 setFieldValue,
+                                validateForm,
                             }) => {
                                 // Update areas when city changes
                                 useEffect(() => {
@@ -302,9 +386,47 @@ const TeacherRegistrationForm = () => {
                                     setProgress((filled / fieldConfig.length) * 100);
                                 }, [values]);
 
+                                const handleFormSubmit = (e) => {
+                                    e.preventDefault();
+                                    validateForm().then((formErrors) => {
+                                        const phoneFields = ['phone', 'whatsapp', 'alternativePhone', 'familyPhone', 'friendPhone'];
+                                        const phoneFieldLabels = {
+                                            phone: 'ফোন',
+                                            whatsapp: 'হোয়াটসঅ্যাপ',
+                                            alternativePhone: 'বিকল্প ফোন',
+                                            familyPhone: 'পারিবারিক ফোন',
+                                            friendPhone: 'বন্ধুর ফোন',
+                                        };
+                                        const phoneErrors = [];
+
+                                        for (const fieldName of phoneFields) {
+                                            const val = values[fieldName];
+                                            if (val && val.trim() !== '') {
+                                                const isValid = /^\+?\d{7,15}$/.test(val.trim());
+                                                if (!isValid) {
+                                                    phoneErrors.push(getPhoneErrorMessage(phoneFieldLabels[fieldName], val));
+                                                }
+                                            }
+                                        }
+
+                                        const isPhoneEmpty = !values.phone || values.phone.trim() === '';
+                                        const isWhatsappEmpty = !values.whatsapp || values.whatsapp.trim() === '';
+
+                                        if (isPhoneEmpty && isWhatsappEmpty) {
+                                            setPhoneModalErrors([]);
+                                            setShowPhoneRequiredModal(true);
+                                        } else if (phoneErrors.length > 0) {
+                                            setPhoneModalErrors(phoneErrors);
+                                            setShowPhoneRequiredModal(true);
+                                        } else {
+                                            handleSubmit(e);
+                                        }
+                                    });
+                                };
+
                                 return (
                                     <>
-                                        <Form noValidate onSubmit={handleSubmit}>
+                                        <Form noValidate onSubmit={handleFormSubmit}>
                                             {Object.entries(groupFields).map(([groupName, fields], i) => (
                                                 <div className="mb-5" key={groupName}>
                                                     <div
@@ -461,7 +583,7 @@ const TeacherRegistrationForm = () => {
                 <SuccessModal show={showSuccessModal} handleClose={() => setShowSuccessModal(false)} />
                 <ErrorModal show={showErrorModal} handleClose={() => setShowErrorModal(false)} message={errorMessage} />
                 <RegistrationSteps show={showStepsModal} handleClose={() => setShowStepsModal(false)} />
-                <PhoneRequiredModal show={showPhoneRequiredModal} handleClose={() => setShowPhoneRequiredModal(false)} />
+                <PhoneRequiredModal show={showPhoneRequiredModal} handleClose={() => setShowPhoneRequiredModal(false)} validationErrors={phoneModalErrors} />
 
                 {/* Find the isSubmitting state from Formik context if needed, or pass it down. 
                     Since we are inside the component but outside Formik here, we can't access isSubmitting directly easiest way.

@@ -163,34 +163,35 @@ const NavbarComponent = () => {
                         <div
                             style={{
                                 position: 'absolute',
-                                right: 46,
-                                top: '50%',
-                                transform: 'translateY(-50%)',
+                                right: -10,
+                                top: 48,
                                 background: '#fff',
                                 color: '#004085',
                                 fontSize: 11,
                                 fontWeight: 700,
-                                padding: '6px 12px',
+                                padding: '8px 12px',
                                 borderRadius: 10,
-                                boxShadow: '0 4px 16px rgba(0,0,0,0.18)',
+                                boxShadow: '0 6px 20px rgba(0,0,0,0.2)',
                                 whiteSpace: 'nowrap',
                                 zIndex: 3,
                                 animation: 'settingsHintPulse 2.5s ease-in-out infinite',
+                                transformOrigin: 'top right',
                                 lineHeight: 1.4,
-                                maxWidth: 200,
+                                border: '1px solid rgba(0, 64, 133, 0.1)',
                             }}
                         >
                             ১ ক্লিকে টিউশন অ্যাপ্লাই করতে সেটিংস সেভ করুন ⚡
-                            {/* Arrow pointing right towards the icon */}
+                            {/* Arrow pointing UP towards the icon */}
                             <div style={{
                                 position: 'absolute',
-                                right: -6,
-                                top: '50%',
-                                transform: 'translateY(-50%) rotate(45deg)',
+                                top: -6,
+                                right: 23,
+                                transform: 'rotate(45deg)',
                                 width: 12,
                                 height: 12,
                                 background: '#fff',
-                                boxShadow: '2px -2px 4px rgba(0,0,0,0.08)',
+                                borderLeft: '1px solid rgba(0, 64, 133, 0.1)',
+                                borderTop: '1px solid rgba(0, 64, 133, 0.1)',
                             }} />
                         </div>
                     )}

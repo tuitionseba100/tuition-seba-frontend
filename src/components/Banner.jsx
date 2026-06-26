@@ -146,7 +146,7 @@ const TutorSection = () => {
                             />
 
                             <motion.a
-                                href="https://play.google.com/store/apps/details?id=com.tuitionseba.forum"
+                                href="https://play.google.com/store/apps/details?id=com.tuitionseba.forumv2&pcampaignid=web_share"
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 style={{

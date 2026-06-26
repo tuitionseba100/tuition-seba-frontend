@@ -32,3 +32,15 @@ p,
 span {
   font-family: 'Poppins', sans-serif !important;
 }
+
+/* Settings hint floating tooltip pulse */
+@keyframes settingsHintPulse {
+  0%, 100% { opacity: 0.85; transform: translateY(-50%) scale(0.97); }
+  50% { opacity: 1; transform: translateY(-50%) scale(1); }
+}
+
+/* Autofill banner fade-in */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}

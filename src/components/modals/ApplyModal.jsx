@@ -27,19 +27,49 @@ const ApplyModal = ({ show, onClose, tuitionCode, tuitionId }) => {
     const [teacherData, setTeacherData] = useState(null);
     const [isVerifying, setIsVerifying] = useState(false);
     const [autoComment, setAutoComment] = useState('');
+    const [showAutofillMessage, setShowAutofillMessage] = useState(false);
+    const [savedPremiumCode, setSavedPremiumCode] = useState('');
+    const [savedPhone, setSavedPhone] = useState('');
 
     useEffect(() => {
-        if (show && tuitionId) {
-            fetch(`https://tuition-seba-backend-1.onrender.com/api/tuitionApply/get-auto-comment/${tuitionId}`)
-                .then(res => res.json())
-                .then(data => setAutoComment(data.comment))
-                .catch(err => console.error('Error fetching auto comment:', err));
-        } else if (!show) {
+        if (show) {
+            // Read saved settings from localStorage for autofill
+            try {
+                const saved = localStorage.getItem('@user_settings');
+                if (saved) {
+                    const parsed = JSON.parse(saved);
+                    if (parsed.premiumCode || parsed.phone) {
+                        setSavedPremiumCode(parsed.premiumCode || '');
+                        setSavedPhone(parsed.phone || '');
+                        setShowAutofillMessage(true);
+                        setTimeout(() => setShowAutofillMessage(false), 5000);
+                    } else {
+                        setSavedPremiumCode('');
+                        setSavedPhone('');
+                    }
+                } else {
+                    setSavedPremiumCode('');
+                    setSavedPhone('');
+                }
+            } catch (e) {
+                console.error('Error reading user settings', e);
+                setSavedPremiumCode('');
+                setSavedPhone('');
+            }
+
+            if (tuitionId) {
+                fetch(`https://tuition-seba-backend-1.onrender.com/api/tuitionApply/get-auto-comment/${tuitionId}`)
+                    .then(res => res.json())
+                    .then(data => setAutoComment(data.comment))
+                    .catch(err => console.error('Error fetching auto comment:', err));
+            }
+        } else {
             setAutoComment('');
             setIsVerified(false);
             setTeacherData(null);
             setShowSuccess(false);
             setErrorMessage('');
+            setShowAutofillMessage(false);
         }
     }, [show, tuitionId]);
 
@@ -207,7 +237,7 @@ const ApplyModal = ({ show, onClose, tuitionCode, tuitionId }) => {
 
                 <Formik
                     initialValues={{
-                        premiumCode: '',
+                        premiumCode: savedPremiumCode || '',
                         tuitionCode: tuitionCode || '',
                         tuitionId: tuitionId || '',
                         name: '',
@@ -215,7 +245,7 @@ const ApplyModal = ({ show, onClose, tuitionCode, tuitionId }) => {
                         department: '',
                         academicYear: '',
                         address: '',
-                        phone: '',
+                        phone: savedPhone || '',
                         comment: '',
                     }}
                     enableReinitialize
@@ -280,6 +310,34 @@ const ApplyModal = ({ show, onClose, tuitionCode, tuitionId }) => {
                                     className="custom-scrollbar"
                                 >
 
+
+                                    {/* Autofill Message */}
+                                    {showAutofillMessage && (
+                                        <div
+                                            style={{
+                                                backgroundColor: '#d1fae5',
+                                                border: '1px solid #6ee7b7',
+                                                borderRadius: 8,
+                                                padding: '10px 14px',
+                                                marginBottom: 12,
+                                                fontSize: 13,
+                                                color: '#065f46',
+                                                display: 'flex',
+                                                justifyContent: 'space-between',
+                                                alignItems: 'center',
+                                                animation: 'fadeIn 0.5s ease',
+                                            }}
+                                        >
+                                            <span>প্রোফাইল সেটিংস থেকে আপনার তথ্যগুলো অটো-ফিল করা হয়েছে</span>
+                                            <button
+                                                type="button"
+                                                onClick={() => setShowAutofillMessage(false)}
+                                                style={{ border: 'none', background: 'transparent', color: '#065f46', fontWeight: 'bold', fontSize: 16, cursor: 'pointer', lineHeight: 1 }}
+                                            >
+                                                &times;
+                                            </button>
+                                        </div>
+                                    )}
 
                                     {/* Info Note in Bangla */}
                                     <div

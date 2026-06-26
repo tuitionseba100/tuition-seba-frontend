@@ -1,13 +1,34 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Navbar, Nav, Container } from 'react-bootstrap';
 import { FaFacebookF, FaWhatsapp } from 'react-icons/fa';
+import { FiSettings } from 'react-icons/fi';
 import { NavLink, useNavigate, useLocation } from 'react-router-dom';
+import SettingsModal from './modals/SettingsModal';
 
 const NavbarComponent = () => {
     const navigate = useNavigate();
     const location = useLocation();
 
     const [hovered, setHovered] = useState(null);
+    const [showSettings, setShowSettings] = useState(false);
+    const [hasSettingsData, setHasSettingsData] = useState(false);
+
+    useEffect(() => {
+        const checkSettings = () => {
+            try {
+                const saved = localStorage.getItem('@user_settings');
+                if (saved) {
+                    const parsed = JSON.parse(saved);
+                    setHasSettingsData(!!(parsed.userName || parsed.phone || parsed.premiumCode));
+                } else {
+                    setHasSettingsData(false);
+                }
+            } catch { setHasSettingsData(false); }
+        };
+        checkSettings();
+        window.addEventListener('userSettingsUpdated', checkSettings);
+        return () => window.removeEventListener('userSettingsUpdated', checkSettings);
+    }, []);
 
     const handleAboutUsClick = (e) => {
         e.preventDefault();
@@ -111,6 +132,70 @@ const NavbarComponent = () => {
                     <img src="/img/TUITION SEBA FORUM TF.png" alt="Logo" style={logoStyle} />
                 </Navbar.Brand>
 
+                {/* Mobile Settings Icon - visible only on mobile (< lg) */}
+                <div className="d-flex d-lg-none align-items-center" style={{ position: 'relative', marginLeft: 'auto', marginRight: 10 }}>
+                    <button
+                        onClick={() => setShowSettings(true)}
+                        style={{
+                            border: '1.5px solid rgba(255,255,255,0.35)',
+                            background: 'rgba(255,255,255,0.12)',
+                            backdropFilter: 'blur(5px)',
+                            borderRadius: '50%',
+                            width: 38,
+                            height: 38,
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            color: '#fff',
+                            fontSize: 18,
+                            cursor: 'pointer',
+                            transition: 'all 0.3s',
+                            position: 'relative',
+                            zIndex: 2,
+                        }}
+                        title="Profile Settings"
+                    >
+                        <FiSettings />
+                    </button>
+
+                    {/* Floating hint if no data saved */}
+                    {!hasSettingsData && (
+                        <div
+                            style={{
+                                position: 'absolute',
+                                right: 46,
+                                top: '50%',
+                                transform: 'translateY(-50%)',
+                                background: '#fff',
+                                color: '#004085',
+                                fontSize: 11,
+                                fontWeight: 700,
+                                padding: '6px 12px',
+                                borderRadius: 10,
+                                boxShadow: '0 4px 16px rgba(0,0,0,0.18)',
+                                whiteSpace: 'nowrap',
+                                zIndex: 3,
+                                animation: 'settingsHintPulse 2.5s ease-in-out infinite',
+                                lineHeight: 1.4,
+                                maxWidth: 200,
+                            }}
+                        >
+                            ১ ক্লিকে টিউশন অ্যাপ্লাই করতে সেটিংস সেভ করুন ⚡
+                            {/* Arrow pointing right towards the icon */}
+                            <div style={{
+                                position: 'absolute',
+                                right: -6,
+                                top: '50%',
+                                transform: 'translateY(-50%) rotate(45deg)',
+                                width: 12,
+                                height: 12,
+                                background: '#fff',
+                                boxShadow: '2px -2px 4px rgba(0,0,0,0.08)',
+                            }} />
+                        </div>
+                    )}
+                </div>
+
                 <Navbar.Toggle aria-controls="main-navbar" style={{ border: '1px solid rgba(255,255,255,0.5)' }} />
                 <Navbar.Collapse id="main-navbar">
                     <Nav className="ms-auto align-items-center" style={{ flexWrap: 'wrap', gap: 10 }}>
@@ -184,9 +269,30 @@ const NavbarComponent = () => {
                                 {icon}
                             </Nav.Link>
                         ))}
+                        
+                        <Nav.Link
+                            onClick={() => setShowSettings(true)}
+                            style={iconLinkStyle}
+                            title="Profile Settings"
+                            onMouseEnter={(e) => {
+                                e.currentTarget.style.background = 'white';
+                                e.currentTarget.style.color = '#004085';
+                                e.currentTarget.style.transform = 'translateY(-3px)';
+                                e.currentTarget.style.boxShadow = '0 5px 15px rgba(0,0,0,0.3)';
+                            }}
+                            onMouseLeave={(e) => {
+                                e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)';
+                                e.currentTarget.style.color = 'white';
+                                e.currentTarget.style.transform = 'translateY(0)';
+                                e.currentTarget.style.boxShadow = 'none';
+                            }}
+                        >
+                            <FiSettings />
+                        </Nav.Link>
                     </Nav>
                 </Navbar.Collapse>
             </Container>
+            <SettingsModal show={showSettings} onClose={() => setShowSettings(false)} />
         </Navbar>
     );
 };

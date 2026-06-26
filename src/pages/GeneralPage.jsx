@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { Container, Row, Col, Card, Table, Form, Button, Spinner, Badge } from 'react-bootstrap';
-import axios from 'axios';
+import { axiosWithFallback as axios } from '../services/fetchWithFallback';
 import NavBarPage from './NavbarPage';
 import { toast, ToastContainer } from 'react-toastify';
 import {

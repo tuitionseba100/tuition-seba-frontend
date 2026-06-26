@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef, useCallback } from 'react';
-import axios from 'axios';
+import { axiosWithFallback as axios } from '../services/fetchWithFallback';
 import TuitionCard from './TuitionCard';
 import { FiRefreshCcw, FiMapPin, FiAlertCircle } from 'react-icons/fi';
 import { Spinner } from 'react-bootstrap';

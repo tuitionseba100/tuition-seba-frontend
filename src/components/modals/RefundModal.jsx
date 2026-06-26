@@ -6,6 +6,7 @@ import ApplySuccessModal from '../../components/modals/ApplySuccessModal';
 import ProcessingModal from '../../components/modals/ProcessingModal';
 import DuplicateAlertModal from '../../components/modals/DuplicateAlertModal';
 
+import { fetchWithFallback } from '../../services/fetchWithFallback';
 const RefundModal = ({ show, handleClose }) => {
     const defaultForm = {
         tuitionCode: '', paymentType: '', paymentNumber: '',
@@ -28,7 +29,7 @@ const RefundModal = ({ show, handleClose }) => {
 
         setLoading(true);
         try {
-            const res = await fetch('https://tuition-seba-backend-1.onrender.com/api/refund/add', {
+            const res = await fetchWithFallback('https://tuition-seba-backend-1.onrender.com/api/refund/add', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(form)

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import { axiosWithFallback as axios } from '../../services/fetchWithFallback';
 import { Modal } from 'react-bootstrap';
 
 const ResponseGuidelineWidget = () => {

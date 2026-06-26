@@ -4,6 +4,7 @@ import { toast } from 'react-toastify';
 import { FiTrash2, FiPlus, FiX, FiCheckCircle } from 'react-icons/fi';
 import locationData from '../../data/locations.json';
 
+import { fetchWithFallback } from '../../services/fetchWithFallback';
 const SettingsModal = ({ show, onClose }) => {
     const [userName, setUserName] = useState('');
     const [phone, setPhone] = useState('');
@@ -80,8 +81,7 @@ const SettingsModal = ({ show, onClose }) => {
             }
 
             try {
-                const response = await fetch(
-                    'https://tuition-seba-backend-1.onrender.com/api/regTeacher/check-apply-possible',
+                const response = await fetchWithFallback('https://tuition-seba-backend-1.onrender.com/api/regTeacher/check-apply-possible',
                     {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },

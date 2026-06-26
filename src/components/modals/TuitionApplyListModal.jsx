@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Modal, Table, Button, Form, Row, Col, Spinner } from "react-bootstrap";
-import axios from "axios";
+import { axiosWithFallback as axios } from '../../services/fetchWithFallback';
 import { toast } from "react-toastify";
 import { FaEdit, FaTrashAlt, FaGlobe, FaGooglePlay } from "react-icons/fa";
 

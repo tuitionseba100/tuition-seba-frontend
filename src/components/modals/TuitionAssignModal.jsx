@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Modal, Button, Form, Spinner } from 'react-bootstrap';
 import Select from 'react-select';
-import axios from 'axios';
+import { axiosWithFallback as axios } from '../../services/fetchWithFallback';
 import { toast } from 'react-toastify';
 
 const TuitionAssignModal = ({ show, onHide, tuition, fetchTuitionRecords, fetchAlertData }) => {

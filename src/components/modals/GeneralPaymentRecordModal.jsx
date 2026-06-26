@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Modal, Button, Form, Row, Col, Spinner, Table } from 'react-bootstrap';
-import axios from 'axios';
+import { axiosWithFallback as axios } from '../../services/fetchWithFallback';
 import Select from 'react-select';
 import moment from 'moment';
 

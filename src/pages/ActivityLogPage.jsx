@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import { FaSearch, FaUndo, FaEye, FaFileCsv, FaHistory, FaChevronLeft, FaChevronRight, FaTrashAlt, FaExclamationTriangle, FaCheckCircle, FaDownload } from 'react-icons/fa';
 import moment from 'moment';
 import NavBarPage from './NavbarPage';
-import axios from 'axios';
+import { axiosWithFallback as axios } from '../services/fetchWithFallback';
 import { toast, ToastContainer } from 'react-toastify';
 
 const PageContainer = styled.div`

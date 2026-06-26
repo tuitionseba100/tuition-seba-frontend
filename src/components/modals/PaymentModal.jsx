@@ -6,6 +6,7 @@ import RefundTermsModal from './RefundTermsModal';
 import ApplySuccessModal from '../../components/modals/ApplySuccessModal';
 import ProcessingModal from '../../components/modals/ProcessingModal';
 
+import { fetchWithFallback } from '../../services/fetchWithFallback';
 const PaymentModal = ({ show, handleClose }) => {
     const defaultForm = {
         tuitionCode: '', paymentType: '', paymentNumber: '', transactionId: '',
@@ -30,7 +31,7 @@ const PaymentModal = ({ show, handleClose }) => {
 
         setLoading(true);
         try {
-            const res = await fetch('https://tuition-seba-backend-1.onrender.com/api/teacherPayment/add', {
+            const res = await fetchWithFallback('https://tuition-seba-backend-1.onrender.com/api/teacherPayment/add', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(form)

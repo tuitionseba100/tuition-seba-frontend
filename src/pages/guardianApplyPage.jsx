@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Button, Table, Modal, Form, Row, Col, Card } from 'react-bootstrap';
 import { FaEdit, FaTrashAlt, FaSearch, FaChevronLeft, FaChevronRight, FaBell, FaInfoCircle } from 'react-icons/fa';
-import axios from 'axios';
+import { axiosWithFallback as axios } from '../services/fetchWithFallback';
 import NavBarPage from './NavbarPage';
 import styled from 'styled-components';
 import { ToastContainer, toast } from 'react-toastify';
@@ -1205,6 +1205,7 @@ const GuardianApplyPage = () => {
                                             <th>Status</th>
                                             <th>Next Update Date</th>
                                             <th>Comment</th>
+                                            <th>Actions</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -1226,6 +1227,42 @@ const GuardianApplyPage = () => {
                                                 </td>
                                                 <td>{rowData.nextUpdateDate ? formatDate(rowData.nextUpdateDate) : ''}</td>
                                                 <td>{rowData.comment}</td>
+                                                <td>
+                                                    <div className="d-flex gap-1">
+                                                        <OverlayTrigger
+                                                            placement="top"
+                                                            overlay={<Tooltip>Update Status</Tooltip>}
+                                                        >
+                                                            <Button 
+                                                                variant="primary" 
+                                                                size="sm"
+                                                                onClick={() => {
+                                                                    setShowDueModal(false);
+                                                                    openStatusUpdateModal(rowData);
+                                                                }}
+                                                            >
+                                                                <FaEdit />
+                                                            </Button>
+                                                        </OverlayTrigger>
+                                                        <OverlayTrigger
+                                                            placement="top"
+                                                            overlay={<Tooltip>Delete Record</Tooltip>}
+                                                        >
+                                                            <Button
+                                                                variant="danger"
+                                                                size="sm"
+                                                                onClick={() => handleDeleteRecord(rowData._id)}
+                                                                disabled={deleteLoading}
+                                                            >
+                                                                {deleteLoading ? (
+                                                                    <Spinner animation="border" size="sm" />
+                                                                ) : (
+                                                                    <FaTrashAlt />
+                                                                )}
+                                                            </Button>
+                                                        </OverlayTrigger>
+                                                    </div>
+                                                </td>
                                             </tr>
                                         ))}
                                     </tbody>

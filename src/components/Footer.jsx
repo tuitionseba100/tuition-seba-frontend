@@ -210,7 +210,7 @@ const Footer = () => {
                             </div>
 
                             <motion.a
-                                href="https://play.google.com/store/apps/details?id=com.tuitionseba.forumv2&pcampaignid=web_share"
+                                href="/app"
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 whileHover={{

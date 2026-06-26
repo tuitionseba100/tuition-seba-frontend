@@ -8,6 +8,7 @@ import CustomErrorModal from '../../components/modals/CustomErrorModal';
 import ProcessingModal from '../../components/modals/ProcessingModal';
 import SuspendedWarningModal from '../../components/modals/SuspendedWarningModal';
 
+import { fetchWithFallback } from '../../services/fetchWithFallback';
 const spinnerStyle = {
     width: 24,
     height: 24,
@@ -58,7 +59,7 @@ const ApplyModal = ({ show, onClose, tuitionCode, tuitionId }) => {
             }
 
             if (tuitionId) {
-                fetch(`https://tuition-seba-backend-1.onrender.com/api/tuitionApply/get-auto-comment/${tuitionId}`)
+                fetchWithFallback(`https://tuition-seba-backend-1.onrender.com/api/tuitionApply/get-auto-comment/${tuitionId}`)
                     .then(res => res.json())
                     .then(data => setAutoComment(data.comment))
                     .catch(err => console.error('Error fetching auto comment:', err));
@@ -105,8 +106,7 @@ const ApplyModal = ({ show, onClose, tuitionCode, tuitionId }) => {
     const handleVerification = async (values, setFieldValue) => {
         setIsVerifying(true);
         try {
-            const checkRes = await fetch(
-                'https://tuition-seba-backend-1.onrender.com/api/regTeacher/check-apply-possible',
+            const checkRes = await fetchWithFallback('https://tuition-seba-backend-1.onrender.com/api/regTeacher/check-apply-possible',
                 {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -258,8 +258,7 @@ const ApplyModal = ({ show, onClose, tuitionCode, tuitionId }) => {
                         }
 
                         try {
-                            const res = await fetch(
-                                'https://tuition-seba-backend-1.onrender.com/api/tuitionApply/add-web',
+                            const res = await fetchWithFallback('https://tuition-seba-backend-1.onrender.com/api/tuitionApply/add-web',
                                 {
                                     method: 'POST',
                                     headers: { 'Content-Type': 'application/json' },

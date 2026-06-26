@@ -5,6 +5,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import DayStartedRoute from './pages/DayStartedRoute';
 import { ToastContainer } from 'react-toastify';
 import axios from 'axios';
+import { axiosWithFallback } from './services/fetchWithFallback';
 import { isTokenExpired } from './utilities/authUtils';
 
 // Global Axios configuration
@@ -54,6 +55,21 @@ axios.interceptors.response.use(
   }
 );
 
+// Apply same auth interceptor to axiosWithFallback instance
+axiosWithFallback.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem('token');
+    const username = localStorage.getItem('username');
+    if (token) {
+      config.headers.Authorization = token;
+    }
+    if (username) {
+      config.headers['x-user-name'] = username;
+    }
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
 
 import LandingPage from './pages/public/LandingPage';
 import PaymentRefundPage from './pages/public/PaymentRefundPage';
@@ -83,7 +99,14 @@ import GeneralPage from './pages/GeneralPage';
 import IncomeExpensePage from './pages/IncomeExpensePage';
 import ActivityLogPage from './pages/ActivityLogPage';
 import SettingsPage from './pages/SettingsPage';
+import ApplyUpdates from './pages/public/ApplyUpdates';
 
+const AppRedirect = () => {
+  React.useEffect(() => {
+    window.location.replace("https://play.google.com/store/apps/details?id=com.tuitionseba.forumv2&pcampaignid=web_share");
+  }, []);
+  return null;
+};
 
 const App = () => {
   return (
@@ -98,7 +121,9 @@ const App = () => {
         <Route path="/OurTeachers" element={<OurTeacher />} />
         <Route path="/privacy" element={<PrivacyPolicyPage />} />
         <Route path="/rules" element={<Rules />} />
+        <Route path="/apply-updates" element={<ApplyUpdates />} />
         <Route path="/admin/login" element={<Loginpage />} />
+        <Route path="/app" element={<AppRedirect />} />
 
         <Route path="/admin" element={<PrivateRoute />}>
           <Route index element={<Navigate to="/admin/dashboard" replace />} />

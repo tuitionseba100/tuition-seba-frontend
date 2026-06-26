@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import axios from 'axios';
+import { axiosWithFallback as axios } from '../services/fetchWithFallback';
 import { Button, Modal, Form, Row, Col } from 'react-bootstrap';
 import Select from 'react-select';
 import { ToastContainer, toast } from 'react-toastify';

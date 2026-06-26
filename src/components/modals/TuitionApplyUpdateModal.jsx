@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Modal, Button, Form, Table, Spinner, InputGroup } from 'react-bootstrap';
 import { toast, ToastContainer } from 'react-toastify';
 
+import { fetchWithFallback } from '../../services/fetchWithFallback';
 const TuitionUpdateModal = ({ show, handleClose }) => {
     const [phone, setPhone] = useState('');
     const [tuitionData, setTuitionData] = useState([]);
@@ -17,8 +18,7 @@ const TuitionUpdateModal = ({ show, handleClose }) => {
         setTuitionData([]);
 
         try {
-            const response = await fetch(
-                `https://tuition-seba-backend-1.onrender.com/api/tuitionApply/getTuitionStatusesByPhone?phone=${phone}`
+            const response = await fetchWithFallback(`https://tuition-seba-backend-1.onrender.com/api/tuitionApply/getTuitionStatusesByPhone?phone=${phone}`
             );
             if (!response.ok) {
                 throw new Error('Server error occurred!');

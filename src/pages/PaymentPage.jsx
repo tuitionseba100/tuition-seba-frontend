@@ -5,7 +5,7 @@ import GeneralPaymentRecordModal from '../components/modals/GeneralPaymentRecord
 import GeneralPaymentViewModal from '../components/modals/GeneralPaymentViewModal';
 import WhatsAppPaymentMessageModal from '../components/modals/WhatsAppPaymentMessageModal';
 import PaymentAssignModal from '../components/modals/PaymentAssignModal';
-import axios from 'axios';
+import { axiosWithFallback as axios } from '../services/fetchWithFallback';
 import NavBarPage from './NavbarPage';
 import styled from 'styled-components';
 import { ToastContainer, toast } from 'react-toastify';

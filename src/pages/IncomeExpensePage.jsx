@@ -3,7 +3,7 @@ import {
     Container, Row, Col, Card, Button, Table, Modal, Form,
     Nav, Badge, Spinner
 } from 'react-bootstrap';
-import axios from 'axios';
+import { axiosWithFallback as axios } from '../services/fetchWithFallback';
 import { toast } from 'react-toastify';
 import {
     FaPlus, FaMinus, FaFilter, FaTrash, FaEdit,

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Modal, Button, Form, Row, Col, Spinner, Table, Card, Badge, InputGroup, OverlayTrigger, Tooltip } from 'react-bootstrap';
 import Select from 'react-select';
-import axios from 'axios';
+import { axiosWithFallback as axios } from '../../services/fetchWithFallback';
 import { toast } from 'react-toastify';
 import { FaCopy, FaWhatsapp, FaSearch, FaFilter, FaListUl, FaEye, FaCheckSquare, FaSquare, FaTimes } from 'react-icons/fa';
 import locationData from '../../data/locations.json';

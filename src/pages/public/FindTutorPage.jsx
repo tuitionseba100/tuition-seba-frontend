@@ -6,6 +6,7 @@ import NavBar from '../../components/NavBar';
 import Footer from '../../components/Footer';
 import ProcessingModal from '../../components/modals/ProcessingModal';
 
+import { fetchWithFallback } from '../../services/fetchWithFallback';
 const ApplyTutorPage = () => {
     const defaultForm = {
         name: '',
@@ -41,7 +42,7 @@ const ApplyTutorPage = () => {
 
         setLoading(true);
         try {
-            const response = await fetch('https://tuition-seba-backend-1.onrender.com/api/guardianApply/add', {
+            const response = await fetchWithFallback('https://tuition-seba-backend-1.onrender.com/api/guardianApply/add', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(form),

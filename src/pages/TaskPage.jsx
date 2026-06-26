@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import TaskModal from '../components/modals/TaskModal';
 import { Button, Table, Modal, Form, Row, Col, Card } from 'react-bootstrap';
 import { FaEdit, FaTrashAlt, FaCheckCircle } from 'react-icons/fa';
-import axios from 'axios';
+import { axiosWithFallback as axios } from '../services/fetchWithFallback';
 import NavBarPage from './NavbarPage';
 import styled from 'styled-components';
 import { ToastContainer, toast } from 'react-toastify';

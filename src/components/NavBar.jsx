@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Navbar, Nav, Container } from 'react-bootstrap';
 import { FaFacebookF, FaWhatsapp } from 'react-icons/fa';
-import { FiSettings } from 'react-icons/fi';
+import { FiSettings, FiBell } from 'react-icons/fi';
 import { NavLink, useNavigate, useLocation } from 'react-router-dom';
 import SettingsModal from './modals/SettingsModal';
 
@@ -67,7 +67,7 @@ const NavbarComponent = () => {
         position: 'relative',
         paddingBottom: 6,
         textDecoration: 'none',
-        marginRight: 16,
+        marginRight: 0,
         fontSize: 16,
         letterSpacing: '0.5px',
         transition: 'color 0.3s ease'
@@ -127,13 +127,37 @@ const NavbarComponent = () => {
 
     return (
         <Navbar style={navbarStyle} expand="lg" variant="dark" sticky="top">
-            <Container fluid="md" className="px-3 px-sm-4">
+            <Container fluid className="px-3 px-md-5">
                 <Navbar.Brand as={NavLink} to="/" className="d-flex align-items-center">
                     <img src="/img/TUITION SEBA FORUM TF.png" alt="Logo" style={logoStyle} />
                 </Navbar.Brand>
 
-                {/* Mobile Settings Icon - visible only on mobile (< lg) */}
-                <div className="d-flex d-lg-none align-items-center" style={{ position: 'relative', marginLeft: 'auto', marginRight: 10 }}>
+                {/* Mobile Settings & Apply Updates Icon - visible only on mobile (< lg) */}
+                <div className="d-flex d-lg-none align-items-center" style={{ position: 'relative', marginLeft: 'auto', marginRight: 10, gap: 10 }}>
+                    <button
+                        onClick={() => navigate('/apply-updates')}
+                        style={{
+                            border: '1.5px solid rgba(255,255,255,0.35)',
+                            background: location.pathname === '/apply-updates' ? 'rgba(255,255,255,0.25)' : 'rgba(255,255,255,0.12)',
+                            backdropFilter: 'blur(5px)',
+                            borderRadius: '50%',
+                            width: 38,
+                            height: 38,
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            color: '#fff',
+                            fontSize: 18,
+                            cursor: 'pointer',
+                            transition: 'all 0.3s',
+                            position: 'relative',
+                            zIndex: 2,
+                        }}
+                        title="Apply Updates"
+                    >
+                        <FiBell />
+                    </button>
+
                     <button
                         onClick={() => setShowSettings(true)}
                         style={{
@@ -247,13 +271,58 @@ const NavbarComponent = () => {
                             }
                         })}
 
-                        {iconLinks.map(({ href, icon, key }) => (
+                        {/* Social and Utility Icons Grouped Together to Prevent Wrapping Individually */}
+                        <div className="d-flex align-items-center" style={{ gap: 10, flexWrap: 'nowrap' }}>
+                            {iconLinks.map(({ href, icon, key }) => (
+                                <Nav.Link
+                                    key={key}
+                                    href={href}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    style={iconLinkStyle}
+                                    onMouseEnter={(e) => {
+                                        e.currentTarget.style.background = 'white';
+                                        e.currentTarget.style.color = '#004085';
+                                        e.currentTarget.style.transform = 'translateY(-3px)';
+                                        e.currentTarget.style.boxShadow = '0 5px 15px rgba(0,0,0,0.3)';
+                                    }}
+                                    onMouseLeave={(e) => {
+                                        e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)';
+                                        e.currentTarget.style.color = 'white';
+                                        e.currentTarget.style.transform = 'translateY(0)';
+                                        e.currentTarget.style.boxShadow = 'none';
+                                    }}
+                                >
+                                    {icon}
+                                </Nav.Link>
+                            ))}
+                            
                             <Nav.Link
-                                key={key}
-                                href={href}
-                                target="_blank"
-                                rel="noopener noreferrer"
+                                as={NavLink}
+                                to="/apply-updates"
                                 style={iconLinkStyle}
+                                title="Apply Updates"
+                                className={({ isActive }) => (isActive ? 'active' : '')}
+                                onMouseEnter={(e) => {
+                                    e.currentTarget.style.background = 'white';
+                                    e.currentTarget.style.color = '#004085';
+                                    e.currentTarget.style.transform = 'translateY(-3px)';
+                                    e.currentTarget.style.boxShadow = '0 5px 15px rgba(0,0,0,0.3)';
+                                }}
+                                onMouseLeave={(e) => {
+                                    e.currentTarget.style.background = location.pathname === '/apply-updates' ? 'rgba(255, 255, 255, 0.25)' : 'rgba(255, 255, 255, 0.1)';
+                                    e.currentTarget.style.color = 'white';
+                                    e.currentTarget.style.transform = 'translateY(0)';
+                                    e.currentTarget.style.boxShadow = 'none';
+                                }}
+                            >
+                                <FiBell />
+                            </Nav.Link>
+
+                            <Nav.Link
+                                onClick={() => setShowSettings(true)}
+                                style={iconLinkStyle}
+                                title="Profile Settings"
                                 onMouseEnter={(e) => {
                                     e.currentTarget.style.background = 'white';
                                     e.currentTarget.style.color = '#004085';
@@ -267,29 +336,9 @@ const NavbarComponent = () => {
                                     e.currentTarget.style.boxShadow = 'none';
                                 }}
                             >
-                                {icon}
+                                <FiSettings />
                             </Nav.Link>
-                        ))}
-                        
-                        <Nav.Link
-                            onClick={() => setShowSettings(true)}
-                            style={iconLinkStyle}
-                            title="Profile Settings"
-                            onMouseEnter={(e) => {
-                                e.currentTarget.style.background = 'white';
-                                e.currentTarget.style.color = '#004085';
-                                e.currentTarget.style.transform = 'translateY(-3px)';
-                                e.currentTarget.style.boxShadow = '0 5px 15px rgba(0,0,0,0.3)';
-                            }}
-                            onMouseLeave={(e) => {
-                                e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)';
-                                e.currentTarget.style.color = 'white';
-                                e.currentTarget.style.transform = 'translateY(0)';
-                                e.currentTarget.style.boxShadow = 'none';
-                            }}
-                        >
-                            <FiSettings />
-                        </Nav.Link>
+                        </div>
                     </Nav>
                 </Navbar.Collapse>
             </Container>

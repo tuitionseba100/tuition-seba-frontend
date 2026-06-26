@@ -1,4 +1,4 @@
-import axios from "axios";
+import { axiosWithFallback as axios } from "../services/fetchWithFallback";
 
 export const checkDayStarted = async () => {
     const token = localStorage.getItem("token");

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Button, Table, Modal, Form, Spinner } from 'react-bootstrap';
 import { FaTrashAlt, FaEdit, FaSearch, FaUserShield, FaUserCog, FaPlus, FaCheckCircle, FaTimesCircle, FaKey, FaInfoCircle, FaEye, FaEyeSlash, FaLock, FaUnlock, FaHistory, FaMoon } from 'react-icons/fa';
-import axios from 'axios';
+import { axiosWithFallback as axios } from '../services/fetchWithFallback';
 import { useNavigate } from 'react-router-dom';
 import NavBarPage from './NavbarPage';
 import styled, { keyframes } from 'styled-components';

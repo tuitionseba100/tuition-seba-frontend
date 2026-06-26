@@ -12,7 +12,7 @@ import {
     Form,
 } from 'react-bootstrap';
 import { FaSyncAlt, FaSun, FaCloudSun, FaMoon, FaEdit, FaTrashAlt } from 'react-icons/fa';
-import axios from 'axios';
+import { axiosWithFallback as axios } from '../services/fetchWithFallback';
 import { toast, ToastContainer } from 'react-toastify';
 
 import NavBarPage from './NavbarPage';

@@ -43,6 +43,7 @@ import locationData from '../../data/locations.json';
 import NavBar from '../../components/NavBar';
 import Footer from '../../components/Footer';
 
+import { fetchWithFallback } from '../../services/fetchWithFallback';
 const getPhoneErrorMessage = (label, value) => {
     if (!value) return '';
     const trimmed = value.trim();
@@ -325,7 +326,7 @@ const TeacherRegistrationForm = () => {
                                 }
 
                                 try {
-                                    const res = await fetch('https://tuition-seba-backend-1.onrender.com/api/regTeacher/add', {
+                                    const res = await fetchWithFallback('https://tuition-seba-backend-1.onrender.com/api/regTeacher/add', {
                                         method: 'POST',
                                         headers: { 'Content-Type': 'application/json' },
                                         body: JSON.stringify(values),

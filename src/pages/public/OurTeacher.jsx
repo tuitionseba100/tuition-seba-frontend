@@ -15,7 +15,7 @@ import { Pagination } from '@mui/material';
 import NavBar from '../../components/NavBar';
 import Footer from '../../components/Footer';
 import { ToastContainer, toast } from 'react-toastify';
-import axios from 'axios';
+import { axiosWithFallback as axios, fetchWithFallback } from '../../services/fetchWithFallback';
 import ApplySuccessModal from '../../components/modals/ApplySuccessModal';
 import { ButtonGroup } from 'react-bootstrap';
 import ProcessingModal from '../../components/modals/ProcessingModal';
@@ -104,7 +104,7 @@ export default function OurTeacher() {
 
     const fetchTeachers = async () => {
         try {
-            const response = await fetch('https://tuition-seba-backend-1.onrender.com/api/regTeacher/public-teachers');
+            const response = await fetchWithFallback('https://tuition-seba-backend-1.onrender.com/api/regTeacher/public-teachers');
             const data = await response.json();
             setTeachers(data);
             setLoading(false);

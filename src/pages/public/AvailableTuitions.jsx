@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import axios from 'axios';
+import { axiosWithFallback as axios } from '../../services/fetchWithFallback';
 import TuitionCard from '../../components/TuitionCard';
 import NavBar from '../../components/NavBar';
 import Footer from '../../components/Footer';

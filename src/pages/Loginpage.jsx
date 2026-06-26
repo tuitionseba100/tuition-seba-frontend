@@ -6,7 +6,7 @@ import {
     ToastContainer,
     Spinner,
 } from "react-bootstrap";
-import axios from "axios";
+import { axiosWithFallback as axios } from '../services/fetchWithFallback';
 import { useNavigate } from "react-router-dom";
 import { FaUser, FaLock } from "react-icons/fa";
 import { Formik } from "formik";

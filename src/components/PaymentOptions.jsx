@@ -18,7 +18,7 @@ const mfsOptions = [
     },
     {
         title: 'BKash Merchant',
-        number: '01714045039',
+        number: '01973920728',
         image: '/img/bkash.png',
         icon: FaStore
     },

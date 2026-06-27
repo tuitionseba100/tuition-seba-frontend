@@ -43,7 +43,7 @@ const PremiumTeacherModal = ({ show, handleClose }) => {
                     <div className="mb-1">ফি: <strong>২০০ টাকা</strong> (অফেরতযোগ্য)</div>
                     <div style={{ fontSize: '0.9rem' }}>
                         <span className="badge bg-primary me-1">Personal</span> 01633920928 (Bkash/Nagad)<br />
-                        <span className="badge bg-success me-1">Merchant</span> 01714045039 (Bkash App)
+                        <span className="badge bg-success me-1">Merchant</span> 01973920728 (Bkash App)
                     </div>
                 </div>
             ),

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Button, Table, Modal, Form, Row, Col, Card } from 'react-bootstrap';
-import { FaEdit, FaInfoCircle, FaTrashAlt, FaWhatsapp, FaChevronLeft, FaChevronRight, FaSearch, FaTimes, FaGlobe, FaGooglePlay } from 'react-icons/fa'; // React Icons
+import { FaEdit, FaInfoCircle, FaTrashAlt, FaWhatsapp, FaChevronLeft, FaChevronRight, FaSearch, FaTimes, FaGlobe, FaGooglePlay, FaUserPlus } from 'react-icons/fa'; // React Icons
 import { axiosWithFallback as axios } from '../services/fetchWithFallback';
 import NavBarPage from './NavbarPage';
 import styled from 'styled-components';
@@ -123,7 +123,12 @@ const PremiumTeacherPage = () => {
 
         // Notes & Feedback
         { name: 'comment', label: 'Comment from agent', col: 6, group: 'Notes & Feedback' },
-        { name: 'rating', label: 'Rating', col: 6, group: 'Notes & Feedback', type: 'star-rating' }
+        { name: 'rating', label: 'Rating', col: 6, group: 'Notes & Feedback', type: 'star-rating' },
+
+        // Referral Info
+        { name: 'referPersonPhone', label: 'Refer Person Phone', col: 6, group: 'Referral Info' },
+        { name: 'referStatus', label: 'Refer Status', type: 'select', col: 6, options: ['pending', 'in review', 'canceled', 'spam', 'paid'], group: 'Referral Info' },
+        { name: 'referComment', label: 'Refer Comment', col: 6, group: 'Referral Info' },
     ];
 
     const cityOptions = [
@@ -613,6 +618,9 @@ const PremiumTeacherPage = () => {
                                         <th>Academic Year</th>
                                         <th>Current Area</th>
                                         <th>Full Address</th>
+                                        <th>Refer Phone</th>
+                                        <th>Refer Status</th>
+                                        <th>Refer Comment</th>
                                         <th>Actions</th>
                                     </tr>
                                 </thead>
@@ -639,7 +647,34 @@ const PremiumTeacherPage = () => {
                                         filteredTeacherList
                                             .map((item, index) => (
                                                 <tr key={item._id}>
-                                                    <td>{index + 1}</td>
+                                                    <td style={{ textAlign: 'center', verticalAlign: 'middle' }}>
+                                                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px' }}>
+                                                            <span style={{ fontWeight: '700', fontSize: '1rem' }}>
+                                                                {index + 1}
+                                                            </span>
+                                                            {item.referPersonPhone && item.referPersonPhone.trim() !== '' && (
+                                                                <span
+                                                                    title={`Referred by: ${item.referPersonPhone}`}
+                                                                    style={{
+                                                                        display: 'inline-flex',
+                                                                        alignItems: 'center',
+                                                                        gap: '3px',
+                                                                        backgroundColor: '#e8f5e9',
+                                                                        color: '#2e7d32',
+                                                                        padding: '2px 8px',
+                                                                        borderRadius: '12px',
+                                                                        fontSize: '0.65rem',
+                                                                        fontWeight: 'bold',
+                                                                        textTransform: 'uppercase',
+                                                                        border: '1px solid #a5d6a7',
+                                                                        boxShadow: '0 1px 3px rgba(46,125,50,0.15)'
+                                                                    }}
+                                                                >
+                                                                    <FaUserPlus style={{ fontSize: '0.6rem' }} /> Refer
+                                                                </span>
+                                                            )}
+                                                        </div>
+                                                    </td>
                                                     <td>
                                                         <div className="d-flex flex-column gap-1 align-items-start">
                                                             <span className="badge bg-secondary">
@@ -686,6 +721,31 @@ const PremiumTeacherPage = () => {
                                                     <td>{item.academicYear}</td>
                                                     <td>{item.currentArea}</td>
                                                     <td>{item.fullAddress}</td>
+                                                    <td>{item.referPersonPhone}</td>
+                                                    <td>
+                                                        {item.referStatus && (
+                                                            <span
+                                                                style={{
+                                                                    backgroundColor:
+                                                                        item.referStatus === 'paid' ? '#4CAF50' :
+                                                                        item.referStatus === 'in review' ? '#2196F3' :
+                                                                        item.referStatus === 'pending' ? '#FF9800' :
+                                                                        item.referStatus === 'canceled' ? '#F44336' :
+                                                                        item.referStatus === 'spam' ? '#9E9E9E' : '#BDBDBD',
+                                                                    color: item.referStatus === 'pending' ? '#000' : '#fff',
+                                                                    padding: '3px 10px',
+                                                                    borderRadius: '5px',
+                                                                    fontWeight: '600',
+                                                                    fontSize: '12px',
+                                                                    textTransform: 'capitalize',
+                                                                    display: 'inline-block'
+                                                                }}
+                                                            >
+                                                                {item.referStatus}
+                                                            </span>
+                                                        )}
+                                                    </td>
+                                                    <td>{item.referComment}</td>
                                                     <td style={{ display: 'flex', gap: '8px' }}>
                                                         <Button variant="info" size="sm" onClick={() => handleShowDetails(item)}>
                                                             <FaInfoCircle />

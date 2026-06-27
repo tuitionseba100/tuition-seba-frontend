@@ -29,6 +29,7 @@ import {
     FaGlobe,
     FaCalendarAlt,
     FaExclamationTriangle,
+    FaUserPlus,
 } from 'react-icons/fa';
 
 import { Formik } from 'formik';
@@ -181,13 +182,14 @@ const TeacherRegistrationForm = () => {
 
     const validationSchemaFields = {};
     fieldConfig.forEach(({ name, label }) => {
-        if (name === 'phone' || name === 'whatsapp' || name === 'alternativePhone' || name === 'familyPhone' || name === 'friendPhone') {
+        if (name === 'phone' || name === 'whatsapp' || name === 'alternativePhone' || name === 'familyPhone' || name === 'friendPhone' || name === 'referPersonPhone') {
             const labelMap = {
                 phone: 'ফোন',
                 whatsapp: 'হোয়াটসঅ্যাপ',
                 alternativePhone: 'বিকল্প ফোন',
                 familyPhone: 'পারিবারিক ফোন',
-                friendPhone: 'বন্ধুর ফোন'
+                friendPhone: 'বন্ধুর ফোন',
+                referPersonPhone: 'রেফার ব্যক্তির ফোন'
             };
             const displayLabel = labelMap[name] || label;
             validationSchemaFields[name] = Yup.string()
@@ -290,13 +292,14 @@ const TeacherRegistrationForm = () => {
                             validationSchema={validationSchema}
                             onSubmit={async (values, { resetForm, setSubmitting }) => {
                                 // Collect phone-related validation errors
-                                const phoneFields = ['phone', 'whatsapp', 'alternativePhone', 'familyPhone', 'friendPhone'];
+                                const phoneFields = ['phone', 'whatsapp', 'alternativePhone', 'familyPhone', 'friendPhone', 'referPersonPhone'];
                                 const phoneFieldLabels = {
                                     phone: 'ফোন',
                                     whatsapp: 'হোয়াটসঅ্যাপ',
                                     alternativePhone: 'বিকল্প ফোন',
                                     familyPhone: 'পারিবারিক ফোন',
                                     friendPhone: 'বন্ধুর ফোন',
+                                    referPersonPhone: 'রেফার ব্যক্তির ফোন',
                                 };
                                 const phoneErrors = [];
                                 for (const fieldName of phoneFields) {
@@ -390,13 +393,14 @@ const TeacherRegistrationForm = () => {
                                 const handleFormSubmit = (e) => {
                                     e.preventDefault();
                                     validateForm().then((formErrors) => {
-                                        const phoneFields = ['phone', 'whatsapp', 'alternativePhone', 'familyPhone', 'friendPhone'];
+                                        const phoneFields = ['phone', 'whatsapp', 'alternativePhone', 'familyPhone', 'friendPhone', 'referPersonPhone'];
                                         const phoneFieldLabels = {
                                             phone: 'ফোন',
                                             whatsapp: 'হোয়াটসঅ্যাপ',
                                             alternativePhone: 'বিকল্প ফোন',
                                             familyPhone: 'পারিবারিক ফোন',
                                             friendPhone: 'বন্ধুর ফোন',
+                                            referPersonPhone: 'রেফার ব্যক্তির ফোন',
                                         };
                                         const phoneErrors = [];
 
@@ -429,7 +433,7 @@ const TeacherRegistrationForm = () => {
                                     <>
                                         <Form noValidate onSubmit={handleFormSubmit}>
                                             {Object.entries(groupFields).map(([groupName, fields], i) => (
-                                                <div className="mb-5" key={groupName}>
+                                                <div className={i === Object.keys(groupFields).length - 1 ? "mb-3" : "mb-5"} key={groupName}>
                                                     <div
                                                         className="p-3 mb-4"
                                                         style={{
@@ -449,103 +453,123 @@ const TeacherRegistrationForm = () => {
 
                                                             return (
                                                                 <Col md={field.col || 6} key={field.name}>
-                                                                    <Form.Group controlId={field.name}>
-                                                                        {field.type === 'checkbox' ? (
-                                                                            <Form.Check
-                                                                                type="checkbox"
-                                                                                id={field.name}
-                                                                                name={field.name}
-                                                                                checked={values[field.name]}
-                                                                                onChange={handleChange}
-                                                                                onBlur={handleBlur}
-                                                                                isInvalid={touched[field.name] && !!errors[field.name]}
-                                                                                className="mb-3"
-                                                                                label={
-                                                                                    <span className="fw-bold" style={{ fontSize: '1rem', color: '#333' }}>
-                                                                                        {field.label}
-                                                                                    </span>
-                                                                                }
-                                                                            />
-                                                                        ) : (
-                                                                            <>
-                                                                                <Form.Label className="fw-semibold">
-                                                                                    {field.icon} {field.label}
-                                                                                    {(field.name === 'phone' || field.name === 'whatsapp') && (
-                                                                                        <span className="text-danger ms-1">*</span>
+                                                                    <div
+                                                                        style={field.name === 'referPersonPhone' ? {
+                                                                            background: 'linear-gradient(135deg, #e8f5e9 0%, #f1f8e9 100%)',
+                                                                            border: '1px solid #a5d6a7',
+                                                                            borderLeft: '4px solid #2e7d32',
+                                                                            borderRadius: '12px',
+                                                                            padding: '16px',
+                                                                            marginTop: '4px',
+                                                                            boxShadow: '0 2px 8px rgba(46, 125, 50, 0.1)'
+                                                                        } : {}}
+                                                                    >
+                                                                        <Form.Group controlId={field.name}>
+                                                                            {field.type === 'checkbox' ? (
+                                                                                <Form.Check
+                                                                                    type="checkbox"
+                                                                                    id={field.name}
+                                                                                    name={field.name}
+                                                                                    checked={values[field.name]}
+                                                                                    onChange={handleChange}
+                                                                                    onBlur={handleBlur}
+                                                                                    isInvalid={touched[field.name] && !!errors[field.name]}
+                                                                                    className="mb-3"
+                                                                                    label={
+                                                                                        <span className="fw-bold" style={{ fontSize: '1rem', color: '#333' }}>
+                                                                                            {field.label}
+                                                                                        </span>
+                                                                                    }
+                                                                                />
+                                                                            ) : (
+                                                                                <>
+                                                                                    <Form.Label className="fw-semibold" style={field.name === 'referPersonPhone' ? { color: '#2e7d32' } : {}}>
+                                                                                        {field.icon} {field.label}
+                                                                                        {(field.name === 'phone' || field.name === 'whatsapp') && (
+                                                                                            <span className="text-danger ms-1">*</span>
+                                                                                        )}
+                                                                                    </Form.Label>
+
+                                                                                    {field.type === 'select' ? (
+                                                                                        <Form.Select
+                                                                                            size="lg"
+                                                                                            name={field.name}
+                                                                                            value={values[field.name]}
+                                                                                            onChange={handleChange}
+                                                                                            onBlur={handleBlur}
+                                                                                            isInvalid={hasError}
+                                                                                            aria-describedby={`${field.name}-feedback`}
+                                                                                        >
+                                                                                            <option value="">Select {field.label}</option>
+                                                                                            {field.options.map((opt) => (
+                                                                                                <option key={opt} value={opt}>
+                                                                                                    {opt}
+                                                                                                </option>
+                                                                                            ))}
+                                                                                        </Form.Select>
+                                                                                    ) : field.type === 'city' ? (
+                                                                                        <Form.Select
+                                                                                            size="lg"
+                                                                                            name={field.name}
+                                                                                            value={values[field.name]}
+                                                                                            onChange={handleChange}
+                                                                                            onBlur={handleBlur}
+                                                                                            isInvalid={hasError}
+                                                                                            aria-describedby={`${field.name}-feedback`}
+                                                                                        >
+                                                                                            <option value="">Select City</option>
+                                                                                            {cityOptions.map((opt) => (
+                                                                                                <option key={opt.value} value={opt.value}>
+                                                                                                    {opt.label}
+                                                                                                </option>
+                                                                                            ))}
+                                                                                        </Form.Select>
+                                                                                    ) : field.type === 'area' ? (
+                                                                                        <Form.Select
+                                                                                            size="lg"
+                                                                                            name={field.name}
+                                                                                            value={values[field.name]}
+                                                                                            onChange={handleChange}
+                                                                                            onBlur={handleBlur}
+                                                                                            isInvalid={hasError}
+                                                                                            aria-describedby={`${field.name}-feedback`}
+                                                                                        >
+                                                                                            <option value="">Select Area</option>
+                                                                                            {areas.map((area) => (
+                                                                                                <option key={area} value={area}>
+                                                                                                    {area}
+                                                                                                </option>
+                                                                                            ))}
+                                                                                        </Form.Select>
+                                                                                    ) : (
+                                                                                        <Form.Control
+                                                                                            size="lg"
+                                                                                            type="text"
+                                                                                            name={field.name}
+                                                                                            value={values[field.name]}
+                                                                                            onChange={handleChange}
+                                                                                            onBlur={handleBlur}
+                                                                                            placeholder={field.name === 'referPersonPhone' ? 'যেমন: 017xxxxxxxx' : `Enter ${field.label.toLowerCase()}`}
+                                                                                            isInvalid={hasError}
+                                                                                            aria-describedby={`${field.name}-feedback`}
+                                                                                            style={field.name === 'referPersonPhone' ? { borderColor: '#66bb6a' } : {}}
+                                                                                        />
                                                                                     )}
-                                                                                </Form.Label>
 
-                                                                                {field.type === 'select' ? (
-                                                                                    <Form.Select
-                                                                                        size="lg"
-                                                                                        name={field.name}
-                                                                                        value={values[field.name]}
-                                                                                        onChange={handleChange}
-                                                                                        onBlur={handleBlur}
-                                                                                        isInvalid={hasError}
-                                                                                        aria-describedby={`${field.name}-feedback`}
-                                                                                    >
-                                                                                        <option value="">Select {field.label}</option>
-                                                                                        {field.options.map((opt) => (
-                                                                                            <option key={opt} value={opt}>
-                                                                                                {opt}
-                                                                                            </option>
-                                                                                        ))}
-                                                                                    </Form.Select>
-                                                                                ) : field.type === 'city' ? (
-                                                                                    <Form.Select
-                                                                                        size="lg"
-                                                                                        name={field.name}
-                                                                                        value={values[field.name]}
-                                                                                        onChange={handleChange}
-                                                                                        onBlur={handleBlur}
-                                                                                        isInvalid={hasError}
-                                                                                        aria-describedby={`${field.name}-feedback`}
-                                                                                    >
-                                                                                        <option value="">Select City</option>
-                                                                                        {cityOptions.map((opt) => (
-                                                                                            <option key={opt.value} value={opt.value}>
-                                                                                                {opt.label}
-                                                                                            </option>
-                                                                                        ))}
-                                                                                    </Form.Select>
-                                                                                ) : field.type === 'area' ? (
-                                                                                    <Form.Select
-                                                                                        size="lg"
-                                                                                        name={field.name}
-                                                                                        value={values[field.name]}
-                                                                                        onChange={handleChange}
-                                                                                        onBlur={handleBlur}
-                                                                                        isInvalid={hasError}
-                                                                                        aria-describedby={`${field.name}-feedback`}
-                                                                                    >
-                                                                                        <option value="">Select Area</option>
-                                                                                        {areas.map((area) => (
-                                                                                            <option key={area} value={area}>
-                                                                                                {area}
-                                                                                            </option>
-                                                                                        ))}
-                                                                                    </Form.Select>
-                                                                                ) : (
-                                                                                    <Form.Control
-                                                                                        size="lg"
-                                                                                        type="text"
-                                                                                        name={field.name}
-                                                                                        value={values[field.name]}
-                                                                                        onChange={handleChange}
-                                                                                        onBlur={handleBlur}
-                                                                                        placeholder={`Enter ${field.label.toLowerCase()}`}
-                                                                                        isInvalid={hasError}
-                                                                                        aria-describedby={`${field.name}-feedback`}
-                                                                                    />
-                                                                                )}
+                                                                                    <Form.Control.Feedback type="invalid" id={`${field.name}-feedback`}>
+                                                                                        {errors[field.name]}
+                                                                                    </Form.Control.Feedback>
 
-                                                                                <Form.Control.Feedback type="invalid" id={`${field.name}-feedback`}>
-                                                                                    {errors[field.name]}
-                                                                                </Form.Control.Feedback>
-                                                                            </>
-                                                                        )}
-                                                                    </Form.Group>
+                                                                                    {field.name === 'referPersonPhone' && (
+                                                                                        <small style={{ color: '#558b2f', fontSize: '0.8rem', marginTop: '6px', display: 'block' }}>
+                                                                                            <FaInfoCircle className="me-1" />
+                                                                                            কেউ যদি আপনাকে রেফার করে থাকেন, তাহলে তার ফোন নম্বরটি দিন।
+                                                                                        </small>
+                                                                                    )}
+                                                                                </>
+                                                                            )}
+                                                                        </Form.Group>
+                                                                    </div>
                                                                 </Col>
                                                             );
                                                         })}
@@ -553,8 +577,45 @@ const TeacherRegistrationForm = () => {
 
                                                 </div>
                                             ))}
-                                            <div className="text-center mt-5">
-                                                <p className="text-muted mb-3">
+
+                                            {/* Refer Person Phone - Standalone Section */}
+                                            <div
+                                                className="mb-3 mt-1"
+                                                style={{
+                                                    background: 'linear-gradient(135deg, #e8f5e9 0%, #f1f8e9 100%)',
+                                                    border: '1px solid #a5d6a7',
+                                                    borderLeft: '4px solid #2e7d32',
+                                                    borderRadius: '12px',
+                                                    padding: '12px 16px',
+                                                    boxShadow: '0 2px 6px rgba(46, 125, 50, 0.08)'
+                                                }}
+                                            >
+                                                <Form.Group controlId="referPersonPhone">
+                                                    <Form.Label className="fw-semibold" style={{ color: '#2e7d32', fontSize: '1rem', marginBottom: '6px' }}>
+                                                        <FaUserPlus className="me-2" /> রেফার ব্যক্তির নম্বর (যার মাধ্যমে রেফার হয়েছেন)
+                                                    </Form.Label>
+                                                    <Form.Control
+                                                        size="lg"
+                                                        type="text"
+                                                        name="referPersonPhone"
+                                                        value={values.referPersonPhone}
+                                                        onChange={handleChange}
+                                                        onBlur={handleBlur}
+                                                        placeholder="যেমন: 017xxxxxxxx"
+                                                        isInvalid={touched.referPersonPhone && !!errors.referPersonPhone}
+                                                        style={{ borderColor: '#66bb6a' }}
+                                                    />
+                                                    <Form.Control.Feedback type="invalid">
+                                                        {errors.referPersonPhone}
+                                                    </Form.Control.Feedback>
+                                                    <small style={{ color: '#558b2f', fontSize: '0.78rem', marginTop: '4px', display: 'block' }}>
+                                                        <FaInfoCircle className="me-1" />
+                                                        কেউ যদি আপনাকে রেফার করে থাকেন, তাহলে তার ফোন নম্বরটি দিন।
+                                                    </small>
+                                                </Form.Group>
+                                            </div>
+                                            <div className="text-center mt-3">
+                                                <p className="text-muted mb-2">
                                                     <small>* ফোন বা হোয়াটসঅ্যাপের মধ্যে অন্তত একটি অবশ্যই দিতে হবে, তারপরই আবেদন করতে পারবেন।</small>
                                                 </p>
                                                 <Button

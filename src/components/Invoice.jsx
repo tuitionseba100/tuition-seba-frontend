@@ -78,6 +78,7 @@ const PaymentInvoice = ({ payment, show, onClose }) => {
                 </h3>
                 <p className="text-muted">Masjid Goli, 2 Number Gate, Chattogram</p>
                 <p className="text-muted">Phone: 01633-920928, 01714045039</p>
+
               </div>
             </div>
             <div className="text-end">

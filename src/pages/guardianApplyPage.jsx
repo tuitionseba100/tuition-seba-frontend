@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Button, Table, Modal, Form, Row, Col, Card } from 'react-bootstrap';
-import { FaEdit, FaTrashAlt, FaSearch, FaChevronLeft, FaChevronRight, FaBell, FaInfoCircle } from 'react-icons/fa';
+import { FaEdit, FaTrashAlt, FaSearch, FaChevronLeft, FaChevronRight, FaBell, FaInfoCircle, FaUserPlus } from 'react-icons/fa';
 import { axiosWithFallback as axios } from '../services/fetchWithFallback';
 import NavBarPage from './NavbarPage';
 import styled from 'styled-components';
@@ -35,6 +35,9 @@ const GuardianApplyPage = () => {
         status: '',
         comment: '',
         nextUpdateDate: '',
+        referPersonPhone: '',
+        referStatus: '',
+        referComment: '',
     });
     const [formErrors, setFormErrors] = useState({});
     const role = localStorage.getItem('role');
@@ -267,7 +270,7 @@ const GuardianApplyPage = () => {
         const fileName = `Guardian Apply List_${formattedDate}_${formattedTime}`;
 
         const tableHeaders = [
-            "Guardian Name", "Status", "Applied Date", "Next Update Date", "Phone No.", "Address", "Teacher Code", "Student Class", "Teacher Gender", "Characteristics", "Comment", "Created By", "Updated By"
+            "Guardian Name", "Status", "Applied Date", "Next Update Date", "Phone No.", "Address", "Teacher Code", "Student Class", "Teacher Gender", "Characteristics", "Comment", "Refer Phone", "Refer Status", "Refer Comment", "Created By", "Updated By"
         ];
 
         const tableData = [...exportList].reverse().map(data => [
@@ -282,6 +285,9 @@ const GuardianApplyPage = () => {
             String(data.teacherGender ?? ""),
             String(data.characteristics ?? ""),
             String(data.comment ?? ""),
+            String(data.referPersonPhone ?? ""),
+            String(data.referStatus ?? ""),
+            String(data.referComment ?? ""),
             String(data.createdBy ?? ""),
             String(data.updatedBy ?? ""),
         ]);
@@ -405,6 +411,9 @@ const GuardianApplyPage = () => {
                                 status: '',
                                 comment: '',
                                 nextUpdateDate: '',
+                                referPersonPhone: '',
+                                referStatus: '',
+                                referComment: '',
                             });
                         }}
                     >
@@ -593,6 +602,9 @@ const GuardianApplyPage = () => {
                                         <th>Teacher Gender</th>
                                         <th>Teacher Characteristics</th>
                                         <th>Comment (Agent)</th>
+                                        <th>Refer Phone</th>
+                                        <th>Refer Status</th>
+                                        <th>Refer Comment</th>
                                         <th>Actions</th>
                                     </tr>
                                 </thead>
@@ -611,7 +623,34 @@ const GuardianApplyPage = () => {
                                                 key={rowData._id}
                                                 className={rowData.isSpam ? 'row-spam' : (rowData.isBestGuardian ? 'row-best-guardian' : '')}
                                             >
-                                                <td>{index + 1}</td>
+                                                <td style={{ textAlign: 'center', verticalAlign: 'middle' }}>
+                                                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px' }}>
+                                                        <span style={{ fontWeight: '700', fontSize: '1rem' }}>
+                                                            {index + 1}
+                                                        </span>
+                                                        {rowData.referPersonPhone && rowData.referPersonPhone.trim() !== '' && (
+                                                            <span
+                                                                title={`Referred by: ${rowData.referPersonPhone}`}
+                                                                style={{
+                                                                    display: 'inline-flex',
+                                                                    alignItems: 'center',
+                                                                    gap: '3px',
+                                                                    backgroundColor: '#e8f5e9',
+                                                                    color: '#2e7d32',
+                                                                    padding: '2px 8px',
+                                                                    borderRadius: '12px',
+                                                                    fontSize: '0.65rem',
+                                                                    fontWeight: 'bold',
+                                                                    textTransform: 'uppercase',
+                                                                    border: '1px solid #a5d6a7',
+                                                                    boxShadow: '0 1px 3px rgba(46,125,50,0.15)'
+                                                                }}
+                                                            >
+                                                                <FaUserPlus style={{ fontSize: '0.6rem' }} /> Refer
+                                                            </span>
+                                                        )}
+                                                    </div>
+                                                </td>
                                                 <td>{rowData.createdBy}</td>
                                                 <td>{rowData.updatedBy}</td>
                                                 <td>{rowData.name}</td>
@@ -652,6 +691,28 @@ const GuardianApplyPage = () => {
                                                 <td>{rowData.teacherGender}</td>
                                                 <td>{rowData.characteristics}</td>
                                                 <td>{rowData.comment}</td>
+                                                <td style={{ fontWeight: '600', color: '#2e7d32' }}>{rowData.referPersonPhone || '—'}</td>
+                                                <td>
+                                                    {rowData.referStatus && (
+                                                        <span style={{
+                                                            padding: '3px 8px',
+                                                            borderRadius: '6px',
+                                                            fontSize: '0.78rem',
+                                                            fontWeight: '700',
+                                                            backgroundColor:
+                                                                rowData.referStatus === 'paid' ? '#4CAF50' :
+                                                                rowData.referStatus === 'in review' ? '#2196F3' :
+                                                                rowData.referStatus === 'pending' ? '#FF9800' :
+                                                                rowData.referStatus === 'canceled' ? '#F44336' :
+                                                                rowData.referStatus === 'spam' ? '#9E9E9E' : '#BDBDBD',
+                                                            color: rowData.referStatus === 'pending' ? '#000' : '#fff',
+                                                        }}>
+                                                            {rowData.referStatus}
+                                                        </span>
+                                                    )}
+                                                    {!rowData.referStatus && '—'}
+                                                </td>
+                                                <td>{rowData.referComment || '—'}</td>
                                                 <td style={{ display: 'flex', justifyContent: 'flex-start', gap: '8px' }}>
                                                     <OverlayTrigger
                                                         placement="top"
@@ -659,6 +720,37 @@ const GuardianApplyPage = () => {
                                                     >
                                                         <Button variant="primary" onClick={() => openStatusUpdateModal(rowData)}>
                                                             <FaEdit />
+                                                        </Button>
+                                                    </OverlayTrigger>
+                                                    <OverlayTrigger
+                                                        placement="top"
+                                                        overlay={<Tooltip>Edit Full Record</Tooltip>}
+                                                    >
+                                                        <Button
+                                                            variant="warning"
+                                                            size="sm"
+                                                            onClick={() => {
+                                                                setEditingId(rowData._id);
+                                                                setFormErrors({});
+                                                                setTuitionData({
+                                                                    name: rowData.name || '',
+                                                                    phone: rowData.phone || '',
+                                                                    address: rowData.address || '',
+                                                                    teacherCode: rowData.teacherCode || '',
+                                                                    studentClass: rowData.studentClass || '',
+                                                                    teacherGender: rowData.teacherGender || '',
+                                                                    characteristics: rowData.characteristics || '',
+                                                                    status: rowData.status || '',
+                                                                    comment: rowData.comment || '',
+                                                                    nextUpdateDate: rowData.nextUpdateDate ? toBangladeshInputString(rowData.nextUpdateDate) : '',
+                                                                    referPersonPhone: rowData.referPersonPhone || '',
+                                                                    referStatus: rowData.referStatus || '',
+                                                                    referComment: rowData.referComment || '',
+                                                                });
+                                                                setShowModal(true);
+                                                            }}
+                                                        >
+                                                            ✏️
                                                         </Button>
                                                     </OverlayTrigger>
                                                     <OverlayTrigger
@@ -1054,6 +1146,87 @@ const GuardianApplyPage = () => {
                                         </Col>
                                     </Row>
                                 </div>
+
+                                {/* Section: Referral Info */}
+                                <div
+                                    className="mb-2 p-3 rounded"
+                                    style={{
+                                        background: 'linear-gradient(135deg, #e8f5e9 0%, #f1f8e9 100%)',
+                                        border: '1px solid #a5d6a7',
+                                        borderLeft: '4px solid #2e7d32',
+                                        boxShadow: '0 2px 6px rgba(46, 125, 50, 0.08)',
+                                    }}
+                                >
+                                    <h5
+                                        className="mb-3 fw-semibold"
+                                        style={{ borderBottom: '2px solid rgba(46, 125, 50, 0.4)', paddingBottom: '0.5rem', color: '#2e7d32' }}
+                                    >
+                                        🎁 Referral Info
+                                    </h5>
+                                    <Row className="gy-3">
+                                        <Col md={6}>
+                                            <Form.Group controlId="guardianReferPersonPhone">
+                                                <Form.Label className="fw-semibold" style={{ color: '#2e7d32' }}>Refer Person Phone</Form.Label>
+                                                <Form.Control
+                                                    type="text"
+                                                    placeholder="e.g. 017xxxxxxxx"
+                                                    value={tuitionData.referPersonPhone}
+                                                    onChange={(e) => setTuitionData({ ...tuitionData, referPersonPhone: e.target.value })}
+                                                    disabled={loading}
+                                                    style={{
+                                                        borderRadius: '0.375rem',
+                                                        border: '1.5px solid #66bb6a',
+                                                        backgroundColor: '#fff',
+                                                        boxShadow: '0 0 6px rgba(46, 125, 50, 0.12)',
+                                                    }}
+                                                />
+                                            </Form.Group>
+                                        </Col>
+                                        <Col md={6}>
+                                            <Form.Group controlId="guardianReferStatus">
+                                                <Form.Label className="fw-semibold" style={{ color: '#2e7d32' }}>Refer Status</Form.Label>
+                                                <Form.Select
+                                                    value={tuitionData.referStatus}
+                                                    onChange={(e) => setTuitionData({ ...tuitionData, referStatus: e.target.value })}
+                                                    disabled={loading}
+                                                    style={{
+                                                        borderRadius: '0.375rem',
+                                                        border: '1.5px solid #66bb6a',
+                                                        backgroundColor: '#fff',
+                                                        boxShadow: '0 0 6px rgba(46, 125, 50, 0.12)',
+                                                    }}
+                                                >
+                                                    <option value="">Select Refer Status</option>
+                                                    <option value="pending">Pending</option>
+                                                    <option value="in review">In Review</option>
+                                                    <option value="paid">Paid</option>
+                                                    <option value="canceled">Canceled</option>
+                                                    <option value="spam">Spam</option>
+                                                </Form.Select>
+                                            </Form.Group>
+                                        </Col>
+                                        <Col md={12}>
+                                            <Form.Group controlId="guardianReferComment">
+                                                <Form.Label className="fw-semibold" style={{ color: '#2e7d32' }}>Refer Comment</Form.Label>
+                                                <Form.Control
+                                                    as="textarea"
+                                                    rows={2}
+                                                    placeholder="Add referral notes..."
+                                                    value={tuitionData.referComment}
+                                                    onChange={(e) => setTuitionData({ ...tuitionData, referComment: e.target.value })}
+                                                    disabled={loading}
+                                                    style={{
+                                                        borderRadius: '0.375rem',
+                                                        border: '1.5px solid #66bb6a',
+                                                        backgroundColor: '#fff',
+                                                        boxShadow: '0 0 6px rgba(46, 125, 50, 0.12)',
+                                                        resize: 'vertical',
+                                                    }}
+                                                />
+                                            </Form.Group>
+                                        </Col>
+                                    </Row>
+                                </div>
                             </Form>
                         </div>
                     </Modal.Body>
@@ -1211,7 +1384,34 @@ const GuardianApplyPage = () => {
                                     <tbody>
                                         {dueTodayList.map((rowData, index) => (
                                             <tr key={rowData._id}>
-                                                <td>{index + 1}</td>
+                                                <td style={{ textAlign: 'center', verticalAlign: 'middle' }}>
+                                                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px' }}>
+                                                        <span style={{ fontWeight: '700', fontSize: '1rem' }}>
+                                                            {index + 1}
+                                                        </span>
+                                                        {rowData.referPersonPhone && rowData.referPersonPhone.trim() !== '' && (
+                                                            <span
+                                                                title={`Referred by: ${rowData.referPersonPhone}`}
+                                                                style={{
+                                                                    display: 'inline-flex',
+                                                                    alignItems: 'center',
+                                                                    gap: '3px',
+                                                                    backgroundColor: '#e8f5e9',
+                                                                    color: '#2e7d32',
+                                                                    padding: '2px 8px',
+                                                                    borderRadius: '12px',
+                                                                    fontSize: '0.65rem',
+                                                                    fontWeight: 'bold',
+                                                                    textTransform: 'uppercase',
+                                                                    border: '1px solid #a5d6a7',
+                                                                    boxShadow: '0 1px 3px rgba(46,125,50,0.15)'
+                                                                }}
+                                                            >
+                                                                <FaUserPlus style={{ fontSize: '0.6rem' }} /> Refer
+                                                            </span>
+                                                        )}
+                                                    </div>
+                                                </td>
                                                 <td>{rowData.createdBy}</td>
                                                 <td>{rowData.updatedBy}</td>
                                                 <td>{rowData.name}</td>

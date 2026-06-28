@@ -101,6 +101,8 @@ import ActivityLogPage from './pages/ActivityLogPage';
 import SettingsPage from './pages/SettingsPage';
 import ApplyUpdates from './pages/public/ApplyUpdates';
 
+import ReferPage from './pages/public/ReferPage';
+
 const AppRedirect = () => {
   React.useEffect(() => {
     window.location.replace("https://play.google.com/store/apps/details?id=com.tuitionseba.forumv2&pcampaignid=web_share");
@@ -121,6 +123,7 @@ const App = () => {
         <Route path="/OurTeachers" element={<OurTeacher />} />
         <Route path="/privacy" element={<PrivacyPolicyPage />} />
         <Route path="/rules" element={<Rules />} />
+        <Route path="/refer" element={<ReferPage />} />
         <Route path="/apply-updates" element={<ApplyUpdates />} />
         <Route path="/admin/login" element={<Loginpage />} />
         <Route path="/app" element={<AppRedirect />} />

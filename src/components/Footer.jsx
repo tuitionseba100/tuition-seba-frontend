@@ -301,6 +301,7 @@ const Footer = () => {
                                 <li><Link to="/rules">Rules</Link></li>
                                 <li><Link to="/privacy">Privacy Policy</Link></li>
                                 <li><Link to="/payment">Payment Methods</Link></li>
+                                <li><Link to="/refer">Referral Program</Link></li>
                                 <li><Link to="/#about-us">About Us</Link></li>
                             </ul>
                         </Col>

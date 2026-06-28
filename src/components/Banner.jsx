@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Container, Row, Col, Modal, Button } from 'react-bootstrap';
@@ -8,6 +8,7 @@ const TutorSection = () => {
     const navigate = useNavigate();
     const [showReferModal, setShowReferModal] = useState(false);
     const [showTooltip, setShowTooltip] = useState(false);
+    const [referModalTab, setReferModalTab] = useState('teacher');
 
     useEffect(() => {
         const timer = setTimeout(() => {
@@ -383,11 +384,11 @@ const TutorSection = () => {
                                                 fontWeight: '700',
                                                 textTransform: 'uppercase'
                                             }}>
-                                                UP TO 50 TK
+                                                UP TO 15%
                                             </span>
                                         </div>
                                         <div style={{ fontSize: '0.85rem', color: '#a5d6a7', marginTop: '3px', opacity: 0.9 }}>
-                                            আপনার পরিচিত শিক্ষককে রেফার করুন, প্রতি সফল ভেরিফিকেশনে বুঝে নিন বোনাস।
+                                            শিক্ষক রেফার করুন বা টিউশন রেফার করুন — দুটোতেই বোনাস উপার্জন করুন!
                                         </div>
                                     </div>
                                 </div>
@@ -436,160 +437,221 @@ const TutorSection = () => {
                             }}>
                                 {/* Header */}
                                 <div style={{
-                                    padding: '22px 28px',
+                                    padding: '18px 28px 0',
                                     background: 'linear-gradient(135deg, rgba(76, 175, 80, 0.08) 0%, rgba(76, 175, 80, 0.02) 100%)',
                                     borderBottom: '1px solid rgba(76, 175, 80, 0.12)',
-                                    display: 'flex',
-                                    justifyContent: 'space-between',
-                                    alignItems: 'center'
                                 }}>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                                        <div style={{
-                                            width: '40px', height: '40px', borderRadius: '12px',
-                                            background: 'linear-gradient(135deg, #4CAF50, #2E7D32)',
-                                            display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                            boxShadow: '0 4px 12px rgba(76, 175, 80, 0.2)'
-                                        }}>
-                                            <FaGift size={18} color="#fff" />
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                            <div style={{
+                                                width: '40px', height: '40px', borderRadius: '12px',
+                                                background: 'linear-gradient(135deg, #4CAF50, #2E7D32)',
+                                                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                                boxShadow: '0 4px 12px rgba(76, 175, 80, 0.2)'
+                                            }}>
+                                                <FaGift size={18} color="#fff" />
+                                            </div>
+                                            <div>
+                                                <h5 style={{ margin: 0, fontWeight: '800', color: '#1b5e20', fontSize: '1.05rem', letterSpacing: '-0.3px' }}>
+                                                    🎁 টিউশন সেবা ফোরাম – Referral Program
+                                                </h5>
+                                            </div>
                                         </div>
-                                        <div>
-                                            <h5 style={{ margin: 0, fontWeight: '800', color: '#1b5e20', fontSize: '1.1rem', letterSpacing: '-0.3px' }}>
-                                                📣 টিউশন সেবা ফোরাম – Teacher Referral Program
-                                            </h5>
-                                        </div>
+                                        <button
+                                            onClick={() => setShowReferModal(false)}
+                                            style={{
+                                                background: 'rgba(0,0,0,0.04)', border: '1px solid rgba(0,0,0,0.06)',
+                                                borderRadius: '10px', color: 'rgba(0,0,0,0.4)',
+                                                width: '34px', height: '34px', fontSize: '1.2rem',
+                                                cursor: 'pointer', display: 'flex', alignItems: 'center',
+                                                justifyContent: 'center', transition: 'all 0.2s', lineHeight: 1
+                                            }}
+                                            onMouseEnter={(e) => { e.target.style.background = 'rgba(0,0,0,0.08)'; e.target.style.color = '#000'; }}
+                                            onMouseLeave={(e) => { e.target.style.background = 'rgba(0,0,0,0.04)'; e.target.style.color = 'rgba(0,0,0,0.4)'; }}
+                                        >&times;</button>
                                     </div>
-                                    <button
-                                        onClick={() => setShowReferModal(false)}
-                                        style={{
-                                            background: 'rgba(0,0,0,0.04)', border: '1px solid rgba(0,0,0,0.06)',
-                                            borderRadius: '10px', color: 'rgba(0,0,0,0.4)',
-                                            width: '34px', height: '34px', fontSize: '1.2rem',
-                                            cursor: 'pointer', display: 'flex', alignItems: 'center',
-                                            justifyContent: 'center', transition: 'all 0.2s', lineHeight: 1
-                                        }}
-                                        onMouseEnter={(e) => { e.target.style.background = 'rgba(0,0,0,0.08)'; e.target.style.color = '#000'; }}
-                                        onMouseLeave={(e) => { e.target.style.background = 'rgba(0,0,0,0.04)'; e.target.style.color = 'rgba(0,0,0,0.4)'; }}
-                                    >&times;</button>
+
+                                    {/* Tab Switcher */}
+                                    <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
+                                        <button
+                                            onClick={() => setReferModalTab('teacher')}
+                                            style={{
+                                                padding: '9px 18px',
+                                                borderRadius: '8px 8px 0 0',
+                                                border: 'none',
+                                                fontWeight: '700',
+                                                fontSize: '0.82rem',
+                                                cursor: 'pointer',
+                                                background: referModalTab === 'teacher' ? '#2E7D32' : 'rgba(76, 175, 80, 0.1)',
+                                                color: referModalTab === 'teacher' ? '#fff' : '#2e7d32',
+                                                transition: 'all 0.2s',
+                                                borderBottom: referModalTab === 'teacher' ? 'none' : '2px solid transparent',
+                                            }}
+                                        >
+                                            👨‍🏫 শিক্ষক রেফার সম্পর্কে জানতে এখানে ক্লিক করুন
+                                        </button>
+                                        <button
+                                            onClick={() => setReferModalTab('tuition')}
+                                            style={{
+                                                padding: '9px 18px',
+                                                borderRadius: '8px 8px 0 0',
+                                                border: 'none',
+                                                fontWeight: '700',
+                                                fontSize: '0.82rem',
+                                                cursor: 'pointer',
+                                                background: referModalTab === 'tuition' ? '#1565C0' : 'rgba(21, 101, 192, 0.1)',
+                                                color: referModalTab === 'tuition' ? '#fff' : '#1565C0',
+                                                transition: 'all 0.2s',
+                                                borderBottom: referModalTab === 'tuition' ? 'none' : '2px solid transparent',
+                                            }}
+                                        >
+                                            💼 টিউশন রেফার সম্পর্কে জানতে এখানে ক্লিক করুন
+                                        </button>
+                                    </div>
                                 </div>
 
                                 {/* Body */}
-                                <div style={{ padding: '24px 28px', maxHeight: '70vh', overflowY: 'auto' }}>
+                                <div style={{ padding: '22px 28px', maxHeight: '62vh', overflowY: 'auto' }}>
 
-                                    {/* Introduction */}
-                                    <p style={{ fontSize: '0.95rem', color: '#2e4a32', marginBottom: '24px', lineHeight: '1.6', fontWeight: '500' }}>
-                                        বিশ্বস্ত শিক্ষক কমিউনিটি আরও বড় করতে এখন থেকে আপনি আপনার পরিচিত শিক্ষক বা যাদের টিউশন প্রয়োজন এমন অভিভাবকদের রেফার করে বোনাস উপার্জন করতে পারবেন।
-                                    </p>
-
-                                    {/* Section: How it works */}
-                                    <div style={{ marginBottom: '24px' }}>
-                                        <h6 style={{ fontWeight: '700', color: '#1b5e20', marginBottom: '12px', fontSize: '1rem' }}>
-                                            ✅ কীভাবে কাজ করবে?
-                                        </h6>
-                                        <div style={{
-                                            background: '#f8faf8',
-                                            border: '1px solid rgba(76, 175, 80, 0.12)',
-                                            borderRadius: '14px', padding: '18px 20px'
-                                        }}>
-                                            <p style={{ fontWeight: '600', marginBottom: '10px', fontSize: '0.9rem' }}>
-                                                আপনার Teacher Phone Number ব্যবহার করে কোনো নতুন শিক্ষক ওয়েবসাইট থেকে রেজিস্ট্রেশন করলে:
+                                    {/* ===== TEACHER REFER TAB ===== */}
+                                    {referModalTab === 'teacher' && (
+                                        <div>
+                                            <p style={{ fontSize: '0.93rem', color: '#2e4a32', marginBottom: '18px', lineHeight: '1.7', fontWeight: '500' }}>
+                                                বিশ্বস্ত শিক্ষক কমিউনিটি আরও বড় করতে এখন থেকে আপনি আপনার পরিচিত শিক্ষককে রেফার করে বোনাস উপার্জন করতে পারবেন।
                                             </p>
-                                            <ul style={{ listStyleType: 'none', paddingLeft: 0, margin: '0 0 12px 0', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                                                <li style={{ fontSize: '0.88rem', color: '#2e4a32', display: 'flex', alignItems: 'flex-start', gap: '6px' }}>
-                                                    <span>•</span> <span>সফলভাবে রেজিস্ট্রেশন সম্পন্ন করলে</span>
-                                                </li>
-                                                <li style={{ fontSize: '0.88rem', color: '#2e4a32', display: 'flex', alignItems: 'flex-start', gap: '6px' }}>
-                                                    <span>•</span> <span>প্রয়োজনীয় তথ্য ও ডকুমেন্ট সাবমিট করলে</span>
-                                                </li>
-                                                <li style={{ fontSize: '0.88rem', color: '#2e4a32', display: 'flex', alignItems: 'flex-start', gap: '6px' }}>
-                                                    <span>•</span> <span>প্রোফাইল ভেরিফিকেশন সম্পন্ন হলে</span>
-                                                </li>
-                                            </ul>
-                                            <p style={{ fontWeight: '600', margin: 0, fontSize: '0.9rem', color: '#1b5e20' }}>
-                                                তাহলে সেটি একটি Valid Referral হিসেবে গণ্য হবে।
-                                            </p>
-                                        </div>
-                                    </div>
 
-                                    {/* Referral Bonus Highlight Card */}
-                                    <div style={{
-                                        background: 'linear-gradient(135deg, rgba(76, 175, 80, 0.08) 0%, rgba(46, 125, 50, 0.03) 100%)',
-                                        border: '1px solid rgba(76, 175, 80, 0.15)',
-                                        borderRadius: '16px', padding: '20px 24px',
-                                        marginBottom: '24px', textAlign: 'center'
-                                    }}>
-                                        <h6 style={{ fontWeight: '800', color: '#1b5e20', marginBottom: '8px', fontSize: '1rem' }}>
-                                            💰 Referral Bonus:
-                                        </h6>
-                                        <p style={{ fontSize: '1rem', color: '#2E7D32', fontWeight: '750', margin: 0 }}>
-                                            প্রতিটি সফল ও ভেরিফাইড শিক্ষক রেফারেলের জন্য আপনি পাবেন ৫০ টাকা বোনাস।
-                                        </p>
-                                    </div>
+                                            <div style={{ marginBottom: '18px' }}>
+                                                <h6 style={{ fontWeight: '700', color: '#1b5e20', marginBottom: '10px', fontSize: '1rem' }}>✅ কীভাবে কাজ করবে?</h6>
+                                                <div style={{ background: '#f8faf8', border: '1px solid rgba(76, 175, 80, 0.12)', borderRadius: '12px', padding: '14px 18px' }}>
+                                                    <p style={{ fontWeight: '600', marginBottom: '8px', fontSize: '0.88rem' }}>আপনার Phone Number ব্যবহার করে কোনো নতুন শিক্ষক রেজিস্ট্রেশন করলে:</p>
+                                                    <ul style={{ listStyleType: 'none', paddingLeft: 0, margin: '0 0 8px 0', display: 'flex', flexDirection: 'column', gap: '5px' }}>
+                                                        {['সফলভাবে রেজিস্ট্রেশন সম্পন্ন করলে', 'প্রয়োজনীয় তথ্য ও ডকুমেন্ট সাবমিট করলে', 'প্রোফাইল ভেরিফিকেশন সম্পন্ন হলে'].map((t, i) => (
+                                                            <li key={i} style={{ fontSize: '0.86rem', color: '#2e4a32', display: 'flex', gap: '6px' }}><span>•</span><span>{t}</span></li>
+                                                        ))}
+                                                    </ul>
+                                                    <p style={{ fontWeight: '600', margin: 0, fontSize: '0.88rem', color: '#1b5e20' }}>তাহলে সেটি একটি Valid Referral হিসেবে গণ্য হবে।</p>
+                                                </div>
+                                            </div>
 
-                                    {/* Terms Section */}
-                                    <div style={{ marginBottom: '24px' }}>
-                                        <h6 style={{ fontWeight: '700', color: '#e65100', marginBottom: '12px', fontSize: '1rem' }}>
-                                            📌 গুরুত্বপূর্ণ শর্তাবলী:
-                                        </h6>
-                                        <div style={{
-                                            background: 'rgba(230, 81, 0, 0.04)',
-                                            border: '1px solid rgba(230, 81, 0, 0.12)',
-                                            borderRadius: '14px', padding: '16px 20px'
-                                        }}>
-                                            <ul style={{ margin: 0, paddingLeft: '16px', color: '#4e342e', fontSize: '0.85rem', lineHeight: '2', display: 'flex', flexDirection: 'column', gap: '6px', listStyleType: 'none' }}>
-                                                <li>১. শুধুমাত্র টিউশন সেবা ফোরাম-এর নিবন্ধিত শিক্ষকরা রেফার করতে পারবেন।</li>
-                                                <li>২. ভুয়া, ডুপ্লিকেট বা অসম্পূর্ণ অ্যাকাউন্টের ক্ষেত্রে কোনো বোনাস প্রদান করা হবে না।</li>
-                                                <li>৩. একই ব্যক্তি একাধিক অ্যাকাউন্ট খুললে referral বাতিল বলে গণ্য হবে।</li>
-                                                <li>৪. Referral bonus নির্দিষ্ট সময় পর পর বিকাশ/নগদ অথবা মোবাইল রিচার্জের মাধ্যমে প্রদান করা হবে।</li>
-                                                <li>৫. একজন শিক্ষক যত খুশি সংখ্যক referral করতে পারবেন।</li>
-                                                <li>৬. টিউশন সেবা ফোরাম প্রয়োজন অনুযায়ী যেকোনো সময় এই প্রোগ্রামের নিয়মাবলী পরিবর্তন বা বাতিল করার অধিকার সংরক্ষণ করে।</li>
-                                            </ul>
-                                        </div>
-                                    </div>
+                                            <div style={{ background: 'linear-gradient(135deg, rgba(76, 175, 80, 0.08) 0%, rgba(46, 125, 50, 0.03) 100%)', border: '1px solid rgba(76, 175, 80, 0.15)', borderRadius: '14px', padding: '16px 22px', marginBottom: '18px', textAlign: 'center' }}>
+                                                <h6 style={{ fontWeight: '800', color: '#1b5e20', marginBottom: '6px', fontSize: '1rem' }}>💰 Referral Bonus:</h6>
+                                                <p style={{ fontSize: '0.95rem', color: '#2E7D32', fontWeight: '700', margin: 0 }}>প্রতিটি সফল ও ভেরিফাইড শিক্ষক রেফারেলের জন্য আপনি পাবেন ৫০ টাকা বোনাস।</p>
+                                            </div>
 
-                                    {/* How-To Section */}
-                                    <div style={{ marginBottom: '24px' }}>
-                                        <h6 style={{ fontWeight: '700', color: '#2e7d32', marginBottom: '12px', fontSize: '1rem' }}>
-                                            🚀 কীভাবে Referral করবেন?
-                                        </h6>
-                                        <div style={{
-                                            background: 'rgba(76,175,80,0.02)',
-                                            border: '1px solid rgba(76,175,80,0.1)',
-                                            borderRadius: '14px', padding: '18px 20px'
-                                        }}>
-                                            <ul style={{ listStyleType: 'none', paddingLeft: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                                                <li style={{ fontSize: '0.88rem', color: '#2e4a32', display: 'flex', alignItems: 'flex-start', gap: '6px' }}>
-                                                    <span>•</span> <span>আপনার পরিচিতদের টিউশন সেবা ফোরাম সম্পর্কে জানান</span>
-                                                </li>
-                                                <li style={{ fontSize: '0.88rem', color: '#2e4a32', display: 'flex', alignItems: 'flex-start', gap: '6px' }}>
-                                                    <span>•</span> <span>আগ্রহী হলে তাদের ওয়েবসাইটে বায়োডাটা সম্পূর্ণ করতে বলুন (অবশ্যই ওয়েবসাইট থেকে
-                                                        )</span>
-                                                </li>
-                                                <li style={{ fontSize: '0.88rem', color: '#2e4a32', display: 'flex', alignItems: 'flex-start', gap: '6px' }}>
-                                                    <span>•</span> <span>Registration Form-এর “Refer” অপশনে আপনার Phone number (যেটা দিয়ে আমাদের ভেরিফাইড টিচার হয়েছেন) ব্যবহার করতে বলুন</span>
-                                                </li>
-                                            </ul>
-                                        </div>
-                                    </div>
+                                            <div style={{ marginBottom: '18px' }}>
+                                                <h6 style={{ fontWeight: '700', color: '#e65100', marginBottom: '10px', fontSize: '1rem' }}>📌 গুরুত্বপূর্ণ শর্তাবলী:</h6>
+                                                <div style={{ background: 'rgba(230, 81, 0, 0.04)', border: '1px solid rgba(230, 81, 0, 0.12)', borderRadius: '12px', padding: '14px 18px' }}>
+                                                    <ul style={{ margin: 0, paddingLeft: 0, color: '#4e342e', fontSize: '0.84rem', lineHeight: '2', listStyleType: 'none', display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                                                        {[
+                                                            '১. শুধুমাত্র টিউশন সেবা ফোরাম-এর নিবন্ধিত শিক্ষকরা রেফার করতে পারবেন।',
+                                                            '২. ভুয়া, ডুপ্লিকেট বা অসম্পূর্ণ অ্যাকাউন্টের ক্ষেত্রে কোনো বোনাস প্রদান করা হবে না।',
+                                                            '৩. একই ব্যক্তি একাধিক অ্যাকাউন্ট খুললে referral বাতিল বলে গণ্য হবে।',
+                                                            '৪. Referral bonus নির্দিষ্ট সময় পর পর বিকাশ/নগদ বা মোবাইল রিচার্জে প্রদান করা হবে।',
+                                                            '৫. একজন শিক্ষক যত খুশি সংখ্যক referral করতে পারবেন।',
+                                                            '৬. টিউশন সেবা ফোরাম যেকোনো সময় এই প্রোগ্রামের নিয়মাবলী পরিবর্তন বা বাতিল করার অধিকার রাখে।'
+                                                        ].map((t, i) => (<li key={i}>{t}</li>))}
+                                                    </ul>
+                                                </div>
+                                            </div>
 
-                                    {/* CTA Footer Text */}
-                                    <div style={{
-                                        textAlign: 'center', paddingTop: '20px',
-                                        borderTop: '1px solid rgba(76, 175, 80, 0.1)',
-                                        display: 'flex', flexDirection: 'column', gap: '6px'
-                                    }}>
-                                        <div style={{ color: '#2e7d32', fontWeight: '700', fontSize: '0.92rem' }}>
-                                            আজই আপনার শিক্ষক নেটওয়ার্ককে যুক্ত করুন টিউশন সেবা ফোরাম-এর সাথে।
+                                            <div style={{ marginBottom: '18px' }}>
+                                                <h6 style={{ fontWeight: '700', color: '#2e7d32', marginBottom: '10px', fontSize: '1rem' }}>🚀 কীভাবে Referral করবেন?</h6>
+                                                <div style={{ background: 'rgba(76,175,80,0.02)', border: '1px solid rgba(76,175,80,0.1)', borderRadius: '12px', padding: '14px 18px' }}>
+                                                    <ul style={{ listStyleType: 'none', paddingLeft: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                                                        {[
+                                                            'আপনার পরিচিতদের টিউশন সেবা ফোরাম সম্পর্কে জানান',
+                                                            'আগ্রহী হলে তাদের ওয়েবসাইটে বায়োডাটা সম্পূর্ণ করতে বলুন',
+                                                            'Registration Form-এর "Refer" অপশনে আপনার Phone number ব্যবহার করতে বলুন'
+                                                        ].map((t, i) => (
+                                                            <li key={i} style={{ fontSize: '0.86rem', color: '#2e4a32', display: 'flex', gap: '6px' }}><span>•</span><span>{t}</span></li>
+                                                        ))}
+                                                    </ul>
+                                                </div>
+                                            </div>
+
+                                            <div style={{ textAlign: 'center', paddingTop: '14px', borderTop: '1px solid rgba(76, 175, 80, 0.1)' }}>
+                                                <div style={{ color: '#2e7d32', fontWeight: '700', fontSize: '0.9rem' }}>আজই আপনার শিক্ষক নেটওয়ার্ককে যুক্ত করুন টিউশন সেবা ফোরাম-এর সাথে।</div>
+                                                <div style={{ fontSize: '0.85rem', color: '#2e4a32', fontWeight: '500', marginTop: '4px' }}>একসাথে গড়ে তুলি একটি বিশ্বস্ত ও স্মার্ট শিক্ষক কমিউনিটি।</div>
+                                            </div>
                                         </div>
-                                        <div style={{ fontSize: '0.88rem', color: '#2e4a32', fontWeight: '500' }}>
-                                            একসাথে গড়ে তুলি একটি বিশ্বস্ত ও স্মার্ট শিক্ষক কমিউনিটি।
+                                    )}
+
+                                    {/* ===== TUITION REFER TAB ===== */}
+                                    {referModalTab === 'tuition' && (
+                                        <div>
+                                            <div style={{ background: 'linear-gradient(135deg, rgba(21, 101, 192, 0.06) 0%, rgba(21, 101, 192, 0.01) 100%)', border: '1px solid rgba(21, 101, 192, 0.12)', borderRadius: '12px', padding: '14px 18px', marginBottom: '18px' }}>
+                                                <p style={{ fontSize: '0.91rem', color: '#1a237e', fontWeight: '500', lineHeight: '1.7', margin: 0 }}>
+                                                    আপনার পরিচিত কোনো অভিভাবক, শিক্ষার্থী বা প্রতিষ্ঠানের জন্য গৃহশিক্ষক প্রয়োজন?<br /><br />
+                                                    এখন থেকে আপনার রেফারেন্সে কেউ যদি <strong>টিউশন সেবা ফোরাম</strong>-এর মাধ্যমে সফলভাবে শিক্ষক কনফার্ম করেন, তাহলে আপনাকে প্রদান করা হবে বিশেষ <strong>Referral Commission</strong>।
+                                                </p>
+                                            </div>
+
+                                            <div style={{ background: 'linear-gradient(135deg, rgba(21, 101, 192, 0.08) 0%, rgba(21, 101, 192, 0.02) 100%)', border: '1px solid rgba(21, 101, 192, 0.15)', borderRadius: '14px', padding: '16px 22px', marginBottom: '18px', textAlign: 'center' }}>
+                                                <h6 style={{ fontWeight: '800', color: '#1565C0', marginBottom: '6px', fontSize: '1rem' }}>💰 Referral Commission:</h6>
+                                                <p style={{ fontSize: '0.93rem', color: '#0d47a1', fontWeight: '700', margin: 0 }}>
+                                                    সফলভাবে টিউশন কনফার্ম হলে শিক্ষকের প্রথম মাসের নির্ধারিত বেতনের <span style={{ fontSize: '1.05rem', color: '#1565C0' }}>১৫% পর্যন্ত</span> Referral Bonus প্রদান করা হবে।
+                                                </p>
+                                            </div>
+
+                                            <div style={{ marginBottom: '18px' }}>
+                                                <h6 style={{ fontWeight: '700', color: '#1565C0', marginBottom: '10px', fontSize: '1rem' }}>📌 কীভাবে এটি কাজ করবে?</h6>
+                                                <div style={{ background: 'rgba(21, 101, 192, 0.03)', border: '1px solid rgba(21, 101, 192, 0.1)', borderRadius: '12px', padding: '14px 18px' }}>
+                                                    <ul style={{ listStyleType: 'none', paddingLeft: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                                                        {[
+                                                            'আপনি অভিভাবক বা শিক্ষার্থীর তথ্য আমাদের কাছে শেয়ার করবেন',
+                                                            'আমাদের টিম উপযুক্ত শিক্ষক ম্যানেজ করবে',
+                                                            'শিক্ষক সফলভাবে কনফার্ম ও ক্লাস শুরু করলে আপনার referral valid হিসেবে গণ্য হবে'
+                                                        ].map((t, i) => (
+                                                            <li key={i} style={{ fontSize: '0.86rem', color: '#1a237e', display: 'flex', gap: '6px' }}><span style={{ color: '#1565C0', fontWeight: '700' }}>•</span><span>{t}</span></li>
+                                                        ))}
+                                                    </ul>
+                                                </div>
+                                            </div>
+
+                                            <div style={{ marginBottom: '18px' }}>
+                                                <h6 style={{ fontWeight: '700', color: '#e65100', marginBottom: '10px', fontSize: '1rem' }}>📋 গুরুত্বপূর্ণ শর্তাবলী:</h6>
+                                                <div style={{ background: 'rgba(230, 81, 0, 0.04)', border: '1px solid rgba(230, 81, 0, 0.12)', borderRadius: '12px', padding: '14px 18px' }}>
+                                                    <ul style={{ margin: 0, paddingLeft: 0, color: '#4e342e', fontSize: '0.84rem', lineHeight: '2', listStyleType: 'none', display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                                                        {[
+                                                            '১. যেকোনো ব্যক্তি Referral Partner হিসেবে যুক্ত হতে পারবেন।',
+                                                            '২. Referral claim করার জন্য অভিভাবকের তথ্য দেওয়ার সময় অবশ্যই আপনার নাম ও মোবাইল নম্বর উল্লেখ করতে হবে।',
+                                                            '৩. শুধুমাত্র সফলভাবে কনফার্ম হওয়া টিউশনের ক্ষেত্রেই Referral Commission প্রযোজ্য হবে।',
+                                                            '৪. শিক্ষক ক্লাস শুরু করার পর এবং প্রথম মাসের ফি সম্পন্ন হওয়ার পর কমিশন প্রদান করা হবে।',
+                                                            '৫. ভুয়া, অসম্পূর্ণ বা duplicate তথ্যের ক্ষেত্রে referral বাতিল বলে গণ্য হবে।',
+                                                            '৬. Tuition cancellation, payment dispute বা early discontinuation-এর ক্ষেত্রে কমিশন সমন্বয় করার অধিকার টিউশন সেবা ফোরাম সংরক্ষণ করে।',
+                                                            '৭. একজন Referral Partner যত খুশি সংখ্যক referral করতে পারবেন।'
+                                                        ].map((t, i) => (<li key={i}>{t}</li>))}
+                                                    </ul>
+                                                </div>
+                                            </div>
+
+                                            <div style={{ marginBottom: '18px' }}>
+                                                <h6 style={{ fontWeight: '700', color: '#1565C0', marginBottom: '10px', fontSize: '1rem' }}>🚀 কীভাবে শুরু করবেন?</h6>
+                                                <div style={{ background: 'rgba(21, 101, 192, 0.03)', border: '1px solid rgba(21, 101, 192, 0.1)', borderRadius: '12px', padding: '14px 18px' }}>
+                                                    <ul style={{ listStyleType: 'none', paddingLeft: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                                                        {[
+                                                            'অভিভাবকের প্রয়োজনীয় তথ্য সংগ্রহ করুন',
+                                                            'Website-এ Find Tutor option ব্যবহার করুন / আমাদের অফিসিয়াল নম্বরে তথ্য পাঠান: 01633920928 / 01891644064',
+                                                            'Referral হিসেবে নিজের নাম ও মোবাইল নম্বর উল্লেখ করুন',
+                                                            'Tuition successfully continue হলে কমিশন গ্রহণ করুন'
+                                                        ].map((t, i) => (
+                                                            <li key={i} style={{ fontSize: '0.86rem', color: '#1a237e', display: 'flex', gap: '6px' }}><span style={{ color: '#1565C0', fontWeight: '700' }}>•</span><span>{t}</span></li>
+                                                        ))}
+                                                    </ul>
+                                                </div>
+                                            </div>
+
+                                            <div style={{ textAlign: 'center', paddingTop: '14px', borderTop: '1px solid rgba(21, 101, 192, 0.1)' }}>
+                                                <div style={{ color: '#1565C0', fontWeight: '700', fontSize: '0.9rem' }}>আসুন একসাথে গড়ে তুলি একটি বিশ্বস্ত ও স্মার্ট টিউশন নেটওয়ার্ক।</div>
+                                            </div>
                                         </div>
-                                    </div>
+                                    )}
                                 </div>
 
                                 {/* Footer */}
                                 <div style={{
                                     padding: '14px 28px',
-                                    borderTop: '1px solid rgba(76, 175, 80, 0.1)',
+                                    borderTop: `1px solid ${referModalTab === 'tuition' ? 'rgba(21, 101, 192, 0.12)' : 'rgba(76, 175, 80, 0.1)'}`,
                                     display: 'flex', justifyContent: 'flex-end',
                                     background: '#f8faf8'
                                 }}>

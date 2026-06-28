@@ -14,7 +14,8 @@ export default function RequestTeacherModal({ show, onHide, teacher, onSaved }) 
         teacherGender: '',
         characteristics: '',
         status: '',
-        comment: ''
+        comment: '',
+        referPersonPhone: ''
     });
     const [showSuccess, setShowSuccess] = useState(false);
     const [loading, setLoading] = useState(false);
@@ -46,7 +47,7 @@ export default function RequestTeacherModal({ show, onHide, teacher, onSaved }) 
                 toast.success('Request submitted successfully');
                 setShowSuccess(true);
                 setForm({
-                    name: '', phone: '', address: '', studentClass: '', teacherGender: '', characteristics: '', status: '', comment: ''
+                    name: '', phone: '', address: '', studentClass: '', teacherGender: '', characteristics: '', status: '', comment: '', referPersonPhone: ''
                 });
                 onSaved && onSaved();
             } else {
@@ -107,6 +108,36 @@ export default function RequestTeacherModal({ show, onHide, teacher, onSaved }) 
                                     <Form.Label className="fw-bold">Characteristics</Form.Label>
                                     <Form.Control type="text" value={form.characteristics} onChange={(e) => handleChange('characteristics', e.target.value)} />
                                 </Form.Group>
+                            </Col>
+                        </Row>
+
+                        {/* Tuition Referral */}
+                        <Row className="mt-3">
+                            <Col md={12}>
+                                <div style={{
+                                    background: 'linear-gradient(135deg, #e8f5e9 0%, #f1f8e9 100%)',
+                                    border: '1px solid #a5d6a7',
+                                    borderLeft: '4px solid #2e7d32',
+                                    borderRadius: '8px',
+                                    padding: '12px 16px',
+                                    boxShadow: '0 2px 6px rgba(46, 125, 50, 0.08)'
+                                }}>
+                                    <Form.Group controlId="referPersonPhone">
+                                        <Form.Label className="fw-semibold" style={{ color: '#2e7d32', marginBottom: '6px' }}>
+                                            🎁 রেফার ব্যক্তির ফোন নম্বর (ঐচ্ছিক)
+                                        </Form.Label>
+                                        <Form.Control
+                                            type="tel"
+                                            value={form.referPersonPhone}
+                                            onChange={(e) => handleChange('referPersonPhone', e.target.value)}
+                                            placeholder="যেমন: 017xxxxxxxx"
+                                            style={{ borderColor: '#66bb6a' }}
+                                        />
+                                        <small style={{ color: '#558b2f', fontSize: '0.78rem', marginTop: '4px', display: 'block' }}>
+                                            ℹ️ কেউ যদি এই টিউশনটি রেফার করে থাকেন, তার ফোন নম্বর দিন। সফল টিউশনে তিনি বোনাস পাবেন।
+                                        </small>
+                                    </Form.Group>
+                                </div>
                             </Col>
                         </Row>
                     </Form>

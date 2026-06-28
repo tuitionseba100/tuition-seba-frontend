@@ -15,6 +15,7 @@ const ApplyTutorPage = () => {
         studentClass: '',
         teacherGender: '',
         characteristics: '',
+        referPersonPhone: '',
     };
 
     const [form, setForm] = useState(defaultForm);
@@ -317,7 +318,7 @@ const ApplyTutorPage = () => {
                                         </Row>
 
                                         {/* Characteristics */}
-                                        <Form.Group className="mb-4" controlId="characteristics">
+                                        <Form.Group className="mb-3" controlId="characteristics">
                                             <Form.Label style={styles.label}>কেমন শিক্ষক খুঁজছেন সংক্ষেপে নিচে লিখুন</Form.Label>
                                             <Form.Control
                                                 as="textarea"
@@ -331,6 +332,37 @@ const ApplyTutorPage = () => {
                                                 onBlur={(e) => { e.target.style.borderColor = '#cbd5e1'; }}
                                             />
                                         </Form.Group>
+
+                                        {/* Referral */}
+                                        <div
+                                            style={{
+                                                background: 'linear-gradient(135deg, #e8f5e9 0%, #f1f8e9 100%)',
+                                                border: '1px solid #a5d6a7',
+                                                borderLeft: '4px solid #2e7d32',
+                                                borderRadius: '8px',
+                                                padding: '12px 16px',
+                                                marginBottom: '8px',
+                                                boxShadow: '0 2px 6px rgba(46, 125, 50, 0.08)'
+                                            }}
+                                        >
+                                            <Form.Group controlId="referPersonPhone">
+                                                <Form.Label style={{ fontWeight: '600', color: '#2e7d32', marginBottom: '6px', fontSize: '0.85rem' }}>
+                                                    🎁 রেফার ব্যক্তির নম্বর (ঐচ্ছিক)
+                                                </Form.Label>
+                                                <Form.Control
+                                                    type="tel"
+                                                    value={form.referPersonPhone}
+                                                    onChange={handleChange}
+                                                    style={{ ...styles.input, borderColor: '#66bb6a' }}
+                                                    placeholder="যেমন: 017xxxxxxxx"
+                                                    onFocus={(e) => { e.target.style.borderColor = '#2e7d32'; }}
+                                                    onBlur={(e) => { e.target.style.borderColor = '#66bb6a'; }}
+                                                />
+                                                <small style={{ color: '#558b2f', fontSize: '0.78rem', marginTop: '4px', display: 'block' }}>
+                                                    ℹ️ কেউ যদি আপনাকে রেফার করে থাকেন, তাহলে তার ফোন নম্বরটি দিন। সফল টিউশনে তিনি বোনাস পাবেন।
+                                                </small>
+                                            </Form.Group>
+                                        </div>
                                     </Card.Body>
 
                                     <Card.Footer

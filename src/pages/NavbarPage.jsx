@@ -4,6 +4,8 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import { checkDayStarted } from '../utilities/checkDayStarted';
 import '../components/DashboardNavbar.css'; // Import admin navbar styles
 import ResponseGuidelineWidget from '../components/modals/ResponseGuidelineWidget';
+import { FaSearch } from 'react-icons/fa';
+import GlobalSearchModal from '../components/modals/GlobalSearchModal';
 
 const Navbar = () => {
     const navigate = useNavigate();
@@ -18,6 +20,7 @@ const Navbar = () => {
             return [];
         }
     });
+    const [showSearchModal, setShowSearchModal] = useState(false);
 
     useEffect(() => {
         const fetchDayStatus = async () => {
@@ -95,6 +98,11 @@ const Navbar = () => {
                         <ul className="navbar-nav ms-auto nav-scroll-container">
                             {role === "superadmin" || dayStarted ? (
                                 <>
+                                    <li className="nav-item">
+                                        <button className="btn btn-light text-primary fw-bold rounded-pill px-3 py-2 ms-2" onClick={() => setShowSearchModal(true)} title="Global Search">
+                                            <FaSearch />
+                                        </button>
+                                    </li>
                                     {renderNavItem("/admin/tuition", "Tuitions", "tuition")}
                                     {renderNavItem("/admin/user", "Users")}
                                     {renderNavItem("/admin/finance", "Finance")}
@@ -126,6 +134,7 @@ const Navbar = () => {
             </nav>
             {/* Modular Response Helper Widget (isolated states for top-tier rendering performance) */}
             <ResponseGuidelineWidget />
+            <GlobalSearchModal show={showSearchModal} onHide={() => setShowSearchModal(false)} />
         </>
     );
 };

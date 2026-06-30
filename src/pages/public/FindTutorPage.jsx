@@ -359,7 +359,7 @@ const ApplyTutorPage = () => {
                                                     onBlur={(e) => { e.target.style.borderColor = '#66bb6a'; }}
                                                 />
                                                 <small style={{ color: '#558b2f', fontSize: '0.78rem', marginTop: '4px', display: 'block' }}>
-                                                    ℹ️ কেউ যদি আপনাকে রেফার করে থাকেন, তাহলে তার ফোন নম্বরটি দিন। সফল টিউশনে তিনি বোনাস পাবেন।
+                                                    ℹ️ কেউ যদি আপনাকে রেফার করে থাকেন, তাহলে তার ফোন নম্বরটি দিন।
                                                 </small>
                                             </Form.Group>
                                         </div>

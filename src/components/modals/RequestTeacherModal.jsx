@@ -134,7 +134,7 @@ export default function RequestTeacherModal({ show, onHide, teacher, onSaved }) 
                                             style={{ borderColor: '#66bb6a' }}
                                         />
                                         <small style={{ color: '#558b2f', fontSize: '0.78rem', marginTop: '4px', display: 'block' }}>
-                                            ℹ️ কেউ যদি এই টিউশনটি রেফার করে থাকেন, তার ফোন নম্বর দিন। সফল টিউশনে তিনি বোনাস পাবেন।
+                                            ℹ️ কেউ যদি এই টিউশনটি রেফার করে থাকেন, তার ফোন নম্বর দিন। 
                                         </small>
                                     </Form.Group>
                                 </div>

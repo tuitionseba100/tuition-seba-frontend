@@ -6,10 +6,12 @@ import Select from 'react-select';
 import { Modal, Button, Form } from 'react-bootstrap';
 import NavbarPage from './NavbarPage';
 import locationData from '../data/locations.json';
+import PosterGenerator from '../components/PosterGenerator';
 
 const API_BASE_URL = 'https://tuition-seba-backend-1.onrender.com';
 
 const SettingsPage = () => {
+    const [role] = useState(localStorage.getItem('role'));
     const [users, setUsers] = useState([]);
     const [allSettings, setAllSettings] = useState([]);
     const [settings, setSettings] = useState({
@@ -570,6 +572,17 @@ const SettingsPage = () => {
                                         <i className={`fas fa-comment-dots mt-1 me-2 ${activeTab === 'guidelines' ? 'text-white' : 'text-warning'}`} style={{ fontSize: '0.8rem' }}></i>
                                         <span className="fw-bold" style={{ fontSize: '0.7rem', lineHeight: '1.2' }}>Response Guidelines</span>
                                     </button>
+
+                                    {role === 'superadmin' && (
+                                        <button
+                                            onClick={() => { setActiveTab('generator'); setIsSidebarOpen(false); }}
+                                            className={`btn w-100 text-start d-flex align-items-start p-2 px-3 rounded-3 transition-all border-0 ${activeTab === 'generator' ? 'shadow-sm text-white' : 'bg-transparent text-secondary hover-bg-white'}`}
+                                            style={activeTab === 'generator' ? { background: 'linear-gradient(135deg, #6366f1, #8b5cf6)' } : {}}
+                                        >
+                                            <i className={`fas fa-magic mt-1 me-2 ${activeTab === 'generator' ? 'text-white' : 'text-purple'}`} style={{ fontSize: '0.8rem', color: activeTab === 'generator' ? '#fff' : '#8b5cf6' }}></i>
+                                            <span className="fw-bold" style={{ fontSize: '0.7rem', lineHeight: '1.2' }}>Poster Generator</span>
+                                        </button>
+                                    )}
                                 </div>
                             </div>
                         </div>
@@ -1496,6 +1509,10 @@ const SettingsPage = () => {
                                         </table>
                                     </div>
                                 </div>
+                            </div>
+                        ) : activeTab === 'generator' && role === 'superadmin' ? (
+                            <div className="p-2">
+                                <PosterGenerator />
                             </div>
                         ) : null}
                     </div>

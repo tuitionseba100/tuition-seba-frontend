@@ -33,6 +33,18 @@ export default function GlobalSearchModal({ show, onHide }) {
     const [results, setResults] = useState(null);
     const [loading, setLoading] = useState(false);
 
+    React.useEffect(() => {
+        if (!show) return;
+        const handleKeyDown = (e) => {
+            if (e.key === 'Delete') {
+                setSearchTerm('');
+                setResults(null);
+            }
+        };
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, [show]);
+
     const matchSummary = useMemo(() => {
         if (!results) return [];
         const summary = [
@@ -137,50 +149,61 @@ export default function GlobalSearchModal({ show, onHide }) {
                             <Form onSubmit={handleSearch}>
                                 <Row className="justify-content-center">
                                     <Col lg={12}>
-                                        <div className="search-bar-integrated d-flex flex-column flex-md-row gap-0 shadow-sm border-0 bg-white" style={{ borderRadius: '12px', border: '2px solid #007bff', overflow: 'hidden' }}>
-                                            <div className="px-3 py-1 border-end d-none d-md-flex align-items-center bg-light">
-                                                <Form.Select
-                                                    value={searchType}
-                                                    onChange={(e) => setSearchType(e.target.value)}
-                                                    className="border-0 bg-transparent fw-bold text-primary py-0 mt-1"
-                                                    style={{ minWidth: '160px', cursor: 'pointer', outline: 'none', boxShadow: 'none', fontSize: '1.1rem' }}
+                                        <div className="d-flex flex-column flex-md-row align-items-stretch gap-3">
+                                            <div className="search-bar-integrated d-flex flex-column flex-md-row gap-0 shadow-sm border-0 bg-white flex-grow-1" style={{ borderRadius: '12px', border: '2px solid #007bff', overflow: 'hidden' }}>
+                                                <div className="px-3 py-1 border-end d-none d-md-flex align-items-center bg-light">
+                                                    <Form.Select
+                                                        value={searchType}
+                                                        onChange={(e) => setSearchType(e.target.value)}
+                                                        className="border-0 bg-transparent fw-bold text-primary py-0 mt-1"
+                                                        style={{ minWidth: '160px', cursor: 'pointer', outline: 'none', boxShadow: 'none', fontSize: '1.1rem' }}
+                                                    >
+                                                        <option value="phone">Phone No</option>
+                                                        <option value="tuition">Tuition Code</option>
+                                                    </Form.Select>
+                                                </div>
+
+                                                {/* Mobile Select */}
+                                                <div className="d-md-none p-2 border-bottom">
+                                                    <Form.Select
+                                                        value={searchType}
+                                                        onChange={(e) => setSearchType(e.target.value)}
+                                                        className="border-0 bg-transparent fw-bold text-primary w-100 py-0"
+                                                    >
+                                                        <option value="phone">Phone Number Search</option>
+                                                        <option value="tuition">Tuition Code Search</option>
+                                                    </Form.Select>
+                                                </div>
+
+                                                <div className="flex-grow-1 d-flex align-items-center px-4 py-1">
+                                                    <Form.Control
+                                                        type="text"
+                                                        placeholder={searchType === 'phone' ? "Enter phone number (e.g. 017...)" : "Enter tuition code (e.g. TS-1234)"}
+                                                        value={searchTerm}
+                                                        onChange={(e) => setSearchTerm(e.target.value)}
+                                                        className="border-0 shadow-none fs-5 py-0"
+                                                        style={{ outline: 'none' }}
+                                                    />
+                                                </div>
+
+                                                <Button
+                                                    variant="primary"
+                                                    type="submit"
+                                                    disabled={loading}
+                                                    className="px-4 py-2 fw-bold d-flex align-items-center justify-content-center fs-5"
+                                                    style={{ minWidth: '160px', borderRadius: '0' }}
                                                 >
-                                                    <option value="phone">Phone No</option>
-                                                    <option value="tuition">Tuition Code</option>
-                                                </Form.Select>
+                                                    {loading ? <Spinner animation="border" size="sm" /> : <><FaSearch className="me-2" /> SEARCH</>}
+                                                </Button>
                                             </div>
-
-                                            {/* Mobile Select */}
-                                            <div className="d-md-none p-2 border-bottom">
-                                                <Form.Select
-                                                    value={searchType}
-                                                    onChange={(e) => setSearchType(e.target.value)}
-                                                    className="border-0 bg-transparent fw-bold text-primary w-100 py-0"
-                                                >
-                                                    <option value="phone">Phone Number Search</option>
-                                                    <option value="tuition">Tuition Code Search</option>
-                                                </Form.Select>
-                                            </div>
-
-                                            <div className="flex-grow-1 d-flex align-items-center px-4 py-1">
-                                                <Form.Control
-                                                    type="text"
-                                                    placeholder={searchType === 'phone' ? "Enter phone number (e.g. 017...)" : "Enter tuition code (e.g. TS-1234)"}
-                                                    value={searchTerm}
-                                                    onChange={(e) => setSearchTerm(e.target.value)}
-                                                    className="border-0 shadow-none fs-5 py-0"
-                                                    style={{ outline: 'none' }}
-                                                />
-                                            </div>
-
                                             <Button
-                                                variant="primary"
-                                                type="submit"
-                                                disabled={loading}
-                                                className="px-5 py-2 fw-bold d-flex align-items-center justify-content-center fs-5"
-                                                style={{ minWidth: '180px', borderRadius: '0' }}
+                                                variant="danger"
+                                                type="button"
+                                                onClick={() => { setSearchTerm(''); setResults(null); }}
+                                                className="px-4 py-2 fw-bold d-flex align-items-center justify-content-center fs-5 shadow-sm"
+                                                style={{ minWidth: '130px', borderRadius: '12px' }}
                                             >
-                                                {loading ? <Spinner animation="border" size="sm" /> : <><FaSearch className="me-2" /> SEARCH</>}
+                                                RESET
                                             </Button>
                                         </div>
                                         <div className="mt-3 text-center text-muted fs-6">

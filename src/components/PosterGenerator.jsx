@@ -1,8 +1,14 @@
-import React, { useState, useRef, useCallback } from 'react';
+import React, { useState, useRef, useCallback, useEffect } from 'react';
 import html2canvas from 'html2canvas';
 import { toast } from 'react-toastify';
 
 const LOGO = '/img/TSF LOGO TRANSPARENT.png';
+
+const WhatsAppIcon = ({ size = 11, color = '#25D366' }) => (
+    <svg viewBox="0 0 448 512" style={{ width: size, height: size, fill: color, display: 'inline-block', verticalAlign: 'middle', marginLeft: '3px', marginRight: '3px' }}>
+        <path d="M380.9 97.1C339 55.1 283.2 32 223.9 32c-122.4 0-222 99.6-222 222 0 39.1 10.2 77.3 29.6 111L0 480l117.7-30.9c32.4 17.7 68.9 27 106.1 27h.1c122.3 0 224.1-99.6 224.1-222 0-59.3-25.2-115-67.1-157zm-157 341.6c-33.2 0-65.7-8.9-94-25.7l-6.7-4-69.8 18.3L72 359.2l-4.4-7c-18.5-29.4-28.2-63.3-28.2-98.2 0-101.7 82.8-184.5 184.6-184.5 49.3 0 95.6 19.2 130.4 54.1 34.8 34.9 56.2 81.2 56.1 130.5 0 101.8-84.9 184.6-186.6 184.6zm101.2-138.2c-5.5-2.8-32.8-16.2-37.9-18-5.1-1.9-8.8-2.8-12.5 2.8-3.7 5.6-14.3 18-17.6 21.8-3.2 3.7-6.5 4.2-12 1.4-32.6-16.3-54-29.1-75.5-66-5.7-9.8 5.7-9.1 16.3-30.3 1.8-3.7.9-6.9-.5-9.7-1.4-2.8-12.5-30.1-17.1-41.2-4.5-10.8-9.1-9.3-12.5-9.5-3.2-.2-6.9-.2-10.6-.2-3.7 0-9.7 1.4-14.8 6.9-5.1 5.6-19.4 19-19.4 46.3 0 27.3 19.9 53.7 22.6 57.4 2.8 3.7 39.1 59.7 94.8 83.8 35.2 15.2 49 16.5 66.6 13.9 10.7-1.6 32.8-13.4 37.4-26.4 4.6-13 4.6-24.1 3.2-26.4-1.3-2.5-5-3.9-10.5-6.6z"/>
+    </svg>
+);
 
 const LogoBlock = ({ size = 26, invert = false, color = '#1a1a1a' }) => (
     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -43,12 +49,16 @@ const G1MidnightGold = ({ data }) => {
                 <div>
                     <div style={{ fontSize: 17, fontWeight: 700, color: '#fff', marginBottom: 3 }}>{name}</div>
                     <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', marginBottom: 8 }}>{location}</div>
-                    <div style={{ display: 'flex', gap: 3 }}>{[1,2,3,4,5].map(s => <span key={s} style={{ fontSize: 16, color: s <= stars ? accentColor : 'rgba(255,255,255,0.12)' }}>★</span>)}</div>
+                    <div style={{ display: 'flex', gap: 3 }}>{[1, 2, 3, 4, 5].map(s => <span key={s} style={{ fontSize: 16, color: s <= stars ? accentColor : 'rgba(255,255,255,0.12)' }}>★</span>)}</div>
                 </div>
             </div>
             <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: '14px 32px', borderTop: '1px solid rgba(255,255,255,0.06)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.28)', letterSpacing: 1 }}>{tagline}</span>
-                <span style={{ fontSize: 13, fontWeight: 700, color: accentColor }}>☎ {helpline}</span>
+                <span style={{ fontSize: 13, fontWeight: 700, color: accentColor, display: 'inline-flex', alignItems: 'center', gap: '3px' }}>
+                    <span>☎</span>
+                    <WhatsAppIcon size={12} />
+                    <span>{helpline}</span>
+                </span>
             </div>
         </div>
     );
@@ -85,12 +95,16 @@ const G2LightEditorial = ({ data }) => {
                 <div style={{ textAlign: 'center' }}>
                     <div style={{ fontSize: 16, fontWeight: 700, color: '#1a1a1a' }}>{name}</div>
                     <div style={{ fontSize: 12, color: '#999', marginTop: 2 }}>{location}</div>
-                    <div style={{ display: 'flex', justifyContent: 'center', gap: 3, marginTop: 5 }}>{[1,2,3,4,5].map(s => <span key={s} style={{ fontSize: 14, color: s <= stars ? accentColor : '#ddd' }}>★</span>)}</div>
+                    <div style={{ display: 'flex', justifyContent: 'center', gap: 3, marginTop: 5 }}>{[1, 2, 3, 4, 5].map(s => <span key={s} style={{ fontSize: 14, color: s <= stars ? accentColor : '#ddd' }}>★</span>)}</div>
                 </div>
             </div>
             <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: '13px 32px', borderTop: '1px solid #e0dbd3', display: 'flex', justifyContent: 'space-between', background: '#fff' }}>
                 <span style={{ fontSize: 10, color: '#bbb', letterSpacing: 1 }}>{tagline}</span>
-                <span style={{ fontSize: 12, fontWeight: 700, color: '#333' }}>☎ {helpline}</span>
+                <span style={{ fontSize: 12, fontWeight: 700, color: '#333', display: 'inline-flex', alignItems: 'center', gap: '3px' }}>
+                    <span>☎</span>
+                    <WhatsAppIcon size={12} />
+                    <span>{helpline}</span>
+                </span>
             </div>
         </div>
     );
@@ -122,12 +136,16 @@ const G3NavyCard = ({ data }) => {
                 <div style={{ flex: 1 }}>
                     <div style={{ fontSize: 17, fontWeight: 700, color: '#fff', marginBottom: 2 }}>{name}</div>
                     <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', marginBottom: 8 }}>{location}</div>
-                    <div style={{ display: 'flex', gap: 3 }}>{[1,2,3,4,5].map(s => <span key={s} style={{ fontSize: 16, color: s <= stars ? accentColor : 'rgba(255,255,255,0.1)' }}>★</span>)}</div>
+                    <div style={{ display: 'flex', gap: 3 }}>{[1, 2, 3, 4, 5].map(s => <span key={s} style={{ fontSize: 16, color: s <= stars ? accentColor : 'rgba(255,255,255,0.1)' }}>★</span>)}</div>
                 </div>
             </div>
             <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: '14px 32px', borderTop: '1px solid rgba(255,255,255,0.05)', display: 'flex', justifyContent: 'space-between' }}>
                 <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.25)', letterSpacing: 1 }}>{tagline}</span>
-                <span style={{ fontSize: 13, fontWeight: 700, color: '#fff' }}>☎ {helpline}</span>
+                <span style={{ fontSize: 13, fontWeight: 700, color: '#fff', display: 'inline-flex', alignItems: 'center', gap: '3px' }}>
+                    <span>☎</span>
+                    <WhatsAppIcon size={12} />
+                    <span>{helpline}</span>
+                </span>
             </div>
         </div>
     );
@@ -161,13 +179,17 @@ const G4WarmMinimal = ({ data }) => {
                     <div style={{ textAlign: 'center' }}>
                         <div style={{ fontSize: 15, fontWeight: 700, color: '#2d2218' }}>{name}</div>
                         <div style={{ fontSize: 11, color: '#999', marginTop: 3 }}>{location}</div>
-                        <div style={{ display: 'flex', justifyContent: 'center', gap: 2, marginTop: 7 }}>{[1,2,3,4,5].map(s => <span key={s} style={{ fontSize: 15, color: s <= stars ? accentColor : '#d4c9bc' }}>★</span>)}</div>
+                        <div style={{ display: 'flex', justifyContent: 'center', gap: 2, marginTop: 7 }}>{[1, 2, 3, 4, 5].map(s => <span key={s} style={{ fontSize: 15, color: s <= stars ? accentColor : '#d4c9bc' }}>★</span>)}</div>
                     </div>
                 </div>
             </div>
             <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: '13px 40px', borderTop: '2px solid #e4ddd4', display: 'flex', justifyContent: 'space-between', background: '#ede8e0' }}>
                 <span style={{ fontSize: 10, color: '#bbb', letterSpacing: 1 }}>{tagline}</span>
-                <span style={{ fontSize: 13, fontWeight: 700, color: '#2d2218' }}>☎ {helpline}</span>
+                <span style={{ fontSize: 13, fontWeight: 700, color: '#2d2218', display: 'inline-flex', alignItems: 'center', gap: '3px' }}>
+                    <span>☎</span>
+                    <WhatsAppIcon size={12} />
+                    <span>{helpline}</span>
+                </span>
             </div>
         </div>
     );
@@ -189,12 +211,16 @@ const T1ProfessionalSplit = ({ data }) => {
                     <div style={{ fontSize: 32, fontWeight: 900, color: '#fff', lineHeight: 1.1 }}>{(monthYear || '').split(' ')[0]}</div>
                     <div style={{ fontSize: 18, fontWeight: 700, color: primaryColor, letterSpacing: 1 }}>{(monthYear || '').split(' ')[1]}</div>
                     <div style={{ marginTop: 18, display: 'flex', flexDirection: 'column', gap: 5 }}>
-                        {[1,0.55,0.25].map((op, i) => <div key={i} style={{ height: 2, width: `${68 - i*18}px`, background: `rgba(255,255,255,${op})`, borderRadius: 2 }} />)}
+                        {[1, 0.55, 0.25].map((op, i) => <div key={i} style={{ height: 2, width: `${68 - i * 18}px`, background: `rgba(255,255,255,${op})`, borderRadius: 2 }} />)}
                     </div>
                 </div>
                 <div>
                     <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 3 }}>Helpline</div>
-                    <div style={{ fontSize: 12, fontWeight: 700, color: '#fff' }}>{helpline}</div>
+                    <div style={{ fontSize: 12, fontWeight: 700, color: '#fff', display: 'flex', alignItems: 'center', gap: '3px' }}>
+                        <span>☎</span>
+                        <WhatsAppIcon size={12} />
+                        <span>{helpline}</span>
+                    </div>
                 </div>
             </div>
             <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
@@ -210,7 +236,7 @@ const T1ProfessionalSplit = ({ data }) => {
                     <div style={{ fontSize: 19, fontWeight: 800, color: '#111827', marginBottom: 3 }}>{tutorName}</div>
                     <div style={{ fontSize: 11, color: '#6b7280', marginBottom: 12, lineHeight: 1.4 }}>{university}</div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                        <div style={{ display: 'flex', gap: 2 }}>{[1,2,3,4,5].map(s => <span key={s} style={{ fontSize: 18, color: s <= stars ? '#f59e0b' : '#e5e7eb' }}>★</span>)}</div>
+                        <div style={{ display: 'flex', gap: 2 }}>{[1, 2, 3, 4, 5].map(s => <span key={s} style={{ fontSize: 18, color: s <= stars ? '#f59e0b' : '#e5e7eb' }}>★</span>)}</div>
                         <span style={{ fontSize: 16, fontWeight: 800, color: primaryColor }}>{rating}</span>
                     </div>
                 </div>
@@ -258,11 +284,15 @@ const T2AwardElegant = ({ data }) => {
                         <div style={{ fontSize: 15, fontWeight: 800, color: accentGold }}>{rating} ★</div>
                     </div>
                 </div>
-                <div style={{ display: 'flex', justifyContent: 'center', gap: 3, marginBottom: 16 }}>{[1,2,3,4,5].map(s => <span key={s} style={{ fontSize: 18, color: s <= stars ? accentGold : '#ddd' }}>★</span>)}</div>
+                <div style={{ display: 'flex', justifyContent: 'center', gap: 3, marginBottom: 16 }}>{[1, 2, 3, 4, 5].map(s => <span key={s} style={{ fontSize: 18, color: s <= stars ? accentGold : '#ddd' }}>★</span>)}</div>
             </div>
             <div style={{ position: 'absolute', bottom: 16, left: 40, right: 40, display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: 10, borderTop: '1px solid #e8e4d6' }}>
                 <div style={{ fontSize: 11, color: '#999', fontStyle: 'italic' }}>Authorized by TSF</div>
-                <div style={{ fontSize: 12, fontWeight: 700, color: '#333' }}>☎ {helpline}</div>
+                <div style={{ fontSize: 12, fontWeight: 700, color: '#333', display: 'flex', alignItems: 'center', gap: '3px' }}>
+                    <span>☎</span>
+                    <WhatsAppIcon size={12} />
+                    <span>{helpline}</span>
+                </div>
             </div>
         </div>
     );
@@ -296,13 +326,17 @@ const T3ModernDark = ({ data }) => {
                 </div>
                 <div style={{ height: 1, background: 'rgba(255,255,255,0.06)', margin: '14px 0' }} />
                 <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 10 }}>
-                    <div style={{ display: 'flex', gap: 3 }}>{[1,2,3,4,5].map(s => <span key={s} style={{ fontSize: 20, color: s <= stars ? '#f59e0b' : 'rgba(255,255,255,0.1)' }}>★</span>)}</div>
+                    <div style={{ display: 'flex', gap: 3 }}>{[1, 2, 3, 4, 5].map(s => <span key={s} style={{ fontSize: 20, color: s <= stars ? '#f59e0b' : 'rgba(255,255,255,0.1)' }}>★</span>)}</div>
                     <span style={{ fontSize: 22, fontWeight: 800, color: '#fff' }}>{rating}</span>
                 </div>
             </div>
             <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: '15px 32px', borderTop: '1px solid rgba(255,255,255,0.05)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.25)', letterSpacing: 1 }}>Tuition Seba Forum</span>
-                <span style={{ fontSize: 13, fontWeight: 700, color: 'rgba(255,255,255,0.8)' }}>☎ {helpline}</span>
+                <span style={{ fontSize: 13, fontWeight: 700, color: 'rgba(255,255,255,0.8)', display: 'inline-flex', alignItems: 'center', gap: '3px' }}>
+                    <span>☎</span>
+                    <WhatsAppIcon size={12} />
+                    <span>{helpline}</span>
+                </span>
             </div>
         </div>
     );
@@ -332,14 +366,18 @@ const T4NaturalSage = ({ data }) => {
                 <h2 style={{ margin: '0 0 6px', fontSize: 26, fontWeight: 800, color: '#1c3328', letterSpacing: '-0.3px' }}>{tutorName}</h2>
                 <p style={{ margin: '0 0 18px', fontSize: 12, color: '#8aab9a', lineHeight: 1.5 }}>{university}</p>
                 <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 14, padding: '16px 0', borderTop: '1px solid #c8ddd4', borderBottom: '1px solid #c8ddd4' }}>
-                    <div style={{ display: 'flex', gap: 3 }}>{[1,2,3,4,5].map(s => <span key={s} style={{ fontSize: 20, color: s <= stars ? '#f59e0b' : '#cde0d5' }}>★</span>)}</div>
+                    <div style={{ display: 'flex', gap: 3 }}>{[1, 2, 3, 4, 5].map(s => <span key={s} style={{ fontSize: 20, color: s <= stars ? '#f59e0b' : '#cde0d5' }}>★</span>)}</div>
                     <div style={{ width: 1, height: 26, background: '#c8ddd4' }} />
                     <span style={{ fontSize: 22, fontWeight: 900, color: primaryColor }}>{rating}</span>
                 </div>
             </div>
             <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: '13px 32px', display: 'flex', justifyContent: 'space-between', borderTop: '1px solid #c8ddd4', background: '#e0eee6' }}>
                 <span style={{ fontSize: 10, color: '#8aab9a' }}>Tuition Seba Forum</span>
-                <span style={{ fontSize: 12, fontWeight: 700, color: '#1c3328' }}>☎ {helpline}</span>
+                <span style={{ fontSize: 12, fontWeight: 700, color: '#1c3328', display: 'inline-flex', alignItems: 'center', gap: '3px' }}>
+                    <span>☎</span>
+                    <WhatsAppIcon size={12} />
+                    <span>{helpline}</span>
+                </span>
             </div>
         </div>
     );
@@ -355,19 +393,35 @@ const PosterGenerator = () => {
     const [downloading, setDownloading] = useState(false);
     const posterRef = useRef(null);
     const downloadRef = useRef(null);
+    const containerRef = useRef(null);
+    const [scale, setScale] = useState(0.85);
+
+    useEffect(() => {
+        if (!containerRef.current) return;
+        const resizeObserver = new ResizeObserver((entries) => {
+            for (let entry of entries) {
+                const width = entry.contentRect.width;
+                const availableWidth = width - 60;
+                const newScale = Math.min(1, Math.max(0.2, availableWidth / 600));
+                setScale(newScale);
+            }
+        });
+        resizeObserver.observe(containerRef.current);
+        return () => resizeObserver.disconnect();
+    }, []);
 
     const [gData, setGData] = useState({
         headline: 'অভিভাবকের অভিজ্ঞতা',
         quote: 'আমার সন্তানের জীবন বদলে দিয়েছে এই প্ল্যাটফর্ম। সঠিক টিউটর খোঁজা এখন অনেক সহজ। Tuition Seba Forum-এর সেবা সত্যিই প্রশংসনীয়।',
         name: 'নাম লিখুন', location: 'এলাকা, শহর', stars: 5, profileImage: null,
-        accentColor: '#c8973a', helpline: '09613 441122', tagline: '১ প্ল্যাটফর্মেই টিউটর ও টিউশন',
+        accentColor: '#c8973a', helpline: '01633 920928', tagline: '১ প্ল্যাটফর্মেই টিউটর ও টিউশন',
     });
     const [tData, setTData] = useState({
         tutorName: 'টিউটরের নাম', university: 'University / Institution Name',
         monthYear: 'মে ২০২৬', stars: 5, rating: '5.0',
         tutorImage: null, secondaryImage: null, badgeLabel: 'TUTOR OF THE MONTH',
         primaryColor: '#1d4ed8', secondaryColor: '#db2777', accentGold: '#d97706',
-        helpline: '09613 441122',
+        helpline: '01633 920928',
     });
 
     const updG = (k, v) => setGData(p => ({ ...p, [k]: v }));
@@ -385,26 +439,24 @@ const PosterGenerator = () => {
         if (!downloadRef.current) return;
         setDownloading(true);
         try {
-            // Await font readiness to ensure Google Fonts (like Hind Siliguri) render correctly
             await document.fonts.ready;
-
-            const canvas = await html2canvas(downloadRef.current, { 
-                scale: 3, 
-                useCORS: true, 
-                allowTaint: true, 
-                backgroundColor: null, 
-                logging: false 
+            const canvas = await html2canvas(downloadRef.current, {
+                scale: 3,
+                useCORS: true,
+                allowTaint: true,
+                backgroundColor: null,
+                logging: false
             });
             const a = document.createElement('a');
             a.download = `tsf-poster-${Date.now()}.png`;
             a.href = canvas.toDataURL('image/png', 1.0);
             a.click();
             toast.success('✅ Poster downloaded!');
-        } catch (err) { 
+        } catch (err) {
             console.error(err);
-            toast.error('Download failed'); 
-        } finally { 
-            setDownloading(false); 
+            toast.error('Download failed');
+        } finally {
+            setDownloading(false);
         }
     };
 
@@ -414,7 +466,7 @@ const PosterGenerator = () => {
 
     const Stars = ({ val, onChange }) => (
         <div style={{ display: 'flex', gap: 5, marginTop: 4 }}>
-            {[1,2,3,4,5].map(s => (
+            {[1, 2, 3, 4, 5].map(s => (
                 <button key={s} type="button" onClick={() => onChange(s)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 22, color: s <= val ? '#f59e0b' : '#d1d5db', padding: 0, lineHeight: 1 }}>★</button>
             ))}
         </div>
@@ -438,11 +490,11 @@ const PosterGenerator = () => {
     const setActiveTpl = category === 'guardian' ? setGTpl : setTTpl;
     const tplNames = category === 'guardian' ? gTplNames : tTplNames;
     const mainColor = category === 'guardian' ? '#c8973a' : '#1d4ed8';
+    const targetHeight = category === 'guardian' ? 750 : 780;
 
     return (
         <div style={{ fontFamily: 'Poppins,sans-serif' }}>
-            {/* Header */}
-            <div style={{ background: 'linear-gradient(135deg,#1e1b4b,#312e81,#4c1d95)', borderRadius: 20, padding: '20px 26px', marginBottom: 22, color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'space-between', boxShadow: '0 10px 36px rgba(79,70,229,0.35)', position: 'relative', overflow: 'hidden' }}>
+            <div className="poster-header" style={{ background: 'linear-gradient(135deg,#1e1b4b,#312e81,#4c1d95)', borderRadius: 20, padding: '20px 26px', marginBottom: 22, color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'space-between', boxShadow: '0 10px 36px rgba(79,70,229,0.35)', position: 'relative', overflow: 'hidden' }}>
                 <div style={{ position: 'absolute', right: -20, top: -20, width: 130, height: 130, borderRadius: '50%', background: 'rgba(167,139,250,0.12)' }} />
                 <div style={{ position: 'relative' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 3 }}>
@@ -456,8 +508,7 @@ const PosterGenerator = () => {
                 </button>
             </div>
 
-            {/* Category tabs */}
-            <div style={{ display: 'flex', gap: 10, marginBottom: 16 }}>
+            <div className="poster-tabs" style={{ display: 'flex', gap: 10, marginBottom: 16 }}>
                 {[{ key: 'guardian', icon: '👨‍👩‍👧', label: 'Guardian Review', color: '#c8973a' }, { key: 'teacher', icon: '🏆', label: 'Teacher Recognition', color: '#1d4ed8' }].map(t => (
                     <button key={t.key} onClick={() => setCategory(t.key)} style={{ padding: '10px 22px', borderRadius: 12, border: `2px solid ${category === t.key ? t.color : '#e2e8f0'}`, background: category === t.key ? t.color : '#fff', color: category === t.key ? '#fff' : '#64748b', fontWeight: 700, fontSize: 13, cursor: 'pointer', fontFamily: 'Poppins', display: 'flex', alignItems: 'center', gap: 7, boxShadow: category === t.key ? `0 4px 14px ${t.color}44` : 'none', transition: 'all 0.15s' }}>
                         <span>{t.icon}</span>{t.label}
@@ -465,11 +516,10 @@ const PosterGenerator = () => {
                 ))}
             </div>
 
-            {/* Template selector */}
-            <div style={{ background: '#f8fafc', border: '1.5px solid #e2e8f0', borderRadius: 14, padding: '11px 18px', marginBottom: 22, display: 'flex', alignItems: 'center', gap: 12 }}>
+            <div className="poster-style-selector" style={{ background: '#f8fafc', border: '1.5px solid #e2e8f0', borderRadius: 14, padding: '11px 18px', marginBottom: 22, display: 'flex', alignItems: 'center', gap: 12 }}>
                 <span style={{ fontSize: 11, fontWeight: 700, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.5px', flexShrink: 0 }}>Style:</span>
                 <div style={{ display: 'flex', gap: 8 }}>
-                    {[1,2,3,4].map(id => {
+                    {[1, 2, 3, 4].map(id => {
                         const sel = activeTpl === id;
                         return (
                             <button key={id} onClick={() => setActiveTpl(id)} style={{ width: 36, height: 36, borderRadius: 9, border: sel ? 'none' : '1.5px solid #cbd5e1', background: sel ? mainColor : '#fff', color: sel ? '#fff' : '#475569', fontWeight: 800, fontSize: 14, cursor: 'pointer', fontFamily: 'Poppins', boxShadow: sel ? `0 3px 10px ${mainColor}44` : 'none', transition: 'all 0.15s' }}>{id}</button>
@@ -479,10 +529,8 @@ const PosterGenerator = () => {
                 <span style={{ fontSize: 11, color: '#64748b', fontStyle: 'italic', marginLeft: 'auto' }}>{tplNames[activeTpl]}</span>
             </div>
 
-            {/* Layout */}
-            <div style={{ display: 'flex', gap: 24, alignItems: 'flex-start' }}>
-                {/* Controls */}
-                <div style={{ width: 290, flexShrink: 0, background: '#fff', borderRadius: 18, border: '1.5px solid #e2e8f0', padding: 20, boxShadow: '0 4px 20px rgba(0,0,0,0.05)', maxHeight: '82vh', overflowY: 'auto' }}>
+            <div className="poster-layout" style={{ display: 'flex', gap: 24, alignItems: 'flex-start' }}>
+                <div className="poster-controls" style={{ width: 290, flexShrink: 0, background: '#fff', borderRadius: 18, border: '1.5px solid #e2e8f0', padding: 20, boxShadow: '0 4px 20px rgba(0,0,0,0.05)', maxHeight: '82vh', overflowY: 'auto' }}>
                     <h5 style={{ margin: '0 0 16px', fontWeight: 800, color: '#1e293b', fontSize: 13, display: 'flex', alignItems: 'center', gap: 7 }}>
                         <i className="fas fa-sliders-h" style={{ color: '#6366f1' }} /> Edit Content
                     </h5>
@@ -515,10 +563,10 @@ const PosterGenerator = () => {
                         <div style={{ borderTop: '1px solid #f1f5f9', paddingTop: 14, marginBottom: 12 }}>
                             <label style={{ ...lbl, color: '#6366f1', marginBottom: 8 }}>🎨 Colors</label>
                             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12 }}>
-                                {tTpl === 1 && [['primaryColor','Primary']].map(([k,l]) => <div key={k}><div style={lbl}>{l}</div><input type="color" defaultValue={tData[k]} onChange={e => updT(k, e.target.value)} style={{ width: 44, height: 36, borderRadius: 8, border: '1.5px solid #e2e8f0', cursor: 'pointer', padding: 2 }} /></div>)}
-                                {tTpl === 2 && [['primaryColor','Primary'],['accentGold','Gold']].map(([k,l]) => <div key={k}><div style={lbl}>{l}</div><input type="color" defaultValue={tData[k]} onChange={e => updT(k, e.target.value)} style={{ width: 44, height: 36, borderRadius: 8, border: '1.5px solid #e2e8f0', cursor: 'pointer', padding: 2 }} /></div>)}
-                                {tTpl === 3 && [['primaryColor','Color 1'],['secondaryColor','Color 2']].map(([k,l]) => <div key={k}><div style={lbl}>{l}</div><input type="color" defaultValue={tData[k]} onChange={e => updT(k, e.target.value)} style={{ width: 44, height: 36, borderRadius: 8, border: '1.5px solid #e2e8f0', cursor: 'pointer', padding: 2 }} /></div>)}
-                                {tTpl === 4 && [['primaryColor','Accent']].map(([k,l]) => <div key={k}><div style={lbl}>{l}</div><input type="color" defaultValue={tData[k]} onChange={e => updT(k, e.target.value)} style={{ width: 44, height: 36, borderRadius: 8, border: '1.5px solid #e2e8f0', cursor: 'pointer', padding: 2 }} /></div>)}
+                                {tTpl === 1 && [['primaryColor', 'Primary']].map(([k, l]) => <div key={k}><div style={lbl}>{l}</div><input type="color" defaultValue={tData[k]} onChange={e => updT(k, e.target.value)} style={{ width: 44, height: 36, borderRadius: 8, border: '1.5px solid #e2e8f0', cursor: 'pointer', padding: 2 }} /></div>)}
+                                {tTpl === 2 && [['primaryColor', 'Primary'], ['accentGold', 'Gold']].map(([k, l]) => <div key={k}><div style={lbl}>{l}</div><input type="color" defaultValue={tData[k]} onChange={e => updT(k, e.target.value)} style={{ width: 44, height: 36, borderRadius: 8, border: '1.5px solid #e2e8f0', cursor: 'pointer', padding: 2 }} /></div>)}
+                                {tTpl === 3 && [['primaryColor', 'Color 1'], ['secondaryColor', 'Color 2']].map(([k, l]) => <div key={k}><div style={lbl}>{l}</div><input type="color" defaultValue={tData[k]} onChange={e => updT(k, e.target.value)} style={{ width: 44, height: 36, borderRadius: 8, border: '1.5px solid #e2e8f0', cursor: 'pointer', padding: 2 }} /></div>)}
+                                {tTpl === 4 && [['primaryColor', 'Accent']].map(([k, l]) => <div key={k}><div style={lbl}>{l}</div><input type="color" defaultValue={tData[k]} onChange={e => updT(k, e.target.value)} style={{ width: 44, height: 36, borderRadius: 8, border: '1.5px solid #e2e8f0', cursor: 'pointer', padding: 2 }} /></div>)}
                             </div>
                         </div>
                         <div style={{ borderTop: '1px solid #f1f5f9', paddingTop: 14 }}>
@@ -528,22 +576,37 @@ const PosterGenerator = () => {
                 </div>
 
                 {/* Preview */}
-                <div style={{ flex: 1 }}>
-                    <div style={{ background: 'repeating-conic-gradient(#f1f5f9 0% 25%,#fff 0% 50%) 0 0/18px 18px', borderRadius: 18, padding: 26, border: '1.5px solid #e2e8f0', boxShadow: '0 4px 20px rgba(0,0,0,0.05)', display: 'flex', justifyContent: 'center', overflow: 'auto' }}>
-                        <div style={{ transform: 'scale(0.85)', transformOrigin: 'top center' }}>
-                            <div ref={posterRef} style={{ width: 600, overflow: 'hidden' }}>
-                                {category === 'guardian' && gTpl === 1 && <G1MidnightGold data={gData} />}
-                                {category === 'guardian' && gTpl === 2 && <G2LightEditorial data={gData} />}
-                                {category === 'guardian' && gTpl === 3 && <G3NavyCard data={gData} />}
-                                {category === 'guardian' && gTpl === 4 && <G4WarmMinimal data={gData} />}
-                                {category === 'teacher' && tTpl === 1 && <T1ProfessionalSplit data={tData} />}
-                                {category === 'teacher' && tTpl === 2 && <T2AwardElegant data={tData} />}
-                                {category === 'teacher' && tTpl === 3 && <T3ModernDark data={tData} />}
-                                {category === 'teacher' && tTpl === 4 && <T4NaturalSage data={tData} />}
+                <div className="poster-preview-container" ref={containerRef} style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ background: 'repeating-conic-gradient(#f1f5f9 0% 25%,#fff 0% 50%) 0 0/18px 18px', borderRadius: 18, padding: 26, border: '1.5px solid #e2e8f0', boxShadow: '0 4px 20px rgba(0,0,0,0.05)', display: 'flex', justifyContent: 'center', overflow: 'hidden' }}>
+                        <div style={{
+                            width: 600 * scale,
+                            height: targetHeight * scale,
+                            position: 'relative',
+                            overflow: 'hidden'
+                        }}>
+                            <div style={{
+                                position: 'absolute',
+                                top: 0,
+                                left: '50%',
+                                transform: `translate(-50%, 0) scale(${scale})`,
+                                transformOrigin: 'top center',
+                                width: 600,
+                                height: targetHeight,
+                            }}>
+                                <div ref={posterRef} style={{ width: 600, overflow: 'hidden' }}>
+                                    {category === 'guardian' && gTpl === 1 && <G1MidnightGold data={gData} />}
+                                    {category === 'guardian' && gTpl === 2 && <G2LightEditorial data={gData} />}
+                                    {category === 'guardian' && gTpl === 3 && <G3NavyCard data={gData} />}
+                                    {category === 'guardian' && gTpl === 4 && <G4WarmMinimal data={gData} />}
+                                    {category === 'teacher' && tTpl === 1 && <T1ProfessionalSplit data={tData} />}
+                                    {category === 'teacher' && tTpl === 2 && <T2AwardElegant data={tData} />}
+                                    {category === 'teacher' && tTpl === 3 && <T3ModernDark data={tData} />}
+                                    {category === 'teacher' && tTpl === 4 && <T4NaturalSage data={tData} />}
+                                </div>
                             </div>
                         </div>
                     </div>
-                    <p style={{ textAlign: 'center', fontSize: 11, color: '#94a3b8', marginTop: 10 }}>Preview at 85% — exported PNG is 3× full resolution</p>
+                    <p style={{ textAlign: 'center', fontSize: 11, color: '#94a3b8', marginTop: 10 }}>Preview at {Math.round(scale * 100)}% — exported PNG is 3× full resolution</p>
                 </div>
             </div>
 
@@ -561,7 +624,47 @@ const PosterGenerator = () => {
                 </div>
             </div>
 
-            <style>{`@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&family=Hind+Siliguri:wght@400;600;700&display=swap');`}</style>
+            <style>{`
+                @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&family=Hind+Siliguri:wght@400;600;700&display=swap');
+
+                @media (max-width: 991px) {
+                    .poster-header {
+                        flex-direction: column !important;
+                        align-items: flex-start !important;
+                        gap: 16px !important;
+                    }
+                    .poster-header button {
+                        width: 100% !important;
+                        justify-content: center !important;
+                    }
+                    .poster-tabs {
+                        flex-wrap: wrap !important;
+                    }
+                    .poster-tabs button {
+                        flex: 1 !important;
+                        justify-content: center !important;
+                    }
+                    .poster-style-selector {
+                        flex-direction: column !important;
+                        align-items: flex-start !important;
+                        gap: 8px !important;
+                    }
+                    .poster-style-selector span {
+                        margin-left: 0 !important;
+                    }
+                    .poster-layout {
+                        flex-direction: column !important;
+                    }
+                    .poster-controls {
+                        width: 100% !important;
+                        max-height: none !important;
+                    }
+                    .poster-preview-container {
+                        width: 100% !important;
+                        margin-top: 20px !important;
+                    }
+                }
+            `}</style>
         </div>
     );
 };

@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Modal, Button, Spinner } from 'react-bootstrap';
 import html2canvas from 'html2canvas';
 import { toast } from 'react-toastify';
@@ -6,7 +6,14 @@ import { FaDownload, FaTimes, FaGlobe, FaPhoneAlt, FaGooglePlay } from 'react-ic
 
 const LOGO = '/img/TSF LOGO TRANSPARENT.png';
 
+const WhatsAppIcon = ({ size = 11, color = '#25D366' }) => (
+    <svg viewBox="0 0 448 512" style={{ width: size, height: size, fill: color, display: 'inline-block', verticalAlign: 'middle', marginLeft: '3px', marginRight: '3px' }}>
+        <path d="M380.9 97.1C339 55.1 283.2 32 223.9 32c-122.4 0-222 99.6-222 222 0 39.1 10.2 77.3 29.6 111L0 480l117.7-30.9c32.4 17.7 68.9 27 106.1 27h.1c122.3 0 224.1-99.6 224.1-222 0-59.3-25.2-115-67.1-157zm-157 341.6c-33.2 0-65.7-8.9-94-25.7l-6.7-4-69.8 18.3L72 359.2l-4.4-7c-18.5-29.4-28.2-63.3-28.2-98.2 0-101.7 82.8-184.5 184.6-184.5 49.3 0 95.6 19.2 130.4 54.1 34.8 34.9 56.2 81.2 56.1 130.5 0 101.8-84.9 184.6-186.6 184.6zm101.2-138.2c-5.5-2.8-32.8-16.2-37.9-18-5.1-1.9-8.8-2.8-12.5 2.8-3.7 5.6-14.3 18-17.6 21.8-3.2 3.7-6.5 4.2-12 1.4-32.6-16.3-54-29.1-75.5-66-5.7-9.8 5.7-9.1 16.3-30.3 1.8-3.7.9-6.9-.5-9.7-1.4-2.8-12.5-30.1-17.1-41.2-4.5-10.8-9.1-9.3-12.5-9.5-3.2-.2-6.9-.2-10.6-.2-3.7 0-9.7 1.4-14.8 6.9-5.1 5.6-19.4 19-19.4 46.3 0 27.3 19.9 53.7 22.6 57.4 2.8 3.7 39.1 59.7 94.8 83.8 35.2 15.2 49 16.5 66.6 13.9 10.7-1.6 32.8-13.4 37.4-26.4 4.6-13 4.6-24.1 3.2-26.4-1.3-2.5-5-3.9-10.5-6.6z"/>
+    </svg>
+);
+
 const LogoBlock = ({ invert = false }) => (
+
     <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
         <img src={LOGO} alt="TSF" style={{ height: '28px', objectFit: 'contain', filter: invert ? 'brightness(0) invert(1)' : 'none' }} onError={e => e.target.style.display = 'none'} />
         <div style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 800, fontSize: '13px', color: invert ? '#fff' : '#1e3a8a', lineHeight: 1.2 }}>
@@ -106,13 +113,17 @@ const ModernLightTemplate = ({ tuition }) => {
             </div>
             <div style={{ padding: '16px 28px', borderTop: '1px solid #e2e8f0', background: '#f8fafc', display: 'flex', flexDirection: 'column', gap: '4px', alignItems: 'center' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', fontSize: '11px', fontWeight: 800, color: '#1e3a8a' }}>
-                    <span>🌐 Website: www.tuitionseba.com</span>
+                    <span>🌐 Website: www.tuitionsebaforum.com</span>
                     <span>🤖 App: Search "Tuition Seba Forum" in Play Store</span>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', fontSize: '11px', fontWeight: 800, color: '#1e3a8a', marginTop: '2px' }}>
-                    <span>🔑 Job ID: {tuition.tuitionCode}</span>
-                    <span>☎ Helpline: 09613 441122</span>
+                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                        <span>☎</span>
+                        <WhatsAppIcon size={12} />
+                        <span>Helpline: 09613 441122</span>
+                    </span>
                 </div>
+
             </div>
         </div>
     );
@@ -208,14 +219,18 @@ const DarkNeonTemplate = ({ tuition }) => {
             </div>
             <div style={{ padding: '16px 28px', borderTop: '1px solid rgba(255,255,255,0.06)', background: 'rgba(0,0,0,0.3)', display: 'flex', flexDirection: 'column', gap: '4px', alignItems: 'center' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', fontSize: '11px', fontWeight: 800, color: '#38bdf8' }}>
-                    <span>🌐 Website: www.tuitionseba.com</span>
+                    <span>🌐 Website: www.tuitionsebaforum.com</span>
                     <span>🤖 App: Search "Tuition Seba Forum" in Play Store</span>
                 </div>
                 <div style={{ height: '1px', width: '100%', background: 'rgba(255,255,255,0.06)', margin: '4px 0' }} />
                 <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', fontSize: '11px', fontWeight: 800, color: '#38bdf8' }}>
-                    <span>🔑 Job ID: {tuition.tuitionCode}</span>
-                    <span>☎ Helpline: 09613 441122</span>
+                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                        <span>☎</span>
+                        <WhatsAppIcon size={12} />
+                        <span>Helpline: 09613 441122</span>
+                    </span>
                 </div>
+
             </div>
         </div>
     );
@@ -326,15 +341,18 @@ const VintageTemplate = ({ tuition }) => {
                 {/* Footer */}
                 <div style={{ borderTop: '2px solid #8c6d4f', paddingTop: '10px', marginTop: '10px', textAlign: 'center', display: 'flex', flexDirection: 'column', gap: '2px' }}>
                     <div style={{ fontSize: '11px', fontWeight: 'bold', color: '#2d2218', fontStyle: 'italic' }}>
-                        🌐 Apply via Website: www.tuitionseba.com
+                        🌐 Apply via Website: www.tuitionsebaforum.com
                     </div>
                     <div style={{ fontSize: '11px', fontWeight: 'bold', color: '#2d2218', fontStyle: 'italic' }}>
                         📱 App: Search "Tuition Seba Forum" in Play Store
                     </div>
 
-                    <div style={{ fontSize: '12px', fontWeight: 'bold', color: '#8c6d4f', marginTop: '3px' }}>
-                        ☎ Helpline: 09613 441122
+                    <div style={{ fontSize: '12px', fontWeight: 'bold', color: '#8c6d4f', marginTop: '3px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
+                        <span>☎</span>
+                        <WhatsAppIcon size={12} />
+                        <span>Helpline: 09613 441122</span>
                     </div>
+
                 </div>
             </div>
         </div>
@@ -345,6 +363,22 @@ const TuitionPosterModal = ({ show, onHide, tuition }) => {
     const [selectedTemplate, setSelectedTemplate] = useState('modern'); // 'modern' | 'dark' | 'vintage'
     const [downloading, setDownloading] = useState(false);
     const downloadRef = useRef(null);
+    const containerRef = useRef(null);
+    const [scale, setScale] = useState(0.8);
+
+    useEffect(() => {
+        if (!containerRef.current) return;
+        const resizeObserver = new ResizeObserver((entries) => {
+            for (let entry of entries) {
+                const width = entry.contentRect.width;
+                // Poster width is 600px, add a bit of padding/margin clearance (e.g. 10px)
+                const newScale = Math.min(1, Math.max(0.2, (width - 10) / 600));
+                setScale(newScale);
+            }
+        });
+        resizeObserver.observe(containerRef.current);
+        return () => resizeObserver.disconnect();
+    }, [show]);
 
     const handleDownload = async () => {
         if (!downloadRef.current || !tuition) return;
@@ -379,7 +413,7 @@ const TuitionPosterModal = ({ show, onHide, tuition }) => {
             <Modal.Body className="bg-light p-4 d-flex flex-column align-items-center">
 
                 {/* Design Template Selector */}
-                <div className="d-flex gap-2 mb-4 w-100 justify-content-center">
+                <div className="d-flex flex-wrap gap-2 mb-4 w-100 justify-content-center">
                     <Button
                         variant={selectedTemplate === 'modern' ? 'primary' : 'outline-primary'}
                         size="sm"
@@ -406,19 +440,32 @@ const TuitionPosterModal = ({ show, onHide, tuition }) => {
                     </Button>
                 </div>
 
-                {/* Poster Preview */}
-                <div style={{
-                    boxShadow: '0 12px 36px rgba(0,0,0,0.12)',
-                    borderRadius: '16px',
-                    overflow: 'hidden',
-                    transform: 'scale(0.8)',
-                    transformOrigin: 'top center',
-                    height: 656, // Matches scaled height of 820 (0.8 * 820)
-                    marginBottom: '10px'
-                }}>
-                    {selectedTemplate === 'modern' && <ModernLightTemplate tuition={tuition} />}
-                    {selectedTemplate === 'dark' && <DarkNeonTemplate tuition={tuition} />}
-                    {selectedTemplate === 'vintage' && <VintageTemplate tuition={tuition} />}
+                {/* Poster Preview container */}
+                <div ref={containerRef} style={{ width: '100%', display: 'flex', justifyContent: 'center', overflow: 'hidden' }}>
+                    <div style={{
+                        width: 600 * scale,
+                        height: 820 * scale,
+                        position: 'relative',
+                        overflow: 'hidden',
+                        marginBottom: '10px'
+                    }}>
+                        <div style={{
+                            position: 'absolute',
+                            top: 0,
+                            left: '50%',
+                            transform: `translate(-50%, 0) scale(${scale})`,
+                            transformOrigin: 'top center',
+                            width: 600,
+                            height: 820,
+                            boxShadow: '0 12px 36px rgba(0,0,0,0.12)',
+                            borderRadius: '16px',
+                            overflow: 'hidden',
+                        }}>
+                            {selectedTemplate === 'modern' && <ModernLightTemplate tuition={tuition} />}
+                            {selectedTemplate === 'dark' && <DarkNeonTemplate tuition={tuition} />}
+                            {selectedTemplate === 'vintage' && <VintageTemplate tuition={tuition} />}
+                        </div>
+                    </div>
                 </div>
 
                 {/* Off-screen high-res container */}
@@ -463,3 +510,4 @@ const TuitionPosterModal = ({ show, onHide, tuition }) => {
 };
 
 export default TuitionPosterModal;
+

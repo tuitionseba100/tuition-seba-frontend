@@ -550,11 +550,11 @@ const TuitionPage = () => {
                                                         </span>
                                                         {tuition.tuitionStatus && (
                                                             <span
-                                                                className="badge bg-secondary text-wrap"
+                                                                className={`badge text-wrap ${tuition.tuitionStatus.toLowerCase() === 'available' ? 'blink-available' : 'bg-secondary'}`}
                                                                 style={{
                                                                     fontSize: '0.7rem',
                                                                     maxWidth: 'fit-content',
-                                                                    backgroundColor: tuition.hasDue ? '#6c757d' : (tuition.isSpam || tuition.isBest || tuition.isExpress) ? 'rgba(255,255,255,0.25)' : undefined,
+                                                                    backgroundColor: tuition.tuitionStatus.toLowerCase() === 'available' ? undefined : (tuition.hasDue ? '#6c757d' : (tuition.isSpam || tuition.isBest || tuition.isExpress) ? 'rgba(255,255,255,0.25)' : undefined),
                                                                     color: (tuition.isSpam || tuition.isBest || tuition.isExpress) ? '#fff' : undefined
                                                                 }}
                                                             >
@@ -1020,7 +1020,21 @@ export default TuitionPage;
 const Container = styled.div`
   padding: 30px;
   background: #f4f4f9;
+
+  @keyframes blink-animation {
+    0% { opacity: 1; }
+    50% { opacity: 0.15; }
+    100% { opacity: 1; }
+  }
+
+  .blink-available {
+    animation: blink-animation 1.2s infinite;
+    background-color: #198754 !important;
+    color: white !important;
+    font-weight: bold;
+  }
 `;
+
 
 const Header = styled.div`
   display: flex;

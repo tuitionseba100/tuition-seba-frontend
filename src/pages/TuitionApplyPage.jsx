@@ -541,12 +541,27 @@ const TuitionPage = () => {
                                                 </td>
                                                 <td style={getRowStyle(tuition)}>{tuition.premiumCode}</td>
                                                 <td style={getRowStyle(tuition)}>
-                                                    <span
-                                                        style={{ cursor: 'pointer', color: tuition.hasDue ? '#000' : (tuition.isSpam || tuition.isBest || tuition.isExpress) ? '#fff' : '#0d6efd', textDecoration: 'underline', fontWeight: '500' }}
-                                                        onClick={() => handleShowDetails(tuition.tuitionId)}
-                                                    >
-                                                        {tuition.tuitionCode}
-                                                    </span>
+                                                    <div className="d-flex flex-column gap-1">
+                                                        <span
+                                                            style={{ cursor: 'pointer', color: tuition.hasDue ? '#000' : (tuition.isSpam || tuition.isBest || tuition.isExpress) ? '#fff' : '#0d6efd', textDecoration: 'underline', fontWeight: '600' }}
+                                                            onClick={() => handleShowDetails(tuition.tuitionId)}
+                                                        >
+                                                            {tuition.tuitionCode}
+                                                        </span>
+                                                        {tuition.tuitionStatus && (
+                                                            <span
+                                                                className="badge bg-secondary text-wrap"
+                                                                style={{
+                                                                    fontSize: '0.7rem',
+                                                                    maxWidth: 'fit-content',
+                                                                    backgroundColor: tuition.hasDue ? '#6c757d' : (tuition.isSpam || tuition.isBest || tuition.isExpress) ? 'rgba(255,255,255,0.25)' : undefined,
+                                                                    color: (tuition.isSpam || tuition.isBest || tuition.isExpress) ? '#fff' : undefined
+                                                                }}
+                                                            >
+                                                                {tuition.tuitionStatus}
+                                                            </span>
+                                                        )}
+                                                    </div>
                                                 </td>
                                                 <td style={getRowStyle(tuition)}>{tuition.name}</td>
                                                 <td style={getRowStyle(tuition)}>{tuition.phone}</td>
@@ -989,10 +1004,10 @@ const TuitionPage = () => {
                         </Button>
                     </Modal.Footer>
                 </Modal>
-                <CustomErrorModal 
-                    show={!!errorMessage} 
-                    message={errorMessage} 
-                    onClose={() => setErrorMessage('')} 
+                <CustomErrorModal
+                    show={!!errorMessage}
+                    message={errorMessage}
+                    onClose={() => setErrorMessage('')}
                 />
             </Container>
         </>

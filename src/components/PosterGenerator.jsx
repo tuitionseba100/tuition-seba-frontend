@@ -21,7 +21,7 @@ const LogoBlock = ({ size = 26, invert = false, color = '#1a1a1a' }) => (
 const G1MidnightGold = ({ data }) => {
     const { headline, quote, name, location, stars, profileImage, accentColor = '#c8973a', helpline, tagline } = data;
     return (
-        <div style={{ width: 600, height: 750, background: 'linear-gradient(160deg,#111827 0%,#1f2937 100%)', position: 'relative', overflow: 'hidden', fontFamily: 'Poppins,sans-serif' }}>
+        <div style={{ width: 600, height: 750, background: 'linear-gradient(160deg,#111827 0%,#1f2937 100%)', position: 'relative', overflow: 'hidden', fontFamily: "'Hind Siliguri', 'Poppins', sans-serif" }}>
             <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 3, background: `linear-gradient(90deg,transparent,${accentColor},transparent)` }} />
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '24px 32px' }}>
                 <LogoBlock invert color="#fff" />
@@ -61,7 +61,7 @@ const G1MidnightGold = ({ data }) => {
 const G2LightEditorial = ({ data }) => {
     const { headline, quote, name, location, stars, profileImage, accentColor = '#b45309', helpline, tagline } = data;
     return (
-        <div style={{ width: 600, height: 750, background: '#fafaf8', border: '1px solid #e8e3da', position: 'relative', overflow: 'hidden', fontFamily: 'Poppins,sans-serif', boxSizing: 'border-box' }}>
+        <div style={{ width: 600, height: 750, background: '#fafaf8', border: '1px solid #e8e3da', position: 'relative', overflow: 'hidden', fontFamily: "'Hind Siliguri', 'Poppins', sans-serif", boxSizing: 'border-box' }}>
             <div style={{ height: 4, background: accentColor }} />
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '20px 32px' }}>
                 <LogoBlock color="#1a1a1a" />
@@ -70,7 +70,7 @@ const G2LightEditorial = ({ data }) => {
             <div style={{ textAlign: 'center', fontFamily: 'Georgia,serif', fontSize: 72, color: accentColor, lineHeight: 0.75, opacity: 0.22, margin: '4px 0' }}>"</div>
             <div style={{ padding: '12px 50px', textAlign: 'center' }}>
                 <h2 style={{ margin: '0 0 18px', fontSize: 18, fontWeight: 700, color: '#1a1a1a' }}>{headline}</h2>
-                <p style={{ fontSize: 16, lineHeight: 1.9, color: '#4a4540', margin: 0, fontStyle: 'italic', fontFamily: 'Georgia,serif' }}>{quote}</p>
+                <p style={{ fontSize: 16, lineHeight: 1.9, color: '#4a4540', margin: 0, fontStyle: 'italic', fontFamily: "'Hind Siliguri', Georgia, serif" }}>{quote}</p>
             </div>
             <div style={{ textAlign: 'center', fontFamily: 'Georgia,serif', fontSize: 72, color: accentColor, lineHeight: 0.75, opacity: 0.22, margin: '14px 0' }}>"</div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '16px 44px' }}>
@@ -103,7 +103,7 @@ const G2LightEditorial = ({ data }) => {
 const G3NavyCard = ({ data }) => {
     const { headline, quote, name, location, stars, profileImage, accentColor = '#38bdf8', helpline, tagline } = data;
     return (
-        <div style={{ width: 600, height: 750, background: 'linear-gradient(140deg,#0f2444 0%,#0d1d38 100%)', position: 'relative', overflow: 'hidden', fontFamily: 'Poppins,sans-serif' }}>
+        <div style={{ width: 600, height: 750, background: 'linear-gradient(140deg,#0f2444 0%,#0d1d38 100%)', position: 'relative', overflow: 'hidden', fontFamily: "'Hind Siliguri', 'Poppins', sans-serif" }}>
             <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(circle at 80% 15%,rgba(255,255,255,0.03) 0%,transparent 55%)' }} />
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '26px 32px' }}>
                 <LogoBlock invert color="#fff" />
@@ -140,7 +140,7 @@ const G3NavyCard = ({ data }) => {
 const G4WarmMinimal = ({ data }) => {
     const { headline, quote, name, location, stars, profileImage, accentColor = '#92400e', helpline, tagline } = data;
     return (
-        <div style={{ width: 600, height: 750, background: '#f7f3ed', position: 'relative', overflow: 'hidden', fontFamily: 'Poppins,sans-serif' }}>
+        <div style={{ width: 600, height: 750, background: '#f7f3ed', position: 'relative', overflow: 'hidden', fontFamily: "'Hind Siliguri', 'Poppins', sans-serif" }}>
             <div style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: 5, background: accentColor }} />
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '28px 32px 28px 40px' }}>
                 <LogoBlock color="#2d2218" />
@@ -152,7 +152,7 @@ const G4WarmMinimal = ({ data }) => {
             <div style={{ display: 'flex', padding: '28px 0', minHeight: 300 }}>
                 <div style={{ flex: 1, padding: '0 30px 0 40px', borderRight: '1px solid #e4ddd4' }}>
                     <div style={{ fontFamily: 'Georgia,serif', fontSize: 44, color: accentColor, lineHeight: 0.8, marginBottom: 14, opacity: 0.6 }}>"</div>
-                    <p style={{ fontSize: 15.5, lineHeight: 1.9, color: '#4a3a2c', margin: 0, fontStyle: 'italic', fontFamily: 'Georgia,serif', textAlign: 'justify' }}>{quote}</p>
+                    <p style={{ fontSize: 15.5, lineHeight: 1.9, color: '#4a3a2c', margin: 0, fontStyle: 'italic', fontFamily: "'Hind Siliguri', Georgia, serif", textAlign: 'justify' }}>{quote}</p>
                 </div>
                 <div style={{ width: 200, flexShrink: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '0 24px', gap: 10 }}>
                     <div style={{ width: 96, height: 96, borderRadius: '50%', overflow: 'hidden', border: `3px solid ${accentColor}77`, boxShadow: '0 4px 16px rgba(0,0,0,0.07)' }}>
@@ -180,7 +180,7 @@ const G4WarmMinimal = ({ data }) => {
 const T1ProfessionalSplit = ({ data }) => {
     const { tutorName, university, monthYear, stars, rating, tutorImage, secondaryImage, badgeLabel, primaryColor = '#1d4ed8', helpline } = data;
     return (
-        <div style={{ width: 600, height: 780, background: '#fff', position: 'relative', overflow: 'hidden', fontFamily: 'Poppins,sans-serif', display: 'flex' }}>
+        <div style={{ width: 600, height: 780, background: '#fff', position: 'relative', overflow: 'hidden', fontFamily: "'Hind Siliguri', 'Poppins', sans-serif", display: 'flex' }}>
             <div style={{ width: 210, flexShrink: 0, background: 'linear-gradient(180deg,#111827 0%,#1f2937 100%)', display: 'flex', flexDirection: 'column', padding: '28px 22px', position: 'relative', overflow: 'hidden' }}>
                 <div style={{ position: 'absolute', bottom: '-30px', right: '-30px', width: 120, height: 120, borderRadius: '50%', background: `${primaryColor}22` }} />
                 <LogoBlock invert color="#fff" />
@@ -226,7 +226,7 @@ const T1ProfessionalSplit = ({ data }) => {
 const T2AwardElegant = ({ data }) => {
     const { tutorName, university, monthYear, stars, rating, tutorImage, badgeLabel, primaryColor = '#065f46', accentGold = '#d97706', helpline } = data;
     return (
-        <div style={{ width: 600, height: 780, background: '#fffef9', border: '16px solid #1c2b1e', position: 'relative', overflow: 'hidden', fontFamily: 'Poppins,sans-serif', boxSizing: 'border-box' }}>
+        <div style={{ width: 600, height: 780, background: '#fffef9', border: '16px solid #1c2b1e', position: 'relative', overflow: 'hidden', fontFamily: "'Hind Siliguri', 'Poppins', sans-serif", boxSizing: 'border-box' }}>
             <div style={{ position: 'absolute', top: 6, bottom: 6, left: 6, right: 6, border: `1.5px solid ${accentGold}55`, pointerEvents: 'none' }} />
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '22px 32px 16px', borderBottom: `1px solid #e8e4d6` }}>
                 <LogoBlock color="#1c2b1e" />
@@ -275,7 +275,7 @@ const T2AwardElegant = ({ data }) => {
 const T3ModernDark = ({ data }) => {
     const { tutorName, university, monthYear, stars, rating, tutorImage, badgeLabel, primaryColor = '#7c3aed', secondaryColor = '#db2777', helpline } = data;
     return (
-        <div style={{ width: 600, height: 780, background: 'linear-gradient(160deg,#0f172a 0%,#1e293b 100%)', position: 'relative', overflow: 'hidden', fontFamily: 'Poppins,sans-serif' }}>
+        <div style={{ width: 600, height: 780, background: 'linear-gradient(160deg,#0f172a 0%,#1e293b 100%)', position: 'relative', overflow: 'hidden', fontFamily: "'Hind Siliguri', 'Poppins', sans-serif" }}>
             <div style={{ height: 3, background: `linear-gradient(90deg,${primaryColor},${secondaryColor})` }} />
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '22px 32px' }}>
                 <LogoBlock invert color="#fff" />
@@ -315,7 +315,7 @@ const T3ModernDark = ({ data }) => {
 const T4NaturalSage = ({ data }) => {
     const { tutorName, university, monthYear, stars, rating, tutorImage, badgeLabel, primaryColor = '#166534', helpline } = data;
     return (
-        <div style={{ width: 600, height: 780, background: '#edf4f0', position: 'relative', overflow: 'hidden', fontFamily: 'Poppins,sans-serif' }}>
+        <div style={{ width: 600, height: 780, background: '#edf4f0', position: 'relative', overflow: 'hidden', fontFamily: "'Hind Siliguri', 'Poppins', sans-serif" }}>
             <div style={{ position: 'absolute', top: -50, right: -50, width: 170, height: 170, borderRadius: '50%', background: '#d4e8de' }} />
             <div style={{ position: 'absolute', bottom: -30, left: -30, width: 130, height: 130, borderRadius: '50%', background: '#d4e8de' }} />
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '26px 32px', position: 'relative' }}>
@@ -354,12 +354,13 @@ const PosterGenerator = () => {
     const [tTpl, setTTpl] = useState(1);
     const [downloading, setDownloading] = useState(false);
     const posterRef = useRef(null);
+    const downloadRef = useRef(null);
 
     const [gData, setGData] = useState({
         headline: 'অভিভাবকের অভিজ্ঞতা',
         quote: 'আমার সন্তানের জীবন বদলে দিয়েছে এই প্ল্যাটফর্ম। সঠিক টিউটর খোঁজা এখন অনেক সহজ। Tuition Seba Forum-এর সেবা সত্যিই প্রশংসনীয়।',
         name: 'নাম লিখুন', location: 'এলাকা, শহর', stars: 5, profileImage: null,
-        accentColor: '#c8973a', helpline: '09613 441122', tagline: '১ প্ল্যাটফমেই সব টিউটর',
+        accentColor: '#c8973a', helpline: '09613 441122', tagline: '১ প্ল্যাটফর্মেই টিউটর ও টিউশন',
     });
     const [tData, setTData] = useState({
         tutorName: 'টিউটরের নাম', university: 'University / Institution Name',
@@ -381,17 +382,30 @@ const PosterGenerator = () => {
     }, []);
 
     const download = async () => {
-        if (!posterRef.current) return;
+        if (!downloadRef.current) return;
         setDownloading(true);
         try {
-            const canvas = await html2canvas(posterRef.current, { scale: 3, useCORS: true, allowTaint: true, backgroundColor: null, logging: false });
+            // Await font readiness to ensure Google Fonts (like Hind Siliguri) render correctly
+            await document.fonts.ready;
+
+            const canvas = await html2canvas(downloadRef.current, { 
+                scale: 3, 
+                useCORS: true, 
+                allowTaint: true, 
+                backgroundColor: null, 
+                logging: false 
+            });
             const a = document.createElement('a');
             a.download = `tsf-poster-${Date.now()}.png`;
             a.href = canvas.toDataURL('image/png', 1.0);
             a.click();
             toast.success('✅ Poster downloaded!');
-        } catch { toast.error('Download failed'); }
-        finally { setDownloading(false); }
+        } catch (err) { 
+            console.error(err);
+            toast.error('Download failed'); 
+        } finally { 
+            setDownloading(false); 
+        }
     };
 
     const inp = { width: '100%', padding: '9px 12px', borderRadius: 10, border: '1.5px solid #e2e8f0', fontSize: 13, outline: 'none', background: '#fafbff', color: '#1e293b', fontFamily: 'Poppins,sans-serif', boxSizing: 'border-box' };
@@ -532,6 +546,21 @@ const PosterGenerator = () => {
                     <p style={{ textAlign: 'center', fontSize: 11, color: '#94a3b8', marginTop: 10 }}>Preview at 85% — exported PNG is 3× full resolution</p>
                 </div>
             </div>
+
+            {/* Hidden export element to guarantee 100% exact full-size rendering for download */}
+            <div style={{ position: 'absolute', left: '-9999px', top: '-9999px' }}>
+                <div ref={downloadRef} style={{ width: 600, overflow: 'hidden' }}>
+                    {category === 'guardian' && gTpl === 1 && <G1MidnightGold data={gData} />}
+                    {category === 'guardian' && gTpl === 2 && <G2LightEditorial data={gData} />}
+                    {category === 'guardian' && gTpl === 3 && <G3NavyCard data={gData} />}
+                    {category === 'guardian' && gTpl === 4 && <G4WarmMinimal data={gData} />}
+                    {category === 'teacher' && tTpl === 1 && <T1ProfessionalSplit data={tData} />}
+                    {category === 'teacher' && tTpl === 2 && <T2AwardElegant data={tData} />}
+                    {category === 'teacher' && tTpl === 3 && <T3ModernDark data={tData} />}
+                    {category === 'teacher' && tTpl === 4 && <T4NaturalSage data={tData} />}
+                </div>
+            </div>
+
             <style>{`@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&family=Hind+Siliguri:wght@400;600;700&display=swap');`}</style>
         </div>
     );

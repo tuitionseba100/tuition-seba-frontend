@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Button, Table, Modal, Form, Row, Col, Card, Tooltip, OverlayTrigger, Badge } from 'react-bootstrap';
-import { FaEdit, FaTrashAlt, FaWhatsapp, FaChevronLeft, FaChevronRight, FaGlobe, FaInfoCircle, FaBell, FaSearch, FaUndo, FaUserPlus } from 'react-icons/fa';
+import { FaEdit, FaTrashAlt, FaWhatsapp, FaChevronLeft, FaChevronRight, FaGlobe, FaInfoCircle, FaBell, FaSearch, FaUndo, FaUserPlus, FaFileImage } from 'react-icons/fa';
 import Select from 'react-select';
 import { axiosWithFallback as axios } from '../services/fetchWithFallback';
 import NavBarPage from './NavbarPage';
@@ -14,6 +14,7 @@ import LoadingCard from '../components/modals/LoadingCard';
 import AppliedListModal from '../components/modals/TuitionApplyListModal';
 import TuitionAssignModal from '../components/modals/TuitionAssignModal';
 import SocialPostModal from '../components/modals/SocialPostModal';
+import TuitionPosterModal from '../components/modals/TuitionPosterModal';
 import locationData from '../data/locations.json';
 
 const TuitionPage = () => {
@@ -76,6 +77,14 @@ const TuitionPage = () => {
     const [isMigrating, setIsMigrating] = useState(false);
     const [showMigrateModal, setShowMigrateModal] = useState(false);
     const [selectedMigrationIds, setSelectedMigrationIds] = useState([]);
+    const [showPosterModal, setShowPosterModal] = useState(false);
+    const [selectedPosterTuition, setSelectedPosterTuition] = useState(null);
+
+    const handleGeneratePoster = React.useCallback((tuition) => {
+        setSelectedPosterTuition(tuition);
+        setShowPosterModal(true);
+    }, []);
+
     const role = localStorage.getItem('role');
     const currentUsername = localStorage.getItem('username');
 
@@ -866,6 +875,7 @@ const TuitionPage = () => {
                                 handleShare={handleShare}
                                 handleOpenAssignModal={handleOpenAssignModal}
                                 openAppliedListModal={openAppliedListModal}
+                                handleGeneratePoster={handleGeneratePoster}
                                 spamStyle={spamStyle}
                                 bestStyle={bestStyle}
                             />
@@ -1301,6 +1311,12 @@ const TuitionPage = () => {
                     fetchTuitionRecords={fetchTuitionRecords}
                     fetchAlertData={fetchAlertData}
                 />
+
+                <TuitionPosterModal
+                    show={showPosterModal}
+                    onHide={() => setShowPosterModal(false)}
+                    tuition={selectedPosterTuition}
+                />
             </Container >
         </>
     );
@@ -1318,6 +1334,7 @@ const MemoizedTuitionTable = React.memo(({
     handleShare,
     handleOpenAssignModal,
     openAppliedListModal,
+    handleGeneratePoster,
     spamStyle,
     bestStyle
 }) => {
@@ -1494,6 +1511,9 @@ const MemoizedTuitionTable = React.memo(({
                                         <FaUserPlus />
                                     </Button>
                                 )}
+                                <Button variant="secondary" style={{ background: 'linear-gradient(45deg, #4f46e5, #7c3aed)', border: 'none' }} onClick={() => handleGeneratePoster(tuition)} title="Generate Poster">
+                                    <FaFileImage />
+                                </Button>
                             </td>
                         </tr>
                     ))

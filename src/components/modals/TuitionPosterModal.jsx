@@ -246,7 +246,7 @@ const VintageTemplate = ({ tuition }) => {
             padding: '4px'
         }}>
             <div style={{ border: '1px solid #cbd5e1', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', padding: '16px' }}>
-                
+
                 {/* Header */}
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '2px solid #8c6d4f', paddingBottom: '12px' }}>
                     <LogoBlock />
@@ -262,7 +262,7 @@ const VintageTemplate = ({ tuition }) => {
 
                 {/* Grid for Details */}
                 <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: '8px' }}>
-                    
+
                     <div style={{ display: 'flex', gap: '10px' }}>
                         <div style={{ flex: 1, background: '#fefcf8', border: '1px solid #dcd1be', padding: '8px 10px' }}>
                             <div style={{ fontSize: '9px', color: '#8c6d4f', fontWeight: 800, textTransform: 'uppercase' }}>Wanted Teacher / শিক্ষক আবশ্যক</div>
@@ -331,9 +331,7 @@ const VintageTemplate = ({ tuition }) => {
                     <div style={{ fontSize: '11px', fontWeight: 'bold', color: '#2d2218', fontStyle: 'italic' }}>
                         📱 App: Search "Tuition Seba Forum" in Play Store
                     </div>
-                    <div style={{ fontSize: '11px', fontWeight: 'bold', color: '#8c6d4f', fontStyle: 'italic' }}>
-                        🔑 Job ID for App Apply: {tuition.tuitionCode}
-                    </div>
+
                     <div style={{ fontSize: '12px', fontWeight: 'bold', color: '#8c6d4f', marginTop: '3px' }}>
                         ☎ Helpline: 09613 441122
                     </div>
@@ -379,10 +377,10 @@ const TuitionPosterModal = ({ show, onHide, tuition }) => {
                 <Modal.Title className="fs-6 fw-bold text-dark">Tuition Poster Generator</Modal.Title>
             </Modal.Header>
             <Modal.Body className="bg-light p-4 d-flex flex-column align-items-center">
-                
+
                 {/* Design Template Selector */}
                 <div className="d-flex gap-2 mb-4 w-100 justify-content-center">
-                    <Button 
+                    <Button
                         variant={selectedTemplate === 'modern' ? 'primary' : 'outline-primary'}
                         size="sm"
                         onClick={() => setSelectedTemplate('modern')}
@@ -390,7 +388,7 @@ const TuitionPosterModal = ({ show, onHide, tuition }) => {
                     >
                         Modern Light
                     </Button>
-                    <Button 
+                    <Button
                         variant={selectedTemplate === 'dark' ? 'dark' : 'outline-dark'}
                         size="sm"
                         onClick={() => setSelectedTemplate('dark')}
@@ -398,7 +396,7 @@ const TuitionPosterModal = ({ show, onHide, tuition }) => {
                     >
                         Dark Neon
                     </Button>
-                    <Button 
+                    <Button
                         variant={selectedTemplate === 'vintage' ? 'warning' : 'outline-warning'}
                         size="sm"
                         onClick={() => setSelectedTemplate('vintage')}
@@ -433,17 +431,17 @@ const TuitionPosterModal = ({ show, onHide, tuition }) => {
                 </div>
 
                 <div className="w-100 d-flex justify-content-center gap-3 mt-3">
-                    <Button 
-                        variant="secondary" 
-                        onClick={onHide} 
+                    <Button
+                        variant="secondary"
+                        onClick={onHide}
                         className="d-flex align-items-center gap-2"
                         disabled={downloading}
                     >
                         <FaTimes /> Close
                     </Button>
-                    <Button 
-                        variant="primary" 
-                        onClick={handleDownload} 
+                    <Button
+                        variant="primary"
+                        onClick={handleDownload}
                         className="d-flex align-items-center gap-2"
                         disabled={downloading}
                     >

@@ -194,7 +194,7 @@ const TuitionPage = () => {
         fetchAlertData();
 
         const fetchUsers = async () => {
-            if (role === 'superadmin') {
+            if (role === 'superadmin' || role === 'admin') {
                 try {
                     const token = localStorage.getItem('token');
                     const response = await axios.get('https://tuition-seba-backend-1.onrender.com/api/user/users', {
@@ -212,16 +212,6 @@ const TuitionPage = () => {
                 } catch (error) {
                     console.error('Error fetching users:', error);
                 }
-            } else if (role === 'admin') {
-                const name = localStorage.getItem('name') || currentUsername;
-                setUserOptions([
-                    { value: 'unassigned', label: 'Unassigned' },
-                    { value: 'assigned', label: 'Assigned' },
-                    {
-                        value: currentUsername,
-                        label: `${name} (${currentUsername})`
-                    }
-                ]);
             }
         };
         fetchUsers();

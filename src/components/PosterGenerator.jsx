@@ -25,14 +25,14 @@ const SignatureBlock = ({ name, color = '#1a3c70', invert = false }) => {
     
     if (isDefault) {
         return (
-            <div style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', height: '40px', overflow: 'visible' }}>
+            <div style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', height: '22px', overflow: 'visible' }}>
                 <img 
-                    src="/signature.png?v=1.0.3" 
+                    src="/signature.png?v=1.0.5" 
                     alt="Signature" 
                     style={{ 
-                        height: '65px', 
+                        height: '35px', 
                         objectFit: 'contain',
-                        marginTop: '-12px',
+                        marginTop: '-5px',
                         filter: invert ? 'brightness(0) invert(1)' : 'none'
                     }} 
                 />
@@ -472,6 +472,173 @@ const T4NaturalSage = ({ data }) => {
 };
 
 /* ══════════════════════════════════════════════════
+   GUARDIAN — 5: MODERN COLORFUL
+   Vibrant mesh gradient with glassmorphism review card
+══════════════════════════════════════════════════ */
+const G5ModernColorful = ({ data }) => {
+    const { headline, quote, name, location, stars, profileImage, helpline, tagline } = data;
+    return (
+        <div style={{ width: 600, height: 750, background: '#ffffff', position: 'relative', overflow: 'hidden', fontFamily: "'Hind Siliguri', 'Poppins', sans-serif" }}>
+            {/* Fine Modular Grid System */}
+            <div style={{ position: 'absolute', inset: 0, display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gridTemplateRows: 'repeat(8, 1fr)', pointerEvents: 'none', opacity: 0.65 }}>
+                {Array.from({ length: 5 }).map((_, i) => (
+                    <div key={`col-${i}`} style={{ gridColumnStart: i + 2, gridColumnEnd: i + 2, gridRowStart: 1, gridRowEnd: 9, borderLeft: '1px solid #f1f5f9', position: 'relative' }} />
+                ))}
+                {Array.from({ length: 7 }).map((_, i) => (
+                    <div key={`row-${i}`} style={{ gridRowStart: i + 2, gridRowEnd: i + 2, gridColumnStart: 1, gridColumnEnd: 7, borderTop: '1px solid #f1f5f9' }} />
+                ))}
+            </div>
+            
+            {/* Tiny Coordinates / Plus Marks at Grid Intersections */}
+            {[[100, 187.5], [200, 375], [300, 187.5], [400, 562.5], [500, 375]].map(([x, y], idx) => (
+                <div key={`plus-${idx}`} style={{ position: 'absolute', left: x - 5, top: y - 7, fontSize: 11, color: '#cbd5e1', fontWeight: 300, pointerEvents: 'none' }}>+</div>
+            ))}
+
+            {/* Glowing 3D-like Color Bubbles */}
+            <div style={{ position: 'absolute', top: '-10%', right: '-10%', width: '280px', height: '280px', borderRadius: '50%', background: 'radial-gradient(circle at 35% 35%, rgba(236,72,153,0.18) 0%, rgba(99,102,241,0.12) 50%, transparent 80%)', filter: 'blur(8px)', pointerEvents: 'none' }} />
+            <div style={{ position: 'absolute', bottom: '-5%', left: '-8%', width: '260px', height: '260px', borderRadius: '50%', background: 'radial-gradient(circle at 35% 35%, rgba(6,182,212,0.18) 0%, rgba(99,102,241,0.1) 60%, transparent 85%)', filter: 'blur(10px)', pointerEvents: 'none' }} />
+            
+            {/* Scattered Crisp Translucent Spheres */}
+            <div style={{ position: 'absolute', top: '15%', left: '12%', width: '42px', height: '42px', borderRadius: '50%', background: 'radial-gradient(circle at 30% 30%, rgba(255,255,255,0.85) 0%, rgba(236,72,153,0.3) 60%, rgba(236,72,153,0.6) 100%)', boxShadow: '0 8px 24px rgba(236,72,153,0.12)', pointerEvents: 'none' }} />
+            <div style={{ position: 'absolute', top: '48%', right: '8%', width: '28px', height: '28px', borderRadius: '50%', background: 'radial-gradient(circle at 30% 30%, rgba(255,255,255,0.85) 0%, rgba(6,182,212,0.25) 60%, rgba(6,182,212,0.5) 100%)', boxShadow: '0 6px 18px rgba(6,182,212,0.1)', pointerEvents: 'none' }} />
+            <div style={{ position: 'absolute', bottom: '30%', left: '6%', width: '20px', height: '20px', borderRadius: '50%', background: 'radial-gradient(circle at 30% 30%, rgba(255,255,255,0.85) 0%, rgba(234,179,8,0.3) 60%, rgba(234,179,8,0.5) 100%)', boxShadow: '0 4px 12px rgba(234,179,8,0.12)', pointerEvents: 'none' }} />
+
+            {/* Header Content */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '28px 32px', position: 'relative', zIndex: 2 }}>
+                <LogoBlock color="#0f172a" />
+                <div style={{ background: 'linear-gradient(135deg, #4f46e5, #ec4899)', borderRadius: 24, padding: '6px 18px', fontSize: 10, color: '#fff', fontWeight: 800, letterSpacing: '1.5px', textTransform: 'uppercase', boxShadow: '0 6px 16px rgba(79,70,229,0.25)' }}>অভিভাবক রিভিউ</div>
+            </div>
+
+            {/* Premium Frosted Card */}
+            <div style={{ position: 'relative', zIndex: 2, margin: '15px 32px 0', background: 'rgba(255,255,255,0.92)', border: '1.5px solid #f1f5f9', borderRadius: '28px', padding: '32px', boxShadow: '0 25px 50px -12px rgba(15,23,42,0.08)' }}>
+                {/* Decorative Quote Icon */}
+                <div style={{ position: 'absolute', top: -18, left: 32, width: 36, height: 36, borderRadius: '50%', background: 'linear-gradient(135deg, #4f46e5, #ec4899)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: 18, fontWeight: 900, boxShadow: '0 4px 12px rgba(79,70,229,0.3)' }}>“</div>
+                
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 18 }}>
+                    <div style={{ width: 4, height: 26, background: 'linear-gradient(180deg, #6366f1, #ec4899)', borderRadius: 2 }} />
+                    <h2 style={{ margin: 0, fontSize: 20, fontWeight: 900, color: '#0f172a', letterSpacing: '-0.3px' }}>{headline}</h2>
+                </div>
+                <p style={{ fontSize: 16, lineHeight: 1.85, color: '#334155', margin: 0, textAlign: 'justify', fontStyle: 'italic' }}>"{quote}"</p>
+            </div>
+
+            {/* Profile Block */}
+            <div style={{ position: 'relative', zIndex: 2, display: 'flex', alignItems: 'center', gap: 18, margin: '32px 32px' }}>
+                <div style={{ width: 76, height: 76, borderRadius: '50%', border: '2.5px solid #fff', overflow: 'hidden', flexShrink: 0, boxShadow: '0 10px 25px rgba(15,23,42,0.1)', background: '#fff' }}>
+                    {profileImage ? <img src={profileImage} alt={name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : <div style={{ width: '100%', height: '100%', background: 'linear-gradient(135deg, #e2e8f0, #cbd5e1)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#475569', fontSize: 26, fontWeight: 800 }}>{name.charAt(0)}</div>}
+                </div>
+                <div>
+                    <div style={{ fontSize: 18, fontWeight: 850, color: '#0f172a', marginBottom: 3, letterSpacing: '-0.2px' }}>{name}</div>
+                    <div style={{ fontSize: 12, color: '#64748b', marginBottom: 8, fontWeight: 600 }}>{location}</div>
+                    <div style={{ display: 'flex', gap: 3 }}>{[1, 2, 3, 4, 5].map(s => <span key={s} style={{ fontSize: 15, color: s <= stars ? '#fbbf24' : '#e2e8f0' }}>★</span>)}</div>
+                </div>
+            </div>
+
+            {/* Bottom Contact Line */}
+            <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: '16px 32px', borderTop: '1px solid #f1f5f9', background: 'rgba(255,255,255,0.92)', backdropFilter: 'blur(12px)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', zIndex: 2 }}>
+                <span style={{ fontSize: 10, color: '#94a3b8', letterSpacing: '1px', fontWeight: 600 }}>{tagline}</span>
+                <span style={{ fontSize: 13, fontWeight: 800, color: '#fff', display: 'inline-flex', alignItems: 'center', gap: '4px', background: 'linear-gradient(135deg, #4f46e5, #ec4899)', padding: '6px 14px', borderRadius: 24, boxShadow: '0 4px 12px rgba(79,70,229,0.2)' }}>
+                    <span>☎</span>
+                    <WhatsAppIcon size={12} color="#fff" />
+                    <span>{helpline}</span>
+                </span>
+            </div>
+        </div>
+    );
+};
+
+/* ══════════════════════════════════════════════════
+   TEACHER — 5: VIBRANT MESH
+   Vibrant tech mesh background, neon gradient pill, clean signature
+══════════════════════════════════════════════════ */
+const T5VibrantMesh = ({ data }) => {
+    const { tutorName, university, monthYear, stars, rating, tutorImage, badgeLabel, helpline, issueDate, authorizedSignature, authorizedTitle } = data;
+    return (
+        <div style={{ width: 600, height: 780, background: '#ffffff', position: 'relative', overflow: 'hidden', fontFamily: "'Hind Siliguri', 'Poppins', sans-serif" }}>
+            {/* Fine Modular Grid System */}
+            <div style={{ position: 'absolute', inset: 0, display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gridTemplateRows: 'repeat(8, 1fr)', pointerEvents: 'none', opacity: 0.65 }}>
+                {Array.from({ length: 5 }).map((_, i) => (
+                    <div key={`col-${i}`} style={{ gridColumnStart: i + 2, gridColumnEnd: i + 2, gridRowStart: 1, gridRowEnd: 9, borderLeft: '1px solid #f1f5f9', position: 'relative' }} />
+                ))}
+                {Array.from({ length: 7 }).map((_, i) => (
+                    <div key={`row-${i}`} style={{ gridRowStart: i + 2, gridRowEnd: i + 2, gridColumnStart: 1, gridColumnEnd: 7, borderTop: '1px solid #f1f5f9' }} />
+                ))}
+            </div>
+            
+            {/* Tiny Coordinates / Plus Marks at Grid Intersections */}
+            {[[100, 195], [200, 390], [300, 195], [400, 585], [500, 390]].map(([x, y], idx) => (
+                <div key={`plus-${idx}`} style={{ position: 'absolute', left: x - 5, top: y - 7, fontSize: 11, color: '#cbd5e1', fontWeight: 300, pointerEvents: 'none' }}>+</div>
+            ))}
+
+            {/* Glowing 3D-like Color Bubbles */}
+            <div style={{ position: 'absolute', top: '-8%', right: '-8%', width: '280px', height: '280px', borderRadius: '50%', background: 'radial-gradient(circle at 35% 35%, rgba(2,132,199,0.15) 0%, rgba(124,58,237,0.1) 50%, transparent 80%)', filter: 'blur(8px)', pointerEvents: 'none' }} />
+            <div style={{ position: 'absolute', bottom: '-5%', right: '-8%', width: '240px', height: '240px', borderRadius: '50%', background: 'radial-gradient(circle at 35% 35%, rgba(236,72,153,0.15) 0%, rgba(6,182,212,0.1) 60%, transparent 85%)', filter: 'blur(10px)', pointerEvents: 'none' }} />
+            
+            {/* Nested Orbital Circles behind Photo */}
+            <div style={{ position: 'absolute', top: '100px', left: '196px', width: '208px', height: '238px', borderRadius: '28px', border: '1.5px dashed rgba(99,102,241,0.25)', pointerEvents: 'none', zIndex: 1 }} />
+            <div style={{ position: 'absolute', top: '90px', left: '186px', width: '228px', height: '258px', borderRadius: '36px', border: '1px solid rgba(236,72,153,0.18)', pointerEvents: 'none', zIndex: 1 }} />
+
+            {/* 3D Colored Spheres floating around */}
+            <div style={{ position: 'absolute', top: '25%', right: '15%', width: '46px', height: '46px', borderRadius: '50%', background: 'radial-gradient(circle at 30% 30%, #ff85a2 0%, #ec4899 55%, #ad1d53 100%)', boxShadow: '0 8px 20px rgba(236,72,153,0.2)', pointerEvents: 'none', zIndex: 1 }} />
+            <div style={{ position: 'absolute', bottom: '32%', left: '10%', width: '34px', height: '34px', borderRadius: '50%', background: 'radial-gradient(circle at 30% 30%, #7dd3fc 0%, #0284c7 60%, #034b72 100%)', boxShadow: '0 6px 15px rgba(2,132,199,0.18)', pointerEvents: 'none', zIndex: 1 }} />
+            <div style={{ position: 'absolute', top: '40%', left: '10%', width: '22px', height: '22px', borderRadius: '50%', background: 'radial-gradient(circle at 30% 30%, #ffe082 0%, #ffb300 65%, #b37d00 100%)', boxShadow: '0 4px 10px rgba(255,179,0,0.15)', pointerEvents: 'none', zIndex: 1 }} />
+
+            {/* Header Content */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '24px 32px', position: 'relative', zIndex: 2 }}>
+                <LogoBlock color="#0f172a" />
+                <div style={{ background: '#f1f5f9', border: '1.5px solid #cbd5e1', borderRadius: 20, padding: '5px 14px', fontSize: 10, color: '#475569', fontWeight: 800, letterSpacing: 1 }}>{monthYear}</div>
+            </div>
+
+            {/* Tutor Image Container */}
+            <div style={{ display: 'flex', justifyContent: 'center', position: 'relative', marginTop: 15, zIndex: 2 }}>
+                <div style={{ width: 176, height: 206, borderRadius: 24, overflow: 'hidden', border: '4.5px solid #fff', boxShadow: '0 15px 35px rgba(15,23,42,0.15)', background: '#fff' }}>
+                    {tutorImage ? <img src={tutorImage} alt={tutorName} style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'top' }} /> : <div style={{ width: '100%', height: '100%', background: '#cbd5e1', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><span style={{ fontSize: 50 }}>👤</span></div>}
+                </div>
+                <div style={{ position: 'absolute', bottom: -14, background: 'linear-gradient(90deg, #ec4899, #f43f5e)', borderRadius: 20, padding: '6px 22px', boxShadow: '0 6px 16px rgba(236,72,153,0.35)' }}>
+                    <span style={{ fontSize: 10, color: '#fff', fontWeight: 800, textTransform: 'uppercase', letterSpacing: 1.5 }}>🏆 {badgeLabel}</span>
+                </div>
+            </div>
+
+            {/* Tutor Details Panel */}
+            <div style={{ position: 'relative', zIndex: 2, margin: '38px 32px 0', background: '#ffffff', border: '1.5px solid #f1f5f9', borderRadius: 28, padding: '22px 24px', boxShadow: '0 20px 40px rgba(15,23,42,0.06)' }}>
+                <div style={{ textAlign: 'center', marginBottom: 12 }}>
+                    <h2 style={{ margin: '0 0 4px', fontSize: 24, fontWeight: 900, color: '#0f172a', letterSpacing: '-0.3px' }}>{tutorName}</h2>
+                    <p style={{ margin: 0, fontSize: 12, color: '#64748b', lineHeight: 1.4, fontWeight: 600 }}>{university}</p>
+                </div>
+                <div style={{ height: 1, background: '#f1f5f9', margin: '12px 0' }} />
+                <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 10 }}>
+                    <div style={{ display: 'flex', gap: 3 }}>{[1, 2, 3, 4, 5].map(s => <span key={s} style={{ fontSize: 18, color: s <= stars ? '#fbbf24' : '#e2e8f0' }}>★</span>)}</div>
+                    <span style={{ fontSize: 20, fontWeight: 900, color: '#0f172a' }}>{rating}</span>
+                </div>
+            </div>
+
+            {/* Bottom Contact / Signature Bar */}
+            <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: '16px 32px', borderTop: '1px solid #f1f5f9', background: 'rgba(255,255,255,0.92)', backdropFilter: 'blur(12px)', zIndex: 2 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
+                    <div style={{ textAlign: 'left' }}>
+                        <div style={{ fontSize: 8, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 2 }}>Date of Issue</div>
+                        <div style={{ fontSize: 11, color: '#0f172a', fontWeight: 700 }}>{issueDate}</div>
+                    </div>
+                    <div style={{ textAlign: 'center', minWidth: 140, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                        <SignatureBlock name={authorizedSignature} color="#1a3c70" invert={false} />
+                        <div style={{ height: 1, width: 90, background: '#e2e8f0', margin: '6px auto 4px' }} />
+                        <div style={{ fontSize: 8, color: '#94a3b8', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.5px' }}>{authorizedTitle}</div>
+                    </div>
+                    <div style={{ textAlign: 'right' }}>
+                        <div style={{ fontSize: 8, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 3 }}>Helpline</div>
+                        <div style={{ fontSize: 11, fontWeight: 800, color: '#fff', display: 'inline-flex', alignItems: 'center', gap: '3px', background: 'linear-gradient(135deg, #0284c7, #4f46e5)', padding: '5px 12px', borderRadius: 24, boxShadow: '0 4px 12px rgba(2,132,199,0.2)' }}>
+                            <span>☎</span>
+                            <WhatsAppIcon size={11} color="#fff" />
+                            <span>{helpline}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+
+/* ══════════════════════════════════════════════════
    MAIN COMPONENT
 ══════════════════════════════════════════════════ */
 const PosterGenerator = () => {
@@ -512,7 +679,7 @@ const PosterGenerator = () => {
         helpline: '01633 920928',
         issueDate: '13 July 2026',
         authorizedSignature: 'Md Mahedi Hasan',
-        authorizedTitle: 'CEO',
+        authorizedTitle: 'Authorized Signature',
     });
 
     const updG = (k, v) => setGData(p => ({ ...p, [k]: v }));
@@ -574,8 +741,8 @@ const PosterGenerator = () => {
         </div>
     );
 
-    const gTplNames = { 1: 'Midnight Gold', 2: 'Light Editorial', 3: 'Navy Card', 4: 'Warm Minimal' };
-    const tTplNames = { 1: 'Professional Split', 2: 'Award Elegant', 3: 'Modern Dark', 4: 'Natural Sage' };
+    const gTplNames = { 1: 'Midnight Gold', 2: 'Light Editorial', 3: 'Navy Card', 4: 'Warm Minimal', 5: 'Modern Colorful' };
+    const tTplNames = { 1: 'Professional Split', 2: 'Award Elegant', 3: 'Modern Dark', 4: 'Natural Sage', 5: 'Vibrant Mesh' };
 
     const activeTpl = category === 'guardian' ? gTpl : tTpl;
     const setActiveTpl = category === 'guardian' ? setGTpl : setTTpl;
@@ -610,7 +777,7 @@ const PosterGenerator = () => {
             <div className="poster-style-selector" style={{ background: '#f8fafc', border: '1.5px solid #e2e8f0', borderRadius: 14, padding: '11px 18px', marginBottom: 22, display: 'flex', alignItems: 'center', gap: 12 }}>
                 <span style={{ fontSize: 11, fontWeight: 700, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.5px', flexShrink: 0 }}>Style:</span>
                 <div style={{ display: 'flex', gap: 8 }}>
-                    {[1, 2, 3, 4].map(id => {
+                    {[1, 2, 3, 4, 5].map(id => {
                         const sel = activeTpl === id;
                         return (
                             <button key={id} onClick={() => setActiveTpl(id)} style={{ width: 36, height: 36, borderRadius: 9, border: sel ? 'none' : '1.5px solid #cbd5e1', background: sel ? mainColor : '#fff', color: sel ? '#fff' : '#475569', fontWeight: 800, fontSize: 14, cursor: 'pointer', fontFamily: 'Poppins', boxShadow: sel ? `0 3px 10px ${mainColor}44` : 'none', transition: 'all 0.15s' }}>{id}</button>
@@ -647,9 +814,6 @@ const PosterGenerator = () => {
                         <div style={fw}><label style={lbl}>Badge Label</label><input style={inp} value={tData.badgeLabel} onChange={e => updT('badgeLabel', e.target.value)} /></div>
                         <div style={{ display: 'flex', gap: 12, ...fw }}>
                             <div style={{ flex: 1 }}><label style={lbl}>Issue / Award Date</label><input style={inp} value={tData.issueDate || ''} onChange={e => updT('issueDate', e.target.value)} /></div>
-                        </div>
-                        <div style={{ display: 'flex', gap: 12, ...fw }}>
-                            <div style={{ flex: 1 }}><label style={lbl}>Authorized Signatory</label><input style={inp} value={tData.authorizedSignature || ''} onChange={e => updT('authorizedSignature', e.target.value)} /></div>
                             <div style={{ flex: 1 }}><label style={lbl}>Signatory Title</label><input style={inp} value={tData.authorizedTitle || ''} onChange={e => updT('authorizedTitle', e.target.value)} /></div>
                         </div>
                         <ImgField label="Tutor Photo" val={tData.tutorImage} onUp={e => onImg(e, updT, 'tutorImage')} onRm={() => updT('tutorImage', null)} h="70px" w="52px" />
@@ -692,10 +856,12 @@ const PosterGenerator = () => {
                                     {category === 'guardian' && gTpl === 2 && <G2LightEditorial data={gData} />}
                                     {category === 'guardian' && gTpl === 3 && <G3NavyCard data={gData} />}
                                     {category === 'guardian' && gTpl === 4 && <G4WarmMinimal data={gData} />}
+                                    {category === 'guardian' && gTpl === 5 && <G5ModernColorful data={gData} />}
                                     {category === 'teacher' && tTpl === 1 && <T1ProfessionalSplit data={tData} />}
                                     {category === 'teacher' && tTpl === 2 && <T2AwardElegant data={tData} />}
                                     {category === 'teacher' && tTpl === 3 && <T3ModernDark data={tData} />}
                                     {category === 'teacher' && tTpl === 4 && <T4NaturalSage data={tData} />}
+                                    {category === 'teacher' && tTpl === 5 && <T5VibrantMesh data={tData} />}
                                 </div>
                             </div>
                         </div>
@@ -711,10 +877,12 @@ const PosterGenerator = () => {
                     {category === 'guardian' && gTpl === 2 && <G2LightEditorial data={gData} />}
                     {category === 'guardian' && gTpl === 3 && <G3NavyCard data={gData} />}
                     {category === 'guardian' && gTpl === 4 && <G4WarmMinimal data={gData} />}
+                    {category === 'guardian' && gTpl === 5 && <G5ModernColorful data={gData} />}
                     {category === 'teacher' && tTpl === 1 && <T1ProfessionalSplit data={tData} />}
                     {category === 'teacher' && tTpl === 2 && <T2AwardElegant data={tData} />}
                     {category === 'teacher' && tTpl === 3 && <T3ModernDark data={tData} />}
                     {category === 'teacher' && tTpl === 4 && <T4NaturalSage data={tData} />}
+                    {category === 'teacher' && tTpl === 5 && <T5VibrantMesh data={tData} />}
                 </div>
             </div>
 

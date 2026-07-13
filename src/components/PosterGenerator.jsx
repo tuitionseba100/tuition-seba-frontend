@@ -20,6 +20,48 @@ const LogoBlock = ({ size = 26, invert = false, color = '#1a1a1a' }) => (
     </div>
 );
 
+const SignatureBlock = ({ name, color = '#1a3c70', invert = false }) => {
+    const isDefault = name === 'Md Mahedi Hasan';
+    
+    if (isDefault) {
+        return (
+            <div style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', height: '40px', overflow: 'visible' }}>
+                <img 
+                    src="/signature.png?v=1.0.3" 
+                    alt="Signature" 
+                    style={{ 
+                        height: '65px', 
+                        objectFit: 'contain',
+                        marginTop: '-12px',
+                        filter: invert ? 'brightness(0) invert(1)' : 'none'
+                    }} 
+                />
+            </div>
+        );
+    }
+
+    // Fallback if custom text is provided in the input field
+    return (
+        <div style={{ position: 'relative', display: 'inline-block', transform: 'rotate(-2deg) skewX(-6deg) translateY(-1px)', margin: '0 auto', textAlign: 'center' }}>
+            <span style={{ 
+                fontFamily: "'Alex Brush', 'Great Vibes', 'Herr Von Muellerhoff', cursive, sans-serif", 
+                fontSize: '11px', 
+                color: color, 
+                fontWeight: 500,
+                letterSpacing: '0.4px',
+                whiteSpace: 'nowrap',
+                display: 'block',
+                textShadow: '0.2px 0.2px 0px rgba(0,0,0,0.08)'
+            }}>
+                {name}
+            </span>
+            <svg width="48" height="5" viewBox="0 0 120 15" style={{ position: 'absolute', bottom: '-2px', left: '10%', right: '10%', opacity: 0.8, pointerEvents: 'none' }}>
+                <path d="M 5,11 Q 45,2 80,10 T 115,7" fill="none" stroke={color} strokeWidth="1.2" strokeLinecap="round" />
+            </svg>
+        </div>
+    );
+};
+
 /* ══════════════════════════════════════════════════
    GUARDIAN — 1: MIDNIGHT GOLD
    Dark charcoal, warm gold accent, clean editorial
@@ -200,7 +242,7 @@ const G4WarmMinimal = ({ data }) => {
    Dark left sidebar + white right photo panel
 ══════════════════════════════════════════════════ */
 const T1ProfessionalSplit = ({ data }) => {
-    const { tutorName, university, monthYear, stars, rating, tutorImage, secondaryImage, badgeLabel, primaryColor = '#1d4ed8', helpline } = data;
+    const { tutorName, university, monthYear, stars, rating, tutorImage, secondaryImage, badgeLabel, primaryColor = '#1d4ed8', helpline, issueDate, authorizedSignature, authorizedTitle } = data;
     return (
         <div style={{ width: 600, height: 780, background: '#fff', position: 'relative', overflow: 'hidden', fontFamily: "'Hind Siliguri', 'Poppins', sans-serif", display: 'flex' }}>
             <div style={{ width: 210, flexShrink: 0, background: 'linear-gradient(180deg,#111827 0%,#1f2937 100%)', display: 'flex', flexDirection: 'column', padding: '28px 22px', position: 'relative', overflow: 'hidden' }}>
@@ -239,6 +281,17 @@ const T1ProfessionalSplit = ({ data }) => {
                         <div style={{ display: 'flex', gap: 2 }}>{[1, 2, 3, 4, 5].map(s => <span key={s} style={{ fontSize: 18, color: s <= stars ? '#f59e0b' : '#e5e7eb' }}>★</span>)}</div>
                         <span style={{ fontSize: 16, fontWeight: 800, color: primaryColor }}>{rating}</span>
                     </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginTop: 12, borderTop: '1px dashed #e2e8f0', paddingTop: 10 }}>
+                        <div>
+                            <div style={{ fontSize: 8, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Date of Award</div>
+                            <div style={{ fontSize: 11, fontWeight: 600, color: '#334155' }}>{issueDate}</div>
+                        </div>
+                        <div style={{ textAlign: 'right', display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
+                            <SignatureBlock name={authorizedSignature} color="#1b3a4b" />
+                            <div style={{ height: 1, width: 80, background: '#cbd5e1', margin: '4px 0 2px' }} />
+                            <div style={{ fontSize: 8, color: '#94a3b8', fontWeight: 600, textTransform: 'uppercase' }}>{authorizedTitle}</div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -250,7 +303,7 @@ const T1ProfessionalSplit = ({ data }) => {
    Modern certificate, gold accents, framed photo
 ══════════════════════════════════════════════════ */
 const T2AwardElegant = ({ data }) => {
-    const { tutorName, university, monthYear, stars, rating, tutorImage, badgeLabel, primaryColor = '#065f46', accentGold = '#d97706', helpline } = data;
+    const { tutorName, university, monthYear, stars, rating, tutorImage, badgeLabel, primaryColor = '#065f46', accentGold = '#d97706', helpline, issueDate, authorizedSignature, authorizedTitle } = data;
     return (
         <div style={{ width: 600, height: 780, background: '#fffef9', border: '16px solid #1c2b1e', position: 'relative', overflow: 'hidden', fontFamily: "'Hind Siliguri', 'Poppins', sans-serif", boxSizing: 'border-box' }}>
             <div style={{ position: 'absolute', top: 6, bottom: 6, left: 6, right: 6, border: `1.5px solid ${accentGold}55`, pointerEvents: 'none' }} />
@@ -286,12 +339,23 @@ const T2AwardElegant = ({ data }) => {
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'center', gap: 3, marginBottom: 16 }}>{[1, 2, 3, 4, 5].map(s => <span key={s} style={{ fontSize: 18, color: s <= stars ? accentGold : '#ddd' }}>★</span>)}</div>
             </div>
-            <div style={{ position: 'absolute', bottom: 16, left: 40, right: 40, display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: 10, borderTop: '1px solid #e8e4d6' }}>
-                <div style={{ fontSize: 11, color: '#999', fontStyle: 'italic' }}>Authorized by TSF</div>
-                <div style={{ fontSize: 12, fontWeight: 700, color: '#333', display: 'flex', alignItems: 'center', gap: '3px' }}>
-                    <span>☎</span>
-                    <WhatsAppIcon size={12} />
-                    <span>{helpline}</span>
+            <div style={{ position: 'absolute', bottom: 20, left: 40, right: 40, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', paddingTop: 12, borderTop: '1.5px solid #e8e4d6' }}>
+                <div style={{ textAlign: 'left' }}>
+                    <div style={{ fontSize: 8, color: '#888', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 2 }}>Issue Date</div>
+                    <div style={{ fontSize: 11, fontWeight: 700, color: '#1c2b1e' }}>{issueDate}</div>
+                </div>
+                <div style={{ textAlign: 'center', minWidth: 140, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                    <SignatureBlock name={authorizedSignature} color="#0f2942" />
+                    <div style={{ height: 1, width: 90, background: `${accentGold}66`, margin: '6px auto 4px' }} />
+                    <div style={{ fontSize: 8, color: '#888', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px' }}>{authorizedTitle}</div>
+                </div>
+                <div style={{ textAlign: 'right' }}>
+                    <div style={{ fontSize: 8, color: '#888', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 2 }}>Verification</div>
+                    <div style={{ fontSize: 11, fontWeight: 700, color: '#1c2b1e', display: 'inline-flex', alignItems: 'center', gap: '3px' }}>
+                        <span>☎</span>
+                        <WhatsAppIcon size={11} color="#1c2b1e" />
+                        <span>{helpline}</span>
+                    </div>
                 </div>
             </div>
         </div>
@@ -303,7 +367,7 @@ const T2AwardElegant = ({ data }) => {
    Slate dark, photo card, gradient pill badge
 ══════════════════════════════════════════════════ */
 const T3ModernDark = ({ data }) => {
-    const { tutorName, university, monthYear, stars, rating, tutorImage, badgeLabel, primaryColor = '#7c3aed', secondaryColor = '#db2777', helpline } = data;
+    const { tutorName, university, monthYear, stars, rating, tutorImage, badgeLabel, primaryColor = '#7c3aed', secondaryColor = '#db2777', helpline, issueDate, authorizedSignature, authorizedTitle } = data;
     return (
         <div style={{ width: 600, height: 780, background: 'linear-gradient(160deg,#0f172a 0%,#1e293b 100%)', position: 'relative', overflow: 'hidden', fontFamily: "'Hind Siliguri', 'Poppins', sans-serif" }}>
             <div style={{ height: 3, background: `linear-gradient(90deg,${primaryColor},${secondaryColor})` }} />
@@ -330,13 +394,26 @@ const T3ModernDark = ({ data }) => {
                     <span style={{ fontSize: 22, fontWeight: 800, color: '#fff' }}>{rating}</span>
                 </div>
             </div>
-            <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: '15px 32px', borderTop: '1px solid rgba(255,255,255,0.05)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.25)', letterSpacing: 1 }}>Tuition Seba Forum</span>
-                <span style={{ fontSize: 13, fontWeight: 700, color: 'rgba(255,255,255,0.8)', display: 'inline-flex', alignItems: 'center', gap: '3px' }}>
-                    <span>☎</span>
-                    <WhatsAppIcon size={12} />
-                    <span>{helpline}</span>
-                </span>
+            <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: '16px 32px', borderTop: '1px solid rgba(255,255,255,0.05)', background: 'rgba(15,23,42,0.6)', backdropFilter: 'blur(8px)' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
+                    <div style={{ textAlign: 'left' }}>
+                        <div style={{ fontSize: 8, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Date of Issue</div>
+                        <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.8)', fontWeight: 600 }}>{issueDate}</div>
+                    </div>
+                    <div style={{ textAlign: 'center', minWidth: 140, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                        <SignatureBlock name={authorizedSignature} color="#38bdf8" invert={true} />
+                        <div style={{ height: 1, width: 90, background: 'rgba(255,255,255,0.15)', margin: '6px auto 4px' }} />
+                        <div style={{ fontSize: 8, color: 'rgba(255,255,255,0.4)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px' }}>{authorizedTitle}</div>
+                    </div>
+                    <div style={{ textAlign: 'right' }}>
+                        <div style={{ fontSize: 8, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 2 }}>Helpline</div>
+                        <div style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.8)', display: 'inline-flex', alignItems: 'center', gap: '3px' }}>
+                            <span>☎</span>
+                            <WhatsAppIcon size={11} color="rgba(255,255,255,0.8)" />
+                            <span>{helpline}</span>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     );
@@ -347,7 +424,7 @@ const T3ModernDark = ({ data }) => {
    Sage green, arch photo, clean editorial
 ══════════════════════════════════════════════════ */
 const T4NaturalSage = ({ data }) => {
-    const { tutorName, university, monthYear, stars, rating, tutorImage, badgeLabel, primaryColor = '#166534', helpline } = data;
+    const { tutorName, university, monthYear, stars, rating, tutorImage, badgeLabel, primaryColor = '#166534', helpline, issueDate, authorizedSignature, authorizedTitle } = data;
     return (
         <div style={{ width: 600, height: 780, background: '#edf4f0', position: 'relative', overflow: 'hidden', fontFamily: "'Hind Siliguri', 'Poppins', sans-serif" }}>
             <div style={{ position: 'absolute', top: -50, right: -50, width: 170, height: 170, borderRadius: '50%', background: '#d4e8de' }} />
@@ -371,13 +448,24 @@ const T4NaturalSage = ({ data }) => {
                     <span style={{ fontSize: 22, fontWeight: 900, color: primaryColor }}>{rating}</span>
                 </div>
             </div>
-            <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: '13px 32px', display: 'flex', justifyContent: 'space-between', borderTop: '1px solid #c8ddd4', background: '#e0eee6' }}>
-                <span style={{ fontSize: 10, color: '#8aab9a' }}>Tuition Seba Forum</span>
-                <span style={{ fontSize: 12, fontWeight: 700, color: '#1c3328', display: 'inline-flex', alignItems: 'center', gap: '3px' }}>
-                    <span>☎</span>
-                    <WhatsAppIcon size={12} />
-                    <span>{helpline}</span>
-                </span>
+            <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: '14px 32px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', borderTop: '1px solid #c8ddd4', background: '#e0eee6' }}>
+                <div style={{ textAlign: 'left' }}>
+                    <div style={{ fontSize: 8, color: '#7ba08d', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Awarded Date</div>
+                    <div style={{ fontSize: 11, color: '#1c3328', fontWeight: 600 }}>{issueDate}</div>
+                </div>
+                <div style={{ textAlign: 'center', minWidth: 140, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                    <SignatureBlock name={authorizedSignature} color="#1c3328" />
+                    <div style={{ height: 1, width: 90, background: '#c8ddd4', margin: '4px auto 4px' }} />
+                    <div style={{ fontSize: 8, color: '#7ba08d', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px' }}>{authorizedTitle}</div>
+                </div>
+                <div style={{ textAlign: 'right' }}>
+                    <div style={{ fontSize: 8, color: '#7ba08d', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 2 }}>TSF Helpline</div>
+                    <div style={{ fontSize: 11, fontWeight: 700, color: '#1c3328', display: 'inline-flex', alignItems: 'center', gap: '3px' }}>
+                        <span>☎</span>
+                        <WhatsAppIcon size={11} color="#1c3328" />
+                        <span>{helpline}</span>
+                    </div>
+                </div>
             </div>
         </div>
     );
@@ -422,6 +510,9 @@ const PosterGenerator = () => {
         tutorImage: null, secondaryImage: null, badgeLabel: 'TUTOR OF THE MONTH',
         primaryColor: '#1d4ed8', secondaryColor: '#db2777', accentGold: '#d97706',
         helpline: '01633 920928',
+        issueDate: '13 July 2026',
+        authorizedSignature: 'Md Mahedi Hasan',
+        authorizedTitle: 'CEO',
     });
 
     const updG = (k, v) => setGData(p => ({ ...p, [k]: v }));
@@ -555,8 +646,11 @@ const PosterGenerator = () => {
                         <div style={fw}><label style={lbl}>Month &amp; Year</label><input style={inp} value={tData.monthYear} onChange={e => updT('monthYear', e.target.value)} /></div>
                         <div style={fw}><label style={lbl}>Badge Label</label><input style={inp} value={tData.badgeLabel} onChange={e => updT('badgeLabel', e.target.value)} /></div>
                         <div style={{ display: 'flex', gap: 12, ...fw }}>
-                            <div style={{ flex: 1 }}><label style={lbl}>Stars</label><Stars val={tData.stars} onChange={v => updT('stars', v)} /></div>
-                            <div><label style={lbl}>Rating</label><input style={{ ...inp, width: 68 }} value={tData.rating} onChange={e => updT('rating', e.target.value)} /></div>
+                            <div style={{ flex: 1 }}><label style={lbl}>Issue / Award Date</label><input style={inp} value={tData.issueDate || ''} onChange={e => updT('issueDate', e.target.value)} /></div>
+                        </div>
+                        <div style={{ display: 'flex', gap: 12, ...fw }}>
+                            <div style={{ flex: 1 }}><label style={lbl}>Authorized Signatory</label><input style={inp} value={tData.authorizedSignature || ''} onChange={e => updT('authorizedSignature', e.target.value)} /></div>
+                            <div style={{ flex: 1 }}><label style={lbl}>Signatory Title</label><input style={inp} value={tData.authorizedTitle || ''} onChange={e => updT('authorizedTitle', e.target.value)} /></div>
                         </div>
                         <ImgField label="Tutor Photo" val={tData.tutorImage} onUp={e => onImg(e, updT, 'tutorImage')} onRm={() => updT('tutorImage', null)} h="70px" w="52px" />
                         {tTpl === 1 && <ImgField label="Secondary Photo" val={tData.secondaryImage} onUp={e => onImg(e, updT, 'secondaryImage')} onRm={() => updT('secondaryImage', null)} h="50px" w="65px" />}
@@ -625,7 +719,7 @@ const PosterGenerator = () => {
             </div>
 
             <style>{`
-                @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&family=Hind+Siliguri:wght@400;600;700&display=swap');
+                @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&family=Hind+Siliguri:wght@400;600;700&family=Great+Vibes&family=Herr+Von+Muellerhoff&display=swap');
 
                 @media (max-width: 991px) {
                     .poster-header {

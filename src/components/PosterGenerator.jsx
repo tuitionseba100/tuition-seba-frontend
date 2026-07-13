@@ -62,6 +62,45 @@ const SignatureBlock = ({ name, color = '#1a3c70', invert = false }) => {
     );
 };
 
+const WatermarkBlock = ({ invert = false }) => (
+    <div style={{
+        position: 'absolute',
+        top: '52%',
+        left: '50%',
+        transform: 'translate(-50%, -50%) rotate(-25deg)',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        opacity: invert ? 0.015 : 0.03,
+        pointerEvents: 'none',
+        zIndex: 0,
+        userSelect: 'none'
+    }}>
+        <img 
+            src="/img/TSF LOGO TRANSPARENT.png" 
+            alt="" 
+            style={{ 
+                width: '180px', 
+                height: '180px', 
+                objectFit: 'contain',
+                filter: invert ? 'brightness(0) invert(1)' : 'none',
+                marginBottom: '10px'
+            }} 
+        />
+        <div style={{
+            fontFamily: 'Poppins, sans-serif',
+            fontSize: '56px',
+            fontWeight: 900,
+            letterSpacing: '4px',
+            color: invert ? '#fff' : '#0f172a',
+            lineHeight: 1
+        }}>
+            TSF
+        </div>
+    </div>
+);
+
 /* ══════════════════════════════════════════════════
    GUARDIAN — 1: MIDNIGHT GOLD
    Dark charcoal, warm gold accent, clean editorial
@@ -70,7 +109,8 @@ const G1MidnightGold = ({ data }) => {
     const { headline, quote, name, location, stars, profileImage, accentColor = '#c8973a', helpline, tagline } = data;
     return (
         <div style={{ width: 600, height: 750, background: 'linear-gradient(160deg,#111827 0%,#1f2937 100%)', position: 'relative', overflow: 'hidden', fontFamily: "'Hind Siliguri', 'Poppins', sans-serif" }}>
-            <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 3, background: `linear-gradient(90deg,transparent,${accentColor},transparent)` }} />
+            <WatermarkBlock invert={true} />
+            <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 3, background: `linear-gradient(90deg,transparent,${accentColor},transparent)`, zIndex: 1 }} />
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '24px 32px' }}>
                 <LogoBlock invert color="#fff" />
                 <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.35)', letterSpacing: 2, textTransform: 'uppercase' }}>অভিভাবক সমীক্ষা</div>
@@ -114,7 +154,8 @@ const G2LightEditorial = ({ data }) => {
     const { headline, quote, name, location, stars, profileImage, accentColor = '#b45309', helpline, tagline } = data;
     return (
         <div style={{ width: 600, height: 750, background: '#fafaf8', border: '1px solid #e8e3da', position: 'relative', overflow: 'hidden', fontFamily: "'Hind Siliguri', 'Poppins', sans-serif", boxSizing: 'border-box' }}>
-            <div style={{ height: 4, background: accentColor }} />
+            <WatermarkBlock invert={false} />
+            <div style={{ height: 4, background: accentColor, position: 'relative', zIndex: 1 }} />
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '20px 32px' }}>
                 <LogoBlock color="#1a1a1a" />
                 <div style={{ background: `${accentColor}15`, border: `1px solid ${accentColor}40`, borderRadius: 20, padding: '4px 14px', fontSize: 10, color: accentColor, fontWeight: 700, letterSpacing: 1, textTransform: 'uppercase' }}>Review</div>
@@ -160,7 +201,8 @@ const G3NavyCard = ({ data }) => {
     const { headline, quote, name, location, stars, profileImage, accentColor = '#38bdf8', helpline, tagline } = data;
     return (
         <div style={{ width: 600, height: 750, background: 'linear-gradient(140deg,#0f2444 0%,#0d1d38 100%)', position: 'relative', overflow: 'hidden', fontFamily: "'Hind Siliguri', 'Poppins', sans-serif" }}>
-            <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(circle at 80% 15%,rgba(255,255,255,0.03) 0%,transparent 55%)' }} />
+            <WatermarkBlock invert={true} />
+            <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(circle at 80% 15%,rgba(255,255,255,0.03) 0%,transparent 55%)', zIndex: 1 }} />
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '26px 32px' }}>
                 <LogoBlock invert color="#fff" />
                 <div style={{ width: 38, height: 38, borderRadius: '50%', border: `1px solid ${accentColor}44`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -201,7 +243,8 @@ const G4WarmMinimal = ({ data }) => {
     const { headline, quote, name, location, stars, profileImage, accentColor = '#92400e', helpline, tagline } = data;
     return (
         <div style={{ width: 600, height: 750, background: '#f7f3ed', position: 'relative', overflow: 'hidden', fontFamily: "'Hind Siliguri', 'Poppins', sans-serif" }}>
-            <div style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: 5, background: accentColor }} />
+            <WatermarkBlock invert={false} />
+            <div style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: 5, background: accentColor, zIndex: 1 }} />
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '28px 32px 28px 40px' }}>
                 <LogoBlock color="#2d2218" />
                 <div style={{ fontSize: 10, color: '#bbb', textTransform: 'uppercase', letterSpacing: 2 }}>অভিভাবক মতামত</div>
@@ -245,6 +288,7 @@ const T1ProfessionalSplit = ({ data }) => {
     const { tutorName, university, monthYear, stars, rating, tutorImage, secondaryImage, badgeLabel, primaryColor = '#1d4ed8', helpline, issueDate, authorizedSignature, authorizedTitle } = data;
     return (
         <div style={{ width: 600, height: 780, background: '#fff', position: 'relative', overflow: 'hidden', fontFamily: "'Hind Siliguri', 'Poppins', sans-serif", display: 'flex' }}>
+            <WatermarkBlock invert={false} />
             <div style={{ width: 210, flexShrink: 0, background: 'linear-gradient(180deg,#111827 0%,#1f2937 100%)', display: 'flex', flexDirection: 'column', padding: '28px 22px', position: 'relative', overflow: 'hidden' }}>
                 <div style={{ position: 'absolute', bottom: '-30px', right: '-30px', width: 120, height: 120, borderRadius: '50%', background: `${primaryColor}22` }} />
                 <LogoBlock invert color="#fff" />
@@ -306,6 +350,7 @@ const T2AwardElegant = ({ data }) => {
     const { tutorName, university, monthYear, stars, rating, tutorImage, badgeLabel, primaryColor = '#065f46', accentGold = '#d97706', helpline, issueDate, authorizedSignature, authorizedTitle } = data;
     return (
         <div style={{ width: 600, height: 780, background: '#fffef9', border: '16px solid #1c2b1e', position: 'relative', overflow: 'hidden', fontFamily: "'Hind Siliguri', 'Poppins', sans-serif", boxSizing: 'border-box' }}>
+            <WatermarkBlock invert={false} />
             <div style={{ position: 'absolute', top: 6, bottom: 6, left: 6, right: 6, border: `1.5px solid ${accentGold}55`, pointerEvents: 'none' }} />
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '22px 32px 16px', borderBottom: `1px solid #e8e4d6` }}>
                 <LogoBlock color="#1c2b1e" />
@@ -370,7 +415,8 @@ const T3ModernDark = ({ data }) => {
     const { tutorName, university, monthYear, stars, rating, tutorImage, badgeLabel, primaryColor = '#7c3aed', secondaryColor = '#db2777', helpline, issueDate, authorizedSignature, authorizedTitle } = data;
     return (
         <div style={{ width: 600, height: 780, background: 'linear-gradient(160deg,#0f172a 0%,#1e293b 100%)', position: 'relative', overflow: 'hidden', fontFamily: "'Hind Siliguri', 'Poppins', sans-serif" }}>
-            <div style={{ height: 3, background: `linear-gradient(90deg,${primaryColor},${secondaryColor})` }} />
+            <WatermarkBlock invert={true} />
+            <div style={{ height: 3, background: `linear-gradient(90deg,${primaryColor},${secondaryColor})`, position: 'relative', zIndex: 1 }} />
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '22px 32px' }}>
                 <LogoBlock invert color="#fff" />
                 <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', letterSpacing: 1 }}>{monthYear}</div>
@@ -427,6 +473,7 @@ const T4NaturalSage = ({ data }) => {
     const { tutorName, university, monthYear, stars, rating, tutorImage, badgeLabel, primaryColor = '#166534', helpline, issueDate, authorizedSignature, authorizedTitle } = data;
     return (
         <div style={{ width: 600, height: 780, background: '#edf4f0', position: 'relative', overflow: 'hidden', fontFamily: "'Hind Siliguri', 'Poppins', sans-serif" }}>
+            <WatermarkBlock invert={false} />
             <div style={{ position: 'absolute', top: -50, right: -50, width: 170, height: 170, borderRadius: '50%', background: '#d4e8de' }} />
             <div style={{ position: 'absolute', bottom: -30, left: -30, width: 130, height: 130, borderRadius: '50%', background: '#d4e8de' }} />
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '26px 32px', position: 'relative' }}>
@@ -479,6 +526,7 @@ const G5ModernColorful = ({ data }) => {
     const { headline, quote, name, location, stars, profileImage, helpline, tagline } = data;
     return (
         <div style={{ width: 600, height: 750, background: '#ffffff', position: 'relative', overflow: 'hidden', fontFamily: "'Hind Siliguri', 'Poppins', sans-serif" }}>
+            <WatermarkBlock invert={false} />
             {/* Fine Modular Grid System */}
             <div style={{ position: 'absolute', inset: 0, display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gridTemplateRows: 'repeat(8, 1fr)', pointerEvents: 'none', opacity: 0.65 }}>
                 {Array.from({ length: 5 }).map((_, i) => (
@@ -554,6 +602,7 @@ const T5VibrantMesh = ({ data }) => {
     const { tutorName, university, monthYear, stars, rating, tutorImage, badgeLabel, helpline, issueDate, authorizedSignature, authorizedTitle } = data;
     return (
         <div style={{ width: 600, height: 780, background: '#ffffff', position: 'relative', overflow: 'hidden', fontFamily: "'Hind Siliguri', 'Poppins', sans-serif" }}>
+            <WatermarkBlock invert={false} />
             {/* Fine Modular Grid System */}
             <div style={{ position: 'absolute', inset: 0, display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gridTemplateRows: 'repeat(8, 1fr)', pointerEvents: 'none', opacity: 0.65 }}>
                 {Array.from({ length: 5 }).map((_, i) => (

@@ -47,7 +47,24 @@ const ModernLightTemplate = ({ tuition }) => {
             border: '12px solid #f1f5f9'
         }}>
             <div style={{ height: '5px', width: '100%', background: 'linear-gradient(90deg, #1e3a8a, #3b82f6, #10b981)' }} />
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '20px 28px 10px 28px' }}>
+            {/* TSF Watermark */}
+            <div style={{
+                position: 'absolute',
+                top: '52%',
+                left: '50%',
+                transform: 'translate(-50%, -50%) rotate(-30deg)',
+                fontSize: '130px',
+                fontWeight: 900,
+                color: 'rgba(30, 58, 138, 0.035)',
+                whiteSpace: 'nowrap',
+                pointerEvents: 'none',
+                fontFamily: 'Poppins, sans-serif',
+                zIndex: 0,
+                userSelect: 'none'
+            }}>
+                TSF
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '20px 28px 10px 28px', position: 'relative', zIndex: 1 }}>
                 <LogoBlock />
                 <div style={{ background: 'linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%)', borderRadius: '30px', padding: '5px 16px', fontSize: '11px', fontWeight: 800, letterSpacing: '1px', color: '#fff', textTransform: 'uppercase' }}>TUTOR WANTED</div>
             </div>
@@ -153,7 +170,24 @@ const DarkNeonTemplate = ({ tuition }) => {
             border: '12px solid #1e293b'
         }}>
             <div style={{ height: '5px', width: '100%', background: 'linear-gradient(90deg, #ec4899, #8b5cf6, #3b82f6)' }} />
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '20px 28px 10px 28px' }}>
+            {/* TSF Watermark */}
+            <div style={{
+                position: 'absolute',
+                top: '52%',
+                left: '50%',
+                transform: 'translate(-50%, -50%) rotate(-30deg)',
+                fontSize: '130px',
+                fontWeight: 900,
+                color: 'rgba(255, 255, 255, 0.02)',
+                whiteSpace: 'nowrap',
+                pointerEvents: 'none',
+                fontFamily: 'Poppins, sans-serif',
+                zIndex: 0,
+                userSelect: 'none'
+            }}>
+                TSF
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '20px 28px 10px 28px', position: 'relative', zIndex: 1 }}>
                 <LogoBlock invert />
                 <div style={{ background: 'linear-gradient(90deg, #ec4899 0%, #8b5cf6 100%)', borderRadius: '30px', padding: '5px 16px', fontSize: '11px', fontWeight: 800, letterSpacing: '1px', color: '#fff', textTransform: 'uppercase' }}>TUTOR WANTED</div>
             </div>
@@ -260,10 +294,27 @@ const VintageTemplate = ({ tuition }) => {
             border: '14px double #8c6d4f',
             padding: '4px'
         }}>
-            <div style={{ border: '1px solid #cbd5e1', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', padding: '16px' }}>
+            <div style={{ border: '1px solid #cbd5e1', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', padding: '16px', position: 'relative' }}>
+                {/* TSF Watermark */}
+                <div style={{
+                    position: 'absolute',
+                    top: '52%',
+                    left: '50%',
+                    transform: 'translate(-50%, -50%) rotate(-30deg)',
+                    fontSize: '130px',
+                    fontWeight: 900,
+                    color: 'rgba(140, 109, 79, 0.04)',
+                    whiteSpace: 'nowrap',
+                    pointerEvents: 'none',
+                    fontFamily: 'Georgia, serif',
+                    zIndex: 0,
+                    userSelect: 'none'
+                }}>
+                    TSF
+                </div>
 
                 {/* Header */}
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '2px solid #8c6d4f', paddingBottom: '12px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '2px solid #8c6d4f', paddingBottom: '12px', position: 'relative', zIndex: 1 }}>
                     <LogoBlock />
                     <div style={{ border: '1.5px solid #8c6d4f', padding: '3px 12px', fontSize: '11px', fontWeight: 800, color: '#8c6d4f', letterSpacing: '2px', textTransform: 'uppercase' }}>TUTOR WANTED</div>
                 </div>

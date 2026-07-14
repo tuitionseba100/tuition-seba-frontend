@@ -36,7 +36,7 @@ const PaymentInvoice = ({ payment, show, onClose }) => {
           <style>
             @page { size: A4; margin: 0; }
             body { font-family: 'Roboto', sans-serif; margin:0; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-            .invoice-container { width: 210mm; height: 297mm; padding: 15mm; box-sizing: border-box; position: relative; background: #fff; color: #212529; font-size: 13px; }
+            .invoice-container { width: 210mm; height: 296mm; padding: 15mm; box-sizing: border-box; position: relative; background: #fff; color: #212529; font-size: 13px; overflow: hidden; }
             .watermark { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-45deg); font-size: 60px; color: rgba(13,110,253,0.08); font-weight: bold; pointer-events: none; white-space: nowrap; z-index: 0; }
             .header-info h3 { margin: 0; font-size: 1.2rem; }
             .header-info p { margin: 0; font-size: 11px; }
@@ -51,10 +51,25 @@ const PaymentInvoice = ({ payment, show, onClose }) => {
     `);
     printWindow.document.close();
     printWindow.focus();
-    setTimeout(() => {
+
+    const runPrint = () => {
       printWindow.print();
       printWindow.close();
-    }, 300);
+    };
+
+    // Poll for document load completion to ensure stylesheets are ready
+    let checkInterval = setInterval(() => {
+      if (printWindow.document.readyState === 'complete') {
+        clearInterval(checkInterval);
+        setTimeout(runPrint, 200); // Small buffer for layout engine to stabilize
+      }
+    }, 50);
+
+    // Fallback safety timeout
+    setTimeout(() => {
+      clearInterval(checkInterval);
+      runPrint();
+    }, 2500);
   };
 
   return (

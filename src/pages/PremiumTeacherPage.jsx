@@ -44,7 +44,8 @@ const PremiumTeacherPage = () => {
         currentArea: '',
         status: '',
         gender: '',
-        uniCode: ''
+        uniCode: '',
+        referStatus: ''
     });
 
     const [appliedFilters, setAppliedFilters] = useState({
@@ -55,7 +56,8 @@ const PremiumTeacherPage = () => {
         currentArea: '',
         status: '',
         gender: '',
-        uniCode: ''
+        uniCode: '',
+        referStatus: ''
     });
 
     const searchFields = [
@@ -65,11 +67,12 @@ const PremiumTeacherPage = () => {
             key: 'uniCode', label: 'UniCode', type: 'select', options: ['CMC', 'CUET', 'CU Science', 'CU Arts', 'CU Commerce', 'CVASU', 'Private Science', 'Private Commerce', 'Private Arts', 'National Science', 'National Arts', 'National Commerce', 'Arabic', 'NC English', 'BC English', 'Special']
             , col: 1
         },
-        { key: 'name', label: 'Name', type: 'text', col: 2 },
+        { key: 'name', label: 'Name', type: 'text', col: 1 },
         { key: 'phone', label: 'Phone|Alt.|WhatsApp', type: 'text', col: 2 },
         { key: 'currentArea', label: 'Area', type: 'text', col: 2 },
         { key: 'status', label: 'Status', type: 'select', options: ['pending', 'under review', 'pending payment', 'Must Advance', 'After Confirmation', 'After Salary', '30% Advance', 'rejected', 'Free - Must Advance', 'verified', 'suspended', 'Not interested'], col: 1 },
-        { key: 'gender', label: 'Gender', type: 'select', options: ['male', 'female'], col: 1 }
+        { key: 'gender', label: 'Gender', type: 'select', options: ['male', 'female'], col: 1 },
+        { key: 'referStatus', label: 'Refer Status', type: 'select', options: ['pending', 'in review', 'canceled', 'spam', 'paid'], col: 1 }
     ];
 
     const fieldConfig = [
@@ -220,7 +223,8 @@ const PremiumTeacherPage = () => {
             currentArea: '',
             status: '',
             gender: '',
-            uniCode: ''
+            uniCode: '',
+            referStatus: ''
         };
         setSearchInputs(resetFilters);
         setAppliedFilters(resetFilters);

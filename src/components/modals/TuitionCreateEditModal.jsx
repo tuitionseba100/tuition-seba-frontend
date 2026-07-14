@@ -62,7 +62,6 @@ const modalStyles = `
         box-shadow: 0 0 6px rgba(13, 110, 253, 0.25) !important;
         outline: none !important;
     }
-    /* Spinner overlay */
     .saving-overlay {
         position: absolute;
         top: 0; left: 0; right: 0; bottom: 0;
@@ -75,6 +74,38 @@ const modalStyles = `
         border-radius: 0.375rem;
         pointer-events: none;
         user-select: none;
+    }
+    .segmented-control {
+        display: inline-flex;
+        background-color: #f1f3f5;
+        padding: 4px;
+        border-radius: 999px;
+        border: 1px solid #ced4da;
+    }
+    .segmented-btn {
+        border: none;
+        background: none;
+        padding: 6px 22px;
+        font-size: 0.85rem;
+        font-weight: 700;
+        border-radius: 999px;
+        cursor: pointer;
+        transition: all 0.2s ease-in-out;
+        color: #495057;
+    }
+    .segmented-btn.active-yes {
+        background-color: #198754;
+        color: white;
+        box-shadow: 0 2px 5px rgba(25, 135, 84, 0.35);
+    }
+    .segmented-btn.active-no {
+        background-color: #dc3545;
+        color: white;
+        box-shadow: 0 2px 5px rgba(220, 53, 69, 0.35);
+    }
+    .segmented-btn:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
     }
 `;
 
@@ -430,19 +461,24 @@ export default function TuitionModal({ show, onHide, editingData = null, editing
                                                 return (
                                                     <Col md={col} key={name}>
                                                         <Form.Group controlId={name}>
-                                                            <Form.Label className="fw-semibold d-block">{label}</Form.Label>
-                                                            <div className="d-flex align-items-center">
-                                                                <Form.Check
-                                                                    type="switch"
-                                                                    id={name}
-                                                                    name={name}
-                                                                    checked={value}
-                                                                    onChange={(e) => handleInputChange(e, field)}
-                                                                    className="me-2"
-                                                                    style={{ cursor: saving ? 'not-allowed' : 'pointer' }}
+                                                            <Form.Label className="fw-semibold d-block mb-2">{label}</Form.Label>
+                                                            <div className="segmented-control">
+                                                                <button
+                                                                    type="button"
+                                                                    className={`segmented-btn ${value ? 'active-yes' : ''}`}
+                                                                    onClick={() => handleInputChange({ target: { name, checked: true } }, field)}
                                                                     disabled={saving}
-                                                                />
-                                                                <span className="fw-medium">{value ? 'Yes' : 'No'}</span>
+                                                                >
+                                                                    Yes
+                                                                </button>
+                                                                <button
+                                                                    type="button"
+                                                                    className={`segmented-btn ${!value ? 'active-no' : ''}`}
+                                                                    onClick={() => handleInputChange({ target: { name, checked: false } }, field)}
+                                                                    disabled={saving}
+                                                                >
+                                                                    No
+                                                                </button>
                                                             </div>
                                                         </Form.Group>
                                                     </Col>

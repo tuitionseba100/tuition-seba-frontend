@@ -386,7 +386,11 @@ const TuitionPage = () => {
             const exportData = tuitionNeedsUpdateList.map(t => ({
                 "Tuition Code": t.tuitionCode,
                 "Status": t.status,
-                "Comment": t.note,
+                "Guardian Demand": t.note,
+                "Cancel Teacher 1": t.comment1,
+                "Cancel Teacher 2": t.comment2,
+                "Tuition Cancel Reason": t.tuitionCancelReason,
+                "Guardian Behavior": t.guardianBehavior,
                 "Last Update Comment": t.lastUpdateComment,
                 "Next Update Comment": t.nextUpdateComment,
                 "Teacher Number": t.tutorNumber,
@@ -401,7 +405,11 @@ const TuitionPage = () => {
             worksheet['!cols'] = [
                 { wch: 15 }, // Tuition Code
                 { wch: 18 }, // Status
-                { wch: 40 }, // Comment
+                { wch: 40 }, // Guardian Demand
+                { wch: 40 }, // Cancel Teacher 1
+                { wch: 40 }, // Cancel Teacher 2
+                { wch: 40 }, // Tuition Cancel Reason
+                { wch: 40 }, // Guardian Behavior
                 { wch: 40 }, // Last Update Comment
                 { wch: 40 }, // Next Update Comment
                 { wch: 15 }, // Teacher Number
@@ -957,7 +965,11 @@ const TuitionPage = () => {
                                             <th>SL</th>
                                             <th>Tuition Code</th>
                                             <th>Created By/Updated By</th>
-                                            <th>Comment</th>
+                                            <th>Guardian Demand</th>
+                                            <th>Cancel Teacher 1</th>
+                                            <th>Cancel Teacher 2</th>
+                                            <th>Tuition Cancel Reason</th>
+                                            <th>Guardian Behavior</th>
                                             <th>Last Update Comment</th>
                                             <th>Next Update Comment</th>
                                             <th>Status</th>
@@ -1000,6 +1012,10 @@ const TuitionPage = () => {
                                                     <span className="badge rounded-pill fw-bold" style={{ backgroundColor: '#e3f2fd', color: '#1565c0', border: '1px solid #bbdefb', padding: '0.4em 0.8em' }} title="Updated By">UB: {tuition.updatedBy || '-'}</span>
                                                 </td>
                                                 <td>{tuition.note || '-'}</td>
+                                                <td>{tuition.comment1 || '-'}</td>
+                                                <td>{tuition.comment2 || '-'}</td>
+                                                <td>{tuition.tuitionCancelReason || '-'}</td>
+                                                <td>{tuition.guardianBehavior || '-'}</td>
                                                 <td>{tuition.lastUpdateComment || '-'}</td>
                                                 <td>{tuition.nextUpdateComment || '-'}</td>
                                                 <td>{tuition.status}</td>
@@ -1359,14 +1375,18 @@ const MemoizedTuitionTable = React.memo(({
                     <th>Area</th>
                     <th>Guardian No.</th>
                     <th>Teacher No.</th>
-                    <th>Comment</th>
+                    <th>Guardian Demand</th>
+                    <th>Cancel Teacher 1</th>
+                    <th>Cancel Teacher 2</th>
+                    <th>Tuition Cancel Reason</th>
+                    <th>Guardian Behavior</th>
                     <th style={{ position: 'sticky', right: 0, zIndex: 3, minWidth: '150px' }}>Actions</th>
                 </tr>
             </thead>
             <tbody>
                 {loading ? (
                     <tr>
-                        <td colSpan="28" className="text-center">
+                        <td colSpan="32" className="text-center">
                             <div className="d-flex justify-content-center align-items-center" style={{ minHeight: '200px' }}>
                                 <Spinner animation="border" variant="primary" size="lg" />
                             </div>
@@ -1374,7 +1394,7 @@ const MemoizedTuitionTable = React.memo(({
                     </tr>
                 ) : tuitionList.length === 0 ? (
                     <tr>
-                        <td colSpan="28" className="text-center py-4 text-muted">No records found matching your filters.</td>
+                        <td colSpan="32" className="text-center py-4 text-muted">No records found matching your filters.</td>
                     </tr>
                 ) : (
                     tuitionList.map((tuition, index) => (
@@ -1479,6 +1499,10 @@ const MemoizedTuitionTable = React.memo(({
                             </td>
                             <td>{tuition.tutorNumber}</td>
                             <td>{tuition.note}</td>
+                            <td>{tuition.comment1}</td>
+                            <td>{tuition.comment2}</td>
+                            <td>{tuition.tuitionCancelReason}</td>
+                            <td>{tuition.guardianBehavior}</td>
                             <td style={{ display: 'flex', justifyContent: 'flex-start', gap: '8px', position: 'sticky', right: 0, zIndex: 2, backgroundColor: 'inherit' }}>
                                 <Button variant="info" onClick={() => handleShowDetails(tuition)} title="View Details">
                                     <FaInfoCircle />

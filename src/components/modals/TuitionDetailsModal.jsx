@@ -23,7 +23,7 @@ const fieldConfig = [
     { name: 'guardianNumber', label: 'Guardian Number', group: 'details', col: 4, type: 'text' },
 
     { name: 'status', label: 'Status', group: 'admin', col: 6, type: 'select', options: ['available', 'given number', 'guardian meet', 'demo class running', 'confirm', 'cancel'] },
-    { name: 'note', label: 'Comment', group: 'admin', col: 6, type: 'text' },
+    { name: 'note', label: 'Guardian Demand', group: 'admin', col: 6, type: 'text' },
     { name: 'tutorNumber', label: 'Teacher Number', group: 'admin', col: 6, type: 'text' },
     { name: 'lastAvailableCheck', label: 'Last Available Check', group: 'admin', col: 6, type: 'datetime-local' },
     { name: 'lastUpdate', label: 'Last Update', group: 'admin', col: 6, type: 'datetime-local' },
@@ -32,8 +32,10 @@ const fieldConfig = [
     { name: 'nextUpdateDate', label: 'Next Update Date', group: 'admin', col: 6, type: 'datetime-local' },
     { name: 'nextUpdateComment', label: 'Next Update Comment', group: 'admin', col: 6, type: 'text' },
 
-    { name: 'comment1', label: 'Comment 1', group: 'admin', col: 6, type: 'text' },
-    { name: 'comment2', label: 'Comment 2', group: 'admin', col: 6, type: 'text' },
+    { name: 'comment1', label: 'Cancel Teacher 1', group: 'admin', col: 6, type: 'text' },
+    { name: 'comment2', label: 'Cancel Teacher 2', group: 'admin', col: 6, type: 'text' },
+    { name: 'tuitionCancelReason', label: 'Tuition Cancel Reason', group: 'admin', col: 6, type: 'text' },
+    { name: 'guardianBehavior', label: 'Guardian Behavior', group: 'admin', col: 6, type: 'text' },
 
     { name: 'isPublish', label: 'Publish', group: 'admin', col: 4, type: 'switch', defaultValue: false },
     { name: 'isUrgent', label: 'Is Emergency?', group: 'admin', col: 4, type: 'switch', defaultValue: false },

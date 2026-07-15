@@ -40,6 +40,7 @@ const fieldConfig = [
     { name: 'comment2', label: 'Cancel Teacher 2', group: 'admin', col: 6, type: 'text' },
     { name: 'tuitionCancelReason', label: 'Tuition Cancel Reason', group: 'admin', col: 6, type: 'text' },
     { name: 'guardianBehavior', label: 'Guardian Behavior', group: 'admin', col: 6, type: 'text' },
+    { name: 'agentComment', label: 'Agent Comment', group: 'admin', col: 12, type: 'textarea' },
 
     { name: 'isPublish', label: 'Publish', group: 'admin', col: 4, type: 'switch', defaultValue: false },
     { name: 'isUrgent', label: 'Is Emergency?', group: 'admin', col: 4, type: 'switch', defaultValue: false },
@@ -480,6 +481,24 @@ export default function TuitionModal({ show, onHide, editingData = null, editing
                                                                     No
                                                                 </button>
                                                             </div>
+                                                        </Form.Group>
+                                                    </Col>
+                                                );
+                                            }
+                                            if (type === 'textarea') {
+                                                return (
+                                                    <Col md={col} key={name}>
+                                                        <Form.Group controlId={name}>
+                                                            <Form.Label className="fw-semibold">{label}</Form.Label>
+                                                            <Form.Control
+                                                                as="textarea"
+                                                                rows={3}
+                                                                name={name}
+                                                                value={value}
+                                                                onChange={(e) => handleInputChange(e, field)}
+                                                                disabled={saving}
+                                                                style={inputBorderStyle}
+                                                            />
                                                         </Form.Group>
                                                     </Col>
                                                 );

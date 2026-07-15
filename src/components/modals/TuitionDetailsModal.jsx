@@ -36,6 +36,7 @@ const fieldConfig = [
     { name: 'comment2', label: 'Cancel Teacher 2', group: 'admin', col: 6, type: 'text' },
     { name: 'tuitionCancelReason', label: 'Tuition Cancel Reason', group: 'admin', col: 6, type: 'text' },
     { name: 'guardianBehavior', label: 'Guardian Behavior', group: 'admin', col: 6, type: 'text' },
+    { name: 'agentComment', label: 'Agent Comment', group: 'admin', col: 12, type: 'text' },
 
     { name: 'isPublish', label: 'Publish', group: 'admin', col: 4, type: 'switch', defaultValue: false },
     { name: 'isUrgent', label: 'Is Emergency?', group: 'admin', col: 4, type: 'switch', defaultValue: false },

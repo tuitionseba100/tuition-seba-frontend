@@ -139,7 +139,13 @@ const StatusHistoryReportPage = () => {
                         <h2 className="text-primary fw-extrabold d-flex align-items-center gap-2 mb-1" style={{ letterSpacing: '-0.5px' }}>
                             <FaHistory /> Report Dashboard
                         </h2>
-                        <p className="text-muted mb-0">Monitor and audit status logs across modules</p>
+                        <div className="d-flex align-items-center gap-2 flex-wrap">
+                            <span className="text-muted small">Monitor and audit status logs across modules</span>
+                            <span className="text-secondary opacity-50 d-none d-sm-inline">•</span>
+                            <span className="text-success fw-bold px-2 py-0.5 bg-soft-success rounded-pill" style={{ fontSize: '11px' }}>
+                                Active since: 16 July 2026
+                            </span>
+                        </div>
                     </div>
                     <Button 
                         variant="primary" 

@@ -17,7 +17,17 @@ const StatusHistoryReportPage = () => {
         verifiedTeachersCount: 0,
         confirmedTuitionsCount: 0,
         confirmedApplicationsCount: 0,
-        tuitionsCreatedTodayCount: 0
+        tuitionsCreatedTodayCount: 0,
+        verifiedBreakdown: {
+            verified: 0,
+            afterConfirmation: 0,
+            afterSalary: 0,
+            advance30: 0
+        },
+        applyBreakdown: {
+            selected: 0,
+            confirmed: 0
+        }
     });
     const [statsLoading, setStatsLoading] = useState(false);
 
@@ -162,52 +172,139 @@ const StatusHistoryReportPage = () => {
                 <Row className="mb-4 g-4">
                     <Col md={3}>
                         <PremiumStatsCard className="shadow-sm border-0 bg-gradient-success text-white p-4 rounded-4">
-                            <Card.Body className="d-flex align-items-center gap-4 p-0">
-                                <div className="icon-wrapper bg-white-20 rounded-4 p-3 d-flex align-items-center justify-content-center">
-                                    <FaUserCheck size={28} />
+                            <Card.Body className="p-0">
+                                <div className="d-flex align-items-center gap-4 mb-2">
+                                    <div className="icon-wrapper bg-white-20 rounded-4 p-3 d-flex align-items-center justify-content-center">
+                                        <FaUserCheck size={28} />
+                                    </div>
+                                    <div>
+                                        <span className="text-white-70 text-uppercase tracking-wider fs-7">Teachers Verified Today</span>
+                                        <h2 className="fw-extrabold mb-0 mt-1" style={{ fontSize: '2rem' }}>{todayStats.verifiedTeachersCount}</h2>
+                                    </div>
                                 </div>
-                                <div>
-                                    <span className="text-white-70 text-uppercase tracking-wider fs-7">Teachers Verified Today</span>
-                                    <h2 className="fw-extrabold mb-0 mt-1" style={{ fontSize: '2.2rem' }}>{todayStats.verifiedTeachersCount}</h2>
+                                <div style={{ borderTop: '1px solid rgba(255, 255, 255, 0.2)', paddingTop: '10px', marginTop: '10px' }}>
+                                    <Row className="g-2 text-center" style={{ fontSize: '10.5px' }}>
+                                        <Col xs={6} style={{ borderRight: '1px solid rgba(255, 255, 255, 0.15)' }}>
+                                            <div className="text-white-70 text-uppercase fw-semibold">Verified</div>
+                                            <div className="fw-bold fs-6">{todayStats.verifiedBreakdown?.verified || 0}</div>
+                                        </Col>
+                                        <Col xs={6}>
+                                            <div className="text-white-70 text-uppercase fw-semibold">Confirmed</div>
+                                            <div className="fw-bold fs-6">{todayStats.verifiedBreakdown?.afterConfirmation || 0}</div>
+                                        </Col>
+                                        <Col xs={6} style={{ borderRight: '1px solid rgba(255, 255, 255, 0.15)', borderTop: '1px solid rgba(255, 255, 255, 0.15)', paddingTop: '4px' }}>
+                                            <div className="text-white-70 text-uppercase fw-semibold">After Salary</div>
+                                            <div className="fw-bold fs-6">{todayStats.verifiedBreakdown?.afterSalary || 0}</div>
+                                        </Col>
+                                        <Col xs={6} style={{ borderTop: '1px solid rgba(255, 255, 255, 0.15)', paddingTop: '4px' }}>
+                                            <div className="text-white-70 text-uppercase fw-semibold">30% Adv</div>
+                                            <div className="fw-bold fs-6">{todayStats.verifiedBreakdown?.advance30 || 0}</div>
+                                        </Col>
+                                    </Row>
                                 </div>
                             </Card.Body>
                         </PremiumStatsCard>
                     </Col>
                     <Col md={3}>
                         <PremiumStatsCard className="shadow-sm border-0 bg-gradient-info text-white p-4 rounded-4">
-                            <Card.Body className="d-flex align-items-center gap-4 p-0">
-                                <div className="icon-wrapper bg-white-20 rounded-4 p-3 d-flex align-items-center justify-content-center">
-                                    <FaBookOpen size={28} />
+                            <Card.Body className="p-0">
+                                <div className="d-flex align-items-center gap-4 mb-2">
+                                    <div className="icon-wrapper bg-white-20 rounded-4 p-3 d-flex align-items-center justify-content-center">
+                                        <FaBookOpen size={28} />
+                                    </div>
+                                    <div>
+                                        <span className="text-white-70 text-uppercase tracking-wider fs-7">Tuitions Confirmed Today</span>
+                                        <h2 className="fw-extrabold mb-0 mt-1" style={{ fontSize: '2rem' }}>{todayStats.confirmedTuitionsCount}</h2>
+                                    </div>
                                 </div>
-                                <div>
-                                    <span className="text-white-70 text-uppercase tracking-wider fs-7">Tuitions Confirmed Today</span>
-                                    <h2 className="fw-extrabold mb-0 mt-1" style={{ fontSize: '2.2rem' }}>{todayStats.confirmedTuitionsCount}</h2>
+                                {/* Ghost space to match Card 1 height */}
+                                <div style={{ borderTop: '1px solid rgba(255, 255, 255, 0.15)', paddingTop: '10px', marginTop: '10px', opacity: 0, pointerEvents: 'none' }}>
+                                    <Row className="g-2 text-center" style={{ fontSize: '10.5px' }}>
+                                        <Col xs={6}>
+                                            <div className="fw-semibold">Placeholder</div>
+                                            <div className="fw-bold fs-6">0</div>
+                                        </Col>
+                                        <Col xs={6}>
+                                            <div className="fw-semibold">Placeholder</div>
+                                            <div className="fw-bold fs-6">0</div>
+                                        </Col>
+                                        <Col xs={6} style={{ paddingTop: '4px' }}>
+                                            <div className="fw-semibold">Placeholder</div>
+                                            <div className="fw-bold fs-6">0</div>
+                                        </Col>
+                                        <Col xs={6} style={{ paddingTop: '4px' }}>
+                                            <div className="fw-semibold">Placeholder</div>
+                                            <div className="fw-bold fs-6">0</div>
+                                        </Col>
+                                    </Row>
                                 </div>
                             </Card.Body>
                         </PremiumStatsCard>
                     </Col>
                     <Col md={3}>
                         <PremiumStatsCard className="shadow-sm border-0 bg-gradient-warning text-dark p-4 rounded-4">
-                            <Card.Body className="d-flex align-items-center gap-4 p-0">
-                                <div className="icon-wrapper bg-black-10 rounded-4 p-3 d-flex align-items-center justify-content-center">
-                                    <FaUserCheck size={28} />
+                            <Card.Body className="p-0">
+                                <div className="d-flex align-items-center gap-4 mb-2">
+                                    <div className="icon-wrapper bg-black-10 rounded-4 p-3 d-flex align-items-center justify-content-center">
+                                        <FaUserCheck size={28} />
+                                    </div>
+                                    <div>
+                                        <span className="text-dark-70 text-uppercase tracking-wider fs-7">Applications Confirmed Today</span>
+                                        <h2 className="fw-extrabold mb-0 mt-1" style={{ fontSize: '2rem' }}>{todayStats.confirmedApplicationsCount}</h2>
+                                    </div>
                                 </div>
-                                <div>
-                                    <span className="text-dark-70 text-uppercase tracking-wider fs-7">Applications Confirmed Today</span>
-                                    <h2 className="fw-extrabold mb-0 mt-1" style={{ fontSize: '2.2rem' }}>{todayStats.confirmedApplicationsCount}</h2>
+                                <div style={{ borderTop: '1px solid rgba(0, 0, 0, 0.12)', paddingTop: '10px', marginTop: '10px' }}>
+                                    <Row className="g-2 text-center" style={{ fontSize: '10.5px' }}>
+                                        <Col xs={6} style={{ borderRight: '1px solid rgba(0, 0, 0, 0.08)' }}>
+                                            <div className="text-dark-70 text-uppercase fw-semibold">Selected</div>
+                                            <div className="fw-bold fs-6">{todayStats.applyBreakdown?.selected || 0}</div>
+                                        </Col>
+                                        <Col xs={6}>
+                                            <div className="text-dark-70 text-uppercase fw-semibold">Confirmed</div>
+                                            <div className="fw-bold fs-6">{todayStats.applyBreakdown?.confirmed || 0}</div>
+                                        </Col>
+                                        {/* Ghost second row to balance Card 1 height */}
+                                        <Col xs={12} style={{ opacity: 0, pointerEvents: 'none', paddingTop: '4px' }}>
+                                            <div className="fw-semibold">Placeholder</div>
+                                            <div className="fw-bold fs-6">0</div>
+                                        </Col>
+                                    </Row>
                                 </div>
                             </Card.Body>
                         </PremiumStatsCard>
                     </Col>
                     <Col md={3}>
                         <PremiumStatsCard className="shadow-sm border-0 bg-gradient-primary text-white p-4 rounded-4">
-                            <Card.Body className="d-flex align-items-center gap-4 p-0">
-                                <div className="icon-wrapper bg-white-20 rounded-4 p-3 d-flex align-items-center justify-content-center">
-                                    <FaBookOpen size={28} />
+                            <Card.Body className="p-0">
+                                <div className="d-flex align-items-center gap-4 mb-2">
+                                    <div className="icon-wrapper bg-white-20 rounded-4 p-3 d-flex align-items-center justify-content-center">
+                                        <FaBookOpen size={28} />
+                                    </div>
+                                    <div>
+                                        <span className="text-white-70 text-uppercase tracking-wider fs-7">Tuitions Created Today</span>
+                                        <h2 className="fw-extrabold mb-0 mt-1" style={{ fontSize: '2rem' }}>{todayStats.tuitionsCreatedTodayCount}</h2>
+                                    </div>
                                 </div>
-                                <div>
-                                    <span className="text-white-70 text-uppercase tracking-wider fs-7">Tuitions Created Today</span>
-                                    <h2 className="fw-extrabold mb-0 mt-1" style={{ fontSize: '2.2rem' }}>{todayStats.tuitionsCreatedTodayCount}</h2>
+                                {/* Ghost space to match Card 1 height */}
+                                <div style={{ borderTop: '1px solid rgba(255, 255, 255, 0.15)', paddingTop: '10px', marginTop: '10px', opacity: 0, pointerEvents: 'none' }}>
+                                    <Row className="g-2 text-center" style={{ fontSize: '10.5px' }}>
+                                        <Col xs={6}>
+                                            <div className="fw-semibold">Placeholder</div>
+                                            <div className="fw-bold fs-6">0</div>
+                                        </Col>
+                                        <Col xs={6}>
+                                            <div className="fw-semibold">Placeholder</div>
+                                            <div className="fw-bold fs-6">0</div>
+                                        </Col>
+                                        <Col xs={6} style={{ paddingTop: '4px' }}>
+                                            <div className="fw-semibold">Placeholder</div>
+                                            <div className="fw-bold fs-6">0</div>
+                                        </Col>
+                                        <Col xs={6} style={{ paddingTop: '4px' }}>
+                                            <div className="fw-semibold">Placeholder</div>
+                                            <div className="fw-bold fs-6">0</div>
+                                        </Col>
+                                    </Row>
                                 </div>
                             </Card.Body>
                         </PremiumStatsCard>
@@ -293,7 +390,7 @@ const StatusHistoryReportPage = () => {
                                 <small className="text-muted">Currently displaying {totalRecords} records</small>
                             </div>
                         </div>
-                        <div className="table-responsive rounded-3 overflow-hidden shadow-sm" style={{ maxHeight: "550px", overflowY: "auto" }}>
+                        <div className="table-responsive rounded-3 shadow-sm" style={{ maxHeight: "550px", overflowY: "auto" }}>
                             <Table hover striped bordered className="align-middle text-center mb-0 custom-reports-table">
                                 <thead className="table-dark sticky-top">
                                     <tr>
@@ -490,8 +587,12 @@ const StyledContainer = styled(Container)`
 `;
 
 const PremiumStatsCard = styled(Card)`
+  height: 100%;
   transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s ease;
   cursor: default;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
   
   &:hover {
     transform: translateY(-4px);

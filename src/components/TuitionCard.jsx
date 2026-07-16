@@ -135,6 +135,7 @@ Joining: ${tuitionDetails.joining}
                     {infoRow(<FaCalendarDay />, 'Day', tuition.day)}
                     {infoRow(<FaClock />, 'Time', tuition.time)}
                     {infoRow(<FaMoneyBill />, 'Salary', tuition.salary && /taka|tk/i.test(tuition.salary.toString()) ? tuition.salary : (tuition.salary ? tuition.salary.toString().trim() + ' taka' : ''))}
+                    {tuition.mediaFee && tuition.mediaFee.trim() !== '' && infoRow(<FaMoneyBill />, 'Media Fee', tuition.mediaFee)}
                     {infoRow(<FaMapMarkerAlt />, 'Location', `${tuition.location}${tuition.area ? ', ' + tuition.area : ''}`)}
                     {infoRow(<FaCalendarCheck />, 'Joining', tuition.joining)}
                 </div>

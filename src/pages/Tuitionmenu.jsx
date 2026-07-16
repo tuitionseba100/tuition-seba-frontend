@@ -1491,6 +1491,7 @@ const MemoizedTuitionTable = React.memo(({
                     <th>Day</th>
                     <th>Time</th>
                     <th>Salary</th>
+                    <th>Media Fee</th>
                     <th>Location</th>
                     <th>Area</th>
                     <th>Guardian No.</th>
@@ -1611,6 +1612,7 @@ const MemoizedTuitionTable = React.memo(({
                             <td>{tuition.day}</td>
                             <td>{tuition.time === "undefined" ? " " : tuition.time}</td>
                             <td>{tuition.salary && /taka|tk/i.test(tuition.salary.toString()) ? tuition.salary : (tuition.salary ? tuition.salary.toString().trim() + ' taka' : '')}</td>
+                            <td>{tuition.mediaFee || '-'}</td>
                             <td>{tuition.location}</td>
                             <td>{tuition.area ? tuition.area : ""}</td>
                             <td>

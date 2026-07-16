@@ -25,6 +25,7 @@ const fieldConfig = [
     { name: 'location', label: 'Location', group: 'details', col: 6, type: 'text' },
     { name: 'joining', label: 'Joining Date', group: 'details', col: 6, type: 'text' },
     { name: 'guardianNumber', label: 'Guardian Number', group: 'details', col: 4, type: 'text' },
+    { name: 'mediaFee', label: 'Media Fee', group: 'details', col: 4, type: 'text' },
 
     { name: 'status', label: 'Status', group: 'admin', col: 6, type: 'select', options: ['available', 'given number', 'guardian meet', 'demo class running', 'confirm', 'cancel', 'refer BM', 'suspended', 'guardian no response', 'request for payment'] },
     { name: 'note', label: 'Guardian Demand', group: 'admin', col: 6, type: 'text' },
@@ -179,6 +180,8 @@ export default function TuitionModal({ show, onHide, editingData = null, editing
             fieldConfig.forEach(({ name, defaultValue, type }) => {
                 if (type === 'switch') {
                     initData[name] = defaultValue || false;
+                } else if (name === 'mediaFee') {
+                    initData[name] = '60%';
                 } else {
                     initData[name] = '';
                 }

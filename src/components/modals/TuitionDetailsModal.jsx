@@ -21,6 +21,7 @@ const fieldConfig = [
     { name: 'location', label: 'Location', group: 'details', col: 4, type: 'text' },
     { name: 'joining', label: 'Joining Date', group: 'details', col: 4, type: 'text' },
     { name: 'guardianNumber', label: 'Guardian Number', group: 'details', col: 4, type: 'text' },
+    { name: 'mediaFee', label: 'Media Fee', group: 'details', col: 4, type: 'text' },
 
     { name: 'status', label: 'Status', group: 'admin', col: 6, type: 'select', options: ['available', 'given number', 'guardian meet', 'demo class running', 'confirm', 'cancel'] },
     { name: 'note', label: 'Guardian Demand', group: 'admin', col: 6, type: 'text' },

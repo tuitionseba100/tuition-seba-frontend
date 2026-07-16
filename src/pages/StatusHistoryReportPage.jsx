@@ -18,6 +18,7 @@ const StatusHistoryReportPage = () => {
         confirmedTuitionsCount: 0,
         confirmedApplicationsCount: 0,
         tuitionsCreatedTodayCount: 0,
+        tuitionsDeletedTodayCount: 0,
         verifiedBreakdown: {
             verified: 0,
             afterConfirmation: 0,
@@ -285,22 +286,18 @@ const StatusHistoryReportPage = () => {
                                         <h2 className="fw-extrabold mb-0 mt-1" style={{ fontSize: '2rem' }}>{todayStats.tuitionsCreatedTodayCount}</h2>
                                     </div>
                                 </div>
-                                {/* Ghost space to match Card 1 height */}
-                                <div style={{ borderTop: '1px solid rgba(255, 255, 255, 0.15)', paddingTop: '10px', marginTop: '10px', opacity: 0, pointerEvents: 'none' }}>
+                                <div style={{ borderTop: '1px solid rgba(255, 255, 255, 0.15)', paddingTop: '10px', marginTop: '10px' }}>
                                     <Row className="g-2 text-center" style={{ fontSize: '10.5px' }}>
-                                        <Col xs={6}>
-                                            <div className="fw-semibold">Placeholder</div>
-                                            <div className="fw-bold fs-6">0</div>
+                                        <Col xs={6} style={{ borderRight: '1px solid rgba(255, 255, 255, 0.15)' }}>
+                                            <div className="text-white-70 text-uppercase fw-semibold">Created</div>
+                                            <div className="fw-bold fs-6">{todayStats.tuitionsCreatedTodayCount}</div>
                                         </Col>
                                         <Col xs={6}>
-                                            <div className="fw-semibold">Placeholder</div>
-                                            <div className="fw-bold fs-6">0</div>
+                                            <div className="text-white-70 text-uppercase fw-semibold">Deleted</div>
+                                            <div className="fw-bold fs-6">{todayStats.tuitionsDeletedTodayCount || 0}</div>
                                         </Col>
-                                        <Col xs={6} style={{ paddingTop: '4px' }}>
-                                            <div className="fw-semibold">Placeholder</div>
-                                            <div className="fw-bold fs-6">0</div>
-                                        </Col>
-                                        <Col xs={6} style={{ paddingTop: '4px' }}>
+                                        {/* Ghost second row to balance Card 1 height */}
+                                        <Col xs={12} style={{ opacity: 0, pointerEvents: 'none', paddingTop: '4px' }}>
                                             <div className="fw-semibold">Placeholder</div>
                                             <div className="fw-bold fs-6">0</div>
                                         </Col>

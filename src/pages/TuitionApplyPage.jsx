@@ -1052,42 +1052,76 @@ const TuitionPage = () => {
                                 No status changes logged yet for this record.
                             </div>
                         ) : (
-                            <div className="timeline-wrapper" style={{ position: 'relative', paddingLeft: '20px', borderLeft: '3px solid #dee2e6' }}>
-                                {statusHistoryList.map((log, index) => (
-                                    <div key={log._id} className="timeline-item mb-4" style={{ position: 'relative' }}>
-                                        {/* Dot indicator */}
-                                        <div 
-                                            style={{ 
-                                                position: 'absolute', 
-                                                left: '-30px', 
-                                                top: '4px', 
-                                                width: '16px', 
-                                                height: '16px', 
-                                                borderRadius: '50%', 
-                                                backgroundColor: index === 0 ? '#0d6efd' : '#adb5bd',
-                                                border: '3px solid #fff',
-                                                boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
-                                            }} 
-                                        />
-                                        <div className="card p-3 shadow-sm border-0" style={{ borderRadius: '12px' }}>
-                                            <div className="d-flex justify-content-between align-items-center mb-1">
-                                                <span className="fw-bold text-dark fs-6" style={{ textTransform: 'capitalize' }}>
-                                                    {log.oldStatus ? log.oldStatus : 'Initial Creation'} &rarr; <span className="text-primary">{log.newStatus}</span>
-                                                </span>
-                                                <small className="text-muted" style={{ fontSize: '11px' }}>
-                                                    {new Date(log.timestamp).toLocaleString('en-GB', {
-                                                        day: '2-digit', month: 'short', year: 'numeric',
-                                                        hour: '2-digit', minute: '2-digit', hour12: true
-                                                    })}
-                                                </small>
+                            <div className="alternating-timeline" style={{ position: 'relative', padding: '20px 0' }}>
+                                {/* Central line */}
+                                <div style={{ position: 'absolute', top: 0, bottom: 0, left: '50%', width: '3px', backgroundColor: '#dee2e6', transform: 'translateX(-50%)' }} />
+                                
+                                {statusHistoryList.map((log, index) => {
+                                    const isLeft = index % 2 === 0;
+                                    return (
+                                        <div key={log._id} className="d-flex align-items-center mb-4 position-relative" style={{ minHeight: '80px' }}>
+                                            {/* Left Card */}
+                                            <div className="w-50 pe-4 text-end" style={{ visibility: isLeft ? 'visible' : 'hidden' }}>
+                                                {isLeft && (
+                                                    <div className="card p-3 shadow-sm border-0 d-inline-block text-start w-100" style={{ borderRadius: '12px', borderLeft: '4px solid #0d6efd' }}>
+                                                        <div className="mb-1">
+                                                            <span className="fw-bold text-dark fs-6 text-capitalize">
+                                                                {log.oldStatus || 'Creation'} &rarr; <span className="text-primary">{log.newStatus}</span>
+                                                            </span>
+                                                        </div>
+                                                        <div className="text-secondary mb-2" style={{ fontSize: '12.5px' }}>
+                                                            Changed by: <span className="badge bg-secondary">{log.changedBy}</span>
+                                                        </div>
+                                                        <small className="text-muted" style={{ fontSize: '11px' }}>
+                                                            {new Date(log.timestamp).toLocaleString('en-GB', {
+                                                                day: '2-digit', month: 'short', year: 'numeric',
+                                                                hour: '2-digit', minute: '2-digit', hour12: true
+                                                            })}
+                                                        </small>
+                                                    </div>
+                                                )}
                                             </div>
-                                            <div className="d-flex align-items-center gap-1 mt-1 text-secondary" style={{ fontSize: '12.5px' }}>
-                                                <span>Changed by:</span>
-                                                <span className="badge bg-secondary">{log.changedBy}</span>
+
+                                            {/* Dot indicator in the center */}
+                                            <div 
+                                                style={{ 
+                                                    position: 'absolute', 
+                                                    left: '50%', 
+                                                    transform: 'translateX(-50%)', 
+                                                    width: '16px', 
+                                                    height: '16px', 
+                                                    borderRadius: '50%', 
+                                                    backgroundColor: index === 0 ? '#0d6efd' : '#adb5bd',
+                                                    border: '3px solid #fff',
+                                                    boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+                                                    zIndex: 5
+                                                }} 
+                                            />
+
+                                            {/* Right Card */}
+                                            <div className="w-50 ps-4 text-start" style={{ visibility: !isLeft ? 'visible' : 'hidden' }}>
+                                                {!isLeft && (
+                                                    <div className="card p-3 shadow-sm border-0 d-inline-block text-start w-100" style={{ borderRadius: '12px', borderLeft: '4px solid #0d6efd' }}>
+                                                        <div className="mb-1">
+                                                            <span className="fw-bold text-dark fs-6 text-capitalize">
+                                                                {log.oldStatus || 'Creation'} &rarr; <span className="text-primary">{log.newStatus}</span>
+                                                            </span>
+                                                        </div>
+                                                        <div className="text-secondary mb-2" style={{ fontSize: '12.5px' }}>
+                                                            Changed by: <span className="badge bg-secondary">{log.changedBy}</span>
+                                                        </div>
+                                                        <small className="text-muted" style={{ fontSize: '11px' }}>
+                                                            {new Date(log.timestamp).toLocaleString('en-GB', {
+                                                                day: '2-digit', month: 'short', year: 'numeric',
+                                                                hour: '2-digit', minute: '2-digit', hour12: true
+                                                            })}
+                                                        </small>
+                                                    </div>
+                                                )}
                                             </div>
                                         </div>
-                                    </div>
-                                ))}
+                                    );
+                                })}
                             </div>
                         )}
                     </Modal.Body>

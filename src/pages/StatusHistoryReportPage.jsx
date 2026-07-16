@@ -16,7 +16,8 @@ const StatusHistoryReportPage = () => {
     const [todayStats, setTodayStats] = useState({
         verifiedTeachersCount: 0,
         confirmedTuitionsCount: 0,
-        confirmedApplicationsCount: 0
+        confirmedApplicationsCount: 0,
+        tuitionsCreatedTodayCount: 0
     });
     const [statsLoading, setStatsLoading] = useState(false);
 
@@ -159,7 +160,7 @@ const StatusHistoryReportPage = () => {
 
                 {/* Today's KPI Widgets */}
                 <Row className="mb-4 g-4">
-                    <Col md={4}>
+                    <Col md={3}>
                         <PremiumStatsCard className="shadow-sm border-0 bg-gradient-success text-white p-4 rounded-4">
                             <Card.Body className="d-flex align-items-center gap-4 p-0">
                                 <div className="icon-wrapper bg-white-20 rounded-4 p-3 d-flex align-items-center justify-content-center">
@@ -172,7 +173,7 @@ const StatusHistoryReportPage = () => {
                             </Card.Body>
                         </PremiumStatsCard>
                     </Col>
-                    <Col md={4}>
+                    <Col md={3}>
                         <PremiumStatsCard className="shadow-sm border-0 bg-gradient-info text-white p-4 rounded-4">
                             <Card.Body className="d-flex align-items-center gap-4 p-0">
                                 <div className="icon-wrapper bg-white-20 rounded-4 p-3 d-flex align-items-center justify-content-center">
@@ -185,7 +186,7 @@ const StatusHistoryReportPage = () => {
                             </Card.Body>
                         </PremiumStatsCard>
                     </Col>
-                    <Col md={4}>
+                    <Col md={3}>
                         <PremiumStatsCard className="shadow-sm border-0 bg-gradient-warning text-dark p-4 rounded-4">
                             <Card.Body className="d-flex align-items-center gap-4 p-0">
                                 <div className="icon-wrapper bg-black-10 rounded-4 p-3 d-flex align-items-center justify-content-center">
@@ -194,6 +195,19 @@ const StatusHistoryReportPage = () => {
                                 <div>
                                     <span className="text-dark-70 text-uppercase tracking-wider fs-7">Applications Confirmed Today</span>
                                     <h2 className="fw-extrabold mb-0 mt-1" style={{ fontSize: '2.2rem' }}>{todayStats.confirmedApplicationsCount}</h2>
+                                </div>
+                            </Card.Body>
+                        </PremiumStatsCard>
+                    </Col>
+                    <Col md={3}>
+                        <PremiumStatsCard className="shadow-sm border-0 bg-gradient-primary text-white p-4 rounded-4">
+                            <Card.Body className="d-flex align-items-center gap-4 p-0">
+                                <div className="icon-wrapper bg-white-20 rounded-4 p-3 d-flex align-items-center justify-content-center">
+                                    <FaBookOpen size={28} />
+                                </div>
+                                <div>
+                                    <span className="text-white-70 text-uppercase tracking-wider fs-7">Tuitions Created Today</span>
+                                    <h2 className="fw-extrabold mb-0 mt-1" style={{ fontSize: '2.2rem' }}>{todayStats.tuitionsCreatedTodayCount}</h2>
                                 </div>
                             </Card.Body>
                         </PremiumStatsCard>
@@ -393,6 +407,9 @@ const StyledContainer = styled(Container)`
   }
   .bg-gradient-warning {
     background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  }
+  .bg-gradient-primary {
+    background: linear-gradient(135deg, #6366f1 0%, #4338ca 100%);
   }
   
   .bg-white-20 {

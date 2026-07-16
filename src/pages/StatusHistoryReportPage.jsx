@@ -321,8 +321,8 @@ const StatusHistoryReportPage = () => {
                                                         log.module === 'RegTeacher' ? 'bg-soft-primary' :
                                                         log.module === 'Tuition' ? 'bg-soft-info' : 'bg-soft-success'
                                                     } px-3 py-2 rounded-pill fw-bold`}>
-                                                        {log.module === 'RegTeacher' ? 'Teachers' :
-                                                         log.module === 'Tuition' ? 'Jobs' : 'Applications'}
+                                                        {log.module === 'RegTeacher' ? 'Premium Teacher' :
+                                                         log.module === 'Tuition' ? 'Tuition' : 'Tuition Apply'}
                                                     </span>
                                                 </td>
                                                 <td>

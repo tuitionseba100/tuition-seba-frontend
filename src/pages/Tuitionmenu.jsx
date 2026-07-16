@@ -21,6 +21,7 @@ const TuitionPage = () => {
     const [tuitionList, setTuitionList] = useState([]);
     const [filteredTuitionList, setFilteredTuitionList] = useState([]);
     const [excelTuitionList, setExcelTuitionList] = useState([]);
+    const token = localStorage.getItem('token');
 
     // Status History Modal State
     const [showStatusHistoryModal, setShowStatusHistoryModal] = useState(false);

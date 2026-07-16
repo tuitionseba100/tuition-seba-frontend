@@ -51,6 +51,7 @@ const TuitionPage = () => {
 
     const [detailsModalShow, setDetailsModalShow] = useState(false);
     const [tuitionDetails, setTuitionDetails] = useState(null);
+    const token = localStorage.getItem('token');
     
     // Status History Modal State
     const [showStatusHistoryModal, setShowStatusHistoryModal] = useState(false);

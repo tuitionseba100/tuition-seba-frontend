@@ -100,6 +100,7 @@ import IncomeExpensePage from './pages/IncomeExpensePage';
 import ActivityLogPage from './pages/ActivityLogPage';
 import SettingsPage from './pages/SettingsPage';
 import ApplyUpdates from './pages/public/ApplyUpdates';
+import StatusHistoryReportPage from './pages/StatusHistoryReportPage';
 
 import ReferPage from './pages/public/ReferPage';
 
@@ -153,6 +154,7 @@ const App = () => {
             <Route path="finance" element={<IncomeExpensePage />} />
             <Route path="activity-log" element={<ActivityLogPage />} />
             <Route path="settings" element={<SettingsPage />} />
+            <Route path="status-history" element={<StatusHistoryReportPage />} />
           </Route>
         </Route>
 

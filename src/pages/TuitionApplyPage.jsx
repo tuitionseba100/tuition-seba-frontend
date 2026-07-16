@@ -51,6 +51,29 @@ const TuitionPage = () => {
 
     const [detailsModalShow, setDetailsModalShow] = useState(false);
     const [tuitionDetails, setTuitionDetails] = useState(null);
+    
+    // Status History Modal State
+    const [showStatusHistoryModal, setShowStatusHistoryModal] = useState(false);
+    const [statusHistoryList, setStatusHistoryList] = useState([]);
+    const [statusHistoryLoading, setStatusHistoryLoading] = useState(false);
+    const [statusHistoryTarget, setStatusHistoryTarget] = useState({ name: '', module: '' });
+
+    const handleShowStatusHistory = async (moduleName, id, label) => {
+        setStatusHistoryTarget({ name: label, module: moduleName });
+        setShowStatusHistoryModal(true);
+        setStatusHistoryLoading(true);
+        try {
+            const response = await axios.get(`https://tuition-seba-backend-1.onrender.com/api/statusHistory/history/${moduleName}/${id}`, {
+                headers: { Authorization: token }
+            });
+            setStatusHistoryList(response.data);
+        } catch (err) {
+            console.error('Error fetching status history:', err);
+        } finally {
+            setStatusHistoryLoading(false);
+        }
+    };
+
     const [fetchingDetails, setFetchingDetails] = useState(false);
     const [errorMessage, setErrorMessage] = useState('');
 
@@ -522,7 +545,11 @@ const TuitionPage = () => {
                                                 <td style={getRowStyle(tuition)}>{tuition.appliedAt ? formatDate(tuition.appliedAt) : ''}</td>
                                                 <td style={getRowStyle(tuition)}>{tuition.updatedBy}</td>
                                                 <td style={getRowStyle(tuition)}>
-                                                    <span className={`badge 
+                                                     <span 
+                                                         onClick={() => handleShowStatusHistory('TuitionApply', tuition._id, tuition.name)}
+                                                         style={{ cursor: 'pointer' }}
+                                                         title="Click to view status history"
+                                                         className={`badge 
             ${tuition.status === "pending" ? "bg-success" :
                                                             tuition.status === "called (no response)" ? "bg-primary" :
                                                                 tuition.status === "called (guardian no response)" ? "bg-info" :
@@ -537,7 +564,7 @@ const TuitionPage = () => {
                                                                                                     "bg-secondary"
                                                         }`}>
                                                         {tuition.status}
-                                                    </span>
+                                                     </span>
                                                 </td>
                                                 <td style={getRowStyle(tuition)}>{tuition.premiumCode}</td>
                                                 <td style={getRowStyle(tuition)}>
@@ -1009,6 +1036,67 @@ const TuitionPage = () => {
                     message={errorMessage}
                     onClose={() => setErrorMessage('')}
                 />
+
+                {/* Status History Timeline Modal */}
+                <Modal show={showStatusHistoryModal} onHide={() => setShowStatusHistoryModal(false)} centered>
+                    <Modal.Header closeButton className="bg-primary text-white">
+                        <Modal.Title className="fw-bold">Status History - {statusHistoryTarget.name}</Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body className="bg-light" style={{ padding: '24px' }}>
+                        {statusHistoryLoading ? (
+                            <div className="text-center my-4">
+                                <Spinner animation="border" variant="primary" />
+                            </div>
+                        ) : statusHistoryList.length === 0 ? (
+                            <div className="text-center my-4 text-muted fw-bold">
+                                No status changes logged yet for this record.
+                            </div>
+                        ) : (
+                            <div className="timeline-wrapper" style={{ position: 'relative', paddingLeft: '20px', borderLeft: '3px solid #dee2e6' }}>
+                                {statusHistoryList.map((log, index) => (
+                                    <div key={log._id} className="timeline-item mb-4" style={{ position: 'relative' }}>
+                                        {/* Dot indicator */}
+                                        <div 
+                                            style={{ 
+                                                position: 'absolute', 
+                                                left: '-30px', 
+                                                top: '4px', 
+                                                width: '16px', 
+                                                height: '16px', 
+                                                borderRadius: '50%', 
+                                                backgroundColor: index === 0 ? '#0d6efd' : '#adb5bd',
+                                                border: '3px solid #fff',
+                                                boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+                                            }} 
+                                        />
+                                        <div className="card p-3 shadow-sm border-0" style={{ borderRadius: '12px' }}>
+                                            <div className="d-flex justify-content-between align-items-center mb-1">
+                                                <span className="fw-bold text-dark fs-6" style={{ textTransform: 'capitalize' }}>
+                                                    {log.oldStatus ? log.oldStatus : 'Initial Creation'} &rarr; <span className="text-primary">{log.newStatus}</span>
+                                                </span>
+                                                <small className="text-muted" style={{ fontSize: '11px' }}>
+                                                    {new Date(log.timestamp).toLocaleString('en-GB', {
+                                                        day: '2-digit', month: 'short', year: 'numeric',
+                                                        hour: '2-digit', minute: '2-digit', hour12: true
+                                                    })}
+                                                </small>
+                                            </div>
+                                            <div className="d-flex align-items-center gap-1 mt-1 text-secondary" style={{ fontSize: '12.5px' }}>
+                                                <span>Changed by:</span>
+                                                <span className="badge bg-secondary">{log.changedBy}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                    </Modal.Body>
+                    <Modal.Footer>
+                        <Button variant="secondary" onClick={() => setShowStatusHistoryModal(false)}>
+                            Close
+                        </Button>
+                    </Modal.Footer>
+                </Modal>
             </Container>
         </>
     );

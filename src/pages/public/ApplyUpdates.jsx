@@ -305,7 +305,19 @@ const ApplyUpdates = () => {
                     {tuitionData.length > 0 && (
                         <div className="au-results">
                             <div className="au-results-header">
-                                <h2 className="au-results-title">আপনার আবেদনসমূহ</h2>
+                                <div>
+                                    <h2 className="au-results-title">আপনার আবেদনসমূহ</h2>
+                                    <p style={{
+                                        fontFamily: BANGLA_FONT,
+                                        fontSize: '12.5px',
+                                        color: '#64748b',
+                                        margin: '4px 0 0 0',
+                                        fontWeight: '500',
+                                        lineHeight: '1.5'
+                                    }}>
+                                        মোট আবেদনকারীর সংখ্যা বেশি দেখে ভয় পাবেন না — <strong style={{ color: '#1e40af' }}>যোগ্যতা</strong> ও <strong style={{ color: '#1e40af' }}>গার্ডিয়ানের চাহিদার সাথে মিল</strong> থাকলেই আপনি নির্বাচিত হবেন। আস্থা রাখুন।
+                                    </p>
+                                </div>
                                 <div className="au-results-actions">
                                     <button
                                         onClick={() => fetchTuitionStatus(phone)}

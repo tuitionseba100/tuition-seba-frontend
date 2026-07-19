@@ -16,9 +16,10 @@
 
 .admin-navbar .navbar-nav .nav-link {
     color: rgba(255, 255, 255, 0.85) !important;
-    font-weight: 500;
-    padding: 0.5rem 0.6rem !important;
-    margin: 0 2px;
+    font-weight: 600;
+    font-size: 13.5px;
+    padding: 0.4rem 0.6rem !important;
+    margin: 2px 2px;
     border-radius: 4px;
     transition: all 0.3s ease;
     white-space: nowrap;
@@ -56,20 +57,32 @@
     box-shadow: none;
 }
 
-/* Horizontal scrolling for many items on desktop */
+/* Flex wrap layout for items on desktop */
 @media (min-width: 1200px) {
     .admin-navbar .navbar-collapse {
-        overflow-x: auto;
-        scrollbar-width: none;
-        -ms-overflow-style: none;
-    }
-    
-    .admin-navbar .navbar-collapse::-webkit-scrollbar {
-        display: none;
+        overflow-x: visible;
+        overflow-y: visible;
     }
 
     .admin-navbar .navbar-nav {
-        flex-wrap: nowrap;
+        flex-wrap: wrap;
+        align-items: center;
+    }
+}
+
+/* Adjust font size and padding dynamically for smaller desktop resolutions to fit all items */
+@media (min-width: 1200px) and (max-width: 1600px) {
+    .admin-navbar .navbar-nav .nav-link {
+        font-size: 13px !important;
+        padding: 0.4rem 0.5rem !important;
+        margin: 2px 1px !important;
+    }
+    .admin-navbar .btn-light {
+        padding: 0.4rem 0.6rem !important;
+        font-size: 13px !important;
+    }
+    .admin-navbar .navbar-brand img {
+        height: 36px !important;
     }
 }
 

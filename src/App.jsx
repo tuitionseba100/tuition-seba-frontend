@@ -103,6 +103,8 @@ import ApplyUpdates from './pages/public/ApplyUpdates';
 import StatusHistoryReportPage from './pages/StatusHistoryReportPage';
 
 import ReferPage from './pages/public/ReferPage';
+import ComplaintSuggestionPage from './pages/public/ComplaintSuggestionPage';
+import ComplaintSuggestionAdminPage from './pages/ComplaintSuggestionAdminPage';
 
 const AppRedirect = () => {
   React.useEffect(() => {
@@ -126,6 +128,7 @@ const App = () => {
         <Route path="/rules" element={<Rules />} />
         <Route path="/refer" element={<ReferPage />} />
         <Route path="/apply-updates" element={<ApplyUpdates />} />
+        <Route path="/complaint-suggestion" element={<ComplaintSuggestionPage />} />
         <Route path="/admin/login" element={<Loginpage />} />
         <Route path="/app" element={<AppRedirect />} />
 
@@ -146,6 +149,7 @@ const App = () => {
             <Route path="spamBest" element={<SpamBestPage />} />
             <Route path="lead" element={<LeadPage />} />
             <Route path="general" element={<GeneralPage />} />
+            <Route path="complaints" element={<ComplaintSuggestionAdminPage />} />
 
           </Route>
 

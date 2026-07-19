@@ -98,6 +98,7 @@ const NavbarComponent = () => {
         { label: 'About Us', to: '#about-us', isSpecial: true },
         { label: 'Payment', to: '/payment' },
         { label: 'Registration', to: '/teacherRegistration' },
+        { label: 'Complaint', to: '/complaint-suggestion' },
     ];
 
     const iconLinks = [

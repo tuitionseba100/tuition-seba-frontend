@@ -302,6 +302,7 @@ const Footer = () => {
                                 <li><Link to="/privacy">Privacy Policy</Link></li>
                                 <li><Link to="/payment">Payment Methods</Link></li>
                                 <li><Link to="/refer">Referral Program</Link></li>
+                                <li><Link to="/complaint-suggestion">অভিযোগ ও পরামর্শ</Link></li>
                                 <li><Link to="/#about-us">About Us</Link></li>
                             </ul>
                         </Col>

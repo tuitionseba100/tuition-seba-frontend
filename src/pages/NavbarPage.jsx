@@ -4,7 +4,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import { checkDayStarted } from '../utilities/checkDayStarted';
 import '../components/DashboardNavbar.css'; // Import admin navbar styles
 import ResponseGuidelineWidget from '../components/modals/ResponseGuidelineWidget';
-import { FaSearch } from 'react-icons/fa';
+import { FaSearch, FaCog } from 'react-icons/fa';
 import GlobalSearchModal from '../components/modals/GlobalSearchModal';
 
 const Navbar = () => {
@@ -100,15 +100,21 @@ const Navbar = () => {
                                 <>
                                     <li className="nav-item">
                                         <button className="btn btn-light text-primary fw-bold rounded-pill px-3 py-2 ms-2" onClick={() => setShowSearchModal(true)} title="Global Search">
-                                            <FaSearch />
+                                            <FaSearch size={18} />
                                         </button>
                                     </li>
+                                    {role === "superadmin" && (
+                                        <li className="nav-item">
+                                            <Link className="btn btn-light text-primary fw-bold rounded-pill px-3 py-2 ms-2 d-inline-flex align-items-center justify-content-center" to="/admin/settings" title="Settings">
+                                                <FaCog size={18} />
+                                            </Link>
+                                        </li>
+                                    )}
                                     {renderNavItem("/admin/tuition", "Tuitions", "tuition")}
                                     {renderNavItem("/admin/user", "Users")}
                                     {renderNavItem("/admin/finance", "Finance")}
                                     {renderNavItem("/admin/activity-log", "Logs")}
                                     {renderNavItem("/admin/status-history", "Reports")}
-                                    {renderNavItem("/admin/settings", "Settings")}
                                     {renderNavItem("/admin/payment", "Payments", "payment")}
                                     {renderNavItem("/admin/teacherPayment", "Teacher Payments", "teacherPayment")}
                                     {renderNavItem("/admin/refund", "Refund", "refund")}
@@ -119,6 +125,7 @@ const Navbar = () => {
                                     {renderNavItem("/admin/spamBest", "Spam/Best", "spamBest")}
                                     {renderNavItem("/admin/lead", "Lead", "lead")}
                                     {renderNavItem("/admin/general", "Search", "general")}
+                                    {renderNavItem("/admin/complaints", "Complaints")}
                                 </>
                             ) : null}
 

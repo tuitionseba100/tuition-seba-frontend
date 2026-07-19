@@ -6,6 +6,7 @@ import NavBarPage from './NavbarPage';
 import styled from 'styled-components';
 import { toast, ToastContainer } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
+import CreatableSelect from 'react-select/creatable';
 
 const StatusHistoryReportPage = () => {
     const navigate = useNavigate();
@@ -16,6 +17,8 @@ const StatusHistoryReportPage = () => {
     const [todayStats, setTodayStats] = useState({
         verifiedTeachersCount: 0,
         confirmedTuitionsCount: 0,
+        cancelledTuitionsCount: 0,
+        suspendedTuitionsCount: 0,
         confirmedApplicationsCount: 0,
         tuitionsCreatedTodayCount: 0,
         tuitionsDeletedTodayCount: 0,
@@ -55,6 +58,8 @@ const StatusHistoryReportPage = () => {
         endDate: ''
     });
 
+    const [usersList, setUsersList] = useState([]);
+
     // Check permissions - strictly Superadmin only
     useEffect(() => {
         if (role !== 'superadmin') {
@@ -63,12 +68,30 @@ const StatusHistoryReportPage = () => {
         }
     }, [role, navigate]);
 
+    // Fetch users list
+    useEffect(() => {
+        if (role === 'superadmin') {
+            fetchUsers();
+        }
+    }, [role]);
+
+    const fetchUsers = async () => {
+        try {
+            const res = await axios.get('https://tuition-seba-backend-1.onrender.com/api/user/users', {
+                headers: { Authorization: token }
+            });
+            setUsersList(res.data);
+        } catch (err) {
+            console.error('Error fetching users:', err);
+        }
+    };
+
     // Fetch Stats and Data
     useEffect(() => {
         if (role === 'superadmin') {
             fetchTodayStats();
         }
-    }, [role]);
+    }, [role, appliedFilters]);
 
     useEffect(() => {
         if (role === 'superadmin') {
@@ -80,6 +103,7 @@ const StatusHistoryReportPage = () => {
         setStatsLoading(true);
         try {
             const res = await axios.get('https://tuition-seba-backend-1.onrender.com/api/statusHistory/today-report', {
+                params: appliedFilters,
                 headers: { Authorization: token }
             });
             setTodayStats(res.data);
@@ -218,22 +242,22 @@ const StatusHistoryReportPage = () => {
                                         <h2 className="fw-extrabold mb-0 mt-1" style={{ fontSize: '2rem' }}>{todayStats.confirmedTuitionsCount}</h2>
                                     </div>
                                 </div>
-                                {/* Ghost space to match Card 1 height */}
-                                <div style={{ borderTop: '1px solid rgba(255, 255, 255, 0.15)', paddingTop: '10px', marginTop: '10px', opacity: 0, pointerEvents: 'none' }}>
+                                <div style={{ borderTop: '1px solid rgba(255, 255, 255, 0.15)', paddingTop: '10px', marginTop: '10px' }}>
                                     <Row className="g-2 text-center" style={{ fontSize: '10.5px' }}>
                                         <Col xs={6}>
-                                            <div className="fw-semibold">Placeholder</div>
-                                            <div className="fw-bold fs-6">0</div>
+                                            <div className="p-2 rounded bg-danger text-white border border-danger border-opacity-50">
+                                                <div className="text-uppercase fw-semibold" style={{ fontSize: '9px', opacity: 0.95 }}>Canceled</div>
+                                                <div className="fw-bold fs-6">{todayStats.cancelledTuitionsCount || 0}</div>
+                                            </div>
                                         </Col>
                                         <Col xs={6}>
-                                            <div className="fw-semibold">Placeholder</div>
-                                            <div className="fw-bold fs-6">0</div>
+                                            <div className="p-2 rounded bg-danger text-white border border-danger border-opacity-50">
+                                                <div className="text-uppercase fw-semibold" style={{ fontSize: '9px', opacity: 0.95 }}>Suspended</div>
+                                                <div className="fw-bold fs-6">{todayStats.suspendedTuitionsCount || 0}</div>
+                                            </div>
                                         </Col>
-                                        <Col xs={6} style={{ paddingTop: '4px' }}>
-                                            <div className="fw-semibold">Placeholder</div>
-                                            <div className="fw-bold fs-6">0</div>
-                                        </Col>
-                                        <Col xs={6} style={{ paddingTop: '4px' }}>
+                                        {/* Ghost second row to balance Card 1 height */}
+                                        <Col xs={12} style={{ opacity: 0, pointerEvents: 'none', paddingTop: '4px' }}>
                                             <div className="fw-semibold">Placeholder</div>
                                             <div className="fw-bold fs-6">0</div>
                                         </Col>
@@ -314,67 +338,102 @@ const StatusHistoryReportPage = () => {
                         <h5 className="fw-bold mb-3 d-flex align-items-center gap-2 text-dark">
                             <FaFilter className="text-primary" /> Filter Options
                         </h5>
-                        <Row className="g-3">
-                            <Col md={3}>
-                                <Form.Label className="fw-semibold text-secondary small">Section</Form.Label>
-                                <Form.Select
-                                    value={filters.moduleName}
-                                    onChange={(e) => handleFilterChange('moduleName', e.target.value)}
-                                    className="rounded-3"
-                                >
-                                    <option value="">All Sections</option>
-                                    <option value="RegTeacher">Registered Teachers</option>
-                                    <option value="TuitionApply">Tuition Applications</option>
-                                    <option value="Tuition">Tuition Jobs</option>
-                                </Form.Select>
-                            </Col>
-                            <Col md={2}>
-                                <Form.Label className="fw-semibold text-secondary small">Tuition Code</Form.Label>
-                                <Form.Control
-                                    type="text"
-                                    placeholder="Search Tuition Code"
-                                    value={filters.tuitionCode}
-                                    onChange={(e) => handleFilterChange('tuitionCode', e.target.value)}
-                                    className="rounded-3"
-                                />
-                            </Col>
-                            <Col md={2}>
-                                <Form.Label className="fw-semibold text-secondary small">Performed By</Form.Label>
-                                <Form.Control
-                                    type="text"
-                                    placeholder="Username"
-                                    value={filters.changedBy}
-                                    onChange={(e) => handleFilterChange('changedBy', e.target.value)}
-                                    className="rounded-3"
-                                />
-                            </Col>
-                            <Col md={2}>
-                                <Form.Label className="fw-semibold text-secondary small">Start Date</Form.Label>
-                                <Form.Control
-                                    type="date"
-                                    value={filters.startDate}
-                                    onChange={(e) => handleFilterChange('startDate', e.target.value)}
-                                    className="rounded-3"
-                                />
-                            </Col>
-                            <Col md={2}>
-                                <Form.Label className="fw-semibold text-secondary small">End Date</Form.Label>
-                                <Form.Control
-                                    type="date"
-                                    value={filters.endDate}
-                                    onChange={(e) => handleFilterChange('endDate', e.target.value)}
-                                    className="rounded-3"
-                                />
-                            </Col>
-                            <Col md={1} className="d-flex align-items-end gap-2">
-                                <Button variant="success" className="w-100 py-2 rounded-3 shadow-sm d-flex align-items-center justify-content-center" onClick={handleApplyFilters} title="Search">
-                                    <FaSearch />
-                                </Button>
-                                <Button variant="danger" className="w-100 py-2 rounded-3 shadow-sm d-flex align-items-center justify-content-center" onClick={handleResetFilters} title="Reset">
-                                    <FaUndo />
-                                </Button>
-                            </Col>
-                        </Row>
+                        <Form onSubmit={(e) => { e.preventDefault(); handleApplyFilters(); }}>
+                            <Row className="g-3">
+                                <Col md={3}>
+                                    <Form.Label className="fw-semibold text-secondary small">Section</Form.Label>
+                                    <Form.Select
+                                        value={filters.moduleName}
+                                        onChange={(e) => handleFilterChange('moduleName', e.target.value)}
+                                        onKeyDown={(e) => { if (e.key === 'Enter') handleApplyFilters(); }}
+                                        className="rounded-3"
+                                    >
+                                        <option value="">All Sections</option>
+                                        <option value="RegTeacher">Registered Teachers</option>
+                                        <option value="TuitionApply">Tuition Applications</option>
+                                        <option value="Tuition">Tuition Jobs</option>
+                                    </Form.Select>
+                                </Col>
+                                <Col md={2}>
+                                    <Form.Label className="fw-semibold text-secondary small">Tuition Code</Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        placeholder="Search Tuition Code"
+                                        value={filters.tuitionCode}
+                                        onChange={(e) => handleFilterChange('tuitionCode', e.target.value)}
+                                        onKeyDown={(e) => { if (e.key === 'Enter') handleApplyFilters(); }}
+                                        className="rounded-3"
+                                    />
+                                </Col>
+                                <Col md={2}>
+                                    <Form.Label className="fw-semibold text-secondary small">Performed By</Form.Label>
+                                    <CreatableSelect
+                                        isClearable
+                                        placeholder="Select or type user"
+                                        options={usersList.map(u => ({ value: u.username, label: `${u.name || u.username || ''} (${u.username || ''})` }))}
+                                        value={filters.changedBy ? { value: filters.changedBy, label: filters.changedBy } : null}
+                                        onChange={(newValue) => {
+                                            handleFilterChange('changedBy', newValue ? newValue.value : '');
+                                        }}
+                                        onInputChange={(inputValue, { action }) => {
+                                            if (action === 'input-change') {
+                                                handleFilterChange('changedBy', inputValue);
+                                            }
+                                        }}
+                                        onKeyDown={(e) => {
+                                            if (e.key === 'Enter') {
+                                                handleApplyFilters();
+                                            }
+                                        }}
+                                        styles={{
+                                            control: (base) => ({
+                                                ...base,
+                                                borderRadius: '0.375rem',
+                                                borderColor: '#dee2e6',
+                                                minHeight: '38px',
+                                                boxShadow: 'none',
+                                                '&:hover': {
+                                                    borderColor: '#86b7fe'
+                                                }
+                                            }),
+                                            menu: (base) => ({
+                                                ...base,
+                                                zIndex: 9999
+                                            })
+                                        }}
+                                        formatCreateLabel={(inputValue) => `Use "${inputValue}"`}
+                                    />
+                                </Col>
+                                <Col md={2}>
+                                    <Form.Label className="fw-semibold text-secondary small">Start Date</Form.Label>
+                                    <Form.Control
+                                        type="date"
+                                        value={filters.startDate}
+                                        onChange={(e) => handleFilterChange('startDate', e.target.value)}
+                                        onKeyDown={(e) => { if (e.key === 'Enter') handleApplyFilters(); }}
+                                        className="rounded-3"
+                                    />
+                                </Col>
+                                <Col md={2}>
+                                    <Form.Label className="fw-semibold text-secondary small">End Date</Form.Label>
+                                    <Form.Control
+                                        type="date"
+                                        value={filters.endDate}
+                                        onChange={(e) => handleFilterChange('endDate', e.target.value)}
+                                        onKeyDown={(e) => { if (e.key === 'Enter') handleApplyFilters(); }}
+                                        className="rounded-3"
+                                    />
+                                </Col>
+                                <Col md={1} className="d-flex align-items-end gap-2">
+                                    <Button variant="success" className="w-100 py-2 rounded-3 shadow-sm d-flex align-items-center justify-content-center" type="submit" title="Search">
+                                        <FaSearch />
+                                    </Button>
+                                    <Button variant="danger" className="w-100 py-2 rounded-3 shadow-sm d-flex align-items-center justify-content-center" onClick={handleResetFilters} title="Reset">
+                                        <FaUndo />
+                                    </Button>
+                                </Col>
+                            </Row>
+                        </Form>
                     </Card.Body>
                 </Card>
 

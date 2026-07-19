@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Container, Row, Col, Card, Form, Button, Spinner, Badge } from 'react-bootstrap';
+import { Container, Row, Col, Card, Form, Button, Spinner, Badge, Modal } from 'react-bootstrap';
 import { ToastContainer, toast } from 'react-toastify';
 import { FiPhone, FiSearch, FiRefreshCw, FiClock, FiCheckCircle, FiXCircle, FiInfo, FiMessageSquare, FiAlertCircle } from 'react-icons/fi';
 import NavBar from '../../components/NavBar';
@@ -14,6 +14,11 @@ const ApplyUpdates = () => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const [searched, setSearched] = useState(false);
+    
+    // Modal states for tuition details
+    const [selectedTuition, setSelectedTuition] = useState(null);
+    const [showModal, setShowModal] = useState(false);
+    const [modalLoading, setModalLoading] = useState(false);
 
     const fetchTuitionStatus = useCallback(async (phoneToSearch) => {
         if (!phoneToSearch) return;
@@ -71,6 +76,27 @@ const ApplyUpdates = () => {
             console.error('Error loading settings', e);
         }
     }, [fetchTuitionStatus]);
+
+    const handleShowDetails = async (tuitionCode) => {
+        setModalLoading(true);
+        setSelectedTuition(null);
+        setShowModal(true);
+        try {
+            const response = await fetchWithFallback(
+                `https://tuition-seba-backend-1.onrender.com/api/tuition/byCodePublic?tuitionCode=${tuitionCode}`
+            );
+            if (!response.ok) {
+                throw new Error('টিউশন কোড পাওয়া যায়নি');
+            }
+            const data = await response.json();
+            setSelectedTuition(data);
+        } catch (err) {
+            toast.error(err.message || 'টিউশন ডিটেইলস লোড করতে সমস্যা হয়েছে');
+            setShowModal(false);
+        } finally {
+            setModalLoading(false);
+        }
+    };
 
     const handleSearch = (e) => {
         e.preventDefault();
@@ -319,7 +345,53 @@ const ApplyUpdates = () => {
                                                             <span className="au-sl-badge">{index + 1}</span>
                                                         </td>
                                                         <td className="au-td au-td-info">
-                                                            <span className="au-code"><span className="au-code-label">টিউশন কোড:</span> {item.tuitionCode}</span>
+                                                             <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
+                                                                 <span className="au-code">
+                                                                     <span className="au-code-label">টিউশন কোড:</span> {item.tuitionCode}
+                                                                 </span>
+                                                                 <button 
+                                                                     type="button" 
+                                                                     onClick={() => handleShowDetails(item.tuitionCode)}
+                                                                     className="au-info-btn"
+                                                                     title="টিউশন ডিটেইলস দেখুন"
+                                                                     style={{
+                                                                         display: 'inline-flex',
+                                                                         alignItems: 'center',
+                                                                         gap: '4px',
+                                                                         background: 'rgba(59, 130, 246, 0.08)',
+                                                                         border: '1px solid rgba(59, 130, 246, 0.2)',
+                                                                         color: '#2563eb',
+                                                                         borderRadius: '6px',
+                                                                         padding: '2px 8px',
+                                                                         fontSize: '11px',
+                                                                         fontWeight: 600,
+                                                                         cursor: 'pointer',
+                                                                         marginLeft: '10px',
+                                                                         transition: 'all 0.2s',
+                                                                         fontFamily: BANGLA_FONT
+                                                                     }}
+                                                                 >
+                                                                     <FiInfo size={13} style={{ marginRight: '3px' }} />
+                                                                     <span>বিস্তারিত</span>
+                                                                 </button>
+                                                                 {item.serialNumber && (
+                                                                     <span className="au-serial-tag" style={{
+                                                                         display: 'inline-flex',
+                                                                         alignItems: 'center',
+                                                                         background: '#f1f5f9',
+                                                                         color: '#475569',
+                                                                         fontSize: '11px',
+                                                                         padding: '2px 8px',
+                                                                         borderImage: 'none',
+                                                                         borderRadius: '6px',
+                                                                         fontWeight: 500,
+                                                                         border: '1px solid #e2e8f0',
+                                                                         fontFamily: BANGLA_FONT
+                                                                     }}>
+                                                                         আবেদন সিরিয়াল: <strong style={{ color: '#2563eb', marginLeft: '3px' }}>#{item.serialNumber}</strong> / {item.totalApplies}
+                                                                     </span>
+                                                                 )}
+                                                             </div>
                                                             <span className="au-date">
                                                                 <FiClock size={11} />
                                                                 আবেদনের সময়: {date}, {time}
@@ -380,6 +452,113 @@ const ApplyUpdates = () => {
                         </div>
                     )}
                 </Container>
+
+                {/* Tuition Details Modal */}
+                <Modal show={showModal} onHide={() => setShowModal(false)} centered className="au-details-modal">
+                    <Modal.Header closeButton className="border-0 pb-0">
+                        <Modal.Title className="fw-bold fs-5 text-dark" style={{ fontFamily: BANGLA_FONT }}>
+                            টিউশন আবেদনের বিস্তারিত তথ্য
+                        </Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body className="pt-3" style={{ fontFamily: BANGLA_FONT }}>
+                        {modalLoading ? (
+                            <div className="d-flex flex-column align-items-center py-5">
+                                <Spinner animation="border" variant="primary" className="mb-2" />
+                                <span className="text-secondary small">তথ্য লোড হচ্ছে, অনুগ্রহ করে অপেক্ষা করুন...</span>
+                            </div>
+                        ) : selectedTuition ? (
+                            <div className="tuition-detail-card">
+                                <div className="detail-header-badge mb-3">
+                                    <span className="badge bg-primary px-3 py-2 rounded-pill font-sans">
+                                        Code: {selectedTuition.tuitionCode}
+                                    </span>
+                                </div>
+                                
+                                <div className="detail-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                                    <div className="detail-item" style={{ display: 'flex', flexDirection: 'column', borderBottom: '1px solid #f1f5f9', paddingBottom: '8px' }}>
+                                        <span className="detail-label" style={{ fontSize: '12px', color: '#64748b', fontWeight: '600', marginBottom: '4px' }}>Wanted Teacher</span>
+                                        <span className="detail-value" style={{ fontSize: '14px', color: '#1e293b', fontWeight: '700' }}>{selectedTuition.wantedTeacher || '-'}</span>
+                                    </div>
+                                    <div className="detail-item" style={{ display: 'flex', flexDirection: 'column', borderBottom: '1px solid #f1f5f9', paddingBottom: '8px' }}>
+                                        <span className="detail-label" style={{ fontSize: '12px', color: '#64748b', fontWeight: '600', marginBottom: '4px' }}>Students</span>
+                                        <span className="detail-value" style={{ fontSize: '14px', color: '#1e293b', fontWeight: '700' }}>{selectedTuition.student || '-'}</span>
+                                    </div>
+                                    <div className="detail-item" style={{ display: 'flex', flexDirection: 'column', borderBottom: '1px solid #f1f5f9', paddingBottom: '8px' }}>
+                                        <span className="detail-label" style={{ fontSize: '12px', color: '#64748b', fontWeight: '600', marginBottom: '4px' }}>Institute</span>
+                                        <span className="detail-value" style={{ fontSize: '14px', color: '#1e293b', fontWeight: '700' }}>{selectedTuition.institute || '-'}</span>
+                                    </div>
+                                    <div className="detail-item" style={{ display: 'flex', flexDirection: 'column', borderBottom: '1px solid #f1f5f9', paddingBottom: '8px' }}>
+                                        <span className="detail-label" style={{ fontSize: '12px', color: '#64748b', fontWeight: '600', marginBottom: '4px' }}>Class</span>
+                                        <span className="detail-value" style={{ fontSize: '14px', color: '#1e293b', fontWeight: '700' }}>{selectedTuition.class || '-'}</span>
+                                    </div>
+                                    <div className="detail-item" style={{ display: 'flex', flexDirection: 'column', borderBottom: '1px solid #f1f5f9', paddingBottom: '8px' }}>
+                                        <span className="detail-label" style={{ fontSize: '12px', color: '#64748b', fontWeight: '600', marginBottom: '4px' }}>Medium</span>
+                                        <span className="detail-value" style={{ fontSize: '14px', color: '#1e293b', fontWeight: '700' }}>{selectedTuition.medium || '-'}</span>
+                                    </div>
+                                    <div className="detail-item" style={{ display: 'flex', flexDirection: 'column', borderBottom: '1px solid #f1f5f9', paddingBottom: '8px' }}>
+                                        <span className="detail-label" style={{ fontSize: '12px', color: '#64748b', fontWeight: '600', marginBottom: '4px' }}>Subject</span>
+                                        <span className="detail-value" style={{ fontSize: '14px', color: '#1e293b', fontWeight: '700' }}>{selectedTuition.subject || '-'}</span>
+                                    </div>
+                                    <div className="detail-item" style={{ display: 'flex', flexDirection: 'column', borderBottom: '1px solid #f1f5f9', paddingBottom: '8px' }}>
+                                        <span className="detail-label" style={{ fontSize: '12px', color: '#64748b', fontWeight: '600', marginBottom: '4px' }}>Day</span>
+                                        <span className="detail-value" style={{ fontSize: '14px', color: '#1e293b', fontWeight: '700' }}>{selectedTuition.day || '-'}</span>
+                                    </div>
+                                    <div className="detail-item" style={{ display: 'flex', flexDirection: 'column', borderBottom: '1px solid #f1f5f9', paddingBottom: '8px' }}>
+                                        <span className="detail-label" style={{ fontSize: '12px', color: '#64748b', fontWeight: '600', marginBottom: '4px' }}>Time</span>
+                                        <span className="detail-value" style={{ fontSize: '14px', color: '#1e293b', fontWeight: '700' }}>{selectedTuition.time || '-'}</span>
+                                    </div>
+                                    <div className="detail-item" style={{ display: 'flex', flexDirection: 'column', borderBottom: '1px solid #f1f5f9', paddingBottom: '8px' }}>
+                                        <span className="detail-label" style={{ fontSize: '12px', color: '#64748b', fontWeight: '600', marginBottom: '4px' }}>Salary</span>
+                                        <span className="detail-value text-success" style={{ fontSize: '14px', color: '#10b981', fontWeight: '700' }}>
+                                            {selectedTuition.salary && /taka|tk/i.test(selectedTuition.salary.toString()) 
+                                                ? selectedTuition.salary 
+                                                : (selectedTuition.salary ? selectedTuition.salary.toString().trim() + ' taka' : '-')}
+                                        </span>
+                                    </div>
+                                    {selectedTuition.mediaFee && selectedTuition.mediaFee.trim() !== '' && (
+                                        <div className="detail-item" style={{ display: 'flex', flexDirection: 'column', borderBottom: '1px solid #f1f5f9', paddingBottom: '8px' }}>
+                                            <span className="detail-label" style={{ fontSize: '12px', color: '#64748b', fontWeight: '600', marginBottom: '4px' }}>Media Fee</span>
+                                            <span className="detail-value" style={{ fontSize: '14px', color: '#1e293b', fontWeight: '700' }}>{selectedTuition.mediaFee}</span>
+                                        </div>
+                                    )}
+                                    <div className="detail-item" style={{ display: 'flex', flexDirection: 'column', borderBottom: '1px solid #f1f5f9', paddingBottom: '8px' }}>
+                                        <span className="detail-label" style={{ fontSize: '12px', color: '#64748b', fontWeight: '600', marginBottom: '4px' }}>Location</span>
+                                        <span className="detail-value" style={{ fontSize: '14px', color: '#1e293b', fontWeight: '700' }}>
+                                            {selectedTuition.location || ''}{selectedTuition.area ? ', ' + selectedTuition.area : ''}
+                                        </span>
+                                    </div>
+                                    <div className="detail-item" style={{ display: 'flex', flexDirection: 'column', borderBottom: '1px solid #f1f5f9', paddingBottom: '8px' }}>
+                                        <span className="detail-label" style={{ fontSize: '12px', color: '#64748b', fontWeight: '600', marginBottom: '4px' }}>Joining</span>
+                                        <span className="detail-value" style={{ fontSize: '14px', color: '#1e293b', fontWeight: '700' }}>{selectedTuition.joining || '-'}</span>
+                                    </div>
+                                </div>
+
+                                {selectedTuition.studentGender && (
+                                    <div className="detail-item-full mt-3" style={{ display: 'flex', flexDirection: 'column', borderBottom: '1px solid #f1f5f9', paddingBottom: '8px' }}>
+                                        <span className="detail-label" style={{ fontSize: '12px', color: '#64748b', fontWeight: '600', marginBottom: '4px' }}>শিক্ষার্থীর লিঙ্গ (Student Gender):</span>
+                                        <span className="detail-value" style={{ fontSize: '14.5px', color: '#1e293b', fontWeight: '700' }}>{selectedTuition.studentGender}</span>
+                                    </div>
+                                )}
+                                
+                                {selectedTuition.requirements && (
+                                    <div className="detail-item-full mt-3" style={{ display: 'flex', flexDirection: 'column', borderBottom: '1px solid #f1f5f9', paddingBottom: '8px' }}>
+                                        <span className="detail-label" style={{ fontSize: '12px', color: '#64748b', fontWeight: '600', marginBottom: '4px' }}>অন্যান্য শর্তাবলী (Requirements):</span>
+                                        <p className="detail-value-desc" style={{ fontSize: '13.5px', color: '#475569', background: '#f8fafc', borderRadius: '8px', padding: '10px 12px', margin: '4px 0 0 0', borderLeft: '3px solid #3b82f6' }}>{selectedTuition.requirements}</p>
+                                    </div>
+                                )}
+                            </div>
+                        ) : (
+                            <div className="text-center py-4 text-danger">
+                                কোনো তথ্য পাওয়া যায়নি
+                            </div>
+                        )}
+                    </Modal.Body>
+                    <Modal.Footer className="border-0 pt-0">
+                        <Button variant="secondary" className="rounded-pill px-4" onClick={() => setShowModal(false)} style={{ fontFamily: BANGLA_FONT }}>
+                            বন্ধ করুন
+                        </Button>
+                    </Modal.Footer>
+                </Modal>
 
                 <Footer />
             </div>

@@ -62,6 +62,70 @@ const SignatureBlock = ({ name, color = '#1a3c70', invert = false }) => {
     );
 };
 
+const VerifiedStamp = ({ theme = 'gold' }) => {
+    let bg = 'linear-gradient(135deg, #10b981 0%, #059669 50%, #047857 100%)';
+    let border = '3px solid #fff';
+    let color = '#fff';
+    let shadow = '0 10px 25px rgba(16,185,129,0.45)';
+
+    if (theme === 'gold') {
+        bg = 'linear-gradient(135deg, #ffe082 0%, #fbbf24 30%, #d97706 70%, #92400e 100%)';
+        border = '3px solid #fff';
+        color = '#fff';
+        shadow = '0 10px 25px rgba(217,119,6,0.5), 0 0 15px rgba(251,191,36,0.3)';
+    } else if (theme === 'dark') {
+        bg = 'linear-gradient(135deg, #064e3b 0%, #022c22 100%)';
+        border = '3px solid #fbbf24';
+        color = '#fbbf24';
+        shadow = '0 10px 25px rgba(2,44,34,0.6)';
+    } else if (theme === 'chalk') {
+        bg = 'rgba(255, 255, 255, 0.08)';
+        border = '2px dashed rgba(255,255,255,0.7)';
+        color = '#ffffff';
+        shadow = 'none';
+    } else if (theme === 'wax') {
+        bg = 'radial-gradient(circle at 35% 35%, #f43f5e 0%, #e11d48 50%, #9f1239 100%)';
+        border = '3px solid #fda4af';
+        color = '#ffffff';
+        shadow = '0 6px 15px rgba(159,18,57,0.5)';
+    }
+
+    return (
+        <div style={{
+            position: 'absolute',
+            bottom: '-12px',
+            right: '-12px',
+            width: '60px',
+            height: '60px',
+            borderRadius: '50%',
+            background: bg,
+            border: border,
+            boxShadow: shadow,
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 10,
+            color: color,
+            fontFamily: 'Poppins, sans-serif',
+            userSelect: 'none',
+            transform: 'rotate(-8deg)',
+        }}>
+            {/* Inner dashed ring for certificate seal aesthetic */}
+            <div style={{
+                position: 'absolute',
+                inset: 3,
+                border: theme === 'dark' ? '1px dashed rgba(251,191,36,0.4)' : (theme === 'chalk' ? '1px dashed rgba(255,255,255,0.3)' : (theme === 'wax' ? '1px dashed rgba(255,255,255,0.3)' : '1px dashed rgba(255,255,255,0.4)')),
+                borderRadius: '50%',
+                pointerEvents: 'none'
+            }} />
+            <div style={{ fontSize: '7.5px', fontWeight: 900, letterSpacing: '1px', textTransform: 'uppercase', lineHeight: 1, opacity: 0.95 }}>TSF</div>
+            <div style={{ fontSize: '15px', fontWeight: 950, lineHeight: 1.1, marginTop: '2px', marginBottom: '2px', textShadow: '0 2px 4px rgba(0,0,0,0.2)' }}>✓</div>
+            <div style={{ fontSize: '6.5px', fontWeight: 900, letterSpacing: '0.5px', textTransform: 'uppercase', lineHeight: 1, opacity: 0.95 }}>VERIFIED</div>
+        </div>
+    );
+};
+
 const WatermarkBlock = ({ invert = false }) => (
     <div style={{
         position: 'absolute',
@@ -734,45 +798,44 @@ const PremiumFlower = ({ size = 30, color = '#ec4899' }) => (
    Deep navy, glowing gold frame, sparkles, premium
    ══════════════════════════════════════════════════ */
 const WT1RoyalWelcome = ({ data }) => {
-    const { teacherName, designation, university, welcomeMessage, teacherImage, accentColor = '#d97706', helpline, tagline, imageZoom = 1, imageOffsetX = 0, imageOffsetY = 0, imageRotate = 0 } = data;
+    const { teacherName, designation, university, welcomeMessage, teacherImage, primaryColor = '#1e3a8a', accentColor = '#fbbf24', helpline, tagline, imageZoom = 1, imageOffsetX = 0, imageOffsetY = 0, imageRotate = 0 } = data;
     return (
-        <div style={{ width: 600, height: 780, background: 'linear-gradient(145deg, #070913 0%, #0f172a 50%, #1e1b4b 100%)', position: 'relative', overflow: 'hidden', fontFamily: "'Hind Siliguri', 'Poppins', sans-serif" }}>
+        <div style={{ width: 600, height: 780, background: 'radial-gradient(circle at center, #0f1123 0%, #05060b 100%)', position: 'relative', overflow: 'hidden', fontFamily: "'Hind Siliguri', 'Poppins', sans-serif" }}>
             <WatermarkBlock invert={true} />
             
-            {/* Glowing grids and lights in background to fill space */}
-            <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundImage: 'radial-gradient(rgba(255,255,255,0.015) 1px, transparent 1px)', backgroundSize: '24px 24px', pointerEvents: 'none' }} />
-            <div style={{ position: 'absolute', top: '-10%', left: '50%', transform: 'translateX(-50%)', width: 450, height: 350, background: `radial-gradient(circle, ${accentColor}24 0%, transparent 70%)`, filter: 'blur(40px)', pointerEvents: 'none' }} />
-            <div style={{ position: 'absolute', bottom: '10%', right: '-5%', width: 250, height: 250, background: `radial-gradient(circle, ${accentColor}12 0%, transparent 70%)`, filter: 'blur(30px)', pointerEvents: 'none' }} />
-
-            {/* Elegant double gold borders */}
-            <div style={{ position: 'absolute', inset: 16, border: `1px solid ${accentColor}44`, pointerEvents: 'none' }} />
-            <div style={{ position: 'absolute', inset: 22, border: `2px solid ${accentColor}`, opacity: 0.8, pointerEvents: 'none' }} />
+            {/* Elegant light beams/glows */}
+            <div style={{ position: 'absolute', top: '-20%', left: '-10%', width: 500, height: 500, borderRadius: '50%', background: 'radial-gradient(circle, rgba(251,191,36,0.08) 0%, transparent 60%)', filter: 'blur(40px)', pointerEvents: 'none' }} />
+            <div style={{ position: 'absolute', bottom: '10%', right: '-10%', width: 450, height: 450, borderRadius: '50%', background: 'radial-gradient(circle, rgba(99,102,241,0.08) 0%, transparent 60%)', filter: 'blur(40px)', pointerEvents: 'none' }} />
             
-            {/* Ornate corner elements */}
+            {/* Ornate gold corner elements */}
             {[['top', 'left'], ['top', 'right'], ['bottom', 'left'], ['bottom', 'right']].map(([v, h]) => (
-                <div key={`${v}-${h}`} style={{ position: 'absolute', [v]: 30, [h]: 30, width: 20, height: 20, borderTop: v === 'top' ? `4px solid ${accentColor}` : 'none', borderBottom: v === 'bottom' ? `4px solid ${accentColor}` : 'none', borderLeft: h === 'left' ? `4px solid ${accentColor}` : 'none', borderRight: h === 'right' ? `4px solid ${accentColor}` : 'none', zIndex: 1 }} />
+                <div key={`${v}-${h}`} style={{ position: 'absolute', [v]: 24, [h]: 24, width: 28, height: 28, borderTop: v === 'top' ? `3px solid ${accentColor}` : 'none', borderBottom: v === 'bottom' ? `3px solid ${accentColor}` : 'none', borderLeft: h === 'left' ? `3px solid ${accentColor}` : 'none', borderRight: h === 'right' ? `3px solid ${accentColor}` : 'none', zIndex: 1 }} />
             ))}
+            
+            {/* Double golden border frame */}
+            <div style={{ position: 'absolute', inset: 16, border: '1px solid rgba(251,191,36,0.15)', pointerEvents: 'none', zIndex: 1 }} />
+            <div style={{ position: 'absolute', inset: 20, border: '2px solid rgba(251,191,36,0.25)', pointerEvents: 'none', zIndex: 1 }} />
 
             {/* Top Header */}
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', paddingTop: 38, position: 'relative', zIndex: 2 }}>
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', paddingTop: 44, position: 'relative', zIndex: 2 }}>
                 <PremiumHeader invert={true} accentColor={accentColor} />
-                <div style={{ marginTop: 20, display: 'flex', alignItems: 'center', gap: 12 }}>
-                    <div style={{ width: 60, height: 1, background: `linear-gradient(90deg, transparent, ${accentColor})` }} />
-                    <span style={{ fontSize: 13, color: accentColor, textTransform: 'uppercase', letterSpacing: 5, fontWeight: 900 }}>Warmest Welcome</span>
-                    <div style={{ width: 60, height: 1, background: `linear-gradient(90deg, ${accentColor}, transparent)` }} />
+                <div style={{ marginTop: 22, display: 'flex', alignItems: 'center', gap: 12 }}>
+                    <div style={{ width: 50, height: 1, background: `linear-gradient(90deg, transparent, ${accentColor})` }} />
+                    <span style={{ fontSize: 11, color: accentColor, textTransform: 'uppercase', letterSpacing: 6, fontWeight: 900 }}>Welcome</span>
+                    <div style={{ width: 50, height: 1, background: `linear-gradient(90deg, ${accentColor}, transparent)` }} />
                 </div>
-                <h1 style={{ margin: '8px 0 0', fontSize: 36, fontWeight: 950, color: '#fff', letterSpacing: '2px', textTransform: 'uppercase', textShadow: '0 4px 16px rgba(0,0,0,0.6)' }}>TO THE TEAM</h1>
+                <h1 style={{ margin: '6px 0 0', fontSize: 34, fontWeight: 950, color: '#fff', letterSpacing: '2px', textTransform: 'uppercase', textShadow: '0 4px 20px rgba(251,191,36,0.4)', fontFamily: 'Poppins' }}>OUR NEW TEACHER</h1>
             </div>
 
-            {/* Portrait Frame (Enlarged and with orbit decorations) */}
-            <div style={{ display: 'flex', justifyContent: 'center', marginTop: 32, position: 'relative', zIndex: 2 }}>
-                <div style={{ position: 'relative', width: 200, height: 200 }}>
-                    {/* Ornamental spinning rings */}
-                    <div style={{ position: 'absolute', inset: -12, borderRadius: '50%', border: `1.5px dashed ${accentColor}55` }} />
-                    <div style={{ position: 'absolute', inset: -6, borderRadius: '50%', border: `1px solid ${accentColor}22` }} />
+            {/* Portrait Frame with orbit decorations */}
+            <div style={{ display: 'flex', justifyContent: 'center', marginTop: 28, position: 'relative', zIndex: 2 }}>
+                <div style={{ position: 'relative', width: 180, height: 180 }}>
+                    {/* Ring glow */}
+                    <div style={{ position: 'absolute', inset: -14, borderRadius: '50%', border: `1.5px dashed rgba(251,191,36,0.3)` }} />
+                    <div style={{ position: 'absolute', inset: -8, borderRadius: '50%', border: `1px solid rgba(251,191,36,0.15)` }} />
                     
                     {/* Main Image Container */}
-                    <div style={{ position: 'absolute', inset: 0, borderRadius: '50%', border: `4px solid ${accentColor}`, boxShadow: '0 12px 36px rgba(0,0,0,0.6), 0 0 25px rgba(217,119,6,0.35)', overflow: 'hidden', background: '#0f172a' }}>
+                    <div style={{ position: 'absolute', inset: 0, borderRadius: '50%', border: `4px solid ${accentColor}`, boxShadow: '0 12px 36px rgba(0,0,0,0.6), 0 0 25px rgba(251,191,36,0.25)', overflow: 'hidden', background: '#090a0f' }}>
                         {teacherImage ? (
                             <img 
                                 src={teacherImage} 
@@ -789,18 +852,18 @@ const WT1RoyalWelcome = ({ data }) => {
                             <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: accentColor, fontSize: 72 }}>👤</div>
                         )}
                     </div>
+                    
+                    {/* Floating Verified Stamp */}
+                    <VerifiedStamp theme="gold" />
                 </div>
             </div>
 
             {/* Details Panel */}
-            <div style={{ textAlign: 'center', padding: '28px 48px 0', position: 'relative', zIndex: 2 }}>
+            <div style={{ textAlign: 'center', padding: '26px 44px 0', position: 'relative', zIndex: 2 }}>
                 <div style={{ fontSize: 28, fontWeight: 900, color: '#fff', letterSpacing: '-0.3px', textShadow: '0 2px 10px rgba(0,0,0,0.5)' }}>{teacherName}</div>
-                <div style={{ display: 'inline-block', background: `${accentColor}1c`, border: `1.5px solid ${accentColor}44`, borderRadius: 20, padding: '4px 18px', fontSize: 13, fontWeight: 800, color: accentColor, marginTop: 10, letterSpacing: '0.5px' }}>
+                <div style={{ display: 'inline-block', background: 'linear-gradient(135deg, rgba(251,191,36,0.1), rgba(251,191,36,0.02))', border: `1.5px solid ${accentColor}55`, borderRadius: 8, padding: '4px 18px', fontSize: 12.5, fontWeight: 800, color: accentColor, marginTop: 10, letterSpacing: '0.5px', textTransform: 'uppercase' }}>
                     {designation}
                 </div>
-                <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', marginTop: 8, fontWeight: 500 }}>{university}</div>
-                
-                {/* Decorative gold stars block */}
                 <div style={{ display: 'flex', justifyContent: 'center', gap: 4, margin: '18px 0 14px' }}>
                     {[1, 2, 3, 4, 5].map(i => <span key={i} style={{ color: accentColor, fontSize: 15 }}>★</span>)}
                 </div>
@@ -857,30 +920,33 @@ const WT2ModernCreative = ({ data }) => {
             {/* Welcome banner text */}
             <div style={{ textAlign: 'center', marginTop: 18, position: 'relative', zIndex: 2 }}>
                 <h1 style={{ margin: 0, fontSize: 52, fontWeight: 950, background: `linear-gradient(135deg, #1e1b4b 20%, ${primaryColor} 60%, ${accentColor} 100%)`, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', letterSpacing: '-1.8px', textTransform: 'uppercase', lineHeight: 1 }}>WELCOME</h1>
-                <div style={{ fontSize: 14, color: primaryColor, fontWeight: 800, letterSpacing: 4, marginTop: 6, textTransform: 'uppercase' }}>To Our Expert Faculty</div>
+                <div style={{ fontSize: 14, color: primaryColor, fontWeight: 800, letterSpacing: 4, marginTop: 6, textTransform: 'uppercase' }}>OUR NEW TEACHER</div>
             </div>
 
             {/* Main glass card - Expanded to capture space */}
             <div style={{ margin: '26px 28px 0', background: 'rgba(255, 255, 255, 0.72)', border: '1.5px solid rgba(255, 255, 255, 0.95)', borderRadius: 32, padding: '28px 32px', boxShadow: '0 25px 50px rgba(30,27,75,0.08)', backdropFilter: 'blur(12px)', position: 'relative', zIndex: 2 }}>
                 
                 <div style={{ display: 'flex', gap: 28, alignItems: 'center' }}>
-                    {/* Large profile image */}
-                    <div style={{ width: 150, height: 185, borderRadius: 24, overflow: 'hidden', border: '5px solid #fff', boxShadow: '0 12px 30px rgba(0,0,0,0.1)', flexShrink: 0, background: '#e2e8f0' }}>
-                        {teacherImage ? (
-                            <img 
-                                src={teacherImage} 
-                                alt={teacherName} 
-                                style={{ 
-                                    width: '100%', 
-                                    height: '100%', 
-                                    objectFit: 'cover',
-                                    transform: `scale(${imageZoom}) translate(${imageOffsetX}px, ${imageOffsetY}px) rotate(${imageRotate}deg)`,
-                                    transformOrigin: 'center center'
-                                }} 
-                            />
-                        ) : (
-                            <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#a5b4fc', fontSize: 56 }}>👤</div>
-                        )}
+                    {/* Large profile image with corner Verified stamp */}
+                    <div style={{ position: 'relative', flexShrink: 0 }}>
+                        <div style={{ width: 150, height: 185, borderRadius: 24, overflow: 'hidden', border: '5px solid #fff', boxShadow: '0 12px 30px rgba(0,0,0,0.1)', background: '#e2e8f0' }}>
+                            {teacherImage ? (
+                                <img 
+                                    src={teacherImage} 
+                                    alt={teacherName} 
+                                    style={{ 
+                                        width: '100%', 
+                                        height: '100%', 
+                                        objectFit: 'cover',
+                                        transform: `scale(${imageZoom}) translate(${imageOffsetX}px, ${imageOffsetY}px) rotate(${imageRotate}deg)`,
+                                        transformOrigin: 'center center'
+                                    }} 
+                                />
+                            ) : (
+                                <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#a5b4fc', fontSize: 56 }}>👤</div>
+                            )}
+                        </div>
+                        <VerifiedStamp theme="green" />
                     </div>
 
                     {/* Teacher Text Credentials */}
@@ -914,28 +980,25 @@ const WT2ModernCreative = ({ data }) => {
     );
 };
 
-/* ══════════════════════════════════════════════════
-   WELCOME TEACHER — 3: MINIMALIST EDITORIAL
-   Warm beige, elegant line frames, classic typography
-   ══════════════════════════════════════════════════ */
 const WT3MinimalistEditorial = ({ data }) => {
     const { teacherName, designation, university, welcomeMessage, teacherImage, primaryColor = '#1e3a1f', accentColor = '#c2410c', helpline, tagline, imageZoom = 1, imageOffsetX = 0, imageOffsetY = 0, imageRotate = 0 } = data;
     return (
-        <div style={{ width: 600, height: 780, background: '#fcfcf9', border: '20px solid #1e3a1f', position: 'relative', overflow: 'hidden', fontFamily: "'Hind Siliguri', 'Poppins', sans-serif", boxSizing: 'border-box' }}>
+        <div style={{ width: 600, height: 780, background: '#fdfcf9', border: '24px solid #1e3a1f', position: 'relative', overflow: 'hidden', fontFamily: "'Hind Siliguri', 'Poppins', sans-serif", boxSizing: 'border-box' }}>
             <WatermarkBlock invert={false} />
-            <div style={{ position: 'absolute', inset: 8, border: '1px solid rgba(30,58,31,0.18)', pointerEvents: 'none' }} />
+            <div style={{ position: 'absolute', inset: 6, border: '1px solid rgba(30,58,31,0.18)', pointerEvents: 'none' }} />
+            <div style={{ position: 'absolute', inset: 10, border: '1.5px dashed rgba(194,65,12,0.25)', pointerEvents: 'none' }} />
             
             {/* Top header area */}
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', paddingTop: 28, borderBottom: '1.5px solid #eae6df', paddingBottom: 20, margin: '0 32px', position: 'relative', zIndex: 2 }}>
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', paddingTop: 24, borderBottom: '1.5px solid #eae6df', paddingBottom: 18, margin: '0 32px', position: 'relative', zIndex: 2 }}>
                 <PremiumHeader invert={false} accentColor={accentColor} />
-                <div style={{ marginTop: 14, fontSize: 11, color: accentColor, textTransform: 'uppercase', letterSpacing: 5, fontWeight: 900 }}>Welcome Announcement</div>
+                <div style={{ marginTop: 14, fontSize: 11, color: accentColor, textTransform: 'uppercase', letterSpacing: 5, fontWeight: 900 }}>WELCOME OUR NEW TEACHER</div>
             </div>
 
-            {/* Layout Grid - Expanded sizes to cover empty spaces */}
-            <div style={{ display: 'flex', padding: '32px 36px 0', gap: 28, position: 'relative', zIndex: 2 }}>
+            {/* Layout Grid */}
+            <div style={{ display: 'flex', padding: '28px 36px 0', gap: 28, position: 'relative', zIndex: 2 }}>
                 {/* Portrait Column */}
                 <div style={{ width: 210, display: 'flex', flexDirection: 'column', alignItems: 'center', flexShrink: 0 }}>
-                    <div style={{ width: 210, height: 260, border: '1.5px solid #1e3a1f', padding: 6, background: '#fff', boxSizing: 'border-box', boxShadow: '0 6px 18px rgba(0,0,0,0.04)' }}>
+                    <div style={{ position: 'relative', width: 210, height: 260, border: '2px solid #1e3a1f', padding: 6, background: '#fff', boxSizing: 'border-box', boxShadow: '0 10px 25px rgba(30,58,31,0.08)' }}>
                         <div style={{ width: '100%', height: '100%', overflow: 'hidden', background: '#f5f0eb' }}>
                             {teacherImage ? (
                                 <img 
@@ -953,23 +1016,24 @@ const WT3MinimalistEditorial = ({ data }) => {
                                 <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#c2cbd2', fontSize: 64 }}>👤</div>
                             )}
                         </div>
+                        <VerifiedStamp theme="dark" />
                     </div>
                 </div>
 
                 {/* Information details */}
                 <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-                    <div style={{ borderLeft: `3px solid ${primaryColor}`, paddingLeft: 18 }}>
-                        <span style={{ fontSize: 11, color: '#8c8275', textTransform: 'uppercase', letterSpacing: 1.5, fontWeight: 800 }}>Introducing Our New Tutor</span>
+                    <div style={{ borderLeft: `4px solid ${primaryColor}`, paddingLeft: 18 }}>
+                        <span style={{ fontSize: 11, color: '#8c8275', textTransform: 'uppercase', letterSpacing: 2, fontWeight: 800 }}>Introducing Our New Tutor</span>
                         <h2 style={{ margin: '8px 0 8px', fontSize: 26, fontWeight: 900, color: '#1e3a1f', letterSpacing: '-0.5px', lineHeight: 1.25 }}>{teacherName}</h2>
                         <div style={{ fontSize: 14, fontWeight: 800, color: accentColor, fontStyle: 'italic', marginBottom: 6 }}>{designation}</div>
-                        <div style={{ fontSize: 12.5, color: '#686156', fontWeight: 500 }}>{university}</div>
+                        <div style={{ fontSize: 12.5, color: '#686156', fontWeight: 600 }}>{university}</div>
                     </div>
                     
-                    {/* Bullet Credentials to occupy layout beautifully */}
+                    {/* Bullet Credentials */}
                     <div style={{ marginTop: 22, borderTop: '1px dashed #eae6df', paddingTop: 16 }}>
                         {['Verified Profile Details', 'Expert Academic Curriculum', '5.0 Highly Rated Instructor'].map((txt, idx) => (
-                            <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 11, color: '#57534e', marginBottom: 6, fontWeight: 600 }}>
-                                <span style={{ color: primaryColor }}>✓</span>
+                            <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 11.5, color: '#57534e', marginBottom: 6, fontWeight: 600 }}>
+                                <span style={{ color: primaryColor, fontWeight: 900 }}>✓</span>
                                 <span>{txt}</span>
                             </div>
                         ))}
@@ -978,11 +1042,10 @@ const WT3MinimalistEditorial = ({ data }) => {
             </div>
 
             {/* Welcome Quote/Message Block */}
-            <div style={{ padding: '28px 36px 0', position: 'relative', zIndex: 2 }}>
-                <div style={{ borderTop: '1.5px solid #eae6df', paddingTop: 22, position: 'relative' }}>
-                    {/* Elegant quotation style wrapper */}
-                    <span style={{ fontFamily: 'Georgia, serif', fontSize: 32, color: accentColor, position: 'absolute', top: 12, left: -6 }}>“</span>
-                    <p style={{ margin: 0, paddingLeft: 14, fontSize: 14, lineHeight: 1.9, color: '#292524', fontStyle: 'italic', fontFamily: "'Hind Siliguri', Georgia, serif", textAlign: 'justify' }}>
+            <div style={{ padding: '24px 36px 0', position: 'relative', zIndex: 2 }}>
+                <div style={{ borderTop: '1.5px solid #eae6df', paddingTop: 20, position: 'relative' }}>
+                    <span style={{ fontFamily: 'Georgia, serif', fontSize: 36, color: accentColor, position: 'absolute', top: 10, left: -6 }}>“</span>
+                    <p style={{ margin: 0, paddingLeft: 16, fontSize: 14, lineHeight: 1.9, color: '#292524', fontStyle: 'italic', fontFamily: "'Hind Siliguri', Georgia, serif", textAlign: 'justify' }}>
                         {welcomeMessage}
                     </p>
                 </div>
@@ -1048,29 +1111,32 @@ const WT4FloralFiesta = ({ data }) => {
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', paddingTop: 52, position: 'relative', zIndex: 2 }}>
                 <PremiumHeader invert={false} accentColor={accentColor} />
                 <div style={{ marginTop: 18, fontSize: 13, color: '#be185d', fontWeight: 800, textTransform: 'uppercase', letterSpacing: 4 }}>
-                    ✿ A Colorful Welcome ✿
+                    ✿ Welcome ✿
                 </div>
-                <h1 style={{ margin: '6px 0 0', fontSize: 34, fontWeight: 950, color: '#4c1d95', letterSpacing: '0.5px' }}>NEW TUTOR JOINED</h1>
+                <h1 style={{ margin: '6px 0 0', fontSize: 34, fontWeight: 950, color: '#4c1d95', letterSpacing: '0.5px' }}>OUR NEW TEACHER</h1>
             </div>
 
             {/* Photo frame */}
             <div style={{ display: 'flex', justifyContent: 'center', marginTop: 24, position: 'relative', zIndex: 2 }}>
-                <div style={{ width: 170, height: 170, borderRadius: '50%', border: '6px solid #fff', boxShadow: '0 10px 25px rgba(219,39,119,0.15)', overflow: 'hidden', background: '#f5f5f5', position: 'relative' }}>
-                    {teacherImage ? (
-                        <img 
-                            src={teacherImage} 
-                            alt={teacherName} 
-                            style={{ 
-                                width: '100%', 
-                                height: '100%', 
-                                objectFit: 'cover',
-                                transform: `scale(${imageZoom}) translate(${imageOffsetX}px, ${imageOffsetY}px) rotate(${imageRotate}deg)`,
-                                transformOrigin: 'center center'
-                            }} 
-                        />
-                    ) : (
-                        <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#db2777', fontSize: 56 }}>👤</div>
-                    )}
+                <div style={{ position: 'relative', width: 170, height: 170 }}>
+                    <div style={{ width: '100%', height: '100%', borderRadius: '50%', border: '6px solid #fff', boxShadow: '0 10px 25px rgba(219,39,119,0.15)', overflow: 'hidden', background: '#f5f5f5' }}>
+                        {teacherImage ? (
+                            <img 
+                                src={teacherImage} 
+                                alt={teacherName} 
+                                style={{ 
+                                    width: '100%', 
+                                    height: '100%', 
+                                    objectFit: 'cover',
+                                    transform: `scale(${imageZoom}) translate(${imageOffsetX}px, ${imageOffsetY}px) rotate(${imageRotate}deg)`,
+                                    transformOrigin: 'center center'
+                                }} 
+                            />
+                        ) : (
+                            <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#db2777', fontSize: 56 }}>👤</div>
+                        )}
+                    </div>
+                    <VerifiedStamp theme="green" />
                 </div>
             </div>
 
@@ -1132,7 +1198,7 @@ const WT5PinkLady = ({ data }) => {
                 <div style={{ marginTop: 18, display: 'flex', alignItems: 'center', gap: 8 }}>
                     <span style={{ fontSize: 13, color: '#f43f5e', textTransform: 'uppercase', letterSpacing: 4, fontWeight: 800 }}>Welcome to TSF Family</span>
                 </div>
-                <h1 style={{ margin: '6px 0 0', fontSize: 32, fontWeight: 900, color: '#9d174d', letterSpacing: '0.5px' }}>NEW TUTOR ANNOUNCEMENT</h1>
+                <h1 style={{ margin: '6px 0 0', fontSize: 32, fontWeight: 900, color: '#9d174d', letterSpacing: '0.5px' }}>WELCOME OUR NEW TEACHER</h1>
             </div>
 
             {/* Elegant Oval Frame for Photo */}
@@ -1157,6 +1223,7 @@ const WT5PinkLady = ({ data }) => {
                             <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fda4af', fontSize: 60 }}>👤</div>
                         )}
                     </div>
+                    <VerifiedStamp theme="green" />
                 </div>
             </div>
 
@@ -1182,6 +1249,338 @@ const WT5PinkLady = ({ data }) => {
                 <span style={{ fontSize: 12, fontWeight: 800, color: '#f43f5e', display: 'inline-flex', alignItems: 'center', gap: '3px' }}>
                     <span>☎</span>
                     <WhatsAppIcon size={12} color="#f43f5e" />
+                    <span>{helpline}</span>
+                </span>
+            </div>
+        </div>
+    );
+};
+
+/* ══════════════════════════════════════════════════
+   WELCOME TEACHER — 6: EMERALD GOLD LUXURY
+   Deep emerald forest green gradient, premium gold borders & frames
+   ══════════════════════════════════════════════════ */
+const WT6EmeraldGold = ({ data }) => {
+    const { teacherName, designation, university, welcomeMessage, teacherImage, helpline, tagline, imageZoom = 1, imageOffsetX = 0, imageOffsetY = 0, imageRotate = 0 } = data;
+    return (
+        <div style={{ width: 600, height: 780, background: 'linear-gradient(135deg, #022c22 0%, #023e2f 40%, #011c15 100%)', position: 'relative', overflow: 'hidden', fontFamily: "'Hind Siliguri', 'Poppins', sans-serif" }}>
+            <WatermarkBlock invert={true} />
+            
+            {/* Glowing gold spheres in background */}
+            <div style={{ position: 'absolute', top: '-10%', left: '-10%', width: 300, height: 300, borderRadius: '50%', background: 'radial-gradient(circle, rgba(251,191,36,0.1) 0%, transparent 70%)', filter: 'blur(30px)', pointerEvents: 'none' }} />
+            <div style={{ position: 'absolute', bottom: '-5%', right: '-5%', width: 350, height: 350, borderRadius: '50%', background: 'radial-gradient(circle, rgba(16,185,129,0.12) 0%, transparent 70%)', filter: 'blur(30px)', pointerEvents: 'none' }} />
+            
+            {/* Golden corner geometric frames */}
+            <div style={{ position: 'absolute', top: 20, left: 20, width: 24, height: 24, borderLeft: '3px solid #fbbf24', borderTop: '3px solid #fbbf24' }} />
+            <div style={{ position: 'absolute', top: 20, right: 20, width: 24, height: 24, borderRight: '3px solid #fbbf24', borderTop: '3px solid #fbbf24' }} />
+            <div style={{ position: 'absolute', bottom: 76, left: 20, width: 24, height: 24, borderLeft: '3px solid #fbbf24', borderBottom: '3px solid #fbbf24' }} />
+            <div style={{ position: 'absolute', bottom: 76, right: 20, width: 24, height: 24, borderRight: '3px solid #fbbf24', borderBottom: '3px solid #fbbf24' }} />
+            
+            {/* Inner golden border */}
+            <div style={{ position: 'absolute', top: 28, bottom: 84, left: 28, right: 28, border: '1px solid rgba(251,191,36,0.2)', pointerEvents: 'none' }} />
+            
+            {/* Header Content */}
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', paddingTop: 45, position: 'relative', zIndex: 2 }}>
+                <PremiumHeader invert={true} accentColor="#fbbf24" />
+                <div style={{ marginTop: 22, display: 'flex', alignItems: 'center', gap: 10 }}>
+                    <div style={{ width: 40, height: 1, background: 'linear-gradient(90deg, transparent, #fbbf24)' }} />
+                    <span style={{ fontSize: 12, color: '#fbbf24', textTransform: 'uppercase', letterSpacing: 5, fontWeight: 800 }}>Welcome New Member</span>
+                    <div style={{ width: 40, height: 1, background: 'linear-gradient(90deg, #fbbf24, transparent)' }} />
+                </div>
+                <h1 style={{ margin: '6px 0 0', fontSize: 32, fontWeight: 950, color: '#fff', letterSpacing: '1px', textTransform: 'uppercase', textShadow: '0 4px 12px rgba(0,0,0,0.5)' }}>WELCOME OUR NEW TEACHER</h1>
+            </div>
+
+            {/* Premium Gold Frame for Profile Picture */}
+            <div style={{ display: 'flex', justifyContent: 'center', marginTop: 28, position: 'relative', zIndex: 2 }}>
+                <div style={{ position: 'relative', width: 176, height: 176 }}>
+                    {/* Ring glow */}
+                    <div style={{ position: 'absolute', inset: -10, borderRadius: '50%', border: '2px solid rgba(251,191,36,0.3)', boxShadow: '0 0 20px rgba(251,191,36,0.15)' }} />
+                    <div style={{ position: 'absolute', inset: 0, borderRadius: '50%', background: 'linear-gradient(135deg, #fbbf24, #d97706)', padding: 4 }}>
+                        <div style={{ width: '100%', height: '100%', borderRadius: '50%', overflow: 'hidden', background: '#022c22' }}>
+                            {teacherImage ? (
+                                <img 
+                                    src={teacherImage} 
+                                    alt={teacherName} 
+                                    style={{ 
+                                        width: '100%', 
+                                        height: '100%', 
+                                        objectFit: 'cover',
+                                        transform: `scale(${imageZoom}) translate(${imageOffsetX}px, ${imageOffsetY}px) rotate(${imageRotate}deg)`,
+                                        transformOrigin: 'center center'
+                                    }} 
+                                />
+                            ) : (
+                                <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fbbf24', fontSize: 60 }}>👤</div>
+                            )}
+                        </div>
+                    </div>
+                    <VerifiedStamp theme="gold" />
+                </div>
+            </div>
+
+            {/* Teacher Details */}
+            <div style={{ textAlign: 'center', padding: '24px 44px 0', position: 'relative', zIndex: 2 }}>
+                <div style={{ fontSize: 26, fontWeight: 900, color: '#fff', letterSpacing: '-0.3px', textShadow: '0 2px 8px rgba(0,0,0,0.5)' }}>{teacherName}</div>
+                <div style={{ display: 'inline-block', background: 'linear-gradient(135deg, rgba(251,191,36,0.12), rgba(217,119,6,0.12))', border: '1.5px solid #fbbf2488', borderRadius: 8, padding: '4px 16px', fontSize: 13, fontWeight: 800, color: '#fbbf24', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                    {designation}
+                </div>
+                <div style={{ fontSize: 12.5, color: '#a7f3d0', marginTop: 8, fontWeight: 600, opacity: 0.85 }}>{university}</div>
+
+                {/* Elegant gold quote card */}
+                <div style={{ background: 'rgba(5, 46, 32, 0.6)', border: '1.5px solid rgba(251,191,36,0.25)', borderRadius: 22, padding: '20px 24px', marginTop: 22, boxShadow: '0 8px 32px rgba(0,0,0,0.3)', backdropFilter: 'blur(6px)' }}>
+                    <p style={{ margin: 0, fontSize: 13.5, lineHeight: 1.85, color: '#f3f4f6', fontStyle: 'italic', fontWeight: 500 }}>
+                        "{welcomeMessage}"
+                    </p>
+                </div>
+            </div>
+
+            {/* Footer */}
+            <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: '20px 38px', borderTop: '1px solid rgba(251,191,36,0.15)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(1, 28, 21, 0.95)', zIndex: 2 }}>
+                <span style={{ fontSize: 11, color: '#a7f3d0', fontWeight: 600, opacity: 0.75 }}>{tagline}</span>
+                <span style={{ fontSize: 13, fontWeight: 800, color: '#fbbf24', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                    <span>☎</span>
+                    <WhatsAppIcon size={12} color="#fbbf24" />
+                    <span>{helpline}</span>
+                </span>
+            </div>
+        </div>
+    );
+};
+
+const WT7ClassroomChalkboard = ({ data }) => {
+    const { teacherName, designation, university, welcomeMessage, teacherImage, helpline, tagline, imageZoom = 1, imageOffsetX = 0, imageOffsetY = 0, imageRotate = 0 } = data;
+    return (
+        <div style={{ width: 600, height: 780, background: 'linear-gradient(to bottom, #1e293b 0%, #0f172a 100%)', position: 'relative', overflow: 'hidden', fontFamily: "'Hind Siliguri', 'Poppins', sans-serif" }}>
+            <WatermarkBlock invert={true} />
+            
+            {/* Background 3D Classroom Wall styling */}
+            <div style={{ position: 'absolute', inset: 0, opacity: 0.15, background: 'repeating-linear-gradient(90deg, transparent, transparent 40px, #475569 40px, #475569 42px)', pointerEvents: 'none' }} />
+            <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '400px', background: 'radial-gradient(circle at 50% 0%, rgba(251,191,36,0.15) 0%, transparent 70%)', filter: 'blur(30px)', pointerEvents: 'none' }} />
+
+            {/* Suspended 3D Chalkboard (hanging from wires) */}
+            <div style={{ position: 'absolute', top: 40, left: 32, right: 32, height: 470, background: '#13261f', border: '12px solid #5c3015', borderRadius: 6, boxShadow: '0 25px 50px rgba(0,0,0,0.6), inset 0 0 30px rgba(0,0,0,0.8), 0 0 0 2px #7c2d12', boxSizing: 'border-box', zIndex: 2 }}>
+                {/* Board Suspension Wires */}
+                <div style={{ position: 'absolute', top: -55, left: '20%', width: 2, height: 45, background: '#64748b', zIndex: 1 }} />
+                <div style={{ position: 'absolute', top: -55, right: '20%', width: 2, height: 45, background: '#64748b', zIndex: 1 }} />
+
+                {/* Chalk Dust Texture */}
+                <div style={{ position: 'absolute', inset: 0, opacity: 0.05, background: 'radial-gradient(circle, #fff 10%, transparent 11%), radial-gradient(circle, #fff 10%, transparent 11%)', backgroundSize: '15px 15px', backgroundPosition: '0 0, 8px 8px', pointerEvents: 'none' }} />
+                
+                {/* Chalk-drawn mathematical/scientific doodles */}
+                <div style={{ position: 'absolute', top: 15, left: 15, color: 'rgba(255,255,255,0.12)', fontFamily: 'monospace', fontSize: 11, userSelect: 'none', lineHeight: 1.4 }}>
+                    E = mc²<br/>H₂O + CO₂<br/>Δx · Δp ≥ ℏ
+                </div>
+                <div style={{ position: 'absolute', top: 15, right: 15, color: 'rgba(255,255,255,0.12)', fontFamily: 'monospace', fontSize: 11, textAlign: 'right', userSelect: 'none', lineHeight: 1.4 }}>
+                    f(x) = ∫ y dx<br/>π ≈ 3.14159<br/>a² + b² = c²
+                </div>
+
+                {/* Chalkboard Header */}
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', paddingTop: 20, width: '100%' }}>
+                    <PremiumHeader invert={true} accentColor="#fbbf24" />
+                    <h1 style={{ 
+                        margin: '14px 0 0', 
+                        fontSize: 30, 
+                        fontWeight: 700, 
+                        color: 'rgba(255, 255, 255, 0.95)', 
+                        letterSpacing: '1px', 
+                        textTransform: 'uppercase', 
+                        fontFamily: "'Cabin Sketch', 'Poppins', sans-serif",
+                        textShadow: '0 0 2px rgba(255, 255, 255, 0.85), 1px 1px 2px rgba(255, 255, 255, 0.3), -1px -1px 0px rgba(0, 0, 0, 0.15)'
+                    }}>
+                        WELCOME OUR NEW TEACHER
+                    </h1>
+                </div>
+
+                {/* Chalk-drawn quote box holding the Welcome Message */}
+                <div style={{ margin: '40px 28px 0', border: '1.5px solid rgba(255, 255, 255, 0.2)', borderRadius: 12, padding: '24px 20px', background: 'rgba(255, 255, 255, 0.01)', boxShadow: 'inset 0 0 8px rgba(255, 255, 255, 0.01)' }}>
+                    <p style={{ 
+                        margin: 0, 
+                        fontSize: 14.5, 
+                        lineHeight: 1.95, 
+                        color: 'rgba(255, 255, 255, 0.9)', 
+                        fontStyle: 'italic', 
+                        fontWeight: 600, 
+                        textAlign: 'center',
+                        textShadow: '0 0 1px rgba(255, 255, 255, 0.65), 1px 1px 1px rgba(255, 255, 255, 0.3), -1px -1px 0px rgba(0, 0, 0, 0.1)'
+                    }}>
+                        "{welcomeMessage}"
+                    </p>
+                </div>
+
+                {/* Wooden Chalk Ledge with chalks */}
+                <div style={{ position: 'absolute', bottom: -12, left: -12, right: -12, height: 12, background: '#7c2d12', borderTop: '2px solid #9a3412', borderRadius: '0 0 4px 4px', boxShadow: '0 8px 16px rgba(0,0,0,0.4)', display: 'flex', gap: 10, paddingLeft: 20 }}>
+                    <div style={{ width: 14, height: 5, background: '#fff', borderRadius: 1.5, transform: 'rotate(2deg)', boxShadow: '1px 1px 2px rgba(0,0,0,0.3)', marginTop: -2 }} />
+                    <div style={{ width: 18, height: 5, background: '#fef08a', borderRadius: 1.5, transform: 'rotate(-4deg)', boxShadow: '1px 1px 2px rgba(0,0,0,0.3)', marginTop: -2 }} />
+                </div>
+            </div>
+
+            {/* 3D Classroom Wooden Desk surface in lower section */}
+            <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 250, zIndex: 3, pointerEvents: 'none' }}>
+                
+                {/* 3D Perspective Table Top */}
+                <div style={{ 
+                    position: 'absolute', 
+                    top: 0, 
+                    left: -100, 
+                    right: -100, 
+                    height: 100, 
+                    background: 'linear-gradient(to bottom, #a16207 0%, #78350f 100%)', 
+                    transform: 'perspective(400px) rotateX(24deg)', 
+                    transformOrigin: 'bottom center',
+                    boxShadow: '0 -15px 35px rgba(0,0,0,0.65), inset 0 3px 6px rgba(255,255,255,0.15)',
+                    borderBottom: '4px solid #451a03'
+                }} />
+
+                {/* Vertical Desk Front Facing Wood Panel */}
+                <div style={{ 
+                    position: 'absolute', 
+                    top: 96, 
+                    left: 0, 
+                    right: 0, 
+                    bottom: 0, 
+                    background: 'linear-gradient(to bottom, #78350f 0%, #451a03 100%)',
+                    boxShadow: 'inset 0 10px 20px rgba(0,0,0,0.5)'
+                }} />
+
+                {/* 3D Standing Picture Frame (Left Side) */}
+                <div style={{ 
+                    position: 'absolute', 
+                    top: -110, 
+                    left: 60, 
+                    width: 210, 
+                    height: 210, 
+                    zIndex: 4, 
+                    transform: 'perspective(500px) rotateY(-10deg) rotateX(8deg) rotateZ(1deg)',
+                    transformOrigin: 'bottom center',
+                }}>
+                    <div style={{
+                        position: 'absolute',
+                        inset: 0,
+                        background: 'rgba(0,0,0,0.55)',
+                        filter: 'blur(12px)',
+                        transform: 'translate(18px, 22px) scale(0.95)',
+                        borderRadius: 14,
+                        zIndex: -1
+                    }} />
+
+                    <div style={{
+                        position: 'absolute',
+                        bottom: 0,
+                        left: '42%',
+                        width: 32,
+                        height: 120,
+                        background: '#3f1f0a',
+                        transform: 'rotateX(-30deg) translateZ(-40px)',
+                        boxShadow: '4px 4px 10px rgba(0,0,0,0.7)',
+                        zIndex: -1
+                    }} />
+
+                    <div style={{ 
+                        width: '100%', 
+                        height: '100%', 
+                        borderRadius: 14, 
+                        border: '8px solid #f8fafc', 
+                        boxShadow: 'inset 0 0 12px rgba(0,0,0,0.25), 0 15px 35px rgba(0,0,0,0.5)', 
+                        overflow: 'hidden', 
+                        background: '#1e293b', 
+                        boxSizing: 'border-box',
+                        position: 'relative'
+                    }}>
+                        {teacherImage ? (
+                            <img 
+                                src={teacherImage} 
+                                alt={teacherName} 
+                                style={{ 
+                                    width: '100%', 
+                                    height: '100%', 
+                                    objectFit: 'cover',
+                                    transform: `scale(${imageZoom}) translate(${imageOffsetX}px, ${imageOffsetY}px) rotate(${imageRotate}deg)`,
+                                    transformOrigin: 'center center'
+                                }} 
+                            />
+                        ) : (
+                            <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'rgba(255,255,255,0.25)', fontSize: 64 }}>👤</div>
+                        )}
+                        <VerifiedStamp theme="wax" />
+                    </div>
+                </div>
+
+                {/* 3D Standing Clipboard Details Board (Right Side) */}
+                <div style={{ 
+                    position: 'absolute', 
+                    top: -100, 
+                    left: 290, 
+                    width: 250, 
+                    height: 180, 
+                    zIndex: 4, 
+                    transform: 'perspective(500px) rotateY(10deg) rotateX(8deg) rotateZ(-1deg)',
+                    transformOrigin: 'bottom center',
+                }}>
+                    <div style={{
+                        position: 'absolute',
+                        inset: 0,
+                        background: 'rgba(0,0,0,0.55)',
+                        filter: 'blur(12px)',
+                        transform: 'translate(14px, 22px) scale(0.95)',
+                        borderRadius: 12,
+                        zIndex: -1
+                    }} />
+
+                    {/* Clipboard body */}
+                    <div style={{ 
+                        width: '100%', 
+                        height: '100%', 
+                        borderRadius: 12, 
+                        background: '#fef3c7', 
+                        border: '5px solid #d97706', 
+                        boxShadow: 'inset 0 0 10px rgba(0,0,0,0.05), 0 15px 35px rgba(0,0,0,0.5)', 
+                        padding: '24px 18px 18px', 
+                        boxSizing: 'border-box',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        position: 'relative'
+                    }}>
+                        {/* Metal Clip at top of clipboard */}
+                        <div style={{ position: 'absolute', top: -10, width: 60, height: 20, background: '#94a3b8', border: '2px solid #64748b', borderRadius: '4px 4px 0 0', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 3px 6px rgba(0,0,0,0.2)' }}>
+                            <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#475569' }} />
+                        </div>
+
+                        <div style={{ fontSize: 22, fontWeight: 950, color: '#7c2d12', textAlign: 'center', letterSpacing: '-0.3px', lineHeight: 1.2 }}>{teacherName}</div>
+                        <div style={{ background: '#d97706', borderRadius: 8, padding: '3px 12px', fontSize: 11, fontWeight: 800, color: '#fff', marginTop: 10, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                            {designation}
+                        </div>
+                        <div style={{ fontSize: 12, color: '#451a03', marginTop: 8, fontWeight: 700, textAlign: 'center' }}>{university}</div>
+                    </div>
+                </div>
+
+                {/* 3D Standing Pencil Holder Cup on the Desk (Far Right) */}
+                <div style={{ position: 'absolute', top: -25, left: 545, width: 34, height: 60, zIndex: 4, transform: 'perspective(400px) rotateX(10deg)' }}>
+                    <div style={{ position: 'absolute', bottom: -4, left: 1, width: 32, height: 7, background: 'rgba(0,0,0,0.5)', filter: 'blur(2.5px)', borderRadius: '50%' }} />
+                    <div style={{ width: '100%', height: '100%', background: 'linear-gradient(90deg, #f59e0b 0%, #d97706 70%, #92400e 100%)', borderRadius: '3px 3px 5px 5px', borderTop: '2px solid #b45309', boxShadow: 'inset 0 4px 8px rgba(255,255,255,0.2), 0 6px 12px rgba(0,0,0,0.4)', position: 'relative' }}>
+                        <div style={{ position: 'absolute', top: -26, left: 6, width: 4, height: 32, background: '#ef4444', transform: 'rotate(-12deg)', borderRadius: '1px 1px 0 0' }} />
+                        <div style={{ position: 'absolute', top: -22, left: 14, width: 4, height: 28, background: '#3b82f6', transform: 'rotate(8deg)', borderRadius: '1px 1px 0 0' }} />
+                        <div style={{ position: 'absolute', top: -28, left: 22, width: 4, height: 34, background: '#10b981', transform: 'rotate(3deg)', borderRadius: '1px 1px 0 0' }} />
+                    </div>
+                </div>
+
+                {/* 3D Red Apple on the Desk (Far Left) */}
+                <div style={{ position: 'absolute', top: -10, left: 15, width: 28, height: 28, zIndex: 5 }}>
+                    <div style={{ position: 'absolute', bottom: -3, left: 2, width: 24, height: 6, background: 'rgba(0,0,0,0.6)', filter: 'blur(2.5px)', borderRadius: '50%' }} />
+                    <div style={{ width: '100%', height: '100%', borderRadius: '50%', background: 'radial-gradient(circle at 35% 35%, #f43f5e 0%, #be123c 60%, #4c0519 100%)', boxShadow: '0 5px 10px rgba(0,0,0,0.3)', position: 'relative' }}>
+                        <div style={{ position: 'absolute', top: -4, left: '50%', transform: 'translateX(-50%)', width: 1.5, height: 6, background: '#78350f' }} />
+                        <div style={{ position: 'absolute', top: -5, left: '56%', width: 4, height: 6, background: '#10b981', borderRadius: '0 5px 0 5px', transform: 'rotate(25deg)' }} />
+                    </div>
+                </div>
+            </div>
+
+            {/* Footer Bar overlaying desk front panel */}
+            <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: '18px 36px', borderTop: '1px solid rgba(255,255,255,0.06)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#3f1f0a', zIndex: 4 }}>
+                <span style={{ fontSize: 10.5, color: 'rgba(255,255,255,0.4)', fontWeight: 600 }}>{tagline}</span>
+                <span style={{ fontSize: 12.5, fontWeight: 800, color: '#fbbf24', display: 'inline-flex', alignItems: 'center', gap: '3px' }}>
+                    <span>☎</span>
+                    <WhatsAppIcon size={12} color="#fbbf24" />
                     <span>{helpline}</span>
                 </span>
             </div>
@@ -1312,7 +1711,7 @@ const PosterGenerator = () => {
 
     const gTplNames = { 1: 'Midnight Gold', 2: 'Light Editorial', 3: 'Navy Card', 4: 'Warm Minimal', 5: 'Modern Colorful' };
     const tTplNames = { 1: 'Professional Split', 2: 'Award Elegant', 3: 'Modern Dark', 4: 'Natural Sage', 5: 'Vibrant Mesh' };
-    const wtTplNames = { 1: 'Royal Welcome', 2: 'Modern Creative', 3: 'Minimalist Editorial', 4: 'Floral Fiesta', 5: 'Lady Teacher Pink' };
+    const wtTplNames = { 1: 'Royal Welcome', 2: 'Modern Creative', 3: 'Minimalist Editorial', 4: 'Floral Fiesta', 5: 'Lady Teacher Pink', 6: 'Emerald Gold', 7: 'Classroom Design' };
 
     const activeTpl = category === 'guardian' ? gTpl : (category === 'teacher' ? tTpl : wtTpl);
     const setActiveTpl = category === 'guardian' ? setGTpl : (category === 'teacher' ? setTTpl : setWtTpl);
@@ -1499,6 +1898,8 @@ const PosterGenerator = () => {
                                     {category === 'welcome_teacher' && wtTpl === 3 && <WT3MinimalistEditorial data={wtData} />}
                                     {category === 'welcome_teacher' && wtTpl === 4 && <WT4FloralFiesta data={wtData} />}
                                     {category === 'welcome_teacher' && wtTpl === 5 && <WT5PinkLady data={wtData} />}
+                                    {category === 'welcome_teacher' && wtTpl === 6 && <WT6EmeraldGold data={wtData} />}
+                                    {category === 'welcome_teacher' && wtTpl === 7 && <WT7ClassroomChalkboard data={wtData} />}
                                 </div>
                             </div>
                         </div>
@@ -1525,11 +1926,13 @@ const PosterGenerator = () => {
                     {category === 'welcome_teacher' && wtTpl === 3 && <WT3MinimalistEditorial data={wtData} />}
                     {category === 'welcome_teacher' && wtTpl === 4 && <WT4FloralFiesta data={wtData} />}
                     {category === 'welcome_teacher' && wtTpl === 5 && <WT5PinkLady data={wtData} />}
+                    {category === 'welcome_teacher' && wtTpl === 6 && <WT6EmeraldGold data={wtData} />}
+                    {category === 'welcome_teacher' && wtTpl === 7 && <WT7ClassroomChalkboard data={wtData} />}
                 </div>
             </div>
 
             <style>{`
-                @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&family=Hind+Siliguri:wght@400;600;700&family=Great+Vibes&family=Herr+Von+Muellerhoff&display=swap');
+                @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&family=Hind+Siliguri:wght@400;600;700&family=Great+Vibes&family=Herr+Von+Muellerhoff&family=Cabin+Sketch:wght@700&display=swap');
 
                 @media (max-width: 991px) {
                     .poster-header {

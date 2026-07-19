@@ -14,7 +14,7 @@ const ApplyUpdates = () => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const [searched, setSearched] = useState(false);
-    
+
     // Modal states for tuition details
     const [selectedTuition, setSelectedTuition] = useState(null);
     const [showModal, setShowModal] = useState(false);
@@ -22,7 +22,7 @@ const ApplyUpdates = () => {
 
     const fetchTuitionStatus = useCallback(async (phoneToSearch) => {
         if (!phoneToSearch) return;
-        
+
         if (!/^\d{11}$/.test(phoneToSearch)) {
             setError('দয়াকরে ১১ ডিজিটের সঠিক মোবাইল নম্বরটি লিখুন');
             return;
@@ -363,13 +363,13 @@ const ApplyUpdates = () => {
                                                         justifyContent: 'center',
                                                         fontSize: '13px'
                                                     }}>{tuitionData.length - index}</span>
-                                                    
+
                                                     <span style={{ color: '#ffffff', fontWeight: '700', fontSize: '15px', letterSpacing: '0.3px' }}>
                                                         টিউশন কোড: {item.tuitionCode}
                                                     </span>
 
-                                                    <button 
-                                                        type="button" 
+                                                    <button
+                                                        type="button"
                                                         onClick={() => handleShowDetails(item.tuitionCode)}
                                                         style={{
                                                             background: 'rgba(255, 255, 255, 0.15)',
@@ -499,7 +499,7 @@ const ApplyUpdates = () => {
                                         Code: {selectedTuition.tuitionCode}
                                     </span>
                                 </div>
-                                
+
                                 <div className="detail-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
                                     <div className="detail-item" style={{ display: 'flex', flexDirection: 'column', borderBottom: '1px solid #f1f5f9', paddingBottom: '8px' }}>
                                         <span className="detail-label" style={{ fontSize: '12px', color: '#64748b', fontWeight: '600', marginBottom: '4px' }}>Wanted Teacher</span>
@@ -536,8 +536,8 @@ const ApplyUpdates = () => {
                                     <div className="detail-item" style={{ display: 'flex', flexDirection: 'column', borderBottom: '1px solid #f1f5f9', paddingBottom: '8px' }}>
                                         <span className="detail-label" style={{ fontSize: '12px', color: '#64748b', fontWeight: '600', marginBottom: '4px' }}>Salary</span>
                                         <span className="detail-value text-success" style={{ fontSize: '14px', color: '#10b981', fontWeight: '700' }}>
-                                            {selectedTuition.salary && /taka|tk/i.test(selectedTuition.salary.toString()) 
-                                                ? selectedTuition.salary 
+                                            {selectedTuition.salary && /taka|tk/i.test(selectedTuition.salary.toString())
+                                                ? selectedTuition.salary
                                                 : (selectedTuition.salary ? selectedTuition.salary.toString().trim() + ' taka' : '-')}
                                         </span>
                                     </div>
@@ -569,7 +569,7 @@ const ApplyUpdates = () => {
                                 <div className="detail-item-full mt-3" style={{ display: 'flex', flexDirection: 'column', borderBottom: '1px solid #f1f5f9', paddingBottom: '8px' }}>
                                     <span className="detail-label" style={{ fontSize: '12px', color: '#64748b', fontWeight: '600', marginBottom: '4px' }}>Guardian Demand</span>
                                     <p className="detail-value-desc" style={{ fontSize: '13.5px', color: '#475569', background: '#f8fafc', borderRadius: '8px', padding: '10px 12px', margin: '4px 0 0 0', borderLeft: '3px solid #3b82f6', fontWeight: 600 }}>
-                                        {selectedTuition.note && selectedTuition.note.trim() ? selectedTuition.note : 'অভিজ্ঞ শিক্ষক চাইছে ভালো দেখে'}
+                                        {selectedTuition.guardianDemandForPublic && selectedTuition.guardianDemandForPublic.trim() ? selectedTuition.guardianDemandForPublic : 'অভিজ্ঞ শিক্ষক চাইছে ভালো দেখে'}
                                     </p>
                                 </div>
                             </div>
@@ -589,7 +589,8 @@ const ApplyUpdates = () => {
                 <Footer />
             </div>
 
-            <style dangerouslySetInnerHTML={{__html: `
+            <style dangerouslySetInnerHTML={{
+                __html: `
                 /* ===== ROOT ===== */
                 .apply-updates-root .au-header,
                 .apply-updates-root .au-header *,

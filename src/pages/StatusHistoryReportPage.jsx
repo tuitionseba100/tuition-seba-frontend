@@ -162,6 +162,58 @@ const StatusHistoryReportPage = () => {
         setCurrentPage(1);
     };
 
+    const handlePresetSelect = (preset) => {
+        const today = new Date();
+        let start = new Date();
+        let end = new Date();
+
+        switch (preset) {
+            case 'today':
+                break;
+            case 'yesterday':
+                start.setDate(today.getDate() - 1);
+                end.setDate(today.getDate() - 1);
+                break;
+            case 'thisWeek': {
+                const day = today.getDay();
+                const diff = today.getDate() - day + (day === 0 ? -6 : 1);
+                start.setDate(diff);
+                break;
+            }
+            case 'thisMonth':
+                start = new Date(today.getFullYear(), today.getMonth(), 1);
+                break;
+            case 'lastMonth':
+                start = new Date(today.getFullYear(), today.getMonth() - 1, 1);
+                end = new Date(today.getFullYear(), today.getMonth(), 0);
+                break;
+            case 'last7Days':
+                start.setDate(today.getDate() - 6);
+                break;
+            case 'last30Days':
+                start.setDate(today.getDate() - 29);
+                break;
+            default:
+                return;
+        }
+
+        const formatDate = (date) => {
+            const yyyy = date.getFullYear();
+            const mm = String(date.getMonth() + 1).padStart(2, '0');
+            const dd = String(date.getDate()).padStart(2, '0');
+            return `${yyyy}-${mm}-${dd}`;
+        };
+
+        const newFilters = {
+            ...filters,
+            startDate: formatDate(start),
+            endDate: formatDate(end)
+        };
+        setFilters(newFilters);
+        setAppliedFilters(newFilters);
+        setCurrentPage(1);
+    };
+
     if (role !== 'superadmin') {
         return null;
     }
@@ -433,6 +485,29 @@ const StatusHistoryReportPage = () => {
                                     </Button>
                                 </Col>
                             </Row>
+                            <div className="d-flex align-items-center gap-2 mt-3 flex-wrap">
+                                <span className="text-secondary fw-semibold small d-flex align-items-center gap-1" style={{ fontSize: '11.5px' }}>
+                                    <FaCalendarAlt className="text-primary" /> Quick Ranges:
+                                </span>
+                                {[
+                                    { label: 'Today', key: 'today' },
+                                    { label: 'Yesterday', key: 'yesterday' },
+                                    { label: 'This Week', key: 'thisWeek' },
+                                    { label: 'This Month', key: 'thisMonth' },
+                                    { label: 'Last Month', key: 'lastMonth' },
+                                    { label: 'Last 7 Days', key: 'last7Days' },
+                                    { label: 'Last 30 Days', key: 'last30Days' },
+                                ].map((item) => (
+                                    <button
+                                        key={item.key}
+                                        type="button"
+                                        className="preset-btn"
+                                        onClick={() => handlePresetSelect(item.key)}
+                                    >
+                                        {item.label}
+                                    </button>
+                                ))}
+                            </div>
                         </Form>
                     </Card.Body>
                 </Card>
@@ -618,6 +693,26 @@ const StyledContainer = styled(Container)`
     background-color: #f8fafc;
     color: #0f172a;
     border: 1px solid #e2e8f0;
+  }
+
+  .preset-btn {
+    font-size: 11px;
+    background-color: #f1f5f9;
+    color: #475569;
+    border: 1px solid #e2e8f0 !important;
+    padding: 4px 12px;
+    border-radius: 50px;
+    transition: all 0.2s ease;
+    cursor: pointer;
+  }
+  .preset-btn:hover {
+    background-color: #eff6ff;
+    color: #2563eb;
+    border-color: #bfdbfe !important;
+    transform: translateY(-1px);
+  }
+  .preset-btn:active {
+    transform: translateY(0);
   }
   
   /* Table styling enhancements */

@@ -1590,6 +1590,176 @@ const WT7ClassroomChalkboard = ({ data }) => {
 
 
 /* ══════════════════════════════════════════════════
+   WELCOME TEACHER — 8: 3D ART GALLERY EXHIBITION
+   Luxurious spotlight wall with deep 3D ornate gold frame and acrylic message panel
+   ══════════════════════════════════════════════════ */
+const WT8GalleryExhibition = ({ data }) => {
+    const { teacherName, designation, university, welcomeMessage, teacherImage, helpline, tagline, imageZoom = 1, imageOffsetX = 0, imageOffsetY = 0, imageRotate = 0 } = data;
+    return (
+        <div style={{ width: 600, height: 780, background: 'linear-gradient(135deg, #0b091a 0%, #03001e 50%, #02000a 100%)', position: 'relative', overflow: 'hidden', fontFamily: "'Hind Siliguri', 'Poppins', sans-serif" }}>
+            <WatermarkBlock invert={true} />
+            
+            {/* Cyberpunk Grid Background Overlay */}
+            <div style={{ position: 'absolute', inset: 0, opacity: 0.04, background: 'linear-gradient(90deg, #fff 1px, transparent 1px) 0 0 / 40px 40px, linear-gradient(0deg, #fff 1px, transparent 1px) 0 0 / 40px 40px', pointerEvents: 'none' }} />
+            
+            {/* Glowing Neon Abstract Geometries in Background */}
+            {/* Giant soft purple background ring */}
+            <div style={{ position: 'absolute', top: '15%', left: '50%', transform: 'translateX(-50%)', width: 440, height: 440, borderRadius: '50%', border: '2px solid rgba(168, 85, 247, 0.15)', boxShadow: '0 0 60px rgba(168, 85, 247, 0.08), inset 0 0 60px rgba(168, 85, 247, 0.08)', zIndex: 1, pointerEvents: 'none' }} />
+
+            {/* Glowing cyan diagonal beams */}
+            <div style={{ position: 'absolute', top: -100, left: '10%', width: 2, height: 600, background: 'linear-gradient(to bottom, transparent, #06b6d4, transparent)', opacity: 0.3, transform: 'rotate(25deg)', zIndex: 1 }} />
+            <div style={{ position: 'absolute', top: 200, right: '10%', width: 2, height: 600, background: 'linear-gradient(to bottom, transparent, #ec38bc, transparent)', opacity: 0.3, transform: 'rotate(25deg)', zIndex: 1 }} />
+
+            {/* Header section with glowing title */}
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', paddingTop: 32, position: 'relative', zIndex: 3 }}>
+                <PremiumHeader invert={true} accentColor="#00f2fe" />
+                <h1 style={{ 
+                    margin: '14px 0 0', 
+                    fontSize: 25, 
+                    fontWeight: 950, 
+                    color: '#ffffff', 
+                    letterSpacing: '2px', 
+                    textTransform: 'uppercase', 
+                    textShadow: '0 0 10px rgba(0, 242, 254, 0.6), 0 0 20px rgba(168, 85, 247, 0.4)'
+                }}>
+                    WELCOME NEW TEACHER
+                </h1>
+            </div>
+
+            {/* 3D Floating Holographic Photo Frame */}
+            <div style={{ display: 'flex', justifyContent: 'center', marginTop: 28, position: 'relative', zIndex: 3 }}>
+                {/* Neon back glow */}
+                <div style={{ position: 'absolute', width: 230, height: 230, borderRadius: '50%', background: 'radial-gradient(circle, rgba(0,242,254,0.2) 0%, transparent 70%)', filter: 'blur(10px)', zIndex: -1 }} />
+
+                <div style={{ 
+                    position: 'relative', 
+                    width: 210, 
+                    height: 210, 
+                    borderRadius: '50%',
+                    padding: 6,
+                    background: 'linear-gradient(135deg, #00f2fe 0%, #a855f7 100%)',
+                    boxShadow: '0 20px 50px rgba(0,242,254,0.35), inset 0 0 15px rgba(255,255,255,0.4)',
+                }}>
+                    <div style={{ width: '100%', height: '100%', borderRadius: '50%', overflow: 'hidden', background: '#0a0915', border: '2px solid rgba(255,255,255,0.1)' }}>
+                        {teacherImage ? (
+                            <img 
+                                src={teacherImage} 
+                                alt={teacherName} 
+                                style={{ 
+                                    width: '100%', 
+                                    height: '100%', 
+                                    objectFit: 'cover',
+                                    transform: `scale(${imageZoom}) translate(${imageOffsetX}px, ${imageOffsetY}px) rotate(${imageRotate}deg)`,
+                                    transformOrigin: 'center center'
+                                }} 
+                            />
+                        ) : (
+                            <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'rgba(255,255,255,0.15)', fontSize: 64 }}>👤</div>
+                        )}
+                    </div>
+
+                    {/* Gold Verified Stamp overlapping on corner */}
+                    <div style={{ position: 'absolute', bottom: 6, right: 12, transform: 'scale(1.05)' }}>
+                        <VerifiedStamp theme="gold" />
+                    </div>
+                </div>
+            </div>
+
+            {/* Glassmorphic Credentials Plate (Floats below the frame) */}
+            <div style={{ display: 'flex', justifyContent: 'center', marginTop: 24, position: 'relative', zIndex: 3 }}>
+                <div style={{ 
+                    background: 'rgba(255, 255, 255, 0.04)', 
+                    border: '1.5px solid rgba(255, 255, 255, 0.12)', 
+                    borderRadius: 12, 
+                    padding: '12px 36px', 
+                    boxShadow: '0 15px 35px rgba(0,0,0,0.5), inset 0 1px 1px rgba(255,255,255,0.2)',
+                    backdropFilter: 'blur(16px)',
+                    textAlign: 'center',
+                    minWidth: 260
+                }}>
+                    <div style={{ fontSize: 22, fontWeight: 950, color: '#ffffff', letterSpacing: '-0.3px' }}>{teacherName}</div>
+                    
+                    <div style={{ 
+                        display: 'inline-block',
+                        background: 'linear-gradient(90deg, #00f2fe, #4facfe)',
+                        borderRadius: 30, 
+                        padding: '3px 14px', 
+                        fontSize: 9.5, 
+                        fontWeight: 900, 
+                        color: '#03001e', 
+                        marginTop: 8, 
+                        textTransform: 'uppercase', 
+                        letterSpacing: '1px',
+                        boxShadow: '0 4px 10px rgba(0,242,254,0.3)'
+                    }}>
+                        {designation}
+                    </div>
+                    
+                    <div style={{ fontSize: 11.5, color: 'rgba(255,255,255,0.7)', fontWeight: 600, marginTop: 6 }}>{university}</div>
+                </div>
+            </div>
+
+            {/* Large Frosted Glass Message Panel (Fills the bottom space perfectly) */}
+            <div style={{ display: 'flex', justifyContent: 'center', marginTop: 20, padding: '0 40px', position: 'relative', zIndex: 3 }}>
+                <div style={{ 
+                    width: '100%',
+                    background: 'rgba(255, 255, 255, 0.03)', 
+                    border: '1.5px solid rgba(255, 255, 255, 0.08)', 
+                    borderRadius: 18, 
+                    padding: '24px 28px', 
+                    boxShadow: '0 25px 50px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.1)', 
+                    backdropFilter: 'blur(20px)',
+                    boxSizing: 'border-box'
+                }}>
+                    <p style={{ margin: 0, fontSize: 13, lineHeight: 1.85, color: '#e2e8f0', fontStyle: 'italic', fontWeight: 500, textAlign: 'center' }}>
+                        "{welcomeMessage}"
+                    </p>
+                </div>
+            </div>
+
+            {/* 3D Reflective Floating Neon Spheres (Adds extreme depth and matches empty spots) */}
+            {/* Left Cyan sphere */}
+            <div style={{ 
+                position: 'absolute', 
+                bottom: 120, 
+                left: 30, 
+                width: 32, 
+                height: 32, 
+                borderRadius: '50%', 
+                background: 'radial-gradient(circle at 30% 30%, #00f2fe 0%, #090919 75%, #000 100%)',
+                boxShadow: '0 12px 24px rgba(0,242,254,0.3), inset 0 2px 4px rgba(255,255,255,0.2)',
+                zIndex: 4,
+                pointerEvents: 'none'
+            }} />
+            {/* Right Purple sphere */}
+            <div style={{ 
+                position: 'absolute', 
+                bottom: 150, 
+                right: 30, 
+                width: 44, 
+                height: 44, 
+                borderRadius: '50%', 
+                background: 'radial-gradient(circle at 30% 30%, #a855f7 0%, #090919 75%, #000 100%)',
+                boxShadow: '0 15px 30px rgba(168,85,247,0.35), inset 0 2px 4px rgba(255,255,255,0.2)',
+                zIndex: 4,
+                pointerEvents: 'none'
+            }} />
+
+            {/* Footer Bar */}
+            <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: '18px 36px', borderTop: '1px solid rgba(255,255,255,0.06)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(3, 0, 30, 0.95)', zIndex: 5 }}>
+                <span style={{ fontSize: 10.5, color: 'rgba(255,255,255,0.4)', fontWeight: 600 }}>{tagline}</span>
+                <span style={{ fontSize: 12.5, fontWeight: 800, color: '#00f2fe', display: 'inline-flex', alignItems: 'center', gap: '3px' }}>
+                    <span>☎</span>
+                    <WhatsAppIcon size={12} color="#00f2fe" />
+                    <span>{helpline}</span>
+                </span>
+            </div>
+        </div>
+    );
+};
+
+
+/* ══════════════════════════════════════════════════
    MAIN COMPONENT
 ══════════════════════════════════════════════════ */
 const PosterGenerator = () => {
@@ -1711,7 +1881,7 @@ const PosterGenerator = () => {
 
     const gTplNames = { 1: 'Midnight Gold', 2: 'Light Editorial', 3: 'Navy Card', 4: 'Warm Minimal', 5: 'Modern Colorful' };
     const tTplNames = { 1: 'Professional Split', 2: 'Award Elegant', 3: 'Modern Dark', 4: 'Natural Sage', 5: 'Vibrant Mesh' };
-    const wtTplNames = { 1: 'Royal Welcome', 2: 'Modern Creative', 3: 'Minimalist Editorial', 4: 'Floral Fiesta', 5: 'Lady Teacher Pink', 6: 'Emerald Gold', 7: 'Classroom Design' };
+    const wtTplNames = { 1: 'Royal Welcome', 2: 'Modern Creative', 3: 'Minimalist Editorial', 4: 'Floral Fiesta', 5: 'Lady Teacher Pink', 6: 'Emerald Gold', 7: 'Classroom Design', 8: '3D Gallery Wall' };
 
     const activeTpl = category === 'guardian' ? gTpl : (category === 'teacher' ? tTpl : wtTpl);
     const setActiveTpl = category === 'guardian' ? setGTpl : (category === 'teacher' ? setTTpl : setWtTpl);
@@ -1900,6 +2070,7 @@ const PosterGenerator = () => {
                                     {category === 'welcome_teacher' && wtTpl === 5 && <WT5PinkLady data={wtData} />}
                                     {category === 'welcome_teacher' && wtTpl === 6 && <WT6EmeraldGold data={wtData} />}
                                     {category === 'welcome_teacher' && wtTpl === 7 && <WT7ClassroomChalkboard data={wtData} />}
+                                    {category === 'welcome_teacher' && wtTpl === 8 && <WT8GalleryExhibition data={wtData} />}
                                 </div>
                             </div>
                         </div>
@@ -1928,6 +2099,7 @@ const PosterGenerator = () => {
                     {category === 'welcome_teacher' && wtTpl === 5 && <WT5PinkLady data={wtData} />}
                     {category === 'welcome_teacher' && wtTpl === 6 && <WT6EmeraldGold data={wtData} />}
                     {category === 'welcome_teacher' && wtTpl === 7 && <WT7ClassroomChalkboard data={wtData} />}
+                    {category === 'welcome_teacher' && wtTpl === 8 && <WT8GalleryExhibition data={wtData} />}
                 </div>
             </div>
 

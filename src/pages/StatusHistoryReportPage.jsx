@@ -8,6 +8,18 @@ import { toast, ToastContainer } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
 import CreatableSelect from 'react-select/creatable';
 
+const allStatusOptions = [
+    { value: 'verified', label: 'Verified', module: 'RegTeacher' },
+    { value: 'after confirmation', label: 'After Confirmation', module: 'RegTeacher' },
+    { value: 'after salary', label: 'After Salary', module: 'RegTeacher' },
+    { value: '30% advance', label: '30% Advance', module: 'RegTeacher' },
+    { value: 'confirm', label: 'Confirm', module: 'Tuition' },
+    { value: 'cancel', label: 'Cancel', module: 'Tuition' },
+    { value: 'suspend', label: 'Suspend', module: 'Tuition' },
+    { value: 'selected', label: 'Selected', module: 'TuitionApply' },
+    { value: 'confirmed', label: 'Confirmed', module: 'TuitionApply' }
+];
+
 const StatusHistoryReportPage = () => {
     const navigate = useNavigate();
     const role = localStorage.getItem('role');
@@ -34,6 +46,7 @@ const StatusHistoryReportPage = () => {
         }
     });
     const [statsLoading, setStatsLoading] = useState(false);
+    const [exporting, setExporting] = useState(false);
 
     // List and filter states
     const [historyList, setHistoryList] = useState([]);
@@ -46,6 +59,7 @@ const StatusHistoryReportPage = () => {
         moduleName: '',
         changedBy: '',
         tuitionCode: '',
+        newStatus: '',
         startDate: '',
         endDate: ''
     });
@@ -54,6 +68,7 @@ const StatusHistoryReportPage = () => {
         moduleName: '',
         changedBy: '',
         tuitionCode: '',
+        newStatus: '',
         startDate: '',
         endDate: ''
     });
@@ -144,6 +159,48 @@ const StatusHistoryReportPage = () => {
         }));
     };
 
+    const handleModuleChange = (value) => {
+        setFilters(prev => {
+            const nextFilters = { ...prev, moduleName: value };
+            const statusToSectionMap = {
+                'verified': 'RegTeacher',
+                'after confirmation': 'RegTeacher',
+                'after salary': 'RegTeacher',
+                '30% advance': 'RegTeacher',
+                'confirm': 'Tuition',
+                'cancel': 'Tuition',
+                'suspend': 'Tuition',
+                'selected': 'TuitionApply',
+                'confirmed': 'TuitionApply'
+            };
+            if (prev.newStatus && statusToSectionMap[prev.newStatus] !== value && value !== '') {
+                nextFilters.newStatus = '';
+            }
+            return nextFilters;
+        });
+    };
+
+    const handleStatusChange = (value) => {
+        setFilters(prev => {
+            const nextFilters = { ...prev, newStatus: value };
+            const statusToSectionMap = {
+                'verified': 'RegTeacher',
+                'after confirmation': 'RegTeacher',
+                'after salary': 'RegTeacher',
+                '30% advance': 'RegTeacher',
+                'confirm': 'Tuition',
+                'cancel': 'Tuition',
+                'suspend': 'Tuition',
+                'selected': 'TuitionApply',
+                'confirmed': 'TuitionApply'
+            };
+            if (value && statusToSectionMap[value]) {
+                nextFilters.moduleName = statusToSectionMap[value];
+            }
+            return nextFilters;
+        });
+    };
+
     const handleApplyFilters = () => {
         setAppliedFilters(filters);
         setCurrentPage(1);
@@ -154,6 +211,7 @@ const StatusHistoryReportPage = () => {
             moduleName: '',
             changedBy: '',
             tuitionCode: '',
+            newStatus: '',
             startDate: '',
             endDate: ''
         };
@@ -214,6 +272,73 @@ const StatusHistoryReportPage = () => {
         setCurrentPage(1);
     };
 
+    const handleExportCSV = async () => {
+        setExporting(true);
+        try {
+            const res = await axios.get('https://tuition-seba-backend-1.onrender.com/api/statusHistory/list', {
+                params: {
+                    page: 1,
+                    limit: 5000,
+                    ...appliedFilters
+                },
+                headers: { Authorization: token }
+            });
+            
+            const logs = res.data.data || [];
+            if (logs.length === 0) {
+                toast.info("No records found to export.");
+                return;
+            }
+
+            // CSV headers
+            const headers = ["Timestamp", "Section", "Tuition/Premium Code", "Target ID", "Old Status", "New Status", "Performed By"];
+            
+            // Format each row
+            const rows = logs.map(log => {
+                const timestamp = new Date(log.timestamp).toLocaleString('en-GB', {
+                    day: '2-digit', month: 'short', year: 'numeric',
+                    hour: '2-digit', minute: '2-digit', hour12: true
+                }).replace(/,/g, ''); // avoid breaking CSV columns
+                
+                const section = log.module === 'RegTeacher' ? 'Premium Teacher' :
+                                log.module === 'Tuition' ? 'Tuition' : 'Tuition Apply';
+                                
+                const code = log.tuitionCode || '-';
+                const targetId = log.resourceId || '';
+                const oldStatus = log.oldStatus || 'Created';
+                const newStatus = log.newStatus || '';
+                const performedBy = log.changedBy || '';
+
+                return [
+                    `"${timestamp}"`,
+                    `"${section}"`,
+                    `"${code}"`,
+                    `"${targetId}"`,
+                    `"${oldStatus}"`,
+                    `"${newStatus}"`,
+                    `"${performedBy}"`
+                ].join(',');
+            });
+
+            const csvContent = [headers.join(','), ...rows].join('\n');
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            
+            const link = document.createElement("a");
+            link.setAttribute("href", url);
+            link.setAttribute("download", `status_history_report_${new Date().toISOString().slice(0, 10)}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            toast.success("CSV export downloaded successfully!");
+        } catch (err) {
+            console.error("Export error:", err);
+            toast.error("Failed to export status history data.");
+        } finally {
+            setExporting(false);
+        }
+    };
+
     if (role !== 'superadmin') {
         return null;
     }
@@ -235,14 +360,24 @@ const StatusHistoryReportPage = () => {
                             </span>
                         </div>
                     </div>
-                    <Button 
-                        variant="primary" 
-                        onClick={fetchTodayStats} 
-                        disabled={statsLoading}
-                        className="px-4 py-2 rounded-pill shadow-sm"
-                    >
-                        {statsLoading ? <Spinner animation="border" size="sm" /> : "Refresh Metrics"}
-                    </Button>
+                    <div className="d-flex gap-2">
+                        <Button
+                            variant="outline-primary"
+                            onClick={handleExportCSV}
+                            disabled={exporting}
+                            className="px-4 py-2 rounded-pill shadow-sm d-flex align-items-center gap-2"
+                        >
+                            {exporting ? <Spinner animation="border" size="sm" /> : "Export CSV"}
+                        </Button>
+                        <Button 
+                            variant="primary" 
+                            onClick={fetchTodayStats} 
+                            disabled={statsLoading}
+                            className="px-4 py-2 rounded-pill shadow-sm"
+                        >
+                            {statsLoading ? <Spinner animation="border" size="sm" /> : "Refresh Metrics"}
+                        </Button>
+                    </div>
                 </div>
 
                 {/* Today's KPI Widgets */}
@@ -392,11 +527,11 @@ const StatusHistoryReportPage = () => {
                         </h5>
                         <Form onSubmit={(e) => { e.preventDefault(); handleApplyFilters(); }}>
                             <Row className="g-3">
-                                <Col md={3}>
+                                <Col md={2}>
                                     <Form.Label className="fw-semibold text-secondary small">Section</Form.Label>
                                     <Form.Select
                                         value={filters.moduleName}
-                                        onChange={(e) => handleFilterChange('moduleName', e.target.value)}
+                                        onChange={(e) => handleModuleChange(e.target.value)}
                                         onKeyDown={(e) => { if (e.key === 'Enter') handleApplyFilters(); }}
                                         className="rounded-3"
                                     >
@@ -407,10 +542,29 @@ const StatusHistoryReportPage = () => {
                                     </Form.Select>
                                 </Col>
                                 <Col md={2}>
-                                    <Form.Label className="fw-semibold text-secondary small">Tuition Code</Form.Label>
+                                    <Form.Label className="fw-semibold text-secondary small">Transition Status</Form.Label>
+                                    <Form.Select
+                                        value={filters.newStatus}
+                                        onChange={(e) => handleStatusChange(e.target.value)}
+                                        onKeyDown={(e) => { if (e.key === 'Enter') handleApplyFilters(); }}
+                                        className="rounded-3"
+                                    >
+                                        <option value="">All Statuses</option>
+                                        {allStatusOptions
+                                            .filter(opt => !filters.moduleName || opt.module === filters.moduleName)
+                                            .map(opt => (
+                                                <option key={opt.value} value={opt.value}>
+                                                    {opt.label}
+                                                </option>
+                                            ))
+                                        }
+                                    </Form.Select>
+                                </Col>
+                                <Col md={1}>
+                                    <Form.Label className="fw-semibold text-secondary small">Code</Form.Label>
                                     <Form.Control
                                         type="text"
-                                        placeholder="Search Tuition Code"
+                                        placeholder="Code"
                                         value={filters.tuitionCode}
                                         onChange={(e) => handleFilterChange('tuitionCode', e.target.value)}
                                         onKeyDown={(e) => { if (e.key === 'Enter') handleApplyFilters(); }}
@@ -725,8 +879,9 @@ const StyledContainer = styled(Container)`
     font-size: 13.5px;
     letter-spacing: 0.5px;
     text-transform: uppercase;
-    background-color: #0f172a !important;
-    border-color: #1e293b;
+    background-color: #1d4ed8 !important;
+    color: #ffffff !important;
+    border-color: #1e40af;
     padding: 14px;
   }
   

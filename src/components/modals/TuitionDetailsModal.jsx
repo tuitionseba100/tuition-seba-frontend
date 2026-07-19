@@ -25,6 +25,7 @@ const fieldConfig = [
 
     { name: 'status', label: 'Status', group: 'admin', col: 6, type: 'select', options: ['available', 'given number', 'guardian meet', 'demo class running', 'confirm', 'cancel'] },
     { name: 'note', label: 'Guardian Demand', group: 'admin', col: 6, type: 'text' },
+    { name: 'guardianDemandForPublic', label: 'Guardian Demand (Public)', group: 'admin', col: 12, type: 'text' },
     { name: 'tutorNumber', label: 'Teacher Number', group: 'admin', col: 6, type: 'text' },
     { name: 'lastAvailableCheck', label: 'Last Available Check', group: 'admin', col: 6, type: 'datetime-local' },
     { name: 'lastUpdate', label: 'Last Update', group: 'admin', col: 6, type: 'datetime-local' },

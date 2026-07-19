@@ -164,25 +164,6 @@ const ApplyUpdates = () => {
         }
     };
 
-    const getStatusTextBangla = (status) => {
-        switch (status.toLowerCase()) {
-            case 'approved':
-            case 'confirmed':
-            case 'selected':
-                return 'অনুমোদিত';
-            case 'pending':
-                return 'রিভিউ চলছে';
-            case 'rejected':
-            case 'cancel':
-            case 'cancelled':
-            case 'cancelled by guardian':
-            case 'cancelled by teacher':
-                return 'বাতিল করা হয়েছে';
-            default:
-                return status;
-        }
-    };
-
     const getRowBgColor = (status) => {
         switch (status.toLowerCase()) {
             case 'approved':
@@ -227,13 +208,32 @@ const ApplyUpdates = () => {
             <div className="apply-updates-root">
                 <NavBar />
                 <ToastContainer position="top-center" autoClose={3000} />
-                
-                {/* Compact Premium Header */}
-                <div className="au-header">
-                    <Container>
-                        <div className="au-header-inner">
-                            <h1 className="au-header-title">আবেদনের স্ট্যাটাস</h1>
-                            <p className="au-header-subtitle">রিয়েল-টাইমে আপনার টিউশন আবেদনের আপডেট ট্র্যাক করুন</p>
+
+                {/* ===== PREMIUM HERO HEADER ===== */}
+                <div className="au-hero">
+                    {/* Animated background blobs */}
+                    <div className="au-blob au-blob-1" />
+                    <div className="au-blob au-blob-2" />
+                    <div className="au-blob au-blob-3" />
+
+                    <Container style={{ position: 'relative', zIndex: 2 }}>
+                        <div className="au-hero-inner">
+                            {/* Top badge */}
+                            <div className="au-hero-badge">
+                                <span className="au-badge-dot" />
+                                <span>লাইভ ট্র্যাকিং সিস্টেম</span>
+                            </div>
+
+                            {/* Main title */}
+                            <h1 className="au-hero-title">
+                                আবেদনের
+                                <span className="au-hero-title-accent"> স্ট্যাটাস</span>
+                            </h1>
+
+                            {/* Subtitle */}
+                            <p className="au-hero-subtitle">
+                                রিয়েল-টাইমে আপনার টিউশন আবেদনের আপডেট ট্র্যাক করুন
+                            </p>
                         </div>
                     </Container>
                 </div>
@@ -321,133 +321,159 @@ const ApplyUpdates = () => {
                                 </div>
                             </div>
 
-                            {/* Premium Table */}
-                            <div className="au-table-wrap">
-                                <table className="au-table">
-                                    <thead>
-                                        <tr>
-                                            <th className="au-th au-th-sl">SL</th>
-                                            <th className="au-th au-th-info">টিউশন ডিটেইলস</th>
-                                            <th className="au-th au-th-status">বর্তমান অবস্থা</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {tuitionData.slice().reverse().map((item, index) => {
-                                            const { date, time } = formatDate(item.appliedAt);
-                                            const statusColor = getStatusColor(item.status);
-                                            const statusBg = getStatusBgColor(item.status);
-                                            const rowBg = getRowBgColor(item.status);
+                            {/* Standalone card/table for each apply */}
+                            <div className="au-applies-list" style={{ marginTop: '24px' }}>
+                                {tuitionData.slice().reverse().map((item, index) => {
+                                    const { date, time } = formatDate(item.appliedAt);
+                                    const statusColor = getStatusColor(item.status);
+                                    const statusBg = getStatusBgColor(item.status);
+                                    const rowBg = getRowBgColor(item.status);
 
-                                            return (
-                                                <React.Fragment key={index}>
-                                                    <tr className="au-row" style={{ backgroundColor: rowBg }}>
-                                                        <td className="au-td au-td-sl">
-                                                            <span className="au-sl-badge">{index + 1}</span>
-                                                        </td>
-                                                        <td className="au-td au-td-info">
-                                                             <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
-                                                                 <span className="au-code">
-                                                                     <span className="au-code-label">টিউশন কোড:</span> {item.tuitionCode}
-                                                                 </span>
-                                                                 <button 
-                                                                     type="button" 
-                                                                     onClick={() => handleShowDetails(item.tuitionCode)}
-                                                                     className="au-info-btn"
-                                                                     title="টিউশন ডিটেইলস দেখুন"
-                                                                     style={{
-                                                                         display: 'inline-flex',
-                                                                         alignItems: 'center',
-                                                                         gap: '4px',
-                                                                         background: 'rgba(59, 130, 246, 0.08)',
-                                                                         border: '1px solid rgba(59, 130, 246, 0.2)',
-                                                                         color: '#2563eb',
-                                                                         borderRadius: '6px',
-                                                                         padding: '2px 8px',
-                                                                         fontSize: '11px',
-                                                                         fontWeight: 600,
-                                                                         cursor: 'pointer',
-                                                                         marginLeft: '10px',
-                                                                         transition: 'all 0.2s',
-                                                                         fontFamily: BANGLA_FONT
-                                                                     }}
-                                                                 >
-                                                                     <FiInfo size={13} style={{ marginRight: '3px' }} />
-                                                                     <span>বিস্তারিত</span>
-                                                                 </button>
-                                                                 {item.serialNumber && (
-                                                                     <span className="au-serial-tag" style={{
-                                                                         display: 'inline-flex',
-                                                                         alignItems: 'center',
-                                                                         background: '#f1f5f9',
-                                                                         color: '#475569',
-                                                                         fontSize: '11px',
-                                                                         padding: '2px 8px',
-                                                                         borderImage: 'none',
-                                                                         borderRadius: '6px',
-                                                                         fontWeight: 500,
-                                                                         border: '1px solid #e2e8f0',
-                                                                         fontFamily: BANGLA_FONT
-                                                                     }}>
-                                                                         আবেদন সিরিয়াল: <strong style={{ color: '#2563eb', marginLeft: '3px' }}>#{item.serialNumber}</strong> / {item.totalApplies}
-                                                                     </span>
-                                                                 )}
-                                                             </div>
-                                                            <span className="au-date">
-                                                                <FiClock size={11} />
-                                                                আবেদনের সময়: {date}, {time}
-                                                            </span>
-                                                        </td>
-                                                        <td className="au-td au-td-status">
-                                                            <span
-                                                                className="au-status-pill"
-                                                                style={{
-                                                                    color: statusColor,
-                                                                    backgroundColor: statusBg,
-                                                                    borderColor: statusColor + '30'
-                                                                }}
-                                                            >
-                                                                {getStatusIcon(item.status)}
-                                                                {item.status}
-                                                            </span>
-                                                        </td>
-                                                    </tr>
-                                                    {/* Comment row */}
-                                                    <tr className="au-comment-row" style={{ backgroundColor: rowBg }}>
-                                                        <td colSpan={3} className="au-td-comment">
-                                                            {item.commentForTeacher ? (
-                                                                <div className="au-comment-box au-comment-agent">
-                                                                    <div className="au-comment-label">
-                                                                        <FiMessageSquare size={13} />
-                                                                        <span>TSF এজেন্টের মন্তব্য :</span>
+                                    return (
+                                        <div key={index} className="au-apply-item" style={{
+                                            background: '#ffffff',
+                                            borderRadius: '16px',
+                                            border: '1.5px solid #e2e8f0',
+                                            boxShadow: '0 4px 12px rgba(0,0,0,0.03)',
+                                            marginBottom: '28px',
+                                            overflow: 'hidden',
+                                            fontFamily: BANGLA_FONT,
+                                            transition: 'transform 0.2s, box-shadow 0.2s'
+                                        }}>
+                                            {/* Header bar of the apply card */}
+                                            <div style={{
+                                                background: 'linear-gradient(135deg, #1e40af 0%, #3b82f6 100%)',
+                                                padding: '14px 20px',
+                                                display: 'flex',
+                                                justifyContent: 'space-between',
+                                                alignItems: 'center',
+                                                flexWrap: 'wrap',
+                                                gap: '12px'
+                                            }}>
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                                    <span style={{
+                                                        background: '#ffffff',
+                                                        color: '#1e40af',
+                                                        fontWeight: '800',
+                                                        borderRadius: '50%',
+                                                        width: '28px',
+                                                        height: '28px',
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        justifyContent: 'center',
+                                                        fontSize: '13px'
+                                                    }}>{tuitionData.length - index}</span>
+                                                    
+                                                    <span style={{ color: '#ffffff', fontWeight: '700', fontSize: '15px', letterSpacing: '0.3px' }}>
+                                                        টিউশন কোড: {item.tuitionCode}
+                                                    </span>
+
+                                                    <button 
+                                                        type="button" 
+                                                        onClick={() => handleShowDetails(item.tuitionCode)}
+                                                        style={{
+                                                            background: 'rgba(255, 255, 255, 0.15)',
+                                                            border: '1.5px solid rgba(255, 255, 255, 0.3)',
+                                                            color: '#ffffff',
+                                                            borderRadius: '20px',
+                                                            padding: '3px 12px',
+                                                            fontSize: '12px',
+                                                            fontWeight: '600',
+                                                            cursor: 'pointer',
+                                                            transition: 'all 0.2s',
+                                                            fontFamily: BANGLA_FONT
+                                                        }}
+                                                        onMouseEnter={(e) => {
+                                                            e.currentTarget.style.backgroundColor = '#ffffff';
+                                                            e.currentTarget.style.color = '#1e40af';
+                                                        }}
+                                                        onMouseLeave={(e) => {
+                                                            e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.15)';
+                                                            e.currentTarget.style.color = '#ffffff';
+                                                        }}
+                                                    >
+                                                        <FiInfo size={12} style={{ marginRight: '4px' }} />
+                                                        বিস্তারিত
+                                                    </button>
+                                                </div>
+
+                                                <span className="au-status-pill" style={{
+                                                    color: statusColor,
+                                                    backgroundColor: statusBg,
+                                                    borderColor: statusColor + '30',
+                                                    margin: 0,
+                                                    padding: '5px 14px',
+                                                    fontSize: '12.5px',
+                                                    fontWeight: '700',
+                                                    borderRadius: '30px',
+                                                    display: 'inline-flex',
+                                                    alignItems: 'center',
+                                                    gap: '6px'
+                                                }}>
+                                                    {getStatusIcon(item.status)}
+                                                    {item.status}
+                                                </span>
+                                            </div>
+
+                                            {/* Structured Table style inside the card */}
+                                            <div className="table-responsive" style={{ margin: 0 }}>
+                                                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '14.5px', color: '#334155' }}>
+                                                    <tbody>
+                                                        <tr style={{ borderBottom: '1px solid #e2e8f0' }}>
+                                                            <td style={{ width: '35%', padding: '12px 20px', background: '#f8fafc', fontWeight: '600', color: '#475569', borderRight: '1px solid #e2e8f0' }}>
+                                                                আবেদন সিরিয়াল (Apply Serial)
+                                                            </td>
+                                                            <td style={{ padding: '12px 20px' }}>
+                                                                {item.serialNumber ? (
+                                                                    <span>
+                                                                        আপনি এই টিউশনে <strong style={{ color: '#2563eb', fontSize: '16px' }}>#{item.serialNumber}</strong> নম্বর আবেদনকারী (মোট আবেদনকারী: {item.totalApplies} জন)
+                                                                    </span>
+                                                                ) : '-'}
+                                                            </td>
+                                                        </tr>
+                                                        <tr style={{ borderBottom: '1px solid #e2e8f0' }}>
+                                                            <td style={{ padding: '12px 20px', background: '#f8fafc', fontWeight: '600', color: '#475569', borderRight: '1px solid #e2e8f0' }}>
+                                                                আবেদনের সময় (Apply Date/Time)
+                                                            </td>
+                                                            <td style={{ padding: '12px 20px', display: 'flex', alignItems: 'center', gap: '8px', border: 'none' }}>
+                                                                <FiClock size={13} style={{ color: '#64748b' }} />
+                                                                <span>{date}, {time}</span>
+                                                            </td>
+                                                        </tr>
+                                                        <tr style={{ borderBottom: '1px solid #e2e8f0' }}>
+                                                            <td style={{ padding: '12px 20px', background: '#f8fafc', fontWeight: '600', color: '#475569', borderRight: '1px solid #e2e8f0' }}>
+                                                                অভিভাবকের চাহিদা (Guardian Demand)
+                                                            </td>
+                                                            <td style={{ padding: '12px 20px', color: '#1e293b', fontWeight: '700' }}>
+                                                                {item.guardianDemandForPublic && item.guardianDemandForPublic.trim() ? item.guardianDemandForPublic : 'অভিজ্ঞ শিক্ষক চাইছে ভালো দেখে'}
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td style={{ padding: '14px 20px', background: '#f8fafc', fontWeight: '600', color: '#475569', borderRight: '1px solid #e2e8f0' }}>
+                                                                TSF এজেন্টের মন্তব্য (Agent Comment)
+                                                            </td>
+                                                            <td style={{ padding: '14px 20px', backgroundColor: rowBg }}>
+                                                                {item.commentForTeacher ? (
+                                                                    <div style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', color: statusColor, fontWeight: '600' }}>
+                                                                        <FiMessageSquare size={16} style={{ marginTop: '2px', flexShrink: 0 }} />
+                                                                        <span>{item.commentForTeacher}</span>
                                                                     </div>
-                                                                    <div className="au-comment-text">{item.commentForTeacher}</div>
-                                                                </div>
-                                                            ) : item.status.toLowerCase() === 'pending' ? (
-                                                                <div className="au-comment-box au-comment-pending">
-                                                                    <div className="au-comment-label au-label-pending">
-                                                                        <FiAlertCircle size={13} />
-                                                                        <span>সিস্টেম নোটিফিকেশন :</span>
+                                                                ) : item.status.toLowerCase() === 'pending' ? (
+                                                                    <div style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', color: '#475569', fontStyle: 'italic' }}>
+                                                                        <FiAlertCircle size={16} style={{ marginTop: '2px', flexShrink: 0, color: '#3b82f6' }} />
+                                                                        <span>আপনার আবেদনটি বর্তমানে রিভিউ চলছে। অনুগ্রহ করে অপেক্ষা করুন।</span>
                                                                     </div>
-                                                                    <div className="au-comment-text au-text-pending">
-                                                                        আপনার আবেদনটি বর্তমানে রিভিউ চলছে। অনুগ্রহ করে অপেক্ষা করুন।
-                                                                    </div>
-                                                                </div>
-                                                            ) : (
-                                                                <div className="au-comment-box au-comment-empty">
-                                                                    <div className="au-comment-label au-label-muted">
-                                                                        <FiMessageSquare size={12} />
-                                                                        <span>TSF এজেন্টের মন্তব্য :</span>
-                                                                    </div>
-                                                                    <div className="au-comment-text au-text-muted-italic">কোনো মন্তব্য নেই</div>
-                                                                </div>
-                                                            )}
-                                                        </td>
-                                                    </tr>
-                                                </React.Fragment>
-                                            );
-                                        })}
-                                    </tbody>
-                                </table>
+                                                                ) : (
+                                                                    <span style={{ color: '#94a3b8', fontStyle: 'italic' }}>কোনো মন্তব্য নেই</span>
+                                                                )}
+                                                            </td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    );
+                                })}
                             </div>
                         </div>
                     )}
@@ -539,13 +565,13 @@ const ApplyUpdates = () => {
                                         <span className="detail-value" style={{ fontSize: '14.5px', color: '#1e293b', fontWeight: '700' }}>{selectedTuition.studentGender}</span>
                                     </div>
                                 )}
-                                
-                                {selectedTuition.requirements && (
-                                    <div className="detail-item-full mt-3" style={{ display: 'flex', flexDirection: 'column', borderBottom: '1px solid #f1f5f9', paddingBottom: '8px' }}>
-                                        <span className="detail-label" style={{ fontSize: '12px', color: '#64748b', fontWeight: '600', marginBottom: '4px' }}>অন্যান্য শর্তাবলী (Requirements):</span>
-                                        <p className="detail-value-desc" style={{ fontSize: '13.5px', color: '#475569', background: '#f8fafc', borderRadius: '8px', padding: '10px 12px', margin: '4px 0 0 0', borderLeft: '3px solid #3b82f6' }}>{selectedTuition.requirements}</p>
-                                    </div>
-                                )}
+
+                                <div className="detail-item-full mt-3" style={{ display: 'flex', flexDirection: 'column', borderBottom: '1px solid #f1f5f9', paddingBottom: '8px' }}>
+                                    <span className="detail-label" style={{ fontSize: '12px', color: '#64748b', fontWeight: '600', marginBottom: '4px' }}>Guardian Demand</span>
+                                    <p className="detail-value-desc" style={{ fontSize: '13.5px', color: '#475569', background: '#f8fafc', borderRadius: '8px', padding: '10px 12px', margin: '4px 0 0 0', borderLeft: '3px solid #3b82f6', fontWeight: 600 }}>
+                                        {selectedTuition.note && selectedTuition.note.trim() ? selectedTuition.note : 'অভিজ্ঞ শিক্ষক চাইছে ভালো দেখে'}
+                                    </p>
+                                </div>
                             </div>
                         ) : (
                             <div className="text-center py-4 text-danger">
@@ -577,27 +603,110 @@ const ApplyUpdates = () => {
                     min-height: 100vh;
                 }
 
-                /* ===== COMPACT HEADER ===== */
-                .au-header {
-                    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
-                    padding: 18px 0;
-                    border-bottom: 1px solid rgba(255,255,255,0.04);
+                /* ===== PREMIUM HERO ===== */
+                .au-hero {
+                    position: relative;
+                    overflow: hidden;
+                    background: linear-gradient(135deg, #0d1b4b 0%, #1a2d6b 40%, #1e3a8a 70%, #1d4ed8 100%);
+                    padding: 14px 0;
+                    border-bottom: 1px solid rgba(255,255,255,0.06);
                 }
-                .au-header-inner {
+                .au-blob {
+                    position: absolute;
+                    border-radius: 50%;
+                    filter: blur(70px);
+                    opacity: 0.18;
+                    pointer-events: none;
+                }
+                .au-blob-1 {
+                    width: 380px; height: 380px;
+                    background: radial-gradient(circle, #60a5fa, #3b82f6);
+                    top: -200px; left: -80px;
+                    animation: blobFloat1 8s ease-in-out infinite;
+                }
+                .au-blob-2 {
+                    width: 280px; height: 280px;
+                    background: radial-gradient(circle, #818cf8, #6366f1);
+                    top: -140px; right: 5%;
+                    animation: blobFloat2 10s ease-in-out infinite;
+                }
+                .au-blob-3 {
+                    width: 220px; height: 220px;
+                    background: radial-gradient(circle, #34d399, #10b981);
+                    bottom: -160px; right: 30%;
+                    animation: blobFloat1 12s ease-in-out infinite reverse;
+                }
+                @keyframes blobFloat1 {
+                    0%, 100% { transform: translate(0, 0) scale(1); }
+                    50% { transform: translate(30px, -20px) scale(1.08); }
+                }
+                @keyframes blobFloat2 {
+                    0%, 100% { transform: translate(0, 0) scale(1); }
+                    50% { transform: translate(-20px, 15px) scale(1.05); }
+                }
+                .au-hero-inner {
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
                     text-align: center;
+                    gap: 4px;
                 }
-                .au-header-title {
+                .au-hero-badge {
+                    display: inline-flex;
+                    align-items: center;
+                    gap: 6px;
+                    background: rgba(255,255,255,0.10);
+                    border: 1px solid rgba(255,255,255,0.18);
+                    backdrop-filter: blur(6px);
+                    border-radius: 30px;
+                    padding: 3px 12px;
+                    font-size: 11px;
+                    font-weight: 600;
+                    color: #bfdbfe;
+                    letter-spacing: 0.3px;
+                    margin-bottom: 2px;
+                }
+                .au-badge-dot {
+                    width: 7px;
+                    height: 7px;
+                    border-radius: 50%;
+                    background: #34d399;
+                    display: inline-block;
+                    box-shadow: 0 0 0 3px rgba(52,211,153,0.3);
+                    animation: pulseDot 2s ease-in-out infinite;
+                }
+                @keyframes pulseDot {
+                    0%, 100% { box-shadow: 0 0 0 3px rgba(52,211,153,0.3); }
+                    50% { box-shadow: 0 0 0 6px rgba(52,211,153,0.1); }
+                }
+                .au-hero-title {
                     color: #f8fafc;
                     font-size: 22px;
-                    font-weight: 700;
-                    margin: 0 0 2px 0;
+                    font-weight: 800;
+                    margin: 0;
+                    line-height: 1.2;
                     letter-spacing: -0.3px;
+                    text-shadow: 0 2px 20px rgba(0,0,0,0.3);
                 }
-                .au-header-subtitle {
-                    color: #94a3b8;
+                .au-hero-title-accent {
+                    background: linear-gradient(90deg, #60a5fa, #818cf8);
+                    -webkit-background-clip: text;
+                    -webkit-text-fill-color: transparent;
+                    background-clip: text;
+                }
+                .au-hero-subtitle {
+                    color: #93c5fd;
                     font-size: 13px;
                     font-weight: 400;
                     margin: 0;
+                    max-width: 480px;
+                    line-height: 1.5;
+                    opacity: 0.9;
+                }
+                @media (max-width: 480px) {
+                    .au-hero-title { font-size: 18px; }
+                    .au-hero-subtitle { font-size: 12px; }
+                    .au-hero { padding: 12px 0; }
                 }
 
                 /* ===== MAIN ===== */
@@ -784,158 +893,6 @@ const ApplyUpdates = () => {
                     border-radius: 20px;
                 }
 
-                /* ===== PREMIUM TABLE ===== */
-                .au-table-wrap {
-                    background: #ffffff;
-                    border-radius: 14px;
-                    border: 1px solid #e2e8f0;
-                    overflow: hidden;
-                    box-shadow: 0 1px 4px rgba(0,0,0,0.04), 0 4px 16px rgba(0,0,0,0.02);
-                }
-                .au-table {
-                    width: 100%;
-                    border-collapse: collapse;
-                    table-layout: fixed;
-                }
-                .au-table thead {
-                    background: #f8fafc;
-                    border-bottom: 2px solid #e2e8f0;
-                }
-                .au-th {
-                    padding: 12px 18px;
-                    font-size: 11px;
-                    font-weight: 700;
-                    color: #64748b;
-                    text-transform: uppercase;
-                    letter-spacing: 0.8px;
-                    text-align: left;
-                    white-space: nowrap;
-                }
-                .au-th-sl { width: 56px; text-align: center; }
-                .au-th-info { }
-                .au-th-status { width: 180px; text-align: right; padding-right: 24px; }
-
-                .au-row {
-                    transition: background-color 0.15s;
-                }
-                .au-row:hover {
-                    filter: brightness(0.98);
-                }
-                .au-td {
-                    padding: 14px 18px;
-                    vertical-align: middle;
-                }
-                .au-td-sl {
-                    text-align: center;
-                    width: 56px;
-                }
-                .au-sl-badge {
-                    display: inline-flex;
-                    align-items: center;
-                    justify-content: center;
-                    width: 28px;
-                    height: 28px;
-                    border-radius: 8px;
-                    background: #f1f5f9;
-                    border: 1px solid #e2e8f0;
-                    font-size: 12px;
-                    font-weight: 800;
-                    color: #64748b;
-                }
-                .au-td-info {
-                    display: flex;
-                    flex-direction: column;
-                    gap: 3px;
-                }
-                .au-code {
-                    font-size: 15px;
-                    font-weight: 700;
-                    color: #1e293b;
-                    letter-spacing: 0.2px;
-                }
-                .au-code-label {
-                    font-size: 12px;
-                    font-weight: 600;
-                    color: #64748b;
-                    text-transform: uppercase;
-                    letter-spacing: 0.3px;
-                }
-                .au-date {
-                    display: inline-flex;
-                    align-items: center;
-                    gap: 5px;
-                    font-size: 12px;
-                    color: #94a3b8;
-                    font-weight: 500;
-                }
-                .au-td-status {
-                    text-align: right;
-                    width: 180px;
-                    padding-right: 24px;
-                }
-                .au-status-pill {
-                    display: inline-flex;
-                    align-items: center;
-                    gap: 5px;
-                    padding: 5px 14px;
-                    border-radius: 8px;
-                    font-size: 12px;
-                    font-weight: 700;
-                    text-transform: capitalize;
-                    border: 1px solid;
-                    white-space: nowrap;
-                }
-
-                /* Comment Row */
-                .au-comment-row td {
-                    border-bottom: 1px dashed #e2e8f0;
-                }
-                .au-td-comment {
-                    padding: 0 18px 14px 18px;
-                }
-                .au-comment-box {
-                    padding: 10px 14px;
-                    border-radius: 10px;
-                    border-left: 4px solid;
-                }
-                .au-comment-agent {
-                    background: #f8fafc;
-                    border-color: #e2e8f0;
-                    border-left-color: #64748b;
-                }
-                .au-comment-pending {
-                    background: rgba(245,158,11,0.04);
-                    border-color: rgba(245,158,11,0.12);
-                    border-left-color: #d97706;
-                }
-                .au-comment-empty {
-                    background: #f8fafc;
-                    border-color: #e2e8f0;
-                    border-left-color: #cbd5e1;
-                }
-                .au-comment-label {
-                    display: flex;
-                    align-items: center;
-                    gap: 6px;
-                    font-size: 12px;
-                    font-weight: 700;
-                    color: #475569;
-                    margin-bottom: 4px;
-                }
-                .au-label-pending { color: #d97706; }
-                .au-label-muted { color: #94a3b8; }
-                .au-comment-text {
-                    font-size: 13px;
-                    line-height: 1.6;
-                    color: #334155;
-                }
-                .au-text-pending { color: #b45309; }
-                .au-text-muted-italic {
-                    color: #94a3b8;
-                    font-style: italic;
-                    font-size: 12px;
-                }
-
                 /* ===== ANIMATIONS ===== */
                 .au-spin {
                     animation: au-spin-anim 1s linear infinite;
@@ -969,48 +926,17 @@ const ApplyUpdates = () => {
                         align-items: flex-start;
                         gap: 10px;
                     }
-
-                    /* Mobile table: stack layout */
-                    .au-table thead { display: none; }
-                    .au-table, .au-table tbody, .au-table tr, .au-table td {
-                        display: block;
-                        width: 100%;
-                    }
-                    .au-row {
-                        padding: 14px 16px 4px;
+                    
+                    /* Custom stacking rules for table-like look inside card on mobile */
+                    .au-apply-item table tr {
                         display: flex;
-                        flex-wrap: wrap;
-                        align-items: center;
-                        gap: 8px;
-                        border-bottom: none;
+                        flex-direction: column;
+                        border-bottom: 1.5px solid #e2e8f0;
                     }
-                    .au-td { padding: 0; }
-                    .au-td-sl {
-                        width: auto;
-                        text-align: left;
+                    .au-apply-item table tr td {
+                        width: 100% !important;
+                        border-right: none !important;
                     }
-                    .au-td-info {
-                        flex: 1;
-                        min-width: 0;
-                        flex-direction: row;
-                        align-items: center;
-                        gap: 6px;
-                        flex-wrap: wrap;
-                    }
-                    .au-code { font-size: 14px; }
-                    .au-td-status {
-                        width: 100%;
-                        text-align: left;
-                        padding-right: 0;
-                        margin-top: 4px;
-                    }
-                    .au-comment-row td {
-                        padding: 6px 16px 16px;
-                    }
-                    .au-td-comment {
-                        padding: 0;
-                    }
-                    .au-th-status { width: auto; }
                 }
             `}} />
         </>

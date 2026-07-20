@@ -1217,7 +1217,7 @@ const StatusHistoryReportPage = () => {
 
                         <Tab.Pane eventKey="overall">
                             <Row className="mb-3 g-4 mt-1">
-                                <Col md={3}>
+                                <Col md={6}>
                                     <PremiumStatsCard className="shadow-sm bg-white border border-success p-2 px-3 rounded-4" style={{ borderWidth: '2px !important' }}>
                                         <Card.Body className="p-0">
                                             <div className="d-flex align-items-center gap-3 mb-2">
@@ -1238,7 +1238,7 @@ const StatusHistoryReportPage = () => {
                                         </Card.Body>
                                     </PremiumStatsCard>
                                 </Col>
-                                <Col md={3}>
+                                <Col md={6}>
                                     <PremiumStatsCard className="shadow-sm bg-white border border-danger p-2 px-3 rounded-4" style={{ borderWidth: '2px !important' }}>
                                         <Card.Body className="p-0">
                                             <div className="d-flex align-items-center gap-3 mb-2">
@@ -1254,28 +1254,6 @@ const StatusHistoryReportPage = () => {
                                                 <div className="d-flex justify-content-between align-items-center">
                                                     <div className="text-dark text-uppercase fw-bold" style={{ fontSize: '11px' }}>Total Transactions</div>
                                                     <div className="fw-bold fs-6 text-danger">{overallReportData.totalRefundCount}</div>
-                                                </div>
-                                            </div>
-                                        </Card.Body>
-                                    </PremiumStatsCard>
-                                </Col>
-                                <Col md={3}>
-                                    <PremiumStatsCard className="shadow-sm bg-white border border-primary p-2 px-3 rounded-4" style={{ borderWidth: '2px !important' }}>
-                                        <Card.Body className="p-0">
-                                            <div className="d-flex align-items-center gap-3 mb-2">
-                                                <div className="icon-wrapper bg-primary bg-opacity-10 text-primary rounded-3 p-2 d-flex align-items-center justify-content-center">
-                                                    <FaWallet size={24} />
-                                                </div>
-                                                <div>
-                                                    <span className="text-dark text-uppercase fw-bold tracking-wider d-block" style={{ fontSize: '0.85rem' }}>Balance</span>
-                                                    <span className="text-muted fw-semibold" style={{ fontSize: '10px' }}>(Payment - Refund)</span>
-                                                    <h2 className="fw-extrabold text-dark mb-0 mt-1" style={{ fontSize: '1.75rem' }}>৳ {((overallReportData.totalPaymentAmount || 0) - (overallReportData.totalRefundAmount || 0)).toLocaleString()}</h2>
-                                                </div>
-                                            </div>
-                                            <div style={{ borderTop: '1px solid rgba(0, 0, 0, 0.1)', paddingTop: '6px', marginTop: '6px' }}>
-                                                <div className="d-flex justify-content-between align-items-center">
-                                                    <div className="text-dark text-uppercase fw-bold" style={{ fontSize: '11px' }}>Net Transactions</div>
-                                                    <div className="fw-bold fs-6 text-primary">{overallReportData.totalPaymentCount - overallReportData.totalRefundCount}</div>
                                                 </div>
                                             </div>
                                         </Card.Body>
@@ -1352,10 +1330,6 @@ const StatusHistoryReportPage = () => {
                                                         <th>Payment Transactions</th>
                                                         <th className="text-danger">Refund Amount (৳)</th>
                                                         <th className="text-danger">Refund Transactions</th>
-                                                        <th className="text-primary align-middle">
-                                                            Balance (৳)<br />
-                                                            <span style={{ fontSize: '10px', opacity: 0.8 }} className="fw-normal">(Payment - Refund)</span>
-                                                        </th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
@@ -1374,12 +1348,11 @@ const StatusHistoryReportPage = () => {
                                                                 <td className="fw-semibold text-success">{row.paymentCount.toLocaleString()}</td>
                                                                 <td className="fw-semibold text-danger">৳ {row.refundAmount.toLocaleString()}</td>
                                                                 <td className="fw-semibold text-danger">{row.refundCount.toLocaleString()}</td>
-                                                                <td className="fw-bold text-primary">৳ {(row.paymentAmount - row.refundAmount).toLocaleString()}</td>
                                                             </tr>
                                                         ))
                                                     ) : (
                                                         <tr>
-                                                            <td colSpan="7" className="py-4 text-muted fw-bold">No combined data found for the selected period.</td>
+                                                            <td colSpan="6" className="py-4 text-muted fw-bold">No combined data found for the selected period.</td>
                                                         </tr>
                                                     )}
                                                 </tbody>

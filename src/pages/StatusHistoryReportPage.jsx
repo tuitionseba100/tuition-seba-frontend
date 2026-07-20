@@ -1222,8 +1222,8 @@ const StatusHistoryReportPage = () => {
                         </Tab.Pane>
 
                         <Tab.Pane eventKey="overall">
-                            <Row className="mb-3 g-4 mt-1">
-                                <Col lg={3} md={6}>
+                            <Row className="mb-3 g-3 mt-1 flex-nowrap" style={{ overflowX: 'auto' }}>
+                                <Col style={{ minWidth: '180px', flex: '1' }}>
                                     <PremiumStatsCard className="shadow-sm bg-white border border-success p-2 px-3 rounded-4" style={{ borderWidth: '2px !important' }}>
                                         <Card.Body className="p-0">
                                             <div className="d-flex align-items-center gap-3 mb-2">
@@ -1244,7 +1244,7 @@ const StatusHistoryReportPage = () => {
                                         </Card.Body>
                                     </PremiumStatsCard>
                                 </Col>
-                                <Col lg={3} md={6}>
+                                <Col style={{ minWidth: '180px', flex: '1' }}>
                                     <PremiumStatsCard className="shadow-sm bg-white border border-danger p-2 px-3 rounded-4" style={{ borderWidth: '2px !important' }}>
                                         <Card.Body className="p-0">
                                             <div className="d-flex align-items-center gap-3 mb-2">
@@ -1265,7 +1265,7 @@ const StatusHistoryReportPage = () => {
                                         </Card.Body>
                                     </PremiumStatsCard>
                                 </Col>
-                                <Col lg={3} md={6}>
+                                <Col style={{ minWidth: '180px', flex: '1' }}>
                                     <PremiumStatsCard className="shadow-sm bg-white border border-warning p-2 px-3 rounded-4" style={{ borderWidth: '2px !important' }}>
                                         <Card.Body className="p-0">
                                             <div className="d-flex align-items-center gap-3 mb-2">
@@ -1286,28 +1286,7 @@ const StatusHistoryReportPage = () => {
                                         </Card.Body>
                                     </PremiumStatsCard>
                                 </Col>
-                                <Col lg={3} md={6}>
-                                    <PremiumStatsCard className="shadow-sm bg-white border border-primary p-2 px-3 rounded-4" style={{ borderWidth: '2px !important' }}>
-                                        <Card.Body className="p-0">
-                                            <div className="d-flex align-items-center gap-3 mb-2">
-                                                <div className="icon-wrapper bg-primary bg-opacity-10 text-primary rounded-3 p-2 d-flex align-items-center justify-content-center">
-                                                    <FaBalanceScale size={24} />
-                                                </div>
-                                                <div>
-                                                    <span className="text-dark text-uppercase fw-bold tracking-wider" style={{ fontSize: '0.85rem' }}>Total Balance</span>
-                                                    <h2 className="fw-extrabold text-dark mb-0 mt-1" style={{ fontSize: '1.75rem' }}>৳ {(((overallReportData.totalPaymentAmount || 0) + (overallReportData.totalPremiumFeeAmount || 0)) - (overallReportData.totalExpenseAmount || 0)).toLocaleString()}</h2>
-                                                </div>
-                                            </div>
-                                            <div style={{ borderTop: '1px solid rgba(0, 0, 0, 0.1)', paddingTop: '6px', marginTop: '6px' }}>
-                                                <div className="d-flex justify-content-between align-items-center">
-                                                    <div className="text-dark text-uppercase fw-bold" style={{ fontSize: '11px' }}>(Payment + Premium Fee) - Expense</div>
-                                                    <div className="fw-bold fs-6 text-primary">-</div>
-                                                </div>
-                                            </div>
-                                        </Card.Body>
-                                    </PremiumStatsCard>
-                                </Col>
-                                <Col lg={3} md={6}>
+                                <Col style={{ minWidth: '200px', flex: '1' }}>
                                     <PremiumStatsCard className="shadow-sm bg-white border border-info p-2 px-3 rounded-4" style={{ borderWidth: '2px !important' }}>
                                         <Card.Body className="p-0">
                                             <div className="d-flex align-items-center gap-3 mb-2">
@@ -1323,6 +1302,27 @@ const StatusHistoryReportPage = () => {
                                                 <div className="d-flex justify-content-between align-items-center">
                                                     <div className="text-dark text-uppercase fw-bold" style={{ fontSize: '11px' }}>Total Records</div>
                                                     <div className="fw-bold fs-6 text-info">{overallReportData.totalPremiumFeeCount || 0}</div>
+                                                </div>
+                                            </div>
+                                        </Card.Body>
+                                    </PremiumStatsCard>
+                                </Col>
+                                <Col style={{ minWidth: '200px', flex: '1' }}>
+                                    <PremiumStatsCard className="shadow-sm bg-white border border-primary p-2 px-3 rounded-4" style={{ borderWidth: '2px !important' }}>
+                                        <Card.Body className="p-0">
+                                            <div className="d-flex align-items-center gap-3 mb-2">
+                                                <div className="icon-wrapper bg-primary bg-opacity-10 text-primary rounded-3 p-2 d-flex align-items-center justify-content-center">
+                                                    <FaBalanceScale size={24} />
+                                                </div>
+                                                <div>
+                                                    <span className="text-dark text-uppercase fw-bold tracking-wider" style={{ fontSize: '0.85rem' }}>Total Balance</span>
+                                                    <h2 className="fw-extrabold text-dark mb-0 mt-1" style={{ fontSize: '1.75rem' }}>৳ {(((overallReportData.totalPaymentAmount || 0) + (overallReportData.totalPremiumFeeAmount || 0)) - (overallReportData.totalExpenseAmount || 0)).toLocaleString()}</h2>
+                                                </div>
+                                            </div>
+                                            <div style={{ borderTop: '1px solid rgba(0, 0, 0, 0.1)', paddingTop: '6px', marginTop: '6px' }}>
+                                                <div className="d-flex justify-content-between align-items-center">
+                                                    <div className="text-dark text-uppercase fw-bold" style={{ fontSize: '11px' }}>(Payment + Premium Fee) - Expense</div>
+                                                    <div className="fw-bold fs-6 text-primary">-</div>
                                                 </div>
                                             </div>
                                         </Card.Body>

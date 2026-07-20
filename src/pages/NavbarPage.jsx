@@ -112,7 +112,7 @@ const Navbar = () => {
                                     )}
                                     {renderNavItem("/admin/tuition", "Tuitions", "tuition")}
                                     {renderNavItem("/admin/user", "Users")}
-                                    {renderNavItem("/admin/finance", "Finance")}
+                                    {renderNavItem("/admin/finance", "Expense")}
                                     {renderNavItem("/admin/activity-log", "Logs")}
                                     {renderNavItem("/admin/reports", "Reports")}
                                     {renderNavItem("/admin/payment", "Payments", "payment")}

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Container, Row, Col, Card, Table, Form, Button, Spinner, Badge, Tabs, Tab, Nav, Modal, Pagination } from 'react-bootstrap';
-import { FaCalendarAlt, FaFilter, FaSearch, FaHistory, FaUserCheck, FaBookOpen, FaUndo, FaTag, FaChartPie, FaWallet } from 'react-icons/fa';
+import { FaCalendarAlt, FaFilter, FaSearch, FaHistory, FaUserCheck, FaBookOpen, FaUndo, FaTag, FaChartPie, FaWallet, FaMinus, FaBalanceScale } from 'react-icons/fa';
 import { axiosWithFallback as axios } from '../services/fetchWithFallback';
 import NavBarPage from './NavbarPage';
 import styled from 'styled-components';
@@ -72,6 +72,7 @@ const StatusHistoryReportPage = () => {
     const [selectedDate, setSelectedDate] = useState('');
     const [detailsType, setDetailsType] = useState('payment');
     const [detailsData, setDetailsData] = useState([]);
+    const [detailsAllData, setDetailsAllData] = useState(null);
     const [detailsPage, setDetailsPage] = useState(1);
     const [detailsTotalPages, setDetailsTotalPages] = useState(1);
     const [detailsLoading, setDetailsLoading] = useState(false);
@@ -302,10 +303,14 @@ const StatusHistoryReportPage = () => {
                 params: { date: dateStr, type, page: pageNum, limit: 20 },
                 headers: { Authorization: token }
             });
-            setDetailsData(res.data.data);
-            setDetailsPage(res.data.currentPage);
-            setDetailsTotalPages(res.data.totalPages);
-            setDetailsTotalAmount(res.data.totalAmount || 0);
+            if (type === 'all') {
+                setDetailsAllData(res.data);
+            } else {
+                setDetailsData(res.data.data);
+                setDetailsPage(res.data.currentPage);
+                setDetailsTotalPages(res.data.totalPages);
+                setDetailsTotalAmount(res.data.totalAmount || 0);
+            }
         } catch (err) {
             console.error('Error fetching date details:', err);
             toast.error("Failed to load details.");
@@ -316,10 +321,11 @@ const StatusHistoryReportPage = () => {
 
     const handleDateClick = (dateStr, type = 'payment') => {
         setSelectedDate(dateStr);
-        setDetailsType(type);
+        const reqType = activeTab === 'overall' ? 'all' : type;
+        setDetailsType(reqType);
         setShowDetailsModal(true);
         setDetailsPage(1);
-        fetchDateDetails(dateStr, type, 1);
+        fetchDateDetails(dateStr, reqType, 1);
     };
 
     const handleDetailsPageChange = (newPage) => {
@@ -1217,7 +1223,7 @@ const StatusHistoryReportPage = () => {
 
                         <Tab.Pane eventKey="overall">
                             <Row className="mb-3 g-4 mt-1">
-                                <Col md={6}>
+                                <Col lg={3} md={6}>
                                     <PremiumStatsCard className="shadow-sm bg-white border border-success p-2 px-3 rounded-4" style={{ borderWidth: '2px !important' }}>
                                         <Card.Body className="p-0">
                                             <div className="d-flex align-items-center gap-3 mb-2">
@@ -1238,7 +1244,7 @@ const StatusHistoryReportPage = () => {
                                         </Card.Body>
                                     </PremiumStatsCard>
                                 </Col>
-                                <Col md={6}>
+                                <Col lg={3} md={6}>
                                     <PremiumStatsCard className="shadow-sm bg-white border border-danger p-2 px-3 rounded-4" style={{ borderWidth: '2px !important' }}>
                                         <Card.Body className="p-0">
                                             <div className="d-flex align-items-center gap-3 mb-2">
@@ -1254,6 +1260,48 @@ const StatusHistoryReportPage = () => {
                                                 <div className="d-flex justify-content-between align-items-center">
                                                     <div className="text-dark text-uppercase fw-bold" style={{ fontSize: '11px' }}>Total Transactions</div>
                                                     <div className="fw-bold fs-6 text-danger">{overallReportData.totalRefundCount}</div>
+                                                </div>
+                                            </div>
+                                        </Card.Body>
+                                    </PremiumStatsCard>
+                                </Col>
+                                <Col lg={3} md={6}>
+                                    <PremiumStatsCard className="shadow-sm bg-white border border-warning p-2 px-3 rounded-4" style={{ borderWidth: '2px !important' }}>
+                                        <Card.Body className="p-0">
+                                            <div className="d-flex align-items-center gap-3 mb-2">
+                                                <div className="icon-wrapper bg-warning bg-opacity-10 text-warning rounded-3 p-2 d-flex align-items-center justify-content-center">
+                                                    <FaMinus size={24} />
+                                                </div>
+                                                <div>
+                                                    <span className="text-dark text-uppercase fw-bold tracking-wider" style={{ fontSize: '0.85rem' }}>Total Expense</span>
+                                                    <h2 className="fw-extrabold text-dark mb-0 mt-1" style={{ fontSize: '1.75rem' }}>৳ {overallReportData.totalExpenseAmount?.toLocaleString() || 0}</h2>
+                                                </div>
+                                            </div>
+                                            <div style={{ borderTop: '1px solid rgba(0, 0, 0, 0.1)', paddingTop: '6px', marginTop: '6px' }}>
+                                                <div className="d-flex justify-content-between align-items-center">
+                                                    <div className="text-dark text-uppercase fw-bold" style={{ fontSize: '11px' }}>Total Transactions</div>
+                                                    <div className="fw-bold fs-6 text-warning">{overallReportData.totalExpenseCount || 0}</div>
+                                                </div>
+                                            </div>
+                                        </Card.Body>
+                                    </PremiumStatsCard>
+                                </Col>
+                                <Col lg={3} md={6}>
+                                    <PremiumStatsCard className="shadow-sm bg-white border border-primary p-2 px-3 rounded-4" style={{ borderWidth: '2px !important' }}>
+                                        <Card.Body className="p-0">
+                                            <div className="d-flex align-items-center gap-3 mb-2">
+                                                <div className="icon-wrapper bg-primary bg-opacity-10 text-primary rounded-3 p-2 d-flex align-items-center justify-content-center">
+                                                    <FaBalanceScale size={24} />
+                                                </div>
+                                                <div>
+                                                    <span className="text-dark text-uppercase fw-bold tracking-wider" style={{ fontSize: '0.85rem' }}>Total Balance</span>
+                                                    <h2 className="fw-extrabold text-dark mb-0 mt-1" style={{ fontSize: '1.75rem' }}>৳ {((overallReportData.totalPaymentAmount || 0) - (overallReportData.totalExpenseAmount || 0)).toLocaleString()}</h2>
+                                                </div>
+                                            </div>
+                                            <div style={{ borderTop: '1px solid rgba(0, 0, 0, 0.1)', paddingTop: '6px', marginTop: '6px' }}>
+                                                <div className="d-flex justify-content-between align-items-center">
+                                                    <div className="text-dark text-uppercase fw-bold" style={{ fontSize: '11px' }}>Payment - Expense</div>
+                                                    <div className="fw-bold fs-6 text-primary">-</div>
                                                 </div>
                                             </div>
                                         </Card.Body>
@@ -1330,6 +1378,8 @@ const StatusHistoryReportPage = () => {
                                                         <th>Payment Transactions</th>
                                                         <th className="text-danger">Refund Amount (৳)</th>
                                                         <th className="text-danger">Refund Transactions</th>
+                                                        <th className="text-warning">Expense Amount (৳)</th>
+                                                        <th className="text-primary">Balance (৳)</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
@@ -1346,13 +1396,15 @@ const StatusHistoryReportPage = () => {
                                                                 </td>
                                                                 <td className="fw-semibold text-success">৳ {row.paymentAmount.toLocaleString()}</td>
                                                                 <td className="fw-semibold text-success">{row.paymentCount.toLocaleString()}</td>
-                                                                <td className="fw-semibold text-danger">৳ {row.refundAmount.toLocaleString()}</td>
-                                                                <td className="fw-semibold text-danger">{row.refundCount.toLocaleString()}</td>
+                                                                <td className="fw-semibold text-danger">৳ {row.refundAmount?.toLocaleString() || 0}</td>
+                                                                <td className="fw-semibold text-danger">{row.refundCount?.toLocaleString() || 0}</td>
+                                                                <td className="fw-semibold text-warning">৳ {row.expenseAmount?.toLocaleString() || 0}</td>
+                                                                <td className="fw-semibold text-primary">৳ {((row.paymentAmount || 0) - (row.expenseAmount || 0)).toLocaleString()}</td>
                                                             </tr>
                                                         ))
                                                     ) : (
                                                         <tr>
-                                                            <td colSpan="6" className="py-4 text-muted fw-bold">No combined data found for the selected period.</td>
+                                                            <td colSpan="8" className="py-4 text-muted fw-bold">No combined data found for the selected period.</td>
                                                         </tr>
                                                     )}
                                                 </tbody>
@@ -1366,14 +1418,30 @@ const StatusHistoryReportPage = () => {
                 </Tab.Container>
 
                 {/* Details Modal */}
-                <Modal show={showDetailsModal} onHide={() => setShowDetailsModal(false)} size="lg" centered>
+                <style>{`
+                    .custom-huge-modal {
+                        width: 95vw !important;
+                        max-width: 95vw !important;
+                    }
+                    .custom-huge-modal .modal-content {
+                        height: 90vh;
+                        max-height: 90vh;
+                    }
+                `}</style>
+                <Modal 
+                    show={showDetailsModal} 
+                    onHide={() => setShowDetailsModal(false)} 
+                    size={detailsType === 'all' ? undefined : 'lg'}
+                    dialogClassName={detailsType === 'all' ? 'custom-huge-modal' : ''}
+                    centered
+                >
                     <Modal.Header closeButton className="bg-light">
                         <Modal.Title className="fw-bold text-primary">
                             Details for {selectedDate ? new Date(selectedDate).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric', timeZone: 'UTC' }) : ''}
                         </Modal.Title>
                     </Modal.Header>
                     <Modal.Body className="p-0">
-                        {activeTab === 'overall' && (
+                        {activeTab === 'overall' && detailsType !== 'all' && (
                             <div className="px-4 pt-3 pb-2 border-bottom">
                                 <Nav variant="pills" className="custom-pills">
                                     <Nav.Item>
@@ -1386,15 +1454,115 @@ const StatusHistoryReportPage = () => {
                                             Refunds
                                         </Nav.Link>
                                     </Nav.Item>
+                                    <Nav.Item>
+                                        <Nav.Link active={detailsType === 'expense'} onClick={() => handleDetailsTypeChange('expense')} className="px-4 py-2 fw-semibold text-warning">
+                                            Expenses
+                                        </Nav.Link>
+                                    </Nav.Item>
                                 </Nav>
                             </div>
                         )}
                         
-                        <div className="p-4 pt-3">
+                        <div className="p-4 pt-3 bg-white">
                             {detailsLoading ? (
                                 <div className="d-flex justify-content-center py-5">
                                     <Spinner animation="border" variant="primary" />
                                 </div>
+                            ) : detailsType === 'all' ? (
+                                detailsAllData ? (
+                                    <Row className="g-4">
+                                        <Col lg={4}>
+                                            <div className="d-flex justify-content-between align-items-center mb-2">
+                                                <h6 className="fw-bold text-success mb-0 d-flex align-items-center gap-2">
+                                                    <FaChartPie /> Payments
+                                                </h6>
+                                                <span className="badge bg-success bg-opacity-10 text-success fw-bold fs-6">৳ {detailsAllData.payments.totalAmount.toLocaleString()}</span>
+                                            </div>
+                                            <div className="table-responsive border rounded-3 shadow-sm" style={{ maxHeight: '65vh', overflowY: 'auto' }}>
+                                                <Table hover className="mb-0 text-center align-middle" size="sm">
+                                                    <thead className="table-light sticky-top shadow-sm">
+                                                        <tr>
+                                                            <th>SL</th>
+                                                            <th>Code</th>
+                                                            <th>Route</th>
+                                                            <th>Amount</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        {detailsAllData.payments.data.length > 0 ? detailsAllData.payments.data.map((item, idx) => (
+                                                            <tr key={item._id}>
+                                                                <td className="fw-bold text-muted">{idx + 1}</td>
+                                                                <td className="fw-bold">{item.tuitionCode}</td>
+                                                                <td><Badge bg="info" className="px-2">{item.route}</Badge></td>
+                                                                <td className="text-success fw-bold">৳ {item.amount.toLocaleString()}</td>
+                                                            </tr>
+                                                        )) : <tr><td colSpan="4" className="text-muted py-4 fw-bold">No payments</td></tr>}
+                                                    </tbody>
+                                                </Table>
+                                            </div>
+                                        </Col>
+                                        <Col lg={4}>
+                                            <div className="d-flex justify-content-between align-items-center mb-2">
+                                                <h6 className="fw-bold text-danger mb-0 d-flex align-items-center gap-2">
+                                                    <FaUndo /> Refunds
+                                                </h6>
+                                                <span className="badge bg-danger bg-opacity-10 text-danger fw-bold fs-6">৳ {detailsAllData.refunds.totalAmount.toLocaleString()}</span>
+                                            </div>
+                                            <div className="table-responsive border rounded-3 shadow-sm" style={{ maxHeight: '65vh', overflowY: 'auto' }}>
+                                                <Table hover className="mb-0 text-center align-middle" size="sm">
+                                                    <thead className="table-light sticky-top shadow-sm">
+                                                        <tr>
+                                                            <th>SL</th>
+                                                            <th>Code</th>
+                                                            <th>Route</th>
+                                                            <th>Amount</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        {detailsAllData.refunds.data.length > 0 ? detailsAllData.refunds.data.map((item, idx) => (
+                                                            <tr key={item._id}>
+                                                                <td className="fw-bold text-muted">{idx + 1}</td>
+                                                                <td className="fw-bold">{item.tuitionCode}</td>
+                                                                <td><Badge bg="danger" className="px-2">{item.route}</Badge></td>
+                                                                <td className="text-danger fw-bold">৳ {item.amount.toLocaleString()}</td>
+                                                            </tr>
+                                                        )) : <tr><td colSpan="4" className="text-muted py-4 fw-bold">No refunds</td></tr>}
+                                                    </tbody>
+                                                </Table>
+                                            </div>
+                                        </Col>
+                                        <Col lg={4}>
+                                            <div className="d-flex justify-content-between align-items-center mb-2">
+                                                <h6 className="fw-bold text-warning mb-0 d-flex align-items-center gap-2">
+                                                    <FaMinus /> Expenses
+                                                </h6>
+                                                <span className="badge bg-warning bg-opacity-10 text-warning fw-bold fs-6">৳ {detailsAllData.expenses.totalAmount.toLocaleString()}</span>
+                                            </div>
+                                            <div className="table-responsive border rounded-3 shadow-sm" style={{ maxHeight: '65vh', overflowY: 'auto' }}>
+                                                <Table hover className="mb-0 text-center align-middle" size="sm">
+                                                    <thead className="table-light sticky-top shadow-sm">
+                                                        <tr>
+                                                            <th>SL</th>
+                                                            <th>Category</th>
+                                                            <th>Amount</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        {detailsAllData.expenses.data.length > 0 ? detailsAllData.expenses.data.map((item, idx) => (
+                                                            <tr key={item._id}>
+                                                                <td className="fw-bold text-muted">{idx + 1}</td>
+                                                                <td className="fw-bold">{item.tuitionCode}</td>
+                                                                <td className="text-warning fw-bold">৳ {item.amount.toLocaleString()}</td>
+                                                            </tr>
+                                                        )) : <tr><td colSpan="3" className="text-muted py-4 fw-bold">No expenses</td></tr>}
+                                                    </tbody>
+                                                </Table>
+                                            </div>
+                                        </Col>
+                                    </Row>
+                                ) : (
+                                    <div className="text-center py-5 text-muted fw-bold">No records found for this date.</div>
+                                )
                             ) : detailsData.length === 0 ? (
                                 <div className="text-center py-5 text-muted fw-bold">
                                     No records found for this date.
@@ -1406,10 +1574,10 @@ const StatusHistoryReportPage = () => {
                                             <thead className="table-light">
                                                 <tr>
                                                     <th>SL</th>
-                                                    <th>Tuition Code</th>
+                                                    {detailsType === 'expense' ? <th>Category</th> : <th>Tuition Code</th>}
                                                     {detailsType === 'payment' && <th>Tutor Number</th>}
-                                                    <th>Route</th>
-                                                    <th>{detailsType === 'payment' ? 'Received Amount (৳)' : 'Refund Amount (৳)'}</th>
+                                                    {detailsType !== 'expense' && <th>Route</th>}
+                                                    <th>{detailsType === 'payment' ? 'Received Amount (৳)' : detailsType === 'refund' ? 'Refund Amount (৳)' : 'Expense Amount (৳)'}</th>
                                                     <th>Time</th>
                                                 </tr>
                                             </thead>
@@ -1419,8 +1587,8 @@ const StatusHistoryReportPage = () => {
                                                         <td className="fw-bold text-dark">{((detailsPage - 1) * 20) + idx + 1}</td>
                                                         <td className="fw-bold">{item.tuitionCode}</td>
                                                         {detailsType === 'payment' && <td className="text-muted">{item.tutorNumber}</td>}
-                                                        <td><Badge bg={item.route === 'Bkash' ? 'danger' : 'info'} className="px-2 py-1">{item.route}</Badge></td>
-                                                        <td className={`fw-bold ${detailsType === 'payment' ? 'text-success' : 'text-danger'}`}>
+                                                        {detailsType !== 'expense' && <td><Badge bg={item.route === 'Bkash' ? 'danger' : 'info'} className="px-2 py-1">{item.route}</Badge></td>}
+                                                        <td className={`fw-bold ${detailsType === 'payment' ? 'text-success' : detailsType === 'refund' ? 'text-danger' : 'text-warning'}`}>
                                                             ৳ {item.amount.toLocaleString()}
                                                         </td>
                                                         <td className="text-muted small">
@@ -1432,10 +1600,10 @@ const StatusHistoryReportPage = () => {
                                             {detailsData.length > 0 && (
                                                 <tfoot className="table-light">
                                                     <tr>
-                                                        <td colSpan={detailsType === 'payment' ? 4 : 3} className="text-end pe-4 fw-extrabold text-dark text-uppercase tracking-wider">
+                                                        <td colSpan={detailsType === 'payment' ? 4 : detailsType === 'expense' ? 2 : 3} className="text-end pe-4 fw-extrabold text-dark text-uppercase tracking-wider">
                                                             Total Amount
                                                         </td>
-                                                        <td className={`fw-extrabold fs-6 ${detailsType === 'payment' ? 'text-success' : 'text-danger'}`}>
+                                                        <td className={`fw-extrabold fs-6 ${detailsType === 'payment' ? 'text-success' : detailsType === 'refund' ? 'text-danger' : 'text-warning'}`}>
                                                             ৳ {detailsTotalAmount.toLocaleString()}
                                                         </td>
                                                         <td></td>

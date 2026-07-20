@@ -96,7 +96,7 @@ import LeadPage from './pages/LeadPage';
 import PrivacyPolicyPage from './pages/public/PrivacyPolicyPage';
 import Rules from './pages/public/Rules';
 import GeneralPage from './pages/GeneralPage';
-import IncomeExpensePage from './pages/IncomeExpensePage';
+import ExpensePage from './pages/ExpensePage';
 import ActivityLogPage from './pages/ActivityLogPage';
 import SettingsPage from './pages/SettingsPage';
 import ApplyUpdates from './pages/public/ApplyUpdates';
@@ -155,7 +155,7 @@ const App = () => {
 
           <Route element={<PrivateRoute role="superadmin" />}>
             <Route path="user" element={<UserPage />} />
-            <Route path="finance" element={<IncomeExpensePage />} />
+            <Route path="finance" element={<ExpensePage />} />
             <Route path="activity-log" element={<ActivityLogPage />} />
             <Route path="settings" element={<SettingsPage />} />
             <Route path="reports" element={<StatusHistoryReportPage />} />

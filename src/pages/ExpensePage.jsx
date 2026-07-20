@@ -87,7 +87,7 @@ const ExpensePage = () => {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [deletingId, setDeletingId] = useState(null);
 
-    const categories = ['Salary', 'Office Rent', 'Electricity Bill', 'Marketing', 'Internet', 'Repairs', 'Food', 'Transport', 'Nasta Bill', 'Facebook Advertisements', 'Offline Advertisements', 'Mobile Bills', 'Equipment Cost', 'BM Collect', 'Refund', 'Official Cost', 'Others'];
+    const categories = ['Salary', 'Office Rent', 'Electricity Bill', 'Marketing', 'Internet', 'Repairs', 'Food', 'Transport', 'Nasta Bill', 'Facebook Advertisements', 'Offline Advertisements', 'Mobile Bills', 'Equipment Cost', 'BM Collect', 'Refund', 'Refer Bonus', 'Official Cost', 'Others'];
 
     useEffect(() => {
         fetchData();

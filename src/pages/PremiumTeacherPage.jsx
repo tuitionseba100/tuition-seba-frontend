@@ -144,6 +144,7 @@ const PremiumTeacherPage = () => {
         { name: 'transactionId', label: 'Transaction ID', col: 6, group: 'Subscription & Payment Details' },
         { name: 'paymentType', label: 'Payment Method', col: 6, group: 'Subscription & Payment Details' },
         { name: 'amount', label: 'Amount Paid', col: 6, group: 'Subscription & Payment Details' },
+        { name: 'paymentDate', label: 'Payment Date', type: 'date', col: 6, group: 'Subscription & Payment Details' },
         { name: 'isBiodataShow', label: 'Show Biodata?', col: 12, group: 'Subscription & Payment Details', type: 'checkbox' },
 
         // Notes & Feedback
@@ -321,6 +322,15 @@ const PremiumTeacherPage = () => {
     };
 
     const handleSaveRecord = async () => {
+        if (formData.amount && String(formData.amount).trim() !== '') {
+            const amountStr = String(formData.amount).trim();
+            const amountRegex = /^\d+(\.\d+)?$/;
+            if (!amountRegex.test(amountStr)) {
+                toast.warning("Amount paid - only numbers allowed.");
+                return;
+            }
+        }
+
         const updatingData = {
             ...formData,
             status: formData.status ? formData.status : "pending"
@@ -373,7 +383,11 @@ const PremiumTeacherPage = () => {
     };
 
     const handleEditTeacher = (teacher) => {
-        setFormData(teacher);
+        const formattedTeacher = { ...teacher };
+        if (formattedTeacher.paymentDate) {
+            formattedTeacher.paymentDate = new Date(formattedTeacher.paymentDate).toISOString().split('T')[0];
+        }
+        setFormData(formattedTeacher);
         setAreaList(areaOptions[teacher.city] || []);
         setEditingId(teacher._id);
         setShowModal(true);
@@ -882,6 +896,26 @@ const PremiumTeacherPage = () => {
                                                         <span className="ms-2">{value || '0'} star{value !== 1 ? 's' : ''}</span>
                                                     </div>
                                                 );
+                                            } else if (type === 'date' && value) {
+                                                // Parse directly from ISO string — no Date() conversion, no timezone shift
+                                                try {
+                                                    const iso = String(value);
+                                                    const [datePart, timePart] = iso.split('T');
+                                                    const [year, month, day] = datePart.split('-');
+                                                    const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+                                                    const dateStr = `${parseInt(day)} ${months[parseInt(month) - 1]} ${year}`;
+                                                    if (timePart) {
+                                                        const [hh, mm] = timePart.replace('Z', '').split(':');
+                                                        const h = parseInt(hh);
+                                                        const ampm = h >= 12 ? 'PM' : 'AM';
+                                                        const h12 = h % 12 === 0 ? 12 : h % 12;
+                                                        displayValue = `${dateStr}, ${h12}:${mm} ${ampm} (UTC)`;
+                                                    } else {
+                                                        displayValue = dateStr;
+                                                    }
+                                                } catch {
+                                                    displayValue = String(value);
+                                                }
                                             } else {
                                                 displayValue = value !== undefined && value !== null && value !== '' ? String(value).trim() : 'N/A';
                                             }

@@ -1295,13 +1295,34 @@ const StatusHistoryReportPage = () => {
                                                 </div>
                                                 <div>
                                                     <span className="text-dark text-uppercase fw-bold tracking-wider" style={{ fontSize: '0.85rem' }}>Total Balance</span>
-                                                    <h2 className="fw-extrabold text-dark mb-0 mt-1" style={{ fontSize: '1.75rem' }}>৳ {((overallReportData.totalPaymentAmount || 0) - (overallReportData.totalExpenseAmount || 0)).toLocaleString()}</h2>
+                                                    <h2 className="fw-extrabold text-dark mb-0 mt-1" style={{ fontSize: '1.75rem' }}>৳ {(((overallReportData.totalPaymentAmount || 0) + (overallReportData.totalPremiumFeeAmount || 0)) - (overallReportData.totalExpenseAmount || 0)).toLocaleString()}</h2>
                                                 </div>
                                             </div>
                                             <div style={{ borderTop: '1px solid rgba(0, 0, 0, 0.1)', paddingTop: '6px', marginTop: '6px' }}>
                                                 <div className="d-flex justify-content-between align-items-center">
-                                                    <div className="text-dark text-uppercase fw-bold" style={{ fontSize: '11px' }}>Payment - Expense</div>
+                                                    <div className="text-dark text-uppercase fw-bold" style={{ fontSize: '11px' }}>(Payment + Premium Fee) - Expense</div>
                                                     <div className="fw-bold fs-6 text-primary">-</div>
+                                                </div>
+                                            </div>
+                                        </Card.Body>
+                                    </PremiumStatsCard>
+                                </Col>
+                                <Col lg={3} md={6}>
+                                    <PremiumStatsCard className="shadow-sm bg-white border border-info p-2 px-3 rounded-4" style={{ borderWidth: '2px !important' }}>
+                                        <Card.Body className="p-0">
+                                            <div className="d-flex align-items-center gap-3 mb-2">
+                                                <div className="icon-wrapper bg-info bg-opacity-10 text-info rounded-3 p-2 d-flex align-items-center justify-content-center">
+                                                    <FaWallet size={24} />
+                                                </div>
+                                                <div>
+                                                    <span className="text-dark text-uppercase fw-bold tracking-wider" style={{ fontSize: '0.85rem' }}>Premium Teacher Fee</span>
+                                                    <h2 className="fw-extrabold text-dark mb-0 mt-1" style={{ fontSize: '1.75rem' }}>৳ {overallReportData.totalPremiumFeeAmount?.toLocaleString() || 0}</h2>
+                                                </div>
+                                            </div>
+                                            <div style={{ borderTop: '1px solid rgba(0, 0, 0, 0.1)', paddingTop: '6px', marginTop: '6px' }}>
+                                                <div className="d-flex justify-content-between align-items-center">
+                                                    <div className="text-dark text-uppercase fw-bold" style={{ fontSize: '11px' }}>Total Records</div>
+                                                    <div className="fw-bold fs-6 text-info">{overallReportData.totalPremiumFeeCount || 0}</div>
                                                 </div>
                                             </div>
                                         </Card.Body>
@@ -1378,6 +1399,8 @@ const StatusHistoryReportPage = () => {
                                                         <th>Payment Transactions</th>
                                                         <th className="text-danger">Refund Amount (৳)</th>
                                                         <th className="text-danger">Refund Transactions</th>
+                                                        <th className="text-info">Premium Teacher Fee (৳)</th>
+                                                        <th className="text-info">Fee Records</th>
                                                         <th className="text-warning">Expense Amount (৳)</th>
                                                         <th className="text-primary">Balance (৳)</th>
                                                     </tr>
@@ -1398,13 +1421,15 @@ const StatusHistoryReportPage = () => {
                                                                 <td className="fw-semibold text-success">{row.paymentCount.toLocaleString()}</td>
                                                                 <td className="fw-semibold text-danger">৳ {row.refundAmount?.toLocaleString() || 0}</td>
                                                                 <td className="fw-semibold text-danger">{row.refundCount?.toLocaleString() || 0}</td>
+                                                                <td className="fw-semibold text-info">৳ {row.premiumFeeAmount?.toLocaleString() || 0}</td>
+                                                                <td className="fw-semibold text-info">{row.premiumFeeCount?.toLocaleString() || 0}</td>
                                                                 <td className="fw-semibold text-warning">৳ {row.expenseAmount?.toLocaleString() || 0}</td>
-                                                                <td className="fw-semibold text-primary">৳ {((row.paymentAmount || 0) - (row.expenseAmount || 0)).toLocaleString()}</td>
+                                                                <td className="fw-semibold text-primary">৳ {(((row.paymentAmount || 0) + (row.premiumFeeAmount || 0)) - (row.expenseAmount || 0)).toLocaleString()}</td>
                                                             </tr>
                                                         ))
                                                     ) : (
                                                         <tr>
-                                                            <td colSpan="8" className="py-4 text-muted fw-bold">No combined data found for the selected period.</td>
+                                                            <td colSpan="10" className="py-4 text-muted fw-bold">No combined data found for the selected period.</td>
                                                         </tr>
                                                     )}
                                                 </tbody>
@@ -1471,7 +1496,7 @@ const StatusHistoryReportPage = () => {
                             ) : detailsType === 'all' ? (
                                 detailsAllData ? (
                                     <Row className="g-4">
-                                        <Col lg={4}>
+                                        <Col lg={3}>
                                             <div className="d-flex justify-content-between align-items-center mb-2">
                                                 <h6 className="fw-bold text-success mb-0 d-flex align-items-center gap-2">
                                                     <FaChartPie /> Payments
@@ -1501,7 +1526,7 @@ const StatusHistoryReportPage = () => {
                                                 </Table>
                                             </div>
                                         </Col>
-                                        <Col lg={4}>
+                                        <Col lg={3}>
                                             <div className="d-flex justify-content-between align-items-center mb-2">
                                                 <h6 className="fw-bold text-danger mb-0 d-flex align-items-center gap-2">
                                                     <FaUndo /> Refunds
@@ -1531,7 +1556,7 @@ const StatusHistoryReportPage = () => {
                                                 </Table>
                                             </div>
                                         </Col>
-                                        <Col lg={4}>
+                                        <Col lg={3}>
                                             <div className="d-flex justify-content-between align-items-center mb-2">
                                                 <h6 className="fw-bold text-warning mb-0 d-flex align-items-center gap-2">
                                                     <FaMinus /> Expenses
@@ -1559,6 +1584,40 @@ const StatusHistoryReportPage = () => {
                                                 </Table>
                                             </div>
                                         </Col>
+                                        {detailsAllData.premiumFees && (
+                                            <Col lg={3}>
+                                                <div className="d-flex justify-content-between align-items-center mb-2">
+                                                    <h6 className="fw-bold text-info mb-0 d-flex align-items-center gap-2">
+                                                        <FaWallet /> Premium Teacher Fee
+                                                    </h6>
+                                                    <span className="badge bg-info bg-opacity-10 text-info fw-bold fs-6">৳ {detailsAllData.premiumFees.totalAmount.toLocaleString()}</span>
+                                                </div>
+                                                <div className="table-responsive border rounded-3 shadow-sm" style={{ maxHeight: '65vh', overflowY: 'auto' }}>
+                                                    <Table hover className="mb-0 text-center align-middle" size="sm">
+                                                        <thead className="table-light sticky-top shadow-sm">
+                                                            <tr>
+                                                                <th>SL</th>
+                                                                <th>Name</th>
+                                                                <th>Code</th>
+                                                                <th>Amount</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            {detailsAllData.premiumFees.data.length > 0 ? detailsAllData.premiumFees.data.map((item, idx) => (
+                                                                <tr key={item._id}>
+                                                                    <td className="fw-bold text-muted">{idx + 1}</td>
+                                                                    <td className="fw-bold" style={{ fontSize: '12px' }}>{item.name}</td>
+                                                                    <td className="text-muted font-monospace" style={{ fontSize: '11px' }}>{item.premiumCode}</td>
+                                                                    <td className={`fw-bold ${item.isNumeric ? 'text-info' : 'text-danger'}`}>
+                                                                        {item.isNumeric ? `৳ ${item.amount.toLocaleString()}` : <span title="Non-numeric amount">{item.amountRaw}</span>}
+                                                                    </td>
+                                                                </tr>
+                                                            )) : <tr><td colSpan="4" className="text-muted py-4 fw-bold">No premium teacher fees</td></tr>}
+                                                        </tbody>
+                                                    </Table>
+                                                </div>
+                                            </Col>
+                                        )}
                                     </Row>
                                 ) : (
                                     <div className="text-center py-5 text-muted fw-bold">No records found for this date.</div>

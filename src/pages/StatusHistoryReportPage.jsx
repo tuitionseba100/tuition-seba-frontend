@@ -1340,7 +1340,7 @@ const StatusHistoryReportPage = () => {
                                                                 <td className="text-start fw-bold">
                                                                     <div className="d-flex align-items-center gap-2">
                                                                         <a href="#" className="text-decoration-none text-primary" onClick={(e) => { e.preventDefault(); handleDateClick(row.date, 'payment'); }}>
-                                                                            {new Date(row.date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}
+                                                                            {new Date(row.date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric', timeZone: 'UTC' })}
                                                                         </a>
                                                                     </div>
                                                                 </td>
@@ -1369,7 +1369,7 @@ const StatusHistoryReportPage = () => {
                 <Modal show={showDetailsModal} onHide={() => setShowDetailsModal(false)} size="lg" centered>
                     <Modal.Header closeButton className="bg-light">
                         <Modal.Title className="fw-bold text-primary">
-                            Details for {selectedDate ? new Date(selectedDate).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : ''}
+                            Details for {selectedDate ? new Date(selectedDate).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric', timeZone: 'UTC' }) : ''}
                         </Modal.Title>
                     </Modal.Header>
                     <Modal.Body className="p-0">
@@ -1424,7 +1424,7 @@ const StatusHistoryReportPage = () => {
                                                             ৳ {item.amount.toLocaleString()}
                                                         </td>
                                                         <td className="text-muted small">
-                                                            {new Date(item.timestamp).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', hour12: true })}
+                                                            {new Date(item.timestamp).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', hour12: true, timeZone: 'UTC' })}
                                                         </td>
                                                     </tr>
                                                 ))}

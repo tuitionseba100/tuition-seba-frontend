@@ -158,7 +158,7 @@ const App = () => {
             <Route path="finance" element={<IncomeExpensePage />} />
             <Route path="activity-log" element={<ActivityLogPage />} />
             <Route path="settings" element={<SettingsPage />} />
-            <Route path="status-history" element={<StatusHistoryReportPage />} />
+            <Route path="reports" element={<StatusHistoryReportPage />} />
           </Route>
         </Route>
 

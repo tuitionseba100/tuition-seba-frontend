@@ -313,6 +313,7 @@ const SocialPostModal = ({ show, onHide }) => {
         day: true,
         time: true,
         salary: true,
+        mediaFee: true,
         location: true,
         joining: true
     });
@@ -415,6 +416,7 @@ const SocialPostModal = ({ show, onHide }) => {
                 if (fieldConfig.day) text += `${b}Day:${b} ${t.day || 'N/A'}\n`;
                 if (fieldConfig.time) text += `${b}Time:${b} ${t.time || 'N/A'}\n`;
                 if (fieldConfig.salary) text += `${b}Salary:${b} ${t.salary || 'Negotiable'}\n`;
+                if (fieldConfig.mediaFee && t.mediaFee && t.mediaFee.trim() !== '') text += `${b}Media Fee:${b} ${t.mediaFee}\n`;
                 if (fieldConfig.location) text += `${b}Location:${b} ${t.location || ''} ${t.area ? '(' + t.area + ')' : ''}\n`;
                 if (fieldConfig.joining) text += `${b}Joining:${b} ${t.joining || 'As soon as'}\n`;
 

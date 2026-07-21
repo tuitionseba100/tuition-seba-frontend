@@ -41,7 +41,7 @@ Medium: ${tuitionDetails.medium}
 Subject: ${tuitionDetails.subject}
 Day: ${tuitionDetails.day}
 Time: ${tuitionDetails.time}
-Salary: ${tuitionDetails.salary && /taka|tk/i.test(tuitionDetails.salary.toString()) ? tuitionDetails.salary : (tuitionDetails.salary ? tuitionDetails.salary.toString().trim() + ' taka' : '')}
+Salary: ${tuitionDetails.salary && /taka|tk/i.test(tuitionDetails.salary.toString()) ? tuitionDetails.salary : (tuitionDetails.salary ? tuitionDetails.salary.toString().trim() + ' taka' : '')}${tuitionDetails.mediaFee && tuitionDetails.mediaFee.trim() !== '' ? `\nMedia Fee: ${tuitionDetails.mediaFee}` : ''}
 Location: ${tuitionDetails.location}${area}
 Joining: ${tuitionDetails.joining}
 

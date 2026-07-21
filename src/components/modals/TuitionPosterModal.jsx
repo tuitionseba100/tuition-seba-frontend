@@ -123,6 +123,12 @@ const ModernLightTemplate = ({ tuition }) => {
                         <div style={{ fontSize: '14px', fontWeight: 700, color: '#0f172a' }}>{tuition.joining || 'N/A'}</div>
                     </div>
                 </div>
+                {tuition.mediaFee && tuition.mediaFee.trim() !== '' && (
+                    <div style={{ background: 'rgba(234, 88, 12, 0.04)', border: '1px solid rgba(234, 88, 12, 0.2)', borderRadius: '10px', padding: '8px 12px' }}>
+                        <div style={{ fontSize: '10px', color: '#ea580c', fontWeight: 800, textTransform: 'uppercase', marginBottom: '2px' }}>Media Fee / মিডিয়া ফি</div>
+                        <div style={{ fontSize: '14px', fontWeight: 700, color: '#ea580c' }}>{tuition.mediaFee}</div>
+                    </div>
+                )}
                 <div style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: '10px', padding: '8px 12px' }}>
                     <div style={{ fontSize: '10px', color: '#64748b', fontWeight: 800, textTransform: 'uppercase', marginBottom: '2px' }}>Location / এলাকা</div>
                     <div style={{ fontSize: '14px', fontWeight: 700, color: '#0f172a' }}>{tuition.location}{tuition.area ? `, ${tuition.area}` : ''}</div>
@@ -246,6 +252,12 @@ const DarkNeonTemplate = ({ tuition }) => {
                         <div style={{ fontSize: '14px', fontWeight: 700, color: '#fff' }}>{tuition.joining || 'N/A'}</div>
                     </div>
                 </div>
+                {tuition.mediaFee && tuition.mediaFee.trim() !== '' && (
+                    <div style={{ background: 'rgba(234, 88, 12, 0.07)', border: '1px solid rgba(234, 88, 12, 0.25)', borderRadius: '10px', padding: '8px 12px' }}>
+                        <div style={{ fontSize: '10px', color: '#fb923c', fontWeight: 800, textTransform: 'uppercase', marginBottom: '2px' }}>Media Fee / মিডিয়া ফি</div>
+                        <div style={{ fontSize: '14px', fontWeight: 700, color: '#fb923c' }}>{tuition.mediaFee}</div>
+                    </div>
+                )}
                 <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '10px', padding: '8px 12px' }}>
                     <div style={{ fontSize: '10px', color: '#94a3b8', fontWeight: 800, textTransform: 'uppercase', marginBottom: '2px' }}>Location / এলাকা</div>
                     <div style={{ fontSize: '14px', fontWeight: 700, color: '#fff' }}>{tuition.location}{tuition.area ? `, ${tuition.area}` : ''}</div>
@@ -383,6 +395,12 @@ const VintageTemplate = ({ tuition }) => {
                         </div>
                     </div>
 
+                    {tuition.mediaFee && tuition.mediaFee.trim() !== '' && (
+                        <div style={{ background: '#fff8f1', border: '1.5px solid #c2773a', padding: '8px 10px' }}>
+                            <div style={{ fontSize: '9px', color: '#c2773a', fontWeight: 800, textTransform: 'uppercase' }}>Media Fee / মিডিয়া ফি</div>
+                            <div style={{ fontSize: '13px', fontWeight: 'bold', color: '#5c4033' }}>{tuition.mediaFee}</div>
+                        </div>
+                    )}
                     <div style={{ background: '#fefcf8', border: '1px solid #dcd1be', padding: '8px 10px' }}>
                         <div style={{ fontSize: '9px', color: '#8c6d4f', fontWeight: 800, textTransform: 'uppercase' }}>Location / এলাকা</div>
                         <div style={{ fontSize: '13px', fontWeight: 'bold' }}>{tuition.location}{tuition.area ? `, ${tuition.area}` : ''}</div>
@@ -440,7 +458,7 @@ const TuitionPosterModal = ({ show, onHide, tuition }) => {
                 scale: 3,
                 useCORS: true,
                 allowTaint: true,
-                backgroundColor: null,
+                backgroundColor: '#ffffff',
                 logging: false
             });
             const a = document.createElement('a');

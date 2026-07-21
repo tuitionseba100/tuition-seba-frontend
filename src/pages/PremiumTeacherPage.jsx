@@ -318,8 +318,24 @@ const PremiumTeacherPage = () => {
     };
 
     const handleSaveRecord = async () => {
-        if (formData.amount && String(formData.amount).trim() !== '') {
-            const amountStr = String(formData.amount).trim();
+        const amount = formData.amount;
+        const paymentDate = formData.paymentDate;
+
+        const hasAmount = amount !== undefined && amount !== null && String(amount).trim() !== '';
+        const hasPaymentDate = paymentDate !== undefined && paymentDate !== null && String(paymentDate).trim() !== '';
+
+        if (hasAmount && !hasPaymentDate) {
+            toast.warning("পেমেন্ট অ্যামাউন্ট দেওয়া হয়েছে, দয়া করে পেমেন্টের তারিখটি সিলেক্ট করুন।");
+            return;
+        }
+
+        if (hasPaymentDate && !hasAmount) {
+            toast.warning("পেমেন্টের তারিখ দেওয়া হয়েছে, দয়া করে পেমেন্ট অ্যামাউন্টটি লিখুন।");
+            return;
+        }
+
+        if (hasAmount) {
+            const amountStr = String(amount).trim();
             const amountRegex = /^\d+(\.\d+)?$/;
             if (!amountRegex.test(amountStr)) {
                 toast.warning("Amount paid - only numbers allowed.");

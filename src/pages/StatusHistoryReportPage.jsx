@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Container, Row, Col, Card, Table, Form, Button, Spinner, Badge, Tabs, Tab, Nav, Modal, Pagination } from 'react-bootstrap';
-import { FaCalendarAlt, FaFilter, FaSearch, FaHistory, FaUserCheck, FaBookOpen, FaUndo, FaTag, FaChartPie, FaWallet, FaMinus, FaBalanceScale } from 'react-icons/fa';
+import { Container, Row, Col, Card, Table, Form, Button, Spinner, Badge, Tabs, Tab, Nav, Modal, Pagination, Dropdown } from 'react-bootstrap';
+import { FaCalendarAlt, FaFilter, FaSearch, FaHistory, FaUserCheck, FaBookOpen, FaUndo, FaTag, FaChartPie, FaWallet, FaMinus, FaBalanceScale, FaColumns } from 'react-icons/fa';
 import { axiosWithFallback as axios } from '../services/fetchWithFallback';
 import NavBarPage from './NavbarPage';
 import styled from 'styled-components';
@@ -66,6 +66,45 @@ const StatusHistoryReportPage = () => {
     const [overallLoading, setOverallLoading] = useState(false);
     const [overallFilters, setOverallFilters] = useState({ startDate: initialTodayStr, endDate: initialTodayStr });
     const [appliedOverallFilters, setAppliedOverallFilters] = useState({ startDate: initialTodayStr, endDate: initialTodayStr });
+
+    // Overall Table Column Visibility State with LocalStorage
+    const overallColumnsConfig = [
+        { key: 'sl', label: 'SL' },
+        { key: 'paymentAmount', label: 'Payment Amount' },
+        { key: 'paymentCount', label: 'Payment Transactions' },
+        { key: 'premiumFeeAmount', label: 'Premium Teacher Fee' },
+        { key: 'premiumFeeCount', label: 'Fee Records' },
+        { key: 'totalIncome', label: 'Total Income' },
+        { key: 'refundAmount', label: 'Refund Amount' },
+        { key: 'refundCount', label: 'Refund Transactions' },
+        { key: 'expenseAmount', label: 'Expense Amount' },
+    ];
+
+    const [visibleOverallColumns, setVisibleOverallColumns] = useState(() => {
+        try {
+            const saved = localStorage.getItem('overallReport_visibleColumns');
+            if (saved) {
+                return JSON.parse(saved);
+            }
+        } catch (e) {
+            console.error('Error loading visible columns from localStorage:', e);
+        }
+        return overallColumnsConfig.reduce((acc, col) => ({ ...acc, [col.key]: true }), {});
+    });
+
+    const toggleOverallColumn = (colKey) => {
+        setVisibleOverallColumns(prev => {
+            const updated = { ...prev, [colKey]: !prev[colKey] };
+            try {
+                localStorage.setItem('overallReport_visibleColumns', JSON.stringify(updated));
+            } catch (e) {
+                console.error('Error saving visible columns to localStorage:', e);
+            }
+            return updated;
+        });
+    };
+
+    const isColVisible = (key) => key === 'date' || key === 'balance' || visibleOverallColumns[key] !== false;
 
     // Details Modal State
     const [showDetailsModal, setShowDetailsModal] = useState(false);
@@ -1244,6 +1283,48 @@ const StatusHistoryReportPage = () => {
                                         </Card.Body>
                                     </PremiumStatsCard>
                                 </Col>
+                                <Col style={{ minWidth: '200px', flex: '1' }}>
+                                    <PremiumStatsCard className="shadow-sm bg-white border border-info p-2 px-3 rounded-4" style={{ borderWidth: '2px !important' }}>
+                                        <Card.Body className="p-0">
+                                            <div className="d-flex align-items-center gap-3 mb-2">
+                                                <div className="icon-wrapper bg-info bg-opacity-10 text-info rounded-3 p-2 d-flex align-items-center justify-content-center">
+                                                    <FaWallet size={24} />
+                                                </div>
+                                                <div>
+                                                    <span className="text-dark text-uppercase fw-bold tracking-wider" style={{ fontSize: '0.85rem' }}>Premium Teacher Fee</span>
+                                                    <h2 className="fw-extrabold text-dark mb-0 mt-1" style={{ fontSize: '1.75rem' }}>৳ {overallReportData.totalPremiumFeeAmount?.toLocaleString() || 0}</h2>
+                                                </div>
+                                            </div>
+                                            <div style={{ borderTop: '1px solid rgba(0, 0, 0, 0.1)', paddingTop: '6px', marginTop: '6px' }}>
+                                                <div className="d-flex justify-content-between align-items-center">
+                                                    <div className="text-dark text-uppercase fw-bold" style={{ fontSize: '11px' }}>Total Records</div>
+                                                    <div className="fw-bold fs-6 text-info">{overallReportData.totalPremiumFeeCount || 0}</div>
+                                                </div>
+                                            </div>
+                                        </Card.Body>
+                                    </PremiumStatsCard>
+                                </Col>
+                                <Col style={{ minWidth: '200px', flex: '1' }}>
+                                    <PremiumStatsCard className="shadow-sm bg-white border border-success p-2 px-3 rounded-4" style={{ borderWidth: '2px !important', background: 'linear-gradient(135deg, #f0fdf4, #dcfce7)' }}>
+                                        <Card.Body className="p-0">
+                                            <div className="d-flex align-items-center gap-3 mb-2">
+                                                <div className="icon-wrapper bg-success bg-opacity-15 text-success rounded-3 p-2 d-flex align-items-center justify-content-center">
+                                                    <FaChartPie size={24} />
+                                                </div>
+                                                <div>
+                                                    <span className="text-dark text-uppercase fw-bold tracking-wider" style={{ fontSize: '0.85rem' }}>Total Income</span>
+                                                    <h2 className="fw-extrabold text-success mb-0 mt-1" style={{ fontSize: '1.75rem' }}>৳ {((overallReportData.totalPaymentAmount || 0) + (overallReportData.totalPremiumFeeAmount || 0)).toLocaleString()}</h2>
+                                                </div>
+                                            </div>
+                                            <div style={{ borderTop: '1px solid rgba(0, 0, 0, 0.1)', paddingTop: '6px', marginTop: '6px' }}>
+                                                <div className="d-flex justify-content-between align-items-center">
+                                                    <div className="text-dark text-uppercase fw-bold" style={{ fontSize: '11px' }}>Payment + Teacher Fee</div>
+                                                    <div className="fw-bold fs-6 text-success">-</div>
+                                                </div>
+                                            </div>
+                                        </Card.Body>
+                                    </PremiumStatsCard>
+                                </Col>
                                 <Col style={{ minWidth: '180px', flex: '1' }}>
                                     <PremiumStatsCard className="shadow-sm bg-white border border-danger p-2 px-3 rounded-4" style={{ borderWidth: '2px !important' }}>
                                         <Card.Body className="p-0">
@@ -1287,27 +1368,6 @@ const StatusHistoryReportPage = () => {
                                     </PremiumStatsCard>
                                 </Col>
                                 <Col style={{ minWidth: '200px', flex: '1' }}>
-                                    <PremiumStatsCard className="shadow-sm bg-white border border-info p-2 px-3 rounded-4" style={{ borderWidth: '2px !important' }}>
-                                        <Card.Body className="p-0">
-                                            <div className="d-flex align-items-center gap-3 mb-2">
-                                                <div className="icon-wrapper bg-info bg-opacity-10 text-info rounded-3 p-2 d-flex align-items-center justify-content-center">
-                                                    <FaWallet size={24} />
-                                                </div>
-                                                <div>
-                                                    <span className="text-dark text-uppercase fw-bold tracking-wider" style={{ fontSize: '0.85rem' }}>Premium Teacher Fee</span>
-                                                    <h2 className="fw-extrabold text-dark mb-0 mt-1" style={{ fontSize: '1.75rem' }}>৳ {overallReportData.totalPremiumFeeAmount?.toLocaleString() || 0}</h2>
-                                                </div>
-                                            </div>
-                                            <div style={{ borderTop: '1px solid rgba(0, 0, 0, 0.1)', paddingTop: '6px', marginTop: '6px' }}>
-                                                <div className="d-flex justify-content-between align-items-center">
-                                                    <div className="text-dark text-uppercase fw-bold" style={{ fontSize: '11px' }}>Total Records</div>
-                                                    <div className="fw-bold fs-6 text-info">{overallReportData.totalPremiumFeeCount || 0}</div>
-                                                </div>
-                                            </div>
-                                        </Card.Body>
-                                    </PremiumStatsCard>
-                                </Col>
-                                <Col style={{ minWidth: '200px', flex: '1' }}>
                                     <PremiumStatsCard className="shadow-sm bg-white border border-primary p-2 px-3 rounded-4" style={{ borderWidth: '2px !important' }}>
                                         <Card.Body className="p-0">
                                             <div className="d-flex align-items-center gap-3 mb-2">
@@ -1321,7 +1381,7 @@ const StatusHistoryReportPage = () => {
                                             </div>
                                             <div style={{ borderTop: '1px solid rgba(0, 0, 0, 0.1)', paddingTop: '6px', marginTop: '6px' }}>
                                                 <div className="d-flex justify-content-between align-items-center">
-                                                    <div className="text-dark text-uppercase fw-bold" style={{ fontSize: '11px' }}>(Payment + Premium Fee) - Expense</div>
+                                                    <div className="text-dark text-uppercase fw-bold" style={{ fontSize: '11px' }}>Total Income - Expense</div>
                                                     <div className="fw-bold fs-6 text-primary">-</div>
                                                 </div>
                                             </div>
@@ -1388,20 +1448,66 @@ const StatusHistoryReportPage = () => {
                             ) : (
                                 <Card className="shadow-sm border-0 rounded-4 mb-3">
                                     <Card.Body className="p-2 px-3">
-                                        <h6 className="fw-bold mb-2 text-dark">Combined Breakdown</h6>
+                                        <div className="d-flex justify-content-between align-items-center mb-2">
+                                            <h6 className="fw-bold mb-0 text-dark">Combined Breakdown</h6>
+                                            <Dropdown autoClose="outside" align="end">
+                                                <Dropdown.Toggle variant="outline-primary" size="sm" className="d-flex align-items-center gap-2 rounded-pill px-3 shadow-sm border-2 fw-semibold">
+                                                    <FaColumns size={14} /> Customize Columns
+                                                </Dropdown.Toggle>
+                                                <Dropdown.Menu className="shadow-lg p-3 border-0 rounded-4" style={{ minWidth: '280px', zIndex: 1050 }}>
+                                                    <div className="d-flex justify-content-between align-items-center pb-2 mb-2 border-bottom">
+                                                        <span className="fw-bold text-dark small">Display Columns</span>
+                                                        <Button
+                                                            variant="link"
+                                                            size="sm"
+                                                            className="p-0 text-decoration-none small text-primary fw-semibold"
+                                                            onClick={() => {
+                                                                const allTrue = overallColumnsConfig.reduce((acc, col) => ({ ...acc, [col.key]: true }), {});
+                                                                setVisibleOverallColumns(allTrue);
+                                                                localStorage.setItem('overallReport_visibleColumns', JSON.stringify(allTrue));
+                                                            }}
+                                                        >
+                                                            Select All
+                                                        </Button>
+                                                    </div>
+                                                    <div className="d-flex flex-column gap-1" style={{ maxHeight: '300px', overflowY: 'auto' }}>
+                                                        {overallColumnsConfig.map(col => (
+                                                            <label
+                                                                key={col.key}
+                                                                htmlFor={`col-toggle-${col.key}`}
+                                                                className="d-flex align-items-center gap-2 px-2 py-1.5 rounded cursor-pointer hover-bg-light m-0"
+                                                                style={{ userSelect: 'none' }}
+                                                            >
+                                                                <input
+                                                                    type="checkbox"
+                                                                    className="form-check-input mt-0 flex-shrink-0 cursor-pointer"
+                                                                    id={`col-toggle-${col.key}`}
+                                                                    checked={isColVisible(col.key)}
+                                                                    onChange={() => toggleOverallColumn(col.key)}
+                                                                />
+                                                                <span className="small text-dark fw-medium" style={{ fontSize: '13px' }}>
+                                                                    {col.label}
+                                                                </span>
+                                                            </label>
+                                                        ))}
+                                                    </div>
+                                                </Dropdown.Menu>
+                                            </Dropdown>
+                                        </div>
                                         <div className="table-responsive rounded-3 shadow-sm" style={{ maxHeight: "450px", overflowY: "auto" }}>
                                             <Table hover striped bordered className="align-middle text-center mb-0 custom-reports-table">
                                                 <thead className="table-dark sticky-top">
                                                     <tr>
-                                                        <th>SL</th>
+                                                        {isColVisible('sl') && <th>SL</th>}
                                                         <th className="text-start">Date</th>
-                                                        <th>Payment Amount (৳)</th>
-                                                        <th>Payment Transactions</th>
-                                                        <th className="text-danger">Refund Amount (৳)</th>
-                                                        <th className="text-danger">Refund Transactions</th>
-                                                        <th className="text-info">Premium Teacher Fee (৳)</th>
-                                                        <th className="text-info">Fee Records</th>
-                                                        <th className="text-warning">Expense Amount (৳)</th>
+                                                        {isColVisible('paymentAmount') && <th>Payment Amount (৳)</th>}
+                                                        {isColVisible('paymentCount') && <th>Payment Transactions</th>}
+                                                        {isColVisible('premiumFeeAmount') && <th className="text-info">Premium Teacher Fee (৳)</th>}
+                                                        {isColVisible('premiumFeeCount') && <th className="text-info">Fee Records</th>}
+                                                        {isColVisible('totalIncome') && <th className="text-success">Total Income (৳)</th>}
+                                                        {isColVisible('refundAmount') && <th className="text-danger">Refund Amount (৳)</th>}
+                                                        {isColVisible('refundCount') && <th className="text-danger">Refund Transactions</th>}
+                                                        {isColVisible('expenseAmount') && <th className="text-warning">Expense Amount (৳)</th>}
                                                         <th className="text-primary">Balance (৳)</th>
                                                     </tr>
                                                 </thead>
@@ -1409,7 +1515,7 @@ const StatusHistoryReportPage = () => {
                                                     {overallReportData.data && overallReportData.data.length > 0 ? (
                                                         overallReportData.data.map((row, idx) => (
                                                             <tr key={idx}>
-                                                                <td className="fw-bold text-dark">{idx + 1}</td>
+                                                                {isColVisible('sl') && <td className="fw-bold text-dark">{idx + 1}</td>}
                                                                 <td className="text-start fw-bold">
                                                                     <div className="d-flex align-items-center gap-2">
                                                                         <a href="#" className="text-decoration-none text-primary" onClick={(e) => { e.preventDefault(); handleDateClick(row.date, 'payment'); }}>
@@ -1417,19 +1523,20 @@ const StatusHistoryReportPage = () => {
                                                                         </a>
                                                                     </div>
                                                                 </td>
-                                                                <td className="fw-semibold text-success">৳ {row.paymentAmount.toLocaleString()}</td>
-                                                                <td className="fw-semibold text-success">{row.paymentCount.toLocaleString()}</td>
-                                                                <td className="fw-semibold text-danger">৳ {row.refundAmount?.toLocaleString() || 0}</td>
-                                                                <td className="fw-semibold text-danger">{row.refundCount?.toLocaleString() || 0}</td>
-                                                                <td className="fw-semibold text-info">৳ {row.premiumFeeAmount?.toLocaleString() || 0}</td>
-                                                                <td className="fw-semibold text-info">{row.premiumFeeCount?.toLocaleString() || 0}</td>
-                                                                <td className="fw-semibold text-warning">৳ {row.expenseAmount?.toLocaleString() || 0}</td>
+                                                                {isColVisible('paymentAmount') && <td className="fw-semibold text-success">৳ {row.paymentAmount.toLocaleString()}</td>}
+                                                                {isColVisible('paymentCount') && <td className="fw-semibold text-success">{row.paymentCount.toLocaleString()}</td>}
+                                                                {isColVisible('premiumFeeAmount') && <td className="fw-semibold text-info">৳ {row.premiumFeeAmount?.toLocaleString() || 0}</td>}
+                                                                {isColVisible('premiumFeeCount') && <td className="fw-semibold text-info">{row.premiumFeeCount?.toLocaleString() || 0}</td>}
+                                                                {isColVisible('totalIncome') && <td className="fw-semibold text-success fw-bold">৳ {((row.paymentAmount || 0) + (row.premiumFeeAmount || 0)).toLocaleString()}</td>}
+                                                                {isColVisible('refundAmount') && <td className="fw-semibold text-danger">৳ {row.refundAmount?.toLocaleString() || 0}</td>}
+                                                                {isColVisible('refundCount') && <td className="fw-semibold text-danger">{row.refundCount?.toLocaleString() || 0}</td>}
+                                                                {isColVisible('expenseAmount') && <td className="fw-semibold text-warning">৳ {row.expenseAmount?.toLocaleString() || 0}</td>}
                                                                 <td className="fw-semibold text-primary">৳ {(((row.paymentAmount || 0) + (row.premiumFeeAmount || 0)) - (row.expenseAmount || 0)).toLocaleString()}</td>
                                                             </tr>
                                                         ))
                                                     ) : (
                                                         <tr>
-                                                            <td colSpan="10" className="py-4 text-muted fw-bold">No combined data found for the selected period.</td>
+                                                            <td colSpan={(overallColumnsConfig.filter(col => isColVisible(col.key)).length + 2) || 2} className="py-4 text-muted fw-bold">No combined data found for the selected period.</td>
                                                         </tr>
                                                     )}
                                                 </tbody>

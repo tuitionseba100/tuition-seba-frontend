@@ -191,10 +191,6 @@ const PremiumTeacherPage = () => {
 
     useEffect(() => {
         fetchTableData();
-    }, []);
-
-    useEffect(() => {
-        fetchTableData();
     }, [appliedFilters, currentPage]);
 
     const handleSearchInputChange = (field, value) => {

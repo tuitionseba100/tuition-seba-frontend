@@ -1,10 +1,8 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { FaUserCheck, FaGraduationCap, FaExternalLinkAlt } from 'react-icons/fa';
-import TuitionApplyUpdateModal from './modals/TuitionApplyUpdateModal';
 import { useNavigate } from 'react-router-dom';
 
 const Features = () => {
-    const [showUpdateModal, setUpdateShowModal] = useState(false);
     const navigate = useNavigate();
 
     const cardStyle = {
@@ -90,14 +88,12 @@ const Features = () => {
                     </p>
                     <button
                         style={buttonStyle('#2f6bf0')}
-                        onClick={() => setUpdateShowModal(true)}
+                        onClick={() => navigate('/apply-updates')}
                     >
                         <FaExternalLinkAlt /> এখানে ক্লিক করুন
                     </button>
                 </div>
             </div>
-
-            <TuitionApplyUpdateModal show={showUpdateModal} handleClose={() => setUpdateShowModal(false)} />
         </div>
     );
 };

@@ -71,12 +71,12 @@ const StatusHistoryReportPage = () => {
     const overallColumnsConfig = [
         { key: 'sl', label: 'SL' },
         { key: 'paymentAmount', label: 'Payment Amount' },
-        { key: 'paymentCount', label: 'Payment Transactions' },
+        { key: 'paymentCount', label: 'Payment Count' },
         { key: 'premiumFeeAmount', label: 'Premium Teacher Fee' },
-        { key: 'premiumFeeCount', label: 'Fee Records' },
+        { key: 'premiumFeeCount', label: 'Fee Count' },
         { key: 'totalIncome', label: 'Total Income' },
         { key: 'refundAmount', label: 'Refund Amount' },
-        { key: 'refundCount', label: 'Refund Transactions' },
+        { key: 'refundCount', label: 'Refund Count' },
         { key: 'expenseAmount', label: 'Expense Amount' },
     ];
 
@@ -1501,12 +1501,12 @@ const StatusHistoryReportPage = () => {
                                                         {isColVisible('sl') && <th>SL</th>}
                                                         <th className="text-start">Date</th>
                                                         {isColVisible('paymentAmount') && <th>Payment Amount (৳)</th>}
-                                                        {isColVisible('paymentCount') && <th>Payment Transactions</th>}
+                                                        {isColVisible('paymentCount') && <th>Payment Count</th>}
                                                         {isColVisible('premiumFeeAmount') && <th className="text-info">Premium Teacher Fee (৳)</th>}
-                                                        {isColVisible('premiumFeeCount') && <th className="text-info">Fee Records</th>}
+                                                        {isColVisible('premiumFeeCount') && <th className="text-info">Fee Count</th>}
                                                         {isColVisible('totalIncome') && <th className="text-success">Total Income (৳)</th>}
                                                         {isColVisible('refundAmount') && <th className="text-danger">Refund Amount (৳)</th>}
-                                                        {isColVisible('refundCount') && <th className="text-danger">Refund Transactions</th>}
+                                                        {isColVisible('refundCount') && <th className="text-danger">Refund Count</th>}
                                                         {isColVisible('expenseAmount') && <th className="text-warning">Expense Amount (৳)</th>}
                                                         <th className="text-primary">Balance (৳)</th>
                                                     </tr>

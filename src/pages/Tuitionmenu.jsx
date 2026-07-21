@@ -487,6 +487,7 @@ const TuitionPage = () => {
             `Day: ${tuitionDetails.day}\n` +
             `Time: ${tuitionDetails.time}\n` +
             `Salary: ${tuitionDetails.salary && /taka|tk/i.test(tuitionDetails.salary.toString()) ? tuitionDetails.salary : (tuitionDetails.salary ? tuitionDetails.salary.toString().trim() + ' taka' : '')}\n` +
+            (tuitionDetails.mediaFee && tuitionDetails.mediaFee.trim() !== '' ? `Media Fee: ${tuitionDetails.mediaFee}\n` : '') +
             `Location: ${tuitionDetails.location}, ${area}\n` +
             `Joining: ${tuitionDetails.joining}\n\n` +
             `Visit our website: www.tuitionsebaforum.com\n\n` +

@@ -1840,7 +1840,7 @@ const PosterGenerator = () => {
                 scale: 3,
                 useCORS: true,
                 allowTaint: true,
-                backgroundColor: null,
+                backgroundColor: '#ffffff',
                 logging: false
             });
             const a = document.createElement('a');

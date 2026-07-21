@@ -3,7 +3,8 @@ import { Card, Button, ListGroup, Badge } from 'react-bootstrap';
 import {
     FaChalkboardTeacher, FaUsers, FaUniversity, FaBook,
     FaLanguage, FaBookOpen, FaCalendarDay, FaClock,
-    FaMoneyBill, FaMapMarkerAlt, FaCalendarCheck, FaWhatsapp, FaGlobe
+    FaMoneyBill, FaMapMarkerAlt, FaCalendarCheck, FaWhatsapp, FaGlobe,
+    FaCalendarAlt
 } from 'react-icons/fa';
 import ApplyModal from '../components/modals/ApplyModal';
 
@@ -111,18 +112,42 @@ Joining: ${tuitionDetails.joining}
                     </Badge>
                 )}
                 <Card.Header
-                    className="text-white d-flex justify-content-center align-items-center gap-2"
+                    className="text-white d-flex flex-column justify-content-center align-items-center"
                     style={{
                         background: 'linear-gradient(135deg, #004085 0%, #0066cc 100%)',
-                        fontSize: '1.2rem',
-                        fontWeight: '700',
                         padding: '15px 10px',
-                        letterSpacing: '0.5px',
                         borderBottom: 'none',
                     }}
                 >
-                    <FaChalkboardTeacher style={{ fontSize: '1.4rem', color: '#61dafb' }} />
-                    <span>Tuition Code: {tuition.tuitionCode}</span>
+                    <div className="d-flex justify-content-center align-items-center gap-2">
+                        <FaChalkboardTeacher style={{ fontSize: '1.4rem', color: '#61dafb' }} />
+                        <span style={{ fontSize: '1.2rem', fontWeight: '700', letterSpacing: '0.5px' }}>Tuition Code: {tuition.tuitionCode}</span>
+                    </div>
+                    {tuition.lastPublishedDate && (
+                        <div 
+                            style={{ 
+                                fontSize: '0.75rem', 
+                                opacity: 0.85, 
+                                marginTop: '4px',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '5px',
+                                fontWeight: '500'
+                            }}
+                        >
+                            <FaCalendarAlt size={11} style={{ color: '#61dafb' }} />
+                            <span>
+                                Published: {new Date(tuition.lastPublishedDate).toLocaleString('en-GB', {
+                                    day: '2-digit',
+                                    month: 'short',
+                                    year: 'numeric',
+                                    hour: '2-digit',
+                                    minute: '2-digit',
+                                    hour12: true
+                                })}
+                            </span>
+                        </div>
+                    )}
                 </Card.Header>
 
                 <div style={{ flexGrow: 1, paddingTop: '20px', paddingBottom: '10px' }}>

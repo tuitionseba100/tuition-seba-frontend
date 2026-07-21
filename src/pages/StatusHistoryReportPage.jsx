@@ -17,6 +17,8 @@ const allStatusOptions = [
     { value: 'confirm', label: 'Confirm', module: 'Tuition' },
     { value: 'cancel', label: 'Cancel', module: 'Tuition' },
     { value: 'suspend', label: 'Suspend', module: 'Tuition' },
+    { value: 'published', label: 'Published', module: 'Tuition' },
+    { value: 'unpublished', label: 'Unpublished', module: 'Tuition' },
     { value: 'selected', label: 'Selected', module: 'TuitionApply' },
     { value: 'confirmed', label: 'Confirmed', module: 'TuitionApply' }
 ];

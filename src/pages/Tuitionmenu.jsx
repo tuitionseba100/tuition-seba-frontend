@@ -1564,7 +1564,12 @@ const MemoizedTuitionTable = React.memo(({
                                 )}
                             </td>
 
-                            <td className={tuition.isPublish ? "text-success fw-bold" : "text-danger fw-bold"}>
+                            <td 
+                                className={tuition.isPublish ? "text-success fw-bold" : "text-danger fw-bold"}
+                                onClick={() => handleShowStatusHistory('Tuition', tuition._id, tuition.tuitionCode)}
+                                style={{ cursor: 'pointer' }}
+                                title="Click to view status history"
+                            >
                                 {tuition.isPublish ? "Yes" : "No"}
                             </td>
                             <td>

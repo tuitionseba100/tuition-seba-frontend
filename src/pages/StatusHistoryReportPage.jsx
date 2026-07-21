@@ -14,11 +14,13 @@ const allStatusOptions = [
     { value: 'after confirmation', label: 'After Confirmation', module: 'RegTeacher' },
     { value: 'after salary', label: 'After Salary', module: 'RegTeacher' },
     { value: '30% advance', label: '30% Advance', module: 'RegTeacher' },
+    { value: 'created', label: 'Tuition Created', module: 'Tuition' },
     { value: 'confirm', label: 'Confirm', module: 'Tuition' },
     { value: 'cancel', label: 'Cancel', module: 'Tuition' },
     { value: 'suspend', label: 'Suspend', module: 'Tuition' },
     { value: 'published', label: 'Published', module: 'Tuition' },
     { value: 'unpublished', label: 'Unpublished', module: 'Tuition' },
+    { value: 'deleted', label: 'Tuition Deleted', module: 'Tuition' },
     { value: 'selected', label: 'Selected', module: 'TuitionApply' },
     { value: 'confirmed', label: 'Confirmed', module: 'TuitionApply' }
 ];
@@ -145,6 +147,11 @@ const StatusHistoryReportPage = () => {
         startDate: '',
         endDate: ''
     });
+
+    const today = new Date();
+    const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+    const showTodaySuffix = (!appliedFilters.startDate || appliedFilters.startDate === todayStr) && 
+                            (!appliedFilters.endDate || appliedFilters.endDate === todayStr);
 
     const [usersList, setUsersList] = useState([]);
 
@@ -284,9 +291,11 @@ const StatusHistoryReportPage = () => {
                 'after confirmation': 'RegTeacher',
                 'after salary': 'RegTeacher',
                 '30% advance': 'RegTeacher',
+                'created': 'Tuition',
                 'confirm': 'Tuition',
                 'cancel': 'Tuition',
                 'suspend': 'Tuition',
+                'deleted': 'Tuition',
                 'selected': 'TuitionApply',
                 'confirmed': 'TuitionApply'
             };
@@ -305,9 +314,11 @@ const StatusHistoryReportPage = () => {
                 'after confirmation': 'RegTeacher',
                 'after salary': 'RegTeacher',
                 '30% advance': 'RegTeacher',
+                'created': 'Tuition',
                 'confirm': 'Tuition',
                 'cancel': 'Tuition',
                 'suspend': 'Tuition',
+                'deleted': 'Tuition',
                 'selected': 'TuitionApply',
                 'confirmed': 'TuitionApply'
             };
@@ -698,7 +709,7 @@ const StatusHistoryReportPage = () => {
                                                     <FaUserCheck size={24} />
                                                 </div>
                                                 <div>
-                                                    <span className="text-dark text-uppercase fw-bold tracking-wider" style={{ fontSize: '0.85rem' }}>Teachers Verified Today</span>
+                                                    <span className="text-dark text-uppercase fw-bold tracking-wider" style={{ fontSize: '0.85rem' }}>Teachers Verified{showTodaySuffix ? ' Today' : ''}</span>
                                                     <h2 className="fw-extrabold text-dark mb-0 mt-1" style={{ fontSize: '1.75rem' }}>{todayStats.verifiedTeachersCount}</h2>
                                                 </div>
                                             </div>
@@ -733,7 +744,7 @@ const StatusHistoryReportPage = () => {
                                                     <FaBookOpen size={24} />
                                                 </div>
                                                 <div>
-                                                    <span className="text-dark text-uppercase fw-bold tracking-wider" style={{ fontSize: '0.85rem' }}>Tuitions Confirmed Today</span>
+                                                    <span className="text-dark text-uppercase fw-bold tracking-wider" style={{ fontSize: '0.85rem' }}>Tuitions Confirmed{showTodaySuffix ? ' Today' : ''}</span>
                                                     <h2 className="fw-extrabold text-dark mb-0 mt-1" style={{ fontSize: '1.75rem' }}>{todayStats.confirmedTuitionsCount}</h2>
                                                 </div>
                                             </div>
@@ -769,7 +780,7 @@ const StatusHistoryReportPage = () => {
                                                     <FaUserCheck size={24} />
                                                 </div>
                                                 <div>
-                                                    <span className="text-dark text-uppercase fw-bold tracking-wider" style={{ fontSize: '0.85rem' }}>Applications Confirmed Today</span>
+                                                    <span className="text-dark text-uppercase fw-bold tracking-wider" style={{ fontSize: '0.85rem' }}>Applications Confirmed{showTodaySuffix ? ' Today' : ''}</span>
                                                     <h2 className="fw-extrabold text-dark mb-0 mt-1" style={{ fontSize: '1.75rem' }}>{todayStats.confirmedApplicationsCount}</h2>
                                                 </div>
                                             </div>
@@ -801,7 +812,7 @@ const StatusHistoryReportPage = () => {
                                                     <FaBookOpen size={24} />
                                                 </div>
                                                 <div>
-                                                    <span className="text-dark text-uppercase fw-bold tracking-wider" style={{ fontSize: '0.85rem' }}>Tuitions Created Today</span>
+                                                    <span className="text-dark text-uppercase fw-bold tracking-wider" style={{ fontSize: '0.85rem' }}>Tuitions Created{showTodaySuffix ? ' Today' : ''}</span>
                                                     <h2 className="fw-extrabold text-dark mb-0 mt-1" style={{ fontSize: '1.75rem' }}>{todayStats.tuitionsCreatedTodayCount}</h2>
                                                 </div>
                                             </div>

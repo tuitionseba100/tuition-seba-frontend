@@ -278,7 +278,7 @@ const ExpensePage = () => {
                                         <div className="text-danger mb-2" style={{ fontWeight: 'bolder' }}>{item.title}</div>
                                         <div className="d-flex flex-column align-items-center justify-content-center h-100">
                                             <span className="text-danger" style={{ fontSize: '1.25rem', fontWeight: '900' }}>
-                                                ৳{item.data.totalExpense?.toLocaleString() || 0}
+                                                ৳{(item.data?.totalExpense ?? 0).toLocaleString()}
                                             </span>
                                         </div>
                                     </div>

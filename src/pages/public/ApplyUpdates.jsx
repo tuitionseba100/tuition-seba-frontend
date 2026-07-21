@@ -569,6 +569,25 @@ const ApplyUpdates = () => {
                                         <span className="detail-label" style={{ fontSize: '12px', color: '#64748b', fontWeight: '600', marginBottom: '4px' }}>Joining</span>
                                         <span className="detail-value" style={{ fontSize: '14px', color: '#1e293b', fontWeight: '700' }}>{selectedTuition.joining || '-'}</span>
                                     </div>
+                                    <div className="detail-item" style={{ display: 'flex', flexDirection: 'column', borderBottom: '1px solid #f1f5f9', paddingBottom: '8px' }}>
+                                        <span className="detail-label" style={{ fontSize: '12px', color: '#64748b', fontWeight: '600', marginBottom: '4px' }}>Last Published Date</span>
+                                        <span className="detail-value" style={{ fontSize: '14px', color: '#1e293b', fontWeight: '700' }}>
+                                            {selectedTuition.lastPublishedDate ? new Date(selectedTuition.lastPublishedDate).toLocaleString('en-GB', {
+                                                day: '2-digit',
+                                                month: 'short',
+                                                year: 'numeric',
+                                                hour: '2-digit',
+                                                minute: '2-digit',
+                                                hour12: true
+                                            }) : '-'}
+                                        </span>
+                                    </div>
+                                    <div className="detail-item" style={{ display: 'flex', flexDirection: 'column', borderBottom: '1px solid #f1f5f9', paddingBottom: '8px' }}>
+                                        <span className="detail-label" style={{ fontSize: '12px', color: '#64748b', fontWeight: '600', marginBottom: '4px' }}>বর্তমান অবস্থা</span>
+                                        <span className="detail-value" style={{ fontSize: '14px', color: '#1e293b', fontWeight: '700' }}>
+                                            {selectedTuition.isPublish ? 'Published (প্রকাশিত)' : 'Not Published (অপ্রকাশিত)'}
+                                        </span>
+                                    </div>
                                 </div>
 
                                 {selectedTuition.studentGender && (

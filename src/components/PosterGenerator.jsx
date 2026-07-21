@@ -1836,16 +1836,28 @@ const PosterGenerator = () => {
         setDownloading(true);
         try {
             await document.fonts.ready;
-            const canvas = await html2canvas(downloadRef.current, {
+            const rawCanvas = await html2canvas(downloadRef.current, {
                 scale: 3,
                 useCORS: true,
                 allowTaint: true,
-                backgroundColor: '#ffffff',
-                logging: false
+                backgroundColor: null,
+                logging: false,
+                width: 600,
+                height: targetHeight,
+                windowWidth: 600,
+                windowHeight: targetHeight,
             });
+            // Crop to exact poster dimensions to eliminate any overflow bleed
+            const exactW = 600 * 3;
+            const exactH = targetHeight * 3;
+            const croppedCanvas = document.createElement('canvas');
+            croppedCanvas.width = exactW;
+            croppedCanvas.height = exactH;
+            const ctx = croppedCanvas.getContext('2d');
+            ctx.drawImage(rawCanvas, 0, 0, exactW, exactH, 0, 0, exactW, exactH);
             const a = document.createElement('a');
             a.download = `tsf-poster-${Date.now()}.png`;
-            a.href = canvas.toDataURL('image/png', 1.0);
+            a.href = croppedCanvas.toDataURL('image/png', 1.0);
             a.click();
             toast.success('✅ Poster downloaded!');
         } catch (err) {
@@ -2081,7 +2093,7 @@ const PosterGenerator = () => {
 
             {/* Hidden export element to guarantee 100% exact full-size rendering for download */}
             <div style={{ position: 'absolute', left: '-9999px', top: '-9999px' }}>
-                <div ref={downloadRef} style={{ width: 600, overflow: 'hidden' }}>
+                <div ref={downloadRef} style={{ width: 600, height: targetHeight, overflow: 'hidden' }}>
                     {category === 'guardian' && gTpl === 1 && <G1MidnightGold data={gData} />}
                     {category === 'guardian' && gTpl === 2 && <G2LightEditorial data={gData} />}
                     {category === 'guardian' && gTpl === 3 && <G3NavyCard data={gData} />}

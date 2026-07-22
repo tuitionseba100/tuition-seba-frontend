@@ -151,7 +151,8 @@ const StatusHistoryReportPage = () => {
     const today = new Date();
     const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
     const showTodaySuffix = (!appliedFilters.startDate || appliedFilters.startDate === todayStr) && 
-                            (!appliedFilters.endDate || appliedFilters.endDate === todayStr);
+                            (!appliedFilters.endDate || appliedFilters.endDate === todayStr) &&
+                            appliedFilters.isAllTime !== 'true';
 
     const [usersList, setUsersList] = useState([]);
 
@@ -402,7 +403,8 @@ const StatusHistoryReportPage = () => {
                 const newFilters = {
                     ...filters,
                     startDate: '',
-                    endDate: ''
+                    endDate: '',
+                    isAllTime: 'true'
                 };
                 setFilters(newFilters);
                 setAppliedFilters(newFilters);
@@ -447,7 +449,8 @@ const StatusHistoryReportPage = () => {
         const newFilters = {
             ...filters,
             startDate: formatDate(start),
-            endDate: formatDate(end)
+            endDate: formatDate(end),
+            isAllTime: 'false'
         };
         setFilters(newFilters);
         setAppliedFilters(newFilters);

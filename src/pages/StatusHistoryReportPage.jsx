@@ -398,6 +398,17 @@ const StatusHistoryReportPage = () => {
         let end = new Date();
 
         switch (preset) {
+            case 'allTime': {
+                const newFilters = {
+                    ...filters,
+                    startDate: '',
+                    endDate: ''
+                };
+                setFilters(newFilters);
+                setAppliedFilters(newFilters);
+                setCurrentPage(1);
+                return;
+            }
             case 'today':
                 break;
             case 'yesterday':
@@ -463,6 +474,10 @@ const StatusHistoryReportPage = () => {
         let end = new Date();
 
         switch (preset) {
+            case 'allTime':
+                setPaymentFilters({ startDate: '', endDate: '' });
+                setAppliedPaymentFilters({ startDate: '', endDate: '' });
+                return;
             case 'today':
                 break;
             case 'yesterday':
@@ -526,6 +541,10 @@ const StatusHistoryReportPage = () => {
         let end = new Date();
 
         switch (preset) {
+            case 'allTime':
+                setOverallFilters({ startDate: '', endDate: '' });
+                setAppliedOverallFilters({ startDate: '', endDate: '' });
+                return;
             case 'today':
                 break;
             case 'yesterday':
@@ -970,6 +989,7 @@ const StatusHistoryReportPage = () => {
                                                 { label: 'Last Month', key: 'lastMonth' },
                                                 { label: 'Last 7 Days', key: 'last7Days' },
                                                 { label: 'Last 30 Days', key: 'last30Days' },
+                                                { label: 'All Time', key: 'allTime' },
                                             ].map((item) => (
                                                 <button
                                                     key={item.key}
@@ -1165,14 +1185,14 @@ const StatusHistoryReportPage = () => {
                                         <span className="text-secondary fw-semibold small d-flex align-items-center gap-1" style={{ fontSize: '11.5px' }}>
                                             <FaCalendarAlt className="text-primary" /> Quick Ranges:
                                         </span>
-                                        {['today', 'yesterday', 'thisWeek', 'thisMonth', 'lastMonth', 'last7Days', 'last30Days'].map((preset) => (
+                                        {['today', 'yesterday', 'thisWeek', 'thisMonth', 'lastMonth', 'last7Days', 'last30Days', 'allTime'].map((preset) => (
                                             <button
                                                 key={preset}
                                                 type="button"
                                                 className="preset-btn"
                                                 onClick={() => handlePaymentPresetSelect(preset)}
                                             >
-                                                {preset.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}
+                                                {preset === 'allTime' ? 'All Time' : preset.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}
                                             </button>
                                         ))}
                                     </div>
@@ -1440,14 +1460,14 @@ const StatusHistoryReportPage = () => {
                                         <span className="text-secondary fw-semibold small d-flex align-items-center gap-1" style={{ fontSize: '11.5px' }}>
                                             <FaCalendarAlt className="text-primary" /> Quick Ranges:
                                         </span>
-                                        {['today', 'yesterday', 'thisWeek', 'thisMonth', 'lastMonth', 'last7Days', 'last30Days'].map((preset) => (
+                                        {['today', 'yesterday', 'thisWeek', 'thisMonth', 'lastMonth', 'last7Days', 'last30Days', 'allTime'].map((preset) => (
                                             <button
                                                 key={preset}
                                                 type="button"
                                                 className="preset-btn"
                                                 onClick={() => handleOverallPresetSelect(preset)}
                                             >
-                                                {preset.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}
+                                                {preset === 'allTime' ? 'All Time' : preset.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}
                                             </button>
                                         ))}
                                     </div>

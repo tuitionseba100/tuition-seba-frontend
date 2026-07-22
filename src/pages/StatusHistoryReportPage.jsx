@@ -992,7 +992,7 @@ const StatusHistoryReportPage = () => {
                                                 { label: 'Last Month', key: 'lastMonth' },
                                                 { label: 'Last 7 Days', key: 'last7Days' },
                                                 { label: 'Last 30 Days', key: 'last30Days' },
-                                                { label: 'All Time', key: 'allTime' },
+                                                { label: 'All Time', key: 'allTime', extra: '(Active since: 16 July 2026)' },
                                             ].map((item) => (
                                                 <button
                                                     key={item.key}
@@ -1000,7 +1000,7 @@ const StatusHistoryReportPage = () => {
                                                     className="preset-btn"
                                                     onClick={() => handlePresetSelect(item.key)}
                                                 >
-                                                    {item.label}
+                                                    {item.label} {item.extra && <span className="opacity-75 ms-1" style={{ fontSize: '10.5px' }}>{item.extra}</span>}
                                                 </button>
                                             ))}
                                         </div>

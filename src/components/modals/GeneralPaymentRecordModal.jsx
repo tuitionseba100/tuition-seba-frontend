@@ -3,6 +3,7 @@ import { Modal, Button, Form, Row, Col, Spinner, Table } from 'react-bootstrap';
 import { axiosWithFallback as axios } from '../../services/fetchWithFallback';
 import Select from 'react-select';
 import moment from 'moment';
+import { toast } from 'react-toastify';
 
 const GeneralPaymentRecordModal = ({ show, onHide, editingId, initialData, onSave, onDelete }) => {
     const [paymentData, setPaymentData] = useState({
@@ -41,6 +42,10 @@ const GeneralPaymentRecordModal = ({ show, onHide, editingId, initialData, onSav
         followUpDate: '',
         followUpComment: '',
         duePayDateComment: '',
+        installmentComment: '',
+        installmentComment2: '',
+        installmentComment3: '',
+        installmentComment4: '',
     });
     const [userOptions, setUserOptions] = useState([]);
     const role = localStorage.getItem('role');
@@ -133,6 +138,10 @@ const GeneralPaymentRecordModal = ({ show, onHide, editingId, initialData, onSav
                     followUpDate: '',
                     followUpComment: '',
                     duePayDateComment: '',
+                    installmentComment: '',
+                    installmentComment2: '',
+                    installmentComment3: '',
+                    installmentComment4: '',
                 };
                 setPaymentData(defaultValues);
                 setServerData(null);
@@ -178,6 +187,10 @@ const GeneralPaymentRecordModal = ({ show, onHide, editingId, initialData, onSav
                 followUpDate: '',
                 followUpComment: '',
                 duePayDateComment: '',
+                installmentComment: '',
+                installmentComment2: '',
+                installmentComment3: '',
+                installmentComment4: '',
             };
             setPaymentData(defaultValues);
             setServerData(null);
@@ -321,6 +334,10 @@ const GeneralPaymentRecordModal = ({ show, onHide, editingId, initialData, onSav
             comment1: 'Note 1',
             comment2: 'Note 2',
             comment3: 'Note 3',
+            installmentComment: '1st Inst Comment',
+            installmentComment2: '2nd Inst Comment',
+            installmentComment3: '3rd Inst Comment',
+            installmentComment4: '4th Inst Comment',
             assignedTo: 'Assigned To',
             followUpDate: 'Previous Follow Up Date',
             followUpComment: 'Follow Up Note',
@@ -330,6 +347,40 @@ const GeneralPaymentRecordModal = ({ show, onHide, editingId, initialData, onSav
     };
 
     const handleLocalSave = async () => {
+        const installments = [
+            { label: '১ম কিস্তির', date: paymentData.paymentReceivedDate, type: paymentData.paymentType, tk: paymentData.receivedTk },
+            { label: '২য় কিস্তির', date: paymentData.paymentReceivedDate2, type: paymentData.paymentType2, tk: paymentData.receivedTk2 },
+            { label: '৩য় কিস্তির', date: paymentData.paymentReceivedDate3, type: paymentData.paymentType3, tk: paymentData.receivedTk3 },
+            { label: '৪র্থ কিস্তির', date: paymentData.paymentReceivedDate4, type: paymentData.paymentType4, tk: paymentData.receivedTk4 },
+        ];
+
+        for (const inst of installments) {
+            const tkStr = inst.tk !== null && inst.tk !== undefined ? String(inst.tk).trim() : '';
+            const hasTk = tkStr !== '';
+            const isValidNumber = hasTk && !isNaN(Number(tkStr)) && !isNaN(parseFloat(tkStr));
+
+            if (hasTk && !isValidNumber) {
+                toast.error(`${inst.label} টাকার পরিমাণ শুধুমাত্র সংখ্যা (Number) হতে হবে।`);
+                return;
+            }
+
+            const hasDate = Boolean(inst.date && String(inst.date).trim());
+            const hasType = Boolean(inst.type && String(inst.type).trim());
+
+            const isAnyProvided = hasDate || hasType || hasTk;
+            const isAllProvided = hasDate && hasType && hasTk;
+
+            if (isAnyProvided && !isAllProvided) {
+                const missing = [];
+                if (!hasTk) missing.push('টাকা');
+                if (!hasDate) missing.push('তারিখ');
+                if (!hasType) missing.push('মেথড');
+
+                toast.error(`${inst.label} টাকা, তারিখ ও মেথড তিনটিই পূরণ করুন (${missing.join(', ')} বাকি)`);
+                return;
+            }
+        }
+
         if (editingId && serverData) {
             const changes = [];
             Object.keys(paymentData).forEach(key => {
@@ -569,11 +620,12 @@ const GeneralPaymentRecordModal = ({ show, onHide, editingId, initialData, onSav
                             <table className="table table-sm table-borderless align-middle">
                                 <thead className="text-muted small">
                                     <tr>
-                                        <th style={{ width: '10%' }}>Inst.</th>
-                                        <th style={{ width: '20%' }}>Amount (TK)</th>
-                                        <th style={{ width: '25%' }}>Method</th>
-                                        <th style={{ width: '20%' }}>Phone/Num</th>
-                                        <th style={{ width: '25%' }}>Received Date</th>
+                                        <th style={{ width: '8%' }}>Inst.</th>
+                                        <th style={{ width: '16%' }}>Amount (TK)</th>
+                                        <th style={{ width: '16%' }}>Method</th>
+                                        <th style={{ width: '16%' }}>Phone/Num</th>
+                                        <th style={{ width: '22%' }}>Received Date</th>
+                                        <th style={{ width: '22%' }}>Comment</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -581,7 +633,7 @@ const GeneralPaymentRecordModal = ({ show, onHide, editingId, initialData, onSav
                                         <td className="fw-bold">1st</td>
                                         <td>
                                             <Form.Control
-                                                type="text"
+                                                type={editingId ? "text" : "number"}
                                                 id="receivedTk"
                                                 value={paymentData.receivedTk}
                                                 onChange={handleChange}
@@ -621,12 +673,22 @@ const GeneralPaymentRecordModal = ({ show, onHide, editingId, initialData, onSav
                                                 onChange={(e) => handleDateChange('paymentReceivedDate', e.target.value)}
                                             />
                                         </td>
+                                        <td>
+                                            <Form.Control
+                                                type="text"
+                                                id="installmentComment"
+                                                value={paymentData.installmentComment}
+                                                onChange={handleChange}
+                                                placeholder="Comment"
+                                            />
+                                            {renderOldValue('installmentComment')}
+                                        </td>
                                     </tr>
                                     <tr className="border-bottom">
                                         <td className="fw-bold text-muted">2nd</td>
                                         <td>
                                             <Form.Control
-                                                type="text"
+                                                type={editingId ? "text" : "number"}
                                                 id="receivedTk2"
                                                 value={paymentData.receivedTk2}
                                                 onChange={handleChange}
@@ -666,13 +728,23 @@ const GeneralPaymentRecordModal = ({ show, onHide, editingId, initialData, onSav
                                                 onChange={(e) => handleDateChange('paymentReceivedDate2', e.target.value)}
                                             />
                                         </td>
+                                        <td>
+                                            <Form.Control
+                                                type="text"
+                                                id="installmentComment2"
+                                                value={paymentData.installmentComment2}
+                                                onChange={handleChange}
+                                                placeholder="Comment"
+                                            />
+                                            {renderOldValue('installmentComment2')}
+                                        </td>
                                     </tr>
                                     {visibleInstallments >= 3 && (
                                         <tr className="border-bottom">
                                             <td className="fw-bold text-muted">3rd</td>
                                             <td>
                                                 <Form.Control
-                                                    type="text"
+                                                    type={editingId ? "text" : "number"}
                                                     id="receivedTk3"
                                                     value={paymentData.receivedTk3}
                                                     onChange={handleChange}
@@ -712,6 +784,16 @@ const GeneralPaymentRecordModal = ({ show, onHide, editingId, initialData, onSav
                                                     onChange={(e) => handleDateChange('paymentReceivedDate3', e.target.value)}
                                                 />
                                             </td>
+                                            <td>
+                                                <Form.Control
+                                                    type="text"
+                                                    id="installmentComment3"
+                                                    value={paymentData.installmentComment3}
+                                                    onChange={handleChange}
+                                                    placeholder="Comment"
+                                                />
+                                                {renderOldValue('installmentComment3')}
+                                            </td>
                                         </tr>
                                     )}
                                     {visibleInstallments >= 4 && (
@@ -719,7 +801,7 @@ const GeneralPaymentRecordModal = ({ show, onHide, editingId, initialData, onSav
                                             <td className="fw-bold text-muted">4th</td>
                                             <td>
                                                 <Form.Control
-                                                    type="text"
+                                                    type={editingId ? "text" : "number"}
                                                     id="receivedTk4"
                                                     value={paymentData.receivedTk4}
                                                     onChange={handleChange}
@@ -758,6 +840,16 @@ const GeneralPaymentRecordModal = ({ show, onHide, editingId, initialData, onSav
                                                     value={paymentData.paymentReceivedDate4 ? paymentData.paymentReceivedDate4.slice(0, 16) : ''}
                                                     onChange={(e) => handleDateChange('paymentReceivedDate4', e.target.value)}
                                                 />
+                                            </td>
+                                            <td>
+                                                <Form.Control
+                                                    type="text"
+                                                    id="installmentComment4"
+                                                    value={paymentData.installmentComment4}
+                                                    onChange={handleChange}
+                                                    placeholder="Comment"
+                                                />
+                                                {renderOldValue('installmentComment4')}
                                             </td>
                                         </tr>
                                     )}

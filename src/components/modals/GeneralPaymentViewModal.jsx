@@ -4,7 +4,7 @@ import { Modal, Button, Row, Col, Table } from 'react-bootstrap';
 const GeneralPaymentViewModal = ({ show, onHide, detailsData, formatDate, onEdit, onDelete }) => {
     const role = localStorage.getItem('role');
     return (
-        <Modal show={show} onHide={onHide} size="lg" centered contentClassName="shadow-lg">
+        <Modal show={show} onHide={onHide} size="xl" dialogClassName="modal-95w" centered contentClassName="shadow-lg">
             <Modal.Header closeButton style={{ background: '#0d6efd', color: 'white' }}>
                 <Modal.Title className="fw-bold">🔎 Payment Details</Modal.Title>
             </Modal.Header>
@@ -47,6 +47,7 @@ const GeneralPaymentViewModal = ({ show, onHide, detailsData, formatDate, onEdit
                                                 <th>Method</th>
                                                 <th>Number</th>
                                                 <th>Date</th>
+                                                <th>Comment</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -56,6 +57,7 @@ const GeneralPaymentViewModal = ({ show, onHide, detailsData, formatDate, onEdit
                                                 <td className="text-muted small">{detailsData.paymentType || '-'}</td>
                                                 <td className="small">{detailsData.paymentNumber || '-'}</td>
                                                 <td>{formatDate(detailsData.paymentReceivedDate)}</td>
+                                                <td className="small text-start">{detailsData.installmentComment || '-'}</td>
                                             </tr>
                                             {detailsData.receivedTk2 || detailsData.paymentReceivedDate2 ? (
                                                 <tr>
@@ -64,6 +66,7 @@ const GeneralPaymentViewModal = ({ show, onHide, detailsData, formatDate, onEdit
                                                     <td className="text-muted small">{detailsData.paymentType2 || '-'}</td>
                                                     <td className="small">{detailsData.paymentNumber2 || '-'}</td>
                                                     <td>{formatDate(detailsData.paymentReceivedDate2)}</td>
+                                                    <td className="small text-start">{detailsData.installmentComment2 || '-'}</td>
                                                 </tr>
                                             ) : null}
                                             {detailsData.receivedTk3 || detailsData.paymentReceivedDate3 ? (
@@ -73,6 +76,7 @@ const GeneralPaymentViewModal = ({ show, onHide, detailsData, formatDate, onEdit
                                                     <td className="text-muted small">{detailsData.paymentType3 || '-'}</td>
                                                     <td className="small">{detailsData.paymentNumber3 || '-'}</td>
                                                     <td>{formatDate(detailsData.paymentReceivedDate3)}</td>
+                                                    <td className="small text-start">{detailsData.installmentComment3 || '-'}</td>
                                                 </tr>
                                             ) : null}
                                             {detailsData.receivedTk4 || detailsData.paymentReceivedDate4 ? (
@@ -82,21 +86,22 @@ const GeneralPaymentViewModal = ({ show, onHide, detailsData, formatDate, onEdit
                                                     <td className="text-muted small">{detailsData.paymentType4 || '-'}</td>
                                                     <td className="small">{detailsData.paymentNumber4 || '-'}</td>
                                                     <td>{formatDate(detailsData.paymentReceivedDate4)}</td>
+                                                    <td className="small text-start">{detailsData.installmentComment4 || '-'}</td>
                                                 </tr>
                                             ) : null}
                                             <tr className="table-info fw-bold">
                                                 <td>Discount</td>
-                                                <td colSpan="4">
+                                                <td colSpan="5">
                                                     TK. {detailsData.discount || 0}
                                                 </td>
                                             </tr>
                                             <tr className="table-warning fw-bold align-middle" style={{ fontSize: '1.05rem', backgroundColor: '#fff3cd' }}>
                                                 <td className="text-dark">Due Amount</td>
-                                                <td colSpan="4" className="text-danger">TK. {detailsData.duePayment}</td>
+                                                <td colSpan="5" className="text-danger">TK. {detailsData.duePayment}</td>
                                             </tr>
                                             <tr className="table-success fw-bold align-middle" style={{ fontSize: '1.1rem' }}>
                                                 <td className="text-success">Total Received</td>
-                                                <td colSpan="4" className="text-success">TK. {detailsData.totalReceivedTk}</td>
+                                                <td colSpan="5" className="text-success">TK. {detailsData.totalReceivedTk}</td>
                                             </tr>
                                         </tbody>
                                     </Table>

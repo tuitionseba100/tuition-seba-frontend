@@ -72,7 +72,7 @@ const StatusHistoryReportPage = () => {
     const [appliedOverallFilters, setAppliedOverallFilters] = useState({ startDate: initialTodayStr, endDate: initialTodayStr });
 
     // Marketing Report States
-    const [marketingReportData, setMarketingReportData] = useState([]);
+    const [marketingReportData, setMarketingReportData] = useState({ summary: [] });
     const [marketingLoading, setMarketingLoading] = useState(false);
     const [marketingFilters, setMarketingFilters] = useState({ startDate: initialTodayStr, endDate: initialTodayStr, medium: '' });
     const [appliedMarketingFilters, setAppliedMarketingFilters] = useState({ startDate: initialTodayStr, endDate: initialTodayStr, medium: '' });
@@ -565,6 +565,60 @@ const StatusHistoryReportPage = () => {
         setAppliedPaymentFilters(newFilters);
     };
 
+    const handleMarketingPresetSelect = (preset) => {
+        const today = new Date();
+        let start = new Date();
+        let end = new Date();
+
+        switch (preset) {
+            case 'allTime':
+                setMarketingFilters(prev => ({ ...prev, startDate: '', endDate: '' }));
+                setAppliedMarketingFilters(prev => ({ ...prev, startDate: '', endDate: '' }));
+                return;
+            case 'today':
+                break;
+            case 'yesterday':
+                start.setDate(today.getDate() - 1);
+                end.setDate(today.getDate() - 1);
+                break;
+            case 'thisWeek': {
+                const day = today.getDay();
+                start.setDate(today.getDate() - day);
+                break;
+            }
+            case 'thisMonth':
+                start = new Date(today.getFullYear(), today.getMonth(), 1);
+                break;
+            case 'lastMonth':
+                start = new Date(today.getFullYear(), today.getMonth() - 1, 1);
+                end = new Date(today.getFullYear(), today.getMonth(), 0);
+                break;
+            case 'last7Days':
+                start.setDate(today.getDate() - 6);
+                break;
+            case 'last30Days':
+                start.setDate(today.getDate() - 29);
+                break;
+            default:
+                return;
+        }
+
+        const formatDate = (date) => {
+            const yyyy = date.getFullYear();
+            const mm = String(date.getMonth() + 1).padStart(2, '0');
+            const dd = String(date.getDate()).padStart(2, '0');
+            return `${yyyy}-${mm}-${dd}`;
+        };
+
+        const newFilters = {
+            ...marketingFilters,
+            startDate: formatDate(start),
+            endDate: formatDate(end)
+        };
+        setMarketingFilters(newFilters);
+        setAppliedMarketingFilters(newFilters);
+    };
+
     const handleOverallFilterChange = (field, value) => {
         setOverallFilters(prev => ({ ...prev, [field]: value }));
     };
@@ -724,8 +778,12 @@ const StatusHistoryReportPage = () => {
                                     </h4>
                                     <div className="d-flex align-items-center gap-2 flex-wrap">
                                         <span className="text-muted small" style={{ fontSize: '12px' }}>Track tuition acquisitions by marketing medium</span>
+                                        <span className="text-secondary opacity-50 d-none d-sm-inline">&#8226;</span>
+                                        <span className="text-success fw-bold px-2 py-0.5 bg-soft-success rounded-pill" style={{ fontSize: '10px' }}>
+                                            Active since: 23/07/2026
+                                        </span>
                                         <Badge bg="light" text="dark" className="border px-3 py-1 fw-medium shadow-sm rounded-pill ms-2">
-                                            Total Tuitions: {marketingReportData.reduce((acc, curr) => acc + curr.count, 0)}
+                                            Total Tuitions: {marketingReportData?.summary?.reduce((acc, curr) => acc + curr.count, 0) || 0}
                                         </Badge>
                                     </div>
                                 </>
@@ -1652,60 +1710,94 @@ const StatusHistoryReportPage = () => {
                             )}
                         </Tab.Pane>
                         <Tab.Pane eventKey="marketing">
-                            <Card className="border-0 shadow-sm mb-4 rounded-4" style={{ backgroundColor: '#f8f9fa' }}>
-                                <Card.Body className="p-3">
-                                    <Row className="align-items-end g-2">
-                                        <Col md={3}>
-                                            <Form.Group>
-                                                <Form.Label className="small fw-bold text-muted mb-1">Start Date (Created)</Form.Label>
-                                                <Form.Control
-                                                    type="date"
-                                                    value={marketingFilters.startDate}
-                                                    onChange={(e) => setMarketingFilters({ ...marketingFilters, startDate: e.target.value })}
-                                                    size="sm"
-                                                    className="shadow-none border-primary bg-white"
-                                                />
-                                            </Form.Group>
-                                        </Col>
-                                        <Col md={3}>
-                                            <Form.Group>
-                                                <Form.Label className="small fw-bold text-muted mb-1">End Date (Created)</Form.Label>
-                                                <Form.Control
-                                                    type="date"
-                                                    value={marketingFilters.endDate}
-                                                    onChange={(e) => setMarketingFilters({ ...marketingFilters, endDate: e.target.value })}
-                                                    size="sm"
-                                                    className="shadow-none border-primary bg-white"
-                                                />
-                                            </Form.Group>
-                                        </Col>
-                                        <Col md={4}>
-                                            <Form.Group>
-                                                <Form.Label className="small fw-bold text-muted mb-1">Marketing Medium</Form.Label>
-                                                <Form.Select
-                                                    value={marketingFilters.medium}
-                                                    onChange={(e) => setMarketingFilters({ ...marketingFilters, medium: e.target.value })}
-                                                    size="sm"
-                                                    className="shadow-none border-primary bg-white"
-                                                >
-                                                    <option value="">All Mediums</option>
-                                                    {marketingMediums.map(m => (
-                                                        <option key={m} value={m}>{m}</option>
-                                                    ))}
-                                                </Form.Select>
-                                            </Form.Group>
+                            <Card className="shadow-sm border-0 mb-3 rounded-4 filter-card">
+                                <Card.Body className="p-2 px-3">
+                                    <h6 className="fw-bold mb-2 d-flex align-items-center gap-2 text-dark">
+                                        <FaFilter className="text-primary" /> Marketing Filters
+                                    </h6>
+                                    <Row className="g-2">
+                                        <Col md={2}>
+                                            <Form.Label className="fw-semibold text-secondary small mb-1">Start Date</Form.Label>
+                                            <Form.Control
+                                                type="date"
+                                                value={marketingFilters.startDate}
+                                                onChange={(e) => setMarketingFilters({ ...marketingFilters, startDate: e.target.value, month: '' })}
+                                                className="rounded-3 shadow-none border-primary"
+                                                size="sm"
+                                            />
                                         </Col>
                                         <Col md={2}>
-                                            <Button
-                                                variant="primary"
+                                            <Form.Label className="fw-semibold text-secondary small mb-1">End Date</Form.Label>
+                                            <Form.Control
+                                                type="date"
+                                                value={marketingFilters.endDate}
+                                                onChange={(e) => setMarketingFilters({ ...marketingFilters, endDate: e.target.value, month: '' })}
+                                                className="rounded-3 shadow-none border-primary"
                                                 size="sm"
-                                                className="w-100 fw-semibold rounded-pill"
-                                                onClick={() => setAppliedMarketingFilters(marketingFilters)}
+                                            />
+                                        </Col>
+                                        <Col md={2}>
+                                            <Form.Label className="fw-semibold text-secondary small mb-1">By Month</Form.Label>
+                                            <Form.Control
+                                                type="month"
+                                                value={marketingFilters.month || ''}
+                                                onChange={(e) => {
+                                                    const val = e.target.value;
+                                                    if (val) {
+                                                        const [year, month] = val.split('-');
+                                                        const startDate = `${year}-${month}-01`;
+                                                        const endDate = new Date(year, month, 0).toISOString().split('T')[0];
+                                                        setMarketingFilters({ ...marketingFilters, month: val, startDate, endDate });
+                                                    } else {
+                                                        setMarketingFilters({ ...marketingFilters, month: '' });
+                                                    }
+                                                }}
+                                                className="rounded-3 shadow-none border-primary"
+                                                size="sm"
+                                            />
+                                        </Col>
+                                        <Col md={3}>
+                                            <Form.Label className="fw-semibold text-secondary small mb-1">Marketing Medium</Form.Label>
+                                            <Form.Select
+                                                value={marketingFilters.medium}
+                                                onChange={(e) => setMarketingFilters({ ...marketingFilters, medium: e.target.value })}
+                                                className="rounded-3 shadow-none border-primary"
+                                                size="sm"
                                             >
+                                                <option value="">All Mediums</option>
+                                                {marketingMediums.map(m => (
+                                                    <option key={m} value={m}>{m}</option>
+                                                ))}
+                                            </Form.Select>
+                                        </Col>
+                                        <Col md={3} className="d-flex align-items-end gap-2">
+                                            <Button variant="success" className="w-100 rounded-3 shadow-sm d-flex align-items-center justify-content-center" style={{ height: '31px' }} onClick={() => setAppliedMarketingFilters(marketingFilters)} title="Search">
                                                 <FaSearch className="me-1" /> Search
+                                            </Button>
+                                            <Button variant="danger" className="w-100 rounded-3 shadow-sm d-flex align-items-center justify-content-center" style={{ height: '31px' }} onClick={() => {
+                                                const resetFilters = { startDate: '', endDate: '', medium: '', month: '' };
+                                                setMarketingFilters(resetFilters);
+                                                setAppliedMarketingFilters(resetFilters);
+                                            }} title="Reset">
+                                                <FaUndo />
                                             </Button>
                                         </Col>
                                     </Row>
+                                    <div className="d-flex align-items-center gap-2 mt-2 flex-wrap">
+                                        <span className="text-secondary fw-semibold small d-flex align-items-center gap-1" style={{ fontSize: '11.5px' }}>
+                                            <FaCalendarAlt className="text-primary" /> Quick Ranges:
+                                        </span>
+                                        {['today', 'yesterday', 'thisWeek', 'thisMonth', 'lastMonth', 'last7Days', 'last30Days', 'allTime'].map((preset) => (
+                                            <button
+                                                key={preset}
+                                                type="button"
+                                                className="preset-btn"
+                                                onClick={() => handleMarketingPresetSelect(preset)}
+                                            >
+                                                {preset === 'allTime' ? 'All Time' : preset.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}
+                                            </button>
+                                        ))}
+                                    </div>
                                 </Card.Body>
                             </Card>
 
@@ -1715,36 +1807,174 @@ const StatusHistoryReportPage = () => {
                                     <p className="mt-2 text-muted">Loading marketing data...</p>
                                 </div>
                             ) : (
-                                <Card className="border-0 shadow-sm rounded-4">
-                                    <Card.Body className="p-0">
-                                        <div className="table-responsive">
-                                            <Table hover className="mb-0 align-middle">
-                                                <thead className="bg-light">
-                                                    <tr>
-                                                        <th className="py-3 px-4 border-0 text-muted" style={{ fontSize: '0.85rem' }}>MARKETING MEDIUM</th>
-                                                        <th className="py-3 px-4 border-0 text-center text-muted" style={{ fontSize: '0.85rem' }}>TUITIONS ACQUIRED</th>
-                                                        <th className="py-3 px-4 border-0 text-center text-muted" style={{ fontSize: '0.85rem' }}>TOTAL REVENUE (Tk)</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    {marketingReportData.length === 0 ? (
-                                                        <tr>
-                                                            <td colSpan="3" className="text-center py-4 text-muted">No data found for the selected period</td>
-                                                        </tr>
-                                                    ) : (
-                                                        marketingReportData.map((item, idx) => (
-                                                            <tr key={idx}>
-                                                                <td className="px-4 fw-semibold text-dark">{item.medium}</td>
-                                                                <td className="px-4 text-center fw-bold text-dark" style={{ fontSize: '1.05rem' }}>{item.count}</td>
-                                                                <td className="px-4 text-center fw-extrabold text-success" style={{ fontSize: '1.1rem' }}>৳ {item.totalRevenue.toLocaleString()}</td>
-                                                            </tr>
-                                                        ))
-                                                    )}
-                                                </tbody>
-                                            </Table>
-                                        </div>
-                                    </Card.Body>
-                                </Card>
+                                <>
+                                    {(() => {
+                                        const allMediumsSet = new Set(marketingMediums.map(m => (m || '').toLowerCase()));
+                                        const extraMediums = (marketingReportData?.summary || []).filter(s => !allMediumsSet.has((s.medium || 'unknown').toLowerCase()));
+                                        const combinedMediums = [
+                                            ...marketingMediums.map(med => {
+                                                const found = (marketingReportData?.summary || []).find(s => (s.medium || 'unknown').toLowerCase() === (med || '').toLowerCase());
+                                                return found || { medium: med, count: 0, revenue: 0, totalRevenue: 0, cancelled: 0, suspended: 0, expense: 0 };
+                                            }),
+                                            ...extraMediums
+                                        ];
+
+                                        combinedMediums.sort((a, b) => (b.count || 0) - (a.count || 0));
+
+                                        const totalAcquired = combinedMediums.reduce((acc, curr) => acc + (curr.count || 0), 0);
+                                        const totalRevenue = combinedMediums.reduce((acc, curr) => acc + (curr.revenue || curr.totalRevenue || 0), 0);
+                                        const totalCancelled = combinedMediums.reduce((acc, curr) => acc + (curr.cancelled || 0), 0);
+                                        const totalSuspended = combinedMediums.reduce((acc, curr) => acc + (curr.suspended || 0), 0);
+                                        const totalExpense = combinedMediums.reduce((acc, curr) => acc + (curr.expense || 0), 0);
+
+                                        return (
+                                            <>
+                                                <Row className="g-3 mb-4">
+                                                    <Col>
+                                                        <PremiumStatsCard className="shadow-sm bg-white border border-primary p-2 px-3 rounded-4 h-100" style={{ borderWidth: '2px !important' }}>
+                                                            <Card.Body className="p-0">
+                                                                <div className="d-flex align-items-center gap-3">
+                                                                    <div className="icon-wrapper bg-primary bg-opacity-10 text-primary rounded-3 p-2 d-flex align-items-center justify-content-center">
+                                                                        <FaBookOpen size={24} />
+                                                                    </div>
+                                                                    <div>
+                                                                        <span className="text-dark text-uppercase fw-bold tracking-wider" style={{ fontSize: '0.85rem' }}>Total Tuition Got</span>
+                                                                        <h2 className="fw-extrabold text-primary mb-0 mt-1" style={{ fontSize: '1.75rem' }}>{totalAcquired}</h2>
+                                                                    </div>
+                                                                </div>
+                                                            </Card.Body>
+                                                        </PremiumStatsCard>
+                                                    </Col>
+                                                    <Col>
+                                                        <PremiumStatsCard className="shadow-sm bg-white border border-success p-2 px-3 rounded-4 h-100" style={{ borderWidth: '2px !important' }}>
+                                                            <Card.Body className="p-0">
+                                                                <div className="d-flex align-items-center gap-3">
+                                                                    <div className="icon-wrapper bg-success bg-opacity-10 text-success rounded-3 p-2 d-flex align-items-center justify-content-center">
+                                                                        <FaWallet size={24} />
+                                                                    </div>
+                                                                    <div>
+                                                                        <span className="text-dark text-uppercase fw-bold tracking-wider" style={{ fontSize: '0.85rem' }}>Total Revenue</span>
+                                                                        <h2 className="fw-extrabold text-success mb-0 mt-1" style={{ fontSize: '1.75rem' }}>৳ {totalRevenue.toLocaleString()}</h2>
+                                                                    </div>
+                                                                </div>
+                                                            </Card.Body>
+                                                        </PremiumStatsCard>
+                                                    </Col>
+                                                    <Col>
+                                                        <PremiumStatsCard className="shadow-sm bg-white border border-info p-2 px-3 rounded-4 h-100" style={{ borderWidth: '2px !important' }}>
+                                                            <Card.Body className="p-0">
+                                                                <div className="d-flex align-items-center gap-3">
+                                                                    <div className="icon-wrapper bg-info bg-opacity-10 text-info rounded-3 p-2 d-flex align-items-center justify-content-center">
+                                                                        <FaMinus size={24} />
+                                                                    </div>
+                                                                    <div>
+                                                                        <span className="text-dark text-uppercase fw-bold tracking-wider" style={{ fontSize: '0.85rem' }}>Total Expense</span>
+                                                                        <h2 className="fw-extrabold text-info mb-0 mt-1" style={{ fontSize: '1.75rem' }}>৳ {totalExpense.toLocaleString()}</h2>
+                                                                    </div>
+                                                                </div>
+                                                            </Card.Body>
+                                                        </PremiumStatsCard>
+                                                    </Col>
+                                                    <Col>
+                                                        <PremiumStatsCard className="shadow-sm bg-white border border-danger p-2 px-3 rounded-4 h-100" style={{ borderWidth: '2px !important' }}>
+                                                            <Card.Body className="p-0">
+                                                                <div className="d-flex align-items-center gap-3">
+                                                                    <div className="icon-wrapper bg-danger bg-opacity-10 text-danger rounded-3 p-2 d-flex align-items-center justify-content-center">
+                                                                        <FaMinus size={24} />
+                                                                    </div>
+                                                                    <div>
+                                                                        <span className="text-dark text-uppercase fw-bold tracking-wider" style={{ fontSize: '0.85rem' }}>Total Cancelled</span>
+                                                                        <h2 className="fw-extrabold text-danger mb-0 mt-1" style={{ fontSize: '1.75rem' }}>{totalCancelled}</h2>
+                                                                    </div>
+                                                                </div>
+                                                            </Card.Body>
+                                                        </PremiumStatsCard>
+                                                    </Col>
+                                                    <Col>
+                                                        <PremiumStatsCard className="shadow-sm bg-white border border-warning p-2 px-3 rounded-4 h-100" style={{ borderWidth: '2px !important' }}>
+                                                            <Card.Body className="p-0">
+                                                                <div className="d-flex align-items-center gap-3">
+                                                                    <div className="icon-wrapper bg-warning bg-opacity-10 text-warning rounded-3 p-2 d-flex align-items-center justify-content-center">
+                                                                        <FaTag size={24} />
+                                                                    </div>
+                                                                    <div>
+                                                                        <span className="text-dark text-uppercase fw-bold tracking-wider" style={{ fontSize: '0.85rem' }}>Total Suspended</span>
+                                                                        <h2 className="fw-extrabold text-warning mb-0 mt-1" style={{ fontSize: '1.75rem' }}>{totalSuspended}</h2>
+                                                                    </div>
+                                                                </div>
+                                                            </Card.Body>
+                                                        </PremiumStatsCard>
+                                                    </Col>
+                                                </Row>
+                                                
+                                                <Card className="shadow-sm border-0 rounded-4 mb-3 list-card">
+                                                    <Card.Body className="p-4">
+                                                        <div className="d-flex justify-content-between align-items-center mb-4">
+                                                            <div>
+                                                                <Card.Title className="fw-extrabold text-dark mb-0" style={{ fontSize: '1.25rem' }}>Acquisition Summary</Card.Title>
+                                                                <small className="text-muted">Currently displaying {combinedMediums.length} mediums</small>
+                                                            </div>
+                                                        </div>
+                                                        <div className="table-responsive rounded-3 shadow-sm" style={{ maxHeight: "550px", overflowY: "auto" }}>
+                                                            <Table hover striped bordered className="align-middle text-center mb-0 custom-reports-table">
+                                                                <thead className="table-dark sticky-top">
+                                                                    <tr>
+                                                                        <th style={{ width: '60px' }}>SL</th>
+                                                                        <th>MARKETING MEDIUM</th>
+                                                                        <th>TUITION GOT</th>
+                                                                        <th>REVENUE</th>
+                                                                        <th>EXPENSE</th>
+                                                                        <th>CANCELLED</th>
+                                                                        <th>SUSPENDED</th>
+                                                                    </tr>
+                                                                </thead>
+                                                                <tbody>
+                                                                    {combinedMediums.length === 0 ? (
+                                                                        <tr>
+                                                                            <td colSpan={7} className="text-center py-4 text-muted">No data found for the selected period</td>
+                                                                        </tr>
+                                                                    ) : (
+                                                                        <>
+                                                                            {combinedMediums.map((item, index) => (
+                                                                                <tr key={item.medium || 'unknown'}>
+                                                                                    <td className="fw-bold text-muted">{index + 1}</td>
+                                                                                    <td className="px-4 fw-semibold text-dark">{(item.medium || 'Unknown').toUpperCase()}</td>
+                                                                                    <td className="fw-bold text-dark">{item.count || 0}</td>
+                                                                                    <td className="text-success small fw-semibold">৳ {(item.revenue || item.totalRevenue || 0).toLocaleString()}</td>
+                                                                                    <td className="text-info small fw-semibold">৳ {(item.expense || 0).toLocaleString()}</td>
+                                                                                    <td className="text-danger small fw-semibold">{item.cancelled || 0}</td>
+                                                                                    <td className="text-warning small fw-semibold">{item.suspended || 0}</td>
+                                                                                </tr>
+                                                                            ))}
+                                                                            <tr className="bg-light border-top border-2">
+                                                                                <td colSpan={2} className="px-4 fw-bold text-primary text-end">TOTAL</td>
+                                                                                <td className="fw-extrabold text-primary">
+                                                                                    {combinedMediums.reduce((acc, curr) => acc + (curr.count || 0), 0)}
+                                                                                </td>
+                                                                                <td className="text-success small fw-bold">
+                                                                                    ৳ {combinedMediums.reduce((acc, curr) => acc + (curr.revenue || curr.totalRevenue || 0), 0).toLocaleString()}
+                                                                                </td>
+                                                                                <td className="text-info small fw-bold">
+                                                                                    ৳ {combinedMediums.reduce((acc, curr) => acc + (curr.expense || 0), 0).toLocaleString()}
+                                                                                </td>
+                                                                                <td className="text-danger small fw-bold">
+                                                                                    {combinedMediums.reduce((acc, curr) => acc + (curr.cancelled || 0), 0)}
+                                                                                </td>
+                                                                                <td className="text-warning small fw-bold">
+                                                                                    {combinedMediums.reduce((acc, curr) => acc + (curr.suspended || 0), 0)}
+                                                                                </td>
+                                                                            </tr>
+                                                                        </>
+                                                                    )}
+                                                                </tbody>
+                                                            </Table>
+                                                        </div>
+                                                    </Card.Body>
+                                                </Card>
+                                            </>
+                                        );
+                                    })()}
+                                </>
                             )}
                         </Tab.Pane>
                     </Tab.Content>

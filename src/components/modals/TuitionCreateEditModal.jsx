@@ -27,6 +27,7 @@ const fieldConfig = [
     { name: 'guardianNumber', label: 'Guardian Number', group: 'details', col: 4, type: 'text' },
     { name: 'mediaFee', label: 'Media Fee', group: 'details', col: 4, type: 'text' },
 
+    { name: 'guardian_source_medium', label: 'গার্জিয়ান কিভাবে আমাদের সম্পর্কে জানলো', group: 'admin', col: 6, type: 'select', options: [] },
     { name: 'status', label: 'Status', group: 'admin', col: 6, type: 'select', options: ['available', 'given number', 'guardian meet', 'demo class running', 'confirm', 'cancel', 'refer BM', 'suspended', 'guardian no response', 'request for payment'] },
     { name: 'note', label: 'Guardian Demand (Agent)', group: 'admin', col: 6, type: 'text' },
     { name: 'guardianDemandForPublic', label: 'Guardian Demand (Public)', group: 'admin', col: 12, type: 'textarea' },
@@ -121,6 +122,7 @@ export default function TuitionModal({ show, onHide, editingData = null, editing
     const [formData, setFormData] = useState({});
     const [areaOptions, setAreaOptions] = useState([]);
     const [userOptions, setUserOptions] = useState([]);
+    const [marketingMediums, setMarketingMediums] = useState([]);
     const [saving, setSaving] = useState(false);
     const role = localStorage.getItem('role');
 
@@ -144,7 +146,26 @@ export default function TuitionModal({ show, onHide, editingData = null, editing
                 }
             }
         };
+
+        const fetchSettings = async () => {
+            try {
+                const token = localStorage.getItem('token');
+                const response = await axios.get('https://tuition-seba-backend-1.onrender.com/api/settings/marketing_mediums', {
+                    headers: { Authorization: token }
+                });
+                if (response.data && response.data.value) {
+                    setMarketingMediums(response.data.value.map(medium => ({
+                        value: medium,
+                        label: medium
+                    })));
+                }
+            } catch (error) {
+                console.error('Error fetching marketing mediums:', error);
+            }
+        };
+
         fetchUsers();
+        fetchSettings();
     }, [role]);
 
     useEffect(() => {
@@ -339,18 +360,19 @@ export default function TuitionModal({ show, onHide, editingData = null, editing
                                             let value = formData[name];
                                             if (value === undefined || value === null) value = type === 'switch' ? false : '';
 
-                                            if (name === 'assignedTo') {
-                                                if (role !== 'superadmin') return null;
+                                            if (name === 'assignedTo' || name === 'guardian_source_medium') {
+                                                if (name === 'assignedTo' && role !== 'superadmin') return null;
+                                                const currentOptions = name === 'assignedTo' ? userOptions : marketingMediums;
                                                 return (
                                                     <Col md={col} key={name}>
                                                         <Form.Group controlId={name}>
                                                             <Form.Label className="fw-semibold">{label}</Form.Label>
                                                             <Select
-                                                                options={userOptions}
-                                                                value={userOptions.find(u => u.value === value) || null}
-                                                                onChange={(option) => setFormData(prev => ({ ...prev, assignedTo: option ? option.value : '' }))}
+                                                                options={currentOptions}
+                                                                value={currentOptions.find(opt => opt.value === value) || null}
+                                                                onChange={(option) => setFormData(prev => ({ ...prev, [name]: option ? option.value : '' }))}
                                                                 isClearable
-                                                                placeholder={`Select or type ${label}...`}
+                                                                placeholder={`Select ${label}...`}
                                                                 isDisabled={saving}
                                                                 menuPortalTarget={document.body}
                                                                 styles={{

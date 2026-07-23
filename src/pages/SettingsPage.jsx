@@ -34,6 +34,11 @@ const SettingsPage = () => {
     const [isEditingGuideline, setIsEditingGuideline] = useState(null); // index of guideline being edited
     const [deletingGuidelineIdx, setDeletingGuidelineIdx] = useState(null);
 
+    const [marketingMediums, setMarketingMediums] = useState([]);
+    const [newMedium, setNewMedium] = useState('');
+    const [isEditingMedium, setIsEditingMedium] = useState(null);
+    const [deletingMediumIdx, setDeletingMediumIdx] = useState(null);
+
     const [cityAreas, setCityAreas] = useState([]); // [{ cityName: '', areas: [] }]
     const [newCityNameOnly, setNewCityNameOnly] = useState('');
     const [selectedCityForArea, setSelectedCityForArea] = useState('');
@@ -112,6 +117,35 @@ const SettingsPage = () => {
             const guidelinesSetting = settingsData.find(s => s.key === 'response_guidelines');
             if (guidelinesSetting && Array.isArray(guidelinesSetting.value)) {
                 setGuidelines(guidelinesSetting.value);
+            }
+
+            // Extract marketing mediums
+            const marketingMediumsSetting = settingsData.find(s => s.key === 'marketing_mediums');
+            if (marketingMediumsSetting && Array.isArray(marketingMediumsSetting.value) && marketingMediumsSetting.value.length > 0) {
+                setMarketingMediums(marketingMediumsSetting.value);
+            } else {
+                setMarketingMediums([
+                    "Facebook Advertisement",
+                    "Facebook Group / Page",
+                    "Street Poster / Banner",
+                    "Friend / Family Reference",
+                    "Google Search",
+                    "YouTube Video",
+                    "Instagram Ad",
+                    "Leaflet / Flyer Distribution",
+                    "From a Current Teacher",
+                    "From a Current Guardian",
+                    "Newspaper Advertisement",
+                    "WhatsApp Group / Message",
+                    "Local Coaching Center",
+                    "School / College Notice Board",
+                    "LinkedIn",
+                    "TikTok / Shorts Video",
+                    "Email Newsletter",
+                    "Website Blog / Article",
+                    "Word of Mouth",
+                    "Others"
+                ]);
             }
 
             setSettings(settingsObj);
@@ -442,6 +476,60 @@ const SettingsPage = () => {
         setDeletingGuidelineIdx(null);
     };
 
+    const handleSaveMediums = async (updatedMediums) => {
+        try {
+            setIsSaving(true);
+            const token = localStorage.getItem('token');
+            await axios.post(`${API_BASE_URL}/api/settings`, {
+                key: 'marketing_mediums',
+                value: updatedMediums,
+                submodule: 'general',
+                mode: 'replace'
+            }, {
+                headers: { Authorization: token }
+            });
+            toast.success('Mediums saved successfully');
+            setMarketingMediums(updatedMediums);
+            setIsEditingMedium(null);
+            setNewMedium('');
+        } catch (error) {
+            console.error('Error saving mediums:', error);
+            toast.error('Failed to save mediums');
+        } finally {
+            setIsSaving(false);
+        }
+    };
+
+    const addMedium = () => {
+        if (!newMedium.trim()) {
+            toast.warning('Please provide a medium name');
+            return;
+        }
+
+        let updated;
+        if (isEditingMedium !== null) {
+            updated = marketingMediums.map((m, i) => i === isEditingMedium ? newMedium : m);
+        } else {
+            updated = [...marketingMediums, newMedium];
+        }
+
+        handleSaveMediums(updated);
+    };
+
+    const editMedium = (index) => {
+        setNewMedium(marketingMediums[index]);
+        setIsEditingMedium(index);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
+    const deleteMedium = async (index) => {
+        if (!window.confirm('Are you sure you want to delete this medium?')) return;
+        setDeletingMediumIdx(index);
+        const updated = marketingMediums.filter((_, i) => i !== index);
+        await handleSaveMediums(updated);
+        setDeletingMediumIdx(null);
+    };
+
     // Prepare all areas from JSON
     const allAvailableAreas = Object.values(locationData.areaOptions).flat().filter(a => a !== 'Coming Soon').map(a => ({ value: a, label: a }));
 
@@ -571,6 +659,14 @@ const SettingsPage = () => {
                                     >
                                         <i className={`fas fa-comment-dots mt-1 me-2 ${activeTab === 'guidelines' ? 'text-white' : 'text-warning'}`} style={{ fontSize: '0.8rem' }}></i>
                                         <span className="fw-bold" style={{ fontSize: '0.7rem', lineHeight: '1.2' }}>Response Guidelines</span>
+                                    </button>
+
+                                    <button
+                                        onClick={() => { setActiveTab('mediums'); setIsSidebarOpen(false); }}
+                                        className={`btn w-100 text-start d-flex align-items-start p-2 px-3 rounded-3 transition-all border-0 ${activeTab === 'mediums' ? 'bg-primary text-white shadow-sm' : 'bg-transparent text-secondary hover-bg-white'}`}
+                                    >
+                                        <i className={`fas fa-bullhorn mt-1 me-2 ${activeTab === 'mediums' ? 'text-white' : 'text-primary'}`} style={{ fontSize: '0.8rem' }}></i>
+                                        <span className="fw-bold" style={{ fontSize: '0.7rem', lineHeight: '1.2' }}>Marketing Mediums</span>
                                     </button>
 
                                     {role === 'superadmin' && (
@@ -1502,6 +1598,111 @@ const SettingsPage = () => {
                                                             <i className="fas fa-comment-slash opacity-25 mb-3 d-block" style={{ fontSize: '3rem' }}></i>
                                                             <p className="mb-0">কোনো গাইডলাইন এখনও তৈরি করা হয়নি।</p>
                                                             <small>উপরের ফর্মটি ব্যবহার করে আপনার প্রথম রেসপন্স গাইডলাইন তৈরি করুন।</small>
+                                                        </td>
+                                                    </tr>
+                                                )}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        ) : activeTab === 'mediums' ? (
+                            <div className="card border-0 shadow-sm mb-3 overflow-hidden" style={{ borderRadius: '12px' }}>
+                                <div className="card-header py-3 px-4 border-0" style={{ background: 'linear-gradient(135deg, #475569 0%, #334155 100%)', color: 'white' }}>
+                                    <div className="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <h2 className="mb-0 fw-bold d-flex align-items-center fs-5">
+                                                <i className="fas fa-bullhorn me-2"></i>
+                                                Marketing Mediums
+                                            </h2>
+                                            <p className="mb-0 opacity-80" style={{ fontSize: '0.7rem' }}>Manage options for "How did you hear about us?"</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="card-body p-3 bg-white">
+                                    <div className={`p-3 rounded-3 mb-3 border shadow-sm transition-all ${isEditingMedium !== null ? 'bg-warning-subtle border-warning' : 'bg-light border-secondary-subtle'}`}>
+                                        <div className="d-flex justify-content-between align-items-center mb-2">
+                                            <h5 className={`fw-bold mb-0 text-dark`}>
+                                                {isEditingMedium !== null ? <><i className="fas fa-edit me-2 text-warning"></i>Edit Medium</> : <><i className="fas fa-plus-circle me-2 text-success"></i>Add New Medium</>}
+                                            </h5>
+                                            {isEditingMedium !== null && (
+                                                <button className="btn btn-sm btn-outline-secondary rounded-pill px-3" onClick={() => { setIsEditingMedium(null); setNewMedium(''); }}>
+                                                    Cancel Edit
+                                                </button>
+                                            )}
+                                        </div>
+                                        <div className="row g-3">
+                                            <div className="col-12 col-md-10">
+                                                <label className="form-label fw-semibold text-secondary small">Medium Name (e.g. Facebook Advertisement, Street Poster)</label>
+                                                <input
+                                                    type="text"
+                                                    className="form-control rounded-3 border-0 shadow-sm font-sans"
+                                                    placeholder="e.g. Facebook Advertisement"
+                                                    value={newMedium}
+                                                    onChange={(e) => setNewMedium(e.target.value)}
+                                                    disabled={isSaving}
+                                                />
+                                            </div>
+                                            <div className="col-12 col-md-2 d-flex align-items-end">
+                                                <button
+                                                    className={`btn w-100 rounded-3 fw-bold py-2 shadow-sm hover-lift d-flex align-items-center justify-content-center text-white ${isEditingMedium !== null ? 'btn-warning' : 'btn-success'}`}
+                                                    onClick={addMedium}
+                                                    disabled={isSaving}
+                                                >
+                                                    {isSaving ? (
+                                                        <span className="spinner-border spinner-border-sm me-2"></span>
+                                                    ) : (
+                                                        <i className={`fas ${isEditingMedium !== null ? 'fa-save' : 'fa-plus'} me-2`}></i>
+                                                    )}
+                                                    {isEditingMedium !== null ? 'Update' : 'Add'}
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="table-responsive rounded-3 border">
+                                        <table className="table table-sm table-hover mb-0">
+                                            <thead className="bg-light border-bottom">
+                                                <tr>
+                                                    <th className="px-4 py-2 border-0 text-muted fw-bold">Medium Name</th>
+                                                    <th className="px-4 py-2 border-0 text-end text-muted fw-bold" style={{ width: '20%' }}>Actions</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {marketingMediums.length > 0 ? marketingMediums.map((m, idx) => (
+                                                    <tr key={idx} className="align-middle">
+                                                        <td className="px-4 py-2">
+                                                            <span className="fw-semibold text-dark font-sans">{m}</span>
+                                                        </td>
+                                                        <td className="px-4 py-2 text-end">
+                                                            <div className="d-flex justify-content-end gap-2">
+                                                                <button
+                                                                    className="btn btn-outline-primary btn-sm rounded-pill hover-lift px-3"
+                                                                    onClick={() => editMedium(idx)}
+                                                                    disabled={isSaving}
+                                                                >
+                                                                    <i className="fas fa-edit me-1"></i> Edit
+                                                                </button>
+                                                                <button
+                                                                    className="btn btn-outline-danger btn-sm rounded-pill hover-lift px-3 d-flex align-items-center justify-content-center"
+                                                                    onClick={() => deleteMedium(idx)}
+                                                                    disabled={isSaving}
+                                                                >
+                                                                    {isSaving && deletingMediumIdx === idx ? (
+                                                                        <span className="spinner-border spinner-border-sm me-1"></span>
+                                                                    ) : (
+                                                                        <i className="fas fa-trash-alt me-1"></i>
+                                                                    )}
+                                                                    Delete
+                                                                </button>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                )) : (
+                                                    <tr>
+                                                        <td colSpan="2" className="text-center py-4 text-muted">
+                                                            <i className="fas fa-bullhorn opacity-25 mb-3 d-block" style={{ fontSize: '3rem' }}></i>
+                                                            <p className="mb-0">No marketing mediums added yet.</p>
                                                         </td>
                                                     </tr>
                                                 )}

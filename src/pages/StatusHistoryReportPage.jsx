@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Container, Row, Col, Card, Table, Form, Button, Spinner, Badge, Tabs, Tab, Nav, Modal, Pagination, Dropdown } from 'react-bootstrap';
-import { FaCalendarAlt, FaFilter, FaSearch, FaHistory, FaUserCheck, FaBookOpen, FaUndo, FaTag, FaChartPie, FaWallet, FaMinus, FaBalanceScale, FaColumns } from 'react-icons/fa';
+import { FaCalendarAlt, FaFilter, FaSearch, FaHistory, FaUserCheck, FaBookOpen, FaUndo, FaTag, FaChartPie, FaWallet, FaMinus, FaBalanceScale, FaColumns, FaChartBar } from 'react-icons/fa';
 import { axiosWithFallback as axios } from '../services/fetchWithFallback';
 import NavBarPage from './NavbarPage';
 import styled from 'styled-components';
@@ -77,6 +77,10 @@ const StatusHistoryReportPage = () => {
     const [marketingFilters, setMarketingFilters] = useState({ startDate: initialTodayStr, endDate: initialTodayStr, medium: '' });
     const [appliedMarketingFilters, setAppliedMarketingFilters] = useState({ startDate: initialTodayStr, endDate: initialTodayStr, medium: '' });
     const [marketingMediums, setMarketingMediums] = useState([]);
+    const [showMarketingDetailsModal, setShowMarketingDetailsModal] = useState(false);
+    const [selectedMarketingMedium, setSelectedMarketingMedium] = useState('');
+    const [marketingDetailsData, setMarketingDetailsData] = useState({ tuitions: { data: [] }, payments: { data: [] }, expenses: { data: [] } });
+    const [marketingDetailsLoading, setMarketingDetailsLoading] = useState(false);
 
     // Overall Table Column Visibility State with LocalStorage
     const overallColumnsConfig = [
@@ -245,6 +249,25 @@ const StatusHistoryReportPage = () => {
             toast.error('Failed to load marketing report');
         } finally {
             setMarketingLoading(false);
+        }
+    };
+
+    const fetchMarketingDetails = async (medium) => {
+        setSelectedMarketingMedium(medium);
+        setShowMarketingDetailsModal(true);
+        setMarketingDetailsLoading(true);
+        try {
+            const params = { ...appliedMarketingFilters, medium };
+            const res = await axios.get(`https://tuition-seba-backend-1.onrender.com/api/report/marketing-details`, {
+                params,
+                headers: { Authorization: token }
+            });
+            setMarketingDetailsData(res.data);
+        } catch (error) {
+            console.error('Error fetching marketing details:', error);
+            toast.error('Failed to load marketing details');
+        } finally {
+            setMarketingDetailsLoading(false);
         }
     };
 
@@ -1924,6 +1947,7 @@ const StatusHistoryReportPage = () => {
                                                                         <th>TUITION GOT</th>
                                                                         <th>REVENUE</th>
                                                                         <th>EXPENSE</th>
+                                                                        <th>PROFIT/LOSS</th>
                                                                         <th>CANCELLED</th>
                                                                         <th>SUSPENDED</th>
                                                                     </tr>
@@ -1931,17 +1955,25 @@ const StatusHistoryReportPage = () => {
                                                                 <tbody>
                                                                     {combinedMediums.length === 0 ? (
                                                                         <tr>
-                                                                            <td colSpan={7} className="text-center py-4 text-muted">No data found for the selected period</td>
+                                                                            <td colSpan={8} className="text-center py-4 text-muted">No data found for the selected period</td>
                                                                         </tr>
                                                                     ) : (
                                                                         <>
                                                                             {combinedMediums.map((item, index) => (
-                                                                                <tr key={item.medium || 'unknown'}>
+                                                                                <tr 
+                                                                                    key={item.medium || 'unknown'}
+                                                                                    onClick={() => fetchMarketingDetails(item.medium || 'Unknown')}
+                                                                                    style={{ cursor: 'pointer' }}
+                                                                                    className="hover-bg-light transition-all"
+                                                                                >
                                                                                     <td className="fw-bold text-muted">{index + 1}</td>
                                                                                     <td className="px-4 fw-semibold text-dark">{(item.medium || 'Unknown').toUpperCase()}</td>
                                                                                     <td className="fw-bold text-dark">{item.count || 0}</td>
                                                                                     <td className="text-success small fw-semibold">৳ {(item.revenue || item.totalRevenue || 0).toLocaleString()}</td>
                                                                                     <td className="text-info small fw-semibold">৳ {(item.expense || 0).toLocaleString()}</td>
+                                                                                    <td className={`small fw-bold ${((item.revenue || item.totalRevenue || 0) - (item.expense || 0)) >= 0 ? 'text-success' : 'text-danger'}`}>
+                                                                                        ৳ {((item.revenue || item.totalRevenue || 0) - (item.expense || 0)).toLocaleString()}
+                                                                                    </td>
                                                                                     <td className="text-danger small fw-semibold">{item.cancelled || 0}</td>
                                                                                     <td className="text-warning small fw-semibold">{item.suspended || 0}</td>
                                                                                 </tr>
@@ -1956,6 +1988,9 @@ const StatusHistoryReportPage = () => {
                                                                                 </td>
                                                                                 <td className="text-info small fw-bold">
                                                                                     ৳ {combinedMediums.reduce((acc, curr) => acc + (curr.expense || 0), 0).toLocaleString()}
+                                                                                </td>
+                                                                                <td className={`small fw-extrabold ${combinedMediums.reduce((acc, curr) => acc + (curr.revenue || curr.totalRevenue || 0) - (curr.expense || 0), 0) >= 0 ? 'text-success' : 'text-danger'}`}>
+                                                                                    ৳ {combinedMediums.reduce((acc, curr) => acc + (curr.revenue || curr.totalRevenue || 0) - (curr.expense || 0), 0).toLocaleString()}
                                                                                 </td>
                                                                                 <td className="text-danger small fw-bold">
                                                                                     {combinedMediums.reduce((acc, curr) => acc + (curr.cancelled || 0), 0)}
@@ -2220,6 +2255,152 @@ const StatusHistoryReportPage = () => {
                                         </div>
                                     )}
                                 </>
+                            )}
+                        </div>
+                    </Modal.Body>
+                </Modal>
+
+                {/* Marketing Details Modal */}
+                <Modal 
+                    show={showMarketingDetailsModal} 
+                    onHide={() => setShowMarketingDetailsModal(false)} 
+                    dialogClassName="custom-huge-modal"
+                    centered
+                >
+                    <Modal.Header closeButton className="bg-light">
+                        <Modal.Title className="fw-bold text-primary">
+                            Details for Medium: {(selectedMarketingMedium || 'Unknown').toUpperCase()}
+                        </Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body className="p-0 bg-light">
+                        <div className="p-4 pt-4">
+                            {marketingDetailsLoading ? (
+                                <div className="d-flex justify-content-center py-5">
+                                    <Spinner animation="border" variant="primary" />
+                                </div>
+                            ) : (
+                                <Row className="g-4">
+                                    {/* Tuitions Column */}
+                                    <Col lg={4}>
+                                        <div className="d-flex justify-content-between align-items-center mb-2 bg-white p-3 rounded-3 shadow-sm">
+                                            <h6 className="fw-bold text-primary mb-0 d-flex align-items-center gap-2">
+                                                <FaBookOpen /> Tuitions
+                                            </h6>
+                                            <span className="badge bg-primary bg-opacity-10 text-primary fw-bold fs-6">
+                                                {marketingDetailsData?.tuitions?.totalCount || 0}
+                                            </span>
+                                        </div>
+                                        <div className="table-responsive border rounded-3 shadow-sm bg-white" style={{ maxHeight: '65vh', overflowY: 'auto' }}>
+                                            <Table hover className="mb-0 text-center align-middle" size="sm">
+                                                <thead className="table-light sticky-top shadow-sm">
+                                                    <tr>
+                                                        <th>SL</th>
+                                                        <th>Code</th>
+                                                        <th>Status</th>
+                                                        <th>Time</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {marketingDetailsData?.tuitions?.data?.map((item, idx) => (
+                                                        <tr key={item._id}>
+                                                            <td className="fw-bold text-dark">{idx + 1}</td>
+                                                            <td className="fw-bold text-primary">{item.tuitionCode}</td>
+                                                            <td>
+                                                                <Badge bg={item.status === 'cancel' ? 'danger' : item.status === 'suspend' || item.status === 'suspended' ? 'warning' : 'success'}>
+                                                                    {item.status || 'Active'}
+                                                                </Badge>
+                                                            </td>
+                                                            <td className="text-muted" style={{ fontSize: '11px' }}>
+                                                                {new Date(item.timestamp).toLocaleDateString('en-GB')}
+                                                            </td>
+                                                        </tr>
+                                                    ))}
+                                                    {marketingDetailsData?.tuitions?.data?.length === 0 && (
+                                                        <tr><td colSpan={4} className="text-muted py-3">No tuitions found</td></tr>
+                                                    )}
+                                                </tbody>
+                                            </Table>
+                                        </div>
+                                    </Col>
+                                    
+                                    {/* Payments Column */}
+                                    <Col lg={4}>
+                                        <div className="d-flex justify-content-between align-items-center mb-2 bg-white p-3 rounded-3 shadow-sm">
+                                            <h6 className="fw-bold text-success mb-0 d-flex align-items-center gap-2">
+                                                <FaChartPie /> Payments
+                                            </h6>
+                                            <span className="badge bg-success bg-opacity-10 text-success fw-bold fs-6">
+                                                ৳ {(marketingDetailsData?.payments?.totalAmount || 0).toLocaleString()}
+                                            </span>
+                                        </div>
+                                        <div className="table-responsive border rounded-3 shadow-sm bg-white" style={{ maxHeight: '65vh', overflowY: 'auto' }}>
+                                            <Table hover className="mb-0 text-center align-middle" size="sm">
+                                                <thead className="table-light sticky-top shadow-sm">
+                                                    <tr>
+                                                        <th>SL</th>
+                                                        <th>Code</th>
+                                                        <th>Amount</th>
+                                                        <th>Time</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {marketingDetailsData?.payments?.data?.map((item, idx) => (
+                                                        <tr key={item._id || idx}>
+                                                            <td className="fw-bold text-dark">{idx + 1}</td>
+                                                            <td className="fw-bold">{item.tuitionCode}</td>
+                                                            <td className="fw-bold text-success">৳ {item.amount.toLocaleString()}</td>
+                                                            <td className="text-muted" style={{ fontSize: '11px' }}>
+                                                                {new Date(item.timestamp).toLocaleDateString('en-GB')}
+                                                            </td>
+                                                        </tr>
+                                                    ))}
+                                                    {marketingDetailsData?.payments?.data?.length === 0 && (
+                                                        <tr><td colSpan={4} className="text-muted py-3">No payments found</td></tr>
+                                                    )}
+                                                </tbody>
+                                            </Table>
+                                        </div>
+                                    </Col>
+
+                                    {/* Expenses Column */}
+                                    <Col lg={4}>
+                                        <div className="d-flex justify-content-between align-items-center mb-2 bg-white p-3 rounded-3 shadow-sm">
+                                            <h6 className="fw-bold text-info mb-0 d-flex align-items-center gap-2">
+                                                <FaChartBar /> Expenses
+                                            </h6>
+                                            <span className="badge bg-info bg-opacity-10 text-info fw-bold fs-6">
+                                                ৳ {(marketingDetailsData?.expenses?.totalAmount || 0).toLocaleString()}
+                                            </span>
+                                        </div>
+                                        <div className="table-responsive border rounded-3 shadow-sm bg-white" style={{ maxHeight: '65vh', overflowY: 'auto' }}>
+                                            <Table hover className="mb-0 text-center align-middle" size="sm">
+                                                <thead className="table-light sticky-top shadow-sm">
+                                                    <tr>
+                                                        <th>SL</th>
+                                                        <th>Category</th>
+                                                        <th>Amount</th>
+                                                        <th>Time</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {marketingDetailsData?.expenses?.data?.map((item, idx) => (
+                                                        <tr key={item._id}>
+                                                            <td className="fw-bold text-dark">{idx + 1}</td>
+                                                            <td className="fw-bold text-dark">{item.category}</td>
+                                                            <td className="fw-bold text-info">৳ {item.amount.toLocaleString()}</td>
+                                                            <td className="text-muted" style={{ fontSize: '11px' }}>
+                                                                {new Date(item.timestamp).toLocaleDateString('en-GB')}
+                                                            </td>
+                                                        </tr>
+                                                    ))}
+                                                    {marketingDetailsData?.expenses?.data?.length === 0 && (
+                                                        <tr><td colSpan={4} className="text-muted py-3">No expenses found</td></tr>
+                                                    )}
+                                                </tbody>
+                                            </Table>
+                                        </div>
+                                    </Col>
+                                </Row>
                             )}
                         </div>
                     </Modal.Body>

@@ -781,7 +781,7 @@ const StatusHistoryReportPage = () => {
                                         <span className="text-muted small">Monitor and audit status logs across modules</span>
                                         <span className="text-secondary opacity-50 d-none d-sm-inline">•</span>
                                         <span className="text-success fw-bold px-2 py-0.5 bg-soft-success rounded-pill" style={{ fontSize: '10px' }}>
-                                            Active since: 16 July 2026
+                                            (সঠিক রেজাল্ট দেখতে চাইলে ১৬ জুলাই ২০২৬ এর পরের রিপোর্ট দেখুন)
                                         </span>
                                     </div>
                                 </>
@@ -803,7 +803,7 @@ const StatusHistoryReportPage = () => {
                                         <span className="text-muted small" style={{ fontSize: '12px' }}>Track tuition acquisitions by marketing medium</span>
                                         <span className="text-secondary opacity-50 d-none d-sm-inline">&#8226;</span>
                                         <span className="text-success fw-bold px-2 py-0.5 bg-soft-success rounded-pill" style={{ fontSize: '10px' }}>
-                                            Active since: 23/07/2026
+                                            (সঠিক রেজাল্ট দেখতে চাইলে ২৩ জুলাই ২০২৬ এর পরের রিপোর্ট দেখুন)
                                         </span>
                                         <Badge bg="light" text="dark" className="border px-3 py-1 fw-medium shadow-sm rounded-pill ms-2">
                                             Total Tuitions: {marketingReportData?.summary?.reduce((acc, curr) => acc + curr.count, 0) || 0}

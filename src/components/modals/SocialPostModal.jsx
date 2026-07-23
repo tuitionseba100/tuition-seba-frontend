@@ -112,14 +112,9 @@ const FilterCard = styled(Card)`
     margin-bottom: 15px;
     background: #fdfdfd;
     box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-    flex-shrink: 0;
-    max-height: 55vh;
-    display: flex;
-    flex-direction: column;
 
     .card-body {
         padding: 12px;
-        overflow-y: auto;
     }
 `;
 
@@ -479,8 +474,11 @@ const SocialPostModal = ({ show, onHide }) => {
                                 <Row className="gx-2 gy-1">
                                     {areaGroups.length > 0 && (
                                         <Col md={12} className="mb-1">
-                                            <div className="d-flex flex-wrap gap-1 align-items-center">
-                                                <span className="text-success fw-bold small me-1">Quick Select:</span>
+                                            <div 
+                                                className="d-flex flex-wrap gap-1 align-items-start"
+                                                style={{ maxHeight: '85px', overflowY: 'auto', paddingRight: '4px' }}
+                                            >
+                                                <span className="text-success fw-bold small me-1 mt-1">Quick Select:</span>
                                                 {areaGroups.map((group, idx) => (
                                                     <OverlayTrigger
                                                         key={idx}

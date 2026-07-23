@@ -1811,13 +1811,17 @@ const StatusHistoryReportPage = () => {
                                     {(() => {
                                         const allMediumsSet = new Set(marketingMediums.map(m => (m || '').toLowerCase()));
                                         const extraMediums = (marketingReportData?.summary || []).filter(s => !allMediumsSet.has((s.medium || 'unknown').toLowerCase()));
-                                        const combinedMediums = [
+                                        let combinedMediums = [
                                             ...marketingMediums.map(med => {
                                                 const found = (marketingReportData?.summary || []).find(s => (s.medium || 'unknown').toLowerCase() === (med || '').toLowerCase());
                                                 return found || { medium: med, count: 0, revenue: 0, totalRevenue: 0, cancelled: 0, suspended: 0, expense: 0 };
                                             }),
                                             ...extraMediums
                                         ];
+
+                                        if (appliedMarketingFilters.medium) {
+                                            combinedMediums = combinedMediums.filter(m => (m.medium || '').toLowerCase() === appliedMarketingFilters.medium.toLowerCase());
+                                        }
 
                                         combinedMediums.sort((a, b) => (b.count || 0) - (a.count || 0));
 

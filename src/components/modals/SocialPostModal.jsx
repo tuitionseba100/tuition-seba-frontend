@@ -109,11 +109,17 @@ const StyledModal = styled(Modal)`
 const FilterCard = styled(Card)`
     border: 1px solid #e0e0e0;
     border-radius: 10px;
-    margin-bottom: 20px;
+    margin-bottom: 15px;
     background: #fdfdfd;
     box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    flex-shrink: 0;
+    max-height: 55vh;
+    display: flex;
+    flex-direction: column;
+
     .card-body {
         padding: 12px;
+        overflow-y: auto;
     }
 `;
 
@@ -466,7 +472,7 @@ const SocialPostModal = ({ show, onHide }) => {
             <Modal.Body>
                 <Row className="flex-grow-1 g-4" style={{ minHeight: 0 }}>
                     {/* Left Panel: Filters and List */}
-                    <Col md={7} className="d-flex flex-column h-100">
+                    <Col md={7} className="d-flex flex-column h-100" style={{ minHeight: 0 }}>
                         <FilterCard>
                             <Card.Body>
                                 <SectionTitle><FaFilter /> Advanced Filters</SectionTitle>

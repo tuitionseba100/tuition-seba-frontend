@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Modal, Button, Form, Row, Col, Spinner, Table, Card, Badge, InputGroup, OverlayTrigger, Tooltip } from 'react-bootstrap';
 import Select from 'react-select';
+import CreatableSelect from 'react-select/creatable';
 import { axiosWithFallback as axios } from '../../services/fetchWithFallback';
 import { toast } from 'react-toastify';
 import { FaCopy, FaWhatsapp, FaSearch, FaFilter, FaListUl, FaEye, FaCheckSquare, FaSquare, FaTimes } from 'react-icons/fa';
@@ -239,7 +240,9 @@ const SocialPostModal = ({ show, onHide }) => {
         area: [],
         status: [{ value: 'available', label: 'Available' }, { value: 'guardian no response', label: 'Guardian No response' }],
         startCode: '',
-        endCode: ''
+        endCode: '',
+        specificCodes: [],
+        noApplies: false
     });
     const [areaGroups, setAreaGroups] = useState([]);
 
@@ -319,8 +322,8 @@ const SocialPostModal = ({ show, onHide }) => {
     });
 
     const handleFilterChange = (e) => {
-        const { name, value } = e.target;
-        setFilters(prev => ({ ...prev, [name]: value }));
+        const { name, value, type, checked } = e.target;
+        setFilters(prev => ({ ...prev, [name]: type === 'checkbox' ? checked : value }));
     };
 
     const handleSelectChange = (selectedOptions, { name }) => {
@@ -338,7 +341,8 @@ const SocialPostModal = ({ show, onHide }) => {
             const params = {
                 ...filters,
                 area: filters.area.map(a => a.value).join(','),
-                status: filters.status.map(s => s.value).join(',')
+                status: filters.status.map(s => s.value).join(','),
+                specificCodes: filters.specificCodes.map(c => c.value).join(',')
             };
 
             const response = await axios.get('https://tuition-seba-backend-1.onrender.com/api/tuition/post-data', {
@@ -522,6 +526,29 @@ const SocialPostModal = ({ show, onHide }) => {
                                             styles={selectStyles}
                                         />
                                     </Col>
+                                    <Col md={12}>
+                                        <InputGroup size="sm">
+                                            <InputGroup.Text className="bg-light fw-bold">Multiple Codes</InputGroup.Text>
+                                            <div style={{ flex: 1 }}>
+                                                <CreatableSelect
+                                                    isMulti
+                                                    name="specificCodes"
+                                                    value={filters.specificCodes}
+                                                    onChange={handleSelectChange}
+                                                    placeholder="Type code and press Enter (e.g. TS-1001)"
+                                                    styles={{
+                                                        ...selectStyles,
+                                                        control: (base) => ({
+                                                            ...selectStyles.control(base),
+                                                            borderTopLeftRadius: 0,
+                                                            borderBottomLeftRadius: 0
+                                                        })
+                                                    }}
+                                                    formatCreateLabel={(inputValue) => `Add "${inputValue}"`}
+                                                />
+                                            </div>
+                                        </InputGroup>
+                                    </Col>
                                     <Col md={8}>
                                         <InputGroup size="sm">
                                             <InputGroup.Text className="bg-light fw-bold">Code Range</InputGroup.Text>
@@ -538,6 +565,19 @@ const SocialPostModal = ({ show, onHide }) => {
                                                 onChange={handleFilterChange}
                                             />
                                         </InputGroup>
+                                    </Col>
+                                    <Col md={8}>
+                                        <div className="d-flex h-100 align-items-center">
+                                            <Form.Check
+                                                type="switch"
+                                                id="no-applies-switch"
+                                                label="No Applies Only"
+                                                name="noApplies"
+                                                checked={filters.noApplies}
+                                                onChange={handleFilterChange}
+                                                className="fw-bold text-danger ms-2"
+                                            />
+                                        </div>
                                     </Col>
                                     <Col md={4}>
                                         <Button variant="success" size="sm" onClick={fetchTuitions} disabled={loading} className="w-100 fw-bold h-100 shadow-sm">

@@ -251,6 +251,22 @@ export default function TuitionModal({ show, onHide, editingData = null, editing
             return;
         }
 
+        const currentSourceMedium = formData.guardian_source_medium ? formData.guardian_source_medium.trim() : '';
+        if (!editingId) {
+            if (!currentSourceMedium) {
+                toast.error('নতুন টিউশন যুক্ত করার সময় "গার্জিয়ান কিভাবে আমাদের সম্পর্কে জানলো" নির্বাচন করা বাধ্যতামূলক।');
+                setSaving(false);
+                return;
+            }
+        } else {
+            const previousSourceMedium = editingData?.guardian_source_medium ? editingData.guardian_source_medium.trim() : '';
+            if (previousSourceMedium && !currentSourceMedium) {
+                toast.error('যেহেতু আগে "গার্জিয়ান কিভাবে আমাদের সম্পর্কে জানলো" নির্বাচন করা ছিল, তাই এখন এটি ফাঁকা রাখা যাবে না।');
+                setSaving(false);
+                return;
+            }
+        }
+
         try {
             const updatedTuitionData = {
                 ...formData,

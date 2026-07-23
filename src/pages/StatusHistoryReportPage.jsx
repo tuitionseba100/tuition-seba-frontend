@@ -507,7 +507,7 @@ const StatusHistoryReportPage = () => {
     };
 
     const handleResetPaymentFilters = () => {
-        const reset = { startDate: '', endDate: '' };
+        const reset = { startDate: initialTodayStr, endDate: initialTodayStr };
         setPaymentFilters(reset);
         setAppliedPaymentFilters(reset);
     };
@@ -628,7 +628,7 @@ const StatusHistoryReportPage = () => {
     };
 
     const handleResetOverallFilters = () => {
-        const reset = { startDate: '', endDate: '' };
+        const reset = { startDate: initialTodayStr, endDate: initialTodayStr };
         setOverallFilters(reset);
         setAppliedOverallFilters(reset);
     };
@@ -1775,7 +1775,7 @@ const StatusHistoryReportPage = () => {
                                                 <FaSearch className="me-1" /> Search
                                             </Button>
                                             <Button variant="danger" className="w-100 rounded-3 shadow-sm d-flex align-items-center justify-content-center" style={{ height: '31px' }} onClick={() => {
-                                                const resetFilters = { startDate: '', endDate: '', medium: '', month: '' };
+                                                const resetFilters = { startDate: initialTodayStr, endDate: initialTodayStr, medium: '', month: '' };
                                                 setMarketingFilters(resetFilters);
                                                 setAppliedMarketingFilters(resetFilters);
                                             }} title="Reset">

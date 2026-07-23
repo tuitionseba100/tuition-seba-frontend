@@ -71,6 +71,13 @@ const StatusHistoryReportPage = () => {
     const [overallFilters, setOverallFilters] = useState({ startDate: initialTodayStr, endDate: initialTodayStr });
     const [appliedOverallFilters, setAppliedOverallFilters] = useState({ startDate: initialTodayStr, endDate: initialTodayStr });
 
+    // Marketing Report States
+    const [marketingReportData, setMarketingReportData] = useState([]);
+    const [marketingLoading, setMarketingLoading] = useState(false);
+    const [marketingFilters, setMarketingFilters] = useState({ startDate: initialTodayStr, endDate: initialTodayStr, medium: '' });
+    const [appliedMarketingFilters, setAppliedMarketingFilters] = useState({ startDate: initialTodayStr, endDate: initialTodayStr, medium: '' });
+    const [marketingMediums, setMarketingMediums] = useState([]);
+
     // Overall Table Column Visibility State with LocalStorage
     const overallColumnsConfig = [
         { key: 'sl', label: 'SL' },
@@ -168,6 +175,7 @@ const StatusHistoryReportPage = () => {
     useEffect(() => {
         if (role === 'superadmin') {
             fetchUsers();
+            fetchSettings();
         }
     }, [role]);
 
@@ -179,6 +187,17 @@ const StatusHistoryReportPage = () => {
             setUsersList(res.data);
         } catch (err) {
             console.error('Error fetching users:', err);
+        }
+    };
+
+    const fetchSettings = async () => {
+        try {
+            const res = await axios.get('https://tuition-seba-backend-1.onrender.com/api/settings/marketing_mediums', {
+                headers: { Authorization: token }
+            });
+            if (res.data && res.data.value) setMarketingMediums(res.data.value);
+        } catch (err) {
+            console.error('Error fetching marketing mediums:', err);
         }
     };
 
@@ -206,6 +225,28 @@ const StatusHistoryReportPage = () => {
             fetchOverallReport();
         }
     }, [role, appliedOverallFilters, activeTab]);
+
+    useEffect(() => {
+        if (role === 'superadmin' && activeTab === 'marketing') {
+            fetchMarketingReport();
+        }
+    }, [role, appliedMarketingFilters, activeTab]);
+
+    const fetchMarketingReport = async () => {
+        setMarketingLoading(true);
+        try {
+            const queryParams = new URLSearchParams(appliedMarketingFilters).toString();
+            const res = await axios.get(`https://tuition-seba-backend-1.onrender.com/api/report/marketing?${queryParams}`, {
+                headers: { Authorization: token }
+            });
+            setMarketingReportData(res.data);
+        } catch (error) {
+            console.error('Error fetching marketing report:', error);
+            toast.error('Failed to load marketing report');
+        } finally {
+            setMarketingLoading(false);
+        }
+    };
 
     const fetchPaymentReport = async () => {
         setPaymentLoading(true);
@@ -645,6 +686,11 @@ const StatusHistoryReportPage = () => {
                                 <span className="d-flex align-items-center gap-2"><FaBookOpen /> Overall Payment Report</span>
                             </Nav.Link>
                         </Nav.Item>
+                        <Nav.Item>
+                            <Nav.Link eventKey="marketing">
+                                <span className="d-flex align-items-center gap-2"><FaTag /> Marketing Report</span>
+                            </Nav.Link>
+                        </Nav.Item>
                     </Nav>
 
                     <div className="d-flex justify-content-between align-items-center mb-3 mt-0">
@@ -669,6 +715,18 @@ const StatusHistoryReportPage = () => {
                                     </h4>
                                     <div className="d-flex align-items-center gap-2 flex-wrap">
                                         <span className="text-muted small" style={{ fontSize: '12px' }}>Analyze revenue and transactions by payment method</span>
+                                    </div>
+                                </>
+                            ) : activeTab === 'marketing' ? (
+                                <>
+                                    <h4 className="text-primary fw-extrabold d-flex align-items-center gap-2 mb-1" style={{ letterSpacing: '-0.5px' }}>
+                                        <FaTag /> Marketing Report
+                                    </h4>
+                                    <div className="d-flex align-items-center gap-2 flex-wrap">
+                                        <span className="text-muted small" style={{ fontSize: '12px' }}>Track tuition acquisitions by marketing medium</span>
+                                        <Badge bg="light" text="dark" className="border px-3 py-1 fw-medium shadow-sm rounded-pill ms-2">
+                                            Total Tuitions: {marketingReportData.reduce((acc, curr) => acc + curr.count, 0)}
+                                        </Badge>
                                     </div>
                                 </>
                             ) : (
@@ -714,6 +772,17 @@ const StatusHistoryReportPage = () => {
                                     size="sm"
                                 >
                                     {paymentLoading ? <Spinner animation="border" size="sm" /> : "Refresh Report"}
+                                </Button>
+                            )}
+                            {activeTab === 'marketing' && (
+                                <Button
+                                    variant="primary"
+                                    onClick={fetchMarketingReport}
+                                    disabled={marketingLoading}
+                                    className="px-3 py-1 rounded-pill shadow-sm"
+                                    size="sm"
+                                >
+                                    {marketingLoading ? <Spinner animation="border" size="sm" /> : "Refresh Report"}
                                 </Button>
                             )}
                         </div>
@@ -1574,6 +1643,102 @@ const StatusHistoryReportPage = () => {
                                                         <tr>
                                                             <td colSpan={(overallColumnsConfig.filter(col => isColVisible(col.key)).length + 2) || 2} className="py-4 text-muted fw-bold">No combined data found for the selected period.</td>
                                                         </tr>
+                                                    )}
+                                                </tbody>
+                                            </Table>
+                                        </div>
+                                    </Card.Body>
+                                </Card>
+                            )}
+                        </Tab.Pane>
+                        <Tab.Pane eventKey="marketing">
+                            <Card className="border-0 shadow-sm mb-4 rounded-4" style={{ backgroundColor: '#f8f9fa' }}>
+                                <Card.Body className="p-3">
+                                    <Row className="align-items-end g-2">
+                                        <Col md={3}>
+                                            <Form.Group>
+                                                <Form.Label className="small fw-bold text-muted mb-1">Start Date (Created)</Form.Label>
+                                                <Form.Control
+                                                    type="date"
+                                                    value={marketingFilters.startDate}
+                                                    onChange={(e) => setMarketingFilters({ ...marketingFilters, startDate: e.target.value })}
+                                                    size="sm"
+                                                    className="shadow-none border-primary bg-white"
+                                                />
+                                            </Form.Group>
+                                        </Col>
+                                        <Col md={3}>
+                                            <Form.Group>
+                                                <Form.Label className="small fw-bold text-muted mb-1">End Date (Created)</Form.Label>
+                                                <Form.Control
+                                                    type="date"
+                                                    value={marketingFilters.endDate}
+                                                    onChange={(e) => setMarketingFilters({ ...marketingFilters, endDate: e.target.value })}
+                                                    size="sm"
+                                                    className="shadow-none border-primary bg-white"
+                                                />
+                                            </Form.Group>
+                                        </Col>
+                                        <Col md={4}>
+                                            <Form.Group>
+                                                <Form.Label className="small fw-bold text-muted mb-1">Marketing Medium</Form.Label>
+                                                <Form.Select
+                                                    value={marketingFilters.medium}
+                                                    onChange={(e) => setMarketingFilters({ ...marketingFilters, medium: e.target.value })}
+                                                    size="sm"
+                                                    className="shadow-none border-primary bg-white"
+                                                >
+                                                    <option value="">All Mediums</option>
+                                                    {marketingMediums.map(m => (
+                                                        <option key={m} value={m}>{m}</option>
+                                                    ))}
+                                                </Form.Select>
+                                            </Form.Group>
+                                        </Col>
+                                        <Col md={2}>
+                                            <Button
+                                                variant="primary"
+                                                size="sm"
+                                                className="w-100 fw-semibold rounded-pill"
+                                                onClick={() => setAppliedMarketingFilters(marketingFilters)}
+                                            >
+                                                <FaSearch className="me-1" /> Search
+                                            </Button>
+                                        </Col>
+                                    </Row>
+                                </Card.Body>
+                            </Card>
+
+                            {marketingLoading ? (
+                                <div className="text-center py-5">
+                                    <Spinner animation="border" variant="primary" />
+                                    <p className="mt-2 text-muted">Loading marketing data...</p>
+                                </div>
+                            ) : (
+                                <Card className="border-0 shadow-sm rounded-4">
+                                    <Card.Body className="p-0">
+                                        <div className="table-responsive">
+                                            <Table hover className="mb-0 align-middle">
+                                                <thead className="bg-light">
+                                                    <tr>
+                                                        <th className="py-3 px-4 border-0 text-muted" style={{ fontSize: '0.85rem' }}>MARKETING MEDIUM</th>
+                                                        <th className="py-3 px-4 border-0 text-center text-muted" style={{ fontSize: '0.85rem' }}>TUITIONS ACQUIRED</th>
+                                                        <th className="py-3 px-4 border-0 text-center text-muted" style={{ fontSize: '0.85rem' }}>TOTAL REVENUE (Tk)</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {marketingReportData.length === 0 ? (
+                                                        <tr>
+                                                            <td colSpan="3" className="text-center py-4 text-muted">No data found for the selected period</td>
+                                                        </tr>
+                                                    ) : (
+                                                        marketingReportData.map((item, idx) => (
+                                                            <tr key={idx}>
+                                                                <td className="px-4 fw-semibold text-dark">{item.medium}</td>
+                                                                <td className="px-4 text-center fw-bold text-dark" style={{ fontSize: '1.05rem' }}>{item.count}</td>
+                                                                <td className="px-4 text-center fw-extrabold text-success" style={{ fontSize: '1.1rem' }}>৳ {item.totalRevenue.toLocaleString()}</td>
+                                                            </tr>
+                                                        ))
                                                     )}
                                                 </tbody>
                                             </Table>

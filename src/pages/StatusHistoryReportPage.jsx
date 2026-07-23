@@ -1959,7 +1959,7 @@ const StatusHistoryReportPage = () => {
                                                                                     {combinedMediums.reduce((acc, curr) => acc + (curr.count || 0), 0)}
                                                                                 </td>
                                                                                 <td className="text-success small fw-bold">
-                                                                                    ৳ {combinedMediums.reduce((acc, curr) => acc + (curr.revenue || item.totalRevenue || 0), 0).toLocaleString()}
+                                                                                    ৳ {combinedMediums.reduce((acc, curr) => acc + (curr.revenue || curr.totalRevenue || 0), 0).toLocaleString()}
                                                                                 </td>
                                                                                 <td className="text-info small fw-bold">
                                                                                     ৳ {combinedMediums.reduce((acc, curr) => acc + (curr.expense || 0), 0).toLocaleString()}

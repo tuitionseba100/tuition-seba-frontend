@@ -2279,6 +2279,7 @@ const StatusHistoryReportPage = () => {
                                     <Spinner animation="border" variant="primary" />
                                 </div>
                             ) : (
+                                <>
                                 <Row className="g-4">
                                     {/* Tuitions Column */}
                                     <Col lg={4}>
@@ -2401,6 +2402,13 @@ const StatusHistoryReportPage = () => {
                                         </div>
                                     </Col>
                                 </Row>
+                                <div className="mt-3 text-center">
+                                    <small className="text-muted fw-semibold">
+                                        <i className="fa fa-info-circle me-1"></i>
+                                        Showing the latest 500 records for performance. The top-level totals reflect all historical data.
+                                    </small>
+                                </div>
+                                </>
                             )}
                         </div>
                     </Modal.Body>

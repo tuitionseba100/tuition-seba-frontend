@@ -409,22 +409,41 @@ const ApplyUpdates = () => {
                                                     </button>
                                                 </div>
 
-                                                <span className="au-status-pill" style={{
-                                                    color: statusColor,
-                                                    backgroundColor: statusBg,
-                                                    borderColor: statusColor + '30',
-                                                    margin: 0,
-                                                    padding: '5px 14px',
-                                                    fontSize: '12.5px',
-                                                    fontWeight: '700',
-                                                    borderRadius: '30px',
-                                                    display: 'inline-flex',
-                                                    alignItems: 'center',
-                                                    gap: '6px'
-                                                }}>
-                                                    {getStatusIcon(item.status)}
-                                                    {item.status}
-                                                </span>
+                                                <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
+                                                    {item.tuitionStatus && (item.tuitionStatus.toLowerCase() === 'cancel' || item.tuitionStatus.toLowerCase() === 'suspended') && (
+                                                        <span className="au-status-pill" style={{
+                                                            color: '#334155',
+                                                            backgroundColor: '#f1f5f9',
+                                                            borderColor: '#cbd5e1',
+                                                            margin: 0,
+                                                            padding: '5px 14px',
+                                                            fontSize: '12.5px',
+                                                            fontWeight: '700',
+                                                            borderRadius: '30px',
+                                                            display: 'inline-flex',
+                                                            alignItems: 'center',
+                                                            gap: '6px'
+                                                        }}>
+                                                            Tuition: {item.tuitionStatus.toUpperCase()}
+                                                        </span>
+                                                    )}
+                                                    <span className="au-status-pill" style={{
+                                                        color: statusColor,
+                                                        backgroundColor: statusBg,
+                                                        borderColor: statusColor + '30',
+                                                        margin: 0,
+                                                        padding: '5px 14px',
+                                                        fontSize: '12.5px',
+                                                        fontWeight: '700',
+                                                        borderRadius: '30px',
+                                                        display: 'inline-flex',
+                                                        alignItems: 'center',
+                                                        gap: '6px'
+                                                    }}>
+                                                        {getStatusIcon(item.status)}
+                                                        {item.status}
+                                                    </span>
+                                                </div>
                                             </div>
 
                                             {/* Structured Table style inside the card */}
@@ -480,6 +499,19 @@ const ApplyUpdates = () => {
                                                                 )}
                                                             </td>
                                                         </tr>
+                                                        {(item.tuitionStatus?.toLowerCase() === 'cancel' || item.tuitionStatus?.toLowerCase() === 'suspended') && item.tuitionCancelReasonPublic && item.tuitionCancelReasonPublic.trim() !== '' && (
+                                                            <tr>
+                                                                <td style={{ padding: '14px 20px', background: '#fef2f2', fontWeight: '600', color: '#dc2626', borderRight: '1px solid #e2e8f0', borderTop: '1px solid #e2e8f0' }}>
+                                                                    টিউশন বাতিলের কারণ (Cancel Reason)
+                                                                </td>
+                                                                <td style={{ padding: '14px 20px', backgroundColor: '#fff', borderTop: '1px solid #e2e8f0' }}>
+                                                                    <div style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', color: '#dc2626', fontWeight: '600' }}>
+                                                                        <FiInfo size={16} style={{ marginTop: '2px', flexShrink: 0 }} />
+                                                                        <span>{item.tuitionCancelReasonPublic}</span>
+                                                                    </div>
+                                                                </td>
+                                                            </tr>
+                                                        )}
                                                     </tbody>
                                                 </table>
                                             </div>

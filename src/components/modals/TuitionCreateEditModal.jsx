@@ -29,6 +29,7 @@ const fieldConfig = [
 
     { name: 'guardian_source_medium', label: 'গার্জিয়ান কিভাবে আমাদের সম্পর্কে জানলো', group: 'admin', col: 6, type: 'select', options: [] },
     { name: 'status', label: 'Status', group: 'admin', col: 6, type: 'select', options: ['available', 'given number', 'guardian meet', 'demo class running', 'confirm', 'cancel', 'refer BM', 'suspended', 'guardian no response', 'request for payment'] },
+    { name: 'tuitionCancelReasonPublic', label: 'Tuition Cancel Reason (Public)', group: 'admin', col: 6, type: 'text' },
     { name: 'note', label: 'Guardian Demand (Agent)', group: 'admin', col: 6, type: 'text' },
     { name: 'guardianDemandForPublic', label: 'Guardian Demand (Public)', group: 'admin', col: 12, type: 'textarea' },
     { name: 'tutorNumber', label: 'Teacher Number', group: 'admin', col: 6, type: 'text' },
@@ -267,11 +268,23 @@ export default function TuitionModal({ show, onHide, editingData = null, editing
             }
         }
 
+        const currentStatus = formData.status ? formData.status.toLowerCase() : 'available';
+
+        if (currentStatus === 'cancel' || currentStatus === 'suspended') {
+            if (!formData.tuitionCancelReasonPublic || !formData.tuitionCancelReasonPublic.trim()) {
+                toast.error('টিউশন বাতিল বা স্থগিত হলে অবশ্যই বাতিলের কারণ (Public) উল্লেখ করতে হবে।');
+                setSaving(false);
+                return;
+            }
+        } else {
+            formData.tuitionCancelReasonPublic = '';
+        }
+
         try {
             const updatedTuitionData = {
                 ...formData,
                 guardianNumber: guardianNumber,
-                status: formData.status || 'available',
+                status: currentStatus,
                 updatedBy: username,
             };
             if (editingId) {
@@ -375,6 +388,10 @@ export default function TuitionModal({ show, onHide, editingData = null, editing
 
                                             let value = formData[name];
                                             if (value === undefined || value === null) value = type === 'switch' ? false : '';
+
+                                            if (name === 'tuitionCancelReasonPublic' && formData.status?.toLowerCase() !== 'cancel' && formData.status?.toLowerCase() !== 'suspended') {
+                                                return null;
+                                            }
 
                                             if (name === 'assignedTo' || name === 'guardian_source_medium') {
                                                 if (name === 'assignedTo' && role !== 'superadmin') return null;
@@ -546,18 +563,31 @@ export default function TuitionModal({ show, onHide, editingData = null, editing
                                                 );
                                             }
 
+                                            const isCancelReasonPublic = name === 'tuitionCancelReasonPublic';
+                                            const customStyle = isCancelReasonPublic ? {
+                                                ...inputBorderStyle,
+                                                borderColor: '#dc3545',
+                                                backgroundColor: '#fff5f5',
+                                                borderWidth: '2px',
+                                                boxShadow: '0 0 6px rgba(220, 53, 69, 0.2)'
+                                            } : inputBorderStyle;
+
                                             return (
                                                 <Col md={col} key={name}>
                                                     <Form.Group controlId={name}>
-                                                        <Form.Label className="fw-semibold">{label}</Form.Label>
+                                                        <Form.Label className="fw-semibold">
+                                                            {label}
+                                                            {isCancelReasonPublic && <span className="text-danger ms-1">*</span>}
+                                                        </Form.Label>
                                                         <Form.Control
                                                             type={type}
                                                             name={name}
                                                             value={value}
                                                             onChange={(e) => handleInputChange(e, field)}
-                                                            required
+                                                            required={isCancelReasonPublic ? true : false}
                                                             disabled={saving}
-                                                            style={inputBorderStyle}
+                                                            style={customStyle}
+                                                            placeholder={isCancelReasonPublic ? 'Please state the reason for cancel/suspended' : ''}
                                                         />
                                                     </Form.Group>
                                                 </Col>

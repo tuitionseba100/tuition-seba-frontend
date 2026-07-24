@@ -133,11 +133,12 @@ const RefundPage = () => {
         }
     };
 
-    const fetchServiceCharges = async (page = 1) => {
+    const fetchServiceCharges = async (page = 1, searchOverride = null) => {
         setScLoading(true);
         try {
+            const currentSearch = searchOverride || scSearch;
             const response = await axios.get(`https://tuition-seba-backend-1.onrender.com/api/serviceCharge/all`, {
-                params: { page, limit: 50, tuitionCode: scSearch.tuitionCode, phone: scSearch.phone }
+                params: { page, limit: 50, tuitionCode: currentSearch.tuitionCode, phone: currentSearch.phone }
             });
             setScList(response.data.data);
             setScCurrentPage(response.data.currentPage);
@@ -1084,23 +1085,29 @@ const RefundPage = () => {
 
                         {/* Search Bar */}
                         <Row className="mb-3 g-2">
-                            <Col md={5}>
+                            <Col md={4}>
                                 <Form.Control 
                                     placeholder="Search by Tuition Code" 
                                     value={scSearch.tuitionCode}
                                     onChange={(e) => setScSearch(prev => ({ ...prev, tuitionCode: e.target.value }))}
                                 />
                             </Col>
-                            <Col md={5}>
+                            <Col md={4}>
                                 <Form.Control 
                                     placeholder="Search by Phone" 
                                     value={scSearch.phone}
                                     onChange={(e) => setScSearch(prev => ({ ...prev, phone: e.target.value }))}
                                 />
                             </Col>
-                            <Col md={2}>
-                                <Button variant="primary" className="w-100" onClick={() => fetchServiceCharges(1)}>
+                            <Col md={4} className="d-flex gap-2">
+                                <Button variant="primary" className="w-100 flex-grow-1" onClick={() => fetchServiceCharges(1)}>
                                     <FaSearch /> Search
+                                </Button>
+                                <Button variant="outline-secondary" className="w-100 flex-grow-1" onClick={() => {
+                                    setScSearch({ tuitionCode: '', phone: '' });
+                                    fetchServiceCharges(1, { tuitionCode: '', phone: '' });
+                                }}>
+                                    Reset
                                 </Button>
                             </Col>
                         </Row>

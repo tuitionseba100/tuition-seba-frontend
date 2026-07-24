@@ -1053,7 +1053,14 @@ const RefundPage = () => {
                     </Modal.Footer>
                 </Modal>
                 {/* Service Charge List Modal */}
-                <Modal show={scModalOpen} onHide={() => setScModalOpen(false)} size="xl" centered>
+                <style>
+                    {`
+                        .custom-modal-95w {
+                            max-width: 95% !important;
+                        }
+                    `}
+                </style>
+                <Modal show={scModalOpen} onHide={() => setScModalOpen(false)} dialogClassName="custom-modal-95w" centered>
                     <Modal.Header closeButton className="bg-light">
                         <Modal.Title className="fw-bold text-dark">
                             <FaInfoCircle className="me-2 text-info" /> Service Charges (Total: {scTotalRecords})
@@ -1107,7 +1114,11 @@ const RefundPage = () => {
                                     <tr>
                                         <th>Date</th>
                                         <th>Tuition Code</th>
+                                        <th>Name</th>
+                                        <th>Phone</th>
+                                        <th>Payment No.</th>
                                         <th>Amount</th>
+                                        <th>Created By</th>
                                         <th>Updated By</th>
                                         <th>Comment</th>
                                     </tr>
@@ -1117,13 +1128,17 @@ const RefundPage = () => {
                                         <tr key={sc._id}>
                                             <td>{sc.date ? new Date(sc.date).toLocaleDateString() : '-'}</td>
                                             <td><span className="fw-bold text-primary">{sc.tuitionCode || '-'}</span></td>
+                                            <td>{sc.name || '-'}</td>
+                                            <td>{sc.personalPhone || '-'}</td>
+                                            <td>{sc.paymentNumber || '-'}</td>
                                             <td className="fw-bold text-dark">৳{sc.amount}</td>
+                                            <td>{sc.createdBy || '-'}</td>
                                             <td>{sc.updatedBy || '-'}</td>
                                             <td className="small">{sc.comment || '-'}</td>
                                         </tr>
                                     )) : (
                                         <tr>
-                                            <td colSpan="5" className="text-center py-3 text-muted">No service charges found.</td>
+                                            <td colSpan="9" className="text-center py-3 text-muted">No service charges found.</td>
                                         </tr>
                                     )}
                                 </tbody>

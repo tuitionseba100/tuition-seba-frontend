@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Button, Table, Modal, Form, Row, Col, Card, Spinner, Pagination } from 'react-bootstrap';
+import { Button, Table, Modal, Form, Row, Col, Card, Spinner, Pagination, Badge } from 'react-bootstrap';
 import { FaEdit, FaTrashAlt, FaWhatsapp, FaSearch, FaUndo, FaChevronLeft, FaChevronRight, FaBell, FaInfoCircle } from 'react-icons/fa';
 import { axiosWithFallback as axios } from '../services/fetchWithFallback';
 import NavBarPage from './NavbarPage';
@@ -43,6 +43,16 @@ const RefundPage = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
     const [totalRecords, setTotalRecords] = useState(0);
+
+    // Service Charge List States
+    const [scModalOpen, setScModalOpen] = useState(false);
+    const [scList, setScList] = useState([]);
+    const [scLoading, setScLoading] = useState(false);
+    const [scCurrentPage, setScCurrentPage] = useState(1);
+    const [scTotalPages, setScTotalPages] = useState(1);
+    const [scTotalRecords, setScTotalRecords] = useState(0);
+    const [scSearch, setScSearch] = useState({ tuitionCode: '', phone: '' });
+    const [scSummary, setScSummary] = useState({ today: 0, week: 0, month: 0, total: 0 });
     const limit = 20;
 
     const [searchInputs, setSearchInputs] = useState({
@@ -66,6 +76,7 @@ const RefundPage = () => {
         approved: 0,
         rejected: 0,
         completed: 0,
+        adjusted: 0,
         cancelled: 0,
         serviceChargeReceived: 0
     });
@@ -120,6 +131,38 @@ const RefundPage = () => {
         } catch (err) {
             console.error('Error fetching today alerts:', err);
         }
+    };
+
+    const fetchServiceCharges = async (page = 1) => {
+        setScLoading(true);
+        try {
+            const response = await axios.get(`https://tuition-seba-backend-1.onrender.com/api/serviceCharge/all`, {
+                params: { page, limit: 50, tuitionCode: scSearch.tuitionCode, phone: scSearch.phone }
+            });
+            setScList(response.data.data);
+            setScCurrentPage(response.data.currentPage);
+            setScTotalPages(response.data.totalPages);
+            setScTotalRecords(response.data.totalRecords);
+        } catch (error) {
+            console.error('Error fetching service charges:', error);
+            toast.error("Failed to load service charges.");
+        }
+        setScLoading(false);
+    };
+
+    const fetchServiceChargeSummary = async () => {
+        try {
+            const response = await axios.get(`https://tuition-seba-backend-1.onrender.com/api/serviceCharge/summary`);
+            setScSummary(response.data);
+        } catch (error) {
+            console.error('Error fetching SC summary:', error);
+        }
+    };
+
+    const handleOpenScModal = () => {
+        fetchServiceCharges(1);
+        fetchServiceChargeSummary();
+        setScModalOpen(true);
     };
 
     useEffect(() => {
@@ -369,14 +412,19 @@ const RefundPage = () => {
             <Container>
                 <Header>
                     <h2 className='text-primary fw-bold mb-0'>Refund Applications</h2>
-                    <Button variant="primary" onClick={handleCreateNew} className="rounded-3 shadow-sm px-4">
-                        + Create Refund
-                    </Button>
+                    <div className="d-flex gap-2">
+                        <Button variant="info" onClick={handleOpenScModal} className="rounded-3 shadow-sm px-4 text-white">
+                            <FaInfoCircle className="me-2" /> Service Charges
+                        </Button>
+                        <Button variant="primary" onClick={handleCreateNew} className="rounded-3 shadow-sm px-4">
+                            + Create Refund
+                        </Button>
+                    </div>
                 </Header>
 
                 <Card className="mt-4 shadow-sm border-0">
                     <Card.Body>
-                        <Row className="text-center g-3">
+                        <div className="d-flex flex-nowrap overflow-auto gap-2 pb-2 text-center" style={{ scrollbarWidth: 'thin' }}>
                             {[
                                 { label: 'Total', count: statusCounts.total, color: 'dark' },
                                 { label: 'Pending', count: statusCounts.pending, color: 'primary' },
@@ -384,16 +432,15 @@ const RefundPage = () => {
                                 { label: 'Approved', count: statusCounts.approved, color: 'success' },
                                 { label: 'Rejected', count: statusCounts.rejected, color: 'danger' },
                                 { label: 'Completed', count: statusCounts.completed, color: 'success' },
-                                { label: 'Service Charge', count: `${statusCounts.serviceChargeReceived || 0} TK`, color: 'warning' }
+                                { label: 'Adjusted', count: statusCounts.adjusted, color: 'dark' },
+                                { label: 'Service Charge', count: `${statusCounts.serviceChargeReceived || 0} ৳`, color: 'warning' }
                             ].map((stat, idx) => (
-                                <Col key={idx} xs={6} sm={4} md={3} lg={2}>
-                                    <div className={`card p-2 shadow-sm border-${stat.color}`}>
-                                        <small className={`text-${stat.color} fw-bold`}>{stat.label}</small>
-                                        <h5 className="mb-0">{stat.count}</h5>
-                                    </div>
-                                </Col>
+                                <div key={idx} className={`card p-2 shadow-sm border-${stat.color} flex-fill`} style={{ minWidth: '130px' }}>
+                                    <small className={`text-${stat.color} fw-bold text-nowrap`}>{stat.label}</small>
+                                    <h5 className="mb-0">{stat.count}</h5>
+                                </div>
                             ))}
-                        </Row>
+                        </div>
                     </Card.Body>
                 </Card>
 
@@ -440,6 +487,7 @@ const RefundPage = () => {
                                     <option value="approved">Approved</option>
                                     <option value="rejected">Rejected</option>
                                     <option value="completed">Completed</option>
+                                    <option value="adjusted">Adjusted</option>
                                     <option value="cancelled">Cancelled</option>
                                 </Form.Select>
                             </Col>
@@ -520,7 +568,8 @@ const RefundPage = () => {
                                                             item.status === "approved" ? "bg-primary" :
                                                                 item.status === "rejected" ? "bg-danger" :
                                                                     item.status === "completed" ? "bg-success" :
-                                                                        item.status === "cancelled" ? "bg-secondary" : "bg-light text-dark"
+                                                                        item.status === "adjusted" ? "bg-dark" :
+                                                                            item.status === "cancelled" ? "bg-secondary" : "bg-light text-dark"
                                                         }`}>
                                                         {item.status}
                                                     </span>
@@ -531,12 +580,12 @@ const RefundPage = () => {
                                                 <td>{item.paymentType}</td>
                                                 <td>{item.paymentNumber}</td>
                                                 <td>{item.name}</td>
-                                                <td>{item.amount}</td>
+                                                <td className="fw-bold text-dark">৳{item.amount}</td>
                                                 <td>
                                                     {item.serviceChargeAmount ? (
-                                                        <span className="fw-bold text-warning">
+                                                        <Badge bg="dark" className="px-2 py-1">
                                                             ৳{item.serviceChargeAmount}
-                                                        </span>
+                                                        </Badge>
                                                     ) : '-'}
                                                 </td>
                                                 <td
@@ -788,6 +837,7 @@ const RefundPage = () => {
                                                     <option value="approved">Approved</option>
                                                     <option value="rejected">Rejected</option>
                                                     <option value="completed">Completed</option>
+                                                    <option value="adjusted">Adjusted</option>
                                                     <option value="cancelled">Cancelled</option>
                                                 </Form.Select>
                                             </Form.Group>
@@ -829,7 +879,7 @@ const RefundPage = () => {
                                         <div style={{ width: '4px', height: '20px', backgroundColor: '#dc3545', borderRadius: '2px', marginRight: '10px' }}></div>
                                         <h6 className="mb-0 fw-bold text-dark" style={{ letterSpacing: '0.5px', fontSize: '0.95rem' }}>ADMIN INFO</h6>
                                     </div>
-                                    <Form.Check 
+                                    <Form.Check
                                         type="switch"
                                         id="admin-info-switch"
                                         label={
@@ -867,34 +917,34 @@ const RefundPage = () => {
                                                     />
                                                 </Form.Group>
                                             </Col>
-                                        <Col md={6}>
-                                            <Form.Group>
-                                                <Form.Label className="text-danger small fw-bold mb-2 text-uppercase">Admin Comment (Optional)</Form.Label>
-                                                <Form.Control
-                                                    as="textarea"
-                                                    rows={2}
-                                                    placeholder="Add any internal admin notes..."
-                                                    className="border shadow-sm p-3"
-                                                    style={{ borderRadius: '12px', fontSize: '0.9rem', backgroundColor: '#fff', borderColor: '#ced4da' }}
-                                                    value={refundData.serviceChargeComment}
-                                                    onChange={(e) => setRefundData({ ...refundData, serviceChargeComment: e.target.value })}
-                                                />
-                                            </Form.Group>
-                                        </Col>
-                                        <Col md={6}>
-                                            <Form.Group>
-                                                <Form.Label className="text-danger small fw-bold mb-2 text-uppercase">Date</Form.Label>
-                                                <Form.Control
-                                                    type="date"
-                                                    className="border shadow-sm p-3"
-                                                    style={{ borderRadius: '12px', fontSize: '0.9rem', backgroundColor: '#fff', borderColor: '#ced4da' }}
-                                                    value={refundData.serviceChargeDate || ''}
-                                                    onChange={(e) => setRefundData({ ...refundData, serviceChargeDate: e.target.value })}
-                                                />
-                                            </Form.Group>
-                                        </Col>
-                                    </Row>
-                                </div>
+                                            <Col md={6}>
+                                                <Form.Group>
+                                                    <Form.Label className="text-danger small fw-bold mb-2 text-uppercase">Admin Comment (Optional)</Form.Label>
+                                                    <Form.Control
+                                                        as="textarea"
+                                                        rows={2}
+                                                        placeholder="Add any internal admin notes..."
+                                                        className="border shadow-sm p-3"
+                                                        style={{ borderRadius: '12px', fontSize: '0.9rem', backgroundColor: '#fff', borderColor: '#ced4da' }}
+                                                        value={refundData.serviceChargeComment}
+                                                        onChange={(e) => setRefundData({ ...refundData, serviceChargeComment: e.target.value })}
+                                                    />
+                                                </Form.Group>
+                                            </Col>
+                                            <Col md={6}>
+                                                <Form.Group>
+                                                    <Form.Label className="text-danger small fw-bold mb-2 text-uppercase">Date</Form.Label>
+                                                    <Form.Control
+                                                        type="date"
+                                                        className="border shadow-sm p-3"
+                                                        style={{ borderRadius: '12px', fontSize: '0.9rem', backgroundColor: '#fff', borderColor: '#ced4da' }}
+                                                        value={refundData.serviceChargeDate || ''}
+                                                        onChange={(e) => setRefundData({ ...refundData, serviceChargeDate: e.target.value })}
+                                                    />
+                                                </Form.Group>
+                                            </Col>
+                                        </Row>
+                                    </div>
                                 )}
                             </div>
                         </Form>
@@ -1000,6 +1050,109 @@ const RefundPage = () => {
                         <Button variant="primary" onClick={performSave} disabled={loading}>
                             {loading ? <Spinner size="sm" /> : "Confirm & Save"}
                         </Button>
+                    </Modal.Footer>
+                </Modal>
+                {/* Service Charge List Modal */}
+                <Modal show={scModalOpen} onHide={() => setScModalOpen(false)} size="xl" centered>
+                    <Modal.Header closeButton className="bg-light">
+                        <Modal.Title className="fw-bold text-dark">
+                            <FaInfoCircle className="me-2 text-info" /> Service Charges (Total: {scTotalRecords})
+                        </Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body style={{ maxHeight: '70vh', overflowY: 'auto' }}>
+                        {/* Summary Cards */}
+                        <div className="d-flex flex-nowrap overflow-auto gap-2 pb-3 mb-3 border-bottom text-center" style={{ scrollbarWidth: 'thin' }}>
+                            {[
+                                { label: 'Today', count: scSummary.today, color: 'primary' },
+                                { label: 'This Week', count: scSummary.week, color: 'info' },
+                                { label: 'This Month', count: scSummary.month, color: 'warning' },
+                                { label: 'Total', count: scSummary.total, color: 'dark' }
+                            ].map((stat, idx) => (
+                                <div key={idx} className={`card p-2 shadow-sm border-${stat.color} flex-fill`} style={{ minWidth: '120px' }}>
+                                    <small className={`text-${stat.color} fw-bold text-nowrap`}>{stat.label}</small>
+                                    <h5 className="mb-0">৳{stat.count}</h5>
+                                </div>
+                            ))}
+                        </div>
+
+                        {/* Search Bar */}
+                        <Row className="mb-3 g-2">
+                            <Col md={5}>
+                                <Form.Control 
+                                    placeholder="Search by Tuition Code" 
+                                    value={scSearch.tuitionCode}
+                                    onChange={(e) => setScSearch(prev => ({ ...prev, tuitionCode: e.target.value }))}
+                                />
+                            </Col>
+                            <Col md={5}>
+                                <Form.Control 
+                                    placeholder="Search by Phone" 
+                                    value={scSearch.phone}
+                                    onChange={(e) => setScSearch(prev => ({ ...prev, phone: e.target.value }))}
+                                />
+                            </Col>
+                            <Col md={2}>
+                                <Button variant="primary" className="w-100" onClick={() => fetchServiceCharges(1)}>
+                                    <FaSearch /> Search
+                                </Button>
+                            </Col>
+                        </Row>
+                        {scLoading ? (
+                            <div className="text-center py-5">
+                                <Spinner animation="border" variant="info" />
+                            </div>
+                        ) : (
+                            <Table responsive hover className="align-middle">
+                                <thead className="table-light">
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Tuition Code</th>
+                                        <th>Amount</th>
+                                        <th>Updated By</th>
+                                        <th>Comment</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {scList.length > 0 ? scList.map(sc => (
+                                        <tr key={sc._id}>
+                                            <td>{sc.date ? new Date(sc.date).toLocaleDateString() : '-'}</td>
+                                            <td><span className="fw-bold text-primary">{sc.tuitionCode || '-'}</span></td>
+                                            <td className="fw-bold text-dark">৳{sc.amount}</td>
+                                            <td>{sc.updatedBy || '-'}</td>
+                                            <td className="small">{sc.comment || '-'}</td>
+                                        </tr>
+                                    )) : (
+                                        <tr>
+                                            <td colSpan="5" className="text-center py-3 text-muted">No service charges found.</td>
+                                        </tr>
+                                    )}
+                                </tbody>
+                            </Table>
+                        )}
+                    </Modal.Body>
+                    <Modal.Footer className="bg-light d-flex justify-content-between">
+                        <div className="d-flex align-items-center gap-2">
+                            <Button 
+                                variant="outline-secondary" 
+                                size="sm"
+                                disabled={scCurrentPage === 1 || scLoading}
+                                onClick={() => fetchServiceCharges(scCurrentPage - 1)}
+                            >
+                                <FaChevronLeft />
+                            </Button>
+                            <span className="small text-muted">
+                                Page {scCurrentPage} of {scTotalPages || 1}
+                            </span>
+                            <Button 
+                                variant="outline-secondary" 
+                                size="sm"
+                                disabled={scCurrentPage >= scTotalPages || scLoading}
+                                onClick={() => fetchServiceCharges(scCurrentPage + 1)}
+                            >
+                                <FaChevronRight />
+                            </Button>
+                        </div>
+                        <Button variant="secondary" onClick={() => setScModalOpen(false)}>Close</Button>
                     </Modal.Footer>
                 </Modal>
 

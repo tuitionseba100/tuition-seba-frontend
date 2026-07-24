@@ -85,6 +85,8 @@ const StatusHistoryReportPage = () => {
         { key: 'paymentCount', label: 'Payment Count' },
         { key: 'premiumFeeAmount', label: 'Premium Teacher Fee' },
         { key: 'premiumFeeCount', label: 'Fee Count' },
+        { key: 'serviceChargeAmount', label: 'Service Charge' },
+        { key: 'serviceChargeCount', label: 'Service Charge Count' },
         { key: 'totalIncome', label: 'Total Income' },
         { key: 'refundAmount', label: 'Refund Amount' },
         { key: 'refundCount', label: 'Refund Count' },
@@ -1468,6 +1470,27 @@ const StatusHistoryReportPage = () => {
                                     </PremiumStatsCard>
                                 </Col>
                                 <Col style={{ minWidth: '200px', flex: '1' }}>
+                                    <PremiumStatsCard className="shadow-sm bg-white border border-info p-2 px-3 rounded-4" style={{ borderWidth: '2px !important' }}>
+                                        <Card.Body className="p-0">
+                                            <div className="d-flex align-items-center gap-3 mb-2">
+                                                <div className="icon-wrapper bg-info bg-opacity-10 text-info rounded-3 p-2 d-flex align-items-center justify-content-center">
+                                                    <FaWallet size={24} />
+                                                </div>
+                                                <div>
+                                                    <span className="text-dark text-uppercase fw-bold tracking-wider" style={{ fontSize: '0.85rem' }}>Service Charge</span>
+                                                    <h2 className="fw-extrabold text-dark mb-0 mt-1" style={{ fontSize: '1.75rem' }}>৳ {overallReportData.totalServiceChargeAmount?.toLocaleString() || 0}</h2>
+                                                </div>
+                                            </div>
+                                            <div style={{ borderTop: '1px solid rgba(0, 0, 0, 0.1)', paddingTop: '6px', marginTop: '6px' }}>
+                                                <div className="d-flex justify-content-between align-items-center">
+                                                    <div className="text-dark text-uppercase fw-bold" style={{ fontSize: '11px' }}>Total Records</div>
+                                                    <div className="fw-bold fs-6 text-info">{overallReportData.totalServiceChargeCount || 0}</div>
+                                                </div>
+                                            </div>
+                                        </Card.Body>
+                                    </PremiumStatsCard>
+                                </Col>
+                                <Col style={{ minWidth: '200px', flex: '1' }}>
                                     <PremiumStatsCard className="shadow-sm bg-white border border-success p-2 px-3 rounded-4" style={{ borderWidth: '2px !important', background: 'linear-gradient(135deg, #f0fdf4, #dcfce7)' }}>
                                         <Card.Body className="p-0">
                                             <div className="d-flex align-items-center gap-3 mb-2">
@@ -1476,12 +1499,12 @@ const StatusHistoryReportPage = () => {
                                                 </div>
                                                 <div>
                                                     <span className="text-dark text-uppercase fw-bold tracking-wider" style={{ fontSize: '0.85rem' }}>Total Income</span>
-                                                    <h2 className="fw-extrabold text-success mb-0 mt-1" style={{ fontSize: '1.75rem' }}>৳ {((overallReportData.totalPaymentAmount || 0) + (overallReportData.totalPremiumFeeAmount || 0)).toLocaleString()}</h2>
+                                                    <h2 className="fw-extrabold text-success mb-0 mt-1" style={{ fontSize: '1.75rem' }}>৳ {((overallReportData.totalPaymentAmount || 0) + (overallReportData.totalPremiumFeeAmount || 0) + (overallReportData.totalServiceChargeAmount || 0)).toLocaleString()}</h2>
                                                 </div>
                                             </div>
                                             <div style={{ borderTop: '1px solid rgba(0, 0, 0, 0.1)', paddingTop: '6px', marginTop: '6px' }}>
                                                 <div className="d-flex justify-content-between align-items-center">
-                                                    <div className="text-dark text-uppercase fw-bold" style={{ fontSize: '11px' }}>Payment + Teacher Fee</div>
+                                                    <div className="text-dark text-uppercase fw-bold" style={{ fontSize: '11px' }}>Payment + Teacher Fee + Service Charge</div>
                                                     <div className="fw-bold fs-6 text-success">-</div>
                                                 </div>
                                             </div>
@@ -1539,7 +1562,7 @@ const StatusHistoryReportPage = () => {
                                                 </div>
                                                 <div>
                                                     <span className="text-dark text-uppercase fw-bold tracking-wider" style={{ fontSize: '0.85rem' }}>Total Balance</span>
-                                                    <h2 className="fw-extrabold text-dark mb-0 mt-1" style={{ fontSize: '1.75rem' }}>৳ {(((overallReportData.totalPaymentAmount || 0) + (overallReportData.totalPremiumFeeAmount || 0)) - (overallReportData.totalExpenseAmount || 0)).toLocaleString()}</h2>
+                                                    <h2 className="fw-extrabold text-dark mb-0 mt-1" style={{ fontSize: '1.75rem' }}>৳ {(((overallReportData.totalPaymentAmount || 0) + (overallReportData.totalPremiumFeeAmount || 0) + (overallReportData.totalServiceChargeAmount || 0)) - (overallReportData.totalExpenseAmount || 0)).toLocaleString()}</h2>
                                                 </div>
                                             </div>
                                             <div style={{ borderTop: '1px solid rgba(0, 0, 0, 0.1)', paddingTop: '6px', marginTop: '6px' }}>
@@ -1667,6 +1690,8 @@ const StatusHistoryReportPage = () => {
                                                         {isColVisible('paymentCount') && <th>Payment Count</th>}
                                                         {isColVisible('premiumFeeAmount') && <th className="text-info">Premium Teacher Fee (৳)</th>}
                                                         {isColVisible('premiumFeeCount') && <th className="text-info">Fee Count</th>}
+                                                        {isColVisible('serviceChargeAmount') && <th className="text-info">Service Charge (৳)</th>}
+                                                        {isColVisible('serviceChargeCount') && <th className="text-info">Charge Count</th>}
                                                         {isColVisible('totalIncome') && <th className="text-success">Total Income (৳)</th>}
                                                         {isColVisible('refundAmount') && <th className="text-danger">Refund Amount (৳)</th>}
                                                         {isColVisible('refundCount') && <th className="text-danger">Refund Count</th>}
@@ -1690,11 +1715,13 @@ const StatusHistoryReportPage = () => {
                                                                 {isColVisible('paymentCount') && <td className="fw-semibold text-success">{row.paymentCount.toLocaleString()}</td>}
                                                                 {isColVisible('premiumFeeAmount') && <td className="fw-semibold text-info">৳ {row.premiumFeeAmount?.toLocaleString() || 0}</td>}
                                                                 {isColVisible('premiumFeeCount') && <td className="fw-semibold text-info">{row.premiumFeeCount?.toLocaleString() || 0}</td>}
-                                                                {isColVisible('totalIncome') && <td className="fw-semibold text-success fw-bold">৳ {((row.paymentAmount || 0) + (row.premiumFeeAmount || 0)).toLocaleString()}</td>}
+                                                                {isColVisible('serviceChargeAmount') && <td className="fw-semibold text-info">৳ {row.serviceChargeAmount?.toLocaleString() || 0}</td>}
+                                                                {isColVisible('serviceChargeCount') && <td className="fw-semibold text-info">{row.serviceChargeCount?.toLocaleString() || 0}</td>}
+                                                                {isColVisible('totalIncome') && <td className="fw-semibold text-success fw-bold">৳ {((row.paymentAmount || 0) + (row.premiumFeeAmount || 0) + (row.serviceChargeAmount || 0)).toLocaleString()}</td>}
                                                                 {isColVisible('refundAmount') && <td className="fw-semibold text-danger">৳ {row.refundAmount?.toLocaleString() || 0}</td>}
                                                                 {isColVisible('refundCount') && <td className="fw-semibold text-danger">{row.refundCount?.toLocaleString() || 0}</td>}
                                                                 {isColVisible('expenseAmount') && <td className="fw-semibold text-warning">৳ {row.expenseAmount?.toLocaleString() || 0}</td>}
-                                                                <td className="fw-semibold text-primary">৳ {(((row.paymentAmount || 0) + (row.premiumFeeAmount || 0)) - (row.expenseAmount || 0)).toLocaleString()}</td>
+                                                                <td className="fw-semibold text-primary">৳ {(((row.paymentAmount || 0) + (row.premiumFeeAmount || 0) + (row.serviceChargeAmount || 0)) - (row.expenseAmount || 0)).toLocaleString()}</td>
                                                             </tr>
                                                         ))
                                                     ) : (

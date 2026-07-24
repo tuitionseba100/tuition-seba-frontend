@@ -243,6 +243,13 @@ const RefundPage = () => {
     };
 
     const handleSaveRequest = () => {
+        if (refundData.isServiceChargeApplicable) {
+            if (!refundData.serviceChargeAmount || String(refundData.serviceChargeAmount).trim() === '' || !refundData.serviceChargeDate) {
+                toast.error("সার্ভিস চার্জ প্রযোজ্য থাকলে অবশ্যই সার্ভিস চার্জের পরিমাণ এবং তারিখ উল্লেখ করতে হবে।");
+                return;
+            }
+        }
+
         if (editingId) {
             const changes = getChanges();
             if (changes.length === 0) {

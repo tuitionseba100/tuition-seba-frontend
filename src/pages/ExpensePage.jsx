@@ -390,6 +390,7 @@ const ExpensePage = () => {
                                         <th>Date & Time</th>
                                         <th>Category</th>
                                         <th>Amount</th>
+                                        <th>Comment</th>
                                         <th>Created By</th>
                                         <th>Updated By</th>
                                         <th>Actions</th>
@@ -411,6 +412,7 @@ const ExpensePage = () => {
                                         <td className="fw-bold text-danger">
                                             ৳{t.amount.toLocaleString()}
                                         </td>
+                                        <td className="small text-muted">{t.note || '-'}</td>
                                         <td className="small">{t.createdBy}</td>
                                         <td className="small">{t.updatedBy || '-'}</td>
                                         <td className="text-end px-4">

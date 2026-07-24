@@ -490,6 +490,7 @@ const RefundPage = () => {
                                         <th>Payment Number</th>
                                         <th>Name</th>
                                         <th>Return Amount</th>
+                                        <th>Service Charge</th>
                                         <th>Return Date</th>
                                         <th>Personal Phone</th>
                                         <th>Comment (Teacher)</th>
@@ -531,6 +532,13 @@ const RefundPage = () => {
                                                 <td>{item.paymentNumber}</td>
                                                 <td>{item.name}</td>
                                                 <td>{item.amount}</td>
+                                                <td>
+                                                    {item.serviceChargeAmount ? (
+                                                        <span className="fw-bold text-warning">
+                                                            ৳{item.serviceChargeAmount}
+                                                        </span>
+                                                    ) : '-'}
+                                                </td>
                                                 <td
                                                     className="fw-bold"
                                                     style={{

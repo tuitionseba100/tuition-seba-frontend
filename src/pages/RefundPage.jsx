@@ -1116,7 +1116,6 @@ const RefundPage = () => {
                                         <th>Tuition Code</th>
                                         <th>Name</th>
                                         <th>Phone</th>
-                                        <th>Payment No.</th>
                                         <th>Amount</th>
                                         <th>Created By</th>
                                         <th>Updated By</th>
@@ -1130,7 +1129,6 @@ const RefundPage = () => {
                                             <td><span className="fw-bold text-primary">{sc.tuitionCode || '-'}</span></td>
                                             <td>{sc.name || '-'}</td>
                                             <td>{sc.personalPhone || '-'}</td>
-                                            <td>{sc.paymentNumber || '-'}</td>
                                             <td className="fw-bold text-dark">৳{sc.amount}</td>
                                             <td>{sc.createdBy || '-'}</td>
                                             <td>{sc.updatedBy || '-'}</td>
@@ -1138,7 +1136,7 @@ const RefundPage = () => {
                                         </tr>
                                     )) : (
                                         <tr>
-                                            <td colSpan="9" className="text-center py-3 text-muted">No service charges found.</td>
+                                            <td colSpan="8" className="text-center py-3 text-muted">No service charges found.</td>
                                         </tr>
                                     )}
                                 </tbody>

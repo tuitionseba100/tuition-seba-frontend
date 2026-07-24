@@ -25,7 +25,11 @@ const RefundPage = () => {
         comment: '',
         status: '',
         commentFromAgent: '',
-        returnDate: ''
+        returnDate: '',
+        isServiceChargeApplicable: false,
+        serviceChargeAmount: '',
+        serviceChargeComment: '',
+        serviceChargeDate: ''
     });
 
     const [teacherSectionEditable, setTeacherSectionEditable] = useState(false);
@@ -62,7 +66,8 @@ const RefundPage = () => {
         approved: 0,
         rejected: 0,
         completed: 0,
-        cancelled: 0
+        cancelled: 0,
+        serviceChargeReceived: 0
     });
 
     const role = localStorage.getItem('role');
@@ -264,7 +269,11 @@ const RefundPage = () => {
             { key: 'note', label: 'Teacher Comment' },
             { key: 'status', label: 'Status' },
             { key: 'returnDate', label: 'Return Date' },
-            { key: 'commentFromAgent', label: 'Agent Comment' }
+            { key: 'commentFromAgent', label: 'Agent Comment' },
+            { key: 'isServiceChargeApplicable', label: 'Service Charge Applicable' },
+            { key: 'serviceChargeAmount', label: 'Service Charge Amount' },
+            { key: 'serviceChargeComment', label: 'Service Charge Comment' },
+            { key: 'serviceChargeDate', label: 'Service Charge Date' }
         ];
 
         fields.forEach(field => {
@@ -299,7 +308,8 @@ const RefundPage = () => {
     const handleEditApply = (data) => {
         const formattedData = {
             ...data,
-            returnDate: data.returnDate ? data.returnDate.split('T')[0] : ''
+            returnDate: data.returnDate ? data.returnDate.split('T')[0] : '',
+            serviceChargeDate: data.serviceChargeDate ? data.serviceChargeDate.split('T')[0] : ''
         };
         setRefundData(formattedData);
         setOriginalData(formattedData);
@@ -320,7 +330,11 @@ const RefundPage = () => {
             comment: '',
             status: 'pending',
             commentFromAgent: '',
-            returnDate: ''
+            returnDate: '',
+            isServiceChargeApplicable: false,
+            serviceChargeAmount: '',
+            serviceChargeComment: '',
+            serviceChargeDate: ''
         });
         setEditingId(null);
         setTeacherSectionEditable(true);
@@ -362,9 +376,10 @@ const RefundPage = () => {
                                 { label: 'Under Review', count: statusCounts.underReview, color: 'info' },
                                 { label: 'Approved', count: statusCounts.approved, color: 'success' },
                                 { label: 'Rejected', count: statusCounts.rejected, color: 'danger' },
-                                { label: 'Completed', count: statusCounts.completed, color: 'success' }
+                                { label: 'Completed', count: statusCounts.completed, color: 'success' },
+                                { label: 'Service Charge', count: `${statusCounts.serviceChargeReceived || 0} TK`, color: 'warning' }
                             ].map((stat, idx) => (
-                                <Col key={idx} xs={6} sm={4} md={2}>
+                                <Col key={idx} xs={6} sm={4} md={3} lg={2}>
                                     <div className={`card p-2 shadow-sm border-${stat.color}`}>
                                         <small className={`text-${stat.color} fw-bold`}>{stat.label}</small>
                                         <h5 className="mb-0">{stat.count}</h5>
@@ -790,6 +805,82 @@ const RefundPage = () => {
                                         </Col>
                                     </Row>
                                 </div>
+                            </div>
+
+                            {/* Admin Info Section */}
+                            <div className="mt-4">
+                                <div className="d-flex align-items-center justify-content-between mb-3">
+                                    <div className="d-flex align-items-center">
+                                        <div style={{ width: '4px', height: '20px', backgroundColor: '#dc3545', borderRadius: '2px', marginRight: '10px' }}></div>
+                                        <h6 className="mb-0 fw-bold text-dark" style={{ letterSpacing: '0.5px', fontSize: '0.95rem' }}>ADMIN INFO</h6>
+                                    </div>
+                                    <Form.Check 
+                                        type="switch"
+                                        id="admin-info-switch"
+                                        label={
+                                            <span>
+                                                Service Charge Applicable:{' '}
+                                                <span className={`fw-bold text-${refundData.isServiceChargeApplicable ? 'success' : 'danger'}`}>
+                                                    {refundData.isServiceChargeApplicable ? 'Yes' : 'No'}
+                                                </span>
+                                            </span>
+                                        }
+                                        checked={refundData.isServiceChargeApplicable}
+                                        onChange={(e) => {
+                                            const isChecked = e.target.checked;
+                                            setRefundData({
+                                                ...refundData,
+                                                isServiceChargeApplicable: isChecked,
+                                                ...(isChecked ? {} : { serviceChargeAmount: '', serviceChargeComment: '', serviceChargeDate: '' })
+                                            });
+                                        }}
+                                    />
+                                </div>
+                                {refundData.isServiceChargeApplicable && (
+                                    <div className="p-4 rounded-3 border shadow-sm" style={{ backgroundColor: '#fff5f5', borderColor: '#ffe6e6' }}>
+                                        <Row className="g-4">
+                                            <Col md={12}>
+                                                <Form.Group>
+                                                    <Form.Label className="text-danger small fw-bold mb-2 text-uppercase">Service Charge Amount</Form.Label>
+                                                    <Form.Control
+                                                        type="number"
+                                                        placeholder="Amount in BDT"
+                                                        className="border shadow-sm p-2 px-3 fw-bold text-danger"
+                                                        style={{ borderRadius: '8px', fontSize: '1rem', backgroundColor: '#fff', borderColor: '#ced4da' }}
+                                                        value={refundData.serviceChargeAmount}
+                                                        onChange={(e) => setRefundData({ ...refundData, serviceChargeAmount: e.target.value })}
+                                                    />
+                                                </Form.Group>
+                                            </Col>
+                                        <Col md={6}>
+                                            <Form.Group>
+                                                <Form.Label className="text-danger small fw-bold mb-2 text-uppercase">Admin Comment (Optional)</Form.Label>
+                                                <Form.Control
+                                                    as="textarea"
+                                                    rows={2}
+                                                    placeholder="Add any internal admin notes..."
+                                                    className="border shadow-sm p-3"
+                                                    style={{ borderRadius: '12px', fontSize: '0.9rem', backgroundColor: '#fff', borderColor: '#ced4da' }}
+                                                    value={refundData.serviceChargeComment}
+                                                    onChange={(e) => setRefundData({ ...refundData, serviceChargeComment: e.target.value })}
+                                                />
+                                            </Form.Group>
+                                        </Col>
+                                        <Col md={6}>
+                                            <Form.Group>
+                                                <Form.Label className="text-danger small fw-bold mb-2 text-uppercase">Date</Form.Label>
+                                                <Form.Control
+                                                    type="date"
+                                                    className="border shadow-sm p-3"
+                                                    style={{ borderRadius: '12px', fontSize: '0.9rem', backgroundColor: '#fff', borderColor: '#ced4da' }}
+                                                    value={refundData.serviceChargeDate || ''}
+                                                    onChange={(e) => setRefundData({ ...refundData, serviceChargeDate: e.target.value })}
+                                                />
+                                            </Form.Group>
+                                        </Col>
+                                    </Row>
+                                </div>
+                                )}
                             </div>
                         </Form>
                     </Modal.Body>

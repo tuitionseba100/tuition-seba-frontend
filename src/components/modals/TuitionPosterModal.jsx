@@ -4,10 +4,87 @@ import html2canvas from 'html2canvas';
 import { toast } from 'react-toastify';
 import { FaDownload, FaTimes, FaGlobe, FaPhoneAlt, FaGooglePlay } from 'react-icons/fa';
 
+if (typeof window !== 'undefined' && window.CanvasRenderingContext2D) {
+    if (!window.CanvasRenderingContext2D.prototype._createPatternPatched) {
+        const origCreatePattern = window.CanvasRenderingContext2D.prototype.createPattern;
+        window.CanvasRenderingContext2D.prototype.createPattern = function (image, repetition) {
+            const w = image ? (image.width || image.naturalWidth || 0) : 0;
+            const h = image ? (image.height || image.naturalHeight || 0) : 0;
+            if (w === 0 || h === 0) {
+                const dummy = document.createElement('canvas');
+                dummy.width = 1;
+                dummy.height = 1;
+                return origCreatePattern.call(this, dummy, repetition || 'repeat');
+            }
+            return origCreatePattern.call(this, image, repetition);
+        };
+        window.CanvasRenderingContext2D.prototype._createPatternPatched = true;
+    }
+}
+
 const LOGO = '/img/TSF LOGO TRANSPARENT.png';
 
+let WHITE_LOGO = null;
+const invertedCache = new Map();
+
+const makeWhiteImageSync = (src, callback) => {
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = () => {
+        try {
+            const w = img.naturalWidth || img.width || 0;
+            const h = img.naturalHeight || img.height || 0;
+            if (w > 0 && h > 0) {
+                const canvas = document.createElement('canvas');
+                canvas.width = w;
+                canvas.height = h;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0);
+                ctx.globalCompositeOperation = 'source-in';
+                ctx.fillStyle = '#ffffff';
+                ctx.fillRect(0, 0, w, h);
+                const dataUrl = canvas.toDataURL('image/png');
+                invertedCache.set(src, dataUrl);
+                if (callback) callback(dataUrl);
+            }
+        } catch (e) {
+            console.error('Error preloading white image:', e);
+        }
+    };
+    img.src = src;
+};
+
+// Preload logo immediately upon module import
+makeWhiteImageSync(LOGO, (url) => { WHITE_LOGO = url; });
+
+const InvertedImage = ({ src, invert = false, alt = '', style = {}, onError, ...props }) => {
+    let finalSrc = src;
+    if (invert && src) {
+        if (src === LOGO && WHITE_LOGO) {
+            finalSrc = WHITE_LOGO;
+        } else if (invertedCache.has(src)) {
+            finalSrc = invertedCache.get(src);
+        } else {
+            makeWhiteImageSync(src);
+        }
+    }
+
+    return (
+        <img
+            src={finalSrc}
+            alt={alt}
+            style={{
+                ...style,
+                filter: (invert && finalSrc === src) ? 'brightness(0) invert(1)' : 'none'
+            }}
+            onError={onError}
+            {...props}
+        />
+    );
+};
+
 const WhatsAppIcon = ({ size = 11, color = '#25D366' }) => (
-    <svg viewBox="0 0 448 512" style={{ width: size, height: size, fill: color, display: 'inline-block', verticalAlign: 'middle', marginLeft: '3px', marginRight: '3px' }}>
+    <svg width={size} height={size} viewBox="0 0 448 512" fill={color} style={{ width: `${size}px`, height: `${size}px`, display: 'inline-block', verticalAlign: 'middle', marginLeft: '3px', marginRight: '3px' }}>
         <path d="M380.9 97.1C339 55.1 283.2 32 223.9 32c-122.4 0-222 99.6-222 222 0 39.1 10.2 77.3 29.6 111L0 480l117.7-30.9c32.4 17.7 68.9 27 106.1 27h.1c122.3 0 224.1-99.6 224.1-222 0-59.3-25.2-115-67.1-157zm-157 341.6c-33.2 0-65.7-8.9-94-25.7l-6.7-4-69.8 18.3L72 359.2l-4.4-7c-18.5-29.4-28.2-63.3-28.2-98.2 0-101.7 82.8-184.5 184.6-184.5 49.3 0 95.6 19.2 130.4 54.1 34.8 34.9 56.2 81.2 56.1 130.5 0 101.8-84.9 184.6-186.6 184.6zm101.2-138.2c-5.5-2.8-32.8-16.2-37.9-18-5.1-1.9-8.8-2.8-12.5 2.8-3.7 5.6-14.3 18-17.6 21.8-3.2 3.7-6.5 4.2-12 1.4-32.6-16.3-54-29.1-75.5-66-5.7-9.8 5.7-9.1 16.3-30.3 1.8-3.7.9-6.9-.5-9.7-1.4-2.8-12.5-30.1-17.1-41.2-4.5-10.8-9.1-9.3-12.5-9.5-3.2-.2-6.9-.2-10.6-.2-3.7 0-9.7 1.4-14.8 6.9-5.1 5.6-19.4 19-19.4 46.3 0 27.3 19.9 53.7 22.6 57.4 2.8 3.7 39.1 59.7 94.8 83.8 35.2 15.2 49 16.5 66.6 13.9 10.7-1.6 32.8-13.4 37.4-26.4 4.6-13 4.6-24.1 3.2-26.4-1.3-2.5-5-3.9-10.5-6.6z" />
     </svg>
 );
@@ -15,7 +92,7 @@ const WhatsAppIcon = ({ size = 11, color = '#25D366' }) => (
 const LogoBlock = ({ invert = false }) => (
 
     <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-        <img src={LOGO} alt="TSF" style={{ height: '28px', objectFit: 'contain', filter: invert ? 'brightness(0) invert(1)' : 'none' }} onError={e => e.target.style.display = 'none'} />
+        <InvertedImage src={LOGO} invert={invert} alt="TSF" style={{ height: '28px', objectFit: 'contain' }} onError={e => e.target.style.display = 'none'} />
         <div style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 800, fontSize: '13px', color: invert ? '#fff' : '#1e3a8a', lineHeight: 1.2 }}>
             <div>Tuition Seba</div>
             <div style={{ opacity: 0.7, fontSize: '10px', letterSpacing: '0.5px' }}>Forum</div>
@@ -449,12 +526,15 @@ const TuitionPosterModal = ({ show, onHide, tuition }) => {
         return () => resizeObserver.disconnect();
     }, [show]);
 
+    const posterRef = useRef(null);
+
     const handleDownload = async () => {
-        if (!downloadRef.current || !tuition) return;
+        const targetEl = posterRef.current || downloadRef.current;
+        if (!targetEl || !tuition) return;
         setDownloading(true);
         try {
             await document.fonts.ready;
-            const canvas = await html2canvas(downloadRef.current, {
+            const canvas = await html2canvas(targetEl, {
                 scale: 3,
                 useCORS: true,
                 allowTaint: true,
@@ -518,7 +598,7 @@ const TuitionPosterModal = ({ show, onHide, tuition }) => {
                         overflow: 'hidden',
                         marginBottom: '10px'
                     }}>
-                        <div style={{
+                        <div ref={posterRef} style={{
                             position: 'absolute',
                             top: 0,
                             left: '50%',
@@ -534,15 +614,6 @@ const TuitionPosterModal = ({ show, onHide, tuition }) => {
                             {selectedTemplate === 'dark' && <DarkNeonTemplate tuition={tuition} />}
                             {selectedTemplate === 'vintage' && <VintageTemplate tuition={tuition} />}
                         </div>
-                    </div>
-                </div>
-
-                {/* Off-screen high-res container */}
-                <div style={{ position: 'absolute', left: '-9999px', top: '-9999px' }}>
-                    <div ref={downloadRef}>
-                        {selectedTemplate === 'modern' && <ModernLightTemplate tuition={tuition} />}
-                        {selectedTemplate === 'dark' && <DarkNeonTemplate tuition={tuition} />}
-                        {selectedTemplate === 'vintage' && <VintageTemplate tuition={tuition} />}
                     </div>
                 </div>
 

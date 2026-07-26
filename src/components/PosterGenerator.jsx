@@ -2,17 +2,104 @@ import React, { useState, useRef, useCallback, useEffect } from 'react';
 import html2canvas from 'html2canvas';
 import { toast } from 'react-toastify';
 
+if (typeof window !== 'undefined' && window.CanvasRenderingContext2D) {
+    if (!window.CanvasRenderingContext2D.prototype._createPatternPatched) {
+        const origCreatePattern = window.CanvasRenderingContext2D.prototype.createPattern;
+        window.CanvasRenderingContext2D.prototype.createPattern = function (image, repetition) {
+            const w = image ? (image.width || image.naturalWidth || 0) : 0;
+            const h = image ? (image.height || image.naturalHeight || 0) : 0;
+            if (w === 0 || h === 0) {
+                const dummy = document.createElement('canvas');
+                dummy.width = 1;
+                dummy.height = 1;
+                return origCreatePattern.call(this, dummy, repetition || 'repeat');
+            }
+            return origCreatePattern.call(this, image, repetition);
+        };
+        window.CanvasRenderingContext2D.prototype._createPatternPatched = true;
+    }
+}
+
 const LOGO = '/img/TSF LOGO TRANSPARENT.png';
 
+let WHITE_LOGO = null;
+let WHITE_SIGNATURE = null;
+const invertedCache = new Map();
+
+const makeWhiteImageSync = (src, callback) => {
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = () => {
+        try {
+            const w = img.naturalWidth || img.width || 0;
+            const h = img.naturalHeight || img.height || 0;
+            if (w > 0 && h > 0) {
+                const canvas = document.createElement('canvas');
+                canvas.width = w;
+                canvas.height = h;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0);
+                ctx.globalCompositeOperation = 'source-in';
+                ctx.fillStyle = '#ffffff';
+                ctx.fillRect(0, 0, w, h);
+                const dataUrl = canvas.toDataURL('image/png');
+                invertedCache.set(src, dataUrl);
+                if (callback) callback(dataUrl);
+            }
+        } catch (e) {
+            console.error('Error preloading white image:', e);
+        }
+    };
+    img.src = src;
+};
+
+// Preload common poster graphics immediately upon module import
+makeWhiteImageSync(LOGO, (url) => { WHITE_LOGO = url; });
+makeWhiteImageSync('/signature.png?v=1.0.5', (url) => { WHITE_SIGNATURE = url; });
+
+const InvertedImage = ({ src, invert = false, alt = '', style = {}, onError, ...props }) => {
+    let finalSrc = src;
+    if (invert && src) {
+        if (src === LOGO && WHITE_LOGO) {
+            finalSrc = WHITE_LOGO;
+        } else if (src.includes('signature') && WHITE_SIGNATURE) {
+            finalSrc = WHITE_SIGNATURE;
+        } else if (invertedCache.has(src)) {
+            finalSrc = invertedCache.get(src);
+        } else {
+            makeWhiteImageSync(src);
+        }
+    }
+
+    return (
+        <img
+            src={finalSrc}
+            alt={alt}
+            style={{
+                ...style,
+                filter: (invert && finalSrc === src) ? 'brightness(0) invert(1)' : 'none'
+            }}
+            onError={onError}
+            {...props}
+        />
+    );
+};
+
+const PhoneIcon = ({ size = 11, color = '#25D366' }) => (
+    <svg width={size} height={size} viewBox="0 0 512 512" fill={color} style={{ width: `${size}px`, height: `${size}px`, display: 'inline-block', verticalAlign: 'middle', marginLeft: '3px', marginRight: '3px' }}>
+        <path d="M164.9 24.6c-7.7-18.6-28-28.5-47.4-23.2l-88 24C12.1 30.2 0 46 0 64C0 311.4 200.6 512 448 512c18 0 33.8-12.1 38.6-29.5l24-88c5.3-19.4-4.6-39.7-23.2-47.4l-96-40c-16.3-6.8-35.2-2.1-46.3 11.6L304.7 368C234.3 334.7 177.3 277.7 144 207.3L193.3 167c13.7-11.2 18.4-30 11.6-46.3l-40-96z"/>
+    </svg>
+);
+
 const WhatsAppIcon = ({ size = 11, color = '#25D366' }) => (
-    <svg viewBox="0 0 448 512" style={{ width: size, height: size, fill: color, display: 'inline-block', verticalAlign: 'middle', marginLeft: '3px', marginRight: '3px' }}>
+    <svg width={size} height={size} viewBox="0 0 448 512" fill={color} style={{ width: `${size}px`, height: `${size}px`, display: 'inline-block', verticalAlign: 'middle', marginLeft: '3px', marginRight: '3px' }}>
         <path d="M380.9 97.1C339 55.1 283.2 32 223.9 32c-122.4 0-222 99.6-222 222 0 39.1 10.2 77.3 29.6 111L0 480l117.7-30.9c32.4 17.7 68.9 27 106.1 27h.1c122.3 0 224.1-99.6 224.1-222 0-59.3-25.2-115-67.1-157zm-157 341.6c-33.2 0-65.7-8.9-94-25.7l-6.7-4-69.8 18.3L72 359.2l-4.4-7c-18.5-29.4-28.2-63.3-28.2-98.2 0-101.7 82.8-184.5 184.6-184.5 49.3 0 95.6 19.2 130.4 54.1 34.8 34.9 56.2 81.2 56.1 130.5 0 101.8-84.9 184.6-186.6 184.6zm101.2-138.2c-5.5-2.8-32.8-16.2-37.9-18-5.1-1.9-8.8-2.8-12.5 2.8-3.7 5.6-14.3 18-17.6 21.8-3.2 3.7-6.5 4.2-12 1.4-32.6-16.3-54-29.1-75.5-66-5.7-9.8 5.7-9.1 16.3-30.3 1.8-3.7.9-6.9-.5-9.7-1.4-2.8-12.5-30.1-17.1-41.2-4.5-10.8-9.1-9.3-12.5-9.5-3.2-.2-6.9-.2-10.6-.2-3.7 0-9.7 1.4-14.8 6.9-5.1 5.6-19.4 19-19.4 46.3 0 27.3 19.9 53.7 22.6 57.4 2.8 3.7 39.1 59.7 94.8 83.8 35.2 15.2 49 16.5 66.6 13.9 10.7-1.6 32.8-13.4 37.4-26.4 4.6-13 4.6-24.1 3.2-26.4-1.3-2.5-5-3.9-10.5-6.6z"/>
     </svg>
 );
 
 const LogoBlock = ({ size = 26, invert = false, color = '#1a1a1a' }) => (
     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-        <img src={LOGO} alt="TSF" style={{ height: `${size}px`, objectFit: 'contain', filter: invert ? 'brightness(0) invert(1)' : 'none' }} onError={e => e.target.style.display = 'none'} />
+        <InvertedImage src={LOGO} invert={invert} alt="TSF" style={{ height: `${size}px`, objectFit: 'contain' }} onError={e => e.target.style.display = 'none'} />
         <div style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 700, fontSize: '11px', color, lineHeight: 1.2 }}>
             <div>Tuition Seba</div>
             <div style={{ opacity: 0.65, fontSize: '9px', letterSpacing: '0.5px' }}>Forum</div>
@@ -26,14 +113,14 @@ const SignatureBlock = ({ name, color = '#1a3c70', invert = false }) => {
     if (isDefault) {
         return (
             <div style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', height: '22px', overflow: 'visible' }}>
-                <img 
+                <InvertedImage 
                     src="/signature.png?v=1.0.5" 
+                    invert={invert}
                     alt="Signature" 
                     style={{ 
                         height: '35px', 
                         objectFit: 'contain',
-                        marginTop: '-5px',
-                        filter: invert ? 'brightness(0) invert(1)' : 'none'
+                        marginTop: '-5px'
                     }} 
                 />
             </div>
@@ -141,14 +228,14 @@ const WatermarkBlock = ({ invert = false }) => (
         zIndex: 0,
         userSelect: 'none'
     }}>
-        <img 
+        <InvertedImage 
             src="/img/TSF LOGO TRANSPARENT.png" 
+            invert={invert}
             alt="" 
             style={{ 
                 width: '180px', 
                 height: '180px', 
                 objectFit: 'contain',
-                filter: invert ? 'brightness(0) invert(1)' : 'none',
                 marginBottom: '10px'
             }} 
         />
@@ -766,7 +853,7 @@ const PremiumHeader = ({ invert = false, accentColor = '#d97706' }) => {
                 border: `1.5px solid ${invert ? 'rgba(255,255,255,0.15)' : 'rgba(79,70,229,0.15)'}`, 
                 boxShadow: '0 8px 24px rgba(0,0,0,0.12)' 
             }}>
-                <img src={LOGO} alt="TSF Logo" style={{ height: 32, objectFit: 'contain', filter: invert ? 'brightness(0) invert(1)' : 'none' }} />
+                <InvertedImage src={LOGO} invert={invert} alt="TSF Logo" style={{ height: 32, objectFit: 'contain' }} />
                 <div style={{ width: 1.5, height: 26, background: invert ? 'rgba(255,255,255,0.25)' : 'rgba(79,70,229,0.25)' }} />
                 <div style={{ textAlign: 'left' }}>
                     <div style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 900, fontSize: 15, color: textColor, letterSpacing: '0.6px', textTransform: 'uppercase', lineHeight: 1 }}>Tuition Seba</div>
@@ -820,9 +907,9 @@ const WT1RoyalWelcome = ({ data }) => {
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', paddingTop: 44, position: 'relative', zIndex: 2 }}>
                 <PremiumHeader invert={true} accentColor={accentColor} />
                 <div style={{ marginTop: 22, display: 'flex', alignItems: 'center', gap: 12 }}>
-                    <div style={{ width: 50, height: 1, background: `linear-gradient(90deg, transparent, ${accentColor})` }} />
+                    <div style={{ width: 50, height: 2, backgroundColor: accentColor, opacity: 0.6 }} />
                     <span style={{ fontSize: 11, color: accentColor, textTransform: 'uppercase', letterSpacing: 6, fontWeight: 900 }}>Welcome</span>
-                    <div style={{ width: 50, height: 1, background: `linear-gradient(90deg, ${accentColor}, transparent)` }} />
+                    <div style={{ width: 50, height: 2, backgroundColor: accentColor, opacity: 0.6 }} />
                 </div>
                 <h1 style={{ margin: '6px 0 0', fontSize: 34, fontWeight: 950, color: '#fff', letterSpacing: '2px', textTransform: 'uppercase', textShadow: '0 4px 20px rgba(251,191,36,0.4)', fontFamily: 'Poppins' }}>OUR NEW TEACHER</h1>
             </div>
@@ -919,7 +1006,7 @@ const WT2ModernCreative = ({ data }) => {
 
             {/* Welcome banner text */}
             <div style={{ textAlign: 'center', marginTop: 18, position: 'relative', zIndex: 2 }}>
-                <h1 style={{ margin: 0, fontSize: 52, fontWeight: 950, background: `linear-gradient(135deg, #1e1b4b 20%, ${primaryColor} 60%, ${accentColor} 100%)`, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', letterSpacing: '-1.8px', textTransform: 'uppercase', lineHeight: 1 }}>WELCOME</h1>
+                <h1 style={{ margin: 0, fontSize: 52, fontWeight: 950, color: '#312e81', letterSpacing: '-1.8px', textTransform: 'uppercase', lineHeight: 1 }}>WELCOME</h1>
                 <div style={{ fontSize: 14, color: primaryColor, fontWeight: 800, letterSpacing: 4, marginTop: 6, textTransform: 'uppercase' }}>OUR NEW TEACHER</div>
             </div>
 
@@ -1283,9 +1370,9 @@ const WT6EmeraldGold = ({ data }) => {
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', paddingTop: 45, position: 'relative', zIndex: 2 }}>
                 <PremiumHeader invert={true} accentColor="#fbbf24" />
                 <div style={{ marginTop: 22, display: 'flex', alignItems: 'center', gap: 10 }}>
-                    <div style={{ width: 40, height: 1, background: 'linear-gradient(90deg, transparent, #fbbf24)' }} />
+                    <div style={{ width: 40, height: 2, backgroundColor: '#fbbf24', opacity: 0.6 }} />
                     <span style={{ fontSize: 12, color: '#fbbf24', textTransform: 'uppercase', letterSpacing: 5, fontWeight: 800 }}>Welcome New Member</span>
-                    <div style={{ width: 40, height: 1, background: 'linear-gradient(90deg, #fbbf24, transparent)' }} />
+                    <div style={{ width: 40, height: 2, backgroundColor: '#fbbf24', opacity: 0.6 }} />
                 </div>
                 <h1 style={{ margin: '6px 0 0', fontSize: 32, fontWeight: 950, color: '#fff', letterSpacing: '1px', textTransform: 'uppercase', textShadow: '0 4px 12px rgba(0,0,0,0.5)' }}>WELCOME OUR NEW TEACHER</h1>
             </div>
@@ -1748,9 +1835,160 @@ const WT8GalleryExhibition = ({ data }) => {
             {/* Footer Bar */}
             <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: '18px 36px', borderTop: '1px solid rgba(255,255,255,0.06)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(3, 0, 30, 0.95)', zIndex: 5 }}>
                 <span style={{ fontSize: 10.5, color: 'rgba(255,255,255,0.4)', fontWeight: 600 }}>{tagline}</span>
-                <span style={{ fontSize: 12.5, fontWeight: 800, color: '#00f2fe', display: 'inline-flex', alignItems: 'center', gap: '3px' }}>
-                    <span>☎</span>
+                <span style={{ fontSize: 12.5, fontWeight: 800, color: '#00f2fe', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                    <PhoneIcon size={12} color="#00f2fe" />
                     <WhatsAppIcon size={12} color="#00f2fe" />
+                    <span>{helpline}</span>
+                </span>
+            </div>
+        </div>
+    );
+};
+
+/* ══════════════════════════════════════════════════
+   WELCOME TEACHER — 9: MAGAZINE EDITORIAL SHOWCASE
+   High-end editorial fashion magazine layout, arch photo frame, warm cream & royal indigo accent
+   ══════════════════════════════════════════════════ */
+const WT9UniqueMagazine = ({ data }) => {
+    const { teacherName, designation, university, welcomeMessage, teacherImage, helpline, tagline, imageZoom = 1, imageOffsetX = 0, imageOffsetY = 0, imageRotate = 0 } = data;
+    return (
+        <div style={{ width: 600, height: 780, background: '#fdfbf7', position: 'relative', overflow: 'hidden', fontFamily: "'Hind Siliguri', 'Poppins', sans-serif" }}>
+            <WatermarkBlock invert={false} />
+            
+            {/* Top Angled Royal Indigo Banner */}
+            <div style={{ 
+                position: 'absolute', 
+                top: 0, 
+                left: 0, 
+                right: 0, 
+                height: 380, 
+                background: 'linear-gradient(135deg, #0f172a 0%, #1e1b4b 60%, #312e81 100%)',
+                clipPath: 'polygon(0 0, 100% 0, 100% 82%, 0 100%)',
+                zIndex: 1
+            }} />
+
+            {/* Glowing Golden Ambient Rays */}
+            <div style={{ position: 'absolute', top: '-10%', right: '-10%', width: 350, height: 350, borderRadius: '50%', background: 'radial-gradient(circle, rgba(251,191,36,0.15) 0%, transparent 70%)', filter: 'blur(30px)', zIndex: 1, pointerEvents: 'none' }} />
+
+            {/* Floating Editorial Header */}
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', paddingTop: 28, position: 'relative', zIndex: 3 }}>
+                {/* Magazine Sub-header Tag */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
+                    <div style={{ width: 30, height: 2, backgroundColor: '#fbbf24' }} />
+                    <span style={{ fontSize: 10.5, fontWeight: 900, color: '#fbbf24', letterSpacing: '3px', textTransform: 'uppercase', fontFamily: 'Poppins' }}>SPECIAL ANNOUNCEMENT</span>
+                    <div style={{ width: 30, height: 2, backgroundColor: '#fbbf24' }} />
+                </div>
+
+                <PremiumHeader invert={true} accentColor="#fbbf24" />
+
+                <h1 style={{ 
+                    margin: '12px 0 0', 
+                    fontSize: 29, 
+                    fontWeight: 950, 
+                    color: '#ffffff', 
+                    letterSpacing: '1.5px', 
+                    textTransform: 'uppercase',
+                    textShadow: '0 4px 14px rgba(0,0,0,0.5)',
+                    fontFamily: 'Poppins, sans-serif'
+                }}>
+                    WELCOME OUR NEW TEACHER
+                </h1>
+            </div>
+
+            {/* Arch Photo Card & Teacher Details Flex Container */}
+            <div style={{ display: 'flex', padding: '24px 36px 0', gap: 24, alignItems: 'center', position: 'relative', zIndex: 3 }}>
+                {/* Left Side: Curved Arch Portrait Card */}
+                <div style={{ position: 'relative', width: 200, flexShrink: 0 }}>
+                    <div style={{ 
+                        width: 200, 
+                        height: 245, 
+                        borderRadius: '100px 100px 18px 18px', 
+                        overflow: 'hidden', 
+                        border: '4px solid #ffffff',
+                        boxShadow: '0 20px 40px rgba(15,23,42,0.35)',
+                        background: '#0f172a'
+                    }}>
+                        {teacherImage ? (
+                            <img 
+                                src={teacherImage} 
+                                alt={teacherName} 
+                                style={{ 
+                                    width: '100%', 
+                                    height: '100%', 
+                                    objectFit: 'cover',
+                                    transform: `scale(${imageZoom}) translate(${imageOffsetX}px, ${imageOffsetY}px) rotate(${imageRotate}deg)`,
+                                    transformOrigin: 'center center'
+                                }} 
+                            />
+                        ) : (
+                            <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fbbf24', fontSize: 60 }}>👤</div>
+                        )}
+                    </div>
+
+                    {/* Verified Gold Badge Stamp */}
+                    <div style={{ position: 'absolute', bottom: -12, right: -10, transform: 'scale(1.05)' }}>
+                        <VerifiedStamp theme="gold" />
+                    </div>
+                </div>
+
+                {/* Right Side: Teacher Credentials Card */}
+                <div style={{ flex: 1, paddingTop: 30 }}>
+                    <div style={{ fontSize: 24, fontWeight: 950, color: '#ffffff', letterSpacing: '-0.3px', lineHeight: 1.2, textShadow: '0 2px 8px rgba(0,0,0,0.4)' }}>
+                        {teacherName}
+                    </div>
+                    
+                    <div style={{ marginTop: 10, display: 'inline-block', background: 'linear-gradient(135deg, #fbbf24, #d97706)', borderRadius: 8, padding: '4px 14px', fontSize: 11, fontWeight: 900, color: '#0f172a', textTransform: 'uppercase', letterSpacing: '0.8px', boxShadow: '0 4px 12px rgba(245,158,11,0.3)' }}>
+                        {designation}
+                    </div>
+                    
+                    <div style={{ fontSize: 12.5, color: '#475569', fontWeight: 700, marginTop: 12 }}>
+                        🏛️ {university}
+                    </div>
+
+                    {/* Trust Badges */}
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginTop: 12 }}>
+                        <span style={{ background: '#f1f5f9', border: '1px solid #cbd5e1', borderRadius: 12, padding: '3px 9px', fontSize: 9.5, fontWeight: 800, color: '#334155' }}>✓ Verified Tutor</span>
+                        <span style={{ background: '#f1f5f9', border: '1px solid #cbd5e1', borderRadius: 12, padding: '3px 9px', fontSize: 9.5, fontWeight: 800, color: '#334155' }}>⭐ Top Rated</span>
+                    </div>
+                </div>
+            </div>
+
+            {/* Editorial Quote Card */}
+            <div style={{ padding: '0 36px', marginTop: 22, position: 'relative', zIndex: 3 }}>
+                <div style={{ 
+                    background: '#ffffff', 
+                    border: '1.5px solid #e2e8f0', 
+                    borderRadius: 22, 
+                    padding: '20px 26px', 
+                    position: 'relative',
+                    boxShadow: '0 12px 30px rgba(15,23,42,0.06)'
+                }}>
+                    {/* Big Decorative Serif Quote */}
+                    <div style={{ position: 'absolute', top: -20, left: 24, fontSize: 50, color: '#fbbf24', fontFamily: 'Georgia, serif', lineHeight: 1, pointerEvents: 'none' }}>“</div>
+                    
+                    <p style={{ margin: 0, fontSize: 14, lineHeight: 1.85, color: '#334155', fontStyle: 'italic', fontWeight: 500, paddingTop: 4, textAlign: 'justify' }}>
+                        "{welcomeMessage}"
+                    </p>
+                </div>
+            </div>
+
+            {/* High-Contrast Bottom Contact Bar */}
+            <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: '16px 36px', borderTop: '2px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#ffffff', zIndex: 5 }}>
+                <span style={{ fontSize: 10.5, color: '#64748b', fontWeight: 600 }}>{tagline}</span>
+                <span style={{ 
+                    fontSize: 12.5, 
+                    fontWeight: 900, 
+                    color: '#ffffff', 
+                    display: 'inline-flex', 
+                    alignItems: 'center', 
+                    gap: '5px', 
+                    background: 'linear-gradient(135deg, #1e1b4b, #312e81)', 
+                    padding: '7px 18px', 
+                    borderRadius: 24, 
+                    boxShadow: '0 4px 14px rgba(49,46,129,0.3)' 
+                }}>
+                    <PhoneIcon size={12} color="#ffffff" />
+                    <WhatsAppIcon size={12} color="#ffffff" />
                     <span>{helpline}</span>
                 </span>
             </div>
@@ -1832,11 +2070,12 @@ const PosterGenerator = () => {
     }, []);
 
     const download = async () => {
-        if (!downloadRef.current) return;
+        const targetEl = posterRef.current || downloadRef.current;
+        if (!targetEl) return;
         setDownloading(true);
         try {
             await document.fonts.ready;
-            const rawCanvas = await html2canvas(downloadRef.current, {
+            const rawCanvas = await html2canvas(targetEl, {
                 scale: 3,
                 useCORS: true,
                 allowTaint: true,
@@ -1893,7 +2132,7 @@ const PosterGenerator = () => {
 
     const gTplNames = { 1: 'Midnight Gold', 2: 'Light Editorial', 3: 'Navy Card', 4: 'Warm Minimal', 5: 'Modern Colorful' };
     const tTplNames = { 1: 'Professional Split', 2: 'Award Elegant', 3: 'Modern Dark', 4: 'Natural Sage', 5: 'Vibrant Mesh' };
-    const wtTplNames = { 1: 'Royal Welcome', 2: 'Modern Creative', 3: 'Minimalist Editorial', 4: 'Floral Fiesta', 5: 'Lady Teacher Pink', 6: 'Emerald Gold', 7: 'Classroom Design', 8: '3D Gallery Wall' };
+    const wtTplNames = { 1: 'Royal Welcome', 2: 'Modern Creative', 3: 'Minimalist Editorial', 4: 'Floral Fiesta', 5: 'Lady Teacher Pink', 6: 'Emerald Gold', 7: 'Classroom Design', 8: '3D Gallery Wall', 9: 'Magazine Editorial Showcase' };
 
     const activeTpl = category === 'guardian' ? gTpl : (category === 'teacher' ? tTpl : wtTpl);
     const setActiveTpl = category === 'guardian' ? setGTpl : (category === 'teacher' ? setTTpl : setWtTpl);
@@ -2083,6 +2322,7 @@ const PosterGenerator = () => {
                                     {category === 'welcome_teacher' && wtTpl === 6 && <WT6EmeraldGold data={wtData} />}
                                     {category === 'welcome_teacher' && wtTpl === 7 && <WT7ClassroomChalkboard data={wtData} />}
                                     {category === 'welcome_teacher' && wtTpl === 8 && <WT8GalleryExhibition data={wtData} />}
+                                    {category === 'welcome_teacher' && wtTpl === 9 && <WT9UniqueMagazine data={wtData} />}
                                 </div>
                             </div>
                         </div>
@@ -2091,29 +2331,7 @@ const PosterGenerator = () => {
                 </div>
             </div>
 
-            {/* Hidden export element to guarantee 100% exact full-size rendering for download */}
-            <div style={{ position: 'absolute', left: '-9999px', top: '-9999px' }}>
-                <div ref={downloadRef} style={{ width: 600, height: targetHeight, overflow: 'hidden' }}>
-                    {category === 'guardian' && gTpl === 1 && <G1MidnightGold data={gData} />}
-                    {category === 'guardian' && gTpl === 2 && <G2LightEditorial data={gData} />}
-                    {category === 'guardian' && gTpl === 3 && <G3NavyCard data={gData} />}
-                    {category === 'guardian' && gTpl === 4 && <G4WarmMinimal data={gData} />}
-                    {category === 'guardian' && gTpl === 5 && <G5ModernColorful data={gData} />}
-                    {category === 'teacher' && tTpl === 1 && <T1ProfessionalSplit data={tData} />}
-                    {category === 'teacher' && tTpl === 2 && <T2AwardElegant data={tData} />}
-                    {category === 'teacher' && tTpl === 3 && <T3ModernDark data={tData} />}
-                    {category === 'teacher' && tTpl === 4 && <T4NaturalSage data={tData} />}
-                    {category === 'teacher' && tTpl === 5 && <T5VibrantMesh data={tData} />}
-                    {category === 'welcome_teacher' && wtTpl === 1 && <WT1RoyalWelcome data={wtData} />}
-                    {category === 'welcome_teacher' && wtTpl === 2 && <WT2ModernCreative data={wtData} />}
-                    {category === 'welcome_teacher' && wtTpl === 3 && <WT3MinimalistEditorial data={wtData} />}
-                    {category === 'welcome_teacher' && wtTpl === 4 && <WT4FloralFiesta data={wtData} />}
-                    {category === 'welcome_teacher' && wtTpl === 5 && <WT5PinkLady data={wtData} />}
-                    {category === 'welcome_teacher' && wtTpl === 6 && <WT6EmeraldGold data={wtData} />}
-                    {category === 'welcome_teacher' && wtTpl === 7 && <WT7ClassroomChalkboard data={wtData} />}
-                    {category === 'welcome_teacher' && wtTpl === 8 && <WT8GalleryExhibition data={wtData} />}
-                </div>
-            </div>
+
 
             <style>{`
                 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&family=Hind+Siliguri:wght@400;600;700&family=Great+Vibes&family=Herr+Von+Muellerhoff&family=Cabin+Sketch:wght@700&display=swap');

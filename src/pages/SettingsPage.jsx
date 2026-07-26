@@ -18,7 +18,8 @@ const SettingsPage = () => {
         payment_auto_assign_user: [],
         tuition_auto_assign_user: [],
         status_change_auto_assign_user: [],
-        cancel_status_change_auto_assign_user: []
+        cancel_status_change_auto_assign_user: [],
+        guardian_no_response_status_change_auto_assign_user: []
     });
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
@@ -55,7 +56,8 @@ const SettingsPage = () => {
         payment_auto_assign_user: [],
         tuition_auto_assign_user: [],
         status_change_auto_assign_user: [],
-        cancel_status_change_auto_assign_user: []
+        cancel_status_change_auto_assign_user: [],
+        guardian_no_response_status_change_auto_assign_user: []
     });
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [cityAreaSearch, setCityAreaSearch] = useState(''); // Global search string for cities/areas
@@ -85,7 +87,8 @@ const SettingsPage = () => {
                 payment_auto_assign_user: [],
                 tuition_auto_assign_user: [],
                 status_change_auto_assign_user: [],
-                cancel_status_change_auto_assign_user: []
+                cancel_status_change_auto_assign_user: [],
+                guardian_no_response_status_change_auto_assign_user: []
             };
 
             settingsData.forEach(s => {
@@ -557,7 +560,8 @@ const SettingsPage = () => {
         'payment_auto_assign_user',
         'tuition_auto_assign_user',
         'status_change_auto_assign_user',
-        'cancel_status_change_auto_assign_user'
+        'cancel_status_change_auto_assign_user',
+        'guardian_no_response_status_change_auto_assign_user'
     ];
 
     // Create a base list from allSettings that are personnel assignments
@@ -582,7 +586,8 @@ const SettingsPage = () => {
             'payment_auto_assign_user': 1,
             'tuition_auto_assign_user': 2,
             'status_change_auto_assign_user': 3,
-            'cancel_status_change_auto_assign_user': 4
+            'cancel_status_change_auto_assign_user': 4,
+            'guardian_no_response_status_change_auto_assign_user': 5
         };
         const orderA = order[a.key] || 99;
         const orderB = order[b.key] || 99;
@@ -706,9 +711,9 @@ const SettingsPage = () => {
                                         <p className="mb-0 opacity-80 extra-small">Control system automation and personnel assignments</p>
                                     </div>
                                     <div className="card-body p-3 bg-white">
-                                        <div className="row g-3">
+                                        <div className="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-xl-5 g-3">
                                             {/* Payment Auto Assign */}
-                                            <div className="col-12 col-md-6 col-lg-3">
+                                            <div className="col">
                                                 <div className="bg-white p-3 rounded-4 shadow-sm border-start border-primary border-4 h-100">
                                                     <div className="d-flex align-items-center mb-3">
                                                         <div className="bg-primary-subtle text-primary p-2 rounded-circle me-3">
@@ -780,7 +785,7 @@ const SettingsPage = () => {
                                             </div>
 
                                             {/* Tuition Auto Assign */}
-                                            <div className="col-12 col-md-6 col-lg-3">
+                                            <div className="col">
                                                 <div className="bg-white p-3 rounded-4 shadow-sm border-start border-success border-4 h-100">
                                                     <div className="d-flex align-items-center mb-3">
                                                         <div className="bg-success-subtle text-success p-2 rounded-circle me-3">
@@ -852,7 +857,7 @@ const SettingsPage = () => {
                                             </div>
 
                                             {/* Status Change Auto Assign */}
-                                            <div className="col-12 col-md-6 col-lg-3">
+                                            <div className="col">
                                                 <div className="bg-white p-3 rounded-4 shadow-sm border-start border-warning border-4 h-100">
                                                     <div className="d-flex align-items-center mb-3">
                                                         <div className="bg-warning-subtle text-warning p-2 rounded-circle me-3">
@@ -924,7 +929,7 @@ const SettingsPage = () => {
                                             </div>
 
                                             {/* Cancel Status Change Auto Assign */}
-                                            <div className="col-12 col-md-6 col-lg-3">
+                                            <div className="col">
                                                 <div className="bg-white p-3 rounded-4 shadow-sm border-start border-danger border-4 h-100">
                                                     <div className="d-flex align-items-center mb-3">
                                                         <div className="bg-danger-subtle text-danger p-2 rounded-circle me-3">
@@ -994,6 +999,78 @@ const SettingsPage = () => {
                                                     </button>
                                                 </div>
                                             </div>
+
+                                            {/* Guardian No Response Status Change Auto Assign */}
+                                            <div className="col">
+                                                <div className="bg-white p-3 rounded-4 shadow-sm border-start border-info border-4 h-100">
+                                                    <div className="d-flex align-items-center mb-3">
+                                                        <div className="bg-info-subtle text-info p-2 rounded-circle me-3">
+                                                            <i className="fas fa-phone-slash"></i>
+                                                        </div>
+                                                        <div>
+                                                            <h5 className="mb-0 fw-bold" style={{ fontSize: '0.85rem' }}>Guardian No Response</h5>
+                                                            <p className="text-muted extra-small mb-0" style={{ fontSize: '0.65rem', lineHeight: '1.2' }}>Tuition status change to Guardian No response</p>
+                                                        </div>
+                                                    </div>
+                                                    <Select
+                                                        className="mb-3 shadow-sm"
+                                                        classNamePrefix="select"
+                                                        isMulti
+                                                        value={userOptions.filter(opt => (selectedAssignments.guardian_no_response_status_change_auto_assign_user || []).includes(opt.value))}
+                                                        onChange={(selected) => handleChange('guardian_no_response_status_change_auto_assign_user', selected ? selected.map(opt => opt.value) : [])}
+                                                        options={userOptions}
+                                                        placeholder="Add personnel..."
+                                                        isClearable
+                                                        isDisabled={isSaving}
+                                                        menuPosition="fixed"
+                                                        styles={{
+                                                            control: (base, state) => ({
+                                                                ...base,
+                                                                border: '2px solid #f1f5f9',
+                                                                backgroundColor: 'white',
+                                                                borderRadius: '0.75rem',
+                                                                padding: '2px',
+                                                                minHeight: 'auto',
+                                                                boxShadow: state.isFocused ? '0 0 0 0.25rem rgba(13, 202, 240, 0.1)' : 'none',
+                                                                borderColor: state.isFocused ? '#0dcaf0' : '#f1f5f9',
+                                                                '&:hover': {
+                                                                    borderColor: '#0dcaf0'
+                                                                }
+                                                            }),
+                                                            multiValue: (base) => ({
+                                                                ...base,
+                                                                backgroundColor: '#cff4fc',
+                                                                borderRadius: '6px',
+                                                                padding: '2px 4px'
+                                                            }),
+                                                            multiValueLabel: (base) => ({
+                                                                ...base,
+                                                                color: '#055160',
+                                                                fontWeight: '600',
+                                                                fontSize: '0.75rem'
+                                                            }),
+                                                            multiValueRemove: (base) => ({
+                                                                ...base,
+                                                                color: '#055160',
+                                                                '&:hover': {
+                                                                    backgroundColor: '#055160',
+                                                                    color: 'white',
+                                                                    borderRadius: '4px'
+                                                                }
+                                                            })
+                                                        }}
+                                                    />
+                                                    <button
+                                                        className="btn w-100 rounded-3 shadow-sm hover-lift text-white fw-bold py-2 mt-auto d-flex align-items-center justify-content-center"
+                                                        style={{ background: 'linear-gradient(to right, #0dcaf0, #0bacbe)', border: 'none', fontSize: '0.85rem' }}
+                                                        onClick={() => handleSaveSetting('guardian_no_response_status_change_auto_assign_user')}
+                                                        disabled={isSaving}
+                                                    >
+                                                        {isSaving ? <span className="spinner-border spinner-border-sm me-2"></span> : <i className="fas fa-user-plus me-2"></i>}
+                                                        Update Assignment
+                                                    </button>
+                                                </div>
+                                            </div>
                                         </div>
 
                                     </div>
@@ -1044,7 +1121,9 @@ const SettingsPage = () => {
                                                                             ? 'Tuition status change auto assign user (Given Number, Guardian Meet, Demo class Running)'
                                                                             : s.key === 'cancel_status_change_auto_assign_user'
                                                                                 ? 'Tuition status change auto assign user (Cancel)'
-                                                                                : s.key.replace(/_/g, ' ')}
+                                                                                : s.key === 'guardian_no_response_status_change_auto_assign_user'
+                                                                                    ? 'Tuition status change auto assign user (Guardian No response)'
+                                                                                    : s.key.replace(/_/g, ' ')}
                                                                     </span>
                                                                 </div>
                                                             </td>

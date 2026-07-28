@@ -38,6 +38,7 @@ const fieldConfig = [
     { name: 'comment1', label: 'Cancel Teacher 1', group: 'admin', col: 6, type: 'text' },
     { name: 'comment2', label: 'Cancel Teacher 2', group: 'admin', col: 6, type: 'text' },
     { name: 'tuitionCancelReason', label: 'Tuition Cancel Reason', group: 'admin', col: 6, type: 'text' },
+    { name: 'tuitionCancelReasonPublic', label: 'Tuition Cancel Reason Public', group: 'admin', col: 6, type: 'text' },
     { name: 'guardianBehavior', label: 'Guardian Behavior', group: 'admin', col: 6, type: 'text' },
     { name: 'agentComment', label: 'Agent Comment', group: 'admin', col: 12, type: 'text' },
 
@@ -205,6 +206,60 @@ export default function TuitionDetailsModal({ show, onHide, detailsData }) {
                         </Row>
                     </div>
                 ))}
+                {/* Confirmation Follow-up History */}
+                {(detailsData?.status === 'confirm' || (detailsData?.confirmationFollowUps && detailsData.confirmationFollowUps.length > 0)) && (
+                    <div
+                        className="mb-5 p-3 rounded"
+                        style={{
+                            backgroundColor: '#fff3cd',
+                            border: '1px solid rgba(255, 193, 7, 0.4)',
+                            boxShadow: '0 0 10px rgba(255, 193, 7, 0.05)',
+                        }}
+                    >
+                        <h5
+                            className="mb-4 text-capitalize fw-semibold"
+                            style={{ borderBottom: '2px solid rgba(255, 193, 7, 0.8)', paddingBottom: '0.5rem', color: '#856404' }}
+                        >
+                            Confirmation Follow-up History
+                        </h5>
+                        {(!detailsData.confirmationFollowUps || detailsData.confirmationFollowUps.length === 0) ? (
+                            <div className="text-muted text-center py-3">No confirmation follow-ups logged yet.</div>
+                        ) : (
+                            <div className="table-responsive">
+                                <table className="table table-striped table-bordered table-hover mb-0 bg-white">
+                                    <thead className="table-dark">
+                                        <tr>
+                                            <th>SL</th>
+                                            <th>Last Follow-up Date</th>
+                                            <th>Last Follow-up Comment</th>
+                                            <th>Next Follow-up Date</th>
+                                            <th>Next Follow-up Comment</th>
+                                            <th>Guardian Feedback</th>
+                                            <th>Created By</th>
+                                            <th>Created At</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {detailsData.confirmationFollowUps.map((followUp, idx) => (
+                                            <tr key={followUp._id || idx}>
+                                                <td>{idx + 1}</td>
+                                                <td>{formatDateTimeDisplay(followUp.lastFollowUpDate)}</td>
+                                                <td>{followUp.lastFollowUpComment || '-'}</td>
+                                                <td>{formatDateTimeDisplay(followUp.nextFollowUpDate)}</td>
+                                                <td>{followUp.nextFollowUpComment || '-'}</td>
+                                                <td>{followUp.guardianFeedback || '-'}</td>
+                                                <td>
+                                                    <span className="badge bg-secondary">{followUp.createdBy || '-'}</span>
+                                                </td>
+                                                <td>{formatDateTimeDisplay(followUp.createdAt)}</td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        )}
+                    </div>
+                )}
             </Modal.Body>
 
             <Modal.Footer

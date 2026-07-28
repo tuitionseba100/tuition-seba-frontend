@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Button, Table, Modal, Form, Row, Col, Card, Tooltip, OverlayTrigger, Badge } from 'react-bootstrap';
-import { FaEdit, FaTrashAlt, FaWhatsapp, FaChevronLeft, FaChevronRight, FaGlobe, FaInfoCircle, FaBell, FaSearch, FaUndo, FaUserPlus, FaFileImage } from 'react-icons/fa';
+import { FaEdit, FaTrashAlt, FaWhatsapp, FaChevronLeft, FaChevronRight, FaGlobe, FaInfoCircle, FaBell, FaSearch, FaUndo, FaUserPlus, FaFileImage, FaHistory } from 'react-icons/fa';
 import Select from 'react-select';
 import { axiosWithFallback as axios } from '../services/fetchWithFallback';
 import NavBarPage from './NavbarPage';
@@ -15,6 +15,7 @@ import AppliedListModal from '../components/modals/TuitionApplyListModal';
 import TuitionAssignModal from '../components/modals/TuitionAssignModal';
 import SocialPostModal from '../components/modals/SocialPostModal';
 import TuitionPosterModal from '../components/modals/TuitionPosterModal';
+import ConfirmationFollowUpModal from '../components/modals/ConfirmationFollowUpModal';
 import locationData from '../data/locations.json';
 
 const TuitionPage = () => {
@@ -85,8 +86,10 @@ const TuitionPage = () => {
     const [detailsData, setDetailsData] = useState(null);
     const [tuitionNeedsUpdateList, setTuitionNeedsUpdateList] = useState([]);
     const [tuitionNeedsPaymentCreation, setTuitionNeedsPaymentCreation] = useState([]);
+    const [guardianFollowUpList, setGuardianFollowUpList] = useState([]);
     const [showUpdateListModal, setShowUpdateListModal] = useState(false);
     const [showPaymentPendingModal, setShowPaymentPendingModal] = useState(false);
+    const [showGuardianFollowUpModal, setShowGuardianFollowUpModal] = useState(false);
 
     const [showAppliedModal, setShowAppliedModal] = useState(false);
     const [selectedTuitionId, setSelectedTuitionId] = useState(null);
@@ -102,6 +105,13 @@ const TuitionPage = () => {
     const [selectedMigrationIds, setSelectedMigrationIds] = useState([]);
     const [showPosterModal, setShowPosterModal] = useState(false);
     const [selectedPosterTuition, setSelectedPosterTuition] = useState(null);
+    const [showFollowUpModal, setShowFollowUpModal] = useState(false);
+    const [selectedFollowUpTuition, setSelectedFollowUpTuition] = useState(null);
+
+    const handleShowFollowUp = React.useCallback((tuition) => {
+        setSelectedFollowUpTuition(tuition);
+        setShowFollowUpModal(true);
+    }, []);
 
     const handleGeneratePoster = React.useCallback((tuition) => {
         setSelectedPosterTuition(tuition);
@@ -200,13 +210,15 @@ const TuitionPage = () => {
                 alertParams.assignedTo = currentUsername;
             }
 
-            const [alertRes, pendingRes] = await Promise.all([
+            const [alertRes, pendingRes, guardianRes] = await Promise.all([
                 axios.get('https://tuition-seba-backend-1.onrender.com/api/tuition/alert-today', { params: alertParams }),
-                axios.get('https://tuition-seba-backend-1.onrender.com/api/tuition/pending-payment-creation')
+                axios.get('https://tuition-seba-backend-1.onrender.com/api/tuition/pending-payment-creation'),
+                axios.get('https://tuition-seba-backend-1.onrender.com/api/tuition/guardian-followup-today', { params: alertParams })
             ]);
 
             setTuitionNeedsUpdateList(alertRes.data);
             setTuitionNeedsPaymentCreation(pendingRes.data);
+            setGuardianFollowUpList(guardianRes.data);
         } catch (err) {
             console.error('Error fetching tuition data:', err);
             toast.error("Failed to load tuition data.");
@@ -869,6 +881,18 @@ const TuitionPage = () => {
                             </Button>
                         </OverlayTrigger>
                     </h5>
+                    <h5 className="me-3 d-flex align-items-center gap-2">
+                        <FaBell className="text-primary" />
+                        <span>Guardian Follow Up Today: {guardianFollowUpList.length}</span>
+                        <OverlayTrigger
+                            placement="top"
+                            overlay={<Tooltip id="tooltip">Click to see list</Tooltip>}
+                        >
+                            <Button size="sm" onClick={() => setShowGuardianFollowUpModal(true)} className="ms-2">
+                                <FaInfoCircle />
+                            </Button>
+                        </OverlayTrigger>
+                    </h5>
                 </div>
 
                 {role === "superadmin" && (
@@ -901,6 +925,7 @@ const TuitionPage = () => {
                                 spamStyle={spamStyle}
                                 bestStyle={bestStyle}
                                 handleShowStatusHistory={handleShowStatusHistory}
+                                handleShowFollowUp={handleShowFollowUp}
                             />
 
                         </div>
@@ -1266,6 +1291,21 @@ const TuitionPage = () => {
                     detailsData={detailsData}
                 />
 
+                <ConfirmationFollowUpModal
+                    show={showFollowUpModal}
+                    onHide={() => {
+                        setShowFollowUpModal(false);
+                        setSelectedFollowUpTuition(null);
+                    }}
+                    tuition={selectedFollowUpTuition}
+                    onUpdateSuccess={(updatedTuition) => {
+                        setTuitionList(prev => prev.map(t => t._id === updatedTuition._id ? updatedTuition : t));
+                        setFilteredTuitionList(prev => prev.map(t => t._id === updatedTuition._id ? updatedTuition : t));
+                        setSelectedFollowUpTuition(updatedTuition);
+                        fetchAlertData();
+                    }}
+                />
+
                 <AppliedListModal
                     tuitionId={selectedTuitionId}
                     tuitionCode={selectedTuitionCode}
@@ -1348,6 +1388,82 @@ const TuitionPage = () => {
                     onHide={() => setShowPosterModal(false)}
                     tuition={selectedPosterTuition}
                 />
+
+                <Modal
+                    show={showGuardianFollowUpModal}
+                    onHide={() => setShowGuardianFollowUpModal(false)}
+                    size="xl"
+                    dialogClassName="modal-initial-size"
+                >
+                    <Modal.Header closeButton className="bg-primary text-white">
+                        <Modal.Title className="flex-grow-1 text-center fw-bold">
+                            <FaBell className="text-warning" />
+                            <span className="ms-2">
+                                Guardian Follow Up Today: {guardianFollowUpList.length}
+                            </span>
+                        </Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body className="p-0 bg-light">
+                        {guardianFollowUpList.length > 0 ? (
+                            <div className="table-responsive" style={{ maxHeight: 'calc(100vh - 200px)', overflowY: 'auto' }}>
+                                <table className="table table-striped table-bordered table-hover mb-0">
+                                    <thead className="bg-dark text-white text-center sticky-header">
+                                        <tr>
+                                            <th>SL</th>
+                                            <th>Tuition Code</th>
+                                            <th>Guardian Number</th>
+                                            <th>Teacher Number</th>
+                                            <th>Last Follow-up Date</th>
+                                            <th>Last Guardian Feedback</th>
+                                            <th>Follow-up Agenda (আজ যা জিজ্ঞাসা করতে হবে)</th>
+                                            <th>Scheduled Date</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {guardianFollowUpList.map((t, idx) => {
+                                            const latest = t.confirmationFollowUps && t.confirmationFollowUps.length > 0
+                                                ? t.confirmationFollowUps[t.confirmationFollowUps.length - 1]
+                                                : {};
+                                            return (
+                                                <tr key={t._id} className="align-middle text-center">
+                                                    <td>{idx + 1}</td>
+                                                    <td>{t.tuitionCode}</td>
+                                                    <td>{t.guardianNumber || '-'}</td>
+                                                    <td>{t.tutorNumber || '-'}</td>
+                                                    <td>{formatDateTimeDisplay(latest.lastFollowUpDate)}</td>
+                                                    <td className="text-start">{latest.guardianFeedback || '-'}</td>
+                                                    <td className="text-start">{latest.nextFollowUpComment || '-'}</td>
+                                                    <td>{formatDateTimeDisplay(latest.nextFollowUpDate)}</td>
+                                                    <td>
+                                                        <div className="d-flex justify-content-center gap-2">
+                                                            <Button variant="info" size="sm" onClick={() => handleShowDetails(t)} title="View Details">
+                                                                <FaInfoCircle />
+                                                            </Button>
+                                                            <Button variant="primary" size="sm" onClick={() => {
+                                                                setShowGuardianFollowUpModal(false);
+                                                                handleShowFollowUp(t);
+                                                            }} title="Log Follow-up">
+                                                                <FaHistory /> Log Follow-up
+                                                            </Button>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            );
+                                        })}
+                                    </tbody>
+                                </table>
+                            </div>
+                        ) : (
+                            <div className="text-center text-muted py-5">
+                                <h5>No guardian follow-ups scheduled for today.</h5>
+                            </div>
+                        )}
+                    </Modal.Body>
+                    <Modal.Footer>
+                        <Button variant="secondary" onClick={() => setShowGuardianFollowUpModal(false)}>Close</Button>
+                    </Modal.Footer>
+                </Modal>
 
                 {/* Status History Timeline Modal */}
                 <Modal show={showStatusHistoryModal} onHide={() => setShowStatusHistoryModal(false)} centered>
@@ -1463,7 +1579,8 @@ const MemoizedTuitionTable = React.memo(({
     handleGeneratePoster,
     spamStyle,
     bestStyle,
-    handleShowStatusHistory
+    handleShowStatusHistory,
+    handleShowFollowUp
 }) => {
     return (
         <Table striped bordered hover responsive="lg">
@@ -1661,6 +1778,11 @@ const MemoizedTuitionTable = React.memo(({
                                 <Button variant="secondary" style={{ background: 'linear-gradient(45deg, #4f46e5, #7c3aed)', border: 'none' }} onClick={() => handleGeneratePoster(tuition)} title="Generate Poster">
                                     <FaFileImage />
                                 </Button>
+                                {tuition.status?.toLowerCase() === 'confirm' && (
+                                    <Button variant="primary" style={{ background: 'linear-gradient(45deg, #0284c7, #0369a1)', border: 'none' }} onClick={() => handleShowFollowUp(tuition)} title="Confirmation Follow-up History">
+                                        <FaHistory />
+                                    </Button>
+                                )}
                             </td>
                         </tr>
                     ))

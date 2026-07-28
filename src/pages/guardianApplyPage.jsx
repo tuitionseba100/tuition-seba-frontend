@@ -3,7 +3,6 @@ import { Button, Table, Modal, Form, Row, Col, Card, Nav } from 'react-bootstrap
 import { FaEdit, FaTrashAlt, FaSearch, FaChevronLeft, FaChevronRight, FaBell, FaInfoCircle, FaUserPlus } from 'react-icons/fa';
 import { axiosWithFallback as axios } from '../services/fetchWithFallback';
 import NavBarPage from './NavbarPage';
-import SavedGuardiansTab from '../components/SavedGuardiansTab';
 import styled from 'styled-components';
 import { ToastContainer, toast } from 'react-toastify';
 import { Spinner } from 'react-bootstrap';
@@ -54,8 +53,6 @@ const GuardianApplyPage = () => {
     const [dueTodayList, setDueTodayList] = useState([]);
     const [showDueModal, setShowDueModal] = useState(false);
     const [loadingDueToday, setLoadingDueToday] = useState(false);
-
-    const [activeTab, setActiveTab] = useState('applies'); // 'applies' | 'existing'
 
 
     const statusOptions = [
@@ -403,75 +400,33 @@ const GuardianApplyPage = () => {
 
                 <Header>
                     <h2 className='text-primary fw-bold'>
-                        {activeTab === 'applies' ? 'Guardian Apply Dashboard' : 'Saved Guardians Dashboard'}
+                        Guardian Apply Dashboard
                     </h2>
-                    {activeTab === 'applies' && (
-                        <Button
-                            variant="primary"
-                            onClick={() => {
-                                setShowModal(true);
-                                setEditingId(null);
-                                setFormErrors({});
-                                setTuitionData({
-                                    name: '',
-                                    phone: '',
-                                    address: '',
-                                    studentClass: '',
-                                    teacherGender: '',
-                                    characteristics: '',
-                                    status: '',
-                                    comment: '',
-                                    nextUpdateDate: '',
-                                    referPersonPhone: '',
-                                    referStatus: '',
-                                    referComment: '',
-                                });
-                            }}
-                        >
-                            Create Apply Record
-                        </Button>
-                    )}
+                    <Button
+                        variant="primary"
+                        onClick={() => {
+                            setShowModal(true);
+                            setEditingId(null);
+                            setFormErrors({});
+                            setTuitionData({
+                                name: '',
+                                phone: '',
+                                address: '',
+                                studentClass: '',
+                                teacherGender: '',
+                                characteristics: '',
+                                status: '',
+                                comment: '',
+                                nextUpdateDate: '',
+                                referPersonPhone: '',
+                                referStatus: '',
+                                referComment: '',
+                            });
+                        }}
+                    >
+                        Create Apply Record
+                    </Button>
                 </Header>
-
-                <Nav variant="tabs" activeKey={activeTab} onSelect={(k) => setActiveTab(k)} className="border-0 mb-4 d-flex gap-2">
-                    <Nav.Item>
-                        <Nav.Link 
-                            eventKey="applies"
-                            style={{
-                                border: 'none',
-                                borderBottom: activeTab === 'applies' ? '4px solid #0d6efd' : '4px solid transparent',
-                                color: activeTab === 'applies' ? '#0d6efd' : '#6c757d',
-                                fontWeight: '700',
-                                padding: '10px 15px',
-                                background: 'transparent',
-                                transition: 'all 0.2s'
-                            }}
-                        >
-                            📋 Guardian Applies
-                        </Nav.Link>
-                    </Nav.Item>
-                    {role === 'superadmin' && (
-                        <Nav.Item>
-                            <Nav.Link 
-                                eventKey="existing"
-                                style={{
-                                    border: 'none',
-                                    borderBottom: activeTab === 'existing' ? '4px solid #0d6efd' : '4px solid transparent',
-                                    color: activeTab === 'existing' ? '#0d6efd' : '#6c757d',
-                                    fontWeight: '700',
-                                    padding: '10px 15px',
-                                    background: 'transparent',
-                                    transition: 'all 0.2s'
-                                }}
-                            >
-                                👥 Saved Guardians
-                            </Nav.Link>
-                        </Nav.Item>
-                    )}
-                </Nav>
-
-                {activeTab === 'applies' && (
-                    <>
                 <Card className="mt-4">
                     <Card.Body>
                         <div className="row text-center">
@@ -853,13 +808,6 @@ const GuardianApplyPage = () => {
                         </div>
                     </Card.Body>
                 </Card>
-                </>
-                )}
-
-                {activeTab === 'existing' && (
-                    <SavedGuardiansTab />
-                )}
-
                 {/* Create/Edit Guardian Apply Modal */}
                 <style>{`
                     .guardian-modal .form-control:focus,

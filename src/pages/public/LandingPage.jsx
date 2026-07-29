@@ -24,9 +24,9 @@ const SmallComplaintBanner = () => {
                         আপনার কোনো অভিযোগ বা পরামর্শ থাকলে আমাদের জানান!
                     </span>
                 </div>
-                <Button 
-                    variant="danger" 
-                    size="sm" 
+                <Button
+                    variant="danger"
+                    size="sm"
                     className="rounded-pill px-3 fw-bold shadow-sm"
                     onClick={() => navigate('/complaint-suggestion')}
                     style={{ fontSize: '13px' }}
@@ -55,5 +55,5 @@ const LandingPage = () => {
         </>
     );
 };
-
+//updaets
 export default LandingPage;

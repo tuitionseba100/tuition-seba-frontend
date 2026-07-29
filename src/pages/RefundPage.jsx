@@ -8,6 +8,8 @@ import { ToastContainer, toast } from 'react-toastify';
 import * as XLSX from 'xlsx';
 import Select from 'react-select';
 import WhatsAppRefundModal from '../components/modals/WhatsAppRefundModal';
+import WhatsAppServiceChargeModal from '../components/modals/WhatsAppServiceChargeModal';
+
 
 const RefundPage = () => {
     const [refundList, setRefundList] = useState([]);
@@ -91,6 +93,16 @@ const RefundPage = () => {
         setWhatsAppRefund(refund);
         setShowWhatsAppModal(true);
     };
+
+    // WhatsApp service charge modal state
+    const [showWhatsAppScModal, setShowWhatsAppScModal] = useState(false);
+    const [whatsAppSc, setWhatsAppSc] = useState(null);
+
+    const handleOpenWhatsAppSc = (sc) => {
+        setWhatsAppSc(sc);
+        setShowWhatsAppScModal(true);
+    };
+
 
     const fetchRefundApplyRecords = useCallback(async (page = 1, filters = appliedFilters) => {
         setLoading(true);
@@ -964,6 +976,13 @@ const RefundPage = () => {
                     refundData={whatsAppRefund}
                 />
 
+                <WhatsAppServiceChargeModal
+                    show={showWhatsAppScModal}
+                    onHide={() => setShowWhatsAppScModal(false)}
+                    scData={whatsAppSc}
+                />
+
+
                 {/* Refunds Due Today Modal */}
                 <Modal show={showDueTodayModal} onHide={() => setShowDueTodayModal(false)} centered size="xl">
                     <Modal.Header closeButton className="bg-warning text-dark border-0">
@@ -1127,6 +1146,7 @@ const RefundPage = () => {
                                         <th>Created By</th>
                                         <th>Updated By</th>
                                         <th>Comment</th>
+                                        <th className="text-center">Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -1140,10 +1160,16 @@ const RefundPage = () => {
                                             <td>{sc.createdBy || '-'}</td>
                                             <td>{sc.updatedBy || '-'}</td>
                                             <td className="small">{sc.comment || '-'}</td>
+                                            <td className="text-center">
+                                                <Button variant="success" size="sm" onClick={() => handleOpenWhatsAppSc(sc)}>
+                                                    <FaWhatsapp />
+                                                </Button>
+                                            </td>
                                         </tr>
+
                                     )) : (
                                         <tr>
-                                            <td colSpan="8" className="text-center py-3 text-muted">No service charges found.</td>
+                                            <td colSpan="9" className="text-center py-3 text-muted">No service charges found.</td>
                                         </tr>
                                     )}
                                 </tbody>

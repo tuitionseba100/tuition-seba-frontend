@@ -110,7 +110,7 @@ const TuitionSection = () => {
     const totalPages = Math.ceil(filtered.length / itemsPerPage) || 1;
     const indexOfLast = currentPage * itemsPerPage;
     const indexOfFirst = indexOfLast - itemsPerPage;
-    const currentTuitions = filtered.slice().reverse().slice(indexOfFirst, indexOfLast);
+    const currentTuitions = filtered.slice(indexOfFirst, indexOfLast);
 
     const getPaginationGroup = () => {
         let start = Math.floor((currentPage - 1) / maxPageButtons) * maxPageButtons;

@@ -264,7 +264,7 @@ const TuitionSection = () => {
                             <p className="mt-3 text-primary fw-semibold">Loading tuitions, please wait...</p>
                         </div>
                     ) : filtered.length > 0 ? (
-                        filtered.slice().reverse().map((tuition, idx) => (
+                        filtered.map((tuition, idx) => (
                             <div key={idx} className="col-md-4 mb-3">
                                 <TuitionCard tuition={tuition} />
                             </div>

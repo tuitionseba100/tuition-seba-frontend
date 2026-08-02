@@ -25,6 +25,7 @@ const LOGO = '/img/TSF LOGO TRANSPARENT.png';
 let WHITE_LOGO = null;
 let WHITE_SIGNATURE = null;
 const invertedCache = new Map();
+const originalCache = new Map();
 
 const makeWhiteImageSync = (src, callback) => {
     const img = new Image();
@@ -39,6 +40,12 @@ const makeWhiteImageSync = (src, callback) => {
                 canvas.height = h;
                 const ctx = canvas.getContext('2d');
                 ctx.drawImage(img, 0, 0);
+
+                // Cache the original base64
+                const originalDataUrl = canvas.toDataURL('image/png');
+                originalCache.set(src, originalDataUrl);
+
+                // Now make white version
                 ctx.globalCompositeOperation = 'source-in';
                 ctx.fillStyle = '#ffffff';
                 ctx.fillRect(0, 0, w, h);
@@ -59,15 +66,23 @@ makeWhiteImageSync('/signature.png?v=1.0.5', (url) => { WHITE_SIGNATURE = url; }
 
 const InvertedImage = ({ src, invert = false, alt = '', style = {}, onError, ...props }) => {
     let finalSrc = src;
-    if (invert && src) {
-        if (src === LOGO && WHITE_LOGO) {
-            finalSrc = WHITE_LOGO;
-        } else if (src.includes('signature') && WHITE_SIGNATURE) {
-            finalSrc = WHITE_SIGNATURE;
-        } else if (invertedCache.has(src)) {
-            finalSrc = invertedCache.get(src);
+    if (src) {
+        if (invert) {
+            if (src === LOGO && WHITE_LOGO) {
+                finalSrc = WHITE_LOGO;
+            } else if (src.includes('signature') && WHITE_SIGNATURE) {
+                finalSrc = WHITE_SIGNATURE;
+            } else if (invertedCache.has(src)) {
+                finalSrc = invertedCache.get(src);
+            } else {
+                makeWhiteImageSync(src);
+            }
         } else {
-            makeWhiteImageSync(src);
+            if (originalCache.has(src)) {
+                finalSrc = originalCache.get(src);
+            } else {
+                makeWhiteImageSync(src);
+            }
         }
     }
 
@@ -75,11 +90,9 @@ const InvertedImage = ({ src, invert = false, alt = '', style = {}, onError, ...
         <img
             src={finalSrc}
             alt={alt}
-            style={{
-                ...style,
-                filter: (invert && finalSrc === src) ? 'brightness(0) invert(1)' : 'none'
-            }}
+            style={style}
             onError={onError}
+            crossOrigin="anonymous"
             {...props}
         />
     );
@@ -897,9 +910,7 @@ const G6TuitionSebaForumStandard = ({ data }) => {
 
             {/* Logo Block (Top Left) */}
             <div style={{ position: 'absolute', top: '30px', left: '35px', zIndex: 3 }}>
-                <img src="/img/TSF LOGO TRANSPARENT.png" alt="TSF Logo" style={{ height: '40px', objectFit: 'contain', filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.03))' }} onError={e => {
-                    e.target.src = "/img/TSF LOGO.png";
-                }} />
+                <InvertedImage src={LOGO} invert={false} style={{ height: '40px', objectFit: 'contain' }} />
             </div>
 
             {/* 3D Offset Card (Blue background card with premium gradient) */}
@@ -1058,7 +1069,6 @@ const G6TuitionSebaForumStandard = ({ data }) => {
                     padding: '6px 14px',
                     display: 'inline-flex',
                     alignItems: 'center',
-                    gap: '8px',
                     color: '#ffffff',
                     fontFamily: "'Poppins', sans-serif",
                     boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
@@ -1069,7 +1079,7 @@ const G6TuitionSebaForumStandard = ({ data }) => {
                     height: '38px',
                     boxSizing: 'border-box'
                 }}>
-                    <svg viewBox="0 0 512 512" style={{ width: '18px', height: '18px', display: 'block', flexShrink: 0 }}>
+                    <svg width="18" height="18" viewBox="0 0 512 512" style={{ display: 'block', flexShrink: 0, marginRight: '8px' }}>
                         <path d="M325.3 234.3L104.6 13l280.8 161.2-60.1 60.1z" fill="#ea4335" />
                         <path d="M26 24L325.3 234.3l-60.1 60.1L26 24z" fill="#fbbc05" />
                         <path d="M26 488V24l239.2 270.4L26 488z" fill="#4285f4" />
@@ -1215,9 +1225,7 @@ const G7SplitEditorial = ({ data }) => {
 
             {/* Logo Block (Top Left) */}
             <div style={{ position: 'absolute', top: '30px', left: '35px', zIndex: 3 }}>
-                <img src="/img/TSF LOGO TRANSPARENT.png" alt="TSF Logo" style={{ height: '40px', objectFit: 'contain' }} onError={e => {
-                    e.target.src = "/img/TSF LOGO.png";
-                }} />
+                <InvertedImage src={LOGO} invert={false} style={{ height: '40px', objectFit: 'contain' }} />
             </div>
 
             {/* 3D Offset Card (Blue background card offset to the left and bottom) */}
@@ -1378,7 +1386,6 @@ const G7SplitEditorial = ({ data }) => {
                     padding: '6px 14px',
                     display: 'inline-flex',
                     alignItems: 'center',
-                    gap: '8px',
                     color: '#ffffff',
                     fontFamily: "'Poppins', sans-serif",
                     boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
@@ -1389,7 +1396,7 @@ const G7SplitEditorial = ({ data }) => {
                     height: '38px',
                     boxSizing: 'border-box'
                 }}>
-                    <svg viewBox="0 0 512 512" style={{ width: '18px', height: '18px', display: 'block', flexShrink: 0 }}>
+                    <svg width="18" height="18" viewBox="0 0 512 512" style={{ display: 'block', flexShrink: 0, marginRight: '8px' }}>
                         <path d="M325.3 234.3L104.6 13l280.8 161.2-60.1 60.1z" fill="#ea4335" />
                         <path d="M26 24L325.3 234.3l-60.1 60.1L26 24z" fill="#fbbc05" />
                         <path d="M26 488V24l239.2 270.4L26 488z" fill="#4285f4" />

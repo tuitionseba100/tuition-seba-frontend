@@ -229,14 +229,6 @@ export default function AdminChatConsole() {
                       Phone: <strong>{activePhone}</strong> | Code: <strong>{activePremiumCode}</strong>
                     </small>
                   </div>
-                  <div className="d-flex align-items-center gap-3">
-                    <Badge bg={isJoined ? 'success' : 'warning'} className="px-3 py-2 fs-7 d-flex align-items-center gap-1">
-                      {isJoined ? 'Agent Active' : 'Support Bot'}
-                    </Badge>
-                    <Button variant={isJoined ? 'outline-success' : 'primary'} size="sm" onClick={joinRoomAsAgent} disabled={isJoined}>
-                      {isJoined ? 'Connected' : 'Join Chat'}
-                    </Button>
-                  </div>
                 </div>
 
                 {/* Messages Feed */}

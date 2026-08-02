@@ -102,6 +102,7 @@ const NavbarComponent = () => {
         { label: 'Live Chat', to: '/livechat' },
     ];
 
+    //icons
     const iconLinks = [
         {
             href: 'https://facebook.com/groups/1003753066957594/',
@@ -298,7 +299,7 @@ const NavbarComponent = () => {
                                     {icon}
                                 </Nav.Link>
                             ))}
-                            
+
                             <Nav.Link
                                 as={NavLink}
                                 to="/apply-updates"

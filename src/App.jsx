@@ -106,6 +106,7 @@ import ReferPage from './pages/public/ReferPage';
 import ComplaintSuggestionPage from './pages/public/ComplaintSuggestionPage';
 import ComplaintSuggestionAdminPage from './pages/ComplaintSuggestionAdminPage';
 import AdminChatConsole from './pages/AdminChatConsole';
+import LiveChatPage from './pages/public/LiveChatPage';
 
 const AppRedirect = () => {
   React.useEffect(() => {
@@ -130,6 +131,7 @@ const App = () => {
         <Route path="/refer" element={<ReferPage />} />
         <Route path="/apply-updates" element={<ApplyUpdates />} />
         <Route path="/complaint-suggestion" element={<ComplaintSuggestionPage />} />
+        <Route path="/livechat" element={<LiveChatPage />} />
         <Route path="/admin/login" element={<Loginpage />} />
         <Route path="/app" element={<AppRedirect />} />
 

@@ -22,6 +22,7 @@ export default function AdminChatConsole() {
   const [input, setInput] = useState('');
   const [memberTyping, setMemberTyping] = useState(false);
   const [loadingHistory, setLoadingHistory] = useState(false);
+  const [hasMore, setHasMore] = useState(false);
 
   const messagesEndRef = useRef(null);
   const typingTimeoutRef = useRef(null);
@@ -102,17 +103,36 @@ export default function AdminChatConsole() {
         headers: { Authorization: token }
       });
 
-      // Load History
-      const res = await axios.get(`${BASE_URL}/api/chat/history/${phone}`, {
+      // Load History (Initial load limit = 20)
+      const res = await axios.get(`${BASE_URL}/api/chat/history/${phone}?limit=20`, {
         headers: { Authorization: token }
       });
       setMessages(res.data);
+      setHasMore(res.data.length === 20);
       loadSessions();
     } catch (err) {
       console.error('Error loading history:', err);
       toast.error('Failed to load chat history.');
     } finally {
       setLoadingHistory(false);
+    }
+  };
+
+  const loadMoreMessages = async () => {
+    if (messages.length === 0 || !activePhone) return;
+    const firstMsgTimestamp = messages[0].createdAt;
+    try {
+      const res = await axios.get(`${BASE_URL}/api/chat/history/${activePhone}?before=${firstMsgTimestamp}&limit=20`, {
+        headers: { Authorization: token }
+      });
+      if (res.data.length > 0) {
+        setMessages((prev) => [...res.data, ...prev]);
+        setHasMore(res.data.length === 20);
+      } else {
+        setHasMore(false);
+      }
+    } catch (err) {
+      console.error('Error loading more messages:', err);
     }
   };
 
@@ -236,6 +256,11 @@ export default function AdminChatConsole() {
 
                 {/* Messages Feed */}
                 <div className="flex-grow-1 overflow-auto p-4 d-flex flex-column gap-3" style={{ height: '0px' }}>
+                  {hasMore && !loadingHistory && (
+                    <Button variant="link" size="sm" onClick={loadMoreMessages} className="d-block mx-auto text-muted mb-2 text-decoration-none">
+                      Load previous messages
+                    </Button>
+                  )}
                   {loadingHistory ? (
                     <div className="text-center text-muted my-auto">Loading message history...</div>
                   ) : (

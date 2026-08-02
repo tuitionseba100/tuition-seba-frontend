@@ -20,6 +20,7 @@ export default function ChatWidget() {
   const [input, setInput] = useState('');
   const [agentOnline, setAgentOnline] = useState(false);
   const [agentTyping, setAgentTyping] = useState(false);
+  const [hasMore, setHasMore] = useState(false);
 
   const messagesEndRef = useRef(null);
   const typingTimeoutRef = useRef(null);
@@ -101,8 +102,8 @@ export default function ChatWidget() {
         };
         setUser(verifiedUser);
         
-        // Load history
-        const histRes = await fetch(`${BASE_URL}/api/chat/history/${verifiedUser.phone}`);
+        // Load history (Initial load limit = 20)
+        const histRes = await fetch(`${BASE_URL}/api/chat/history/${verifiedUser.phone}?limit=20`);
         const histData = await histRes.json();
         
         if (histData.length === 0) {
@@ -114,6 +115,7 @@ export default function ChatWidget() {
           ]);
         } else {
           setMessages(histData);
+          setHasMore(histData.length === 20);
         }
       } else {
         setError(data.message || 'Verification failed.');
@@ -123,6 +125,23 @@ export default function ChatWidget() {
       setError('Connection to chat server failed.');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadMoreMessages = async () => {
+    if (messages.length === 0 || !user) return;
+    const firstMsgTimestamp = messages[0].createdAt;
+    try {
+      const res = await fetch(`${BASE_URL}/api/chat/history/${user.phone}?before=${firstMsgTimestamp}&limit=20`);
+      const data = await res.json();
+      if (data.length > 0) {
+        setMessages((prev) => [...data, ...prev]);
+        setHasMore(data.length === 20);
+      } else {
+        setHasMore(false);
+      }
+    } catch (err) {
+      console.error('Error loading more messages:', err);
     }
   };
 
@@ -302,6 +321,25 @@ export default function ChatWidget() {
                 </div>
                 
                 <div className="ts-messages-container">
+                  {hasMore && (
+                    <button 
+                      onClick={loadMoreMessages} 
+                      style={{
+                        background: 'transparent',
+                        border: 'none',
+                        color: '#0066cc',
+                        fontSize: '0.75rem',
+                        cursor: 'pointer',
+                        padding: '4px 0',
+                        display: 'block',
+                        margin: '0 auto 8px auto',
+                        fontWeight: '600',
+                        textDecoration: 'underline'
+                      }}
+                    >
+                      Load previous messages
+                    </button>
+                  )}
                   {messages.map((msg, i) => (
                     <div key={i} className={`ts-message ${msg.sender}`}>
                       {renderMessageText(msg.text)}

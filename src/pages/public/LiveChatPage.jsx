@@ -117,7 +117,7 @@ export default function LiveChatPage() {
           setMessages([
             {
               sender: 'bot',
-              text: `Welcome, **${verifiedUser.name}**! 💬\n\nPlease type your message below. A support representative will reply directly.`
+              text: `সম্মানিত **${verifiedUser.name}**, টিউশন সেবা লাইভ চ্যাটে আপনাকে স্বাগতম! 💬\n\nঅনুগ্রহ করে নিচে আপনার প্রশ্ন বা বার্তাটি লিখুন। আমাদের একজন কাস্টমার রিপ্রেজেন্টেティブ দ্রুত এখানে সরাসরি আপনাকে উত্তর দেবেন।`
             }
           ]);
         } else {
@@ -125,13 +125,13 @@ export default function LiveChatPage() {
           setHasMore(histData.length === 20);
         }
       } else {
-        setError(data.message || 'Verification failed.');
-        toast.error(data.message || 'Verification failed.');
+        setError(data.message || 'ভেরিফিকেশন ব্যর্থ হয়েছে। অনুগ্রহ করে সঠিক মোবাইল নম্বর ও প্রিমিয়াম কোড দিন।');
+        toast.error(data.message || 'ভেরিফিকেশন ব্যর্থ হয়েছে। অনুগ্রহ করে সঠিক মোবাইল নম্বর ও প্রিমিয়াম কোড দিন।');
       }
     } catch (err) {
       console.error(err);
-      setError('Connection to chat server failed.');
-      toast.error('Connection to chat server failed.');
+      setError('সার্ভারের সাথে সংযোগ স্থাপন করা সম্ভব হয়নি। অনুগ্রহ করে কিছুক্ষণ পর আবার চেষ্টা করুন।');
+      toast.error('সার্ভারের সাথে সংযোগ স্থাপন করা সম্ভব হয়নি। অনুগ্রহ করে কিছুক্ষণ পর আবার চেষ্টা করুন।');
     } finally {
       setLoading(false);
     }
@@ -286,19 +286,19 @@ export default function LiveChatPage() {
             <ChatInterfaceWrapper className="border-0 shadow-lg rounded-4 overflow-hidden w-100">
               <Row className="g-0 h-100">
                 {/* Left Information Panel */}
-                <Col md={4} className="bg-primary text-white p-4 d-flex flex-column justify-content-between border-end border-primary-dark">
+                <Col md={4} className="bg-primary text-white p-3 p-md-4 d-flex flex-column justify-content-between border-end border-primary-dark">
                   <div>
-                    <div className="text-center mb-4">
-                      <div className="d-inline-flex p-3 bg-white bg-opacity-10 rounded-circle mb-3">
-                        <BsRobot size={40} className="text-white" />
+                    <div className="text-center mb-2 mb-md-4">
+                      <div className="d-inline-flex p-2 p-md-3 bg-white bg-opacity-10 rounded-circle mb-2 mb-md-3">
+                        <BsRobot size={32} className="text-white" />
                       </div>
-                      <h4 className="fw-bold">{user.name}</h4>
-                      <Badge bg="light" text="primary" className="px-3 py-1.5 mt-2 rounded-pill fw-bold">
+                      <h4 className="fw-bold fs-5 mb-1">{user.name}</h4>
+                      <Badge bg="light" text="primary" className="px-3 py-1.5 rounded-pill fw-bold">
                         {user.premiumCode}
                       </Badge>
                     </div>
 
-                    <div className="mt-4 pt-3 border-top border-white border-opacity-10">
+                    <div className="mt-4 pt-3 border-top border-white border-opacity-10 d-none d-md-block">
                       <h6 className="fw-semibold text-white-50 uppercase mb-3" style={{ fontSize: '0.75rem', letterSpacing: '1px' }}>USER DETAILS</h6>
                       <div className="d-flex flex-column gap-2" style={{ fontSize: '0.9rem' }}>
                         <div>মোবাইল: <strong>{user.phone}</strong></div>
@@ -313,13 +313,13 @@ export default function LiveChatPage() {
                     </div>
                   </div>
 
-                  <div className="bg-white bg-opacity-10 p-3 rounded-3 mt-4" style={{ fontSize: '0.8rem', lineHeight: '1.5' }}>
+                  <div className="bg-white bg-opacity-10 p-3 rounded-3 mt-4 d-none d-md-block" style={{ fontSize: '0.8rem', lineHeight: '1.5' }}>
                     👋 টিউশন সেবা ফোরামে আপনাকে স্বাগতম। আপনি এখন আমাদের লাইভ সাপোর্ট প্যানেলে যুক্ত আছেন। আপনার প্রশ্ন বা সমস্যাটি নিচে লিখে পাঠান, আমাদের কাস্টমার রিপ্রেজেন্টেটিভ দ্রুত উত্তর প্রদান করবেন।
                   </div>
                 </Col>
 
                 {/* Right Messages & Feed Window */}
-                <Col md={8} className="d-flex flex-column bg-white h-100" style={{ minHeight: '520px' }}>
+                <Col md={8} className="d-flex flex-column bg-white h-100 ts-chat-main-col">
                   {/* Active Header */}
                   <div className="p-3 border-bottom d-flex align-items-center justify-content-between bg-light">
                     <div className="d-flex align-items-center gap-2">
@@ -334,7 +334,7 @@ export default function LiveChatPage() {
                   </div>
 
                   {/* Message Logs Feed */}
-                  <div className="flex-grow-1 overflow-auto p-4 d-flex flex-column gap-3 bg-light bg-opacity-50" style={{ height: '360px' }}>
+                  <div className="flex-grow-1 overflow-auto p-4 d-flex flex-column gap-3 bg-light bg-opacity-50 ts-msg-feed-box">
                     {hasMore && (
                       <Button 
                         variant="link" 
@@ -428,6 +428,11 @@ const PageWrapper = styled.div`
   min-height: calc(100vh - 120px);
   display: flex;
   align-items: center;
+  padding: 40px 0;
+
+  @media (max-width: 768px) {
+    padding: 20px 0;
+  }
 
   /* Custom Sleek Scrollbar */
   .overflow-auto::-webkit-scrollbar {
@@ -478,11 +483,28 @@ const ChatInterfaceWrapper = styled(Card)`
   background: white;
   border: none;
   
+  .ts-chat-main-col {
+    min-height: 520px;
+  }
+
+  .ts-msg-feed-box {
+    height: 360px;
+  }
+  
   @media (max-width: 768px) {
     height: auto;
     
     .row {
       flex-direction: column;
+    }
+
+    .ts-chat-main-col {
+      min-height: 380px;
+    }
+
+    .ts-msg-feed-box {
+      height: 300px;
+      padding: 16px !important;
     }
   }
 `;

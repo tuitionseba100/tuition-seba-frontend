@@ -99,6 +99,7 @@ const NavbarComponent = () => {
         { label: 'Payment', to: '/payment' },
         { label: 'Registration', to: '/teacherRegistration' },
         { label: 'Complaint', to: '/complaint-suggestion' },
+        { label: 'Live Chat', to: '/livechat' },
     ];
 
     const iconLinks = [

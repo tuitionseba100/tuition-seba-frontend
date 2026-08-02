@@ -28,6 +28,8 @@ export default function AdminChatConsole() {
   const typingTimeoutRef = useRef(null);
   const token = localStorage.getItem('token');
   const activePhoneRef = useRef(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const searchQueryRef = useRef('');
 
   useEffect(() => {
     activePhoneRef.current = activePhone;
@@ -74,13 +76,20 @@ export default function AdminChatConsole() {
 
   const loadSessions = async () => {
     try {
-      const res = await axios.get(`${BASE_URL}/api/chat/sessions`, {
+      const res = await axios.get(`${BASE_URL}/api/chat/sessions?search=${searchQueryRef.current}`, {
         headers: { Authorization: token }
       });
       setSessions(res.data);
     } catch (err) {
       console.error('Error loading sessions:', err);
     }
+  };
+
+  const handleSearchChange = (e) => {
+    const val = e.target.value;
+    setSearchQuery(val);
+    searchQueryRef.current = val;
+    loadSessions();
   };
 
   const selectSession = async (phone, name, premiumCode) => {
@@ -207,7 +216,16 @@ export default function AdminChatConsole() {
               <BsPeopleFill size={20} />
               <h5 className="mb-0 fw-bold">Active Chats</h5>
             </div>
-            <div className="flex-grow-1 overflow-auto p-2" style={{ maxHeight: 'calc(100vh - 160px)' }}>
+            <div className="p-2 border-bottom bg-white">
+              <Form.Control
+                type="text"
+                placeholder="Search phone or premium code..."
+                value={searchQuery}
+                onChange={handleSearchChange}
+                className="rounded-pill px-3 py-1.5 fs-7"
+              />
+            </div>
+            <div className="flex-grow-1 overflow-auto p-2" style={{ maxHeight: 'calc(100vh - 210px)' }}>
               {sessions.length === 0 ? (
                 <div className="text-center text-muted mt-5">No active sessions.</div>
               ) : (

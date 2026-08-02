@@ -227,6 +227,21 @@
   gap: 12px;
 }
 
+/* Custom Scrollbar for Client Widget */
+.ts-messages-container::-webkit-scrollbar {
+  width: 5px;
+}
+.ts-messages-container::-webkit-scrollbar-track {
+  background: transparent;
+}
+.ts-messages-container::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.12);
+  border-radius: 3px;
+}
+.ts-messages-container::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.24);
+}
+
 .ts-message {
   max-width: 80%;
   padding: 10px 14px;

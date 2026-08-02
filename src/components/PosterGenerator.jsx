@@ -100,13 +100,13 @@ const InvertedImage = ({ src, invert = false, alt = '', style = {}, onError, ...
 
 const PhoneIcon = ({ size = 11, color = '#25D366' }) => (
     <svg width={size} height={size} viewBox="0 0 512 512" fill={color} style={{ width: `${size}px`, height: `${size}px`, display: 'inline-block', verticalAlign: 'middle', marginLeft: '3px', marginRight: '3px' }}>
-        <path d="M164.9 24.6c-7.7-18.6-28-28.5-47.4-23.2l-88 24C12.1 30.2 0 46 0 64C0 311.4 200.6 512 448 512c18 0 33.8-12.1 38.6-29.5l24-88c5.3-19.4-4.6-39.7-23.2-47.4l-96-40c-16.3-6.8-35.2-2.1-46.3 11.6L304.7 368C234.3 334.7 177.3 277.7 144 207.3L193.3 167c13.7-11.2 18.4-30 11.6-46.3l-40-96z"/>
+        <path d="M164.9 24.6c-7.7-18.6-28-28.5-47.4-23.2l-88 24C12.1 30.2 0 46 0 64C0 311.4 200.6 512 448 512c18 0 33.8-12.1 38.6-29.5l24-88c5.3-19.4-4.6-39.7-23.2-47.4l-96-40c-16.3-6.8-35.2-2.1-46.3 11.6L304.7 368C234.3 334.7 177.3 277.7 144 207.3L193.3 167c13.7-11.2 18.4-30 11.6-46.3l-40-96z" />
     </svg>
 );
 
 const WhatsAppIcon = ({ size = 11, color = '#25D366' }) => (
     <svg width={size} height={size} viewBox="0 0 448 512" fill={color} style={{ width: `${size}px`, height: `${size}px`, display: 'inline-block', verticalAlign: 'middle', marginLeft: '3px', marginRight: '3px' }}>
-        <path d="M380.9 97.1C339 55.1 283.2 32 223.9 32c-122.4 0-222 99.6-222 222 0 39.1 10.2 77.3 29.6 111L0 480l117.7-30.9c32.4 17.7 68.9 27 106.1 27h.1c122.3 0 224.1-99.6 224.1-222 0-59.3-25.2-115-67.1-157zm-157 341.6c-33.2 0-65.7-8.9-94-25.7l-6.7-4-69.8 18.3L72 359.2l-4.4-7c-18.5-29.4-28.2-63.3-28.2-98.2 0-101.7 82.8-184.5 184.6-184.5 49.3 0 95.6 19.2 130.4 54.1 34.8 34.9 56.2 81.2 56.1 130.5 0 101.8-84.9 184.6-186.6 184.6zm101.2-138.2c-5.5-2.8-32.8-16.2-37.9-18-5.1-1.9-8.8-2.8-12.5 2.8-3.7 5.6-14.3 18-17.6 21.8-3.2 3.7-6.5 4.2-12 1.4-32.6-16.3-54-29.1-75.5-66-5.7-9.8 5.7-9.1 16.3-30.3 1.8-3.7.9-6.9-.5-9.7-1.4-2.8-12.5-30.1-17.1-41.2-4.5-10.8-9.1-9.3-12.5-9.5-3.2-.2-6.9-.2-10.6-.2-3.7 0-9.7 1.4-14.8 6.9-5.1 5.6-19.4 19-19.4 46.3 0 27.3 19.9 53.7 22.6 57.4 2.8 3.7 39.1 59.7 94.8 83.8 35.2 15.2 49 16.5 66.6 13.9 10.7-1.6 32.8-13.4 37.4-26.4 4.6-13 4.6-24.1 3.2-26.4-1.3-2.5-5-3.9-10.5-6.6z"/>
+        <path d="M380.9 97.1C339 55.1 283.2 32 223.9 32c-122.4 0-222 99.6-222 222 0 39.1 10.2 77.3 29.6 111L0 480l117.7-30.9c32.4 17.7 68.9 27 106.1 27h.1c122.3 0 224.1-99.6 224.1-222 0-59.3-25.2-115-67.1-157zm-157 341.6c-33.2 0-65.7-8.9-94-25.7l-6.7-4-69.8 18.3L72 359.2l-4.4-7c-18.5-29.4-28.2-63.3-28.2-98.2 0-101.7 82.8-184.5 184.6-184.5 49.3 0 95.6 19.2 130.4 54.1 34.8 34.9 56.2 81.2 56.1 130.5 0 101.8-84.9 184.6-186.6 184.6zm101.2-138.2c-5.5-2.8-32.8-16.2-37.9-18-5.1-1.9-8.8-2.8-12.5 2.8-3.7 5.6-14.3 18-17.6 21.8-3.2 3.7-6.5 4.2-12 1.4-32.6-16.3-54-29.1-75.5-66-5.7-9.8 5.7-9.1 16.3-30.3 1.8-3.7.9-6.9-.5-9.7-1.4-2.8-12.5-30.1-17.1-41.2-4.5-10.8-9.1-9.3-12.5-9.5-3.2-.2-6.9-.2-10.6-.2-3.7 0-9.7 1.4-14.8 6.9-5.1 5.6-19.4 19-19.4 46.3 0 27.3 19.9 53.7 22.6 57.4 2.8 3.7 39.1 59.7 94.8 83.8 35.2 15.2 49 16.5 66.6 13.9 10.7-1.6 32.8-13.4 37.4-26.4 4.6-13 4.6-24.1 3.2-26.4-1.3-2.5-5-3.9-10.5-6.6z" />
     </svg>
 );
 
@@ -122,19 +122,19 @@ const LogoBlock = ({ size = 26, invert = false, color = '#1a1a1a' }) => (
 
 const SignatureBlock = ({ name, color = '#1a3c70', invert = false }) => {
     const isDefault = name === 'Md Mahedi Hasan';
-    
+
     if (isDefault) {
         return (
             <div style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', height: '22px', overflow: 'visible' }}>
-                <InvertedImage 
-                    src="/signature.png?v=1.0.5" 
+                <InvertedImage
+                    src="/signature.png?v=1.0.5"
                     invert={invert}
-                    alt="Signature" 
-                    style={{ 
-                        height: '35px', 
+                    alt="Signature"
+                    style={{
+                        height: '35px',
                         objectFit: 'contain',
                         marginTop: '-5px'
-                    }} 
+                    }}
                 />
             </div>
         );
@@ -143,10 +143,10 @@ const SignatureBlock = ({ name, color = '#1a3c70', invert = false }) => {
     // Fallback if custom text is provided in the input field
     return (
         <div style={{ position: 'relative', display: 'inline-block', transform: 'rotate(-2deg) skewX(-6deg) translateY(-1px)', margin: '0 auto', textAlign: 'center' }}>
-            <span style={{ 
-                fontFamily: "'Alex Brush', 'Great Vibes', 'Herr Von Muellerhoff', cursive, sans-serif", 
-                fontSize: '11px', 
-                color: color, 
+            <span style={{
+                fontFamily: "'Alex Brush', 'Great Vibes', 'Herr Von Muellerhoff', cursive, sans-serif",
+                fontSize: '11px',
+                color: color,
                 fontWeight: 500,
                 letterSpacing: '0.4px',
                 whiteSpace: 'nowrap',
@@ -241,16 +241,16 @@ const WatermarkBlock = ({ invert = false }) => (
         zIndex: 0,
         userSelect: 'none'
     }}>
-        <InvertedImage 
-            src="/img/TSF LOGO TRANSPARENT.png" 
+        <InvertedImage
+            src="/img/TSF LOGO TRANSPARENT.png"
             invert={invert}
-            alt="" 
-            style={{ 
-                width: '180px', 
-                height: '180px', 
+            alt=""
+            style={{
+                width: '180px',
+                height: '180px',
                 objectFit: 'contain',
                 marginBottom: '10px'
-            }} 
+            }}
         />
         <div style={{
             fontFamily: 'Poppins, sans-serif',
@@ -700,7 +700,7 @@ const G5ModernColorful = ({ data }) => {
                     <div key={`row-${i}`} style={{ gridRowStart: i + 2, gridRowEnd: i + 2, gridColumnStart: 1, gridColumnEnd: 7, borderTop: '1px solid #f1f5f9' }} />
                 ))}
             </div>
-            
+
             {/* Tiny Coordinates / Plus Marks at Grid Intersections */}
             {[[100, 187.5], [200, 375], [300, 187.5], [400, 562.5], [500, 375]].map(([x, y], idx) => (
                 <div key={`plus-${idx}`} style={{ position: 'absolute', left: x - 5, top: y - 7, fontSize: 11, color: '#cbd5e1', fontWeight: 300, pointerEvents: 'none' }}>+</div>
@@ -709,7 +709,7 @@ const G5ModernColorful = ({ data }) => {
             {/* Glowing 3D-like Color Bubbles */}
             <div style={{ position: 'absolute', top: '-10%', right: '-10%', width: '280px', height: '280px', borderRadius: '50%', background: 'radial-gradient(circle at 35% 35%, rgba(236,72,153,0.18) 0%, rgba(99,102,241,0.12) 50%, transparent 80%)', filter: 'blur(8px)', pointerEvents: 'none' }} />
             <div style={{ position: 'absolute', bottom: '-5%', left: '-8%', width: '260px', height: '260px', borderRadius: '50%', background: 'radial-gradient(circle at 35% 35%, rgba(6,182,212,0.18) 0%, rgba(99,102,241,0.1) 60%, transparent 85%)', filter: 'blur(10px)', pointerEvents: 'none' }} />
-            
+
             {/* Scattered Crisp Translucent Spheres */}
             <div style={{ position: 'absolute', top: '15%', left: '12%', width: '42px', height: '42px', borderRadius: '50%', background: 'radial-gradient(circle at 30% 30%, rgba(255,255,255,0.85) 0%, rgba(236,72,153,0.3) 60%, rgba(236,72,153,0.6) 100%)', boxShadow: '0 8px 24px rgba(236,72,153,0.12)', pointerEvents: 'none' }} />
             <div style={{ position: 'absolute', top: '48%', right: '8%', width: '28px', height: '28px', borderRadius: '50%', background: 'radial-gradient(circle at 30% 30%, rgba(255,255,255,0.85) 0%, rgba(6,182,212,0.25) 60%, rgba(6,182,212,0.5) 100%)', boxShadow: '0 6px 18px rgba(6,182,212,0.1)', pointerEvents: 'none' }} />
@@ -725,7 +725,7 @@ const G5ModernColorful = ({ data }) => {
             <div style={{ position: 'relative', zIndex: 2, margin: '15px 32px 0', background: 'rgba(255,255,255,0.92)', border: '1.5px solid #f1f5f9', borderRadius: '28px', padding: '32px', boxShadow: '0 25px 50px -12px rgba(15,23,42,0.08)' }}>
                 {/* Decorative Quote Icon */}
                 <div style={{ position: 'absolute', top: -18, left: 32, width: 36, height: 36, borderRadius: '50%', background: 'linear-gradient(135deg, #4f46e5, #ec4899)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: 18, fontWeight: 900, boxShadow: '0 4px 12px rgba(79,70,229,0.3)' }}>“</div>
-                
+
                 <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 18 }}>
                     <div style={{ width: 4, height: 26, background: 'linear-gradient(180deg, #6366f1, #ec4899)', borderRadius: 2 }} />
                     <h2 style={{ margin: 0, fontSize: 20, fontWeight: 900, color: '#0f172a', letterSpacing: '-0.3px' }}>{headline}</h2>
@@ -1472,7 +1472,7 @@ const T5VibrantMesh = ({ data }) => {
                     <div key={`row-${i}`} style={{ gridRowStart: i + 2, gridRowEnd: i + 2, gridColumnStart: 1, gridColumnEnd: 7, borderTop: '1px solid #f1f5f9' }} />
                 ))}
             </div>
-            
+
             {/* Tiny Coordinates / Plus Marks at Grid Intersections */}
             {[[100, 195], [200, 390], [300, 195], [400, 585], [500, 390]].map(([x, y], idx) => (
                 <div key={`plus-${idx}`} style={{ position: 'absolute', left: x - 5, top: y - 7, fontSize: 11, color: '#cbd5e1', fontWeight: 300, pointerEvents: 'none' }}>+</div>
@@ -1481,7 +1481,7 @@ const T5VibrantMesh = ({ data }) => {
             {/* Glowing 3D-like Color Bubbles */}
             <div style={{ position: 'absolute', top: '-8%', right: '-8%', width: '280px', height: '280px', borderRadius: '50%', background: 'radial-gradient(circle at 35% 35%, rgba(2,132,199,0.15) 0%, rgba(124,58,237,0.1) 50%, transparent 80%)', filter: 'blur(8px)', pointerEvents: 'none' }} />
             <div style={{ position: 'absolute', bottom: '-5%', right: '-8%', width: '240px', height: '240px', borderRadius: '50%', background: 'radial-gradient(circle at 35% 35%, rgba(236,72,153,0.15) 0%, rgba(6,182,212,0.1) 60%, transparent 85%)', filter: 'blur(10px)', pointerEvents: 'none' }} />
-            
+
             {/* Nested Orbital Circles behind Photo */}
             <div style={{ position: 'absolute', top: '100px', left: '196px', width: '208px', height: '238px', borderRadius: '28px', border: '1.5px dashed rgba(99,102,241,0.25)', pointerEvents: 'none', zIndex: 1 }} />
             <div style={{ position: 'absolute', top: '90px', left: '186px', width: '228px', height: '258px', borderRadius: '36px', border: '1px solid rgba(236,72,153,0.18)', pointerEvents: 'none', zIndex: 1 }} />
@@ -1552,15 +1552,15 @@ const PremiumHeader = ({ invert = false, accentColor = '#d97706' }) => {
     const subColor = invert ? accentColor : '#4f46e5';
     return (
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, width: '100%' }}>
-            <div style={{ 
-                display: 'flex', 
-                alignItems: 'center', 
-                gap: 12, 
-                background: invert ? 'rgba(255,255,255,0.06)' : 'rgba(79,70,229,0.05)', 
-                padding: '10px 26px', 
-                borderRadius: 30, 
-                border: `1.5px solid ${invert ? 'rgba(255,255,255,0.15)' : 'rgba(79,70,229,0.15)'}`, 
-                boxShadow: '0 8px 24px rgba(0,0,0,0.12)' 
+            <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 12,
+                background: invert ? 'rgba(255,255,255,0.06)' : 'rgba(79,70,229,0.05)',
+                padding: '10px 26px',
+                borderRadius: 30,
+                border: `1.5px solid ${invert ? 'rgba(255,255,255,0.15)' : 'rgba(79,70,229,0.15)'}`,
+                boxShadow: '0 8px 24px rgba(0,0,0,0.12)'
             }}>
                 <InvertedImage src={LOGO} invert={invert} alt="TSF Logo" style={{ height: 32, objectFit: 'contain' }} />
                 <div style={{ width: 1.5, height: 26, background: invert ? 'rgba(255,255,255,0.25)' : 'rgba(79,70,229,0.25)' }} />
@@ -1598,16 +1598,16 @@ const WT1RoyalWelcome = ({ data }) => {
     return (
         <div style={{ width: 600, height: 780, background: 'radial-gradient(circle at center, #0f1123 0%, #05060b 100%)', position: 'relative', overflow: 'hidden', fontFamily: "'Hind Siliguri', 'Poppins', sans-serif" }}>
             <WatermarkBlock invert={true} />
-            
+
             {/* Elegant light beams/glows */}
             <div style={{ position: 'absolute', top: '-20%', left: '-10%', width: 500, height: 500, borderRadius: '50%', background: 'radial-gradient(circle, rgba(251,191,36,0.08) 0%, transparent 60%)', filter: 'blur(40px)', pointerEvents: 'none' }} />
             <div style={{ position: 'absolute', bottom: '10%', right: '-10%', width: 450, height: 450, borderRadius: '50%', background: 'radial-gradient(circle, rgba(99,102,241,0.08) 0%, transparent 60%)', filter: 'blur(40px)', pointerEvents: 'none' }} />
-            
+
             {/* Ornate gold corner elements */}
             {[['top', 'left'], ['top', 'right'], ['bottom', 'left'], ['bottom', 'right']].map(([v, h]) => (
                 <div key={`${v}-${h}`} style={{ position: 'absolute', [v]: 24, [h]: 24, width: 28, height: 28, borderTop: v === 'top' ? `3px solid ${accentColor}` : 'none', borderBottom: v === 'bottom' ? `3px solid ${accentColor}` : 'none', borderLeft: h === 'left' ? `3px solid ${accentColor}` : 'none', borderRight: h === 'right' ? `3px solid ${accentColor}` : 'none', zIndex: 1 }} />
             ))}
-            
+
             {/* Double golden border frame */}
             <div style={{ position: 'absolute', inset: 16, border: '1px solid rgba(251,191,36,0.15)', pointerEvents: 'none', zIndex: 1 }} />
             <div style={{ position: 'absolute', inset: 20, border: '2px solid rgba(251,191,36,0.25)', pointerEvents: 'none', zIndex: 1 }} />
@@ -1629,26 +1629,26 @@ const WT1RoyalWelcome = ({ data }) => {
                     {/* Ring glow */}
                     <div style={{ position: 'absolute', inset: -14, borderRadius: '50%', border: `1.5px dashed rgba(251,191,36,0.3)` }} />
                     <div style={{ position: 'absolute', inset: -8, borderRadius: '50%', border: `1px solid rgba(251,191,36,0.15)` }} />
-                    
+
                     {/* Main Image Container */}
                     <div style={{ position: 'absolute', inset: 0, borderRadius: '50%', border: `4px solid ${accentColor}`, boxShadow: '0 12px 36px rgba(0,0,0,0.6), 0 0 25px rgba(251,191,36,0.25)', overflow: 'hidden', background: '#090a0f' }}>
                         {teacherImage ? (
-                            <img 
-                                src={teacherImage} 
-                                alt={teacherName} 
-                                style={{ 
-                                    width: '100%', 
-                                    height: '100%', 
+                            <img
+                                src={teacherImage}
+                                alt={teacherName}
+                                style={{
+                                    width: '100%',
+                                    height: '100%',
                                     objectFit: 'cover',
                                     transform: `scale(${imageZoom}) translate(${imageOffsetX}px, ${imageOffsetY}px) rotate(${imageRotate}deg)`,
                                     transformOrigin: 'center center'
-                                }} 
+                                }}
                             />
                         ) : (
                             <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: accentColor, fontSize: 72 }}>👤</div>
                         )}
                     </div>
-                    
+
                     {/* Floating Verified Stamp */}
                     <VerifiedStamp theme="gold" />
                 </div>
@@ -1697,7 +1697,7 @@ const WT2ModernCreative = ({ data }) => {
     return (
         <div style={{ width: 600, height: 780, background: 'linear-gradient(135deg, #e0e7ff 0%, #f5f3ff 40%, #fae8ff 100%)', position: 'relative', overflow: 'hidden', fontFamily: "'Hind Siliguri', 'Poppins', sans-serif" }}>
             <WatermarkBlock invert={false} />
-            
+
             {/* Visual background textures and blobs to fill space */}
             <div style={{ position: 'absolute', top: '-5%', right: '-5%', width: 320, height: 320, borderRadius: '50%', background: 'radial-gradient(circle, rgba(99,102,241,0.28) 0%, transparent 70%)', filter: 'blur(25px)', pointerEvents: 'none' }} />
             <div style={{ position: 'absolute', bottom: '5%', left: '-8%', width: 340, height: 340, borderRadius: '50%', background: 'radial-gradient(circle, rgba(244,63,94,0.2) 0%, transparent 70%)', filter: 'blur(30px)', pointerEvents: 'none' }} />
@@ -1721,22 +1721,22 @@ const WT2ModernCreative = ({ data }) => {
 
             {/* Main glass card - Expanded to capture space */}
             <div style={{ margin: '26px 28px 0', background: 'rgba(255, 255, 255, 0.72)', border: '1.5px solid rgba(255, 255, 255, 0.95)', borderRadius: 32, padding: '28px 32px', boxShadow: '0 25px 50px rgba(30,27,75,0.08)', backdropFilter: 'blur(12px)', position: 'relative', zIndex: 2 }}>
-                
+
                 <div style={{ display: 'flex', gap: 28, alignItems: 'center' }}>
                     {/* Large profile image with corner Verified stamp */}
                     <div style={{ position: 'relative', flexShrink: 0 }}>
                         <div style={{ width: 150, height: 185, borderRadius: 24, overflow: 'hidden', border: '5px solid #fff', boxShadow: '0 12px 30px rgba(0,0,0,0.1)', background: '#e2e8f0' }}>
                             {teacherImage ? (
-                                <img 
-                                    src={teacherImage} 
-                                    alt={teacherName} 
-                                    style={{ 
-                                        width: '100%', 
-                                        height: '100%', 
+                                <img
+                                    src={teacherImage}
+                                    alt={teacherName}
+                                    style={{
+                                        width: '100%',
+                                        height: '100%',
                                         objectFit: 'cover',
                                         transform: `scale(${imageZoom}) translate(${imageOffsetX}px, ${imageOffsetY}px) rotate(${imageRotate}deg)`,
                                         transformOrigin: 'center center'
-                                    }} 
+                                    }}
                                 />
                             ) : (
                                 <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#a5b4fc', fontSize: 56 }}>👤</div>
@@ -1783,7 +1783,7 @@ const WT3MinimalistEditorial = ({ data }) => {
             <WatermarkBlock invert={false} />
             <div style={{ position: 'absolute', inset: 6, border: '1px solid rgba(30,58,31,0.18)', pointerEvents: 'none' }} />
             <div style={{ position: 'absolute', inset: 10, border: '1.5px dashed rgba(194,65,12,0.25)', pointerEvents: 'none' }} />
-            
+
             {/* Top header area */}
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', paddingTop: 24, borderBottom: '1.5px solid #eae6df', paddingBottom: 18, margin: '0 32px', position: 'relative', zIndex: 2 }}>
                 <PremiumHeader invert={false} accentColor={accentColor} />
@@ -1797,16 +1797,16 @@ const WT3MinimalistEditorial = ({ data }) => {
                     <div style={{ position: 'relative', width: 210, height: 260, border: '2px solid #1e3a1f', padding: 6, background: '#fff', boxSizing: 'border-box', boxShadow: '0 10px 25px rgba(30,58,31,0.08)' }}>
                         <div style={{ width: '100%', height: '100%', overflow: 'hidden', background: '#f5f0eb' }}>
                             {teacherImage ? (
-                                <img 
-                                    src={teacherImage} 
-                                    alt={teacherName} 
-                                    style={{ 
-                                        width: '100%', 
-                                        height: '100%', 
+                                <img
+                                    src={teacherImage}
+                                    alt={teacherName}
+                                    style={{
+                                        width: '100%',
+                                        height: '100%',
                                         objectFit: 'cover',
                                         transform: `scale(${imageZoom}) translate(${imageOffsetX}px, ${imageOffsetY}px) rotate(${imageRotate}deg)`,
                                         transformOrigin: 'center center'
-                                    }} 
+                                    }}
                                 />
                             ) : (
                                 <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#c2cbd2', fontSize: 64 }}>👤</div>
@@ -1824,7 +1824,7 @@ const WT3MinimalistEditorial = ({ data }) => {
                         <div style={{ fontSize: 14, fontWeight: 800, color: accentColor, fontStyle: 'italic', marginBottom: 6 }}>{designation}</div>
                         <div style={{ fontSize: 12.5, color: '#686156', fontWeight: 600 }}>{university}</div>
                     </div>
-                    
+
                     {/* Bullet Credentials */}
                     <div style={{ marginTop: 22, borderTop: '1px dashed #eae6df', paddingTop: 16 }}>
                         {['Verified Profile Details', 'Expert Academic Curriculum', '5.0 Highly Rated Instructor'].map((txt, idx) => (
@@ -1888,7 +1888,7 @@ const WT4FloralFiesta = ({ data }) => {
     return (
         <div style={{ width: 600, height: 780, background: 'linear-gradient(135deg, #fff7ed 0%, #fae8ff 50%, #e0f2fe 100%)', position: 'relative', overflow: 'hidden', fontFamily: "'Hind Siliguri', 'Poppins', sans-serif" }}>
             <WatermarkBlock invert={false} />
-            
+
             {/* Elegant Floral Frame Accents (Placed around the border without overlapping text) */}
             <div style={{ position: 'absolute', top: 20, left: 20, zIndex: 3 }}><PremiumFlower size={38} color="#ec4899" /></div>
             <div style={{ position: 'absolute', top: 20, right: 20, zIndex: 3 }}><PremiumFlower size={38} color="#f43f5e" /></div>
@@ -1898,7 +1898,7 @@ const WT4FloralFiesta = ({ data }) => {
             <div style={{ position: 'absolute', bottom: 76, left: '50%', transform: 'translateX(-50%)', zIndex: 3 }}><PremiumFlower size={30} color="#10b981" /></div>
             <div style={{ position: 'absolute', top: '45%', left: 20, transform: 'translateY(-50%)', zIndex: 3 }}><PremiumFlower size={30} color="#06b6d4" /></div>
             <div style={{ position: 'absolute', top: '45%', right: 20, transform: 'translateY(-50%)', zIndex: 3 }}><PremiumFlower size={30} color="#e11d48" /></div>
-            
+
             {/* Decorative inner frame */}
             <div style={{ position: 'absolute', top: 36, bottom: 92, left: 36, right: 36, border: '3px solid #fbcfe8', borderRadius: 20, pointerEvents: 'none' }} />
             <div style={{ position: 'absolute', top: 40, bottom: 96, left: 40, right: 40, border: '1px dashed #93c5fd', borderRadius: 16, pointerEvents: 'none' }} />
@@ -1917,16 +1917,16 @@ const WT4FloralFiesta = ({ data }) => {
                 <div style={{ position: 'relative', width: 170, height: 170 }}>
                     <div style={{ width: '100%', height: '100%', borderRadius: '50%', border: '6px solid #fff', boxShadow: '0 10px 25px rgba(219,39,119,0.15)', overflow: 'hidden', background: '#f5f5f5' }}>
                         {teacherImage ? (
-                            <img 
-                                src={teacherImage} 
-                                alt={teacherName} 
-                                style={{ 
-                                    width: '100%', 
-                                    height: '100%', 
+                            <img
+                                src={teacherImage}
+                                alt={teacherName}
+                                style={{
+                                    width: '100%',
+                                    height: '100%',
                                     objectFit: 'cover',
                                     transform: `scale(${imageZoom}) translate(${imageOffsetX}px, ${imageOffsetY}px) rotate(${imageRotate}deg)`,
                                     transformOrigin: 'center center'
-                                }} 
+                                }}
                             />
                         ) : (
                             <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#db2777', fontSize: 56 }}>👤</div>
@@ -1974,7 +1974,7 @@ const WT5PinkLady = ({ data }) => {
     return (
         <div style={{ width: 600, height: 780, background: 'linear-gradient(135deg, #fff1f2 0%, #ffe4e6 50%, #fcc5d8 100%)', position: 'relative', overflow: 'hidden', fontFamily: "'Hind Siliguri', 'Poppins', sans-serif" }}>
             <WatermarkBlock invert={false} />
-            
+
             {/* Elegant glowing background sparkles */}
             <div style={{ position: 'absolute', top: '10%', left: '15%', fontSize: 22, color: '#f43f5e', opacity: 0.35 }}>🌸</div>
             <div style={{ position: 'absolute', top: '25%', right: '12%', fontSize: 16, color: '#f43f5e', opacity: 0.25 }}>🌸</div>
@@ -2004,16 +2004,16 @@ const WT5PinkLady = ({ data }) => {
                     <div style={{ position: 'absolute', inset: -8, borderRadius: '85px 85px 85px 85px', border: '1px dashed #fda4af' }} />
                     <div style={{ position: 'absolute', inset: 0, borderRadius: '85px 85px 85px 85px', border: '4px solid #fff', boxShadow: '0 12px 30px rgba(244,63,94,0.18)', overflow: 'hidden', background: '#ffe4e6' }}>
                         {teacherImage ? (
-                            <img 
-                                src={teacherImage} 
-                                alt={teacherName} 
-                                style={{ 
-                                    width: '100%', 
-                                    height: '100%', 
+                            <img
+                                src={teacherImage}
+                                alt={teacherName}
+                                style={{
+                                    width: '100%',
+                                    height: '100%',
                                     objectFit: 'cover',
                                     transform: `scale(${imageZoom}) translate(${imageOffsetX}px, ${imageOffsetY}px) rotate(${imageRotate}deg)`,
                                     transformOrigin: 'center center'
-                                }} 
+                                }}
                             />
                         ) : (
                             <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fda4af', fontSize: 60 }}>👤</div>
@@ -2061,20 +2061,20 @@ const WT6EmeraldGold = ({ data }) => {
     return (
         <div style={{ width: 600, height: 780, background: 'linear-gradient(135deg, #022c22 0%, #023e2f 40%, #011c15 100%)', position: 'relative', overflow: 'hidden', fontFamily: "'Hind Siliguri', 'Poppins', sans-serif" }}>
             <WatermarkBlock invert={true} />
-            
+
             {/* Glowing gold spheres in background */}
             <div style={{ position: 'absolute', top: '-10%', left: '-10%', width: 300, height: 300, borderRadius: '50%', background: 'radial-gradient(circle, rgba(251,191,36,0.1) 0%, transparent 70%)', filter: 'blur(30px)', pointerEvents: 'none' }} />
             <div style={{ position: 'absolute', bottom: '-5%', right: '-5%', width: 350, height: 350, borderRadius: '50%', background: 'radial-gradient(circle, rgba(16,185,129,0.12) 0%, transparent 70%)', filter: 'blur(30px)', pointerEvents: 'none' }} />
-            
+
             {/* Golden corner geometric frames */}
             <div style={{ position: 'absolute', top: 20, left: 20, width: 24, height: 24, borderLeft: '3px solid #fbbf24', borderTop: '3px solid #fbbf24' }} />
             <div style={{ position: 'absolute', top: 20, right: 20, width: 24, height: 24, borderRight: '3px solid #fbbf24', borderTop: '3px solid #fbbf24' }} />
             <div style={{ position: 'absolute', bottom: 76, left: 20, width: 24, height: 24, borderLeft: '3px solid #fbbf24', borderBottom: '3px solid #fbbf24' }} />
             <div style={{ position: 'absolute', bottom: 76, right: 20, width: 24, height: 24, borderRight: '3px solid #fbbf24', borderBottom: '3px solid #fbbf24' }} />
-            
+
             {/* Inner golden border */}
             <div style={{ position: 'absolute', top: 28, bottom: 84, left: 28, right: 28, border: '1px solid rgba(251,191,36,0.2)', pointerEvents: 'none' }} />
-            
+
             {/* Header Content */}
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', paddingTop: 45, position: 'relative', zIndex: 2 }}>
                 <PremiumHeader invert={true} accentColor="#fbbf24" />
@@ -2094,16 +2094,16 @@ const WT6EmeraldGold = ({ data }) => {
                     <div style={{ position: 'absolute', inset: 0, borderRadius: '50%', background: 'linear-gradient(135deg, #fbbf24, #d97706)', padding: 4 }}>
                         <div style={{ width: '100%', height: '100%', borderRadius: '50%', overflow: 'hidden', background: '#022c22' }}>
                             {teacherImage ? (
-                                <img 
-                                    src={teacherImage} 
-                                    alt={teacherName} 
-                                    style={{ 
-                                        width: '100%', 
-                                        height: '100%', 
+                                <img
+                                    src={teacherImage}
+                                    alt={teacherName}
+                                    style={{
+                                        width: '100%',
+                                        height: '100%',
                                         objectFit: 'cover',
                                         transform: `scale(${imageZoom}) translate(${imageOffsetX}px, ${imageOffsetY}px) rotate(${imageRotate}deg)`,
                                         transformOrigin: 'center center'
-                                    }} 
+                                    }}
                                 />
                             ) : (
                                 <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fbbf24', fontSize: 60 }}>👤</div>
@@ -2148,7 +2148,7 @@ const WT7ClassroomChalkboard = ({ data }) => {
     return (
         <div style={{ width: 600, height: 780, background: 'linear-gradient(to bottom, #1e293b 0%, #0f172a 100%)', position: 'relative', overflow: 'hidden', fontFamily: "'Hind Siliguri', 'Poppins', sans-serif" }}>
             <WatermarkBlock invert={true} />
-            
+
             {/* Background 3D Classroom Wall styling */}
             <div style={{ position: 'absolute', inset: 0, opacity: 0.15, background: 'repeating-linear-gradient(90deg, transparent, transparent 40px, #475569 40px, #475569 42px)', pointerEvents: 'none' }} />
             <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '400px', background: 'radial-gradient(circle at 50% 0%, rgba(251,191,36,0.15) 0%, transparent 70%)', filter: 'blur(30px)', pointerEvents: 'none' }} />
@@ -2161,25 +2161,25 @@ const WT7ClassroomChalkboard = ({ data }) => {
 
                 {/* Chalk Dust Texture */}
                 <div style={{ position: 'absolute', inset: 0, opacity: 0.05, background: 'radial-gradient(circle, #fff 10%, transparent 11%), radial-gradient(circle, #fff 10%, transparent 11%)', backgroundSize: '15px 15px', backgroundPosition: '0 0, 8px 8px', pointerEvents: 'none' }} />
-                
+
                 {/* Chalk-drawn mathematical/scientific doodles */}
                 <div style={{ position: 'absolute', top: 15, left: 15, color: 'rgba(255,255,255,0.12)', fontFamily: 'monospace', fontSize: 11, userSelect: 'none', lineHeight: 1.4 }}>
-                    E = mc²<br/>H₂O + CO₂<br/>Δx · Δp ≥ ℏ
+                    E = mc²<br />H₂O + CO₂<br />Δx · Δp ≥ ℏ
                 </div>
                 <div style={{ position: 'absolute', top: 15, right: 15, color: 'rgba(255,255,255,0.12)', fontFamily: 'monospace', fontSize: 11, textAlign: 'right', userSelect: 'none', lineHeight: 1.4 }}>
-                    f(x) = ∫ y dx<br/>π ≈ 3.14159<br/>a² + b² = c²
+                    f(x) = ∫ y dx<br />π ≈ 3.14159<br />a² + b² = c²
                 </div>
 
                 {/* Chalkboard Header */}
                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', paddingTop: 20, width: '100%' }}>
                     <PremiumHeader invert={true} accentColor="#fbbf24" />
-                    <h1 style={{ 
-                        margin: '14px 0 0', 
-                        fontSize: 30, 
-                        fontWeight: 700, 
-                        color: 'rgba(255, 255, 255, 0.95)', 
-                        letterSpacing: '1px', 
-                        textTransform: 'uppercase', 
+                    <h1 style={{
+                        margin: '14px 0 0',
+                        fontSize: 30,
+                        fontWeight: 700,
+                        color: 'rgba(255, 255, 255, 0.95)',
+                        letterSpacing: '1px',
+                        textTransform: 'uppercase',
                         fontFamily: "'Cabin Sketch', 'Poppins', sans-serif",
                         textShadow: '0 0 2px rgba(255, 255, 255, 0.85), 1px 1px 2px rgba(255, 255, 255, 0.3), -1px -1px 0px rgba(0, 0, 0, 0.15)'
                     }}>
@@ -2189,13 +2189,13 @@ const WT7ClassroomChalkboard = ({ data }) => {
 
                 {/* Chalk-drawn quote box holding the Welcome Message */}
                 <div style={{ margin: '40px 28px 0', border: '1.5px solid rgba(255, 255, 255, 0.2)', borderRadius: 12, padding: '24px 20px', background: 'rgba(255, 255, 255, 0.01)', boxShadow: 'inset 0 0 8px rgba(255, 255, 255, 0.01)' }}>
-                    <p style={{ 
-                        margin: 0, 
-                        fontSize: 14.5, 
-                        lineHeight: 1.95, 
-                        color: 'rgba(255, 255, 255, 0.9)', 
-                        fontStyle: 'italic', 
-                        fontWeight: 600, 
+                    <p style={{
+                        margin: 0,
+                        fontSize: 14.5,
+                        lineHeight: 1.95,
+                        color: 'rgba(255, 255, 255, 0.9)',
+                        fontStyle: 'italic',
+                        fontWeight: 600,
                         textAlign: 'center',
                         textShadow: '0 0 1px rgba(255, 255, 255, 0.65), 1px 1px 1px rgba(255, 255, 255, 0.3), -1px -1px 0px rgba(0, 0, 0, 0.1)'
                     }}>
@@ -2212,40 +2212,40 @@ const WT7ClassroomChalkboard = ({ data }) => {
 
             {/* 3D Classroom Wooden Desk surface in lower section */}
             <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 250, zIndex: 3, pointerEvents: 'none' }}>
-                
+
                 {/* 3D Perspective Table Top */}
-                <div style={{ 
-                    position: 'absolute', 
-                    top: 0, 
-                    left: -100, 
-                    right: -100, 
-                    height: 100, 
-                    background: 'linear-gradient(to bottom, #a16207 0%, #78350f 100%)', 
-                    transform: 'perspective(400px) rotateX(24deg)', 
+                <div style={{
+                    position: 'absolute',
+                    top: 0,
+                    left: -100,
+                    right: -100,
+                    height: 100,
+                    background: 'linear-gradient(to bottom, #a16207 0%, #78350f 100%)',
+                    transform: 'perspective(400px) rotateX(24deg)',
                     transformOrigin: 'bottom center',
                     boxShadow: '0 -15px 35px rgba(0,0,0,0.65), inset 0 3px 6px rgba(255,255,255,0.15)',
                     borderBottom: '4px solid #451a03'
                 }} />
 
                 {/* Vertical Desk Front Facing Wood Panel */}
-                <div style={{ 
-                    position: 'absolute', 
-                    top: 96, 
-                    left: 0, 
-                    right: 0, 
-                    bottom: 0, 
+                <div style={{
+                    position: 'absolute',
+                    top: 96,
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
                     background: 'linear-gradient(to bottom, #78350f 0%, #451a03 100%)',
                     boxShadow: 'inset 0 10px 20px rgba(0,0,0,0.5)'
                 }} />
 
                 {/* 3D Standing Picture Frame (Left Side) */}
-                <div style={{ 
-                    position: 'absolute', 
-                    top: -110, 
-                    left: 60, 
-                    width: 210, 
-                    height: 210, 
-                    zIndex: 4, 
+                <div style={{
+                    position: 'absolute',
+                    top: -110,
+                    left: 60,
+                    width: 210,
+                    height: 210,
+                    zIndex: 4,
                     transform: 'perspective(500px) rotateY(-10deg) rotateX(8deg) rotateZ(1deg)',
                     transformOrigin: 'bottom center',
                 }}>
@@ -2271,28 +2271,28 @@ const WT7ClassroomChalkboard = ({ data }) => {
                         zIndex: -1
                     }} />
 
-                    <div style={{ 
-                        width: '100%', 
-                        height: '100%', 
-                        borderRadius: 14, 
-                        border: '8px solid #f8fafc', 
-                        boxShadow: 'inset 0 0 12px rgba(0,0,0,0.25), 0 15px 35px rgba(0,0,0,0.5)', 
-                        overflow: 'hidden', 
-                        background: '#1e293b', 
+                    <div style={{
+                        width: '100%',
+                        height: '100%',
+                        borderRadius: 14,
+                        border: '8px solid #f8fafc',
+                        boxShadow: 'inset 0 0 12px rgba(0,0,0,0.25), 0 15px 35px rgba(0,0,0,0.5)',
+                        overflow: 'hidden',
+                        background: '#1e293b',
                         boxSizing: 'border-box',
                         position: 'relative'
                     }}>
                         {teacherImage ? (
-                            <img 
-                                src={teacherImage} 
-                                alt={teacherName} 
-                                style={{ 
-                                    width: '100%', 
-                                    height: '100%', 
+                            <img
+                                src={teacherImage}
+                                alt={teacherName}
+                                style={{
+                                    width: '100%',
+                                    height: '100%',
                                     objectFit: 'cover',
                                     transform: `scale(${imageZoom}) translate(${imageOffsetX}px, ${imageOffsetY}px) rotate(${imageRotate}deg)`,
                                     transformOrigin: 'center center'
-                                }} 
+                                }}
                             />
                         ) : (
                             <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'rgba(255,255,255,0.25)', fontSize: 64 }}>👤</div>
@@ -2302,13 +2302,13 @@ const WT7ClassroomChalkboard = ({ data }) => {
                 </div>
 
                 {/* 3D Standing Clipboard Details Board (Right Side) */}
-                <div style={{ 
-                    position: 'absolute', 
-                    top: -100, 
-                    left: 290, 
-                    width: 250, 
-                    height: 180, 
-                    zIndex: 4, 
+                <div style={{
+                    position: 'absolute',
+                    top: -100,
+                    left: 290,
+                    width: 250,
+                    height: 180,
+                    zIndex: 4,
                     transform: 'perspective(500px) rotateY(10deg) rotateX(8deg) rotateZ(-1deg)',
                     transformOrigin: 'bottom center',
                 }}>
@@ -2323,14 +2323,14 @@ const WT7ClassroomChalkboard = ({ data }) => {
                     }} />
 
                     {/* Clipboard body */}
-                    <div style={{ 
-                        width: '100%', 
-                        height: '100%', 
-                        borderRadius: 12, 
-                        background: '#fef3c7', 
-                        border: '5px solid #d97706', 
-                        boxShadow: 'inset 0 0 10px rgba(0,0,0,0.05), 0 15px 35px rgba(0,0,0,0.5)', 
-                        padding: '24px 18px 18px', 
+                    <div style={{
+                        width: '100%',
+                        height: '100%',
+                        borderRadius: 12,
+                        background: '#fef3c7',
+                        border: '5px solid #d97706',
+                        boxShadow: 'inset 0 0 10px rgba(0,0,0,0.05), 0 15px 35px rgba(0,0,0,0.5)',
+                        padding: '24px 18px 18px',
                         boxSizing: 'border-box',
                         display: 'flex',
                         flexDirection: 'column',
@@ -2394,10 +2394,10 @@ const WT8GalleryExhibition = ({ data }) => {
     return (
         <div style={{ width: 600, height: 780, background: 'linear-gradient(135deg, #0b091a 0%, #03001e 50%, #02000a 100%)', position: 'relative', overflow: 'hidden', fontFamily: "'Hind Siliguri', 'Poppins', sans-serif" }}>
             <WatermarkBlock invert={true} />
-            
+
             {/* Cyberpunk Grid Background Overlay */}
             <div style={{ position: 'absolute', inset: 0, opacity: 0.04, background: 'linear-gradient(90deg, #fff 1px, transparent 1px) 0 0 / 40px 40px, linear-gradient(0deg, #fff 1px, transparent 1px) 0 0 / 40px 40px', pointerEvents: 'none' }} />
-            
+
             {/* Glowing Neon Abstract Geometries in Background */}
             {/* Giant soft purple background ring */}
             <div style={{ position: 'absolute', top: '15%', left: '50%', transform: 'translateX(-50%)', width: 440, height: 440, borderRadius: '50%', border: '2px solid rgba(168, 85, 247, 0.15)', boxShadow: '0 0 60px rgba(168, 85, 247, 0.08), inset 0 0 60px rgba(168, 85, 247, 0.08)', zIndex: 1, pointerEvents: 'none' }} />
@@ -2409,13 +2409,13 @@ const WT8GalleryExhibition = ({ data }) => {
             {/* Header section with glowing title */}
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', paddingTop: 32, position: 'relative', zIndex: 3 }}>
                 <PremiumHeader invert={true} accentColor="#00f2fe" />
-                <h1 style={{ 
-                    margin: '14px 0 0', 
-                    fontSize: 25, 
-                    fontWeight: 950, 
-                    color: '#ffffff', 
-                    letterSpacing: '2px', 
-                    textTransform: 'uppercase', 
+                <h1 style={{
+                    margin: '14px 0 0',
+                    fontSize: 25,
+                    fontWeight: 950,
+                    color: '#ffffff',
+                    letterSpacing: '2px',
+                    textTransform: 'uppercase',
                     textShadow: '0 0 10px rgba(0, 242, 254, 0.6), 0 0 20px rgba(168, 85, 247, 0.4)'
                 }}>
                     WELCOME NEW TEACHER
@@ -2427,10 +2427,10 @@ const WT8GalleryExhibition = ({ data }) => {
                 {/* Neon back glow */}
                 <div style={{ position: 'absolute', width: 230, height: 230, borderRadius: '50%', background: 'radial-gradient(circle, rgba(0,242,254,0.2) 0%, transparent 70%)', filter: 'blur(10px)', zIndex: -1 }} />
 
-                <div style={{ 
-                    position: 'relative', 
-                    width: 210, 
-                    height: 210, 
+                <div style={{
+                    position: 'relative',
+                    width: 210,
+                    height: 210,
                     borderRadius: '50%',
                     padding: 6,
                     background: 'linear-gradient(135deg, #00f2fe 0%, #a855f7 100%)',
@@ -2438,16 +2438,16 @@ const WT8GalleryExhibition = ({ data }) => {
                 }}>
                     <div style={{ width: '100%', height: '100%', borderRadius: '50%', overflow: 'hidden', background: '#0a0915', border: '2px solid rgba(255,255,255,0.1)' }}>
                         {teacherImage ? (
-                            <img 
-                                src={teacherImage} 
-                                alt={teacherName} 
-                                style={{ 
-                                    width: '100%', 
-                                    height: '100%', 
+                            <img
+                                src={teacherImage}
+                                alt={teacherName}
+                                style={{
+                                    width: '100%',
+                                    height: '100%',
                                     objectFit: 'cover',
                                     transform: `scale(${imageZoom}) translate(${imageOffsetX}px, ${imageOffsetY}px) rotate(${imageRotate}deg)`,
                                     transformOrigin: 'center center'
-                                }} 
+                                }}
                             />
                         ) : (
                             <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'rgba(255,255,255,0.15)', fontSize: 64 }}>👤</div>
@@ -2463,47 +2463,47 @@ const WT8GalleryExhibition = ({ data }) => {
 
             {/* Glassmorphic Credentials Plate (Floats below the frame) */}
             <div style={{ display: 'flex', justifyContent: 'center', marginTop: 24, position: 'relative', zIndex: 3 }}>
-                <div style={{ 
-                    background: 'rgba(255, 255, 255, 0.04)', 
-                    border: '1.5px solid rgba(255, 255, 255, 0.12)', 
-                    borderRadius: 12, 
-                    padding: '12px 36px', 
+                <div style={{
+                    background: 'rgba(255, 255, 255, 0.04)',
+                    border: '1.5px solid rgba(255, 255, 255, 0.12)',
+                    borderRadius: 12,
+                    padding: '12px 36px',
                     boxShadow: '0 15px 35px rgba(0,0,0,0.5), inset 0 1px 1px rgba(255,255,255,0.2)',
                     backdropFilter: 'blur(16px)',
                     textAlign: 'center',
                     minWidth: 260
                 }}>
                     <div style={{ fontSize: 22, fontWeight: 950, color: '#ffffff', letterSpacing: '-0.3px' }}>{teacherName}</div>
-                    
-                    <div style={{ 
+
+                    <div style={{
                         display: 'inline-block',
                         background: 'linear-gradient(90deg, #00f2fe, #4facfe)',
-                        borderRadius: 30, 
-                        padding: '3px 14px', 
-                        fontSize: 9.5, 
-                        fontWeight: 900, 
-                        color: '#03001e', 
-                        marginTop: 8, 
-                        textTransform: 'uppercase', 
+                        borderRadius: 30,
+                        padding: '3px 14px',
+                        fontSize: 9.5,
+                        fontWeight: 900,
+                        color: '#03001e',
+                        marginTop: 8,
+                        textTransform: 'uppercase',
                         letterSpacing: '1px',
                         boxShadow: '0 4px 10px rgba(0,242,254,0.3)'
                     }}>
                         {designation}
                     </div>
-                    
+
                     <div style={{ fontSize: 11.5, color: 'rgba(255,255,255,0.7)', fontWeight: 600, marginTop: 6 }}>{university}</div>
                 </div>
             </div>
 
             {/* Large Frosted Glass Message Panel (Fills the bottom space perfectly) */}
             <div style={{ display: 'flex', justifyContent: 'center', marginTop: 20, padding: '0 40px', position: 'relative', zIndex: 3 }}>
-                <div style={{ 
+                <div style={{
                     width: '100%',
-                    background: 'rgba(255, 255, 255, 0.03)', 
-                    border: '1.5px solid rgba(255, 255, 255, 0.08)', 
-                    borderRadius: 18, 
-                    padding: '24px 28px', 
-                    boxShadow: '0 25px 50px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.1)', 
+                    background: 'rgba(255, 255, 255, 0.03)',
+                    border: '1.5px solid rgba(255, 255, 255, 0.08)',
+                    borderRadius: 18,
+                    padding: '24px 28px',
+                    boxShadow: '0 25px 50px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.1)',
                     backdropFilter: 'blur(20px)',
                     boxSizing: 'border-box'
                 }}>
@@ -2515,26 +2515,26 @@ const WT8GalleryExhibition = ({ data }) => {
 
             {/* 3D Reflective Floating Neon Spheres (Adds extreme depth and matches empty spots) */}
             {/* Left Cyan sphere */}
-            <div style={{ 
-                position: 'absolute', 
-                bottom: 120, 
-                left: 30, 
-                width: 32, 
-                height: 32, 
-                borderRadius: '50%', 
+            <div style={{
+                position: 'absolute',
+                bottom: 120,
+                left: 30,
+                width: 32,
+                height: 32,
+                borderRadius: '50%',
                 background: 'radial-gradient(circle at 30% 30%, #00f2fe 0%, #090919 75%, #000 100%)',
                 boxShadow: '0 12px 24px rgba(0,242,254,0.3), inset 0 2px 4px rgba(255,255,255,0.2)',
                 zIndex: 4,
                 pointerEvents: 'none'
             }} />
             {/* Right Purple sphere */}
-            <div style={{ 
-                position: 'absolute', 
-                bottom: 150, 
-                right: 30, 
-                width: 44, 
-                height: 44, 
-                borderRadius: '50%', 
+            <div style={{
+                position: 'absolute',
+                bottom: 150,
+                right: 30,
+                width: 44,
+                height: 44,
+                borderRadius: '50%',
                 background: 'radial-gradient(circle at 30% 30%, #a855f7 0%, #090919 75%, #000 100%)',
                 boxShadow: '0 15px 30px rgba(168,85,247,0.35), inset 0 2px 4px rgba(255,255,255,0.2)',
                 zIndex: 4,
@@ -2563,14 +2563,14 @@ const WT9UniqueMagazine = ({ data }) => {
     return (
         <div style={{ width: 600, height: 780, background: '#fdfbf7', position: 'relative', overflow: 'hidden', fontFamily: "'Hind Siliguri', 'Poppins', sans-serif" }}>
             <WatermarkBlock invert={false} />
-            
+
             {/* Top Angled Royal Indigo Banner */}
-            <div style={{ 
-                position: 'absolute', 
-                top: 0, 
-                left: 0, 
-                right: 0, 
-                height: 380, 
+            <div style={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                right: 0,
+                height: 380,
                 background: 'linear-gradient(135deg, #0f172a 0%, #1e1b4b 60%, #312e81 100%)',
                 clipPath: 'polygon(0 0, 100% 0, 100% 82%, 0 100%)',
                 zIndex: 1
@@ -2590,12 +2590,12 @@ const WT9UniqueMagazine = ({ data }) => {
 
                 <PremiumHeader invert={true} accentColor="#fbbf24" />
 
-                <h1 style={{ 
-                    margin: '12px 0 0', 
-                    fontSize: 29, 
-                    fontWeight: 950, 
-                    color: '#ffffff', 
-                    letterSpacing: '1.5px', 
+                <h1 style={{
+                    margin: '12px 0 0',
+                    fontSize: 29,
+                    fontWeight: 950,
+                    color: '#ffffff',
+                    letterSpacing: '1.5px',
                     textTransform: 'uppercase',
                     textShadow: '0 4px 14px rgba(0,0,0,0.5)',
                     fontFamily: 'Poppins, sans-serif'
@@ -2608,26 +2608,26 @@ const WT9UniqueMagazine = ({ data }) => {
             <div style={{ display: 'flex', padding: '24px 36px 0', gap: 24, alignItems: 'center', position: 'relative', zIndex: 3 }}>
                 {/* Left Side: Curved Arch Portrait Card */}
                 <div style={{ position: 'relative', width: 200, flexShrink: 0 }}>
-                    <div style={{ 
-                        width: 200, 
-                        height: 245, 
-                        borderRadius: '100px 100px 18px 18px', 
-                        overflow: 'hidden', 
+                    <div style={{
+                        width: 200,
+                        height: 245,
+                        borderRadius: '100px 100px 18px 18px',
+                        overflow: 'hidden',
                         border: '4px solid #ffffff',
                         boxShadow: '0 20px 40px rgba(15,23,42,0.35)',
                         background: '#0f172a'
                     }}>
                         {teacherImage ? (
-                            <img 
-                                src={teacherImage} 
-                                alt={teacherName} 
-                                style={{ 
-                                    width: '100%', 
-                                    height: '100%', 
+                            <img
+                                src={teacherImage}
+                                alt={teacherName}
+                                style={{
+                                    width: '100%',
+                                    height: '100%',
                                     objectFit: 'cover',
                                     transform: `scale(${imageZoom}) translate(${imageOffsetX}px, ${imageOffsetY}px) rotate(${imageRotate}deg)`,
                                     transformOrigin: 'center center'
-                                }} 
+                                }}
                             />
                         ) : (
                             <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fbbf24', fontSize: 60 }}>👤</div>
@@ -2645,11 +2645,11 @@ const WT9UniqueMagazine = ({ data }) => {
                     <div style={{ fontSize: 24, fontWeight: 950, color: '#ffffff', letterSpacing: '-0.3px', lineHeight: 1.2, textShadow: '0 2px 8px rgba(0,0,0,0.4)' }}>
                         {teacherName}
                     </div>
-                    
+
                     <div style={{ marginTop: 10, display: 'inline-block', background: 'linear-gradient(135deg, #fbbf24, #d97706)', borderRadius: 8, padding: '4px 14px', fontSize: 11, fontWeight: 900, color: '#0f172a', textTransform: 'uppercase', letterSpacing: '0.8px', boxShadow: '0 4px 12px rgba(245,158,11,0.3)' }}>
                         {designation}
                     </div>
-                    
+
                     <div style={{ fontSize: 12.5, color: '#475569', fontWeight: 700, marginTop: 12 }}>
                         🏛️ {university}
                     </div>
@@ -2664,17 +2664,17 @@ const WT9UniqueMagazine = ({ data }) => {
 
             {/* Editorial Quote Card */}
             <div style={{ padding: '0 36px', marginTop: 22, position: 'relative', zIndex: 3 }}>
-                <div style={{ 
-                    background: '#ffffff', 
-                    border: '1.5px solid #e2e8f0', 
-                    borderRadius: 22, 
-                    padding: '20px 26px', 
+                <div style={{
+                    background: '#ffffff',
+                    border: '1.5px solid #e2e8f0',
+                    borderRadius: 22,
+                    padding: '20px 26px',
                     position: 'relative',
                     boxShadow: '0 12px 30px rgba(15,23,42,0.06)'
                 }}>
                     {/* Big Decorative Serif Quote */}
                     <div style={{ position: 'absolute', top: -20, left: 24, fontSize: 50, color: '#fbbf24', fontFamily: 'Georgia, serif', lineHeight: 1, pointerEvents: 'none' }}>“</div>
-                    
+
                     <p style={{ margin: 0, fontSize: 14, lineHeight: 1.85, color: '#334155', fontStyle: 'italic', fontWeight: 500, paddingTop: 4, textAlign: 'justify' }}>
                         "{welcomeMessage}"
                     </p>
@@ -2684,17 +2684,17 @@ const WT9UniqueMagazine = ({ data }) => {
             {/* High-Contrast Bottom Contact Bar */}
             <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: '16px 36px', borderTop: '2px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#ffffff', zIndex: 5 }}>
                 <span style={{ fontSize: 10.5, color: '#64748b', fontWeight: 600 }}>{tagline}</span>
-                <span style={{ 
-                    fontSize: 12.5, 
-                    fontWeight: 900, 
-                    color: '#ffffff', 
-                    display: 'inline-flex', 
-                    alignItems: 'center', 
-                    gap: '5px', 
-                    background: 'linear-gradient(135deg, #1e1b4b, #312e81)', 
-                    padding: '7px 18px', 
-                    borderRadius: 24, 
-                    boxShadow: '0 4px 14px rgba(49,46,129,0.3)' 
+                <span style={{
+                    fontSize: 12.5,
+                    fontWeight: 900,
+                    color: '#ffffff',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '5px',
+                    background: 'linear-gradient(135deg, #1e1b4b, #312e81)',
+                    padding: '7px 18px',
+                    borderRadius: 24,
+                    boxShadow: '0 4px 14px rgba(49,46,129,0.3)'
                 }}>
                     <PhoneIcon size={12} color="#ffffff" />
                     <WhatsAppIcon size={12} color="#ffffff" />
@@ -2945,13 +2945,13 @@ const PosterGenerator = () => {
                         <div style={fw}><label style={lbl}>Designation</label><input style={inp} value={wtData.designation} onChange={e => updWT('designation', e.target.value)} /></div>
                         <div style={fw}><label style={lbl}>University / Institution</label><input style={inp} value={wtData.university} onChange={e => updWT('university', e.target.value)} /></div>
                         <div style={fw}><label style={lbl}>Welcome Message</label><textarea style={{ ...inp, height: 95, resize: 'vertical' }} value={wtData.welcomeMessage} onChange={e => updWT('welcomeMessage', e.target.value)} /></div>
-                        
+
                         <ImgField label="Teacher Photo" val={wtData.teacherImage} onUp={e => onImg(e, updWT, 'teacherImage')} onRm={() => updWT('teacherImage', null)} h="70px" w="56px" />
-                        
+
                         {/* Image adjustments controls */}
                         <div style={{ borderTop: '1px solid #f1f5f9', paddingTop: 14, marginBottom: 14 }}>
                             <label style={{ ...lbl, color: '#10b981', marginBottom: 10 }}>📐 Adjust Picture</label>
-                            
+
                             <div style={{ marginBottom: 10 }}>
                                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 10, color: '#64748b', fontWeight: 600, marginBottom: 4 }}>
                                     <span>ZOOM ({wtData.imageZoom.toFixed(2)}x)</span>

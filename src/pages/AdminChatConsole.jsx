@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { io } from 'socket.io-client';
 import NavBarPage from './NavbarPage';
-import { Container, Row, Col, Card, Button, Form, Badge } from 'react-bootstrap';
+import { Container, Row, Col, Card, Button, Badge } from 'react-bootstrap';
 import { BsChatSquareDots, BsSendFill, BsPeopleFill, BsCheckCircleFill, BsLock } from 'react-icons/bs';
 import { axiosWithFallback as axios } from '../services/fetchWithFallback';
 import { toast, ToastContainer } from 'react-toastify';
@@ -20,11 +20,8 @@ export default function AdminChatConsole() {
   const [activePremiumCode, setActivePremiumCode] = useState('');
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
-  const [joinedRooms, setJoinedRooms] = useState({});
   const [memberTyping, setMemberTyping] = useState(false);
   const [loadingHistory, setLoadingHistory] = useState(false);
-  const [agents, setAgents] = useState([]);
-  const [activeAssignedTo, setActiveAssignedTo] = useState(null);
 
   const messagesEndRef = useRef(null);
   const typingTimeoutRef = useRef(null);
@@ -64,20 +61,6 @@ export default function AdminChatConsole() {
   }, [activePhone]);
 
   useEffect(() => {
-    const fetchAdmins = async () => {
-      try {
-        const res = await axios.get(`${BASE_URL}/api/user/users`, {
-          headers: { Authorization: token }
-        });
-        setAgents(res.data);
-      } catch (err) {
-        console.error('Error fetching admins:', err);
-      }
-    };
-    fetchAdmins();
-  }, []);
-
-  useEffect(() => {
     if (messagesEndRef.current) {
       messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
     }
@@ -94,12 +77,19 @@ export default function AdminChatConsole() {
     }
   };
 
-  const selectSession = async (phone, name, premiumCode, assignedTo) => {
+  const selectSession = async (phone, name, premiumCode) => {
     setActivePhone(phone);
     setActiveName(name);
     setActivePremiumCode(premiumCode);
-    setActiveAssignedTo(assignedTo || null);
     setLoadingHistory(true);
+
+    if (socket) {
+      socket.emit('join_room', {
+        phone,
+        name: localStorage.getItem('username') || 'Support Agent',
+        role: 'agent'
+      });
+    }
 
     try {
       // Mark as read
@@ -121,42 +111,6 @@ export default function AdminChatConsole() {
     }
   };
 
-  const handleAssignChange = async (username) => {
-    if (!activePhone) return;
-    try {
-      await axios.post(`${BASE_URL}/api/chat/assign`, {
-        phone: activePhone,
-        assignedTo: username || null
-      }, {
-        headers: { Authorization: token }
-      });
-      setActiveAssignedTo(username || null);
-      loadSessions();
-      toast.success(username ? `Assigned to ${username}` : 'Unassigned chat');
-    } catch (err) {
-      console.error('Error assigning chat:', err);
-      toast.error('Failed to assign chat.');
-    }
-  };
-
-  const joinRoomAsAgent = async () => {
-    if (!activePhone || !socket) return;
-
-    socket.emit('join_room', {
-      phone: activePhone,
-      name: localStorage.getItem('username') || 'Support Agent',
-      role: 'agent'
-    });
-
-    setJoinedRooms((prev) => ({ ...prev, [activePhone]: true }));
-
-    // Automatically assign to current admin if not assigned to them
-    const myUsername = localStorage.getItem('username');
-    if (myUsername && activeAssignedTo !== myUsername) {
-      await handleAssignChange(myUsername);
-    }
-  };
-
   const handleInputChange = (e) => {
     setInput(e.target.value);
     if (!socket || !activePhone) return;
@@ -172,11 +126,6 @@ export default function AdminChatConsole() {
 
   const sendAgentMessage = () => {
     if (!input.trim() || !activePhone || !socket) return;
-
-    // Join room first if not already joined
-    if (!joinedRooms[activePhone]) {
-      joinRoomAsAgent();
-    }
 
     if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
     socket.emit('typing', { phone: activePhone, isTyping: false, role: 'agent' });
@@ -242,20 +191,18 @@ export default function AdminChatConsole() {
                 sessions.map((session) => (
                   <div
                     key={session._id}
-                    onClick={() => selectSession(session._id, session.name, session.premiumCode, session.assignedTo)}
+                    onClick={() => selectSession(session.phone, session.name, session.premiumCode)}
                     className={`p-3 mb-2 rounded-3 cursor-pointer transition-all d-flex justify-content-between align-items-center ${
-                      session._id === activePhone ? 'bg-primary text-white shadow-sm' : 'bg-white border text-dark hover-bg'
+                      session.phone === activePhone ? 'bg-primary text-white shadow-sm' : 'bg-white border text-dark hover-bg'
                     }`}
                     style={{ cursor: 'pointer', transition: 'all 0.2s' }}
                   >
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <div className="fw-bold text-truncate">{session.name}</div>
-                      {session.assignedTo && (
-                        <Badge bg={session._id === activePhone ? 'light' : 'secondary'} text={session._id === activePhone ? 'primary' : 'white'} className="mt-1">
-                          Assigned: {session.assignedTo}
-                        </Badge>
-                      )}
-                      <small className={`text-truncate d-block mt-1 ${session._id === activePhone ? 'text-white-50' : 'text-muted'}`}>
+                      <div style={{ fontSize: '0.75rem', marginTop: '2px' }} className={session.phone === activePhone ? 'text-white-50' : 'text-muted'}>
+                        Phone: {session.phone} | Code: {session.premiumCode}
+                      </div>
+                      <small className={`text-truncate d-block mt-1 ${session.phone === activePhone ? 'text-white-50' : 'text-muted'}`}>
                         {session.lastMessage}
                       </small>
                     </div>
@@ -283,22 +230,6 @@ export default function AdminChatConsole() {
                     </small>
                   </div>
                   <div className="d-flex align-items-center gap-3">
-                    <Form.Group className="d-flex align-items-center gap-2 mb-0">
-                      <Form.Label className="mb-0 text-nowrap fw-bold text-muted" style={{ fontSize: '0.85rem' }}>Assignee:</Form.Label>
-                      <Form.Select
-                        size="sm"
-                        value={activeAssignedTo || ''}
-                        onChange={(e) => handleAssignChange(e.target.value)}
-                        style={{ minWidth: '130px' }}
-                      >
-                        <option value="">Unassigned</option>
-                        {agents.map((agent) => (
-                          <option key={agent._id} value={agent.username || agent.name}>
-                            {agent.username || agent.name}
-                          </option>
-                        ))}
-                      </Form.Select>
-                    </Form.Group>
                     <Badge bg={isJoined ? 'success' : 'warning'} className="px-3 py-2 fs-7 d-flex align-items-center gap-1">
                       {isJoined ? 'Agent Active' : 'Support Bot'}
                     </Badge>

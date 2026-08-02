@@ -109,7 +109,7 @@ export default function ChatWidget() {
           setMessages([
             {
               sender: 'bot',
-              text: `Welcome, **${verifiedUser.name}**! 🤖\nHow can we assist you? Please choose one of the options below:\n\n1. **Payment**\n2. **Status**\n3. **Agent**`
+              text: `Welcome, **${verifiedUser.name}**! 💬\n\nPlease type your message below. A support representative will reply directly.`
             }
           ]);
         } else {

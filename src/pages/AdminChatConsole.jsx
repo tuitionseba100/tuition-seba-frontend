@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { io } from 'socket.io-client';
 import NavBarPage from './NavbarPage';
-import { Container, Row, Col, Card, Button, Badge } from 'react-bootstrap';
+import { Container, Row, Col, Card, Button, Form, Badge } from 'react-bootstrap';
 import { BsChatSquareDots, BsSendFill, BsPeopleFill, BsCheckCircleFill, BsLock } from 'react-icons/bs';
 import { axiosWithFallback as axios } from '../services/fetchWithFallback';
 import { toast, ToastContainer } from 'react-toastify';

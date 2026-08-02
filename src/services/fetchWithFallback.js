@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const PRIMARY_DOMAIN = 'tuition-seba-backend-1.onrender.com';
-const FALLBACK_DOMAIN = 'tuition-seba-backend-production.up.railway.app';
+const FALLBACK_DOMAIN = 'tuition-seba-backend-production-9438.up.railway.app';
 
 // ─── For native fetch() calls ───
 export async function fetchWithFallback(input, init) {

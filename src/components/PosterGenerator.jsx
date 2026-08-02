@@ -745,6 +745,708 @@ const G5ModernColorful = ({ data }) => {
     );
 };
 
+const femaleAvatarUrl = 'https://cdn-icons-png.flaticon.com/512/4140/4140047.png';
+const maleAvatarUrl = 'https://cdn-icons-png.flaticon.com/512/3135/3135715.png';
+
+/* ══════════════════════════════════════════════════
+   GUARDIAN — 6: TUITION SEBA FORUM STANDARD
+   Soft blue background, offset 3D card layout, Google Play footer
+══════════════════════════════════════════════════ */
+const G6TuitionSebaForumStandard = ({ data }) => {
+    const { quote, name, location, stars, profileImage, gender = 'female' } = data;
+
+    const formatQuote = (text) => {
+        if (!text) return '';
+        const keyword = "TUITION SHEBA FORUM";
+        if (text.includes(keyword)) {
+            const parts = text.split(keyword);
+            return (
+                <>
+                    {parts[0]}
+                    <span style={{ color: '#0056b3', fontWeight: 800 }}>{keyword}</span>
+                    {parts.slice(1).join(keyword)}
+                </>
+            );
+        }
+        return text;
+    };
+
+    return (
+        <div style={{ width: 600, height: 750, background: 'radial-gradient(circle at 100% 0%, rgba(219, 234, 254, 0.9) 0%, rgba(240, 246, 255, 0.98) 70%), linear-gradient(135deg, #d0e2ff 0%, #eef5ff 100%)', position: 'relative', overflow: 'hidden', fontFamily: "'Hind Siliguri', 'Poppins', sans-serif" }}>
+            {/* Fine dot pattern overlay for technical/premium feel */}
+            <div style={{
+                position: 'absolute',
+                inset: 0,
+                backgroundImage: 'radial-gradient(rgba(0, 102, 255, 0.08) 1.5px, transparent 1.5px)',
+                backgroundSize: '24px 24px',
+                opacity: 0.8,
+                pointerEvents: 'none'
+            }} />
+
+            {/* Glowing 3D-like Color Orbs (Mesh Gradient style) */}
+            <div style={{ position: 'absolute', top: '10%', left: '-10%', width: '260px', height: '260px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(147, 51, 234, 0.08) 0%, transparent 70%)', filter: 'blur(30px)', pointerEvents: 'none' }} />
+            <div style={{ position: 'absolute', bottom: '15%', right: '-10%', width: '280px', height: '280px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(236, 72, 153, 0.08) 0%, transparent 70%)', filter: 'blur(35px)', pointerEvents: 'none' }} />
+            <div style={{ position: 'absolute', top: '40%', left: '45%', width: '320px', height: '320px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(56, 189, 248, 0.06) 0%, transparent 70%)', filter: 'blur(40px)', pointerEvents: 'none' }} />
+
+            {/* Scattered Glassmorphism Frosted Spheres (Modern UI assets) */}
+            <div style={{
+                position: 'absolute',
+                top: '320px',
+                left: '12px',
+                width: '32px',
+                height: '32px',
+                borderRadius: '50%',
+                background: 'radial-gradient(circle at 30% 30%, rgba(255,255,255,0.75) 0%, rgba(0, 102, 255, 0.15) 60%, rgba(0, 102, 255, 0.4) 100%)',
+                boxShadow: '0 8px 24px rgba(0, 102, 255, 0.12), inset 0 -2px 5px rgba(0,0,0,0.04)',
+                border: '1px solid rgba(255,255,255,0.4)',
+                pointerEvents: 'none',
+                zIndex: 1
+            }} />
+            <div style={{
+                position: 'absolute',
+                top: '230px',
+                right: '18px',
+                width: '24px',
+                height: '24px',
+                borderRadius: '50%',
+                background: 'radial-gradient(circle at 30% 30%, rgba(255,255,255,0.75) 0%, rgba(236, 72, 153, 0.15) 60%, rgba(236, 72, 153, 0.4) 100%)',
+                boxShadow: '0 6px 18px rgba(236, 72, 153, 0.12), inset 0 -2px 5px rgba(0,0,0,0.04)',
+                border: '1px solid rgba(255,255,255,0.4)',
+                pointerEvents: 'none',
+                zIndex: 1
+            }} />
+            <div style={{
+                position: 'absolute',
+                bottom: '180px',
+                left: '20px',
+                width: '20px',
+                height: '20px',
+                borderRadius: '50%',
+                background: 'radial-gradient(circle at 30% 30%, rgba(255,255,255,0.8) 0%, rgba(234, 179, 8, 0.15) 65%, rgba(234, 179, 8, 0.45) 100%)',
+                boxShadow: '0 4px 12px rgba(234, 179, 8, 0.12), inset 0 -1.5px 4px rgba(0,0,0,0.04)',
+                border: '0.8px solid rgba(255,255,255,0.55)',
+                pointerEvents: 'none',
+                zIndex: 1
+            }} />
+
+            {/* Background hollow title & English subtitle */}
+            <div style={{
+                position: 'absolute',
+                top: '32px',
+                right: '35px',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'flex-end',
+                userSelect: 'none',
+                pointerEvents: 'none'
+            }}>
+                <div style={{
+                    fontSize: '44px',
+                    fontWeight: 900,
+                    color: 'transparent',
+                    WebkitTextStroke: '1.2px rgba(0, 102, 222, 0.18)',
+                    fontFamily: "'Hind Siliguri', sans-serif",
+                    lineHeight: 1.1
+                }}>
+                    অভিভাবকের অভিজ্ঞতা
+                </div>
+                <div style={{
+                    fontSize: '8px',
+                    fontWeight: 800,
+                    letterSpacing: '3px',
+                    color: '#0066ff',
+                    opacity: 0.25,
+                    fontFamily: "'Poppins', sans-serif",
+                    marginTop: '3px'
+                }}>
+                    GUARDIAN FEEDBACK
+                </div>
+            </div>
+
+            {/* Background concentric rings */}
+            <div style={{
+                position: 'absolute',
+                top: '-50px',
+                right: '-50px',
+                width: '260px',
+                height: '260px',
+                borderRadius: '50%',
+                border: '25px solid rgba(0, 102, 222, 0.03)',
+                pointerEvents: 'none'
+            }} />
+            <div style={{
+                position: 'absolute',
+                top: '-70px',
+                right: '-70px',
+                width: '300px',
+                height: '300px',
+                borderRadius: '50%',
+                border: '1.5px solid rgba(0, 102, 222, 0.06)',
+                pointerEvents: 'none'
+            }} />
+            <div style={{
+                position: 'absolute',
+                bottom: '120px',
+                right: '-80px',
+                width: '200px',
+                height: '200px',
+                borderRadius: '50%',
+                border: '1.5px solid rgba(0, 102, 222, 0.05)',
+                pointerEvents: 'none'
+            }} />
+
+            {/* Logo Block (Top Left) */}
+            <div style={{ position: 'absolute', top: '30px', left: '35px', zIndex: 3 }}>
+                <img src="/img/TSF LOGO TRANSPARENT.png" alt="TSF Logo" style={{ height: '40px', objectFit: 'contain', filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.03))' }} onError={e => {
+                    e.target.src = "/img/TSF LOGO.png";
+                }} />
+            </div>
+
+            {/* 3D Offset Card (Blue background card with premium gradient) */}
+            <div style={{
+                position: 'absolute',
+                top: '160px',
+                left: '65px',
+                width: '470px',
+                height: '480px',
+                background: 'linear-gradient(135deg, #0052cc 0%, #0066ff 100%)',
+                borderRadius: '36px',
+                zIndex: 1,
+                boxShadow: '0 20px 40px rgba(0, 102, 255, 0.2)'
+            }} />
+
+            {/* Main Card Content (White background card) */}
+            <div style={{
+                position: 'absolute',
+                top: '150px',
+                left: '55px',
+                width: '470px',
+                height: '480px',
+                background: '#ffffff',
+                border: '1.5px solid rgba(0, 102, 255, 0.85)',
+                borderRadius: '36px',
+                zIndex: 2,
+                padding: '42px 30px 25px',
+                boxSizing: 'border-box',
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'space-between',
+                boxShadow: '0 10px 30px rgba(0, 102, 255, 0.04)'
+            }}>
+                {/* Upper block for photo + name */}
+                <div>
+                    <div style={{ marginLeft: '160px', marginTop: '8px', minHeight: '75px', display: 'flex', flexDirection: 'column', justifyContent: 'center', textAlign: 'left' }}>
+                        <div style={{ fontSize: '26px', fontWeight: 900, color: '#0056b3', fontFamily: "'Hind Siliguri', sans-serif", lineHeight: 1.15, letterSpacing: '-0.3px' }}>
+                            {name}
+                        </div>
+                        <div style={{ fontSize: '15px', color: '#475569', fontFamily: "'Hind Siliguri', sans-serif", marginTop: '6px', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '5px' }}>
+                            <span style={{ color: '#0066ff', fontSize: '14px' }}>📍</span> {location}
+                        </div>
+                    </div>
+
+                    {/* Review Quote Box */}
+                    <div style={{
+                        marginTop: '40px',
+                        background: 'linear-gradient(180deg, #f7faff 0%, #f0f7ff 100%)',
+                        border: '1px solid #cbdfff',
+                        borderRadius: '28px',
+                        padding: '28px 28px 28px',
+                        position: 'relative',
+                        boxShadow: 'inset 0 2px 4px rgba(0, 102, 255, 0.02)'
+                    }}>
+                        {/* Decorative Giant Translucent Quote Symbol */}
+                        <div style={{
+                            position: 'absolute',
+                            top: '5px',
+                            left: '12px',
+                            fontSize: '64px',
+                            color: 'rgba(0, 102, 255, 0.07)',
+                            fontFamily: 'Georgia, serif',
+                            lineHeight: 1,
+                            userSelect: 'none'
+                        }}>
+                            “
+                        </div>
+
+                        <p style={{
+                            fontSize: '16.5px',
+                            lineHeight: '1.85',
+                            color: '#1e293b',
+                            margin: 0,
+                            textAlign: 'justify',
+                            fontFamily: "'Hind Siliguri', sans-serif",
+                            position: 'relative',
+                            zIndex: 1
+                        }}>
+                            “{formatQuote(quote)}”
+                        </p>
+
+                        {/* Speech Bubble Quote Accent - centered with text quotation mark */}
+                        <div style={{
+                            position: 'absolute',
+                            bottom: '-25px',
+                            right: '25px',
+                            width: '48px',
+                            height: '48px',
+                            borderRadius: '50%',
+                            background: 'linear-gradient(135deg, #0052cc, #0066ff)',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            color: '#ffffff',
+                            boxShadow: '0 6px 14px rgba(0, 102, 255, 0.3)',
+                            border: '3.5px solid #ffffff',
+                            userSelect: 'none'
+                        }}>
+                            <span style={{ fontSize: '38px', fontFamily: 'Georgia, serif', lineHeight: '48px', marginTop: '12px' }}>”</span>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Stars capsule at the bottom */}
+                <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '8px' }}>
+                    <div style={{
+                        background: 'linear-gradient(90deg, #0052cc, #0066ff)',
+                        borderRadius: '28px',
+                        padding: '8px 32px',
+                        display: 'flex',
+                        gap: '8px',
+                        boxShadow: '0 8px 20px rgba(0, 102, 255, 0.3)'
+                    }}>
+                        {[1, 2, 3, 4, 5].map(s => (
+                            <span key={s} style={{
+                                fontSize: '18px',
+                                color: s <= stars ? '#ffffff' : 'rgba(255, 255, 255, 0.3)'
+                            }}>
+                                ★
+                            </span>
+                        ))}
+                    </div>
+                </div>
+            </div>
+
+            {/* Profile image (Z-Index 3 to sit on top of everything) */}
+            <div style={{
+                position: 'absolute',
+                top: '90px',
+                left: '80px',
+                width: '125px',
+                height: '125px',
+                borderRadius: '50%',
+                background: '#ffffff',
+                padding: '4px',
+                boxShadow: '0 0 0 3px rgba(0, 102, 255, 0.85), 0 8px 24px rgba(0, 102, 255, 0.18)',
+                overflow: 'hidden',
+                zIndex: 3,
+                boxSizing: 'border-box',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+            }}>
+                {profileImage ? (
+                    <img src={profileImage} alt={name} style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%' }} />
+                ) : (
+                    <img src={gender === 'male' ? maleAvatarUrl : femaleAvatarUrl} alt={name} style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%' }} />
+                )}
+            </div>
+
+            {/* Google Play Store Badge (Bottom Left) */}
+            <div style={{ position: 'absolute', bottom: '25px', left: '35px', zIndex: 3 }}>
+                <div style={{
+                    background: '#000000',
+                    borderRadius: '8px',
+                    padding: '6px 14px',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    color: '#ffffff',
+                    fontFamily: "'Poppins', sans-serif",
+                    boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+                    border: '1px solid rgba(255,255,255,0.15)',
+                    cursor: 'pointer',
+                    userSelect: 'none',
+                    width: '128px',
+                    height: '38px',
+                    boxSizing: 'border-box'
+                }}>
+                    <svg viewBox="0 0 512 512" style={{ width: '18px', height: '18px', display: 'block', flexShrink: 0 }}>
+                        <path d="M325.3 234.3L104.6 13l280.8 161.2-60.1 60.1z" fill="#ea4335" />
+                        <path d="M26 24L325.3 234.3l-60.1 60.1L26 24z" fill="#fbbc05" />
+                        <path d="M26 488V24l239.2 270.4L26 488z" fill="#4285f4" />
+                        <path d="M26 488l239.2-270.4 60.1 60.1L104.6 499 26 488z" fill="#34a853" />
+                    </svg>
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', lineHeight: 1.1 }}>
+                        <span style={{ fontSize: '6px', fontWeight: 500, letterSpacing: '0.4px', textTransform: 'uppercase', opacity: 0.85 }}>GET IT ON</span>
+                        <span style={{ fontSize: '11px', fontWeight: 700, letterSpacing: '-0.1px' }}>Google Play</span>
+                    </div>
+                </div>
+            </div>
+
+            {/* Website URL (Bottom Center) */}
+            <div style={{
+                position: 'absolute',
+                bottom: '33px',
+                left: '50%',
+                transform: 'translateX(-50%)',
+                zIndex: 3,
+                fontFamily: "'Poppins', sans-serif",
+                fontSize: '13px',
+                fontWeight: 700,
+                color: '#0056b3',
+                letterSpacing: '0.5px',
+                userSelect: 'none',
+                opacity: 0.95,
+                display: 'flex',
+                alignItems: 'center',
+                gap: '4px'
+            }}>
+                <span style={{ fontSize: '10px', color: '#0066ff' }}>🌐</span> www.tuitionsebaforum.com
+            </div>
+
+            {/* Triangles (Bottom Right) */}
+            <div style={{
+                position: 'absolute',
+                bottom: '30px',
+                right: '40px',
+                display: 'flex',
+                gap: '6px',
+                userSelect: 'none'
+            }}>
+                {[1, 2, 3, 4].map(idx => (
+                    <span key={idx} style={{
+                        color: '#0066ff',
+                        opacity: 0.15 + (idx * 0.15),
+                        fontSize: '11px',
+                        fontWeight: 900
+                    }}>
+                        ▶
+                    </span>
+                ))}
+            </div>
+        </div>
+    );
+};
+
+/* ══════════════════════════════════════════════════
+   GUARDIAN — 7: SPLIT SCREEN EDITORIAL
+   Light blue theme, asymmetric split column layout inside card, squircle profile
+══════════════════════════════════════════════════ */
+const G7SplitEditorial = ({ data }) => {
+    const { quote, name, location, stars, profileImage, gender = 'female' } = data;
+
+    const formatQuote = (text) => {
+        if (!text) return '';
+        const keyword = "TUITION SHEBA FORUM";
+        if (text.includes(keyword)) {
+            const parts = text.split(keyword);
+            return (
+                <>
+                    {parts[0]}
+                    <span style={{ color: '#0056b3', fontWeight: 800 }}>{keyword}</span>
+                    {parts.slice(1).join(keyword)}
+                </>
+            );
+        }
+        return text;
+    };
+
+    return (
+        <div style={{ width: 600, height: 750, background: 'radial-gradient(circle at 100% 0%, rgba(219, 234, 254, 0.95) 0%, rgba(240, 246, 255, 0.98) 70%), linear-gradient(135deg, #cbe0ff 0%, #edf4ff 100%)', position: 'relative', overflow: 'hidden', fontFamily: "'Hind Siliguri', 'Poppins', sans-serif" }}>
+            {/* Fine dot pattern overlay */}
+            <div style={{
+                position: 'absolute',
+                inset: 0,
+                backgroundImage: 'radial-gradient(rgba(0, 102, 255, 0.08) 1.5px, transparent 1.5px)',
+                backgroundSize: '24px 24px',
+                opacity: 0.8,
+                pointerEvents: 'none'
+            }} />
+
+            {/* Premium Technical Diagonal Intersection Lines */}
+            <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', backgroundImage: 'linear-gradient(135deg, transparent 49.8%, rgba(0, 102, 255, 0.05) 50%, transparent 50.2%), linear-gradient(45deg, transparent 49.8%, rgba(0, 102, 255, 0.05) 50%, transparent 50.2%)', pointerEvents: 'none' }} />
+
+            {/* Elegant Dashed Concentric Background Rings */}
+            <div style={{ position: 'absolute', top: '-60px', left: '-60px', width: '220px', height: '220px', borderRadius: '50%', border: '1.5px dashed rgba(0, 102, 255, 0.15)', pointerEvents: 'none' }} />
+            <div style={{ position: 'absolute', bottom: '80px', right: '-60px', width: '240px', height: '240px', borderRadius: '50%', border: '1.5px dashed rgba(0, 102, 255, 0.12)', pointerEvents: 'none' }} />
+
+            {/* Technical Corner Brackets (Camera Framing Style) */}
+            <div style={{ position: 'absolute', top: '20px', left: '20px', width: '20px', height: '20px', borderLeft: '2px solid rgba(0, 102, 255, 0.3)', borderTop: '2px solid rgba(0, 102, 255, 0.3)', pointerEvents: 'none' }} />
+            <div style={{ position: 'absolute', top: '20px', right: '20px', width: '20px', height: '20px', borderRight: '2px solid rgba(0, 102, 255, 0.3)', borderTop: '2px solid rgba(0, 102, 255, 0.3)', pointerEvents: 'none' }} />
+            <div style={{ position: 'absolute', bottom: '20px', left: '20px', width: '20px', height: '20px', borderLeft: '2px solid rgba(0, 102, 255, 0.3)', borderBottom: '2px solid rgba(0, 102, 255, 0.3)', pointerEvents: 'none' }} />
+            <div style={{ position: 'absolute', bottom: '20px', right: '20px', width: '20px', height: '20px', borderRight: '2px solid rgba(0, 102, 255, 0.3)', borderBottom: '2px solid rgba(0, 102, 255, 0.3)', pointerEvents: 'none' }} />
+
+            {/* Glowing background mesh spheres */}
+            <div style={{ position: 'absolute', top: '10%', left: '-10%', width: '260px', height: '260px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(147, 51, 234, 0.08) 0%, transparent 70%)', filter: 'blur(30px)', pointerEvents: 'none' }} />
+            <div style={{ position: 'absolute', bottom: '15%', right: '-10%', width: '280px', height: '280px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(236, 72, 153, 0.08) 0%, transparent 70%)', filter: 'blur(35px)', pointerEvents: 'none' }} />
+
+            {/* Background hollow title & English subtitle */}
+            <div style={{
+                position: 'absolute',
+                top: '32px',
+                right: '35px',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'flex-end',
+                userSelect: 'none',
+                pointerEvents: 'none'
+            }}>
+                <div style={{
+                    fontSize: '44px',
+                    fontWeight: 900,
+                    color: 'transparent',
+                    WebkitTextStroke: '1.2px rgba(0, 102, 222, 0.18)',
+                    fontFamily: "'Hind Siliguri', sans-serif",
+                    lineHeight: 1.1
+                }}>
+                    অভিভাবকের অভিজ্ঞতা
+                </div>
+                <div style={{
+                    fontSize: '8px',
+                    fontWeight: 800,
+                    letterSpacing: '3px',
+                    color: '#0066ff',
+                    opacity: 0.25,
+                    fontFamily: "'Poppins', sans-serif",
+                    marginTop: '3px'
+                }}>
+                    SPLIT EDITORIAL SHOWCASE
+                </div>
+            </div>
+
+            {/* Logo Block (Top Left) */}
+            <div style={{ position: 'absolute', top: '30px', left: '35px', zIndex: 3 }}>
+                <img src="/img/TSF LOGO TRANSPARENT.png" alt="TSF Logo" style={{ height: '40px', objectFit: 'contain' }} onError={e => {
+                    e.target.src = "/img/TSF LOGO.png";
+                }} />
+            </div>
+
+            {/* 3D Offset Card (Blue background card offset to the left and bottom) */}
+            <div style={{
+                position: 'absolute',
+                top: '160px',
+                left: '65px',
+                width: '470px',
+                height: '470px',
+                background: 'linear-gradient(135deg, #0052cc 0%, #0066ff 100%)',
+                borderRadius: '36px',
+                zIndex: 1,
+                boxShadow: '0 20px 40px rgba(0, 102, 255, 0.15)'
+            }} />
+
+            {/* Main Card Content (White background card) */}
+            <div style={{
+                position: 'absolute',
+                top: '150px',
+                left: '55px',
+                width: '470px',
+                height: '470px',
+                background: '#ffffff',
+                border: '1.5px solid rgba(0, 102, 255, 0.85)',
+                borderRadius: '36px',
+                zIndex: 2,
+                padding: '30px 24px',
+                boxSizing: 'border-box',
+                display: 'flex',
+                boxShadow: '0 10px 30px rgba(0, 102, 255, 0.04)'
+            }}>
+                <div style={{ display: 'flex', gap: '24px', width: '100%', height: '100%', alignItems: 'center' }}>
+                    {/* Left Column: Quote Box */}
+                    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                        <div style={{
+                            background: 'linear-gradient(180deg, #f7faff 0%, #f0f7ff 100%)',
+                            border: '1px solid #cbdfff',
+                            borderRadius: '24px',
+                            padding: '24px',
+                            position: 'relative',
+                            boxShadow: 'inset 0 2px 4px rgba(0, 102, 255, 0.02)',
+                            minHeight: '260px',
+                            display: 'flex',
+                            alignItems: 'center'
+                        }}>
+                            {/* Decorative Giant Translucent Quote Symbol */}
+                            <div style={{
+                                position: 'absolute',
+                                top: '5px',
+                                left: '12px',
+                                fontSize: '48px',
+                                color: 'rgba(0, 102, 255, 0.07)',
+                                fontFamily: 'Georgia, serif',
+                                lineHeight: 1,
+                                userSelect: 'none'
+                            }}>
+                                “
+                            </div>
+
+                            <p style={{
+                                fontSize: '15px',
+                                lineHeight: '1.75',
+                                color: '#1e293b',
+                                margin: 0,
+                                textAlign: 'justify',
+                                fontFamily: "'Hind Siliguri', sans-serif",
+                                position: 'relative',
+                                zIndex: 1
+                            }}>
+                                “{formatQuote(quote)}”
+                            </p>
+
+                            {/* Speech Bubble Quote Accent */}
+                            <div style={{
+                                position: 'absolute',
+                                bottom: '-20px',
+                                right: '20px',
+                                width: '40px',
+                                height: '40px',
+                                borderRadius: '50%',
+                                background: 'linear-gradient(135deg, #0052cc, #0066ff)',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                color: '#ffffff',
+                                boxShadow: '0 6px 14px rgba(0, 102, 255, 0.25)',
+                                border: '3px solid #ffffff',
+                                userSelect: 'none'
+                            }}>
+                                <span style={{ fontSize: '32px', fontFamily: 'Georgia, serif', lineHeight: '42px', marginTop: '10px' }}>”</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Modern Vertical dashed divider line */}
+                    <div style={{ width: '1px', height: '240px', borderLeft: '1.5px dashed rgba(0, 102, 255, 0.2)', alignSelf: 'center', flexShrink: 0 }} />
+
+                    {/* Right Column: Profile + Name + Location + Stars */}
+                    <div style={{ width: '160px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '14px', textAlign: 'center', flexShrink: 0 }}>
+                        {/* Profile Photo as a Squircle */}
+                        <div style={{
+                            width: '120px',
+                            height: '120px',
+                            borderRadius: '24px',
+                            background: '#ffffff',
+                            padding: '4px',
+                            boxShadow: '0 0 0 3px #ffffff, 0 0 0 6px rgba(0, 102, 255, 0.85), 0 8px 24px rgba(0, 102, 255, 0.15)',
+                            overflow: 'hidden',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            boxSizing: 'border-box'
+                        }}>
+                            {profileImage ? (
+                                <img src={profileImage} alt={name} style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '20px' }} />
+                            ) : (
+                                <img src={gender === 'male' ? maleAvatarUrl : femaleAvatarUrl} alt={name} style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '20px' }} />
+                            )}
+                        </div>
+
+                        {/* Name & Location info */}
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                            <div style={{ fontSize: '18px', fontWeight: 900, color: '#0056b3', fontFamily: "'Hind Siliguri', sans-serif", lineHeight: 1.25 }}>
+                                {name}
+                            </div>
+                            <div style={{ fontSize: '13px', color: '#475569', fontFamily: "'Hind Siliguri', sans-serif", fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '3px' }}>
+                                <span style={{ color: '#0066ff' }}>📍</span>{location}
+                            </div>
+                        </div>
+
+                        {/* Stars */}
+                        <div style={{
+                            background: 'linear-gradient(90deg, #0052cc, #0066ff)',
+                            borderRadius: '20px',
+                            padding: '6px 16px',
+                            display: 'flex',
+                            gap: '4px',
+                            boxShadow: '0 4px 10px rgba(0, 102, 255, 0.2)'
+                        }}>
+                            {[1, 2, 3, 4, 5].map(s => (
+                                <span key={s} style={{
+                                    fontSize: '13px',
+                                    color: s <= stars ? '#ffffff' : 'rgba(255,255,255,0.3)'
+                                }}>
+                                    ★
+                                </span>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {/* Google Play Store Badge (Bottom Left) */}
+            <div style={{ position: 'absolute', bottom: '25px', left: '35px', zIndex: 3 }}>
+                <div style={{
+                    background: '#000000',
+                    borderRadius: '8px',
+                    padding: '6px 14px',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    color: '#ffffff',
+                    fontFamily: "'Poppins', sans-serif",
+                    boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+                    border: '1px solid rgba(255,255,255,0.15)',
+                    cursor: 'pointer',
+                    userSelect: 'none',
+                    width: '128px',
+                    height: '38px',
+                    boxSizing: 'border-box'
+                }}>
+                    <svg viewBox="0 0 512 512" style={{ width: '18px', height: '18px', display: 'block', flexShrink: 0 }}>
+                        <path d="M325.3 234.3L104.6 13l280.8 161.2-60.1 60.1z" fill="#ea4335" />
+                        <path d="M26 24L325.3 234.3l-60.1 60.1L26 24z" fill="#fbbc05" />
+                        <path d="M26 488V24l239.2 270.4L26 488z" fill="#4285f4" />
+                        <path d="M26 488l239.2-270.4 60.1 60.1L104.6 499 26 488z" fill="#34a853" />
+                    </svg>
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', lineHeight: 1.1 }}>
+                        <span style={{ fontSize: '6px', fontWeight: 500, letterSpacing: '0.4px', textTransform: 'uppercase', opacity: 0.85 }}>GET IT ON</span>
+                        <span style={{ fontSize: '11px', fontWeight: 700, letterSpacing: '-0.1px' }}>Google Play</span>
+                    </div>
+                </div>
+            </div>
+
+            {/* Website URL (Bottom Center) */}
+            <div style={{
+                position: 'absolute',
+                bottom: '33px',
+                left: '50%',
+                transform: 'translateX(-50%)',
+                zIndex: 3,
+                fontFamily: "'Poppins', sans-serif",
+                fontSize: '13px',
+                fontWeight: 700,
+                color: '#0056b3',
+                letterSpacing: '0.5px',
+                userSelect: 'none',
+                opacity: 0.95,
+                display: 'flex',
+                alignItems: 'center',
+                gap: '4px'
+            }}>
+                <span style={{ fontSize: '10px', color: '#0066ff' }}>🌐</span> www.tuitionsebaforum.com
+            </div>
+
+            {/* Triangles (Bottom Right) */}
+            <div style={{
+                position: 'absolute',
+                bottom: '30px',
+                right: '40px',
+                display: 'flex',
+                gap: '6px',
+                userSelect: 'none'
+            }}>
+                {[1, 2, 3, 4].map(idx => (
+                    <span key={idx} style={{
+                        color: '#0066ff',
+                        opacity: 0.15 + (idx * 0.15),
+                        fontSize: '11px',
+                        fontWeight: 900
+                    }}>
+                        ▶
+                    </span>
+                ))}
+            </div>
+        </div>
+    );
+};
+
 /* ══════════════════════════════════════════════════
    TEACHER — 5: VIBRANT MESH
    Vibrant tech mesh background, neon gradient pill, clean signature
@@ -2028,7 +2730,7 @@ const PosterGenerator = () => {
     const [gData, setGData] = useState({
         headline: 'অভিভাবকের অভিজ্ঞতা',
         quote: 'আমার সন্তানের জীবন বদলে দিয়েছে এই প্ল্যাটফর্ম। সঠিক টিউটর খোঁজা এখন অনেক সহজ। Tuition Seba Forum-এর সেবা সত্যিই প্রশংসনীয়।',
-        name: 'নাম লিখুন', location: 'এলাকা, শহর', stars: 5, profileImage: null,
+        name: 'নাম লিখুন', location: 'এলাকা, শহর', stars: 5, profileImage: null, gender: 'female',
         accentColor: '#c8973a', helpline: '01633 920928', tagline: '১ প্ল্যাটফর্মেই টিউটর ও টিউশন',
     });
     const [tData, setTData] = useState({
@@ -2130,7 +2832,7 @@ const PosterGenerator = () => {
         </div>
     );
 
-    const gTplNames = { 1: 'Midnight Gold', 2: 'Light Editorial', 3: 'Navy Card', 4: 'Warm Minimal', 5: 'Modern Colorful' };
+    const gTplNames = { 1: 'Midnight Gold', 2: 'Light Editorial', 3: 'Navy Card', 4: 'Warm Minimal', 5: 'Modern Colorful', 6: 'TSF Standard', 7: 'Split Screen Editorial' };
     const tTplNames = { 1: 'Professional Split', 2: 'Award Elegant', 3: 'Modern Dark', 4: 'Natural Sage', 5: 'Vibrant Mesh' };
     const wtTplNames = { 1: 'Royal Welcome', 2: 'Modern Creative', 3: 'Minimalist Editorial', 4: 'Floral Fiesta', 5: 'Lady Teacher Pink', 6: 'Emerald Gold', 7: 'Classroom Design', 8: '3D Gallery Wall', 9: 'Magazine Editorial Showcase' };
 
@@ -2193,6 +2895,13 @@ const PosterGenerator = () => {
                         <div style={fw}><label style={lbl}>Location</label><input style={inp} value={gData.location} onChange={e => updG('location', e.target.value)} /></div>
                         <div style={fw}><label style={lbl}>Stars</label><Stars val={gData.stars} onChange={v => updG('stars', v)} /></div>
                         <ImgField label="Profile Photo" val={gData.profileImage} onUp={e => onImg(e, updG, 'profileImage')} onRm={() => updG('profileImage', null)} />
+                        <div style={fw}>
+                            <label style={lbl}>Gender (Avatar)</label>
+                            <select style={inp} value={gData.gender || 'female'} onChange={e => updG('gender', e.target.value)}>
+                                <option value="female">Female (Hijab)</option>
+                                <option value="male">Male</option>
+                            </select>
+                        </div>
                         <div style={{ borderTop: '1px solid #f1f5f9', paddingTop: 14, marginBottom: 12 }}>
                             <label style={{ ...lbl, color: '#6366f1', marginBottom: 8 }}>🎨 Accent Color</label>
                             <input type="color" defaultValue={gData.accentColor} onChange={e => updG('accentColor', e.target.value)} style={{ width: 44, height: 36, borderRadius: 8, border: '1.5px solid #e2e8f0', cursor: 'pointer', padding: 2 }} />
@@ -2309,6 +3018,8 @@ const PosterGenerator = () => {
                                     {category === 'guardian' && gTpl === 3 && <G3NavyCard data={gData} />}
                                     {category === 'guardian' && gTpl === 4 && <G4WarmMinimal data={gData} />}
                                     {category === 'guardian' && gTpl === 5 && <G5ModernColorful data={gData} />}
+                                    {category === 'guardian' && gTpl === 6 && <G6TuitionSebaForumStandard data={gData} />}
+                                    {category === 'guardian' && gTpl === 7 && <G7SplitEditorial data={gData} />}
                                     {category === 'teacher' && tTpl === 1 && <T1ProfessionalSplit data={tData} />}
                                     {category === 'teacher' && tTpl === 2 && <T2AwardElegant data={tData} />}
                                     {category === 'teacher' && tTpl === 3 && <T3ModernDark data={tData} />}

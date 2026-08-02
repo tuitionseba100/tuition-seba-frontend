@@ -26,16 +26,21 @@ export default function AdminChatConsole() {
   const messagesEndRef = useRef(null);
   const typingTimeoutRef = useRef(null);
   const token = localStorage.getItem('token');
+  const activePhoneRef = useRef(null);
+
+  useEffect(() => {
+    activePhoneRef.current = activePhone;
+  }, [activePhone]);
 
   useEffect(() => {
     // Connect to Socket.io
     socket = io(BASE_URL);
 
     socket.on('receive_message', (msg) => {
-      if (activePhone && msg.phone === activePhone) {
+      if (activePhoneRef.current && msg.phone === activePhoneRef.current) {
         setMessages((prev) => [...prev, msg]);
         // Auto mark as read if active
-        axios.post(`${BASE_URL}/api/chat/read/${activePhone}`, {}, {
+        axios.post(`${BASE_URL}/api/chat/read/${activePhoneRef.current}`, {}, {
           headers: { Authorization: token }
         });
       }
@@ -58,7 +63,7 @@ export default function AdminChatConsole() {
       if (socket) socket.disconnect();
       if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
     };
-  }, [activePhone]);
+  }, []);
 
   useEffect(() => {
     if (messagesEndRef.current) {

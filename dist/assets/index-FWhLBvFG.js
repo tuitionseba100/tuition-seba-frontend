@@ -3806,6 +3806,22 @@ export default theme;`}function pD(e={},...t){const{breakpoints:r,mixins:n={},sp
   background: #eef1f6;
   min-height: calc(100vh - 70px);
 
+  /* Sleek Scrollbars */
+  .overflow-auto::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  .overflow-auto::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .overflow-auto::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.15);
+    border-radius: 3px;
+  }
+  .overflow-auto::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 0, 0, 0.25);
+  }
+
   .hover-bg:hover {
     background-color: #f1f3f5 !important;
   }

@@ -11,7 +11,7 @@ const BASE_URL = window.location.origin.includes('localhost')
   ? 'http://localhost:5001'
   : 'https://tuition-seba-backend-1.onrender.com';
 
-let socket;
+
 
 export default function AdminChatConsole() {
   const [sessions, setSessions] = useState([]);
@@ -30,6 +30,7 @@ export default function AdminChatConsole() {
   const activePhoneRef = useRef(null);
   const [searchQuery, setSearchQuery] = useState('');
   const searchQueryRef = useRef('');
+  const socketRef = useRef(null);
 
   useEffect(() => {
     activePhoneRef.current = activePhone;
@@ -37,9 +38,9 @@ export default function AdminChatConsole() {
 
   useEffect(() => {
     // Connect to Socket.io
-    socket = io(BASE_URL);
+    socketRef.current = io(BASE_URL);
 
-    socket.on('receive_message', (msg) => {
+    socketRef.current.on('receive_message', (msg) => {
       if (activePhoneRef.current && msg.phone === activePhoneRef.current) {
         setMessages((prev) => [...prev, msg]);
         // Auto mark as read if active
@@ -49,9 +50,9 @@ export default function AdminChatConsole() {
       }
     });
 
-    socket.on('session_updated', loadSessions);
+    socketRef.current.on('session_updated', loadSessions);
 
-    socket.on('display_typing', ({ isTyping, role }) => {
+    socketRef.current.on('display_typing', ({ isTyping, role }) => {
       if (role === 'member') {
         setMemberTyping(isTyping);
       }
@@ -63,7 +64,7 @@ export default function AdminChatConsole() {
 
     return () => {
       clearInterval(interval);
-      if (socket) socket.disconnect();
+      if (socketRef.current) socketRef.current.disconnect();
       if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
     };
   }, []);
@@ -98,8 +99,8 @@ export default function AdminChatConsole() {
     setActivePremiumCode(premiumCode);
     setLoadingHistory(true);
 
-    if (socket) {
-      socket.emit('join_room', {
+    if (socketRef.current) {
+      socketRef.current.emit('join_room', {
         phone,
         name: localStorage.getItem('username') || 'Support Agent',
         role: 'agent'
@@ -147,24 +148,24 @@ export default function AdminChatConsole() {
 
   const handleInputChange = (e) => {
     setInput(e.target.value);
-    if (!socket || !activePhone) return;
+    if (!socketRef.current || !activePhone) return;
 
-    socket.emit('typing', { phone: activePhone, isTyping: true, role: 'agent' });
+    socketRef.current.emit('typing', { phone: activePhone, isTyping: true, role: 'agent' });
 
     if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
 
     typingTimeoutRef.current = setTimeout(() => {
-      socket.emit('typing', { phone: activePhone, isTyping: false, role: 'agent' });
+      socketRef.current.emit('typing', { phone: activePhone, isTyping: false, role: 'agent' });
     }, 1500);
   };
 
   const sendAgentMessage = () => {
-    if (!input.trim() || !activePhone || !socket) return;
+    if (!input.trim() || !activePhone || !socketRef.current) return;
 
     if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
-    socket.emit('typing', { phone: activePhone, isTyping: false, role: 'agent' });
+    socketRef.current.emit('typing', { phone: activePhone, isTyping: false, role: 'agent' });
 
-    socket.emit('send_message', {
+    socketRef.current.emit('send_message', {
       phone: activePhone,
       premiumCode: 'AGENT',
       sender: 'agent',

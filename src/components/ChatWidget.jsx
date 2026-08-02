@@ -7,7 +7,7 @@ const BASE_URL = window.location.origin.includes('localhost')
   ? 'http://localhost:5001'
   : 'https://tuition-seba-backend-1.onrender.com';
 
-let socket;
+
 
 export default function ChatWidget() {
   const [isOpen, setIsOpen] = useState(false);
@@ -24,6 +24,7 @@ export default function ChatWidget() {
 
   const messagesEndRef = useRef(null);
   const typingTimeoutRef = useRef(null);
+  const socketRef = useRef(null);
 
   useEffect(() => {
     if (messagesEndRef.current) {
@@ -50,30 +51,30 @@ export default function ChatWidget() {
     if (!user || !isOpen) return;
 
     // Connect to Socket.io
-    socket = io(BASE_URL);
+    socketRef.current = io(BASE_URL);
 
-    socket.emit('join_room', { phone: user.phone, name: user.name, role: 'member' });
+    socketRef.current.emit('join_room', { phone: user.phone, name: user.name, role: 'member' });
 
-    socket.on('receive_message', (msg) => {
+    socketRef.current.on('receive_message', (msg) => {
       if (msg.phone === user.phone) {
         setMessages((prev) => [...prev, msg]);
       }
     });
 
-    socket.on('agent_status', ({ agentOnline }) => {
+    socketRef.current.on('agent_status', ({ agentOnline }) => {
       setAgentOnline(agentOnline);
     });
 
-    socket.on('display_typing', ({ isTyping, role }) => {
+    socketRef.current.on('display_typing', ({ isTyping, role }) => {
       if (role === 'agent') {
         setAgentTyping(isTyping);
       }
     });
 
     return () => {
-      if (socket) {
-        socket.emit('leave_room', { phone: user.phone, role: 'member' });
-        socket.disconnect();
+      if (socketRef.current) {
+        socketRef.current.emit('leave_room', { phone: user.phone, role: 'member' });
+        socketRef.current.disconnect();
       }
       if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
     };
@@ -147,14 +148,14 @@ export default function ChatWidget() {
 
   const handleInputChange = (e) => {
     setInput(e.target.value);
-    if (!socket || !user) return;
+    if (!socketRef.current || !user) return;
 
-    socket.emit('typing', { phone: user.phone, isTyping: true, role: 'member' });
+    socketRef.current.emit('typing', { phone: user.phone, isTyping: true, role: 'member' });
 
     if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
 
     typingTimeoutRef.current = setTimeout(() => {
-      socket.emit('typing', { phone: user.phone, isTyping: false, role: 'member' });
+      socketRef.current.emit('typing', { phone: user.phone, isTyping: false, role: 'member' });
     }, 1500);
   };
 
@@ -162,15 +163,17 @@ export default function ChatWidget() {
     if (!input.trim() || !user) return;
 
     if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
-    socket.emit('typing', { phone: user.phone, isTyping: false, role: 'member' });
+    if (socketRef.current) {
+      socketRef.current.emit('typing', { phone: user.phone, isTyping: false, role: 'member' });
 
-    socket.emit('send_message', {
-      phone: user.phone,
-      premiumCode: user.premiumCode,
-      sender: 'member',
-      senderName: user.name,
-      text: input
-    });
+      socketRef.current.emit('send_message', {
+        phone: user.phone,
+        premiumCode: user.premiumCode,
+        sender: 'member',
+        senderName: user.name,
+        text: input
+      });
+    }
     setInput('');
   };
 

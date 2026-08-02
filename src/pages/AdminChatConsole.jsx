@@ -170,8 +170,6 @@ export default function AdminChatConsole() {
     });
   };
 
-  const isJoined = joinedRooms[activePhone] || false;
-
   return (
     <>
       <NavBarPage />

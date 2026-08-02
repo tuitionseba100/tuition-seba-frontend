@@ -7,9 +7,7 @@ import { axiosWithFallback as axios } from '../services/fetchWithFallback';
 import { toast, ToastContainer } from 'react-toastify';
 import styled from 'styled-components';
 
-const BASE_URL = window.location.origin.includes('localhost')
-  ? 'http://localhost:5001'
-  : 'https://tuition-seba-backend-1.onrender.com';
+const BASE_URL = 'https://tuition-seba-backend-1.onrender.com';
 
 
 
@@ -182,6 +180,20 @@ export default function AdminChatConsole() {
     }
   };
 
+  const formatDateTime = (dateStr) => {
+    const d = dateStr ? new Date(dateStr) : new Date();
+    const currentYear = new Date().getFullYear();
+    const messageYear = d.getFullYear();
+    return d.toLocaleString([], {
+      ...(messageYear !== currentYear && { year: 'numeric' }),
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true
+    });
+  };
+
   const renderMessageText = (text) => {
     return text.split('\n').map((line, idx) => {
       const parts = line.split('**');
@@ -303,7 +315,7 @@ export default function AdminChatConsole() {
                           {renderMessageText(msg.text)}
                         </div>
                         <small className="text-muted mt-1 px-2" style={{ fontSize: '0.65rem' }}>
-                          {msg.senderName}
+                          {msg.senderName || (msg.sender === 'bot' ? 'Bot' : 'Agent')} • {formatDateTime(msg.createdAt)}
                         </small>
                       </div>
                     ))

@@ -1,11 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { io } from 'socket.io-client';
 import { BsChatDotsFill, BsX, BsArrowRightShort, BsTelephone, BsKey, BsSendFill, BsRobot, BsCircleFill, BsWhatsapp } from 'react-icons/bs';
+import { fetchWithFallback } from '../services/fetchWithFallback';
 import './ChatWidget.css';
 
-const BASE_URL = window.location.origin.includes('localhost')
-  ? 'http://localhost:5001'
-  : 'https://tuition-seba-backend-1.onrender.com';
+const BASE_URL = 'https://tuition-seba-backend-1.onrender.com';
 
 
 
@@ -88,7 +87,7 @@ export default function ChatWidget() {
     setLoading(true);
 
     try {
-      const res = await fetch(`${BASE_URL}/api/regTeacher/check-apply-possible`, {
+      const res = await fetchWithFallback(`${BASE_URL}/api/regTeacher/check-apply-possible`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ phone, premiumCode })
@@ -104,14 +103,14 @@ export default function ChatWidget() {
         setUser(verifiedUser);
         
         // Load history (Initial load limit = 20)
-        const histRes = await fetch(`${BASE_URL}/api/chat/history/${verifiedUser.phone}?limit=20`);
+        const histRes = await fetchWithFallback(`${BASE_URL}/api/chat/history/${verifiedUser.phone}?limit=20`);
         const histData = await histRes.json();
         
         if (histData.length === 0) {
           setMessages([
             {
               sender: 'bot',
-              text: `Welcome, **${verifiedUser.name}**! 💬\n\nPlease type your message below. A support representative will reply directly.`
+              text: `Welcome, **${verifiedUser.name}**! 💬\n\nPlease type your message below a support representative will reply directly.`
             }
           ]);
         } else {
@@ -133,7 +132,7 @@ export default function ChatWidget() {
     if (messages.length === 0 || !user) return;
     const firstMsgTimestamp = messages[0].createdAt;
     try {
-      const res = await fetch(`${BASE_URL}/api/chat/history/${user.phone}?before=${firstMsgTimestamp}&limit=20`);
+      const res = await fetchWithFallback(`${BASE_URL}/api/chat/history/${user.phone}?before=${firstMsgTimestamp}&limit=20`);
       const data = await res.json();
       if (data.length > 0) {
         setMessages((prev) => [...data, ...prev]);
@@ -179,6 +178,20 @@ export default function ChatWidget() {
 
   const handleKeyDown = (e) => {
     if (e.key === 'Enter') handleSend();
+  };
+
+  const formatDateTime = (dateStr) => {
+    const d = dateStr ? new Date(dateStr) : new Date();
+    const currentYear = new Date().getFullYear();
+    const messageYear = d.getFullYear();
+    return d.toLocaleString([], {
+      ...(messageYear !== currentYear && { year: 'numeric' }),
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true
+    });
   };
 
   const renderMessageText = (text) => {
@@ -344,8 +357,30 @@ export default function ChatWidget() {
                     </button>
                   )}
                   {messages.map((msg, i) => (
-                    <div key={i} className={`ts-message ${msg.sender}`}>
-                      {renderMessageText(msg.text)}
+                    <div
+                      key={i}
+                      style={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: msg.sender === 'member' ? 'flex-end' : 'flex-start',
+                        width: '100%'
+                      }}
+                    >
+                      <div className={`ts-message ${msg.sender}`}>
+                        {renderMessageText(msg.text)}
+                      </div>
+                      <small
+                        style={{
+                          fontSize: '0.65rem',
+                          color: '#888',
+                          marginTop: '2px',
+                          marginBottom: '6px',
+                          padding: '0 4px',
+                          alignSelf: msg.sender === 'member' ? 'flex-end' : 'flex-start'
+                        }}
+                      >
+                        {formatDateTime(msg.createdAt)}{msg.sender === 'member' && !msg.isRead && ' • Unseen'}
+                      </small>
                     </div>
                   ))}
                   {agentTyping && (

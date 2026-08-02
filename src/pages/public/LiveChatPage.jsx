@@ -6,12 +6,11 @@ import styled from 'styled-components';
 import { toast, ToastContainer } from 'react-toastify';
 import NavBar from '../../components/NavBar';
 import Footer from '../../components/Footer';
+import { fetchWithFallback } from '../../services/fetchWithFallback';
 
 const BANGLA_FONT = "'Hind Siliguri', 'Inter', sans-serif";
 
-const BASE_URL = window.location.origin.includes('localhost')
-  ? 'http://localhost:5001'
-  : 'https://tuition-seba-backend-1.onrender.com';
+const BASE_URL = 'https://tuition-seba-backend-1.onrender.com';
 
 
 
@@ -94,7 +93,7 @@ export default function LiveChatPage() {
     setLoading(true);
 
     try {
-      const res = await fetch(`${BASE_URL}/api/regTeacher/check-apply-possible`, {
+      const res = await fetchWithFallback(`${BASE_URL}/api/regTeacher/check-apply-possible`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ phone, premiumCode })
@@ -110,7 +109,7 @@ export default function LiveChatPage() {
         setUser(verifiedUser);
         
         // Load history (Initial load limit = 20)
-        const histRes = await fetch(`${BASE_URL}/api/chat/history/${verifiedUser.phone}?limit=20`);
+        const histRes = await fetchWithFallback(`${BASE_URL}/api/chat/history/${verifiedUser.phone}?limit=20`);
         const histData = await histRes.json();
         
         if (histData.length === 0) {
@@ -142,7 +141,7 @@ export default function LiveChatPage() {
     const firstMsgTimestamp = messages[0].createdAt;
     setLoadingMore(true);
     try {
-      const res = await fetch(`${BASE_URL}/api/chat/history/${user.phone}?before=${firstMsgTimestamp}&limit=20`);
+      const res = await fetchWithFallback(`${BASE_URL}/api/chat/history/${user.phone}?before=${firstMsgTimestamp}&limit=20`);
       const data = await res.json();
       if (data.length > 0) {
         setMessages((prev) => [...data, ...prev]);
@@ -190,6 +189,20 @@ export default function LiveChatPage() {
 
   const handleKeyDown = (e) => {
     if (e.key === 'Enter') handleSend();
+  };
+
+  const formatDateTime = (dateStr) => {
+    const d = dateStr ? new Date(dateStr) : new Date();
+    const currentYear = new Date().getFullYear();
+    const messageYear = d.getFullYear();
+    return d.toLocaleString([], {
+      ...(messageYear !== currentYear && { year: 'numeric' }),
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true
+    });
   };
 
   const renderMessageText = (text) => {
@@ -368,7 +381,7 @@ export default function LiveChatPage() {
                           {renderMessageText(msg.text)}
                         </MessageBubble>
                         <small className="text-muted mt-1 px-1" style={{ fontSize: '0.65rem' }}>
-                          {msg.senderName}
+                          {formatDateTime(msg.createdAt)}{msg.sender === 'member' && !msg.isRead && ' • Unseen'}
                         </small>
                       </div>
                     ))}

@@ -6,12 +6,50 @@ import '../components/DashboardNavbar.css'; // Import admin navbar styles
 import ResponseGuidelineWidget from '../components/modals/ResponseGuidelineWidget';
 import { FaSearch, FaCog } from 'react-icons/fa';
 import GlobalSearchModal from '../components/modals/GlobalSearchModal';
+import { io } from 'socket.io-client';
+import { axiosWithFallback as axios } from '../services/fetchWithFallback';
+
+const BASE_URL = 'https://tuition-seba-backend-1.onrender.com';
 
 const Navbar = () => {
     const navigate = useNavigate();
     const location = useLocation();
     const [dayStarted, setDayStarted] = useState(true);
     const [role, setRole] = useState(localStorage.getItem("role"));
+    const [hasUnseenChat, setHasUnseenChat] = useState(false);
+
+    const checkUnseenChats = async () => {
+        const token = localStorage.getItem('token');
+        if (!token) return;
+        try {
+            const res = await axios.get(`${BASE_URL}/api/chat/sessions`, {
+                headers: { Authorization: token }
+            });
+            const sessions = res.data;
+            const unseen = sessions.some(s => s.unreadCount > 0);
+            setHasUnseenChat(unseen);
+        } catch (err) {
+            console.error('Error checking unseen chats:', err);
+        }
+    };
+
+    useEffect(() => {
+        const token = localStorage.getItem('token');
+        if (!token) return;
+
+        checkUnseenChats();
+
+        const socket = io(BASE_URL);
+        socket.on('session_updated', checkUnseenChats);
+
+        const interval = setInterval(checkUnseenChats, 20000);
+
+        return () => {
+            socket.disconnect();
+            clearInterval(interval);
+        };
+    }, []);
+
     const [permissions, setPermissions] = useState(() => {
         const stored = localStorage.getItem("permissions");
         try {
@@ -55,13 +93,29 @@ const Navbar = () => {
             }
         }
 
+        const isUnseenChat = to === "/admin/chat" && hasUnseenChat;
+
         return (
             <li className="nav-item">
                 <Link
                     className={`nav-link fw-bold px-3 ${isActive ? 'active' : ''}`}
                     to={to}
+                    style={isUnseenChat ? { color: '#ff4d4d' } : undefined}
                 >
                     {label}
+                    {isUnseenChat && (
+                        <span 
+                            style={{ 
+                                display: 'inline-block', 
+                                width: '8px', 
+                                height: '8px', 
+                                backgroundColor: '#ff4d4d', 
+                                borderRadius: '50%', 
+                                marginLeft: '5px',
+                                verticalAlign: 'middle'
+                            }} 
+                        />
+                    )}
                 </Link>
             </li>
         );

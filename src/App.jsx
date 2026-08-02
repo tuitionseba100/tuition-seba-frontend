@@ -105,6 +105,7 @@ import StatusHistoryReportPage from './pages/StatusHistoryReportPage';
 import ReferPage from './pages/public/ReferPage';
 import ComplaintSuggestionPage from './pages/public/ComplaintSuggestionPage';
 import ComplaintSuggestionAdminPage from './pages/ComplaintSuggestionAdminPage';
+import AdminChatConsole from './pages/AdminChatConsole';
 
 const AppRedirect = () => {
   React.useEffect(() => {
@@ -150,6 +151,7 @@ const App = () => {
             <Route path="lead" element={<LeadPage />} />
             <Route path="general" element={<GeneralPage />} />
             <Route path="complaints" element={<ComplaintSuggestionAdminPage />} />
+            <Route path="chat" element={<AdminChatConsole />} />
 
           </Route>
 

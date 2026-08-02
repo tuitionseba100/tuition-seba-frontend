@@ -18,37 +18,6 @@ const FloatingWhatsAppIcon = () => {
         userSelect: 'none',
       }}
     >
-      <a
-        href={whatsappLink}
-        target="_blank"
-        rel="noopener noreferrer"
-        aria-label="Need help? Chat with us"
-        title="Need help? Chat with us"
-        style={{
-          background: 'white',
-          borderRadius: '8px',
-          boxShadow: '0 2px 6px rgba(0,0,0,0.15)',
-          padding: '2px 6px',
-          color: '#222',
-          fontWeight: 700, // bolder font
-          cursor: 'pointer',
-          whiteSpace: 'nowrap',
-          fontSize: '11px',
-          height: '38px',
-          display: 'flex',
-          alignItems: 'center',
-          textDecoration: 'none',
-          transition: 'box-shadow 0.3s ease',
-        }}
-        onMouseEnter={(e) =>
-          (e.currentTarget.style.boxShadow = '0 4px 14px rgba(0,0,0,0.25)')
-        }
-        onMouseLeave={(e) =>
-          (e.currentTarget.style.boxShadow = '0 2px 6px rgba(0,0,0,0.15)')
-        }
-      >
-        Need help? Chat with us
-      </a>
 
       <motion.a
         href={whatsappLink}

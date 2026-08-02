@@ -1,0 +1,322 @@
+.ts-chat-widget-container {
+  position: fixed;
+  bottom: 20px;
+  right: 20px; /* Aligns both floats from the bottom right corner */
+  z-index: 1000;
+  font-family: 'Poppins', 'Inter', sans-serif;
+  user-select: none;
+}
+
+.ts-chat-label {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+  padding: 4px 10px;
+  color: #222;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  font-size: 11px;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  transition: box-shadow 0.3s ease, transform 0.2s ease;
+}
+
+.ts-chat-label:hover {
+  box-shadow: 0 4px 14px rgba(0,0,0,0.25);
+  transform: translateY(-1px);
+}
+
+/* Floating Toggle Button */
+.ts-chat-widget-toggle {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #004085 0%, #0066cc 100%);
+  color: white;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.ts-chat-widget-toggle:hover {
+  transform: scale(1.1);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+}
+
+/* Chat Window Frame */
+.ts-chat-widget-window {
+  position: absolute;
+  bottom: 60px;
+  right: 0;
+  width: 360px;
+  height: 480px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  animation: slideUp 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.ts-chat-screen {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* Verification Screen */
+.ts-verify-screen {
+  padding: 30px 24px;
+  justify-content: center;
+}
+
+.ts-verify-header {
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.ts-verify-header h3 {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #004085;
+  margin-bottom: 6px;
+}
+
+.ts-verify-header p {
+  font-size: 0.8rem;
+  color: #6c757d;
+}
+
+.ts-verify-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.ts-form-group label {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #495057;
+  margin-bottom: 6px;
+}
+
+.ts-input-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.ts-input-icon {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #adb5bd;
+}
+
+.ts-input-wrapper input {
+  width: 100%;
+  padding: 10px 14px 10px 38px;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.ts-input-wrapper input:focus {
+  border-color: #0066cc;
+}
+
+.ts-verify-btn {
+  padding: 12px;
+  background: linear-gradient(135deg, #004085 0%, #0066cc 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: opacity 0.2s;
+}
+
+.ts-verify-btn:hover {
+  opacity: 0.95;
+}
+
+.ts-error-msg {
+  color: #dc3545;
+  font-size: 0.75rem;
+  text-align: center;
+  margin-top: 10px;
+}
+
+/* Chat Active Header */
+.ts-chat-header {
+  background: #004085;
+  padding: 14px 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: white;
+}
+
+.ts-header-avatar {
+  color: #66b2ff;
+}
+
+.ts-header-info h4 {
+  font-size: 0.95rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.ts-online-status {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.7rem;
+  margin-top: 2px;
+}
+
+.ts-status-dot {
+  transition: color 0.3s;
+}
+
+.ts-status-dot.online {
+  color: #28a745;
+}
+
+.ts-status-dot.bot {
+  color: #ffc107;
+}
+
+/* Chat Messages */
+.ts-messages-container {
+  flex: 1;
+  padding: 16px;
+  background: #f8f9fa;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.ts-message {
+  max-width: 80%;
+  padding: 10px 14px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  line-height: 1.4;
+  word-wrap: break-word;
+}
+
+.ts-message.member {
+  align-self: flex-end;
+  background: #0066cc;
+  color: white;
+  border-bottom-right-radius: 2px;
+}
+
+.ts-message.agent {
+  align-self: flex-start;
+  background: #e9ecef;
+  color: #212529;
+  border-bottom-left-radius: 2px;
+}
+
+.ts-message.bot {
+  align-self: flex-start;
+  background: #e6f2ff;
+  color: #004085;
+  border: 1px solid #b3d7ff;
+  border-bottom-left-radius: 2px;
+}
+
+.ts-typing-indicator {
+  padding: 8px 14px;
+  display: flex;
+  gap: 4px;
+  align-self: flex-start;
+}
+
+.ts-typing-indicator span {
+  width: 6px;
+  height: 6px;
+  background: #ced4da;
+  border-radius: 50%;
+  animation: bounce 1.3s infinite ease-in-out;
+}
+
+.ts-typing-indicator span:nth-child(2) { animation-delay: 0.15s; }
+.ts-typing-indicator span:nth-child(3) { animation-delay: 0.3s; }
+
+@keyframes bounce {
+  0%, 60%, 100% { transform: translateY(0); }
+  30% { transform: translateY(-5px); }
+}
+
+/* Message Input Area */
+.ts-input-area {
+  padding: 12px;
+  background: white;
+  border-top: 1px solid #dee2e6;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.ts-input-area input {
+  flex: 1;
+  padding: 8px 14px;
+  border: 1.5px solid #ced4da;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  outline: none;
+}
+
+.ts-input-area input:focus {
+  border-color: #0066cc;
+}
+
+.ts-send-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #0066cc;
+  color: white;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ts-send-btn:hover {
+  background: #004085;
+}

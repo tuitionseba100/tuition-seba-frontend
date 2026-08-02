@@ -11,7 +11,7 @@ import About from '../../components/About';
 import PaymentOptions from '../../components/PaymentOptions';
 import CountSection from '../../components/CountSection';
 import Footer from '../../components/Footer';
-import FloatingWhatsAppIcon from '../../components/FloatingWhatsAppIcon';
+import ChatWidget from '../../components/ChatWidget';
 
 const SmallComplaintBanner = () => {
     const navigate = useNavigate();
@@ -51,7 +51,7 @@ const LandingPage = () => {
             <About />
             <PaymentOptions />
             <Footer />
-            <FloatingWhatsAppIcon />
+            <ChatWidget />
         </>
     );
 };

@@ -126,6 +126,7 @@ const Navbar = () => {
                                     {renderNavItem("/admin/lead", "Lead", "lead")}
                                     {renderNavItem("/admin/general", "Search", "general")}
                                     {renderNavItem("/admin/complaints", "Complaints")}
+                                    {renderNavItem("/admin/chat", "Chat")}
                                 </>
                             ) : null}
 

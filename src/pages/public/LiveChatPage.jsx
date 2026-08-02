@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Container, Card, Form, Button, Row, Col, Spinner, Badge } from 'react-bootstrap';
-import { BsChatDotsFill, BsX, BsArrowRightShort, BsTelephone, BsKey, BsSendFill, BsRobot, BsCircleFill } from 'react-icons/bs';
+import { BsChatDotsFill, BsX, BsArrowRightShort, BsTelephone, BsKey, BsSendFill, BsRobot, BsCircleFill, BsArrowDownShort, BsLightbulb, BsFileEarmarkPerson, BsBoxArrowUpRight } from 'react-icons/bs';
 import { io } from 'socket.io-client';
 import styled from 'styled-components';
 import { toast, ToastContainer } from 'react-toastify';
@@ -26,10 +26,31 @@ export default function LiveChatPage() {
   const [agentTyping, setAgentTyping] = useState(false);
   const [hasMore, setHasMore] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
+  const [showScrollBottom, setShowScrollBottom] = useState(false);
+  const [showSuggestions, setShowSuggestions] = useState(false);
   const socketRef = useRef(null);
+  const teacherDataRef = useRef(null);
 
-  const messagesEndRef = useRef(null);
+  const feedRef = useRef(null);
   const typingTimeoutRef = useRef(null);
+
+  const handleScroll = (e) => {
+    const { scrollTop, scrollHeight, clientHeight } = e.target;
+    if (scrollHeight - scrollTop - clientHeight > 150) {
+      setShowScrollBottom(true);
+    } else {
+      setShowScrollBottom(false);
+    }
+  };
+
+  const scrollToBottom = () => {
+    if (feedRef.current) {
+      feedRef.current.scrollTo({
+        top: feedRef.current.scrollHeight,
+        behavior: 'smooth'
+      });
+    }
+  };
 
   // Autofill user settings if available on mount
   useEffect(() => {
@@ -47,8 +68,8 @@ export default function LiveChatPage() {
 
   // Scroll to bottom on new messages
   useEffect(() => {
-    if (messagesEndRef.current) {
-      messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+    if (feedRef.current) {
+      feedRef.current.scrollTop = feedRef.current.scrollHeight;
     }
   }, [messages]);
 
@@ -73,6 +94,14 @@ export default function LiveChatPage() {
     socketRef.current.on('display_typing', ({ isTyping, role }) => {
       if (role === 'agent') {
         setAgentTyping(isTyping);
+      }
+    });
+
+    socketRef.current.on('message_unsent', ({ messageId, phone: msgPhone }) => {
+      if (msgPhone === user.phone) {
+        setMessages(prev => prev.map(msg =>
+          msg._id === messageId ? { ...msg, isUnsent: true } : msg
+        ));
       }
     });
 
@@ -101,17 +130,19 @@ export default function LiveChatPage() {
       const data = await res.json();
 
       if (data.success) {
+        const teacherFullData = data.data.data;
+        teacherDataRef.current = teacherFullData;
         const verifiedUser = {
-          name: data.data.data.name || 'Premium Member',
+          name: teacherFullData.name || 'Premium Member',
           phone: data.data.phone,
           premiumCode: data.data.premiumCode
         };
         setUser(verifiedUser);
-        
+
         // Load history (Initial load limit = 20)
         const histRes = await fetchWithFallback(`${BASE_URL}/api/chat/history/${verifiedUser.phone}?limit=20`);
         const histData = await histRes.json();
-        
+
         if (histData.length === 0) {
           setMessages([
             {
@@ -205,6 +236,21 @@ export default function LiveChatPage() {
     });
   };
 
+  const renderTextWithLinks = (text) => {
+    const urlRegex = /(https?:\/\/[^\s]+)/g;
+    const parts = text.split(urlRegex);
+    return parts.map((part, i) => {
+      if (urlRegex.test(part)) {
+        return (
+          <a key={i} href={part} target="_blank" rel="noopener noreferrer" style={{ color: 'inherit', textDecoration: 'underline', fontWeight: 600 }}>
+            {part}
+          </a>
+        );
+      }
+      return part;
+    });
+  };
+
   const renderMessageText = (text) => {
     return text.split('\n').map((line, idx) => {
       const parts = line.split('**');
@@ -213,14 +259,14 @@ export default function LiveChatPage() {
           {idx > 0 && <br />}
           {parts.map((part, pIdx) => {
             if (pIdx % 2 === 1) {
-              return <strong key={pIdx}>{part}</strong>;
+              return <strong key={pIdx}>{renderTextWithLinks(part)}</strong>;
             }
             const subParts = part.split('*');
             return subParts.map((subPart, sIdx) => {
               if (sIdx % 2 === 1) {
-                return <em key={sIdx}>{subPart}</em>;
+                return <em key={sIdx}>{renderTextWithLinks(subPart)}</em>;
               }
-              return subPart;
+              return renderTextWithLinks(subPart);
             });
           })}
         </span>
@@ -232,7 +278,7 @@ export default function LiveChatPage() {
     <>
       <NavBar />
       <PageWrapper style={{ fontFamily: BANGLA_FONT }}>
-        <Container className="d-flex justify-content-center align-items-center h-100 py-4">
+        <Container className="d-flex justify-content-center align-items-start h-100 py-2">
           {!user ? (
             /* Premium Verification Form Card */
             <CardWrapper className="border-0 shadow-lg p-4 p-md-5 rounded-4">
@@ -281,9 +327,9 @@ export default function LiveChatPage() {
                   </div>
                 </Form.Group>
 
-                <Button 
-                  type="submit" 
-                  variant="primary" 
+                <Button
+                  type="submit"
+                  variant="primary"
                   className="w-100 py-2.5 rounded-3 fw-bold d-flex align-items-center justify-content-center gap-2 shadow-sm"
                   disabled={loading}
                 >
@@ -301,7 +347,7 @@ export default function LiveChatPage() {
             <ChatInterfaceWrapper className="border-0 shadow-lg rounded-4 overflow-hidden w-100">
               <Row className="g-0 h-100">
                 {/* Left Information Panel */}
-                <Col md={4} className="bg-primary text-white p-3 p-md-4 d-flex flex-column justify-content-between border-end border-primary-dark">
+                <Col md={4} className="bg-primary text-white p-3 p-md-4 d-flex flex-column justify-content-between border-end border-primary-dark d-none d-md-flex">
                   <div>
                     <div className="text-center mb-2 mb-md-4">
                       <div className="d-inline-flex p-2 p-md-3 bg-white bg-opacity-10 rounded-circle mb-2 mb-md-3">
@@ -318,7 +364,7 @@ export default function LiveChatPage() {
                       <div className="d-flex flex-column gap-2" style={{ fontSize: '0.9rem' }}>
                         <div>মোবাইল: <strong>{user.phone}</strong></div>
                         <div className="d-flex align-items-center gap-2 mt-1">
-                          স্ট্যাটাস: 
+                          স্ট্যাটাস:
                           <span className="d-inline-flex align-items-center gap-1.5 fw-semibold">
                             <BsCircleFill className={agentOnline ? 'text-success' : 'text-warning'} size={8} />
                             {agentOnline ? 'Agent Active' : 'Bot Active'}
@@ -346,15 +392,21 @@ export default function LiveChatPage() {
                         <small className="text-muted" style={{ fontSize: '0.75rem' }}>Tuition Seba Help Desk</small>
                       </div>
                     </div>
+                    {/* User Info (Mobile Only) */}
+                    <div className="d-md-none text-end">
+                      <div className="fw-semibold text-dark text-truncate" style={{ fontSize: '0.85rem', maxWidth: '140px' }}>{user.name}</div>
+                      <Badge bg="primary" style={{ fontSize: '0.68rem', padding: '4px 8px' }}>{user.premiumCode}</Badge>
+                    </div>
                   </div>
 
+
                   {/* Message Logs Feed */}
-                  <div className="flex-grow-1 overflow-auto p-4 d-flex flex-column gap-3 bg-light bg-opacity-50 ts-msg-feed-box">
+                  <div ref={feedRef} className="flex-grow-1 overflow-auto p-4 d-flex flex-column gap-3 bg-light bg-opacity-50 ts-msg-feed-box" onScroll={handleScroll}>
                     {hasMore && (
-                      <Button 
-                        variant="link" 
-                        size="sm" 
-                        onClick={loadMoreMessages} 
+                      <Button
+                        variant="link"
+                        size="sm"
+                        onClick={loadMoreMessages}
                         className="d-block mx-auto text-decoration-none fw-bold"
                         disabled={loadingMore}
                       >
@@ -362,21 +414,19 @@ export default function LiveChatPage() {
                       </Button>
                     )}
 
-                    {messages.map((msg, i) => (
+                    {messages.filter(msg => !msg.isUnsent).map((msg, i) => (
                       <div
                         key={i}
-                        className={`d-flex flex-column ${
-                          msg.sender === 'member' ? 'align-items-end' : 'align-items-start'
-                        }`}
+                        className={`d-flex flex-column ${msg.sender === 'member' ? 'align-items-end' : 'align-items-start'
+                          }`}
                       >
-                        <MessageBubble 
-                          className={`px-3 py-2.5 rounded-3 shadow-sm ${
-                            msg.sender === 'member'
-                              ? 'bg-primary text-white rounded-bottom-end-0'
-                              : msg.sender === 'bot'
+                        <MessageBubble
+                          className={`px-3 py-2.5 rounded-3 shadow-sm ${msg.sender === 'member'
+                            ? 'bg-primary text-white rounded-bottom-end-0'
+                            : msg.sender === 'bot'
                               ? 'bg-info-subtle border border-info-subtle text-info-emphasis rounded-bottom-start-0'
                               : 'bg-white text-dark border rounded-bottom-start-0'
-                          }`}
+                            }`}
                         >
                           {renderMessageText(msg.text)}
                         </MessageBubble>
@@ -395,18 +445,126 @@ export default function LiveChatPage() {
                         </div>
                       </div>
                     )}
-                    <div ref={messagesEndRef} />
                   </div>
+
+                  {showScrollBottom && (
+                    <Button
+                      onClick={scrollToBottom}
+                      style={{
+                        position: 'absolute',
+                        bottom: '80px',
+                        right: '25px',
+                        width: '40px',
+                        height: '40px',
+                        borderRadius: '50%',
+                        backgroundColor: '#ffffff',
+                        border: '1px solid #e2e8f0',
+                        color: '#1e293b',
+                        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+                        zIndex: 100,
+                        padding: 0
+                      }}
+                      className="d-flex align-items-center justify-content-center"
+                    >
+                      <BsArrowDownShort size={24} />
+                    </Button>
+                  )}
+
+                  {/* Suggestions Panel */}
+                  {showSuggestions && (
+                    <div className="px-3 pt-2 pb-1 border-top bg-white d-flex gap-2 flex-wrap" style={{ borderTop: '1px solid #e2e8f0' }}>
+                      <button
+                        onClick={() => {
+                          setShowSuggestions(false);
+                          const now = new Date().toISOString();
+                          // Show user question on right
+                          setMessages(prev => [...prev, { sender: 'member', text: 'আমার সর্বশেষ সিভি দেখতে চাই', createdAt: now }]);
+                          // Show bot reply on left after brief delay
+                          setTimeout(() => {
+                            const td = teacherDataRef.current;
+                            if (!td) {
+                              setMessages(prev => [...prev, { sender: 'bot', text: 'দুঃখিত, আপনার সিভি তথ্য লোড করা সম্ভব হয়নি।', createdAt: new Date().toISOString() }]);
+                              return;
+                            }
+                            const cvText = [
+                              `📋 **${td.name || 'N/A'} এর সিভি**`,
+                              ``,
+                              `👤 **ব্যক্তিগত তথ্য**`,
+                              `নাম: **${td.name || 'N/A'}**`,
+                              `লিঙ্গ: ${td.gender || 'N/A'}`,
+                              `ফোন: ${td.phone || 'N/A'}`,
+                              td.email ? `ইমেইল: ${td.email}` : null,
+                              td.currentArea ? `বর্তমান এলাকা: ${td.currentArea}` : null,
+                              td.district ? `জেলা: ${td.district}` : null,
+                              td.thana ? `থানা: ${td.thana}` : null,
+                              ``,
+                              `🎓 **শিক্ষাগত যোগ্যতা**`,
+                              td.university ? `বিশ্ববিদ্যালয়: **${td.university}**` : null,
+                              td.department ? `বিভাগ: ${td.department}` : null,
+                              td.academicYear ? `শিক্ষাবর্ষ: ${td.academicYear}` : null,
+                              td.medium ? `মাধ্যম: ${td.medium}` : null,
+                              td.honorsUniversity ? `অনার্স বিশ্ববিদ্যালয়: ${td.honorsUniversity}` : null,
+                              td.honorsDept ? `অনার্স বিভাগ: ${td.honorsDept}` : null,
+                              td.mastersUniversity ? `মাস্টার্স বিশ্ববিদ্যালয়: ${td.mastersUniversity}` : null,
+                              td.mastersDept ? `মাস্টার্স বিভাগ: ${td.mastersDept}` : null,
+                              td.college ? `কলেজ: ${td.college}` : null,
+                              td.hscGroup ? `এইচএসসি গ্রুপ: ${td.hscGroup}` : null,
+                              td.hscResult ? `এইচএসসি ফলাফল: ${td.hscResult}` : null,
+                              td.school ? `স্কুল: ${td.school}` : null,
+                              td.sscGroup ? `এসএসসি গ্রুপ: ${td.sscGroup}` : null,
+                              td.sscResult ? `এসএসসি ফলাফল: ${td.sscResult}` : null,
+                              ``,
+                              `📚 **টিউশন তথ্য**`,
+                              td.experience ? `অভিজ্ঞতা: ${td.experience}` : null,
+                              td.favoriteSubject ? `পছন্দের বিষয়: ${td.favoriteSubject}` : null,
+                              td.expectedTuitionAreas ? `পছন্দের এলাকা: ${td.expectedTuitionAreas}` : null,
+                              `প্রিমিয়াম কোড: **${td.premiumCode || 'N/A'}**`,
+                              td.status ? `স্ট্যাটাস: ${td.status}` : null,
+                            ].filter(Boolean).join('\n');
+                            setMessages(prev => [...prev, { sender: 'bot', text: cvText, createdAt: new Date().toISOString() }]);
+                          }, 500);
+                        }}
+                        className="ts-suggestion-chip"
+                      >
+                        <BsFileEarmarkPerson size={14} /> আমার সর্বশেষ সিভি দেখতে চাই
+                      </button>
+                      <button
+                        onClick={() => {
+                          setShowSuggestions(false);
+                          const now = new Date().toISOString();
+                          // Show user question on right
+                          setMessages(prev => [...prev, { sender: 'member', text: 'আমার অ্যাপ্লাইগুলোর কি অবস্থা?', createdAt: now }]);
+                          // Show bot reply on left after brief delay
+                          setTimeout(() => {
+                            const updateText = `📢 **আপনার অ্যাপ্লাই করা টিউশনগুলোর আপডেট**\n\nআপনার অ্যাপ্লাই করা টিউশনগুলোর সর্বশেষ অবস্থা জানতে নিচের লিংকে ক্লিক করুন:\n\n🔗 **https://www.tuitionsebaforum.com/apply-updates**\n\nউক্ত পেজে আপনার ফোন নম্বর ও প্রিমিয়াম কোড দিয়ে লগইন করলে আপনার সকল অ্যাপ্লাই এর বর্তমান স্ট্যাটাস দেখতে পারবেন।`;
+                            setMessages(prev => [...prev, { sender: 'bot', text: updateText, createdAt: new Date().toISOString() }]);
+                          }, 500);
+                        }}
+                        className="ts-suggestion-chip"
+                      >
+                        <BsBoxArrowUpRight size={13} /> আমার অ্যাপ্লাইগুলোর কি অবস্থা
+                      </button>
+                    </div>
+                  )}
 
                   {/* Chat Input Bar */}
                   <div className="p-3 border-top bg-white">
-                    <Form 
-                      onSubmit={(e) => { 
-                        e.preventDefault(); 
-                        handleSend(); 
-                      }} 
-                      className="d-flex gap-2"
+                    <Form
+                      onSubmit={(e) => {
+                        e.preventDefault();
+                        handleSend();
+                      }}
+                      className="d-flex gap-2 align-items-center"
                     >
+                      <Button
+                        variant="link"
+                        onClick={() => setShowSuggestions(prev => !prev)}
+                        className="p-0 d-flex align-items-center justify-content-center"
+                        style={{ width: '36px', height: '36px', flexShrink: 0, color: '#f59e0b', opacity: showSuggestions ? 1 : 0.55, transition: 'opacity 0.15s', textDecoration: 'none' }}
+                        title="সাজেশন দেখুন"
+                      >
+                        <BsLightbulb size={20} />
+                      </Button>
                       <Form.Control
                         type="text"
                         placeholder="আপনার বার্তাটি এখানে লিখুন..."
@@ -416,10 +574,10 @@ export default function LiveChatPage() {
                         className="rounded-pill px-4"
                         style={{ fontSize: '0.9rem' }}
                       />
-                      <Button 
-                        type="submit" 
-                        variant="primary" 
-                        className="rounded-circle d-flex align-items-center justify-content-center" 
+                      <Button
+                        type="submit"
+                        variant="primary"
+                        className="rounded-circle d-flex align-items-center justify-content-center"
                         style={{ width: '42px', height: '42px', flexShrink: 0 }}
                       >
                         <BsSendFill size={16} />
@@ -442,11 +600,12 @@ const PageWrapper = styled.div`
   background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
   min-height: calc(100vh - 120px);
   display: flex;
-  align-items: center;
-  padding: 40px 0;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 15px 0 100px 0;
 
   @media (max-width: 768px) {
-    padding: 20px 0;
+    padding: 10px 0 80px 0;
   }
 
   /* Custom Sleek Scrollbar */
@@ -500,6 +659,7 @@ const ChatInterfaceWrapper = styled(Card)`
   
   .ts-chat-main-col {
     min-height: 520px;
+    position: relative;
   }
 
   .ts-msg-feed-box {
@@ -507,20 +667,51 @@ const ChatInterfaceWrapper = styled(Card)`
   }
   
   @media (max-width: 768px) {
-    height: auto;
+    height: calc(100vh - 160px);
+    min-height: 480px;
     
     .row {
       flex-direction: column;
+      height: 100%;
     }
 
     .ts-chat-main-col {
-      min-height: 380px;
+      height: 100%;
+      min-height: unset;
     }
 
     .ts-msg-feed-box {
-      height: 300px;
+      flex: 1;
+      height: auto !important;
       padding: 16px !important;
     }
+  }
+
+  .ts-suggestion-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 14px;
+    border-radius: 20px;
+    border: 1px solid #dbeafe;
+    background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+    color: #1d4ed8;
+    font-size: 0.78rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+  }
+
+  .ts-suggestion-chip:hover {
+    background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+    border-color: #93c5fd;
+    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.15);
+    transform: translateY(-1px);
+  }
+
+  .ts-suggestion-chip:active {
+    transform: translateY(0);
   }
 `;
 

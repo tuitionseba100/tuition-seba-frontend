@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { io } from 'socket.io-client';
-import { BsChatDotsFill, BsX, BsArrowRightShort, BsTelephone, BsKey, BsSendFill, BsRobot, BsCircleFill, BsWhatsapp } from 'react-icons/bs';
+import { BsChatDotsFill, BsX, BsArrowRightShort, BsTelephone, BsKey, BsSendFill, BsRobot, BsCircleFill, BsWhatsapp, BsArrowDownShort, BsLightbulb, BsFileEarmarkPerson, BsBoxArrowUpRight } from 'react-icons/bs';
 import { fetchWithFallback } from '../services/fetchWithFallback';
 import './ChatWidget.css';
 
@@ -21,13 +21,35 @@ export default function ChatWidget() {
   const [agentTyping, setAgentTyping] = useState(false);
   const [hasMore, setHasMore] = useState(false);
 
-  const messagesEndRef = useRef(null);
+  const [showScrollBottom, setShowScrollBottom] = useState(false);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const teacherDataRef = useRef(null);
+
+  const feedRef = useRef(null);
   const typingTimeoutRef = useRef(null);
   const socketRef = useRef(null);
 
+  const handleScroll = (e) => {
+    const { scrollTop, scrollHeight, clientHeight } = e.target;
+    if (scrollHeight - scrollTop - clientHeight > 150) {
+      setShowScrollBottom(true);
+    } else {
+      setShowScrollBottom(false);
+    }
+  };
+
+  const scrollToBottom = () => {
+    if (feedRef.current) {
+      feedRef.current.scrollTo({
+        top: feedRef.current.scrollHeight,
+        behavior: 'smooth'
+      });
+    }
+  };
+
   useEffect(() => {
-    if (messagesEndRef.current) {
-      messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+    if (feedRef.current) {
+      feedRef.current.scrollTop = feedRef.current.scrollHeight;
     }
   }, [messages]);
 
@@ -70,6 +92,14 @@ export default function ChatWidget() {
       }
     });
 
+    socketRef.current.on('message_unsent', ({ messageId, phone: msgPhone }) => {
+      if (msgPhone === user.phone) {
+        setMessages(prev => prev.map(msg =>
+          msg._id === messageId ? { ...msg, isUnsent: true } : msg
+        ));
+      }
+    });
+
     return () => {
       if (socketRef.current) {
         socketRef.current.emit('leave_room', { phone: user.phone, role: 'member' });
@@ -95,8 +125,10 @@ export default function ChatWidget() {
       const data = await res.json();
 
       if (data.success) {
+        const teacherFullData = data.data.data;
+        teacherDataRef.current = teacherFullData;
         const verifiedUser = {
-          name: data.data.data.name || 'Premium Member',
+          name: teacherFullData.name || 'Premium Member',
           phone: data.data.phone,
           premiumCode: data.data.premiumCode
         };
@@ -194,6 +226,21 @@ export default function ChatWidget() {
     });
   };
 
+  const renderTextWithLinks = (text) => {
+    const urlRegex = /(https?:\/\/[^\s]+)/g;
+    const parts = text.split(urlRegex);
+    return parts.map((part, i) => {
+      if (urlRegex.test(part)) {
+        return (
+          <a key={i} href={part} target="_blank" rel="noopener noreferrer" style={{ color: 'inherit', textDecoration: 'underline', fontWeight: 600 }}>
+            {part}
+          </a>
+        );
+      }
+      return part;
+    });
+  };
+
   const renderMessageText = (text) => {
     return text.split('\n').map((line, idx) => {
       const parts = line.split('**');
@@ -202,14 +249,14 @@ export default function ChatWidget() {
           {idx > 0 && <br />}
           {parts.map((part, pIdx) => {
             if (pIdx % 2 === 1) {
-              return <strong key={pIdx}>{part}</strong>;
+              return <strong key={pIdx}>{renderTextWithLinks(part)}</strong>;
             }
             const subParts = part.split('*');
             return subParts.map((subPart, sIdx) => {
               if (sIdx % 2 === 1) {
-                return <em key={sIdx}>{subPart}</em>;
+                return <em key={sIdx}>{renderTextWithLinks(subPart)}</em>;
               }
-              return subPart;
+              return renderTextWithLinks(subPart);
             });
           })}
         </span>
@@ -281,6 +328,9 @@ export default function ChatWidget() {
           <div className="ts-chat-widget-window">
             {!user ? (
               <div className="ts-chat-screen ts-verify-screen">
+                <button className="ts-verify-close-btn" onClick={() => setIsOpen(false)} aria-label="Close">
+                  <BsX size={24} />
+                </button>
                 <div className="ts-verify-header">
                   <h3>Live Support</h3>
                   <p>Connect with Tuition Seba agents in real time.</p>
@@ -334,9 +384,12 @@ export default function ChatWidget() {
                       <span>{agentOnline ? 'Agent Online' : 'Bot Active'}</span>
                     </div>
                   </div>
+                  <button className="ts-active-close-btn" onClick={() => setIsOpen(false)} aria-label="Close">
+                    <BsX size={24} />
+                  </button>
                 </div>
                 
-                <div className="ts-messages-container">
+                <div ref={feedRef} className="ts-messages-container" onScroll={handleScroll}>
                   {hasMore && (
                     <button 
                       onClick={loadMoreMessages} 
@@ -356,7 +409,7 @@ export default function ChatWidget() {
                       Load previous messages
                     </button>
                   )}
-                  {messages.map((msg, i) => (
+                  {messages.filter(msg => !msg.isUnsent).map((msg, i) => (
                     <div
                       key={i}
                       style={{
@@ -388,10 +441,96 @@ export default function ChatWidget() {
                       <span></span><span></span><span></span>
                     </div>
                   )}
-                  <div ref={messagesEndRef} />
                 </div>
                 
+                {showScrollBottom && (
+                  <button className="ts-scroll-bottom-btn" onClick={scrollToBottom} aria-label="Scroll to bottom">
+                    <BsArrowDownShort size={20} />
+                  </button>
+                )}
+                
+                {/* Suggestions Panel */}
+                {showSuggestions && (
+                  <div className="ts-widget-suggestions">
+                    <button
+                      onClick={() => {
+                        setShowSuggestions(false);
+                        const now = new Date().toISOString();
+                        setMessages(prev => [...prev, { sender: 'member', text: 'আমার সর্বশেষ সিভি দেখতে চাই', createdAt: now }]);
+                        setTimeout(() => {
+                          const td = teacherDataRef.current;
+                          if (!td) {
+                            setMessages(prev => [...prev, { sender: 'bot', text: 'দুঃখিত, আপনার সিভি তথ্য লোড করা সম্ভব হয়নি।', createdAt: new Date().toISOString() }]);
+                            return;
+                          }
+                          const cvText = [
+                            `📋 **${td.name || 'N/A'} এর সিভি**`,
+                            ``,
+                            `👤 **ব্যক্তিগত তথ্য**`,
+                            `নাম: **${td.name || 'N/A'}**`,
+                            `লিঙ্গ: ${td.gender || 'N/A'}`,
+                            `ফোন: ${td.phone || 'N/A'}`,
+                            td.email ? `ইমেইল: ${td.email}` : null,
+                            td.currentArea ? `বর্তমান এলাকা: ${td.currentArea}` : null,
+                            td.district ? `জেলা: ${td.district}` : null,
+                            td.thana ? `থানা: ${td.thana}` : null,
+                            ``,
+                            `🎓 **শিক্ষাগত যোগ্যতা**`,
+                            td.university ? `বিশ্ববিদ্যালয়: **${td.university}**` : null,
+                            td.department ? `বিভাগ: ${td.department}` : null,
+                            td.academicYear ? `শিক্ষাবর্ষ: ${td.academicYear}` : null,
+                            td.medium ? `মাধ্যম: ${td.medium}` : null,
+                            td.honorsUniversity ? `অনার্স বিশ্ববিদ্যালয়: ${td.honorsUniversity}` : null,
+                            td.honorsDept ? `অনার্স বিভাগ: ${td.honorsDept}` : null,
+                            td.mastersUniversity ? `মাস্টার্স বিশ্ববিদ্যালয়: ${td.mastersUniversity}` : null,
+                            td.mastersDept ? `মাস্টার্স বিভাগ: ${td.mastersDept}` : null,
+                            td.college ? `কলেজ: ${td.college}` : null,
+                            td.hscGroup ? `এইচএসসি গ্রুপ: ${td.hscGroup}` : null,
+                            td.hscResult ? `এইচএসসি ফলাফল: ${td.hscResult}` : null,
+                            td.school ? `স্কুল: ${td.school}` : null,
+                            td.sscGroup ? `এসএসসি গ্রুপ: ${td.sscGroup}` : null,
+                            td.sscResult ? `এসএসসি ফলাফল: ${td.sscResult}` : null,
+                            ``,
+                            `📚 **টিউশন তথ্য**`,
+                            td.experience ? `অভিজ্ঞতা: ${td.experience}` : null,
+                            td.favoriteSubject ? `পছন্দের বিষয়: ${td.favoriteSubject}` : null,
+                            td.expectedTuitionAreas ? `পছন্দের এলাকা: ${td.expectedTuitionAreas}` : null,
+                            `প্রিমিয়াম কোড: **${td.premiumCode || 'N/A'}**`,
+                            td.status ? `স্ট্যাটাস: ${td.status}` : null,
+                          ].filter(Boolean).join('\n');
+                          setMessages(prev => [...prev, { sender: 'bot', text: cvText, createdAt: new Date().toISOString() }]);
+                        }, 500);
+                      }}
+                      className="ts-widget-suggestion-btn"
+                    >
+                      <BsFileEarmarkPerson size={13} /> আমার সর্বশেষ সিভি দেখতে চাই
+                    </button>
+                    <button
+                      onClick={() => {
+                        setShowSuggestions(false);
+                        const now = new Date().toISOString();
+                        setMessages(prev => [...prev, { sender: 'member', text: 'আমার অ্যাপ্লাইগুলোর কি অবস্থা?', createdAt: now }]);
+                        setTimeout(() => {
+                          const updateText = `📢 **আপনার অ্যাপ্লাই করা টিউশনগুলোর আপডেট**\n\nআপনার অ্যাপ্লাই করা টিউশনগুলোর সর্বশেষ অবস্থা জানতে নিচের লিংকে ক্লিক করুন:\n\n🔗 **https://www.tuitionsebaforum.com/apply-updates**\n\nউক্ত পেজে আপনার ফোন নম্বর ও প্রিমিয়াম কোড দিয়ে লগইন করলে আপনার সকল অ্যাপ্লাই এর বর্তমান স্ট্যাটাস দেখতে পারবেন।`;
+                          setMessages(prev => [...prev, { sender: 'bot', text: updateText, createdAt: new Date().toISOString() }]);
+                        }, 500);
+                      }}
+                      className="ts-widget-suggestion-btn"
+                    >
+                      <BsBoxArrowUpRight size={12} /> আমার অ্যাপ্লাইগুলোর কি অবস্থা
+                    </button>
+                  </div>
+                )}
+
                 <div className="ts-input-area">
+                  <button
+                    onClick={() => setShowSuggestions(prev => !prev)}
+                    className="ts-widget-bulb-btn"
+                    style={{ opacity: showSuggestions ? 1 : 0.55 }}
+                    title="সাজেশন দেখুন"
+                  >
+                    <BsLightbulb size={18} />
+                  </button>
                   <input
                     type="text"
                     value={input}

@@ -332,8 +332,9 @@ export default function ChatWidget() {
                   <BsX size={24} />
                 </button>
                 <div className="ts-verify-header">
-                  <h3>Live Support</h3>
-                  <p>Connect with Tuition Seba agents in real time.</p>
+                  <div className="ts-verify-badge">TSF Chat System</div>
+                  <h3>সরাসরি লাইভ চ্যাট</h3>
+                  <p>ফোন নম্বর ও প্রিমিয়াম কোড দিয়ে ভেরিফাই করে সরাসরি আমাদের সাপোর্ট এজেন্টের সাথে চ্যাট শুরু করুন।</p>
                 </div>
                 
                 <form onSubmit={handleVerify} className="ts-verify-form">

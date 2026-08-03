@@ -20,7 +20,7 @@ const TutorSection = () => {
     const sectionStyle = {
         position: 'relative',
         overflow: 'hidden',
-        padding: '50px 0 70px 0', // Reduced bottom padding to tighten gap
+        padding: '20px 0 70px 0', // Reduced top padding to remove extra gap
         background: 'linear-gradient(135deg, #004085 0%, #0066cc 100%)',
         color: 'white',
         textAlign: 'center',
@@ -117,6 +117,119 @@ const TutorSection = () => {
             <Container style={{ position: 'relative', zIndex: 2 }}>
                 <Row className="justify-content-center">
                     <Col lg={10}>
+                        {/* Live Chat System Announcement Bar */}
+                        <motion.div
+                            initial={{ opacity: 0, y: -20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.2, duration: 0.8 }}
+                            style={{
+                                display: 'flex',
+                                justifyContent: 'center',
+                                marginBottom: '15px',
+                                padding: '0 15px'
+                            }}
+                        >
+                            <div
+                                onClick={() => navigate('/livechat')}
+                                style={{
+                                    background: 'linear-gradient(90deg, rgba(10, 25, 47, 0.95) 0%, rgba(16, 37, 66, 0.98) 100%)',
+                                    border: '1.5px solid rgba(97, 218, 251, 0.6)',
+                                    padding: '6px 18px',
+                                    maxWidth: '750px',
+                                    width: '100%',
+                                    cursor: 'pointer',
+                                    boxShadow: '0 0 15px rgba(97, 218, 251, 0.3), inset 0 0 10px rgba(97, 218, 251, 0.1)',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'space-between',
+                                    gap: '12px',
+                                    transition: 'all 0.3s ease',
+                                }}
+                                className="live-chat-banner-bar"
+                            >
+                                <style>
+                                    {`
+                                        .live-chat-banner-bar {
+                                            border-radius: 50px;
+                                        }
+                                        .live-chat-banner-bar:hover {
+                                            transform: translateY(-2px);
+                                            background: linear-gradient(90deg, rgba(16, 37, 66, 0.98) 0%, rgba(22, 53, 94, 1) 100%) !important;
+                                            box-shadow: 0 0 25px rgba(97, 218, 251, 0.5), inset 0 0 15px rgba(97, 218, 251, 0.2) !important;
+                                            border-color: #00d2ff !important;
+                                        }
+                                        @keyframes pulse-dot {
+                                            0% { transform: scale(0.95); opacity: 0.7; box-shadow: 0 0 6px #00e676; }
+                                            50% { transform: scale(1.2); opacity: 1; box-shadow: 0 0 12px #00e676; }
+                                            100% { transform: scale(0.95); opacity: 0.7; box-shadow: 0 0 6px #00e676; }
+                                        }
+                                        @media (max-width: 576px) {
+                                            .live-chat-banner-bar {
+                                                border-radius: 20px !important;
+                                                padding: 8px 14px !important;
+                                                flex-wrap: wrap !important;
+                                                gap: 8px !important;
+                                            }
+                                            .live-chat-banner-text {
+                                                font-size: 0.78rem !important;
+                                            }
+                                            .live-chat-banner-btn {
+                                                font-size: 0.7rem !important;
+                                                padding: 4px 10px !important;
+                                                margin-left: auto !important;
+                                            }
+                                        }
+                                    `}
+                                </style>
+                                
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flex: '1', minWidth: '0' }}>
+                                    <span style={{
+                                        width: '8px',
+                                        height: '8px',
+                                        backgroundColor: '#00e676',
+                                        borderRadius: '50%',
+                                        display: 'inline-block',
+                                        animation: 'pulse-dot 1.8s infinite ease-in-out',
+                                        flexShrink: 0
+                                    }} />
+                                    <span 
+                                        className="live-chat-banner-text"
+                                        style={{
+                                            fontSize: '0.85rem',
+                                            fontWeight: '600',
+                                            color: '#ffffff',
+                                            lineHeight: '1.4',
+                                            textAlign: 'left'
+                                        }}
+                                    >
+                                        💬 <strong style={{ color: '#61dafb', fontWeight: '800' }}>TSF Chat System:</strong> যেকোনো প্রয়োজনে সরাসরি আমাদের সাথে লাইভ চ্যাট করুন!
+                                    </span>
+                                </div>
+
+                                <div 
+                                    className="live-chat-banner-btn"
+                                    style={{
+                                        background: 'linear-gradient(135deg, #61dafb, #00d2ff)',
+                                        color: '#0a192f',
+                                        fontWeight: '800',
+                                        fontSize: '0.75rem',
+                                        padding: '4px 12px',
+                                        borderRadius: '30px',
+                                        display: 'inline-flex',
+                                        alignItems: 'center',
+                                        gap: '4px',
+                                        boxShadow: '0 3px 10px rgba(97, 218, 251, 0.3)',
+                                        textTransform: 'uppercase',
+                                        transition: 'all 0.2s',
+                                        whiteSpace: 'nowrap',
+                                        flexShrink: 0
+                                    }}
+                                >
+                                    চ্যাট করুন →
+                                </div>
+                            </div>
+                        </motion.div>
+
                         {/* Theme-Standard High-Highlight (Compact Full Bangla) */}
                         <motion.div
                             initial={{ opacity: 0, scale: 0.95, y: -20 }}
@@ -129,7 +242,7 @@ const TutorSection = () => {
                                 damping: 20
                             }}
                             style={{
-                                marginBottom: '40px',
+                                marginBottom: '15px',
                                 display: 'flex',
                                 justifyContent: 'center',
                                 position: 'relative',
@@ -317,7 +430,7 @@ const TutorSection = () => {
                         </motion.div>
 
                         {/* Premium Referral Card */}
-                        <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '45px', padding: '0 15px' }}>
+                        <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '15px', padding: '0 15px' }}>
                             <motion.div
                                 initial={{ opacity: 0, y: 20 }}
                                 animate={{ opacity: 1, y: 0 }}

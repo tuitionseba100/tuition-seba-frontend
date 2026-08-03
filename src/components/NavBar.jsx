@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Navbar, Nav, Container } from 'react-bootstrap';
 import { FaFacebookF, FaWhatsapp } from 'react-icons/fa';
-import { FiSettings, FiBell } from 'react-icons/fi';
+import { FiSettings, FiBell, FiMessageSquare } from 'react-icons/fi';
 import { NavLink, useNavigate, useLocation } from 'react-router-dom';
 import SettingsModal from './modals/SettingsModal';
 
@@ -137,6 +137,42 @@ const NavbarComponent = () => {
 
                 {/* Mobile Settings & Apply Updates Icon - visible only on mobile (< lg) */}
                 <div className="d-flex d-lg-none align-items-center" style={{ position: 'relative', marginLeft: 'auto', marginRight: 10, gap: 10 }}>
+                    {/* Live Chat Icon Highlighted */}
+                    <button
+                        onClick={() => navigate('/livechat')}
+                        style={{
+                            border: '1.5px solid #61dafb',
+                            background: location.pathname === '/livechat' ? 'rgba(97, 218, 251, 0.35)' : 'rgba(97, 218, 251, 0.12)',
+                            backdropFilter: 'blur(5px)',
+                            borderRadius: '50%',
+                            width: 38,
+                            height: 38,
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            color: '#61dafb',
+                            fontSize: 18,
+                            cursor: 'pointer',
+                            transition: 'all 0.3s',
+                            position: 'relative',
+                            zIndex: 2,
+                            boxShadow: '0 0 10px rgba(97, 218, 251, 0.4)'
+                        }}
+                        title="Live Chat"
+                    >
+                        <FiMessageSquare />
+                        <span style={{
+                            position: 'absolute',
+                            top: '-2px',
+                            right: '-2px',
+                            width: '8px',
+                            height: '8px',
+                            backgroundColor: '#00e676',
+                            borderRadius: '50%',
+                            boxShadow: '0 0 6px #00e676',
+                        }} />
+                    </button>
+
                     <button
                         onClick={() => navigate('/apply-updates')}
                         style={{

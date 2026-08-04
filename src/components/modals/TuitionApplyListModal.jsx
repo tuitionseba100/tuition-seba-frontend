@@ -138,8 +138,8 @@ function AppliedListModal({ tuitionId, tuitionCode, show, onHide }) {
     const dueStyle = { backgroundColor: '#FFFF00', color: 'black' };
 
     const getRowStyle = (tuition) => {
-        if (tuition.hasDue) return dueStyle;
         if (tuition.isSpam) return spamStyle;
+        if (tuition.hasDue) return dueStyle;
         if (tuition.isBest) return bestStyle;
         if (tuition.isExpress) return manualExpressStyle;
         return {};
@@ -251,22 +251,29 @@ function AppliedListModal({ tuitionId, tuitionCode, show, onHide }) {
                                                 <td style={style}>{app.address}</td>
                                                 <td style={style}>{formatDate(app.appliedAt)}</td>
                                                 <td style={style}>
-                                                    <span className={`badge 
-            ${app.status === "pending" ? "bg-success" :
-                                                            app.status === "called (no response)" ? "bg-primary" :
-                                                                app.status === "called (guardian no response)" ? "bg-info" :
-                                                                    app.status === "called (interested)" ? "bg-info" :
-                                                                        app.status === "cancel" ? "bg-danger" :
-                                                                            app.status === "shortlisted" ? "bg-secondary" :
-                                                                                app.status === "requested for payment" ? "bg-warning text-dark" :
-                                                                                    app.status === "meet to office" ? "bg-dark" :
-                                                                                        app.status === "selected" ? "bg-success" :
-                                                                                            app.status === "confirmed" ? "bg-success" :
-                                                                                                app.status === "refer to bm" ? "bg-info" :
-                                                                                                    "bg-secondary"
-                                                        }`}>
-                                                        {app.status}
-                                                    </span>
+                                                     <div className="d-flex flex-column align-items-center gap-1">
+                                                         <span className={`badge 
+                                 ${app.status === "pending" ? "bg-success" :
+                                                                 app.status === "called (no response)" ? "bg-primary" :
+                                                                     app.status === "called (guardian no response)" ? "bg-info" :
+                                                                         app.status === "called (interested)" ? "bg-info" :
+                                                                             app.status === "cancel" ? "bg-danger" :
+                                                                                 app.status === "shortlisted" ? "bg-secondary" :
+                                                                                     app.status === "requested for payment" ? "bg-warning text-dark" :
+                                                                                         app.status === "meet to office" ? "bg-dark" :
+                                                                                             app.status === "selected" ? "bg-success" :
+                                                                                                 app.status === "confirmed" ? "bg-success" :
+                                                                                                     app.status === "refer to bm" ? "bg-info" :
+                                                                                                         "bg-secondary"
+                                                             }`}>
+                                                             {app.status}
+                                                         </span>
+                                                         {app.hasDue && (
+                                                             <span className="badge bg-warning text-dark">
+                                                                 ডিউ আছে
+                                                             </span>
+                                                         )}
+                                                     </div>
                                                 </td>
                                                 <td style={style}>{app.comment}</td>
                                                 <td style={style}>{app.commentForTeacher}</td>

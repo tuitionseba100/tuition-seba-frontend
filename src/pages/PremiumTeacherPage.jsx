@@ -36,6 +36,19 @@ const PremiumTeacherPage = () => {
     const [districtList, setDistrictList] = useState([]);
     const [thanaList, setThanaList] = useState([]);
     
+    const spamStyle = { backgroundColor: '#dc3545', color: 'white' };
+    const bestStyle = { backgroundColor: '#007bff', color: 'white' };
+    const manualExpressStyle = { backgroundColor: '#28a745', color: 'white' };
+    const dueStyle = { backgroundColor: '#FFFF00', color: 'black' };
+
+    const getRowStyle = (tuition) => {
+        if (tuition.isSpam) return spamStyle;
+        if (tuition.hasDue) return dueStyle;
+        if (tuition.isBest) return bestStyle;
+        if (tuition.isExpress) return manualExpressStyle;
+        return {};
+    };
+    
     // Status History Modal State
     const [showStatusHistoryModal, setShowStatusHistoryModal] = useState(false);
     const [statusHistoryList, setStatusHistoryList] = useState([]);
@@ -1223,71 +1236,81 @@ const PremiumTeacherPage = () => {
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {tuitionApplyList.map((apply, index) => (
-                                            <tr key={index}>
-                                                <td style={{ textAlign: 'center', verticalAlign: 'middle', minWidth: '80px' }}>
-                                                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px' }}>
-                                                        <span style={{ fontWeight: '700', fontSize: '1rem' }}>
-                                                            {index + 1}
-                                                        </span>
-                                                        {apply.isAppApply
-                                                            ? (
-                                                                <span style={{
-                                                                    display: 'inline-flex', alignItems: 'center', gap: '4px',
-                                                                    backgroundColor: '#01875f', color: '#fff',
-                                                                    padding: '2px 8px', borderRadius: '12px',
-                                                                    fontSize: '0.65rem', fontWeight: 'bold', textTransform: 'uppercase',
-                                                                    boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
-                                                                }}>
-                                                                    <FaGooglePlay style={{ fontSize: '0.6rem' }} /> App
-                                                                </span>
-                                                            )
-                                                            : (
-                                                                <span style={{
-                                                                    display: 'inline-flex', alignItems: 'center', gap: '4px',
-                                                                    backgroundColor: '#1a73e8', color: '#fff',
-                                                                    padding: '2px 8px', borderRadius: '12px',
-                                                                    fontSize: '0.65rem', fontWeight: 'bold', textTransform: 'uppercase',
-                                                                    boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
-                                                                }}>
-                                                                    <FaGlobe style={{ fontSize: '0.6rem' }} /> Web
+                                        {tuitionApplyList.map((apply, index) => {
+                                            const rowStyle = getRowStyle(apply);
+                                            return (
+                                                <tr key={index}>
+                                                    <td style={{ ...rowStyle, textAlign: 'center', verticalAlign: 'middle', minWidth: '80px' }}>
+                                                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px' }}>
+                                                            <span style={{ fontWeight: '700', fontSize: '1rem' }}>
+                                                                {index + 1}
+                                                            </span>
+                                                            {apply.isAppApply
+                                                                ? (
+                                                                    <span style={{
+                                                                        display: 'inline-flex', alignItems: 'center', gap: '4px',
+                                                                        backgroundColor: '#01875f', color: '#fff',
+                                                                        padding: '2px 8px', borderRadius: '12px',
+                                                                        fontSize: '0.65rem', fontWeight: 'bold', textTransform: 'uppercase',
+                                                                        boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+                                                                    }}>
+                                                                        <FaGooglePlay style={{ fontSize: '0.6rem' }} /> App
+                                                                    </span>
+                                                                )
+                                                                : (
+                                                                    <span style={{
+                                                                        display: 'inline-flex', alignItems: 'center', gap: '4px',
+                                                                        backgroundColor: '#1a73e8', color: '#fff',
+                                                                        padding: '2px 8px', borderRadius: '12px',
+                                                                        fontSize: '0.65rem', fontWeight: 'bold', textTransform: 'uppercase',
+                                                                        boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+                                                                    }}>
+                                                                        <FaGlobe style={{ fontSize: '0.6rem' }} /> Web
+                                                                    </span>
+                                                                )}
+                                                        </div>
+                                                    </td>
+
+                                                    <td style={rowStyle}>{apply.tuitionCode}</td>
+
+                                                    <td style={rowStyle}>{apply.phone}</td>
+                                                    <td style={rowStyle}>
+                                                        <div className="d-flex flex-column align-items-center gap-1">
+                                                            <span
+                                                                style={apply.status === 'pending' ? {
+                                                                    backgroundColor: '#FFD966',
+                                                                    color: '#000',
+                                                                    padding: '3px 10px',
+                                                                    borderRadius: '5px',
+                                                                    fontWeight: '600',
+                                                                    fontSize: '12px',
+                                                                    textTransform: 'capitalize',
+                                                                    display: 'inline-block'
+                                                                } : {
+                                                                    backgroundColor: '#4CAF50',
+                                                                    color: '#fff',
+                                                                    padding: '3px 10px',
+                                                                    borderRadius: '5px',
+                                                                    fontWeight: '600',
+                                                                    fontSize: '12px',
+                                                                    textTransform: 'capitalize',
+                                                                    display: 'inline-block'
+                                                                }}
+                                                            >
+                                                                {apply.status}
+                                                            </span>
+                                                            {apply.hasDue && (
+                                                                <span className="badge bg-warning text-dark">
+                                                                    ডিউ আছে
                                                                 </span>
                                                             )}
-                                                    </div>
-                                                </td>
-
-                                                <td>{apply.tuitionCode}</td>
-
-                                                <td>{apply.phone}</td>
-                                                <td>
-                                                    <span
-                                                        style={apply.status === 'pending' ? {
-                                                            backgroundColor: '#FFD966',
-                                                            color: '#000',
-                                                            padding: '3px 10px',
-                                                            borderRadius: '5px',
-                                                            fontWeight: '600',
-                                                            fontSize: '12px',
-                                                            textTransform: 'capitalize',
-                                                            display: 'inline-block'
-                                                        } : {
-                                                            backgroundColor: '#4CAF50',
-                                                            color: '#fff',
-                                                            padding: '3px 10px',
-                                                            borderRadius: '5px',
-                                                            fontWeight: '600',
-                                                            fontSize: '12px',
-                                                            textTransform: 'capitalize',
-                                                            display: 'inline-block'
-                                                        }}
-                                                    >
-                                                        {apply.status}
-                                                    </span>
-                                                </td>
-                                                <td>{apply.commentForTeacher}</td>
-                                                <td>{formatDate(apply.appliedAt)}</td>
-                                            </tr>
-                                        ))}
+                                                        </div>
+                                                    </td>
+                                                    <td style={rowStyle}>{apply.commentForTeacher}</td>
+                                                    <td style={rowStyle}>{formatDate(apply.appliedAt)}</td>
+                                                </tr>
+                                            );
+                                        })}
                                     </tbody>
                                 </Table>
                             </>

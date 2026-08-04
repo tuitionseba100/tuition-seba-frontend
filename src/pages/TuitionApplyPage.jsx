@@ -121,8 +121,8 @@ const TuitionPage = () => {
     });
 
     const getRowStyle = (tuition) => {
-        if (tuition.hasDue) return dueStyle;
         if (tuition.isSpam) return spamStyle;
+        if (tuition.hasDue) return dueStyle;
         if (tuition.isBest) return bestStyle;
         if (tuition.isExpress) return manualExpressStyle;
         return {};
@@ -545,11 +545,12 @@ const TuitionPage = () => {
                                                 <td style={getRowStyle(tuition)}>{tuition.appliedAt ? formatDate(tuition.appliedAt) : ''}</td>
                                                 <td style={getRowStyle(tuition)}>{tuition.updatedBy}</td>
                                                 <td style={getRowStyle(tuition)}>
-                                                     <span 
-                                                         onClick={() => handleShowStatusHistory('TuitionApply', tuition._id, tuition.name)}
-                                                         style={{ cursor: 'pointer' }}
-                                                         title="Click to view status history"
-                                                         className={`badge 
+                                                     <div className="d-flex flex-column align-items-center gap-1">
+                                                         <span 
+                                                             onClick={() => handleShowStatusHistory('TuitionApply', tuition._id, tuition.name)}
+                                                             style={{ cursor: 'pointer' }}
+                                                             title="Click to view status history"
+                                                             className={`badge 
             ${tuition.status === "pending" ? "bg-success" :
                                                             tuition.status === "called (no response)" ? "bg-primary" :
                                                                 tuition.status === "called (guardian no response)" ? "bg-info" :
@@ -565,6 +566,12 @@ const TuitionPage = () => {
                                                         }`}>
                                                         {tuition.status}
                                                      </span>
+                                                     {tuition.hasDue && (
+                                                         <span className="badge bg-warning text-dark">
+                                                             ডিউ আছে
+                                                         </span>
+                                                     )}
+                                                 </div>
                                                 </td>
                                                 <td style={getRowStyle(tuition)}>{tuition.premiumCode}</td>
                                                 <td style={getRowStyle(tuition)}>

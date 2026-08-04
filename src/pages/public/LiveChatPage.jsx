@@ -28,6 +28,7 @@ export default function LiveChatPage() {
   const [loadingMore, setLoadingMore] = useState(false);
   const [showScrollBottom, setShowScrollBottom] = useState(false);
   const [showSuggestions, setShowSuggestions] = useState(false);
+  const [showTooltip, setShowTooltip] = useState(false);
   const socketRef = useRef(null);
   const teacherDataRef = useRef(null);
 
@@ -72,6 +73,18 @@ export default function LiveChatPage() {
       feedRef.current.scrollTop = feedRef.current.scrollHeight;
     }
   }, [messages]);
+
+  useEffect(() => {
+    if (user) {
+      setShowTooltip(true);
+      const timer = setTimeout(() => {
+        setShowTooltip(false);
+      }, 2000);
+      return () => clearTimeout(timer);
+    } else {
+      setShowTooltip(false);
+    }
+  }, [user]);
 
   useEffect(() => {
     if (!user) return;
@@ -471,11 +484,10 @@ export default function LiveChatPage() {
                   )}
 
                   {/* Suggestions Panel */}
-                  {showSuggestions && (
-                    <div className="px-3 pt-2 pb-1 border-top bg-white d-flex gap-2 flex-wrap" style={{ borderTop: '1px solid #e2e8f0' }}>
+                  {showSuggestions && !input.trim() && (
+                    <div className="px-3 py-1.5 border-top bg-white d-flex gap-2" style={{ borderTop: '1px solid #e2e8f0', overflowX: 'auto', flexWrap: 'nowrap', scrollbarWidth: 'none' }}>
                       <button
                         onClick={() => {
-                          setShowSuggestions(false);
                           const now = new Date().toISOString();
                           // Show user question on right
                           setMessages(prev => [...prev, { sender: 'member', text: 'আমার সর্বশেষ সিভি দেখতে চাই', createdAt: now }]);
@@ -526,11 +538,10 @@ export default function LiveChatPage() {
                         }}
                         className="ts-suggestion-chip"
                       >
-                        <BsFileEarmarkPerson size={14} /> আমার সর্বশেষ সিভি দেখতে চাই
+                        <BsFileEarmarkPerson size={14} /> সিভি দেখতে চাই
                       </button>
                       <button
                         onClick={() => {
-                          setShowSuggestions(false);
                           const now = new Date().toISOString();
                           // Show user question on right
                           setMessages(prev => [...prev, { sender: 'member', text: 'আমার অ্যাপ্লাইগুলোর কি অবস্থা?', createdAt: now }]);
@@ -542,7 +553,7 @@ export default function LiveChatPage() {
                         }}
                         className="ts-suggestion-chip"
                       >
-                        <BsBoxArrowUpRight size={13} /> আমার অ্যাপ্লাইগুলোর কি অবস্থা
+                        <BsBoxArrowUpRight size={13} /> অ্যাপ্লাই আপডেট
                       </button>
                     </div>
                   )}
@@ -556,15 +567,22 @@ export default function LiveChatPage() {
                       }}
                       className="d-flex gap-2 align-items-center"
                     >
-                      <Button
-                        variant="link"
-                        onClick={() => setShowSuggestions(prev => !prev)}
-                        className="p-0 d-flex align-items-center justify-content-center"
-                        style={{ width: '36px', height: '36px', flexShrink: 0, color: '#f59e0b', opacity: showSuggestions ? 1 : 0.55, transition: 'opacity 0.15s', textDecoration: 'none' }}
-                        title="সাজেশন দেখুন"
-                      >
-                        <BsLightbulb size={20} />
-                      </Button>
+                      <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+                        <Button
+                          variant="link"
+                          onClick={() => setShowSuggestions(prev => !prev)}
+                          className="p-0 d-flex align-items-center justify-content-center"
+                          style={{ width: '36px', height: '36px', flexShrink: 0, color: '#f59e0b', opacity: showSuggestions ? 1 : 0.55, transition: 'opacity 0.15s', textDecoration: 'none' }}
+                          title="সাজেশন দেখুন"
+                        >
+                          <BsLightbulb size={20} />
+                        </Button>
+                        {!showSuggestions && showTooltip && (
+                          <BulbTooltip>
+                            সিভি ও আপডেট
+                          </BulbTooltip>
+                        )}
+                      </div>
                       <Form.Control
                         type="text"
                         placeholder="আপনার বার্তাটি এখানে লিখুন..."
@@ -690,17 +708,18 @@ const ChatInterfaceWrapper = styled(Card)`
   .ts-suggestion-chip {
     display: inline-flex;
     align-items: center;
-    gap: 6px;
-    padding: 7px 14px;
-    border-radius: 20px;
+    gap: 5px;
+    padding: 5px 10px;
+    border-radius: 14px;
     border: 1px solid #dbeafe;
     background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
     color: #1d4ed8;
-    font-size: 0.78rem;
+    font-size: 0.72rem;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.2s ease;
     white-space: nowrap;
+    flex-shrink: 0;
   }
 
   .ts-suggestion-chip:hover {
@@ -720,4 +739,38 @@ const MessageBubble = styled.div`
   word-break: break-word;
   font-size: 0.88rem;
   line-height: 1.45;
+`;
+
+const BulbTooltip = styled.div`
+  position: absolute;
+  bottom: 40px;
+  left: -10px;
+  background: #f59e0b;
+  color: #ffffff;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 8px;
+  white-space: nowrap;
+  box-shadow: 0 4px 10px rgba(245, 158, 11, 0.35);
+  animation: ts-tooltip-bounce 2s infinite ease-in-out;
+  pointer-events: none;
+  z-index: 100;
+
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: -4px;
+    left: 20px;
+    border-width: 4px 4px 0;
+    border-style: solid;
+    border-color: #f59e0b transparent;
+    display: block;
+    width: 0;
+  }
+
+  @keyframes ts-tooltip-bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-4px); }
+  }
 `;

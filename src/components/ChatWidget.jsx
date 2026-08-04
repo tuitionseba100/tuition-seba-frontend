@@ -23,6 +23,7 @@ export default function ChatWidget() {
 
   const [showScrollBottom, setShowScrollBottom] = useState(false);
   const [showSuggestions, setShowSuggestions] = useState(false);
+  const [showTooltip, setShowTooltip] = useState(false);
   const teacherDataRef = useRef(null);
 
   const feedRef = useRef(null);
@@ -67,6 +68,18 @@ export default function ChatWidget() {
       }
     }
   }, [isOpen]);
+
+  useEffect(() => {
+    if (user && isOpen) {
+      setShowTooltip(true);
+      const timer = setTimeout(() => {
+        setShowTooltip(false);
+      }, 2000);
+      return () => clearTimeout(timer);
+    } else {
+      setShowTooltip(false);
+    }
+  }, [user, isOpen]);
 
   useEffect(() => {
     if (!user || !isOpen) return;
@@ -451,11 +464,10 @@ export default function ChatWidget() {
                 )}
                 
                 {/* Suggestions Panel */}
-                {showSuggestions && (
+                {showSuggestions && !input.trim() && (
                   <div className="ts-widget-suggestions">
                     <button
                       onClick={() => {
-                        setShowSuggestions(false);
                         const now = new Date().toISOString();
                         setMessages(prev => [...prev, { sender: 'member', text: 'আমার সর্বশেষ সিভি দেখতে চাই', createdAt: now }]);
                         setTimeout(() => {
@@ -504,11 +516,10 @@ export default function ChatWidget() {
                       }}
                       className="ts-widget-suggestion-btn"
                     >
-                      <BsFileEarmarkPerson size={13} /> আমার সর্বশেষ সিভি দেখতে চাই
+                      <BsFileEarmarkPerson size={13} /> সিভি দেখতে চাই
                     </button>
                     <button
                       onClick={() => {
-                        setShowSuggestions(false);
                         const now = new Date().toISOString();
                         setMessages(prev => [...prev, { sender: 'member', text: 'আমার অ্যাপ্লাইগুলোর কি অবস্থা?', createdAt: now }]);
                         setTimeout(() => {
@@ -518,20 +529,27 @@ export default function ChatWidget() {
                       }}
                       className="ts-widget-suggestion-btn"
                     >
-                      <BsBoxArrowUpRight size={12} /> আমার অ্যাপ্লাইগুলোর কি অবস্থা
+                      <BsBoxArrowUpRight size={12} /> অ্যাপ্লাই আপডেট
                     </button>
                   </div>
                 )}
 
                 <div className="ts-input-area">
-                  <button
-                    onClick={() => setShowSuggestions(prev => !prev)}
-                    className="ts-widget-bulb-btn"
-                    style={{ opacity: showSuggestions ? 1 : 0.55 }}
-                    title="সাজেশন দেখুন"
-                  >
-                    <BsLightbulb size={18} />
-                  </button>
+                  <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+                    <button
+                      onClick={() => setShowSuggestions(prev => !prev)}
+                      className="ts-widget-bulb-btn"
+                      style={{ opacity: showSuggestions ? 1 : 0.55 }}
+                      title="সাজেশন দেখুন"
+                    >
+                      <BsLightbulb size={18} />
+                    </button>
+                    {!showSuggestions && showTooltip && (
+                      <div className="ts-bulb-tooltip">
+                        সিভি ও আপডেট
+                      </div>
+                    )}
+                  </div>
                   <input
                     type="text"
                     value={input}

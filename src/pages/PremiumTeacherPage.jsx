@@ -269,7 +269,6 @@ const PremiumTeacherPage = () => {
                 params: appliedFilters,
                 headers: { Authorization: token }
             });
-            setExportList(res.data.allData);
             setSummaryCounts(res.data);
         } catch (err) {
             console.error('Error fetching summary:', err);
@@ -308,20 +307,33 @@ const PremiumTeacherPage = () => {
         setSelectedPremiumCode('');
     };
 
-    const handleExportToExcel = () => {
-        const headers = fieldConfig.map(f => f.label);
+    const handleExportToExcel = async () => {
+        setLoading(true);
+        try {
+            const res = await axios.get(`https://tuition-seba-backend-1.onrender.com/api/regTeacher/summary`, {
+                params: { ...appliedFilters, allData: true },
+                headers: { Authorization: token }
+            });
+            const teachersToExport = res.data.allData || [];
 
-        const data = exportList.map(item =>
-            fieldConfig.map(f => String(item[f.name] ?? ""))
-        );
+            const headers = fieldConfig.map(f => f.label);
 
-        const worksheet = XLSX.utils.aoa_to_sheet([headers, ...data]);
+            const data = teachersToExport.map(item =>
+                fieldConfig.map(f => String(item[f.name] ?? ""))
+            );
 
-        worksheet['!cols'] = fieldConfig.map(() => ({ wpx: 120 }));
+            const worksheet = XLSX.utils.aoa_to_sheet([headers, ...data]);
 
-        const workbook = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(workbook, worksheet, "Premium Teachers");
-        XLSX.writeFile(workbook, `Premium Teachers_${formatDateTimeForFilename()}.xlsx`);
+            worksheet['!cols'] = fieldConfig.map(() => ({ wpx: 120 }));
+
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, "Premium Teachers");
+            XLSX.writeFile(workbook, `Premium Teachers_${formatDateTimeForFilename()}.xlsx`);
+        } catch (err) {
+            console.error('Error exporting to Excel:', err);
+            toast.error("Failed to export records.");
+        }
+        setLoading(false);
     };
 
     const formatDateTimeForFilename = (date = new Date()) => {

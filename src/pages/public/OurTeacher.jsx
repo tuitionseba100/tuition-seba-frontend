@@ -38,8 +38,33 @@ export default function OurTeacher() {
     const [currentPage, setCurrentPage] = useState(1);
     const teachersPerPage = 50;
 
-    // State for scroll to top button visibility
-    const [showScrollTop, setShowScrollTop] = useState(false);
+    const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
+    const [debouncedAreaSearch, setDebouncedAreaSearch] = useState('');
+    const [debouncedSubjectSearch, setDebouncedSubjectSearch] = useState('');
+    const [debouncedUniversitySearch, setDebouncedUniversitySearch] = useState('');
+    const [totalPages, setTotalPages] = useState(1);
+    const [totalTeachersCount, setTotalTeachersCount] = useState(0);
+
+    // Debounce filters to avoid excessive API requests
+    useEffect(() => {
+        const handler = setTimeout(() => setDebouncedSearchTerm(searchTerm), 300);
+        return () => clearTimeout(handler);
+    }, [searchTerm]);
+
+    useEffect(() => {
+        const handler = setTimeout(() => setDebouncedAreaSearch(areaSearch), 300);
+        return () => clearTimeout(handler);
+    }, [areaSearch]);
+
+    useEffect(() => {
+        const handler = setTimeout(() => setDebouncedSubjectSearch(subjectSearch), 300);
+        return () => clearTimeout(handler);
+    }, [subjectSearch]);
+
+    useEffect(() => {
+        const handler = setTimeout(() => setDebouncedUniversitySearch(universitySearch), 300);
+        return () => clearTimeout(handler);
+    }, [universitySearch]);
 
     // Handle scroll event to show/hide scroll to top button
     useEffect(() => {
@@ -65,10 +90,6 @@ export default function OurTeacher() {
             behavior: 'smooth'
         });
     };
-
-    useEffect(() => {
-        fetchTeachers();
-    }, []);
 
     // Counter animation effect - starts immediately when component mounts
     useEffect(() => {
@@ -103,10 +124,23 @@ export default function OurTeacher() {
     }, []); // Empty dependency array to run only once when component mounts
 
     const fetchTeachers = async () => {
+        setLoading(true);
         try {
-            const response = await fetchWithFallback('https://tuition-seba-backend-1.onrender.com/api/regTeacher/public-teachers');
+            const params = new URLSearchParams({
+                page: currentPage,
+                limit: teachersPerPage,
+                ...(debouncedSearchTerm && { searchTerm: debouncedSearchTerm }),
+                ...(debouncedAreaSearch && { area: debouncedAreaSearch }),
+                ...(debouncedSubjectSearch && { subject: debouncedSubjectSearch }),
+                ...(debouncedUniversitySearch && { university: debouncedUniversitySearch }),
+                ...(genderFilter && { gender: genderFilter })
+            });
+
+            const response = await fetchWithFallback(`https://tuition-seba-backend-1.onrender.com/api/regTeacher/public-teachers?${params.toString()}`);
             const data = await response.json();
-            setTeachers(data);
+            setTeachers(data.teachers || []);
+            setTotalPages(data.totalPages || 1);
+            setTotalTeachersCount(data.totalTeachers || 0);
             setLoading(false);
         } catch (error) {
             console.error('Error fetching teachers:', error);
@@ -114,67 +148,16 @@ export default function OurTeacher() {
         }
     };
 
-    // Memoized filtered teachers to avoid recalculating on every render
-    const memoizedFilteredTeachers = useMemo(() => {
-        let filtered = teachers;
-
-        // Apply general search term filter
-        if (searchTerm.trim()) {
-            const term = searchTerm.trim().toLowerCase();
-            filtered = filtered.filter((teacher) =>
-                Object.values(teacher).some((value) => {
-                    if (!value) return false;
-                    return String(value).toLowerCase().includes(term);
-                })
-            );
-        }
-
-        // Apply area search filter
-        if (areaSearch.trim()) {
-            const areaTerm = areaSearch.trim().toLowerCase();
-            filtered = filtered.filter(teacher =>
-                teacher.currentArea && teacher.currentArea.toLowerCase().includes(areaTerm)
-            );
-        }
-
-        // Apply subject search filter
-        if (subjectSearch.trim()) {
-            const subjectTerm = subjectSearch.trim().toLowerCase();
-            filtered = filtered.filter(teacher =>
-                teacher.favoriteSubject && teacher.favoriteSubject.toLowerCase().includes(subjectTerm)
-            );
-        }
-
-        // Apply university search filter
-        if (universitySearch.trim()) {
-            const universityTerm = universitySearch.trim().toLowerCase();
-            filtered = filtered.filter(teacher =>
-                (teacher.honorsUniversity && teacher.honorsUniversity.toLowerCase().includes(universityTerm)) ||
-                (teacher.mastersUniversity && teacher.mastersUniversity.toLowerCase().includes(universityTerm)) ||
-                (teacher.uniCode && teacher.uniCode.toLowerCase().includes(universityTerm))
-            );
-        }
-
-        // Apply gender filter
-        if (genderFilter) {
-            filtered = filtered.filter(teacher =>
-                teacher.gender && teacher.gender.toLowerCase() === genderFilter.toLowerCase()
-            );
-        }
-
-        return filtered;
-    }, [teachers, searchTerm, areaSearch, subjectSearch, universitySearch, genderFilter]);
-
-    // Calculate pagination
-    const indexOfLastTeacher = currentPage * teachersPerPage;
-    const indexOfFirstTeacher = indexOfLastTeacher - teachersPerPage;
-    const currentTeachers = memoizedFilteredTeachers.slice(indexOfFirstTeacher, indexOfLastTeacher);
-    const totalPages = Math.ceil(memoizedFilteredTeachers.length / teachersPerPage);
+    useEffect(() => {
+        fetchTeachers();
+    }, [currentPage, debouncedSearchTerm, debouncedAreaSearch, debouncedSubjectSearch, debouncedUniversitySearch, genderFilter]);
 
     // Reset to first page when filters change
     useEffect(() => {
         setCurrentPage(1);
-    }, [searchTerm, areaSearch, subjectSearch, universitySearch, genderFilter]);
+    }, [debouncedSearchTerm, debouncedAreaSearch, debouncedSubjectSearch, debouncedUniversitySearch, genderFilter]);
+
+    const currentTeachers = teachers;
 
     const resetFilters = () => {
         setSearchTerm('');
@@ -652,7 +635,7 @@ export default function OurTeacher() {
                         <div style={styles.spinner}></div>
                         <div>Loading...</div>
                     </div>
-                ) : memoizedFilteredTeachers.length === 0 ? (
+                ) : teachers.length === 0 ? (
                     <div style={styles.noResults}>No teachers found</div>
                 ) : (
                     <>

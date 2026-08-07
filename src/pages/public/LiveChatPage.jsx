@@ -376,13 +376,7 @@ export default function LiveChatPage() {
                       <h6 className="fw-semibold text-white-50 uppercase mb-3" style={{ fontSize: '0.75rem', letterSpacing: '1px' }}>USER DETAILS</h6>
                       <div className="d-flex flex-column gap-2" style={{ fontSize: '0.9rem' }}>
                         <div>মোবাইল: <strong>{user.phone}</strong></div>
-                        <div className="d-flex align-items-center gap-2 mt-1">
-                          স্ট্যাটাস:
-                          <span className="d-inline-flex align-items-center gap-1.5 fw-semibold">
-                            <BsCircleFill className={agentOnline ? 'text-success' : 'text-warning'} size={8} />
-                            {agentOnline ? 'Agent Active' : 'Bot Active'}
-                          </span>
-                        </div>
+
                       </div>
                     </div>
                   </div>
@@ -531,7 +525,7 @@ export default function LiveChatPage() {
                               td.favoriteSubject ? `**পছন্দের বিষয়**: ${td.favoriteSubject}` : null,
                               td.expectedTuitionAreas ? `**পছন্দের এলাকা**: ${td.expectedTuitionAreas}` : null,
                               `**প্রিমিয়াম কোড**: **${td.premiumCode || 'N/A'}**`,
-                              td.status ? `**স্ট্যাটাস**: ${td.status}` : null,
+
                             ].filter(Boolean).join('\n');
                             setMessages(prev => [...prev, { sender: 'bot', text: cvText, createdAt: new Date().toISOString() }]);
                           }, 500);

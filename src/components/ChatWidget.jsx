@@ -509,7 +509,7 @@ export default function ChatWidget() {
                             td.favoriteSubject ? `**পছন্দের বিষয়**: ${td.favoriteSubject}` : null,
                             td.expectedTuitionAreas ? `**পছন্দের এলাকা**: ${td.expectedTuitionAreas}` : null,
                             `**প্রিমিয়াম কোড**: **${td.premiumCode || 'N/A'}**`,
-                            td.status ? `**স্ট্যাটাস**: ${td.status}` : null,
+
                           ].filter(Boolean).join('\n');
                           setMessages(prev => [...prev, { sender: 'bot', text: cvText, createdAt: new Date().toISOString() }]);
                         }, 500);

@@ -502,14 +502,27 @@ const SocialPostModal = ({ show, onHide }) => {
                                         </Col>
                                     )}
                                     <Col md={3}>
-                                        <Form.Select name="count" value={filters.count} onChange={handleFilterChange} className="form-control-sm h-100">
-                                            <option value="5">Latest 5</option>
-                                            <option value="10">Latest 10</option>
-                                            <option value="20">Latest 20</option>
-                                            <option value="50">Latest 50</option>
-                                            <option value="100">Latest 100</option>
-                                        </Form.Select>
+                                        <CreatableSelect
+                                            value={{ value: filters.count, label: `Latest ${filters.count}` }}
+                                            onChange={(option) => setFilters(prev => ({ ...prev, count: option ? option.value : '10' }))}
+                                            onCreateOption={(inputValue) => {
+                                                const num = inputValue.replace(/\D/g, '');
+                                                if (num) setFilters(prev => ({ ...prev, count: num }));
+                                            }}
+                                            options={[
+                                                { value: '5', label: 'Latest 5' },
+                                                { value: '10', label: 'Latest 10' },
+                                                { value: '20', label: 'Latest 20' },
+                                                { value: '50', label: 'Latest 50' },
+                                                { value: '100', label: 'Latest 100' }
+                                            ]}
+                                            formatCreateLabel={(inputValue) => `Use: ${inputValue}`}
+                                            placeholder="Count"
+                                            styles={selectStyles}
+                                            isClearable={false}
+                                        />
                                     </Col>
+
                                     <Col md={4}>
                                         <Select
                                             isMulti
@@ -646,6 +659,7 @@ const SocialPostModal = ({ show, onHide }) => {
                                                 checked={selectedIds.length === tuitions.length && tuitions.length > 0}
                                             />
                                         </th>
+                                        <th style={{ width: '40px' }}>SL</th>
                                         <th>Code</th>
                                         <th>Area</th>
                                         <th>Class/Subject</th>
@@ -653,7 +667,7 @@ const SocialPostModal = ({ show, onHide }) => {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {filteredTuitions.map(t => (
+                                    {filteredTuitions.map((t, idx) => (
                                         <tr
                                             key={t._id}
                                             onClick={() => handleToggleSelect(t._id)}
@@ -666,6 +680,7 @@ const SocialPostModal = ({ show, onHide }) => {
                                                     <FaSquare className="text-light border" />
                                                 }
                                             </td>
+                                            <td className="text-center">{idx + 1}</td>
                                             <td className="fw-bold">{t.tuitionCode}</td>
                                             <td>{t.area}</td>
                                             <td>
@@ -683,7 +698,7 @@ const SocialPostModal = ({ show, onHide }) => {
                                     ))}
                                     {filteredTuitions.length === 0 && (
                                         <tr>
-                                            <td colSpan="5" className="text-center py-5 text-muted">
+                                            <td colSpan="6" className="text-center py-5 text-muted">
                                                 {tuitions.length === 0 ? "Use filters and click Fetch to start." : "No results match your search."}
                                             </td>
                                         </tr>

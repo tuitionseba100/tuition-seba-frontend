@@ -155,7 +155,6 @@ const TuitionPage = () => {
         delete copiedData.createdAt;
         delete copiedData.updatedAt;
         delete copiedData.confirmationFollowUps;
-        copiedData.tuitionCode = '';
         copiedData.status = 'available';
         copiedData.createdBy = '';
         copiedData.updatedBy = '';

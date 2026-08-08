@@ -154,22 +154,35 @@ export default function TuitionDetailsModal({ show, onHide, detailsData, onCopy 
                     )}
                     {onCopy && (
                         <Button
-                            variant="outline-light"
                             size="sm"
                             onClick={() => onCopy(detailsData)}
                             style={{
                                 fontSize: '0.78rem',
-                                fontWeight: 600,
+                                fontWeight: 700,
                                 borderRadius: '999px',
-                                padding: '3px 14px',
+                                padding: '5px 16px',
                                 whiteSpace: 'nowrap',
-                                display: 'flex',
+                                display: 'inline-flex',
                                 alignItems: 'center',
-                                gap: '5px',
+                                gap: '6px',
+                                background: 'linear-gradient(135deg, #ffffff 0%, #e0e7ff 100%)',
+                                color: '#0d6efd',
+                                border: 'none',
+                                boxShadow: '0 2px 8px rgba(0,0,0,0.18), 0 0 0 1px rgba(255,255,255,0.15)',
+                                letterSpacing: '0.02em',
+                                transition: 'transform 0.15s ease, box-shadow 0.15s ease',
+                            }}
+                            onMouseEnter={e => {
+                                e.currentTarget.style.transform = 'scale(1.06)';
+                                e.currentTarget.style.boxShadow = '0 4px 14px rgba(0,0,0,0.22), 0 0 0 1px rgba(255,255,255,0.2)';
+                            }}
+                            onMouseLeave={e => {
+                                e.currentTarget.style.transform = 'scale(1)';
+                                e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.18), 0 0 0 1px rgba(255,255,255,0.15)';
                             }}
                             title="Copy this tuition data to a new create form"
                         >
-                            <FaCopy /> Copy as New
+                            <FaCopy style={{ fontSize: '0.85rem' }} /> Copy as New
                         </Button>
                     )}
                 </Modal.Title>

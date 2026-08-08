@@ -56,7 +56,8 @@ const TuitionPage = () => {
         areaFilter: '',
         assignedTo: '',
         type: '',
-        isReviewDone: ''
+        isReviewDone: '',
+        tuitionTypeFilter: ''
     });
 
     const [appliedFilters, setAppliedFilters] = useState({
@@ -69,7 +70,8 @@ const TuitionPage = () => {
         areaFilter: '',
         assignedTo: '',
         type: '',
-        isReviewDone: ''
+        isReviewDone: '',
+        tuitionTypeFilter: ''
     });
 
     const [userOptions, setUserOptions] = useState([]);
@@ -226,7 +228,8 @@ const TuitionPage = () => {
             areaFilter: '',
             assignedTo: '',
             type: '',
-            isReviewDone: ''
+            isReviewDone: '',
+            tuitionTypeFilter: ''
         };
         setSearchInputs(resetFilters);
         setAppliedFilters(resetFilters);
@@ -370,7 +373,8 @@ const TuitionPage = () => {
                     area: appliedFilters.areaFilter,
                     assignedTo: appliedFilters.assignedTo,
                     type: appliedFilters.type,
-                    isReviewDone: appliedFilters.isReviewDone === "Yes" ? 'true' : appliedFilters.isReviewDone === "No" ? 'false' : undefined
+                    isReviewDone: appliedFilters.isReviewDone === "Yes" ? 'true' : appliedFilters.isReviewDone === "No" ? 'false' : undefined,
+                    tuitionType: appliedFilters.tuitionTypeFilter || undefined
                 }
             });
 
@@ -400,7 +404,8 @@ const TuitionPage = () => {
                 area: appliedFilters.areaFilter,
                 assignedTo: appliedFilters.assignedTo,
                 type: appliedFilters.type,
-                isReviewDone: appliedFilters.isReviewDone === "Yes" ? 'true' : appliedFilters.isReviewDone === "No" ? 'false' : undefined
+                isReviewDone: appliedFilters.isReviewDone === "Yes" ? 'true' : appliedFilters.isReviewDone === "No" ? 'false' : undefined,
+                tuitionType: appliedFilters.tuitionTypeFilter || undefined
             };
 
             const res = await axios.get('https://tuition-seba-backend-1.onrender.com/api/tuition/summary', {
@@ -773,6 +778,25 @@ const TuitionPage = () => {
                             {locationData.areaOptions.chittagong.map((area, index) => (
                                 <option key={index} value={area}>{area}</option>
                             ))}
+                        </Form.Select>
+                    </Col>
+
+                    <Col md={2}>
+                        <Form.Label className="fw-bold">Tuition Type</Form.Label>
+                        <Form.Select
+                            value={searchInputs.tuitionTypeFilter}
+                            onChange={(e) => handleSearchInputChange('tuitionTypeFilter', e.target.value)}
+                        >
+                            <option value="">All Types</option>
+                            <option value="High Salary - High Demand">High Salary - High Demand</option>
+                            <option value="High Salary - Medium Demand">High Salary - Medium Demand</option>
+                            <option value="High Salary - Low Demand">High Salary - Low Demand</option>
+                            <option value="Medium Salary - High Demand">Medium Salary - High Demand</option>
+                            <option value="Medium Salary - Medium Demand">Medium Salary - Medium Demand</option>
+                            <option value="Medium Salary - Low Demand">Medium Salary - Low Demand</option>
+                            <option value="Low Salary - High Demand">Low Salary - High Demand</option>
+                            <option value="Low Salary - Medium Demand">Low Salary - Medium Demand</option>
+                            <option value="Low Salary - Low Demand">Low Salary - Low Demand</option>
                         </Form.Select>
                     </Col>
 

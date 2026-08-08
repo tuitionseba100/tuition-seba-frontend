@@ -341,7 +341,7 @@ export default function TuitionModal({ show, onHide, editingData = null, editing
                     }}
                     className="d-flex align-items-center justify-content-between"
                 >
-                    <Modal.Title className="fw-bold">{editingData ? 'Edit Tuition' : 'Create Tuition'}</Modal.Title>
+                    <Modal.Title className="fw-bold">{editingId ? 'Edit Tuition' : 'Create Tuition'}</Modal.Title>
                 </Modal.Header>
 
                 <Modal.Body

@@ -1,5 +1,6 @@
 import React from 'react';
 import { Modal, Button, Row, Col } from 'react-bootstrap';
+import { FaCopy } from 'react-icons/fa';
 
 const fieldConfig = [
     { name: 'tuitionCode', label: 'Tuition Code', group: 'details', col: 4, type: 'text' },
@@ -70,7 +71,7 @@ const formatDateTimeDisplay = (isoString) => {
     });
 };
 
-export default function TuitionDetailsModal({ show, onHide, detailsData }) {
+export default function TuitionDetailsModal({ show, onHide, detailsData, onCopy }) {
     const groups = fieldConfig.reduce((acc, field) => {
         acc[field.group] = acc[field.group] || [];
         acc[field.group].push(field);
@@ -150,6 +151,26 @@ export default function TuitionDetailsModal({ show, onHide, detailsData }) {
                         >
                             Unassigned
                         </span>
+                    )}
+                    {onCopy && (
+                        <Button
+                            variant="outline-light"
+                            size="sm"
+                            onClick={() => onCopy(detailsData)}
+                            style={{
+                                fontSize: '0.78rem',
+                                fontWeight: 600,
+                                borderRadius: '999px',
+                                padding: '3px 14px',
+                                whiteSpace: 'nowrap',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '5px',
+                            }}
+                            title="Copy this tuition data to a new create form"
+                        >
+                            <FaCopy /> Copy as New
+                        </Button>
                     )}
                 </Modal.Title>
             </Modal.Header>

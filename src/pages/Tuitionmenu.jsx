@@ -147,6 +147,47 @@ const TuitionPage = () => {
         setShowModal(true);
     }, []);
 
+    const handleCopyTuition = React.useCallback((tuition) => {
+        const copiedData = { ...tuition };
+        // Clear fields that should not carry over to the new tuition
+        delete copiedData._id;
+        delete copiedData.__v;
+        delete copiedData.createdAt;
+        delete copiedData.updatedAt;
+        delete copiedData.confirmationFollowUps;
+        copiedData.tuitionCode = '';
+        copiedData.status = 'available';
+        copiedData.createdBy = '';
+        copiedData.updatedBy = '';
+        copiedData.tutorNumber = '';
+        copiedData.lastAvailableCheck = '';
+        copiedData.lastUpdate = '';
+        copiedData.lastUpdateComment = '';
+        copiedData.nextUpdateDate = '';
+        copiedData.nextUpdateComment = '';
+        copiedData.comment1 = '';
+        copiedData.comment2 = '';
+        copiedData.tuitionCancelReason = '';
+        copiedData.tuitionCancelReasonPublic = '';
+        copiedData.agentComment = '';
+        copiedData.isPaymentCreated = false;
+        copiedData.isReviewDone = false;
+        copiedData.isSpamGuardian = false;
+        copiedData.isBestGuardian = false;
+        copiedData.hasPendingApply = false;
+        copiedData.assignedTo = '';
+        copiedData.previousAssignedTo = '';
+        copiedData.lastPublishedDate = '';
+
+        // Close details modal, open create modal with copied data
+        setShowDetailsModal(false);
+        setDetailsData(null);
+        setSelectedTuition(copiedData);
+        setEditingId(null); // null editingId = create mode
+        setShowModal(true);
+        toast.info('Tuition data copied! Please enter a new Tuition Code and save.');
+    }, []);
+
     const handleOpenAssignModal = React.useCallback((tuition) => {
         setSelectedTuitionForAssign(tuition);
         setShowAssignModal(true);
@@ -1289,6 +1330,7 @@ const TuitionPage = () => {
                     show={showDetailsModal}
                     onHide={() => setShowDetailsModal(false)}
                     detailsData={detailsData}
+                    onCopy={handleCopyTuition}
                 />
 
                 <ConfirmationFollowUpModal

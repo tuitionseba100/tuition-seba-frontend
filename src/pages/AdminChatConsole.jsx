@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { io } from 'socket.io-client';
 import NavBarPage from './NavbarPage';
-import { Container, Row, Col, Card, Button, Form, Badge } from 'react-bootstrap';
-import { BsChatSquareDots, BsSendFill, BsPeopleFill, BsCheckCircleFill, BsLock, BsArrowDownShort, BsTrash } from 'react-icons/bs';
+import { Container, Row, Col, Card, Button, Form, Badge, Modal } from 'react-bootstrap';
+import { BsChatSquareDots, BsSendFill, BsPeopleFill, BsCheckCircleFill, BsLock, BsArrowDownShort, BsTrash, BsInfoCircle } from 'react-icons/bs';
 import { axiosWithFallback as axios } from '../services/fetchWithFallback';
 import { toast, ToastContainer } from 'react-toastify';
 import styled from 'styled-components';
@@ -32,6 +32,32 @@ export default function AdminChatConsole() {
   const searchQueryRef = useRef('');
   const socketRef = useRef(null);
   const role = localStorage.getItem('role');
+
+  // Teacher details modal states
+  const [showTeacherModal, setShowTeacherModal] = useState(false);
+  const [selectedTeacher, setSelectedTeacher] = useState(null);
+  const [loadingTeacher, setLoadingTeacher] = useState(false);
+
+  const fetchTeacherDetails = async (phone) => {
+    if (!phone) return;
+    setLoadingTeacher(true);
+    try {
+      const res = await axios.get(`${BASE_URL}/api/regTeacher/getTableData?phone=${phone}`, {
+        headers: { Authorization: token }
+      });
+      if (res.data && res.data.data && res.data.data.length > 0) {
+        setSelectedTeacher(res.data.data[0]);
+        setShowTeacherModal(true);
+      } else {
+        toast.info('No teacher profile found for this phone number.');
+      }
+    } catch (err) {
+      console.error('Error fetching teacher details:', err);
+      toast.error('Failed to load teacher details.');
+    } finally {
+      setLoadingTeacher(false);
+    }
+  };
 
   const handleDeleteChat = async (phone) => {
     if (!window.confirm(`Are you sure you want to permanently delete all chat history and session for ${activeName} (${phone})? This action cannot be undone.`)) {
@@ -349,16 +375,33 @@ export default function AdminChatConsole() {
                       Phone: <strong>{activePhone}</strong> | Code: <strong>{activePremiumCode}</strong>
                     </small>
                   </div>
-                  {role === 'superadmin' && (
-                    <Button 
-                      variant="outline-danger" 
-                      size="sm" 
-                      onClick={() => handleDeleteChat(activePhone)}
+                  <div className="d-flex align-items-center gap-2">
+                    <Button
+                      variant="outline-primary"
+                      size="sm"
+                      onClick={() => fetchTeacherDetails(activePhone)}
+                      disabled={loadingTeacher}
                       className="d-flex align-items-center gap-1.5 px-3 py-1.5 rounded-pill fw-bold"
                     >
-                      <BsTrash size={15} /> Delete Chat
+                      {loadingTeacher ? (
+                        <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                      ) : (
+                        <BsInfoCircle size={15} />
+                      )}
+                      Teacher Info
                     </Button>
-                  )}
+
+                    {role === 'superadmin' && (
+                      <Button 
+                        variant="outline-danger" 
+                        size="sm" 
+                        onClick={() => handleDeleteChat(activePhone)}
+                        className="d-flex align-items-center gap-1.5 px-3 py-1.5 rounded-pill fw-bold"
+                      >
+                        <BsTrash size={15} /> Delete Chat
+                      </Button>
+                    )}
+                  </div>
                 </div>
 
                 {/* Messages Feed */}
@@ -375,7 +418,7 @@ export default function AdminChatConsole() {
                       <div
                         key={i}
                         className={`d-flex flex-column ${
-                          msg.sender === 'agent' ? 'align-items-end' : 'align-items-start'
+                          (msg.sender === 'agent' || msg.sender === 'bot' || msg.sender === 'bot-auto-comment') ? 'align-items-end' : 'align-items-start'
                         }`}
                       >
                         <div className="position-relative ts-msg-bubble-wrap" style={{ maxWidth: '75%' }}>
@@ -403,7 +446,9 @@ export default function AdminChatConsole() {
                                   msg.sender === 'agent'
                                     ? 'bg-primary text-white rounded-bottom-end-0'
                                     : msg.sender === 'bot'
-                                    ? 'bg-info-subtle border border-info-subtle text-info-emphasis rounded-bottom-start-0'
+                                    ? 'bg-info-subtle border border-info-subtle text-info-emphasis rounded-bottom-end-0'
+                                    : msg.sender === 'bot-auto-comment'
+                                    ? 'bg-warning-subtle border border-warning-subtle text-warning-emphasis rounded-bottom-end-0'
                                     : 'bg-white text-dark rounded-bottom-start-0'
                                 }`}
                                 style={{ wordBreak: 'break-word' }}
@@ -411,7 +456,7 @@ export default function AdminChatConsole() {
                                 {renderMessageText(msg.text)}
                               </div>
                               {/* Unsend button on hover - only for agent/bot messages */}
-                              {(msg.sender === 'agent' || msg.sender === 'bot') && (
+                              {(msg.sender === 'agent' || msg.sender === 'bot' || msg.sender === 'bot-auto-comment') && (
                                 <button
                                   onClick={() => handleUnsendMessage(msg._id)}
                                   className="ts-unsend-btn"
@@ -423,8 +468,8 @@ export default function AdminChatConsole() {
                             </>
                           )}
                         </div>
-                        <small className="text-muted mt-1 px-2" style={{ fontSize: '0.65rem' }}>
-                          {msg.senderName || (msg.sender === 'bot' ? 'Bot' : 'Agent')} • {formatDateTime(msg.createdAt)}
+                        <small className="text-muted mt-1 px-2" style={{ fontSize: '0.65rem', alignSelf: (msg.sender === 'agent' || msg.sender === 'bot' || msg.sender === 'bot-auto-comment') ? 'flex-end' : 'flex-start' }}>
+                          {msg.senderName || (msg.sender === 'bot' ? 'Bot' : msg.sender === 'bot-auto-comment' ? 'System' : 'Agent')} • {formatDateTime(msg.createdAt)}
                         </small>
                       </div>
                     ))
@@ -490,6 +535,80 @@ export default function AdminChatConsole() {
           </Col>
         </Row>
       </StyledContainer>
+
+      {/* Teacher Details Modal */}
+      {selectedTeacher && (
+        <Modal show={showTeacherModal} onHide={() => setShowTeacherModal(false)} size="lg" centered>
+          <Modal.Header closeButton className="bg-primary text-white">
+            <Modal.Title className="fw-bold">
+              👨‍🏫 Teacher Details: {selectedTeacher.name}
+            </Modal.Title>
+          </Modal.Header>
+          <Modal.Body className="p-4" style={{ backgroundColor: '#f8f9fa' }}>
+            <Row className="g-3">
+              {/* Profile Overview */}
+              <Col md={12}>
+                <Card className="border-0 shadow-sm p-3 mb-2" style={{ borderRadius: '12px' }}>
+                  <h6 className="text-primary fw-bold mb-3 border-bottom pb-2">Profile Overview</h6>
+                  <Row>
+                    <Col md={4}><strong>Premium Code:</strong> {selectedTeacher.premiumCode || 'N/A'}</Col>
+                    <Col md={4}><strong>University Code:</strong> {selectedTeacher.uniCode || 'N/A'}</Col>
+                    <Col md={4}><strong>Status:</strong> <Badge bg={selectedTeacher.status === 'verified' ? 'success' : selectedTeacher.status === 'suspended' ? 'danger' : 'warning'}>{selectedTeacher.status}</Badge></Col>
+                  </Row>
+                </Card>
+              </Col>
+
+              {/* Personal Information */}
+              <Col md={6}>
+                <Card className="border-0 shadow-sm p-3 h-100" style={{ borderRadius: '12px' }}>
+                  <h6 className="text-primary fw-bold mb-3 border-bottom pb-2">Personal & Contact Info</h6>
+                  <ul className="list-unstyled mb-0 d-flex flex-column gap-2">
+                    <li><strong>Phone:</strong> {selectedTeacher.phone || 'N/A'}</li>
+                    <li><strong>Alternative Phone:</strong> {selectedTeacher.alternativePhone || 'N/A'}</li>
+                    <li><strong>WhatsApp:</strong> {selectedTeacher.whatsapp || 'N/A'}</li>
+                    <li><strong>Gender:</strong> {selectedTeacher.gender || 'N/A'}</li>
+                    <li><strong>Current Area:</strong> {selectedTeacher.currentArea || 'N/A'}</li>
+                    <li><strong>Address:</strong> {selectedTeacher.fullAddress || 'N/A'}</li>
+                  </ul>
+                </Card>
+              </Col>
+
+              {/* Academic Background */}
+              <Col md={6}>
+                <Card className="border-0 shadow-sm p-3 h-100" style={{ borderRadius: '12px' }}>
+                  <h6 className="text-primary fw-bold mb-3 border-bottom pb-2">Academic & Professional</h6>
+                  <ul className="list-unstyled mb-0 d-flex flex-column gap-2">
+                    <li><strong>Honors Univ:</strong> {selectedTeacher.honorsUniversity || 'N/A'}</li>
+                    <li><strong>Honors Dept:</strong> {selectedTeacher.honorsDept || 'N/A'}</li>
+                    <li><strong>Masters Univ:</strong> {selectedTeacher.mastersUniversity || 'N/A'}</li>
+                    <li><strong>Masters Dept:</strong> {selectedTeacher.mastersDept || 'N/A'}</li>
+                    <li><strong>Academic Year:</strong> {selectedTeacher.academicYear || 'N/A'}</li>
+                    <li><strong>SSC Result:</strong> {selectedTeacher.sscResult || 'N/A'} ({selectedTeacher.sscGroup || 'N/A'})</li>
+                    <li><strong>HSC Result:</strong> {selectedTeacher.hscResult || 'N/A'} ({selectedTeacher.hscGroup || 'N/A'})</li>
+                  </ul>
+                </Card>
+              </Col>
+
+              {/* Experience and Tutoring Preferences */}
+              <Col md={12}>
+                <Card className="border-0 shadow-sm p-3" style={{ borderRadius: '12px' }}>
+                  <h6 className="text-primary fw-bold mb-3 border-bottom pb-2">Tutoring Preferences</h6>
+                  <Row>
+                    <Col md={6}><strong>Experience:</strong> {selectedTeacher.experience || 'N/A'}</Col>
+                    <Col md={6}><strong>Favorite Subjects:</strong> {selectedTeacher.favoriteSubject || 'N/A'}</Col>
+                  </Row>
+                </Card>
+              </Col>
+            </Row>
+          </Modal.Body>
+          <Modal.Footer className="border-0 bg-light p-3">
+            <Button variant="secondary" onClick={() => setShowTeacherModal(false)} className="px-4 py-2 rounded-pill fw-bold">
+              Close
+            </Button>
+          </Modal.Footer>
+        </Modal>
+      )}
+
       <ToastContainer />
     </>
   );

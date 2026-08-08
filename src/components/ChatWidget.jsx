@@ -64,10 +64,184 @@ export default function ChatWidget() {
           if (parsed.premiumCode) setPremiumCode(parsed.premiumCode);
         }
       } catch (err) {
-        console.error('Error loading saved settings in ChatWidget:', err);
+        console.error('Error loading settings in ChatWidget:', err);
       }
     }
   }, [isOpen]);
+
+  useEffect(() => {
+    const handleOpenChat = async (event) => {
+      setIsOpen(true);
+      const tuitionCode = event.detail?.tuitionCode;
+      if (!tuitionCode) return;
+
+      const applyMsg = `আমি এই টিউশনে (${tuitionCode}) অ্যাপ্লাই করতে চাই।`;
+      
+      const tuitionId = event.detail?.tuitionId;
+      
+      let currentUser = user;
+      if (!currentUser) {
+        try {
+          const saved = localStorage.getItem('@user_settings');
+          if (saved) {
+            const parsed = JSON.parse(saved);
+            if (parsed.phone && parsed.premiumCode) {
+              setPhone(parsed.phone);
+              setPremiumCode(parsed.premiumCode);
+              
+              const res = await fetchWithFallback(`${BASE_URL}/api/regTeacher/check-apply-possible`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ phone: parsed.phone, premiumCode: parsed.premiumCode })
+              });
+              const data = await res.json();
+              if (data.success) {
+                const teacherFullData = data.data.data;
+                teacherDataRef.current = teacherFullData;
+                currentUser = {
+                  name: teacherFullData.name || 'Premium Member',
+                  phone: data.data.phone,
+                  premiumCode: data.data.premiumCode
+                };
+                setUser(currentUser);
+                
+                const histRes = await fetchWithFallback(`${BASE_URL}/api/chat/history/${currentUser.phone}?limit=20`);
+                const histData = await histRes.json();
+                if (histData.length === 0) {
+                  setMessages([{ sender: 'bot', text: `Welcome, **${currentUser.name}**! 💬\n\nPlease type your message below a support representative will reply directly.` }]);
+                } else {
+                  setMessages(histData);
+                  setHasMore(histData.length === 20);
+                }
+              }
+            }
+          }
+        } catch (e) {
+          console.error(e);
+        }
+      }
+
+      if (currentUser) {
+        setTimeout(async () => {
+          if (socketRef.current) {
+            socketRef.current.emit('send_message', {
+              phone: currentUser.phone,
+              premiumCode: currentUser.premiumCode,
+              sender: 'member',
+              senderName: currentUser.name,
+              text: applyMsg
+            });
+
+            // Show temporary loading status message in the chat feed
+            const tempId = 'temp-loading-' + Date.now();
+            setMessages(prev => [...prev, {
+              _id: tempId,
+              sender: 'bot',
+              text: `⏳ **আবেদন করা হচ্ছে, অনুগ্রহ করে অপেক্ষা করুন...**`,
+              createdAt: new Date().toISOString()
+            }]);
+
+            // Fetch autoComment if tuitionId is available
+            let autoComment = '';
+            if (tuitionId) {
+              try {
+                const commentRes = await fetchWithFallback(`${BASE_URL}/api/tuitionApply/get-auto-comment/${tuitionId}`);
+                const commentData = await commentRes.json();
+                if (commentData && commentData.comment) {
+                  autoComment = commentData.comment;
+                }
+              } catch (e) {
+                console.error('Error fetching auto comment for chat apply:', e);
+              }
+            }
+
+            // Remove loading message and emit bot messages via socket
+            setTimeout(() => {
+              setMessages(prev => prev.filter(m => m._id !== tempId));
+
+              // Success + Instructions message combined
+              socketRef.current.emit('send_message', {
+                phone: currentUser.phone,
+                premiumCode: currentUser.premiumCode,
+                sender: 'bot',
+                senderName: 'System',
+                text: `🎉 **আপনার আবেদনটি সফল হয়েছে!**\n\nখুব শীঘ্রই আমাদের একজন প্রতিনিধি এখানে চ্যাটে আপনার সাথে যোগাযোগ করবেন। অনুগ্রহ করে অপেক্ষা করুন।`
+              });
+
+              // Auto-comment message if available
+              if (autoComment) {
+                setTimeout(() => {
+                  socketRef.current.emit('send_message', {
+                    phone: currentUser.phone,
+                    premiumCode: currentUser.premiumCode,
+                    sender: 'bot-auto-comment',
+                    senderName: 'System',
+                    text: autoComment
+                  });
+                }, 150);
+              }
+            }, 1000);
+          } else {
+            setInput(applyMsg);
+          }
+        }, 800);
+      } else {
+        setInput(applyMsg);
+      }
+    };
+
+    window.addEventListener('openChatWidget', handleOpenChat);
+    return () => window.removeEventListener('openChatWidget', handleOpenChat);
+  }, [user]);
+
+  useEffect(() => {
+    if (isOpen && !user) {
+      try {
+        const saved = localStorage.getItem('@user_settings');
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          if (parsed.phone && parsed.premiumCode) {
+            setPhone(parsed.phone);
+            setPremiumCode(parsed.premiumCode);
+            // inline auto-verify helper
+            (async () => {
+              try {
+                const res = await fetchWithFallback(`${BASE_URL}/api/regTeacher/check-apply-possible`, {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ phone: parsed.phone, premiumCode: parsed.premiumCode })
+                });
+                const data = await res.json();
+                if (data.success) {
+                  const teacherFullData = data.data.data;
+                  teacherDataRef.current = teacherFullData;
+                  const verifiedUser = {
+                    name: teacherFullData.name || 'Premium Member',
+                    phone: data.data.phone,
+                    premiumCode: data.data.premiumCode
+                  };
+                  setUser(verifiedUser);
+                  
+                  const histRes = await fetchWithFallback(`${BASE_URL}/api/chat/history/${verifiedUser.phone}?limit=20`);
+                  const histData = await histRes.json();
+                  if (histData.length === 0) {
+                    setMessages([{ sender: 'bot', text: `Welcome, **${verifiedUser.name}**! 💬\n\nPlease type your message below a support representative will reply directly.` }]);
+                  } else {
+                    setMessages(histData);
+                    setHasMore(histData.length === 20);
+                  }
+                }
+              } catch (err) {
+                console.error('Auto verify failed:', err);
+              }
+            })();
+          }
+        }
+      } catch (err) {
+        console.error('Error auto loading settings:', err);
+      }
+    }
+  }, [isOpen, user]);
 
   useEffect(() => {
     if (user && isOpen) {
@@ -433,7 +607,20 @@ export default function ChatWidget() {
                         width: '100%'
                       }}
                     >
-                      <div className={`ts-message ${msg.sender}`}>
+                      <div 
+                        className={`ts-message ${msg.sender}`}
+                        style={msg.sender === 'bot-auto-comment' ? {
+                          backgroundColor: '#fff8e1',
+                          border: '1px solid #ffecb3',
+                          color: '#795548',
+                          borderRadius: '12px',
+                          padding: '10px 14px',
+                          margin: '4px 0',
+                          fontSize: '0.9rem',
+                          fontWeight: 'bold',
+                          maxWidth: '90%'
+                        } : {}}
+                      >
                         {renderMessageText(msg.text)}
                       </div>
                       <small

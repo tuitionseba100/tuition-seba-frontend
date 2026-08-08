@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Button, Table, Modal, Form, Row, Col, Card, Tooltip, OverlayTrigger, Badge } from 'react-bootstrap';
-import { FaEdit, FaTrashAlt, FaWhatsapp, FaChevronLeft, FaChevronRight, FaGlobe, FaInfoCircle, FaBell, FaSearch, FaUndo, FaUserPlus, FaFileImage, FaHistory } from 'react-icons/fa';
+import { FaEdit, FaTrashAlt, FaWhatsapp, FaChevronLeft, FaChevronRight, FaGlobe, FaInfoCircle, FaBell, FaSearch, FaUndo, FaUserPlus, FaFileImage, FaHistory, FaComments } from 'react-icons/fa';
 import Select from 'react-select';
 import { axiosWithFallback as axios } from '../services/fetchWithFallback';
 import NavBarPage from './NavbarPage';
@@ -19,6 +19,28 @@ import ConfirmationFollowUpModal from '../components/modals/ConfirmationFollowUp
 import locationData from '../data/locations.json';
 
 const TuitionPage = () => {
+    const getFilterStyle = (val) => {
+        if (val && String(val).trim() !== '') {
+            return {
+                border: '2px solid #0d6efd',
+                backgroundColor: '#f0f8ff',
+                fontWeight: 'bold',
+                color: '#0d6efd'
+            };
+        }
+        return {};
+    };
+
+    const getLabelStyle = (val) => {
+        if (val && String(val).trim() !== '') {
+            return {
+                color: '#0d6efd',
+                fontWeight: '800'
+            };
+        }
+        return {};
+    };
+
     const [tuitionList, setTuitionList] = useState([]);
     const [filteredTuitionList, setFilteredTuitionList] = useState([]);
     const [excelTuitionList, setExcelTuitionList] = useState([]);
@@ -57,7 +79,8 @@ const TuitionPage = () => {
         assignedTo: '',
         type: '',
         isReviewDone: '',
-        tuitionTypeFilter: ''
+        tuitionTypeFilter: '',
+        applyTypeFilter: ''
     });
 
     const [appliedFilters, setAppliedFilters] = useState({
@@ -71,7 +94,8 @@ const TuitionPage = () => {
         assignedTo: '',
         type: '',
         isReviewDone: '',
-        tuitionTypeFilter: ''
+        tuitionTypeFilter: '',
+        applyTypeFilter: ''
     });
 
     const [userOptions, setUserOptions] = useState([]);
@@ -229,7 +253,8 @@ const TuitionPage = () => {
             assignedTo: '',
             type: '',
             isReviewDone: '',
-            tuitionTypeFilter: ''
+            tuitionTypeFilter: '',
+            applyTypeFilter: ''
         };
         setSearchInputs(resetFilters);
         setAppliedFilters(resetFilters);
@@ -374,7 +399,8 @@ const TuitionPage = () => {
                     assignedTo: appliedFilters.assignedTo,
                     type: appliedFilters.type,
                     isReviewDone: appliedFilters.isReviewDone === "Yes" ? 'true' : appliedFilters.isReviewDone === "No" ? 'false' : undefined,
-                    tuitionType: appliedFilters.tuitionTypeFilter || undefined
+                    tuitionType: appliedFilters.tuitionTypeFilter || undefined,
+                    applyType: appliedFilters.applyTypeFilter || undefined
                 }
             });
 
@@ -405,7 +431,8 @@ const TuitionPage = () => {
                 assignedTo: appliedFilters.assignedTo,
                 type: appliedFilters.type,
                 isReviewDone: appliedFilters.isReviewDone === "Yes" ? 'true' : appliedFilters.isReviewDone === "No" ? 'false' : undefined,
-                tuitionType: appliedFilters.tuitionTypeFilter || undefined
+                tuitionType: appliedFilters.tuitionTypeFilter || undefined,
+                applyType: appliedFilters.applyTypeFilter || undefined
             };
 
             const res = await axios.get('https://tuition-seba-backend-1.onrender.com/api/tuition/summary', {
@@ -692,43 +719,47 @@ const TuitionPage = () => {
 
                 <Row className="mt-2 mb-3">
                     <Col md={1}>
-                        <Form.Label className="fw-bold text-nowrap">Code</Form.Label>
+                        <Form.Label className="fw-bold text-nowrap" style={getLabelStyle(searchInputs.tuitionCode)}>Code</Form.Label>
                         <Form.Control
                             type="text"
                             placeholder="Code"
                             value={searchInputs.tuitionCode}
                             onChange={(e) => handleSearchInputChange('tuitionCode', e.target.value)}
                             onKeyPress={handleKeyPress}
+                            style={getFilterStyle(searchInputs.tuitionCode)}
                         />
                     </Col>
 
                     <Col md={1}>
-                        <Form.Label className="fw-bold text-nowrap">Guardian</Form.Label>
+                        <Form.Label className="fw-bold text-nowrap" style={getLabelStyle(searchInputs.guardianNumber)}>Guardian</Form.Label>
                         <Form.Control
                             type="text"
                             placeholder="Num"
                             value={searchInputs.guardianNumber}
                             onChange={(e) => handleSearchInputChange('guardianNumber', e.target.value)}
                             onKeyPress={handleKeyPress}
+                            style={getFilterStyle(searchInputs.guardianNumber)}
                         />
                     </Col>
 
                     <Col md={1}>
-                        <Form.Label className="fw-bold text-nowrap">Teacher</Form.Label>
+                        <Form.Label className="fw-bold text-nowrap" style={getLabelStyle(searchInputs.teacherNumber)}>Teacher</Form.Label>
                         <Form.Control
                             type="text"
                             placeholder="Num"
                             value={searchInputs.teacherNumber}
                             onChange={(e) => handleSearchInputChange('teacherNumber', e.target.value)}
                             onKeyPress={handleKeyPress}
+                            style={getFilterStyle(searchInputs.teacherNumber)}
                         />
                     </Col>
 
                     <Col md={1}>
-                        <Form.Label className="fw-bold">Publish Status</Form.Label>
+                        <Form.Label className="fw-bold" style={getLabelStyle(searchInputs.publishFilter)}>Publish Status</Form.Label>
                         <Form.Select
                             value={searchInputs.publishFilter}
                             onChange={(e) => handleSearchInputChange('publishFilter', e.target.value)}
+                            style={getFilterStyle(searchInputs.publishFilter)}
                         >
                             <option value="">All</option>
                             <option value="Yes">Yes</option>
@@ -737,10 +768,11 @@ const TuitionPage = () => {
                     </Col>
 
                     <Col md={1}>
-                        <Form.Label className="fw-bold">Emergency</Form.Label>
+                        <Form.Label className="fw-bold" style={getLabelStyle(searchInputs.urgentFilter)}>Emergency</Form.Label>
                         <Form.Select
                             value={searchInputs.urgentFilter}
                             onChange={(e) => handleSearchInputChange('urgentFilter', e.target.value)}
+                            style={getFilterStyle(searchInputs.urgentFilter)}
                         >
                             <option value="">All</option>
                             <option value="Yes">Urgent</option>
@@ -749,10 +781,11 @@ const TuitionPage = () => {
                     </Col>
 
                     <Col md={2}>
-                        <Form.Label className="fw-bold">Status</Form.Label>
+                        <Form.Label className="fw-bold" style={getLabelStyle(searchInputs.statusFilter)}>Status</Form.Label>
                         <Form.Select
                             value={searchInputs.statusFilter}
                             onChange={(e) => handleSearchInputChange('statusFilter', e.target.value)}
+                            style={getFilterStyle(searchInputs.statusFilter)}
                         >
                             <option value="">All</option>
                             <option value="available">Available</option>
@@ -769,10 +802,11 @@ const TuitionPage = () => {
                     </Col>
 
                     <Col md={2}>
-                        <Form.Label className="fw-bold">Area</Form.Label>
+                        <Form.Label className="fw-bold" style={getLabelStyle(searchInputs.areaFilter)}>Area</Form.Label>
                         <Form.Select
                             value={searchInputs.areaFilter}
                             onChange={(e) => handleSearchInputChange('areaFilter', e.target.value)}
+                            style={getFilterStyle(searchInputs.areaFilter)}
                         >
                             <option value="">All Areas</option>
                             {locationData.areaOptions.chittagong.map((area, index) => (
@@ -782,10 +816,11 @@ const TuitionPage = () => {
                     </Col>
 
                     <Col md={2}>
-                        <Form.Label className="fw-bold">Tuition Type</Form.Label>
+                        <Form.Label className="fw-bold" style={getLabelStyle(searchInputs.tuitionTypeFilter)}>Tuition Type</Form.Label>
                         <Form.Select
                             value={searchInputs.tuitionTypeFilter}
                             onChange={(e) => handleSearchInputChange('tuitionTypeFilter', e.target.value)}
+                            style={getFilterStyle(searchInputs.tuitionTypeFilter)}
                         >
                             <option value="">All Types</option>
                             <option value="High Salary - High Demand">High Salary - High Demand</option>
@@ -800,9 +835,23 @@ const TuitionPage = () => {
                         </Form.Select>
                     </Col>
 
+                    <Col md={1}>
+                        <Form.Label className="fw-bold text-nowrap" style={getLabelStyle(searchInputs.applyTypeFilter)}>Apply Type</Form.Label>
+                        <Form.Select
+                            value={searchInputs.applyTypeFilter}
+                            onChange={(e) => handleSearchInputChange('applyTypeFilter', e.target.value)}
+                            style={getFilterStyle(searchInputs.applyTypeFilter)}
+                        >
+                            <option value="">All</option>
+                            <option value="Server">Server</option>
+                            <option value="WhatsApp">WhatsApp</option>
+                            <option value="Chat">Chat</option>
+                        </Form.Select>
+                    </Col>
+
                     {(role === 'superadmin' || role === 'admin') && (
                         <Col md={2}>
-                            <Form.Label className="fw-bold">Assigned To</Form.Label>
+                            <Form.Label className="fw-bold" style={getLabelStyle(searchInputs.assignedTo)}>Assigned To</Form.Label>
                             <Select
                                 options={userOptions}
                                 value={userOptions.find(u => u.value === searchInputs.assignedTo) || null}
@@ -815,6 +864,8 @@ const TuitionPage = () => {
                                         ...base,
                                         minHeight: '38px',
                                         borderRadius: '0.375rem',
+                                        border: searchInputs.assignedTo ? '2px solid #0d6efd' : '1px solid #ccc',
+                                        backgroundColor: searchInputs.assignedTo ? '#f0f8ff' : '#fff',
                                     }),
                                     menuPortal: (base) => ({ ...base, zIndex: 9999 })
                                 }}
@@ -823,8 +874,12 @@ const TuitionPage = () => {
                     )}
 
                     <Col md="auto">
-                        <Form.Label className="fw-bold d-block">Type Filter</Form.Label>
-                        <div className="d-flex flex-wrap align-items-center border rounded px-3 bg-white" style={{ minHeight: '38px' }}>
+                        <Form.Label className="fw-bold d-block" style={getLabelStyle(searchInputs.type)}>Type Filter</Form.Label>
+                        <div className="d-flex flex-wrap align-items-center border rounded px-3 bg-white" style={{ 
+                            minHeight: '38px',
+                            border: searchInputs.type ? '2px solid #0d6efd' : '1px solid #ced4da',
+                            backgroundColor: searchInputs.type ? '#f0f8ff' : '#fff'
+                        }}>
                             <Form.Check
                                 inline
                                 label="All"
@@ -859,8 +914,12 @@ const TuitionPage = () => {
                     </Col>
 
                     <Col md="auto">
-                        <Form.Label className="fw-bold d-block">Review Filter</Form.Label>
-                        <div className="d-flex flex-wrap align-items-center border rounded px-3 bg-white" style={{ minHeight: '38px' }}>
+                        <Form.Label className="fw-bold d-block" style={getLabelStyle(searchInputs.isReviewDone)}>Review Filter</Form.Label>
+                        <div className="d-flex flex-wrap align-items-center border rounded px-3 bg-white" style={{ 
+                            minHeight: '38px',
+                            border: searchInputs.isReviewDone ? '2px solid #0d6efd' : '1px solid #ced4da',
+                            backgroundColor: searchInputs.isReviewDone ? '#f0f8ff' : '#fff'
+                        }}>
                             <Form.Check
                                 inline
                                 label="All"
@@ -1735,13 +1794,17 @@ const MemoizedTuitionTable = React.memo(({
                                 </div>
                             </td>
                             <td>
-                                {tuition.isWhatsappApply ? (
+                                {tuition.applyType === 'WhatsApp' ? (
                                     <span style={{ color: 'green', fontWeight: 'bold' }}>
-                                        <FaWhatsapp /> Whatsapp
+                                        <FaWhatsapp /> WhatsApp
+                                    </span>
+                                ) : tuition.applyType === 'Chat' ? (
+                                    <span style={{ color: 'info', fontWeight: 'bold' }}>
+                                        <FaComments /> Chat
                                     </span>
                                 ) : (
                                     <span style={{ color: 'blue', fontWeight: 'bold' }}>
-                                        <FaGlobe /> Website
+                                        <FaGlobe /> Server
                                     </span>
                                 )}
                             </td>

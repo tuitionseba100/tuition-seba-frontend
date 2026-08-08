@@ -49,7 +49,7 @@ const fieldConfig = [
 
     { name: 'isPublish', label: 'Publish', group: 'admin', col: 4, type: 'switch', defaultValue: false },
     { name: 'isUrgent', label: 'Is Emergency?', group: 'admin', col: 4, type: 'switch', defaultValue: false },
-    { name: 'isWhatsappApply', label: 'Apply via WhatsApp?', group: 'admin', col: 4, type: 'switch', defaultValue: false },
+    { name: 'applyType', label: 'Apply Type', group: 'admin', col: 4, type: 'select', options: ['Server', 'WhatsApp', 'Chat'], defaultValue: 'Server' },
     { name: 'isPaymentCreated', label: 'Payment Created?', group: 'admin', col: 4, type: 'switch', defaultValue: false },
     { name: 'isReviewDone', label: 'Review Done?', group: 'admin', col: 4, type: 'switch', defaultValue: false },
     { name: 'assignedTo', label: 'Assigned To', group: 'admin', col: 6, type: 'select', options: [] }, // Options will be populated dynamically

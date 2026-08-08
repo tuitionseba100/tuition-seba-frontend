@@ -4,7 +4,7 @@ import {
     FaChalkboardTeacher, FaUsers, FaUniversity, FaBook,
     FaLanguage, FaBookOpen, FaCalendarDay, FaClock,
     FaMoneyBill, FaMapMarkerAlt, FaCalendarCheck, FaWhatsapp, FaGlobe,
-    FaCalendarAlt
+    FaCalendarAlt, FaComments
 } from 'react-icons/fa';
 import ApplyModal from '../components/modals/ApplyModal';
 
@@ -22,8 +22,17 @@ const TuitionCard = ({ tuition }) => {
     };
 
     const handleApplyClick = () => {
-        if (tuition.isWhatsappApply) {
+        const type = tuition.applyType || 'Server';
+        if (type === 'WhatsApp') {
             redirectToWhatsApp(tuition);
+        } else if (type === 'Chat') {
+            const event = new CustomEvent('openChatWidget', {
+                detail: {
+                    tuitionCode: tuition.tuitionCode,
+                    tuitionId: tuition._id
+                }
+            });
+            window.dispatchEvent(event);
         } else {
             setShowModal(true);
         }
@@ -124,10 +133,10 @@ Joining: ${tuitionDetails.joining}
                         <span style={{ fontSize: '1.2rem', fontWeight: '700', letterSpacing: '0.5px' }}>Tuition Code: {tuition.tuitionCode}</span>
                     </div>
                     {tuition.lastPublishedDate && (
-                        <div 
-                            style={{ 
-                                fontSize: '0.75rem', 
-                                opacity: 0.85, 
+                        <div
+                            style={{
+                                fontSize: '0.75rem',
+                                opacity: 0.85,
                                 marginTop: '4px',
                                 display: 'flex',
                                 alignItems: 'center',
@@ -170,7 +179,9 @@ Joining: ${tuitionDetails.joining}
                         variant="primary"
                         className="rounded-pill px-5 py-2 d-inline-flex align-items-center gap-2 fw-bold"
                         style={{
-                            background: tuition.isWhatsappApply ? '#25D366' : 'linear-gradient(135deg, #004085 0%, #0066cc 100%)',
+                            background: (tuition.applyType || 'Server') === 'WhatsApp'
+                                ? '#25D366'
+                                : (tuition.applyType === 'Chat' ? 'linear-gradient(135deg, #17a2b8 0%, #138496 100%)' : 'linear-gradient(135deg, #004085 0%, #0066cc 100%)'),
                             border: 'none',
                             boxShadow: '0 4px 15px rgba(0,0,0,0.15)',
                             transition: 'all 0.3s ease'
@@ -185,9 +196,13 @@ Joining: ${tuitionDetails.joining}
                         }}
                         onClick={() => handleApplyClick(tuition)}
                     >
-                        {tuition.isWhatsappApply ? (
+                        {(tuition.applyType || 'Server') === 'WhatsApp' ? (
                             <>
                                 <FaWhatsapp fontSize="1.2rem" /> Apply Now
+                            </>
+                        ) : tuition.applyType === 'Chat' ? (
+                            <>
+                                <FaComments fontSize="1.2rem" /> Apply via Chat
                             </>
                         ) : (
                             <>
@@ -198,7 +213,7 @@ Joining: ${tuitionDetails.joining}
                 </Card.Footer>
             </Card>
 
-            {!tuition.isWhatsappApply && (
+            {(tuition.applyType || 'Server') === 'Server' && (
                 <ApplyModal
                     show={showModal}
                     onClose={() => setShowModal(false)}

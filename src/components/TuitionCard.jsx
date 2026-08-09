@@ -29,7 +29,8 @@ const TuitionCard = ({ tuition }) => {
             const event = new CustomEvent('openChatWidget', {
                 detail: {
                     tuitionCode: tuition.tuitionCode,
-                    tuitionId: tuition._id
+                    tuitionId: tuition._id,
+                    tuitionDetails: tuition
                 }
             });
             window.dispatchEvent(event);

@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { io } from 'socket.io-client';
 import NavBarPage from './NavbarPage';
 import { Container, Row, Col, Card, Button, Form, Badge, Modal } from 'react-bootstrap';
-import { BsChatSquareDots, BsSendFill, BsPeopleFill, BsCheckCircleFill, BsLock, BsArrowDownShort, BsTrash, BsInfoCircle } from 'react-icons/bs';
+import { BsChatSquareDots, BsSendFill, BsPeopleFill, BsCheckCircleFill, BsLock, BsArrowDownShort, BsTrash, BsInfoCircle, BsWhatsapp } from 'react-icons/bs';
 import { axiosWithFallback as axios } from '../services/fetchWithFallback';
 import { toast, ToastContainer } from 'react-toastify';
 import styled from 'styled-components';
@@ -59,6 +59,63 @@ export default function AdminChatConsole() {
     }
   };
 
+  const handleShareToWhatsApp = (teacherDetails) => {
+    if (!teacherDetails) return;
+    const hasValue = (v) => v !== undefined && v !== null && String(v).trim() !== '';
+
+    const lines = [
+      `টিউশন সেবা ফোরাম (আস্থা ও বিশ্বস্ততায় একধাপ এগিয়ে)`,
+      `যোগাযোগ: 01633920928`,
+      `ওয়েবসাইট: www.tuitionsebaforum.com`,
+      ``,
+      `*Verified Premium Tutor*`,
+      `Premium Code: *${teacherDetails.premiumCode || 'N/A'}*`,
+      ``,
+      `*Teacher CV*`,
+      `Name: *${teacherDetails.name || 'N/A'}*`,
+      `Area: *${teacherDetails.currentArea || 'N/A'}*`,
+      ``,
+      `*Academic Qualifications*`,
+
+      ...(hasValue(teacherDetails.mastersUniversity) ? [`Masters University: *${teacherDetails.mastersUniversity}*`] : []),
+      ...(hasValue(teacherDetails.mastersDept) ? [`Masters Department: *${teacherDetails.mastersDept}*`] : []),
+      `Honours University: *${teacherDetails.honorsUniversity || 'N/A'}*`,
+      `Academic Year: *${teacherDetails.academicYear || 'N/A'}*`,
+      `Department: *${teacherDetails.honorsDept || 'N/A'}*`,
+    ];
+
+    if (hasValue(teacherDetails.college)) {
+      lines.push(`College (HSC): *${teacherDetails.college}*`);
+    }
+
+    if (hasValue(teacherDetails.hscGroup) || hasValue(teacherDetails.hscResult)) {
+      lines.push(
+        `HSC - Group: *${teacherDetails.hscGroup || 'N/A'}*, Result: *${teacherDetails.hscResult || 'N/A'}*`
+      );
+    }
+
+    if (hasValue(teacherDetails.school)) {
+      lines.push(`School (SSC): *${teacherDetails.school}*`);
+    }
+
+    if (hasValue(teacherDetails.sscGroup) || hasValue(teacherDetails.sscResult)) {
+      lines.push(
+        `SSC - Group: *${teacherDetails.sscGroup || 'N/A'}*, Result: *${teacherDetails.sscResult || 'N/A'}*`
+      );
+    }
+
+    lines.push(
+      ``,
+      `*Experience*: ${teacherDetails.experience || 'N/A'}`,
+      `*Address*: ${teacherDetails.fullAddress || 'N/A'}`,
+      `*Favorite Subject*: ${teacherDetails.favoriteSubject || 'N/A'}`
+    );
+
+    const message = lines.join('\n');
+    const url = `https://api.whatsapp.com/send?text=${encodeURIComponent(message)}`;
+    window.open(url, '_blank');
+  };
+
   const handleDeleteChat = async (phone) => {
     if (!window.confirm(`Are you sure you want to permanently delete all chat history and session for ${activeName} (${phone})? This action cannot be undone.`)) {
       return;
@@ -86,7 +143,7 @@ export default function AdminChatConsole() {
       await axios.patch(`${BASE_URL}/api/chat/message/${messageId}/unsend`, { username }, {
         headers: { Authorization: token }
       });
-      setMessages(prev => prev.map(msg => 
+      setMessages(prev => prev.map(msg =>
         msg._id === messageId ? { ...msg, isUnsent: true, deletedBy: username } : msg
       ));
       toast.success('Message unsent.');
@@ -314,7 +371,7 @@ export default function AdminChatConsole() {
       <NavBarPage />
       <StyledContainer fluid>
         <Row className="h-100 g-0 shadow-lg rounded-3 overflow-hidden" style={{ background: '#ffffff', minHeight: 'calc(100vh - 100px)' }}>
-          
+
           {/* Chat List Sidebar */}
           <Col md={4} className="border-end d-flex flex-column" style={{ background: '#f8f9fa' }}>
             <div className="p-3 border-bottom d-flex align-items-center gap-2 bg-primary text-white">
@@ -338,9 +395,8 @@ export default function AdminChatConsole() {
                   <div
                     key={session._id}
                     onClick={() => selectSession(session.phone, session.name, session.premiumCode)}
-                    className={`p-3 mb-2 rounded-3 cursor-pointer transition-all d-flex justify-content-between align-items-center ${
-                      session.phone === activePhone ? 'bg-primary text-white shadow-sm' : 'bg-white border text-dark hover-bg'
-                    }`}
+                    className={`p-3 mb-2 rounded-3 cursor-pointer transition-all d-flex justify-content-between align-items-center ${session.phone === activePhone ? 'bg-primary text-white shadow-sm' : 'bg-white border text-dark hover-bg'
+                      }`}
                     style={{ cursor: 'pointer', transition: 'all 0.2s' }}
                   >
                     <div style={{ flex: 1, minWidth: 0 }}>
@@ -392,9 +448,9 @@ export default function AdminChatConsole() {
                     </Button>
 
                     {role === 'superadmin' && (
-                      <Button 
-                        variant="outline-danger" 
-                        size="sm" 
+                      <Button
+                        variant="outline-danger"
+                        size="sm"
                         onClick={() => handleDeleteChat(activePhone)}
                         className="d-flex align-items-center gap-1.5 px-3 py-1.5 rounded-pill fw-bold"
                       >
@@ -417,16 +473,15 @@ export default function AdminChatConsole() {
                     messages.map((msg, i) => (
                       <div
                         key={i}
-                        className={`d-flex flex-column ${
-                          (msg.sender === 'agent' || msg.sender === 'bot' || msg.sender === 'bot-auto-comment') ? 'align-items-end' : 'align-items-start'
-                        }`}
+                        className={`d-flex flex-column ${(msg.sender === 'agent' || msg.sender === 'bot' || msg.sender === 'bot-auto-comment') ? 'align-items-end' : 'align-items-start'
+                          }`}
                       >
                         <div className="position-relative ts-msg-bubble-wrap" style={{ maxWidth: '75%' }}>
                           {msg.isUnsent ? (
                             <div
                               className="px-3 py-2 rounded-4 shadow-sm"
-                              style={{ 
-                                background: '#fef2f2', 
+                              style={{
+                                background: '#fef2f2',
                                 border: '1px solid #fca5a5',
                                 wordBreak: 'break-word',
                                 opacity: 0.7
@@ -442,15 +497,14 @@ export default function AdminChatConsole() {
                           ) : (
                             <>
                               <div
-                                className={`px-3 py-2 rounded-4 shadow-sm ${
-                                  msg.sender === 'agent'
+                                className={`px-3 py-2 rounded-4 shadow-sm ${msg.sender === 'agent'
                                     ? 'bg-primary text-white rounded-bottom-end-0'
                                     : msg.sender === 'bot'
-                                    ? 'bg-info-subtle border border-info-subtle text-info-emphasis rounded-bottom-end-0'
-                                    : msg.sender === 'bot-auto-comment'
-                                    ? 'bg-warning-subtle border border-warning-subtle text-warning-emphasis rounded-bottom-end-0'
-                                    : 'bg-white text-dark rounded-bottom-start-0'
-                                }`}
+                                      ? 'bg-info-subtle border border-info-subtle text-info-emphasis rounded-bottom-end-0'
+                                      : msg.sender === 'bot-auto-comment'
+                                        ? 'bg-warning-subtle border border-warning-subtle text-warning-emphasis rounded-bottom-end-0'
+                                        : 'bg-white text-dark rounded-bottom-start-0'
+                                  }`}
                                 style={{ wordBreak: 'break-word' }}
                               >
                                 {renderMessageText(msg.text)}
@@ -486,7 +540,7 @@ export default function AdminChatConsole() {
                 </div>
 
                 {showScrollBottom && (
-                  <Button 
+                  <Button
                     onClick={scrollToBottom}
                     style={{
                       position: 'absolute',
@@ -602,6 +656,14 @@ export default function AdminChatConsole() {
             </Row>
           </Modal.Body>
           <Modal.Footer className="border-0 bg-light p-3">
+            <Button
+              variant="success"
+              onClick={() => handleShareToWhatsApp(selectedTeacher)}
+              className="px-4 py-2 rounded-pill fw-bold me-auto d-flex align-items-center gap-2"
+              style={{ backgroundColor: '#25D366', borderColor: '#25D366' }}
+            >
+              <BsWhatsapp size={18} /> Share CV to WhatsApp
+            </Button>
             <Button variant="secondary" onClick={() => setShowTeacherModal(false)} className="px-4 py-2 rounded-pill fw-bold">
               Close
             </Button>

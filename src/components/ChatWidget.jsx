@@ -74,8 +74,27 @@ export default function ChatWidget() {
       setIsOpen(true);
       const tuitionCode = event.detail?.tuitionCode;
       if (!tuitionCode) return;
+      const tuitionDetails = event.detail?.tuitionDetails;
+      
+      const formatMessage = (details) => {
+        if (!details) return `আমি এই টিউশনে (${tuitionCode}) অ্যাপ্লাই করতে চাই।`;
+        const area = details.area ? `, ${details.area}` : '';
+        return `Tuition Code: ${details.tuitionCode}
+Wanted Teacher: ${details.wantedTeacher || ''}
+Number of Students: ${details.student || ''}
+Class: ${details.class || ''}
+Medium: ${details.medium || ''}
+Subject: ${details.subject || ''}
+Day: ${details.day || ''}
+Time: ${details.time || ''}
+Salary: ${details.salary && /taka|tk/i.test(details.salary.toString()) ? details.salary : (details.salary ? details.salary.toString().trim() + ' taka' : '')}${details.mediaFee && details.mediaFee.trim() !== '' ? `\nMedia Fee: ${details.mediaFee}` : ''}
+Location: ${details.location || ''}${area}
+Joining: ${details.joining || ''}
 
-      const applyMsg = `আমি এই টিউশনে (${tuitionCode}) অ্যাপ্লাই করতে চাই।`;
+এই টিউশনটা (${details.tuitionCode}) কি এখনো আছে?`.trim();
+      };
+
+      const applyMsg = formatMessage(tuitionDetails);
       
       const tuitionId = event.detail?.tuitionId;
       
@@ -124,14 +143,6 @@ export default function ChatWidget() {
       if (currentUser) {
         setTimeout(async () => {
           if (socketRef.current) {
-            socketRef.current.emit('send_message', {
-              phone: currentUser.phone,
-              premiumCode: currentUser.premiumCode,
-              sender: 'member',
-              senderName: currentUser.name,
-              text: applyMsg
-            });
-
             // Show temporary loading status message in the chat feed
             const tempId = 'temp-loading-' + Date.now();
             setMessages(prev => [...prev, {
@@ -141,34 +152,78 @@ export default function ChatWidget() {
               createdAt: new Date().toISOString()
             }]);
 
-            // Fetch autoComment if tuitionId is available
-            let autoComment = '';
-            if (tuitionId) {
-              try {
-                const commentRes = await fetchWithFallback(`${BASE_URL}/api/tuitionApply/get-auto-comment/${tuitionId}`);
-                const commentData = await commentRes.json();
-                if (commentData && commentData.comment) {
-                  autoComment = commentData.comment;
-                }
-              } catch (e) {
-                console.error('Error fetching auto comment for chat apply:', e);
-              }
-            }
+            try {
+              // Attempt to save the tuition application record in the database
+              const teacher = teacherDataRef.current || {};
+              const applyRes = await fetchWithFallback(`${BASE_URL}/api/tuitionApply/add-web`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  premiumCode: currentUser.premiumCode,
+                  tuitionCode: tuitionCode,
+                  tuitionId: tuitionId,
+                  name: teacher.name || currentUser.name || 'Premium Member',
+                  phone: teacher.phone || currentUser.phone,
+                  institute: teacher.institute || '',
+                  department: teacher.department || '',
+                  academicYear: teacher.academicYear || '',
+                  address: teacher.address || '',
+                  comment: 'Applied via Live Chat',
+                })
+              });
 
-            // Remove loading message and emit bot messages via socket
-            setTimeout(() => {
+              const applyData = await applyRes.json();
+
+              // Remove temporary loading message
               setMessages(prev => prev.filter(m => m._id !== tempId));
 
-              // Success + Instructions message combined
+              if (!applyRes.ok) {
+                // If backend returned an error (e.g. already applied), show a nice notice locally in the chat feed
+                // without emitting to socket so that it is not saved to the chat history database.
+                setMessages(prev => [...prev, {
+                  _id: 'local-error-' + Date.now(),
+                  sender: 'bot',
+                  senderName: 'System',
+                  text: `⚠️ **আবেদন করা হয়নি:** ${applyData.message || 'দুঃখিত, কোনো একটি ত্রুটি ঘটেছে।'}`
+                }]);
+                return;
+              }
+
+              // Send the member's application message if save succeeded
               socketRef.current.emit('send_message', {
                 phone: currentUser.phone,
                 premiumCode: currentUser.premiumCode,
-                sender: 'bot',
-                senderName: 'System',
-                text: `🎉 **আপনার আবেদনটি সফল হয়েছে!**\n\nখুব শীঘ্রই আমাদের একজন প্রতিনিধি এখানে চ্যাটে আপনার সাথে যোগাযোগ করবেন। অনুগ্রহ করে অপেক্ষা করুন।`
+                sender: 'member',
+                senderName: currentUser.name,
+                text: applyMsg
               });
 
-              // Auto-comment message if available
+              // Fetch autoComment if tuitionId is available
+              let autoComment = '';
+              if (tuitionId) {
+                try {
+                  const commentRes = await fetchWithFallback(`${BASE_URL}/api/tuitionApply/get-auto-comment/${tuitionId}`);
+                  const commentData = await commentRes.json();
+                  if (commentData && commentData.comment) {
+                    autoComment = commentData.comment;
+                  }
+                } catch (e) {
+                  console.error('Error fetching auto comment for chat apply:', e);
+                }
+              }
+
+              // Emit success response after a small delay (500ms) to ensure correct order
+              setTimeout(() => {
+                socketRef.current.emit('send_message', {
+                  phone: currentUser.phone,
+                  premiumCode: currentUser.premiumCode,
+                  sender: 'bot',
+                  senderName: 'System',
+                  text: `🎉 **আপনার আবেদনটি সফল হয়েছে!**\n\nখুব শীঘ্রই আমাদের একজন প্রতিনিধি এখানে চ্যাটে আপনার সাথে যোগাযোগ করবেন। অনুগ্রহ করে অপেক্ষা করুন।`
+                });
+              }, 500);
+
+              // Auto-comment message if available after a slightly longer delay (1000ms)
               if (autoComment) {
                 setTimeout(() => {
                   socketRef.current.emit('send_message', {
@@ -178,9 +233,21 @@ export default function ChatWidget() {
                     senderName: 'System',
                     text: autoComment
                   });
-                }, 150);
+                }, 1000);
               }
-            }, 1000);
+            } catch (err) {
+              console.error('Error saving tuition apply in database during chat flow:', err);
+              // Remove temporary loading message
+              setMessages(prev => prev.filter(m => m._id !== tempId));
+              // Fallback to sending standard message if API fails
+              socketRef.current.emit('send_message', {
+                phone: currentUser.phone,
+                premiumCode: currentUser.premiumCode,
+                sender: 'member',
+                senderName: currentUser.name,
+                text: applyMsg
+              });
+            }
           } else {
             setInput(applyMsg);
           }

@@ -490,11 +490,24 @@ export default function AdminChatConsole() {
                         {session.lastMessage}
                       </small>
                     </div>
-                    {session.unreadCount > 0 && (
-                      <Badge bg="danger" pill className="ms-2">
-                        {session.unreadCount}
-                      </Badge>
-                    )}
+                    <div className="d-flex flex-column align-items-end ms-2 gap-1" style={{ flexShrink: 0 }}>
+                      {session.unreadCount > 0 && (
+                        <Badge bg="danger" pill style={{ fontSize: '0.7rem' }}>
+                          {session.unreadCount}
+                        </Badge>
+                      )}
+                      {session.lastSender && session.lastSender !== 'agent' && (
+                        <Badge
+                          bg={session.phone === activePhone ? "light" : "warning"}
+                          text={session.phone === activePhone ? "primary" : "dark"}
+                          pill
+                          style={{ fontSize: '0.65rem', fontWeight: 'bold' }}
+                          title="Last message from member (waiting for agent reply)"
+                        >
+                          Waiting
+                        </Badge>
+                      )}
+                    </div>
                   </div>
                 ))
               )}

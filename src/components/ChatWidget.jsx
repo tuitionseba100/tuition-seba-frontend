@@ -156,7 +156,32 @@ Joining: ${details.joining || ''}
 
             try {
               // Attempt to save the tuition application record in the database
-              const teacher = teacherDataRef.current || {};
+              let teacher = teacherDataRef.current;
+              if (!teacher && currentUser.phone && currentUser.premiumCode) {
+                try {
+                  const checkRes = await fetchWithFallback(`${BASE_URL}/api/regTeacher/check-apply-possible`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ phone: currentUser.phone, premiumCode: currentUser.premiumCode })
+                  });
+                  const checkData = await checkRes.json();
+                  if (checkData.success) {
+                    teacher = checkData.data.data;
+                    teacherDataRef.current = teacher;
+                  }
+                } catch (e) {
+                  console.error('Error fetching teacher profile for chat apply:', e);
+                }
+              }
+              if (!teacher) {
+                teacher = {};
+              }
+
+              let combinedAddress = teacher.fullAddress || '';
+              if (teacher.currentArea) {
+                combinedAddress = combinedAddress ? `${combinedAddress}. Area: ${teacher.currentArea}` : `Area: ${teacher.currentArea}`;
+              }
+
               const applyRes = await fetchWithFallback(`${BASE_URL}/api/tuitionApply/add-web`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -166,10 +191,10 @@ Joining: ${details.joining || ''}
                   tuitionId: tuitionId,
                   name: teacher.name || currentUser.name || 'Premium Member',
                   phone: teacher.phone || currentUser.phone,
-                  institute: teacher.institute || '',
-                  department: teacher.department || '',
+                  institute: teacher.university || teacher.honorsUniversity || teacher.mastersUniversity || '',
+                  department: teacher.department || teacher.honorsDept || teacher.mastersDept || '',
                   academicYear: teacher.academicYear || '',
-                  address: teacher.address || '',
+                  address: combinedAddress,
                   comment: 'Applied via Live Chat',
                   agentComment: 'Chat Apply',
                 })

@@ -487,6 +487,15 @@ export default function AdminChatConsole() {
                         Phone: {session.phone} | Code: {session.premiumCode}
                       </div>
                       <small className={`text-truncate d-block mt-1 ${session.phone === activePhone ? 'text-white-50' : 'text-muted'}`}>
+                        <strong>
+                          {session.lastSender === 'agent'
+                            ? 'You: '
+                            : session.lastSender === 'member'
+                              ? 'Teacher: '
+                              : session.lastSender
+                                ? 'Bot: '
+                                : ''}
+                        </strong>
                         {session.lastMessage}
                       </small>
                     </div>

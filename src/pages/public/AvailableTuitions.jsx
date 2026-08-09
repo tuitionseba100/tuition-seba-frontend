@@ -3,6 +3,7 @@ import { axiosWithFallback as axios } from '../../services/fetchWithFallback';
 import TuitionCard from '../../components/TuitionCard';
 import NavBar from '../../components/NavBar';
 import Footer from '../../components/Footer';
+import ChatWidget from '../../components/ChatWidget';
 import { Spinner } from 'react-bootstrap';
 import { FiRefreshCcw, FiMapPin, FiAlertCircle } from 'react-icons/fi';
 
@@ -136,7 +137,7 @@ const TuitionSection = () => {
                                 borderRadius: 12,
                                 padding: '16px 20px',
                                 marginBottom: 20,
-                            }}>
+                             }}>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
                                     <div style={{ width: 36, height: 36, borderRadius: 8, background: '#DBEAFE', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                                         <FiMapPin style={{ color: '#2563EB', fontSize: 18 }} />
@@ -274,6 +275,7 @@ const TuitionSection = () => {
                     )}
                 </div>
             </div>
+            <ChatWidget />
             <Footer />
         </>
     );

@@ -615,6 +615,20 @@ export default function LiveChatPage() {
                       >
                         পেমেন্ট নম্বর
                       </button>
+                      <button
+                        onClick={() => {
+                          const now = new Date().toISOString();
+                          setMessages(prev => [...prev, { sender: 'member', text: 'রিফান্ড সংক্রান্ত সাহায্য চাই', createdAt: now }]);
+                          setTimeout(() => {
+                            const refundText = `📌 **রিফান্ড বা টিউশন সংক্রান্ত সহায়তার নির্দেশিকা**\n\nনিচের লিঙ্কে ক্লিক করে:\n✅ **রিফান্ড নিন**\n✅ **পলিসি দেখুন**\n✅ **অফিসিয়াল লেনদেনের নম্বর দেখুন**\n\nটিউশন বাতিল বা কোনো সমস্যা হলে ফর্মটি পূরণ করুন এবং বিস্তারিত লিখুন।\n🕒 **অফিস ৭২ ঘণ্টার মধ্যে সমস্যার সমাধান করবে।**\n\n**ফর্ম পূরণ ও রিফান্ডের জন্য**:\n➡️ “**Request Refund**” অপশনটি নির্বাচন করুন\n🔗 **https://www.tuitionsebaforum.com/payment**`;
+                            setMessages(prev => [...prev, { sender: 'bot', text: refundText, createdAt: new Date().toISOString() }]);
+                          }, 500);
+                        }}
+                        className="ts-suggestion-chip"
+                        style={{ background: 'linear-gradient(135deg, #fff1f2 0%, #ffe4e6 100%)', borderColor: '#ffe4e6', color: '#e11d48' }}
+                      >
+                        রিফান্ড
+                      </button>
                     </div>
                   )}
 

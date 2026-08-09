@@ -371,7 +371,7 @@ export default function AdminChatConsole() {
           </a>
         );
       }
-      
+
       const numRegex = /(01[3-9]\d{2}-?\d{6})/g;
       if (numRegex.test(part)) {
         const subParts = part.split(numRegex);
@@ -580,12 +580,12 @@ export default function AdminChatConsole() {
                             <>
                               <div
                                 className={`px-3 py-2 rounded-4 shadow-sm ${msg.sender === 'agent'
-                                    ? 'bg-primary text-white rounded-bottom-end-0'
-                                    : msg.sender === 'bot'
-                                      ? 'bg-info-subtle border border-info-subtle text-info-emphasis rounded-bottom-end-0'
-                                      : msg.sender === 'bot-auto-comment'
-                                        ? 'bg-warning-subtle border border-warning-subtle text-warning-emphasis rounded-bottom-end-0'
-                                        : 'bg-white text-dark rounded-bottom-start-0'
+                                  ? 'bg-primary text-white rounded-bottom-end-0'
+                                  : msg.sender === 'bot'
+                                    ? 'bg-info-subtle border border-info-subtle text-info-emphasis rounded-bottom-end-0'
+                                    : msg.sender === 'bot-auto-comment'
+                                      ? 'bg-warning-subtle border border-warning-subtle text-warning-emphasis rounded-bottom-end-0'
+                                      : 'bg-white text-dark rounded-bottom-start-0'
                                   }`}
                                 style={{ wordBreak: 'break-word' }}
                               >

@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { io } from 'socket.io-client';
 import NavBarPage from './NavbarPage';
 import { Container, Row, Col, Card, Button, Form, Badge, Modal } from 'react-bootstrap';
-import { BsChatSquareDots, BsSendFill, BsPeopleFill, BsCheckCircleFill, BsLock, BsArrowDownShort, BsTrash, BsInfoCircle, BsWhatsapp } from 'react-icons/bs';
+import { BsChatSquareDots, BsSendFill, BsPeopleFill, BsCheckCircleFill, BsLock, BsArrowDownShort, BsTrash, BsInfoCircle, BsWhatsapp, BsClipboard } from 'react-icons/bs';
 import { axiosWithFallback as axios } from '../services/fetchWithFallback';
 import { toast, ToastContainer } from 'react-toastify';
 import styled from 'styled-components';
@@ -59,8 +59,8 @@ export default function AdminChatConsole() {
     }
   };
 
-  const handleShareToWhatsApp = (teacherDetails) => {
-    if (!teacherDetails) return;
+  const getCVText = (teacherDetails) => {
+    if (!teacherDetails) return '';
     const hasValue = (v) => v !== undefined && v !== null && String(v).trim() !== '';
 
     const lines = [
@@ -111,9 +111,26 @@ export default function AdminChatConsole() {
       `*Favorite Subject*: ${teacherDetails.favoriteSubject || 'N/A'}`
     );
 
-    const message = lines.join('\n');
+    return lines.join('\n');
+  };
+
+  const handleShareToWhatsApp = (teacherDetails) => {
+    const message = getCVText(teacherDetails);
+    if (!message) return;
     const url = `https://api.whatsapp.com/send?text=${encodeURIComponent(message)}`;
     window.open(url, '_blank');
+  };
+
+  const handleCopyCV = async (teacherDetails) => {
+    const message = getCVText(teacherDetails);
+    if (!message) return;
+    try {
+      await navigator.clipboard.writeText(message);
+      toast.success('CV copied to clipboard successfully!');
+    } catch (err) {
+      console.error('Failed to copy CV:', err);
+      toast.error('Failed to copy CV to clipboard.');
+    }
   };
 
   const handleDeleteChat = async (phone) => {
@@ -656,14 +673,23 @@ export default function AdminChatConsole() {
             </Row>
           </Modal.Body>
           <Modal.Footer className="border-0 bg-light p-3">
-            <Button
-              variant="success"
-              onClick={() => handleShareToWhatsApp(selectedTeacher)}
-              className="px-4 py-2 rounded-pill fw-bold me-auto d-flex align-items-center gap-2"
-              style={{ backgroundColor: '#25D366', borderColor: '#25D366' }}
-            >
-              <BsWhatsapp size={18} /> Share CV to WhatsApp
-            </Button>
+            <div className="me-auto d-flex gap-2">
+              <Button
+                variant="success"
+                onClick={() => handleShareToWhatsApp(selectedTeacher)}
+                className="px-4 py-2 rounded-pill fw-bold d-flex align-items-center gap-2"
+                style={{ backgroundColor: '#25D366', borderColor: '#25D366' }}
+              >
+                <BsWhatsapp size={18} /> Share CV to WhatsApp
+              </Button>
+              <Button
+                variant="outline-primary"
+                onClick={() => handleCopyCV(selectedTeacher)}
+                className="px-4 py-2 rounded-pill fw-bold d-flex align-items-center gap-2"
+              >
+                <BsClipboard size={18} /> Copy CV
+              </Button>
+            </div>
             <Button variant="secondary" onClick={() => setShowTeacherModal(false)} className="px-4 py-2 rounded-pill fw-bold">
               Close
             </Button>

@@ -340,7 +340,7 @@ export default function AdminChatConsole() {
   };
 
   const handleKeyDown = (e) => {
-    if (e.key === 'Enter') {
+    if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       sendAgentMessage();
     }
@@ -583,12 +583,19 @@ export default function AdminChatConsole() {
                 <div className="p-3 bg-white border-top shadow-sm">
                   <Form onSubmit={(e) => { e.preventDefault(); sendAgentMessage(); }} className="d-flex gap-2">
                     <Form.Control
-                      type="text"
+                      as="textarea"
+                      rows={1}
                       placeholder="Type your reply here..."
                       value={input}
                       onChange={handleInputChange}
                       onKeyDown={handleKeyDown}
-                      className="rounded-pill px-4"
+                      className="px-4 py-2"
+                      style={{
+                        borderRadius: '20px',
+                        resize: 'none',
+                        maxHeight: '120px',
+                        overflowY: 'auto'
+                      }}
                     />
                     <Button type="submit" variant="primary" className="rounded-circle d-flex align-items-center justify-content-center" style={{ width: '42px', height: '42px' }}>
                       <BsSendFill size={16} />

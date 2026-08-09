@@ -79,7 +79,9 @@ export default function ChatWidget() {
       const formatMessage = (details) => {
         if (!details) return `আমি এই টিউশনে (${tuitionCode}) অ্যাপ্লাই করতে চাই।`;
         const area = details.area ? `, ${details.area}` : '';
-        return `Tuition Code: ${details.tuitionCode}
+        return `📢 **[Tuition Apply]**
+
+Tuition Code: ${details.tuitionCode}
 Wanted Teacher: ${details.wantedTeacher || ''}
 Number of Students: ${details.student || ''}
 Class: ${details.class || ''}
@@ -184,7 +186,7 @@ Joining: ${details.joining || ''}
                   _id: 'local-error-' + Date.now(),
                   sender: 'bot',
                   senderName: 'System',
-                  text: `⚠️ **আবেদন করা হয়নি:** ${applyData.message || 'দুঃখিত, কোনো একটি ত্রুটি ঘটেছে।'}`
+                  text: `⚠️ **আবেদন করা হয়নি (${tuitionCode}):** ${applyData.message || 'দুঃখিত, কোনো একটি ত্রুটি ঘটেছে।'}`
                 }]);
                 return;
               }

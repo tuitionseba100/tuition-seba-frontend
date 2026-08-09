@@ -360,6 +360,71 @@ export default function AdminChatConsole() {
     });
   };
 
+  const renderTextWithLinksAndCopies = (text) => {
+    const urlRegex = /(https?:\/\/[^\s]+)/g;
+    const parts = text.split(urlRegex);
+    return parts.map((part, i) => {
+      if (urlRegex.test(part)) {
+        return (
+          <a key={i} href={part} target="_blank" rel="noopener noreferrer" style={{ color: 'inherit', textDecoration: 'underline', fontWeight: 600 }}>
+            {part}
+          </a>
+        );
+      }
+      
+      const numRegex = /(01[3-9]\d{2}-?\d{6})/g;
+      if (numRegex.test(part)) {
+        const subParts = part.split(numRegex);
+        return subParts.map((subPart, idx) => {
+          if (numRegex.test(subPart)) {
+            const cleanNum = subPart.replace('-', '');
+            return (
+              <span
+                key={idx}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  navigator.clipboard.writeText(cleanNum);
+                  const btn = e.currentTarget;
+                  const originalHtml = btn.innerHTML;
+                  btn.innerHTML = 'Copied! ✅';
+                  btn.style.backgroundColor = '#d1fae5';
+                  btn.style.color = '#065f46';
+                  setTimeout(() => {
+                    btn.innerHTML = originalHtml;
+                    btn.style.backgroundColor = '#f1f5f9';
+                    btn.style.color = '#0f172a';
+                  }, 1200);
+                }}
+                title="Click to copy number"
+                style={{
+                  cursor: 'pointer',
+                  backgroundColor: '#f1f5f9',
+                  border: '1px solid #cbd5e1',
+                  borderRadius: '4px',
+                  padding: '1px 6px',
+                  fontFamily: 'monospace',
+                  fontWeight: 'bold',
+                  color: '#0f172a',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '4px',
+                  userSelect: 'all',
+                  fontSize: '0.9em',
+                  margin: '0 2px',
+                  transition: 'all 0.15s ease'
+                }}
+              >
+                {subPart} 📋
+              </span>
+            );
+          }
+          return subPart;
+        });
+      }
+      return part;
+    });
+  };
+
   const renderMessageText = (text) => {
     return text.split('\n').map((line, idx) => {
       const parts = line.split('**');
@@ -368,14 +433,14 @@ export default function AdminChatConsole() {
           {idx > 0 && <br />}
           {parts.map((part, pIdx) => {
             if (pIdx % 2 === 1) {
-              return <strong key={pIdx}>{part}</strong>;
+              return <strong key={pIdx}>{renderTextWithLinksAndCopies(part)}</strong>;
             }
             const subParts = part.split('*');
             return subParts.map((subPart, sIdx) => {
               if (sIdx % 2 === 1) {
-                return <em key={sIdx}>{subPart}</em>;
+                return <em key={sIdx}>{renderTextWithLinksAndCopies(subPart)}</em>;
               }
-              return subPart;
+              return renderTextWithLinksAndCopies(subPart);
             });
           })}
         </span>

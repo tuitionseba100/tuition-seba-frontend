@@ -483,7 +483,7 @@ Joining: ${details.joining || ''}
     });
   };
 
-  const renderTextWithLinks = (text) => {
+  const renderTextWithLinksAndCopies = (text) => {
     const urlRegex = /(https?:\/\/[^\s]+)/g;
     const parts = text.split(urlRegex);
     return parts.map((part, i) => {
@@ -493,6 +493,56 @@ Joining: ${details.joining || ''}
             {part}
           </a>
         );
+      }
+      
+      const numRegex = /(01[3-9]\d{2}-?\d{6})/g;
+      if (numRegex.test(part)) {
+        const subParts = part.split(numRegex);
+        return subParts.map((subPart, idx) => {
+          if (numRegex.test(subPart)) {
+            const cleanNum = subPart.replace('-', '');
+            return (
+              <span
+                key={idx}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  navigator.clipboard.writeText(cleanNum);
+                  const btn = e.currentTarget;
+                  const originalHtml = btn.innerHTML;
+                  btn.innerHTML = 'Copied! ✅';
+                  btn.style.backgroundColor = '#d1fae5';
+                  btn.style.color = '#065f46';
+                  setTimeout(() => {
+                    btn.innerHTML = originalHtml;
+                    btn.style.backgroundColor = '#f1f5f9';
+                    btn.style.color = '#0f172a';
+                  }, 1200);
+                }}
+                title="Click to copy number"
+                style={{
+                  cursor: 'pointer',
+                  backgroundColor: '#f1f5f9',
+                  border: '1px solid #cbd5e1',
+                  borderRadius: '4px',
+                  padding: '1px 6px',
+                  fontFamily: 'monospace',
+                  fontWeight: 'bold',
+                  color: '#0f172a',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '4px',
+                  userSelect: 'all',
+                  fontSize: '0.9em',
+                  margin: '0 2px',
+                  transition: 'all 0.15s ease'
+                }}
+              >
+                {subPart} 📋
+              </span>
+            );
+          }
+          return subPart;
+        });
       }
       return part;
     });
@@ -506,14 +556,14 @@ Joining: ${details.joining || ''}
           {idx > 0 && <br />}
           {parts.map((part, pIdx) => {
             if (pIdx % 2 === 1) {
-              return <strong key={pIdx}>{renderTextWithLinks(part)}</strong>;
+              return <strong key={pIdx}>{renderTextWithLinksAndCopies(part)}</strong>;
             }
             const subParts = part.split('*');
             return subParts.map((subPart, sIdx) => {
               if (sIdx % 2 === 1) {
-                return <em key={sIdx}>{renderTextWithLinks(subPart)}</em>;
+                return <em key={sIdx}>{renderTextWithLinksAndCopies(subPart)}</em>;
               }
-              return renderTextWithLinks(subPart);
+              return renderTextWithLinksAndCopies(subPart);
             });
           })}
         </span>
@@ -721,7 +771,7 @@ Joining: ${details.joining || ''}
                 )}
                 
                 {/* Suggestions Panel */}
-                {showSuggestions && !input.trim() && (
+                {!input.trim() && (
                   <div className="ts-widget-suggestions">
                     <button
                       onClick={() => {
@@ -772,8 +822,9 @@ Joining: ${details.joining || ''}
                         }, 500);
                       }}
                       className="ts-widget-suggestion-btn"
+                      style={{ background: 'linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%)', borderColor: '#dbeafe', color: '#1d4ed8' }}
                     >
-                      <BsFileEarmarkPerson size={13} /> সিভি দেখতে চাই
+                      সিভি দেখতে চাই
                     </button>
                     <button
                       onClick={() => {
@@ -785,28 +836,28 @@ Joining: ${details.joining || ''}
                         }, 500);
                       }}
                       className="ts-widget-suggestion-btn"
+                      style={{ background: 'linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)', borderColor: '#dcfce7', color: '#15803d' }}
                     >
-                      <BsBoxArrowUpRight size={12} /> অ্যাপ্লাই আপডেট
+                      অ্যাপ্লাই আপডেট
+                    </button>
+                    <button
+                      onClick={() => {
+                        const now = new Date().toISOString();
+                        setMessages(prev => [...prev, { sender: 'member', text: 'পেমেন্ট নম্বর জানতে চাই', createdAt: now }]);
+                        setTimeout(() => {
+                          const paymentText = `💳 **আমাদের সাথে লেনদেন করুন নিচের দেওয়া নাম্বারে:**\n\n🔹 **বিকাশ (Payment)**: **01973920728** (সবচেয়ে উত্তম ও দ্রুততম নিশ্চিত মাধ্যম)\n\n🔹 **বিকাশ (Send Money)**: **01633920928**\n\n🔹 **নগদ (Send Money)**: **01633-920928**\n\n🔹 **রকেট (Send Money)**: **01633-920928**\n\n📢 **বিঃদ্রঃ**: দ্রুত ভেরিফিকেশন ও নিরাপদ লেনদেনের জন্য **bKash Payment** অপশন ব্যবহার করার অনুরোধ করা হচ্ছে। অন্য মাধ্যমে টাকা পাঠালে অবশ্যই লেনদেনের স্ক্রিনশট সংরক্ষণ করুন।\n\n💡 **টিপস**: যেকোনো নম্বরের ওপর ক্লিক করলেই নম্বরটি অটো কপি হয়ে যাবে। টাকা পাঠানোর পূর্বে অবশ্যই নম্বরটি পুনরায় ভালো করে চেক করে নেবেন।\n\nধন্যবাদ।`;
+                          setMessages(prev => [...prev, { sender: 'bot', text: paymentText, createdAt: new Date().toISOString() }]);
+                        }, 500);
+                      }}
+                      className="ts-widget-suggestion-btn"
+                      style={{ background: 'linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%)', borderColor: '#fef3c7', color: '#b45309' }}
+                    >
+                      পেমেন্ট নম্বর
                     </button>
                   </div>
                 )}
 
                 <div className="ts-input-area">
-                  <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
-                    <button
-                      onClick={() => setShowSuggestions(prev => !prev)}
-                      className="ts-widget-bulb-btn"
-                      style={{ opacity: showSuggestions ? 1 : 0.55 }}
-                      title="সাজেশন দেখুন"
-                    >
-                      <BsLightbulb size={18} />
-                    </button>
-                    {!showSuggestions && showTooltip && (
-                      <div className="ts-bulb-tooltip">
-                        সিভি ও আপডেট
-                      </div>
-                    )}
-                  </div>
                   <input
                     type="text"
                     value={input}

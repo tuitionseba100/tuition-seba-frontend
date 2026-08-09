@@ -171,6 +171,7 @@ Joining: ${details.joining || ''}
                   academicYear: teacher.academicYear || '',
                   address: teacher.address || '',
                   comment: 'Applied via Live Chat',
+                  agentComment: 'Chat Apply',
                 })
               });
 

@@ -150,6 +150,17 @@ export default function LiveChatPage() {
           phone: data.data.phone,
           premiumCode: data.data.premiumCode
         };
+
+        // Save user settings to localStorage so they don't lose session
+        const settingsData = {
+          userName: verifiedUser.name,
+          phone: verifiedUser.phone,
+          premiumCode: verifiedUser.premiumCode,
+          areas: teacherFullData.currentArea ? [teacherFullData.currentArea] : []
+        };
+        localStorage.setItem('@user_settings', JSON.stringify(settingsData));
+        window.dispatchEvent(new Event('userSettingsUpdated'));
+
         setUser(verifiedUser);
 
         // Load history (Initial load limit = 20)

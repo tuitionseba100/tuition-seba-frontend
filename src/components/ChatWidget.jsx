@@ -25,6 +25,7 @@ export default function ChatWidget() {
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [showTooltip, setShowTooltip] = useState(false);
   const teacherDataRef = useRef(null);
+  const pendingApplyRef = useRef(null);
 
   const feedRef = useRef(null);
   const typingTimeoutRef = useRef(null);
@@ -69,6 +70,144 @@ export default function ChatWidget() {
     }
   }, [isOpen]);
 
+  const executeApply = async (currentUser, tuitionCode, tuitionId, applyMsg) => {
+    // Show temporary loading status message in the chat feed
+    const tempId = 'temp-loading-' + Date.now();
+    setMessages(prev => [...prev, {
+      _id: tempId,
+      sender: 'bot',
+      text: `⏳ **আবেদন করা হচ্ছে, অনুগ্রহ করে অপেক্ষা করুন...**`,
+      createdAt: new Date().toISOString()
+    }]);
+
+    try {
+      // Attempt to save the tuition application record in the database
+      let teacher = teacherDataRef.current;
+      if (!teacher && currentUser.phone && currentUser.premiumCode) {
+        try {
+          const checkRes = await fetchWithFallback(`${BASE_URL}/api/regTeacher/check-apply-possible`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ phone: currentUser.phone, premiumCode: currentUser.premiumCode })
+          });
+          const checkData = await checkRes.json();
+          if (checkData.success) {
+            teacher = checkData.data.data;
+            teacherDataRef.current = teacher;
+          }
+        } catch (e) {
+          console.error('Error fetching teacher profile for chat apply:', e);
+        }
+      }
+      if (!teacher) {
+        teacher = {};
+      }
+
+      let combinedAddress = teacher.fullAddress || '';
+      if (teacher.currentArea) {
+        combinedAddress = combinedAddress ? `${combinedAddress}. Area: ${teacher.currentArea}` : `Area: ${teacher.currentArea}`;
+      }
+
+      const applyRes = await fetchWithFallback(`${BASE_URL}/api/tuitionApply/add-web`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          premiumCode: currentUser.premiumCode,
+          tuitionCode: tuitionCode,
+          tuitionId: tuitionId,
+          name: teacher.name || currentUser.name || 'Premium Member',
+          phone: teacher.phone || currentUser.phone,
+          institute: teacher.university || teacher.honorsUniversity || teacher.mastersUniversity || '',
+          department: teacher.department || teacher.honorsDept || teacher.mastersDept || '',
+          academicYear: teacher.academicYear || '',
+          address: combinedAddress,
+          comment: 'Applied via Live Chat',
+          agentComment: 'Chat Apply',
+        })
+      });
+
+      const applyData = await applyRes.json();
+
+      // Remove temporary loading message
+      setMessages(prev => prev.filter(m => m._id !== tempId));
+
+      if (!applyRes.ok) {
+        setMessages(prev => [...prev, {
+          _id: 'local-error-' + Date.now(),
+          sender: 'bot',
+          senderName: 'System',
+          text: `⚠️ **আবেদন করা হয়নি (${tuitionCode}):** ${applyData.message || 'দুঃখিত, কোনো একটি ত্রুটি ঘটেছে।'}`
+        }]);
+        return;
+      }
+
+      // Send the member's application message if save succeeded
+      if (socketRef.current) {
+        socketRef.current.emit('send_message', {
+          phone: currentUser.phone,
+          premiumCode: currentUser.premiumCode,
+          sender: 'member',
+          senderName: currentUser.name,
+          text: applyMsg
+        });
+      }
+
+      // Fetch autoComment if tuitionId is available
+      let autoComment = '';
+      if (tuitionId) {
+        try {
+          const commentRes = await fetchWithFallback(`${BASE_URL}/api/tuitionApply/get-auto-comment/${tuitionId}`);
+          const commentData = await commentRes.json();
+          if (commentData && commentData.comment) {
+            autoComment = commentData.comment;
+          }
+        } catch (e) {
+          console.error('Error fetching auto comment for chat apply:', e);
+        }
+      }
+
+      // Emit success response after a small delay (500ms) to ensure correct order
+      setTimeout(() => {
+        if (socketRef.current) {
+          socketRef.current.emit('send_message', {
+            phone: currentUser.phone,
+            premiumCode: currentUser.premiumCode,
+            sender: 'bot',
+            senderName: 'System',
+            text: `🎉 **আপনার আবেদনটি সফল হয়েছে!**\n\nখুব শীঘ্রই আমাদের একজন প্রতিনিধি এখানে চ্যাটে আপনার সাথে যোগাযোগ করবেন। অনুগ্রহ করে অপেক্ষা করুন।`
+          });
+        }
+      }, 500);
+
+      // Auto-comment message if available after a slightly longer delay (1000ms)
+      if (autoComment) {
+        setTimeout(() => {
+          if (socketRef.current) {
+            socketRef.current.emit('send_message', {
+              phone: currentUser.phone,
+              premiumCode: currentUser.premiumCode,
+              sender: 'bot-auto-comment',
+              senderName: 'System',
+              text: autoComment
+            });
+          }
+        }, 1000);
+      }
+    } catch (err) {
+      console.error('Error saving tuition apply in database during chat flow:', err);
+      setMessages(prev => prev.filter(m => m._id !== tempId));
+      if (socketRef.current) {
+        socketRef.current.emit('send_message', {
+          phone: currentUser.phone,
+          premiumCode: currentUser.premiumCode,
+          sender: 'member',
+          senderName: currentUser.name,
+          text: applyMsg
+        });
+      }
+    }
+  };
+
   useEffect(() => {
     const handleOpenChat = async (event) => {
       setIsOpen(true);
@@ -80,7 +219,7 @@ export default function ChatWidget() {
         if (!details) return `আমি এই টিউশনে (${tuitionCode}) অ্যাপ্লাই করতে চাই।`;
         const area = details.area ? `, ${details.area}` : '';
         return `📢 **[Tuition Apply]**
-
+ 
 Tuition Code: ${details.tuitionCode}
 Wanted Teacher: ${details.wantedTeacher || ''}
 Number of Students: ${details.student || ''}
@@ -89,19 +228,21 @@ Medium: ${details.medium || ''}
 Subject: ${details.subject || ''}
 Day: ${details.day || ''}
 Time: ${details.time || ''}
-Salary: ${details.salary && /taka|tk/i.test(details.salary.toString()) ? details.salary : (details.salary ? details.salary.toString().trim() + ' taka' : '')}${details.mediaFee && details.mediaFee.trim() !== '' ? `\nMedia Fee: ${details.mediaFee}` : ''}
+Salary: ${details.salary && /taka|tk/i.test(details.salary.toString()) ? details.salary : (details.salary ? details.salary.toString().trim() + ' Taka' : '')}${details.mediaFee && details.mediaFee.trim() !== '' ? `\nMedia Fee: ${details.mediaFee}` : ''}
 Location: ${details.location || ''}${area}
 Joining: ${details.joining || ''}
-
+ 
 এই টিউশনটা (${details.tuitionCode}) কি এখনো আছে?`.trim();
       };
 
       const applyMsg = formatMessage(tuitionDetails);
-
       const tuitionId = event.detail?.tuitionId;
 
       let currentUser = user;
       if (!currentUser) {
+        // Store the application details to execute once verification finishes successfully
+        pendingApplyRef.current = { tuitionCode, tuitionId, applyMsg };
+
         try {
           const saved = localStorage.getItem('@user_settings');
           if (saved) {
@@ -124,16 +265,18 @@ Joining: ${details.joining || ''}
                   phone: data.data.phone,
                   premiumCode: data.data.premiumCode
                 };
-                setUser(currentUser);
+                
+                // Save user settings to localStorage so they don't lose session
+                const settingsData = {
+                  userName: currentUser.name,
+                  phone: currentUser.phone,
+                  premiumCode: currentUser.premiumCode,
+                  areas: teacherFullData.currentArea ? [teacherFullData.currentArea] : []
+                };
+                localStorage.setItem('@user_settings', JSON.stringify(settingsData));
+                window.dispatchEvent(new Event('userSettingsUpdated'));
 
-                const histRes = await fetchWithFallback(`${BASE_URL}/api/chat/history/${currentUser.phone}?limit=20`);
-                const histData = await histRes.json();
-                if (histData.length === 0) {
-                  setMessages([{ sender: 'bot', text: `Welcome, **${currentUser.name}**! 💬\n\nPlease type your message below a support representative will reply directly.` }]);
-                } else {
-                  setMessages(histData);
-                  setHasMore(histData.length === 20);
-                }
+                setUser(currentUser);
               }
             }
           }
@@ -143,145 +286,10 @@ Joining: ${details.joining || ''}
       }
 
       if (currentUser) {
-        setTimeout(async () => {
-          if (socketRef.current) {
-            // Show temporary loading status message in the chat feed
-            const tempId = 'temp-loading-' + Date.now();
-            setMessages(prev => [...prev, {
-              _id: tempId,
-              sender: 'bot',
-              text: `⏳ **আবেদন করা হচ্ছে, অনুগ্রহ করে অপেক্ষা করুন...**`,
-              createdAt: new Date().toISOString()
-            }]);
-
-            try {
-              // Attempt to save the tuition application record in the database
-              let teacher = teacherDataRef.current;
-              if (!teacher && currentUser.phone && currentUser.premiumCode) {
-                try {
-                  const checkRes = await fetchWithFallback(`${BASE_URL}/api/regTeacher/check-apply-possible`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ phone: currentUser.phone, premiumCode: currentUser.premiumCode })
-                  });
-                  const checkData = await checkRes.json();
-                  if (checkData.success) {
-                    teacher = checkData.data.data;
-                    teacherDataRef.current = teacher;
-                  }
-                } catch (e) {
-                  console.error('Error fetching teacher profile for chat apply:', e);
-                }
-              }
-              if (!teacher) {
-                teacher = {};
-              }
-
-              let combinedAddress = teacher.fullAddress || '';
-              if (teacher.currentArea) {
-                combinedAddress = combinedAddress ? `${combinedAddress}. Area: ${teacher.currentArea}` : `Area: ${teacher.currentArea}`;
-              }
-
-              const applyRes = await fetchWithFallback(`${BASE_URL}/api/tuitionApply/add-web`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                  premiumCode: currentUser.premiumCode,
-                  tuitionCode: tuitionCode,
-                  tuitionId: tuitionId,
-                  name: teacher.name || currentUser.name || 'Premium Member',
-                  phone: teacher.phone || currentUser.phone,
-                  institute: teacher.university || teacher.honorsUniversity || teacher.mastersUniversity || '',
-                  department: teacher.department || teacher.honorsDept || teacher.mastersDept || '',
-                  academicYear: teacher.academicYear || '',
-                  address: combinedAddress,
-                  comment: 'Applied via Live Chat',
-                  agentComment: 'Chat Apply',
-                })
-              });
-
-              const applyData = await applyRes.json();
-
-              // Remove temporary loading message
-              setMessages(prev => prev.filter(m => m._id !== tempId));
-
-              if (!applyRes.ok) {
-                // If backend returned an error (e.g. already applied), show a nice notice locally in the chat feed
-                // without emitting to socket so that it is not saved to the chat history database.
-                setMessages(prev => [...prev, {
-                  _id: 'local-error-' + Date.now(),
-                  sender: 'bot',
-                  senderName: 'System',
-                  text: `⚠️ **আবেদন করা হয়নি (${tuitionCode}):** ${applyData.message || 'দুঃখিত, কোনো একটি ত্রুটি ঘটেছে।'}`
-                }]);
-                return;
-              }
-
-              // Send the member's application message if save succeeded
-              socketRef.current.emit('send_message', {
-                phone: currentUser.phone,
-                premiumCode: currentUser.premiumCode,
-                sender: 'member',
-                senderName: currentUser.name,
-                text: applyMsg
-              });
-
-              // Fetch autoComment if tuitionId is available
-              let autoComment = '';
-              if (tuitionId) {
-                try {
-                  const commentRes = await fetchWithFallback(`${BASE_URL}/api/tuitionApply/get-auto-comment/${tuitionId}`);
-                  const commentData = await commentRes.json();
-                  if (commentData && commentData.comment) {
-                    autoComment = commentData.comment;
-                  }
-                } catch (e) {
-                  console.error('Error fetching auto comment for chat apply:', e);
-                }
-              }
-
-              // Emit success response after a small delay (500ms) to ensure correct order
-              setTimeout(() => {
-                socketRef.current.emit('send_message', {
-                  phone: currentUser.phone,
-                  premiumCode: currentUser.premiumCode,
-                  sender: 'bot',
-                  senderName: 'System',
-                  text: `🎉 **আপনার আবেদনটি সফল হয়েছে!**\n\nখুব শীঘ্রই আমাদের একজন প্রতিনিধি এখানে চ্যাটে আপনার সাথে যোগাযোগ করবেন। অনুগ্রহ করে অপেক্ষা করুন।`
-                });
-              }, 500);
-
-              // Auto-comment message if available after a slightly longer delay (1000ms)
-              if (autoComment) {
-                setTimeout(() => {
-                  socketRef.current.emit('send_message', {
-                    phone: currentUser.phone,
-                    premiumCode: currentUser.premiumCode,
-                    sender: 'bot-auto-comment',
-                    senderName: 'System',
-                    text: autoComment
-                  });
-                }, 1000);
-              }
-            } catch (err) {
-              console.error('Error saving tuition apply in database during chat flow:', err);
-              // Remove temporary loading message
-              setMessages(prev => prev.filter(m => m._id !== tempId));
-              // Fallback to sending standard message if API fails
-              socketRef.current.emit('send_message', {
-                phone: currentUser.phone,
-                premiumCode: currentUser.premiumCode,
-                sender: 'member',
-                senderName: currentUser.name,
-                text: applyMsg
-              });
-            }
-          } else {
-            setInput(applyMsg);
-          }
+        pendingApplyRef.current = null;
+        setTimeout(() => {
+          executeApply(currentUser, tuitionCode, tuitionId, applyMsg);
         }, 800);
-      } else {
-        setInput(applyMsg);
       }
     };
 
@@ -382,6 +390,13 @@ Joining: ${details.joining || ''}
       }
     });
 
+    // Check if there is a pending tuition application to process now that user is verified and socket is ready
+    if (pendingApplyRef.current) {
+      const { tuitionCode, tuitionId, applyMsg } = pendingApplyRef.current;
+      pendingApplyRef.current = null; // clear it immediately to prevent duplicate runs
+      executeApply(user, tuitionCode, tuitionId, applyMsg);
+    }
+
     return () => {
       if (socketRef.current) {
         socketRef.current.emit('leave_room', { phone: user.phone, role: 'member' });
@@ -414,6 +429,17 @@ Joining: ${details.joining || ''}
           phone: data.data.phone,
           premiumCode: data.data.premiumCode
         };
+
+        // Save user settings to localStorage so they don't lose session
+        const settingsData = {
+          userName: verifiedUser.name,
+          phone: verifiedUser.phone,
+          premiumCode: verifiedUser.premiumCode,
+          areas: teacherFullData.currentArea ? [teacherFullData.currentArea] : []
+        };
+        localStorage.setItem('@user_settings', JSON.stringify(settingsData));
+        window.dispatchEvent(new Event('userSettingsUpdated'));
+
         setUser(verifiedUser);
 
         // Load history (Initial load limit = 20)

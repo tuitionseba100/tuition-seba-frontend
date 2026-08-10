@@ -9,7 +9,7 @@ import GlobalSearchModal from '../components/modals/GlobalSearchModal';
 import { io } from 'socket.io-client';
 import { axiosWithFallback as axios } from '../services/fetchWithFallback';
 
-const BASE_URL = 'https://tuition-seba-backend-1.onrender.com';
+const BASE_URL = 'https://https://tuition-seba-backend-1-vk5b.onrender.com/';
 
 const Navbar = () => {
     const navigate = useNavigate();
@@ -104,16 +104,16 @@ const Navbar = () => {
                 >
                     {label}
                     {isUnseenChat && (
-                        <span 
-                            style={{ 
-                                display: 'inline-block', 
-                                width: '8px', 
-                                height: '8px', 
-                                backgroundColor: '#ff4d4d', 
-                                borderRadius: '50%', 
+                        <span
+                            style={{
+                                display: 'inline-block',
+                                width: '8px',
+                                height: '8px',
+                                backgroundColor: '#ff4d4d',
+                                borderRadius: '50%',
                                 marginLeft: '5px',
                                 verticalAlign: 'middle'
-                            }} 
+                            }}
                         />
                     )}
                 </Link>

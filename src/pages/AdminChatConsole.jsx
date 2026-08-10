@@ -7,7 +7,7 @@ import { axiosWithFallback as axios } from '../services/fetchWithFallback';
 import { toast, ToastContainer } from 'react-toastify';
 import styled from 'styled-components';
 
-const BASE_URL = 'https://tuition-seba-backend-1.onrender.com';
+const BASE_URL = 'https://https://tuition-seba-backend-1-vk5b.onrender.com/';
 
 
 

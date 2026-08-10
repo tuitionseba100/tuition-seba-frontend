@@ -29,7 +29,7 @@ const RefundModal = ({ show, handleClose }) => {
 
         setLoading(true);
         try {
-            const res = await fetchWithFallback('https://tuition-seba-backend-1.onrender.com/api/refund/add', {
+            const res = await fetchWithFallback('https://tuition-seba-backend-1-vk5b.onrender.com/api/refund/add', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(form)

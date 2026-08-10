@@ -62,8 +62,8 @@ const Dashboard = () => {
 
     const fetchPaymentSummary = () => {
         Promise.all([
-            axios.get('https://tuition-seba-backend-1.onrender.com/api/payment/summary'),
-            axios.get('https://tuition-seba-backend-1.onrender.com/api/teacherPayment/summary')
+            axios.get('https://tuition-seba-backend-1-vk5b.onrender.com/api/payment/summary'),
+            axios.get('https://tuition-seba-backend-1-vk5b.onrender.com/api/teacherPayment/summary')
         ])
             .then(([paymentRes, teacherPaymentRes]) => {
                 const paymentData = paymentRes.data;
@@ -87,7 +87,7 @@ const Dashboard = () => {
         if (role === 'superadmin') {
             fetchPaymentSummary();
         }
-        axios.get('https://tuition-seba-backend-1.onrender.com/api/dashboard/all')
+        axios.get('https://tuition-seba-backend-1-vk5b.onrender.com/api/dashboard/all')
             .then((res) => {
                 const data = res.data;
                 setSummaryData(data.summaryData);
@@ -109,7 +109,7 @@ const Dashboard = () => {
     const handleDeletePayment = async (id) => {
         if (window.confirm('Are you sure you want to delete this payment record?')) {
             try {
-                await axios.delete(`https://tuition-seba-backend-1.onrender.com/api/teacherPayment/delete/${id}`);
+                await axios.delete(`https://tuition-seba-backend-1-vk5b.onrender.com/api/teacherPayment/delete/${id}`);
                 toast.success('Payment deleted successfully');
                 fetchData();
             } catch (err) {
@@ -126,7 +126,7 @@ const Dashboard = () => {
 
     const handleSaveEdit = async () => {
         try {
-            await axios.put(`https://tuition-seba-backend-1.onrender.com/api/teacherPayment/edit/${editingPayment._id}`, editingPayment);
+            await axios.put(`https://tuition-seba-backend-1-vk5b.onrender.com/api/teacherPayment/edit/${editingPayment._id}`, editingPayment);
             toast.success('Payment updated successfully');
             setShowEditModal(false);
             fetchData();

@@ -32,7 +32,7 @@ const ComplaintSuggestionPage = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        
+
         // Basic validation
         if (!formData.name.trim() || !formData.phone.trim() || !formData.description.trim()) {
             toast.error('অনুগ্রহ করে সবগুলি বাধ্যতামূলক ফিল্ড পূরণ করুন।');
@@ -41,7 +41,7 @@ const ComplaintSuggestionPage = () => {
 
         setLoading(true);
         try {
-            await axios.post('https://tuition-seba-backend-1.onrender.com/api/complaintSuggestion/submit', formData);
+            await axios.post('https://tuition-seba-backend-1-vk5b.onrender.com/api/complaintSuggestion/submit', formData);
             setSubmitted(true);
             toast.success('আপনার আবেদনটি সফলভাবে জমা হয়েছে।');
         } catch (err) {
@@ -55,7 +55,7 @@ const ComplaintSuggestionPage = () => {
     return (
         <>
             <NavBar />
-            
+
             <PageWrapper style={{ fontFamily: BANGLA_FONT }}>
                 <Container className="d-flex justify-content-center align-items-center">
                     <CardWrapper className="border-0 shadow-lg p-4 p-md-5 rounded-4">
@@ -75,8 +75,8 @@ const ComplaintSuggestionPage = () => {
                             <Form onSubmit={handleSubmit}>
                                 <Row className="mb-4 text-center">
                                     <Col xs={6}>
-                                        <TypeCard 
-                                            active={formData.type === 'complain'} 
+                                        <TypeCard
+                                            active={formData.type === 'complain'}
                                             onClick={() => handleInputChange('type', 'complain')}
                                             className="p-3 rounded-3 cursor-pointer"
                                         >
@@ -85,8 +85,8 @@ const ComplaintSuggestionPage = () => {
                                         </TypeCard>
                                     </Col>
                                     <Col xs={6}>
-                                        <TypeCard 
-                                            active={formData.type === 'suggestion'} 
+                                        <TypeCard
+                                            active={formData.type === 'suggestion'}
                                             onClick={() => handleInputChange('type', 'suggestion')}
                                             className="p-3 rounded-3 cursor-pointer"
                                         >
@@ -169,9 +169,9 @@ const ComplaintSuggestionPage = () => {
                                     />
                                 </Form.Group>
 
-                                <Button 
-                                    type="submit" 
-                                    variant="primary" 
+                                <Button
+                                    type="submit"
+                                    variant="primary"
                                     className="w-100 py-2.5 rounded-3 fw-bold d-flex align-items-center justify-content-center gap-2 shadow-sm"
                                     disabled={loading}
                                 >
@@ -188,8 +188,8 @@ const ComplaintSuggestionPage = () => {
                     </CardWrapper>
                 </Container>
                 <ToastContainer />
-                <ApplySuccessModal 
-                    show={submitted} 
+                <ApplySuccessModal
+                    show={submitted}
                     handleClose={() => {
                         setFormData({
                             type: 'complain',
@@ -205,8 +205,8 @@ const ComplaintSuggestionPage = () => {
                     message={`আপনার ${formData.type === 'complain' ? 'অভিযোগটি' : 'পরামর্শটি'} সফলভাবে আমাদের কাছে জমা হয়েছে। আমরা দ্রুত এটি পর্যালোচনা করে প্রয়োজনীয় ব্যবস্থা গ্রহণ করব।`}
                 />
             </PageWrapper>
-        <Footer />
-    </>
+            <Footer />
+        </>
     );
 };
 

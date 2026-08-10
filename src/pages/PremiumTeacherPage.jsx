@@ -35,7 +35,7 @@ const PremiumTeacherPage = () => {
     const [selectedDistrict, setSelectedDistrict] = useState('');
     const [districtList, setDistrictList] = useState([]);
     const [thanaList, setThanaList] = useState([]);
-    
+
     const spamStyle = { backgroundColor: '#dc3545', color: 'white' };
     const bestStyle = { backgroundColor: '#007bff', color: 'white' };
     const manualExpressStyle = { backgroundColor: '#28a745', color: 'white' };
@@ -48,7 +48,7 @@ const PremiumTeacherPage = () => {
         if (tuition.isExpress) return manualExpressStyle;
         return {};
     };
-    
+
     // Status History Modal State
     const [showStatusHistoryModal, setShowStatusHistoryModal] = useState(false);
     const [statusHistoryList, setStatusHistoryList] = useState([]);
@@ -60,7 +60,7 @@ const PremiumTeacherPage = () => {
         setShowStatusHistoryModal(true);
         setStatusHistoryLoading(true);
         try {
-            const response = await axios.get(`https://tuition-seba-backend-1.onrender.com/api/statusHistory/history/${moduleName}/${id}`, {
+            const response = await axios.get(`https://tuition-seba-backend-1-vk5b.onrender.com/api/statusHistory/history/${moduleName}/${id}`, {
                 headers: { Authorization: token }
             });
             setStatusHistoryList(response.data);
@@ -227,7 +227,7 @@ const PremiumTeacherPage = () => {
     const fetchTableData = async () => {
         setLoading(true);
         try {
-            const response = await axios.get(`https://tuition-seba-backend-1.onrender.com/api/regTeacher/getTableData`, {
+            const response = await axios.get(`https://tuition-seba-backend-1-vk5b.onrender.com/api/regTeacher/getTableData`, {
                 params: {
                     page: currentPage,
                     ...appliedFilters
@@ -265,7 +265,7 @@ const PremiumTeacherPage = () => {
 
     const fetchSummary = async () => {
         try {
-            const res = await axios.get(`https://tuition-seba-backend-1.onrender.com/api/regTeacher/summary`, {
+            const res = await axios.get(`https://tuition-seba-backend-1-vk5b.onrender.com/api/regTeacher/summary`, {
                 params: appliedFilters,
                 headers: { Authorization: token }
             });
@@ -286,7 +286,7 @@ const PremiumTeacherPage = () => {
         setShowTuitionApplyModal(true);
         try {
             const response = await axios.get(
-                `https://tuition-seba-backend-1.onrender.com/api/tuitionApply/byPremiumCode`,
+                `https://tuition-seba-backend-1-vk5b.onrender.com/api/tuitionApply/byPremiumCode`,
                 {
                     params: { premiumCode },
                     headers: { Authorization: token }
@@ -310,7 +310,7 @@ const PremiumTeacherPage = () => {
     const handleExportToExcel = async () => {
         setLoading(true);
         try {
-            const res = await axios.get(`https://tuition-seba-backend-1.onrender.com/api/regTeacher/summary`, {
+            const res = await axios.get(`https://tuition-seba-backend-1-vk5b.onrender.com/api/regTeacher/summary`, {
                 params: { ...appliedFilters, allData: true },
                 headers: { Authorization: token }
             });
@@ -380,7 +380,7 @@ const PremiumTeacherPage = () => {
                     updatedBy: username
                 };
                 await axios.put(
-                    `https://tuition-seba-backend-1.onrender.com/api/regTeacher/edit/${editingId}`,
+                    `https://tuition-seba-backend-1-vk5b.onrender.com/api/regTeacher/edit/${editingId}`,
                     updatedData,
                     {
                         headers: {
@@ -394,7 +394,7 @@ const PremiumTeacherPage = () => {
                     ...updatingData,
                     createdBy: username
                 };
-                await axios.post('https://tuition-seba-backend-1.onrender.com/api/regTeacher/add', newData);
+                await axios.post('https://tuition-seba-backend-1-vk5b.onrender.com/api/regTeacher/add', newData);
                 toast.success("Teacher record created successfully!");
             }
             setShowModal(false);
@@ -436,7 +436,7 @@ const PremiumTeacherPage = () => {
         if (confirmDelete) {
             try {
                 await axios.delete(
-                    `https://tuition-seba-backend-1.onrender.com/api/regTeacher/delete/${id}`,
+                    `https://tuition-seba-backend-1-vk5b.onrender.com/api/regTeacher/delete/${id}`,
                     {
                         headers: {
                             Authorization: token
@@ -808,10 +808,10 @@ const PremiumTeacherPage = () => {
                                                                 style={{
                                                                     backgroundColor:
                                                                         item.referStatus === 'paid' ? '#4CAF50' :
-                                                                        item.referStatus === 'in review' ? '#2196F3' :
-                                                                        item.referStatus === 'pending' ? '#FF9800' :
-                                                                        item.referStatus === 'canceled' ? '#F44336' :
-                                                                        item.referStatus === 'spam' ? '#9E9E9E' : '#BDBDBD',
+                                                                            item.referStatus === 'in review' ? '#2196F3' :
+                                                                                item.referStatus === 'pending' ? '#FF9800' :
+                                                                                    item.referStatus === 'canceled' ? '#F44336' :
+                                                                                        item.referStatus === 'spam' ? '#9E9E9E' : '#BDBDBD',
                                                                     color: item.referStatus === 'pending' ? '#000' : '#fff',
                                                                     padding: '3px 10px',
                                                                     borderRadius: '5px',
@@ -939,7 +939,7 @@ const PremiumTeacherPage = () => {
                                                     const iso = String(value);
                                                     const [datePart, timePart] = iso.split('T');
                                                     const [year, month, day] = datePart.split('-');
-                                                    const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+                                                    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
                                                     const dateStr = `${parseInt(day)} ${months[parseInt(month) - 1]} ${year}`;
                                                     if (timePart) {
                                                         const [hh, mm] = timePart.replace('Z', '').split(':');
@@ -1358,7 +1358,7 @@ const PremiumTeacherPage = () => {
                             <div className="alternating-timeline" style={{ position: 'relative', padding: '20px 0' }}>
                                 {/* Central line */}
                                 <div style={{ position: 'absolute', top: 0, bottom: 0, left: '50%', width: '3px', backgroundColor: '#dee2e6', transform: 'translateX(-50%)' }} />
-                                
+
                                 {statusHistoryList.map((log, index) => {
                                     const isLeft = index % 2 === 0;
                                     return (
@@ -1386,19 +1386,19 @@ const PremiumTeacherPage = () => {
                                             </div>
 
                                             {/* Dot indicator in the center */}
-                                            <div 
-                                                style={{ 
-                                                    position: 'absolute', 
-                                                    left: '50%', 
-                                                    transform: 'translateX(-50%)', 
-                                                    width: '16px', 
-                                                    height: '16px', 
-                                                    borderRadius: '50%', 
+                                            <div
+                                                style={{
+                                                    position: 'absolute',
+                                                    left: '50%',
+                                                    transform: 'translateX(-50%)',
+                                                    width: '16px',
+                                                    height: '16px',
+                                                    borderRadius: '50%',
                                                     backgroundColor: index === 0 ? '#0d6efd' : '#adb5bd',
                                                     border: '3px solid #fff',
                                                     boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
                                                     zIndex: 5
-                                                }} 
+                                                }}
                                             />
 
                                             {/* Right Card */}

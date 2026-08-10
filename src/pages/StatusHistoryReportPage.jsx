@@ -159,9 +159,9 @@ const StatusHistoryReportPage = () => {
 
     const today = new Date();
     const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
-    const showTodaySuffix = (!appliedFilters.startDate || appliedFilters.startDate === todayStr) && 
-                            (!appliedFilters.endDate || appliedFilters.endDate === todayStr) &&
-                            appliedFilters.isAllTime !== 'true';
+    const showTodaySuffix = (!appliedFilters.startDate || appliedFilters.startDate === todayStr) &&
+        (!appliedFilters.endDate || appliedFilters.endDate === todayStr) &&
+        appliedFilters.isAllTime !== 'true';
 
     const [usersList, setUsersList] = useState([]);
 
@@ -183,7 +183,7 @@ const StatusHistoryReportPage = () => {
 
     const fetchUsers = async () => {
         try {
-            const res = await axios.get('https://tuition-seba-backend-1.onrender.com/api/user/users', {
+            const res = await axios.get('https://tuition-seba-backend-1-vk5b.onrender.com/api/user/users', {
                 headers: { Authorization: token }
             });
             setUsersList(res.data);
@@ -194,7 +194,7 @@ const StatusHistoryReportPage = () => {
 
     const fetchSettings = async () => {
         try {
-            const res = await axios.get('https://tuition-seba-backend-1.onrender.com/api/settings/marketing_mediums', {
+            const res = await axios.get('https://tuition-seba-backend-1-vk5b.onrender.com/api/settings/marketing_mediums', {
                 headers: { Authorization: token }
             });
             if (res.data && res.data.value) setMarketingMediums(res.data.value);
@@ -238,7 +238,7 @@ const StatusHistoryReportPage = () => {
         setMarketingLoading(true);
         try {
             const queryParams = new URLSearchParams(appliedMarketingFilters).toString();
-            const res = await axios.get(`https://tuition-seba-backend-1.onrender.com/api/report/marketing?${queryParams}`, {
+            const res = await axios.get(`https://tuition-seba-backend-1-vk5b.onrender.com/api/report/marketing?${queryParams}`, {
                 headers: { Authorization: token }
             });
             setMarketingReportData(res.data);
@@ -253,7 +253,7 @@ const StatusHistoryReportPage = () => {
     const fetchPaymentReport = async () => {
         setPaymentLoading(true);
         try {
-            const res = await axios.get('https://tuition-seba-backend-1.onrender.com/api/payment/route-report', {
+            const res = await axios.get('https://tuition-seba-backend-1-vk5b.onrender.com/api/payment/route-report', {
                 params: appliedPaymentFilters,
                 headers: { Authorization: token }
             });
@@ -269,7 +269,7 @@ const StatusHistoryReportPage = () => {
     const fetchOverallReport = async () => {
         setOverallLoading(true);
         try {
-            const res = await axios.get('https://tuition-seba-backend-1.onrender.com/api/payment/overall-report', {
+            const res = await axios.get('https://tuition-seba-backend-1-vk5b.onrender.com/api/payment/overall-report', {
                 params: appliedOverallFilters,
                 headers: { Authorization: token }
             });
@@ -285,7 +285,7 @@ const StatusHistoryReportPage = () => {
     const fetchTodayStats = async () => {
         setStatsLoading(true);
         try {
-            const res = await axios.get('https://tuition-seba-backend-1.onrender.com/api/statusHistory/today-report', {
+            const res = await axios.get('https://tuition-seba-backend-1-vk5b.onrender.com/api/statusHistory/today-report', {
                 params: appliedFilters,
                 headers: { Authorization: token }
             });
@@ -301,7 +301,7 @@ const StatusHistoryReportPage = () => {
     const fetchHistoryList = async () => {
         setLoading(true);
         try {
-            const res = await axios.get('https://tuition-seba-backend-1.onrender.com/api/statusHistory/list', {
+            const res = await axios.get('https://tuition-seba-backend-1-vk5b.onrender.com/api/statusHistory/list', {
                 params: {
                     page: currentPage,
                     limit: 25,
@@ -395,7 +395,7 @@ const StatusHistoryReportPage = () => {
     const fetchDateDetails = async (dateStr, type, pageNum) => {
         setDetailsLoading(true);
         try {
-            const res = await axios.get('https://tuition-seba-backend-1.onrender.com/api/payment/date-details', {
+            const res = await axios.get('https://tuition-seba-backend-1-vk5b.onrender.com/api/payment/date-details', {
                 params: { date: dateStr, type, page: pageNum, limit: 20 },
                 headers: { Authorization: token }
             });
@@ -691,7 +691,7 @@ const StatusHistoryReportPage = () => {
     const handleExportCSV = async () => {
         setExporting(true);
         try {
-            const res = await axios.get('https://tuition-seba-backend-1.onrender.com/api/statusHistory/export-csv', {
+            const res = await axios.get('https://tuition-seba-backend-1-vk5b.onrender.com/api/statusHistory/export-csv', {
                 params: {
                     ...appliedFilters
                 },
@@ -1187,7 +1187,7 @@ const StatusHistoryReportPage = () => {
                                                             </td>
                                                             <td>
                                                                 <span className={`badge ${log.module === 'RegTeacher' ? 'bg-soft-primary' :
-                                                                        log.module === 'Tuition' ? 'bg-soft-info' : 'bg-soft-success'
+                                                                    log.module === 'Tuition' ? 'bg-soft-info' : 'bg-soft-success'
                                                                     } px-3 py-2 rounded-pill fw-bold`}>
                                                                     {log.module === 'RegTeacher' ? 'Premium Teacher' :
                                                                         log.module === 'Tuition' ? 'Tuition' : 'Tuition Apply'}
@@ -1937,7 +1937,7 @@ const StatusHistoryReportPage = () => {
                                                         </PremiumStatsCard>
                                                     </Col>
                                                 </Row>
-                                                
+
                                                 <Card className="shadow-sm border-0 rounded-4 mb-3 list-card">
                                                     <Card.Body className="p-4">
                                                         <div className="d-flex justify-content-between align-items-center mb-4">
@@ -1968,7 +1968,7 @@ const StatusHistoryReportPage = () => {
                                                                     ) : (
                                                                         <>
                                                                             {combinedMediums.map((item, index) => (
-                                                                                <tr 
+                                                                                <tr
                                                                                     key={item.medium || 'unknown'}
                                                                                     className="hover-bg-light transition-all"
                                                                                 >
@@ -2032,9 +2032,9 @@ const StatusHistoryReportPage = () => {
                         max-height: 90vh;
                     }
                 `}</style>
-                <Modal 
-                    show={showDetailsModal} 
-                    onHide={() => setShowDetailsModal(false)} 
+                <Modal
+                    show={showDetailsModal}
+                    onHide={() => setShowDetailsModal(false)}
                     size={detailsType === 'all' ? undefined : 'lg'}
                     dialogClassName={detailsType === 'all' ? 'custom-huge-modal' : ''}
                     centered
@@ -2066,7 +2066,7 @@ const StatusHistoryReportPage = () => {
                                 </Nav>
                             </div>
                         )}
-                        
+
                         <div className="p-4 pt-3 bg-white">
                             {detailsLoading ? (
                                 <div className="d-flex justify-content-center py-5">
@@ -2250,7 +2250,7 @@ const StatusHistoryReportPage = () => {
                                             )}
                                         </Table>
                                     </div>
-                                    
+
                                     {detailsTotalPages > 1 && (
                                         <div className="d-flex justify-content-end">
                                             <Pagination size="sm" className="mb-0">

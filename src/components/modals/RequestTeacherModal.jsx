@@ -42,7 +42,7 @@ export default function RequestTeacherModal({ show, onHide, teacher, onSaved }) 
 
         setLoading(true);
         try {
-            const response = await axios.post('https://tuition-seba-backend-1.onrender.com/api/guardianApply/add', payload);
+            const response = await axios.post('https://tuition-seba-backend-1-vk5b.onrender.com/api/guardianApply/add', payload);
             if (response && (response.status === 200 || response.status === 201)) {
                 toast.success('Request submitted successfully');
                 setShowSuccess(true);
@@ -134,7 +134,7 @@ export default function RequestTeacherModal({ show, onHide, teacher, onSaved }) 
                                             style={{ borderColor: '#66bb6a' }}
                                         />
                                         <small style={{ color: '#558b2f', fontSize: '0.78rem', marginTop: '4px', display: 'block' }}>
-                                            ℹ️ কেউ যদি এই টিউশনটি রেফার করে থাকেন, তার ফোন নম্বর দিন। 
+                                            ℹ️ কেউ যদি এই টিউশনটি রেফার করে থাকেন, তার ফোন নম্বর দিন।
                                         </small>
                                     </Form.Group>
                                 </div>

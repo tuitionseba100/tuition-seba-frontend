@@ -91,7 +91,7 @@ const GuardianApplyPage = () => {
     const fetchDueTodayList = async () => {
         setLoadingDueToday(true);
         try {
-            const response = await axios.get('https://tuition-seba-backend-1.onrender.com/api/guardianApply/today-followups');
+            const response = await axios.get('https://tuition-seba-backend-1-vk5b.onrender.com/api/guardianApply/today-followups');
             setDueTodayList(response.data);
         } catch (err) {
             toast.error("Failed to fetch today's follow-ups.");
@@ -141,7 +141,7 @@ const GuardianApplyPage = () => {
     const fetchGuardianApplyRecords = async (page = 1) => {
         setLoading(true);
         try {
-            const response = await axios.get('https://tuition-seba-backend-1.onrender.com/api/guardianApply/getTableData', {
+            const response = await axios.get('https://tuition-seba-backend-1-vk5b.onrender.com/api/guardianApply/getTableData', {
                 params: {
                     page: currentPage,
                     phone: appliedFilters.phone,
@@ -178,7 +178,7 @@ const GuardianApplyPage = () => {
 
 
     const fetchCardSummary = () => {
-        axios.get('https://tuition-seba-backend-1.onrender.com/api/guardianApply/summary', {
+        axios.get('https://tuition-seba-backend-1-vk5b.onrender.com/api/guardianApply/summary', {
             params: {
                 page: currentPage,
                 phone: appliedFilters.phone,
@@ -236,11 +236,11 @@ const GuardianApplyPage = () => {
         try {
             if (editingId) {
                 updatedData.updatedBy = username;
-                await axios.put(`https://tuition-seba-backend-1.onrender.com/api/guardianApply/edit/${editingId}`, updatedData);
+                await axios.put(`https://tuition-seba-backend-1-vk5b.onrender.com/api/guardianApply/edit/${editingId}`, updatedData);
                 toast.success("Record updated successfully!");
             } else {
                 updatedData.createdBy = username;
-                await axios.post('https://tuition-seba-backend-1.onrender.com/api/guardianApply/add', updatedData);
+                await axios.post('https://tuition-seba-backend-1-vk5b.onrender.com/api/guardianApply/add', updatedData);
                 toast.success("Record created successfully!");
             }
             setShowModal(false);
@@ -338,12 +338,12 @@ const GuardianApplyPage = () => {
 
         try {
             const response = await axios.put(
-                `https://tuition-seba-backend-1.onrender.com/api/guardianApply/update-status/${selectedRecord._id}`,
-                { 
-                    status: newStatus, 
-                    comment: newComment, 
+                `https://tuition-seba-backend-1-vk5b.onrender.com/api/guardianApply/update-status/${selectedRecord._id}`,
+                {
+                    status: newStatus,
+                    comment: newComment,
                     nextUpdateDate: newNextUpdateDate ? toUTCStringFromBangladesh(newNextUpdateDate) : null,
-                    updatedBy: username 
+                    updatedBy: username
                 }
             );
 
@@ -378,7 +378,7 @@ const GuardianApplyPage = () => {
         if (confirmDelete) {
             setDeleteLoading(true);
             try {
-                await axios.delete(`https://tuition-seba-backend-1.onrender.com/api/guardianApply/delete/${id}`);
+                await axios.delete(`https://tuition-seba-backend-1-vk5b.onrender.com/api/guardianApply/delete/${id}`);
                 toast.success("Record deleted successfully!");
                 fetchGuardianApplyRecords();
                 fetchDueTodayList();
@@ -707,10 +707,10 @@ const GuardianApplyPage = () => {
                                                             fontWeight: '700',
                                                             backgroundColor:
                                                                 rowData.referStatus === 'paid' ? '#4CAF50' :
-                                                                rowData.referStatus === 'in review' ? '#2196F3' :
-                                                                rowData.referStatus === 'pending' ? '#FF9800' :
-                                                                rowData.referStatus === 'canceled' ? '#F44336' :
-                                                                rowData.referStatus === 'spam' ? '#9E9E9E' : '#BDBDBD',
+                                                                    rowData.referStatus === 'in review' ? '#2196F3' :
+                                                                        rowData.referStatus === 'pending' ? '#FF9800' :
+                                                                            rowData.referStatus === 'canceled' ? '#F44336' :
+                                                                                rowData.referStatus === 'spam' ? '#9E9E9E' : '#BDBDBD',
                                                             color: rowData.referStatus === 'pending' ? '#000' : '#fff',
                                                         }}>
                                                             {rowData.referStatus}
@@ -1438,8 +1438,8 @@ const GuardianApplyPage = () => {
                                                             placement="top"
                                                             overlay={<Tooltip>Update Status</Tooltip>}
                                                         >
-                                                            <Button 
-                                                                variant="primary" 
+                                                            <Button
+                                                                variant="primary"
                                                                 size="sm"
                                                                 onClick={() => {
                                                                     setShowDueModal(false);

@@ -79,7 +79,7 @@ const ExpensePage = () => {
         note: '',
         date: moment().format('YYYY-MM-DD')
     });
-    const [filter, setFilter] = useState('month'); 
+    const [filter, setFilter] = useState('month');
     const [selectedCategory, setSelectedCategory] = useState('');
     const [selectedMonth, setSelectedMonth] = useState(moment().format('YYYY-MM'));
     const [customDates, setCustomDates] = useState({ startDate: '', endDate: '' });
@@ -125,11 +125,11 @@ const ExpensePage = () => {
 
         try {
             const [expRes, summaryRes, todayRes, monthRes, overallRes] = await Promise.all([
-                axios.get(`https://tuition-seba-backend-1.onrender.com/api/expense/all?startDate=${start}&endDate=${end}&category=${selectedCategory}&page=${currentPage}&limit=50`, { headers }),
-                axios.get(`https://tuition-seba-backend-1.onrender.com/api/expense/summary?startDate=${start}&endDate=${end}&category=${selectedCategory}`, { headers }),
-                axios.get(`https://tuition-seba-backend-1.onrender.com/api/expense/summary?startDate=${todayStart}&endDate=${todayEnd}`, { headers }),
-                axios.get(`https://tuition-seba-backend-1.onrender.com/api/expense/summary?startDate=${monthStart}&endDate=${monthEnd}`, { headers }),
-                axios.get(`https://tuition-seba-backend-1.onrender.com/api/expense/summary`, { headers })
+                axios.get(`https://tuition-seba-backend-1-vk5b.onrender.com/api/expense/all?startDate=${start}&endDate=${end}&category=${selectedCategory}&page=${currentPage}&limit=50`, { headers }),
+                axios.get(`https://tuition-seba-backend-1-vk5b.onrender.com/api/expense/summary?startDate=${start}&endDate=${end}&category=${selectedCategory}`, { headers }),
+                axios.get(`https://tuition-seba-backend-1-vk5b.onrender.com/api/expense/summary?startDate=${todayStart}&endDate=${todayEnd}`, { headers }),
+                axios.get(`https://tuition-seba-backend-1-vk5b.onrender.com/api/expense/summary?startDate=${monthStart}&endDate=${monthEnd}`, { headers }),
+                axios.get(`https://tuition-seba-backend-1-vk5b.onrender.com/api/expense/summary`, { headers })
             ]);
             setExpenses(expRes.data.data || expRes.data);
             setTotalPages(expRes.data.totalPages || 1);
@@ -180,10 +180,10 @@ const ExpensePage = () => {
 
         try {
             if (editMode) {
-                await axios.put(`https://tuition-seba-backend-1.onrender.com/api/expense/edit/${currentId}`, submitData, { headers });
+                await axios.put(`https://tuition-seba-backend-1-vk5b.onrender.com/api/expense/edit/${currentId}`, submitData, { headers });
                 toast.success('Expense updated');
             } else {
-                await axios.post('https://tuition-seba-backend-1.onrender.com/api/expense/add', submitData, { headers });
+                await axios.post('https://tuition-seba-backend-1-vk5b.onrender.com/api/expense/add', submitData, { headers });
                 toast.success('Expense added');
             }
             setShowModal(false);
@@ -200,7 +200,7 @@ const ExpensePage = () => {
         setDeletingId(id);
         const token = localStorage.getItem('token');
         try {
-            await axios.delete(`https://tuition-seba-backend-1.onrender.com/api/expense/delete/${id}`, {
+            await axios.delete(`https://tuition-seba-backend-1-vk5b.onrender.com/api/expense/delete/${id}`, {
                 headers: { Authorization: token }
             });
             toast.success('Deleted');
@@ -328,7 +328,7 @@ const ExpensePage = () => {
                             <option value="custom">Custom Dates</option>
                         </Form.Select>
                     </Col>
-                    
+
                     {filter === 'month' && (
                         <Col md={2}>
                             <Form.Label className="fw-bold">Select Month</Form.Label>
@@ -339,7 +339,7 @@ const ExpensePage = () => {
                             />
                         </Col>
                     )}
-                    
+
                     {filter === 'custom' && (
                         <>
                             <Col md={2}>
@@ -365,13 +365,13 @@ const ExpensePage = () => {
                             ))}
                         </Form.Select>
                     </Col>
-                    
+
                     <Col md={1} className="d-flex align-items-end">
-                        <Button 
-                            variant="danger" 
+                        <Button
+                            variant="danger"
                             className="w-100 d-flex align-items-center justify-content-center"
                             style={{ height: '38px' }}
-                            onClick={() => { setFilter('month'); setSelectedCategory(''); setCustomDates({ startDate: '', endDate: '' }); setSelectedMonth(moment().format('YYYY-MM')); setCurrentPage(1); }} 
+                            onClick={() => { setFilter('month'); setSelectedCategory(''); setCustomDates({ startDate: '', endDate: '' }); setSelectedMonth(moment().format('YYYY-MM')); setCurrentPage(1); }}
                             title="Reset Filters"
                         >
                             <FaUndo />
@@ -396,57 +396,57 @@ const ExpensePage = () => {
                                         <th>Actions</th>
                                     </tr>
                                 </thead>
-                            <tbody>
-                                {loading ? (
-                                    <tr><td colSpan="7" className="text-center py-5"><Spinner animation="border" variant="primary" /></td></tr>
-                                ) : expenses.length === 0 ? (
-                                    <tr><td colSpan="7" className="text-center py-5 text-muted">No expenses found</td></tr>
-                                ) : expenses.map((t, index) => (
-                                    <tr key={t._id}>
-                                        <td className="fw-bold text-muted">{(currentPage - 1) * 50 + index + 1}</td>
-                                        <td className="px-4">
-                                            <div className="fw-bold">{moment(t.date).format('DD MMM YYYY')}</div>
-                                            <div className="text-muted small">{moment(t.date).format('hh:mm A')}</div>
-                                        </td>
-                                        <td className="fw-semibold text-danger">{t.category}</td>
-                                        <td className="fw-bold text-danger">
-                                            ৳{t.amount.toLocaleString()}
-                                        </td>
-                                        <td className="small text-muted">{t.note || '-'}</td>
-                                        <td className="small">{t.createdBy}</td>
-                                        <td className="small">{t.updatedBy || '-'}</td>
-                                        <td className="text-end px-4">
-                                            <Button
-                                                variant="light" size="sm"
-                                                className="me-2 text-primary rounded-circle border-0 shadow-sm"
-                                                onClick={() => handleShowModal(t)}
-                                            >
-                                                <FaEdit size={12} />
-                                            </Button>
-                                            <Button
-                                                variant="light" size="sm"
-                                                className="text-danger rounded-circle border-0 shadow-sm"
-                                                onClick={() => handleDelete(t._id)}
-                                                disabled={deletingId === t._id}
-                                            >
-                                                {deletingId === t._id ? <Spinner size="sm" animation="border" /> : <FaTrash size={12} />}
-                                            </Button>
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </CustomTable>
-                        
-                        {totalPages > 1 && (
-                            <Pagination className="justify-content-center mt-4">
-                                <Pagination.First onClick={() => setCurrentPage(1)} disabled={currentPage === 1} />
-                                <Pagination.Prev onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))} disabled={currentPage === 1} />
-                                <Pagination.Item active>{currentPage} / {totalPages}</Pagination.Item>
-                                <Pagination.Next onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))} disabled={currentPage === totalPages} />
-                                <Pagination.Last onClick={() => setCurrentPage(totalPages)} disabled={currentPage === totalPages} />
-                            </Pagination>
-                        )}
-                    </div>
+                                <tbody>
+                                    {loading ? (
+                                        <tr><td colSpan="7" className="text-center py-5"><Spinner animation="border" variant="primary" /></td></tr>
+                                    ) : expenses.length === 0 ? (
+                                        <tr><td colSpan="7" className="text-center py-5 text-muted">No expenses found</td></tr>
+                                    ) : expenses.map((t, index) => (
+                                        <tr key={t._id}>
+                                            <td className="fw-bold text-muted">{(currentPage - 1) * 50 + index + 1}</td>
+                                            <td className="px-4">
+                                                <div className="fw-bold">{moment(t.date).format('DD MMM YYYY')}</div>
+                                                <div className="text-muted small">{moment(t.date).format('hh:mm A')}</div>
+                                            </td>
+                                            <td className="fw-semibold text-danger">{t.category}</td>
+                                            <td className="fw-bold text-danger">
+                                                ৳{t.amount.toLocaleString()}
+                                            </td>
+                                            <td className="small text-muted">{t.note || '-'}</td>
+                                            <td className="small">{t.createdBy}</td>
+                                            <td className="small">{t.updatedBy || '-'}</td>
+                                            <td className="text-end px-4">
+                                                <Button
+                                                    variant="light" size="sm"
+                                                    className="me-2 text-primary rounded-circle border-0 shadow-sm"
+                                                    onClick={() => handleShowModal(t)}
+                                                >
+                                                    <FaEdit size={12} />
+                                                </Button>
+                                                <Button
+                                                    variant="light" size="sm"
+                                                    className="text-danger rounded-circle border-0 shadow-sm"
+                                                    onClick={() => handleDelete(t._id)}
+                                                    disabled={deletingId === t._id}
+                                                >
+                                                    {deletingId === t._id ? <Spinner size="sm" animation="border" /> : <FaTrash size={12} />}
+                                                </Button>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </CustomTable>
+
+                            {totalPages > 1 && (
+                                <Pagination className="justify-content-center mt-4">
+                                    <Pagination.First onClick={() => setCurrentPage(1)} disabled={currentPage === 1} />
+                                    <Pagination.Prev onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))} disabled={currentPage === 1} />
+                                    <Pagination.Item active>{currentPage} / {totalPages}</Pagination.Item>
+                                    <Pagination.Next onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))} disabled={currentPage === totalPages} />
+                                    <Pagination.Last onClick={() => setCurrentPage(totalPages)} disabled={currentPage === totalPages} />
+                                </Pagination>
+                            )}
+                        </div>
                     </Card.Body>
                 </Card>
 

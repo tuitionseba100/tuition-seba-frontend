@@ -20,7 +20,7 @@ const WelcomingFlower = ({ delay, side, emoji }) => {
         <motion.span
             className="welcoming-flower"
             initial={{ opacity: 0, scale: 0.4, x: isLeft ? -30 : 30, y: 10 }}
-            animate={{ 
+            animate={{
                 opacity: [0, 1, 1, 0],
                 scale: [0.4, 1.2, 0.9, 0.5],
                 x: isLeft ? [-30, -10, -5, 10] : [30, 10, 5, -10],
@@ -101,7 +101,7 @@ const InteractiveSuitedHackerMascot = ({ username, password, isUsernameFocused, 
     // Detect Slap trigger
     const isSlapped = isPasswordFocused && passwordLength >= 6;
     const isSneaking = isPasswordFocused && passwordLength >= 4 && passwordLength <= 5;
-    
+
     // Sneaky Eye movements: looking left and right suspiciously on keypresses
     let pupilX = 0;
     let pupilY = 0;
@@ -117,11 +117,11 @@ const InteractiveSuitedHackerMascot = ({ username, password, isUsernameFocused, 
     // Sunglasses animation
     let glassesAnimate = { y: 0, rotate: 0 };
     if (hasError) {
-        glassesAnimate = { y: 9, rotate: -6 }; 
+        glassesAnimate = { y: 9, rotate: -6 };
     } else if (isSlapped) {
         glassesAnimate = { y: 13, rotate: -24 }; // Knocked extremely crooked!
     } else if (isSneaking || (isPasswordFocused && showPassword)) {
-        glassesAnimate = { y: 4, rotate: 3 }; 
+        glassesAnimate = { y: 4, rotate: 3 };
     }
 
     // Default coordinates
@@ -163,24 +163,24 @@ const InteractiveSuitedHackerMascot = ({ username, password, isUsernameFocused, 
             x: [0, -2, 2, -2, 0],
             transition: { repeat: Infinity, duration: 0.2 }
         };
-        tieAnimate = { 
+        tieAnimate = {
             rotate: [0, -5, 5, -5, 0],
             transition: { repeat: Infinity, duration: 0.4 }
         };
     } else if (isUsernameFocused && usernameLength > 0) {
         // Sneaky typing (shielding with left arm, tilting head)
         const isEven = usernameLength % 2 === 0;
-        headAnimate = { 
+        headAnimate = {
             rotate: isEven ? -8 : 8,
             y: 4,
             scale: 1.03
         };
-        leftHandOffset = { x: -24, y: -32 }; 
+        leftHandOffset = { x: -24, y: -32 };
         rightHandOffset = { y: isEven ? -4 : 4, x: isEven ? -2 : 2 };
     }
 
     if (hasError) {
-        tieAnimate = { 
+        tieAnimate = {
             rotate: [0, -12, 12, -12, 12, 0],
             y: [0, 2, -2, 2, 0],
             transition: { duration: 0.5 }
@@ -233,14 +233,14 @@ const InteractiveSuitedHackerMascot = ({ username, password, isUsernameFocused, 
 
             {/* Suited Shoulders / Body */}
             <path d="M 15 90 C 15 72, 28 68, 50 68 C 72 68, 85 72, 85 90 Z" fill="url(#suitGrad)" />
-            
+
             {/* White Shirt V-Neck */}
             <path d="M 43 68 L 50 78 L 57 68 Z" fill="#ffffff" />
-            
+
             {/* Dark Tie */}
-            <motion.path 
-                d="M 48 76 L 52 76 L 53 90 L 50 94 L 47 90 Z" 
-                fill="url(#tieGrad)" 
+            <motion.path
+                d="M 48 76 L 52 76 L 53 90 L 50 94 L 47 90 Z"
+                fill="url(#tieGrad)"
                 transform-origin="50 76"
                 animate={tieAnimate}
             />
@@ -250,7 +250,7 @@ const InteractiveSuitedHackerMascot = ({ username, password, isUsernameFocused, 
             <path d="M 68 68 L 56 79 L 59 84 Z" fill="#0f172a" />
 
             {/* Hacker Face & Head group */}
-            <motion.g 
+            <motion.g
                 transform-origin="50 46"
                 animate={headAnimate}
                 transition={{ type: "spring", stiffness: 120, damping: 10 }}
@@ -274,7 +274,7 @@ const InteractiveSuitedHackerMascot = ({ username, password, isUsernameFocused, 
                 </g>
 
                 {/* Animated Sunglasses */}
-                <motion.g 
+                <motion.g
                     animate={glassesAnimate}
                     transition={{ type: "spring", stiffness: 160, damping: 12 }}
                 >
@@ -331,13 +331,13 @@ const InteractiveSuitedHackerMascot = ({ username, password, isUsernameFocused, 
 
             {/* Sleeves / Arms */}
             <g fill="none" stroke="url(#suitGrad)" strokeWidth="6.5" strokeLinecap="round">
-                <motion.path 
-                    d={leftArmPath} 
+                <motion.path
+                    d={leftArmPath}
                     animate={{ d: leftArmPath }}
                     transition={{ type: "spring", stiffness: 140, damping: 13 }}
                 />
-                <motion.path 
-                    d={rightArmPath} 
+                <motion.path
+                    d={rightArmPath}
                     animate={{ d: rightArmPath }}
                     transition={{ type: "spring", stiffness: 140, damping: 13 }}
                 />
@@ -345,17 +345,17 @@ const InteractiveSuitedHackerMascot = ({ username, password, isUsernameFocused, 
 
             {/* Wrists */}
             <g fill="#ffffff">
-                <motion.circle 
-                    cx={currentLeftHand.x} 
-                    cy={currentLeftHand.y} 
-                    r="4" 
+                <motion.circle
+                    cx={currentLeftHand.x}
+                    cy={currentLeftHand.y}
+                    r="4"
                     animate={{ cx: currentLeftHand.x, cy: currentLeftHand.y }}
                     transition={{ type: "spring", stiffness: 140, damping: 13 }}
                 />
-                <motion.circle 
-                    cx={currentRightHand.x} 
-                    cy={currentRightHand.y} 
-                    r="4" 
+                <motion.circle
+                    cx={currentRightHand.x}
+                    cy={currentRightHand.y}
+                    r="4"
                     animate={{ cx: currentRightHand.x, cy: currentRightHand.y }}
                     transition={{ type: "spring", stiffness: 140, damping: 13 }}
                 />
@@ -363,17 +363,17 @@ const InteractiveSuitedHackerMascot = ({ username, password, isUsernameFocused, 
 
             {/* Hands */}
             <g fill="#fed7aa" stroke="#0f172a" strokeWidth="0.8">
-                <motion.circle 
-                    cx={currentLeftHand.x} 
-                    cy={currentLeftHand.y} 
-                    r="3.2" 
+                <motion.circle
+                    cx={currentLeftHand.x}
+                    cy={currentLeftHand.y}
+                    r="3.2"
                     animate={{ cx: currentLeftHand.x, cy: currentLeftHand.y }}
                     transition={{ type: "spring", stiffness: 140, damping: 13 }}
                 />
-                <motion.circle 
-                    cx={currentRightHand.x} 
-                    cy={currentRightHand.y} 
-                    r="3.2" 
+                <motion.circle
+                    cx={currentRightHand.x}
+                    cy={currentRightHand.y}
+                    r="3.2"
                     animate={{ cx: currentRightHand.x, cy: currentRightHand.y }}
                     transition={{ type: "spring", stiffness: 140, damping: 13 }}
                 />
@@ -416,7 +416,7 @@ const Login = () => {
         setLoading(true);
         try {
             const response = await axios.post(
-                "https://tuition-seba-backend-1.onrender.com/api/user/login",
+                "https://tuition-seba-backend-1-vk5b.onrender.com/api/user/login",
                 {
                     username: values.username,
                     password: values.password,
@@ -442,7 +442,7 @@ const Login = () => {
     return (
         <div className="login-container">
             <div className="glow-blob-3" />
-            
+
             <div className="login-content-wrapper">
                 <Formik
                     initialValues={{ username: "", password: "" }}
@@ -458,24 +458,24 @@ const Login = () => {
                     }) => (
                         <>
                             {/* Left Side: Interactive Mascot Character */}
-                            <motion.div 
+                            <motion.div
                                 className="login-mascot-section"
                                 initial={{ opacity: 0, x: -60 }}
                                 animate={{ opacity: 1, x: 0 }}
                                 transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
                             >
-                                <motion.div 
+                                <motion.div
                                     className="mascot-img-container"
-                                    animate={{ 
+                                    animate={{
                                         y: [0, -4, 0],
                                     }}
-                                    transition={{ 
-                                        duration: 6, 
-                                        repeat: Infinity, 
-                                        ease: "easeInOut" 
+                                    transition={{
+                                        duration: 6,
+                                        repeat: Infinity,
+                                        ease: "easeInOut"
                                     }}
                                 >
-                                    <InteractiveSuitedHackerMascot 
+                                    <InteractiveSuitedHackerMascot
                                         username={values.username}
                                         password={values.password}
                                         isUsernameFocused={isUsernameFocused}
@@ -489,7 +489,7 @@ const Login = () => {
                             </motion.div>
 
                             {/* Right Side: Login Card */}
-                            <motion.div 
+                            <motion.div
                                 className="login-form-section"
                                 initial={{ opacity: 0, x: 60 }}
                                 animate={{ opacity: 1, x: 0 }}
@@ -506,7 +506,7 @@ const Login = () => {
                                             transition={{ delay: 0.2, duration: 0.6 }}
                                         />
 
-                                        <motion.h2 
+                                        <motion.h2
                                             className="login-title"
                                             initial={{ opacity: 0 }}
                                             animate={{ opacity: 1 }}
@@ -514,7 +514,7 @@ const Login = () => {
                                         >
                                             Welcome Back
                                         </motion.h2>
-                                        <motion.p 
+                                        <motion.p
                                             className="login-subtitle"
                                             initial={{ opacity: 0 }}
                                             animate={{ opacity: 1 }}
@@ -524,7 +524,7 @@ const Login = () => {
                                         </motion.p>
 
                                         <Form noValidate onSubmit={handleSubmit}>
-                                            <motion.div 
+                                            <motion.div
                                                 className="form-group"
                                                 initial={{ opacity: 0, y: 15 }}
                                                 animate={{ opacity: 1, y: 0 }}
@@ -550,7 +550,7 @@ const Login = () => {
                                                 )}
                                             </motion.div>
 
-                                            <motion.div 
+                                            <motion.div
                                                 className="form-group"
                                                 initial={{ opacity: 0, y: 15 }}
                                                 animate={{ opacity: 1, y: 0 }}
@@ -600,7 +600,7 @@ const Login = () => {
                                             </motion.div>
                                         </Form>
 
-                                        <motion.div 
+                                        <motion.div
                                             className="login-footer"
                                             initial={{ opacity: 0 }}
                                             animate={{ opacity: 1 }}
@@ -623,17 +623,17 @@ const Login = () => {
                 <WelcomingFlower delay={1.2} side="left" emoji={leftFlowers[1]} />
                 <WelcomingFlower delay={2.4} side="left" emoji={leftFlowers[2]} />
 
-                <motion.div 
+                <motion.div
                     className="chibi-agent-wrapper-left"
-                    animate={{ 
+                    animate={{
                         y: [0, -12, 0],
                         x: [-5, 5, -5],
                         rotate: [-10, 10, -10]
                     }}
-                    transition={{ 
-                        repeat: Infinity, 
-                        duration: 1.5, 
-                        ease: "easeInOut" 
+                    transition={{
+                        repeat: Infinity,
+                        duration: 1.5,
+                        ease: "easeInOut"
                     }}
                 >
                     <ChibiDancingAgent type="fedora" />
@@ -644,17 +644,17 @@ const Login = () => {
                     <p className="welcome-subline">Have a productive day!</p>
                 </div>
 
-                <motion.div 
+                <motion.div
                     className="chibi-agent-wrapper-right"
-                    animate={{ 
+                    animate={{
                         y: [-12, 0, -12],
                         x: [5, -5, 5],
                         rotate: [10, -10, 10]
                     }}
-                    transition={{ 
-                        repeat: Infinity, 
-                        duration: 1.5, 
-                        ease: "easeInOut" 
+                    transition={{
+                        repeat: Infinity,
+                        duration: 1.5,
+                        ease: "easeInOut"
                     }}
                 >
                     <ChibiDancingAgent type="cap" />

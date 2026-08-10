@@ -21,7 +21,7 @@ const TuitionAssignModal = ({ show, onHide, tuition, fetchTuitionRecords, fetchA
         setFetchingUsers(true);
         try {
             const token = localStorage.getItem('token');
-            const response = await axios.get('https://tuition-seba-backend-1.onrender.com/api/user/users', {
+            const response = await axios.get('https://tuition-seba-backend-1-vk5b.onrender.com/api/user/users', {
                 headers: { Authorization: token }
             });
             setUsers(response.data);
@@ -35,8 +35,8 @@ const TuitionAssignModal = ({ show, onHide, tuition, fetchTuitionRecords, fetchA
 
     const handleAssign = async () => {
         const isUnassigning = !assignedTo;
-        const confirmMessage = isUnassigning 
-            ? "Are you sure you want to unassign this tuition?" 
+        const confirmMessage = isUnassigning
+            ? "Are you sure you want to unassign this tuition?"
             : `Are you sure you want to assign this tuition to ${assignedTo}?`;
 
         const confirmAction = window.confirm(confirmMessage);
@@ -45,7 +45,7 @@ const TuitionAssignModal = ({ show, onHide, tuition, fetchTuitionRecords, fetchA
         setLoading(true);
         try {
             const username = localStorage.getItem('username');
-            await axios.put(`https://tuition-seba-backend-1.onrender.com/api/tuition/edit/${tuition._id}`, {
+            await axios.put(`https://tuition-seba-backend-1-vk5b.onrender.com/api/tuition/edit/${tuition._id}`, {
                 assignedTo: assignedTo,
                 updatedBy: username
             });

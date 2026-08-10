@@ -43,7 +43,7 @@ const ResponseGuidelineWidget = () => {
     const fetchGuidelines = async () => {
         try {
             const token = localStorage.getItem('token');
-            const res = await axios.get(`https://tuition-seba-backend-1.onrender.com/api/settings/response_guidelines`, {
+            const res = await axios.get(`https://tuition-seba-backend-1-vk5b.onrender.com/api/settings/response_guidelines`, {
                 headers: { Authorization: token }
             });
             if (res.data && Array.isArray(res.data.value)) {
@@ -81,7 +81,7 @@ const ResponseGuidelineWidget = () => {
     return (
         <>
             {/* Floating Conversation Helper Button */}
-            <div 
+            <div
                 className="position-fixed floating-chat-button"
                 style={{
                     bottom: '25px',
@@ -106,8 +106,8 @@ const ResponseGuidelineWidget = () => {
             </div>
 
             {/* Guidelines Search & Quick Copy Modal */}
-            <Modal 
-                show={showModal} 
+            <Modal
+                show={showModal}
                 onHide={() => { setShowModal(false); setSearchQuery(''); }}
                 backdrop="true"
                 dialogClassName="response-guidelines-modal"
@@ -119,17 +119,17 @@ const ResponseGuidelineWidget = () => {
                     </Modal.Title>
                 </Modal.Header>
                 <Modal.Body className="px-4 py-3 d-flex flex-column" style={{ background: '#f8fafc', overflow: 'hidden' }}>
-                    
+
                     {/* Search Field Wrapper */}
                     <div className="mb-2 position-relative">
                         <i className="fas fa-search position-absolute text-muted" style={{ left: '15px', top: '50%', transform: 'translateY(-50%)', fontSize: '1.05rem' }}></i>
                         <input
                             type="text"
                             className="form-control rounded-pill bg-white shadow-sm border-0 font-sans"
-                            style={{ 
-                                paddingLeft: '40px', 
-                                paddingRight: '20px', 
-                                height: '44px', 
+                            style={{
+                                paddingLeft: '40px',
+                                paddingRight: '20px',
+                                height: '44px',
                                 fontSize: '1.1rem',
                                 outline: 'none'
                             }}
@@ -141,10 +141,10 @@ const ResponseGuidelineWidget = () => {
 
                     {/* Saved Preference Banner if active */}
                     {preference && (
-                        <div 
-                            className="d-flex align-items-center mb-2 px-3 py-1 rounded-3 text-warning-emphasis font-sans border border-warning-subtle" 
-                            style={{ 
-                                fontSize: '0.85rem', 
+                        <div
+                            className="d-flex align-items-center mb-2 px-3 py-1 rounded-3 text-warning-emphasis font-sans border border-warning-subtle"
+                            style={{
+                                fontSize: '0.85rem',
                                 gap: '8px',
                                 background: '#fffbeb'
                             }}
@@ -152,16 +152,16 @@ const ResponseGuidelineWidget = () => {
                             <i className="fas fa-star text-warning" style={{ fontSize: '0.9rem' }}></i>
                             <span>আপনার সেভ করা প্রেফারেন্সগুলা: <strong>"{preference}"</strong></span>
                             {searchQuery !== preference && (
-                                <button 
-                                    onClick={() => setSearchQuery(preference)} 
+                                <button
+                                    onClick={() => setSearchQuery(preference)}
                                     className="btn btn-sm btn-warning text-dark rounded-pill py-0 px-2.5 ms-auto fw-bold"
                                     style={{ fontSize: '0.75rem', height: '22px', display: 'flex', alignItems: 'center' }}
                                 >
                                     Apply
                                 </button>
                             )}
-                            <button 
-                                onClick={handleClearPreference} 
+                            <button
+                                onClick={handleClearPreference}
                                 className={`btn btn-sm btn-link text-danger fw-bold text-decoration-none ${searchQuery === preference ? 'ms-auto' : ''}`}
                                 style={{ fontSize: '0.8rem', padding: 0 }}
                             >
@@ -204,7 +204,7 @@ const ResponseGuidelineWidget = () => {
                             <button
                                 onClick={handleSavePreference}
                                 className="btn btn-warning text-dark rounded-pill fw-bold px-3 py-1 shadow-sm d-flex align-items-center justify-content-center border-0 font-sans ms-auto"
-                                style={{ 
+                                style={{
                                     fontSize: '0.8rem',
                                     transition: 'all 0.2s ease',
                                     whiteSpace: 'nowrap'
@@ -231,9 +231,9 @@ const ResponseGuidelineWidget = () => {
                                     filteredGuidelines.map((item, idx) => (
                                         <tr key={idx} className="hover-lift">
                                             {/* Topic Column with custom dynamic colors */}
-                                            <td 
+                                            <td
                                                 className={`fw-bold ps-3 py-3 ${getTopicColorClass(item.topic)}`}
-                                                style={{ 
+                                                style={{
                                                     borderLeft: '5px solid #f59e0b',
                                                     fontSize: '1.25rem',
                                                     lineHeight: '1.4'
@@ -242,9 +242,9 @@ const ResponseGuidelineWidget = () => {
                                                 {item.topic}
                                             </td>
                                             {/* Say This Column */}
-                                            <td 
+                                            <td
                                                 className="text-secondary py-3"
-                                                style={{ 
+                                                style={{
                                                     fontSize: '1.2rem',
                                                     lineHeight: '1.5',
                                                     whiteSpace: 'pre-line'
@@ -284,7 +284,7 @@ const ResponseGuidelineWidget = () => {
                     </div>
                 </Modal.Body>
                 <Modal.Footer className="border-0 pt-2 pb-4 px-3 justify-content-center" style={{ background: '#f8fafc' }}>
-                    <button 
+                    <button
                         onClick={() => { setShowModal(false); setSearchQuery(''); }}
                         className="btn btn-close-guidelines rounded-pill py-3 fw-bold font-sans w-100"
                         style={{ fontSize: '1.25rem' }}

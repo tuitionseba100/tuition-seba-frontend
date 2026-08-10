@@ -34,7 +34,7 @@ const TuitionSection = () => {
     useEffect(() => {
         setLoading(true);
         axios
-            .get('https://tuition-seba-backend-1.onrender.com/api/tuition/available-web')
+            .get('https://tuition-seba-backend-1-vk5b.onrender.com/api/tuition/available-web')
             .then((res) => {
                 setTuitions(res.data);
                 setFiltered(res.data);
@@ -137,7 +137,7 @@ const TuitionSection = () => {
                                 borderRadius: 12,
                                 padding: '16px 20px',
                                 marginBottom: 20,
-                             }}>
+                            }}>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
                                     <div style={{ width: 36, height: 36, borderRadius: 8, background: '#DBEAFE', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                                         <FiMapPin style={{ color: '#2563EB', fontSize: 18 }} />

@@ -46,7 +46,7 @@ const ComplaintSuggestionAdminPage = () => {
 
     const fetchSummary = async () => {
         try {
-            const res = await axios.get('https://tuition-seba-backend-1.onrender.com/api/complaintSuggestion/summary', {
+            const res = await axios.get('https://tuition-seba-backend-1-vk5b.onrender.com/api/complaintSuggestion/summary', {
                 headers: { Authorization: token }
             });
             setSummary(res.data);
@@ -58,7 +58,7 @@ const ComplaintSuggestionAdminPage = () => {
     const fetchSubmissions = async () => {
         setLoading(true);
         try {
-            const res = await axios.get('https://tuition-seba-backend-1.onrender.com/api/complaintSuggestion/list', {
+            const res = await axios.get('https://tuition-seba-backend-1-vk5b.onrender.com/api/complaintSuggestion/list', {
                 params: {
                     page: currentPage,
                     limit: 25,
@@ -100,7 +100,7 @@ const ComplaintSuggestionAdminPage = () => {
     const handleUpdateStatus = async () => {
         setUpdating(true);
         try {
-            await axios.put(`https://tuition-seba-backend-1.onrender.com/api/complaintSuggestion/${selectedItem._id}/status`, {
+            await axios.put(`https://tuition-seba-backend-1-vk5b.onrender.com/api/complaintSuggestion/${selectedItem._id}/status`, {
                 status: statusUpdate,
                 adminComment: adminComment
             }, {
@@ -121,7 +121,7 @@ const ComplaintSuggestionAdminPage = () => {
     const handleDelete = async (id) => {
         if (!window.confirm('Are you sure you want to delete this record?')) return;
         try {
-            await axios.delete(`https://tuition-seba-backend-1.onrender.com/api/complaintSuggestion/${id}`, {
+            await axios.delete(`https://tuition-seba-backend-1-vk5b.onrender.com/api/complaintSuggestion/${id}`, {
                 headers: { Authorization: token }
             });
             toast.success('Record deleted successfully!');
@@ -146,7 +146,7 @@ const ComplaintSuggestionAdminPage = () => {
 
     const handleExportCSV = async () => {
         try {
-            const res = await axios.get('https://tuition-seba-backend-1.onrender.com/api/complaintSuggestion/list', {
+            const res = await axios.get('https://tuition-seba-backend-1-vk5b.onrender.com/api/complaintSuggestion/list', {
                 params: {
                     page: 1,
                     limit: 5000,
@@ -184,7 +184,7 @@ const ComplaintSuggestionAdminPage = () => {
             const url = URL.createObjectURL(blob);
             const link = document.createElement("a");
             link.setAttribute("href", url);
-            link.setAttribute("download", `complaints_export_${new Date().toISOString().slice(0,10)}.csv`);
+            link.setAttribute("download", `complaints_export_${new Date().toISOString().slice(0, 10)}.csv`);
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
@@ -434,9 +434,9 @@ const ComplaintSuggestionAdminPage = () => {
                                                 <td>
                                                     <Badge bg={
                                                         item.status === 'Pending' ? 'warning' :
-                                                        item.status === 'In Progress' ? 'info' :
-                                                        item.status === 'Resolved' ? 'success' :
-                                                        item.status === 'Spam (Dismissed)' ? 'danger' : 'secondary'
+                                                            item.status === 'In Progress' ? 'info' :
+                                                                item.status === 'Resolved' ? 'success' :
+                                                                    item.status === 'Spam (Dismissed)' ? 'danger' : 'secondary'
                                                     } className="px-3 py-2 rounded-pill">
                                                         {item.status}
                                                     </Badge>
@@ -464,7 +464,7 @@ const ComplaintSuggestionAdminPage = () => {
 
                         {/* Pagination */}
                         <div className="d-flex justify-content-between align-items-center mt-4">
-                            <Button 
+                            <Button
                                 variant="outline-primary"
                                 disabled={currentPage === 1 || loading}
                                 onClick={() => setCurrentPage(p => p - 1)}
@@ -473,7 +473,7 @@ const ComplaintSuggestionAdminPage = () => {
                                 Previous
                             </Button>
                             <span className="fw-semibold text-secondary">Page {currentPage} of {totalPages}</span>
-                            <Button 
+                            <Button
                                 variant="outline-primary"
                                 disabled={currentPage === totalPages || loading}
                                 onClick={() => setCurrentPage(p => p + 1)}

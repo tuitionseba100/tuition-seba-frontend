@@ -51,7 +51,7 @@ const TuitionPage = () => {
 
     const [detailsModalShow, setDetailsModalShow] = useState(false);
     const [tuitionDetails, setTuitionDetails] = useState(null);
-    
+
     // Status History Modal State
     const [showStatusHistoryModal, setShowStatusHistoryModal] = useState(false);
     const [statusHistoryList, setStatusHistoryList] = useState([]);
@@ -63,7 +63,7 @@ const TuitionPage = () => {
         setShowStatusHistoryModal(true);
         setStatusHistoryLoading(true);
         try {
-            const response = await axios.get(`https://tuition-seba-backend-1.onrender.com/api/statusHistory/history/${moduleName}/${id}`, {
+            const response = await axios.get(`https://tuition-seba-backend-1-vk5b.onrender.com/api/statusHistory/history/${moduleName}/${id}`, {
                 headers: { Authorization: token }
             });
             setStatusHistoryList(response.data);
@@ -84,7 +84,7 @@ const TuitionPage = () => {
         }
         setFetchingDetails(true);
         try {
-            const response = await axios.get(`https://tuition-seba-backend-1.onrender.com/api/tuition/${tuitionId}`);
+            const response = await axios.get(`https://tuition-seba-backend-1-vk5b.onrender.com/api/tuition/${tuitionId}`);
             if (response.data) {
                 setTuitionDetails(response.data);
                 setDetailsModalShow(true);
@@ -163,7 +163,7 @@ const TuitionPage = () => {
     const fetchTuitionApplyRecords = async (page = 1) => {
         setLoading(true);
         try {
-            const response = await axios.get('https://tuition-seba-backend-1.onrender.com/api/tuitionApply/getTableData', {
+            const response = await axios.get('https://tuition-seba-backend-1-vk5b.onrender.com/api/tuitionApply/getTableData', {
                 params: {
                     page: currentPage,
                     tuitionCode: appliedFilters.tuitionCode,
@@ -196,7 +196,7 @@ const TuitionPage = () => {
     };
 
     const fetchCardSummary = () => {
-        axios.get('https://tuition-seba-backend-1.onrender.com/api/tuitionApply/summary', {
+        axios.get('https://tuition-seba-backend-1-vk5b.onrender.com/api/tuitionApply/summary', {
             params: {
                 tuitionCode: appliedFilters.tuitionCode,
                 phone: appliedFilters.phone,
@@ -232,7 +232,7 @@ const TuitionPage = () => {
             try {
                 const statusForFileName = selectedExportStatus.replace(/\s+/g, '_').toLowerCase();
                 const link = document.createElement('a');
-                link.href = `https://tuition-seba-backend-1.onrender.com/api/tuitionApply/exportData?status=${selectedExportStatus}`;
+                link.href = `https://tuition-seba-backend-1-vk5b.onrender.com/api/tuitionApply/exportData?status=${selectedExportStatus}`;
                 link.target = '_blank';
                 // Match backend file naming and CSV extension
                 link.download = selectedExportStatus.toLowerCase() === 'all'
@@ -265,10 +265,10 @@ const TuitionPage = () => {
         };
         try {
             if (editingId) {
-                await axios.put(`https://tuition-seba-backend-1.onrender.com/api/tuitionApply/edit/${editingId}`, updatedTuitionData);
+                await axios.put(`https://tuition-seba-backend-1-vk5b.onrender.com/api/tuitionApply/edit/${editingId}`, updatedTuitionData);
                 toast.success("Tuition apply record updated successfully!");
             } else {
-                await axios.post('https://tuition-seba-backend-1.onrender.com/api/tuitionApply/add-web', updatedTuitionData);
+                await axios.post('https://tuition-seba-backend-1-vk5b.onrender.com/api/tuitionApply/add-web', updatedTuitionData);
                 toast.success("Tuition apply record created successfully!");
             }
             setShowModal(false);
@@ -311,7 +311,7 @@ const TuitionPage = () => {
         if (confirmDelete) {
             setDeleting(true);
             try {
-                await axios.delete(`https://tuition-seba-backend-1.onrender.com/api/tuitionApply/delete/${id}`);
+                await axios.delete(`https://tuition-seba-backend-1-vk5b.onrender.com/api/tuitionApply/delete/${id}`);
                 toast.success("Tuition record deleted successfully!");
                 fetchTuitionApplyRecords();
             } catch (err) {
@@ -545,33 +545,33 @@ const TuitionPage = () => {
                                                 <td style={getRowStyle(tuition)}>{tuition.appliedAt ? formatDate(tuition.appliedAt) : ''}</td>
                                                 <td style={getRowStyle(tuition)}>{tuition.updatedBy}</td>
                                                 <td style={getRowStyle(tuition)}>
-                                                     <div className="d-flex flex-column align-items-center gap-1">
-                                                         <span 
-                                                             onClick={() => handleShowStatusHistory('TuitionApply', tuition._id, tuition.name)}
-                                                             style={{ cursor: 'pointer' }}
-                                                             title="Click to view status history"
-                                                             className={`badge 
+                                                    <div className="d-flex flex-column align-items-center gap-1">
+                                                        <span
+                                                            onClick={() => handleShowStatusHistory('TuitionApply', tuition._id, tuition.name)}
+                                                            style={{ cursor: 'pointer' }}
+                                                            title="Click to view status history"
+                                                            className={`badge 
             ${tuition.status === "pending" ? "bg-success" :
-                                                            tuition.status === "called (no response)" ? "bg-primary" :
-                                                                tuition.status === "called (guardian no response)" ? "bg-info" :
-                                                                    tuition.status === "called (interested)" ? "bg-info" :
-                                                                        tuition.status === "cancel" ? "bg-danger" :
-                                                                            tuition.status === "shortlisted" ? "bg-secondary" :
-                                                                                tuition.status === "requested for payment" ? "bg-warning text-dark" :
-                                                                                    tuition.status === "meet to office" ? "bg-dark" :
-                                                                                        tuition.status === "selected" ? "bg-success" :
-                                                                                            tuition.status === "confirmed" ? "bg-success" :
-                                                                                                tuition.status === "refer to bm" ? "bg-info" :
-                                                                                                    "bg-secondary"
-                                                        }`}>
-                                                        {tuition.status}
-                                                     </span>
-                                                     {tuition.hasDue && (
-                                                         <span className="badge bg-warning text-dark">
-                                                             ডিউ আছে
-                                                         </span>
-                                                     )}
-                                                 </div>
+                                                                    tuition.status === "called (no response)" ? "bg-primary" :
+                                                                        tuition.status === "called (guardian no response)" ? "bg-info" :
+                                                                            tuition.status === "called (interested)" ? "bg-info" :
+                                                                                tuition.status === "cancel" ? "bg-danger" :
+                                                                                    tuition.status === "shortlisted" ? "bg-secondary" :
+                                                                                        tuition.status === "requested for payment" ? "bg-warning text-dark" :
+                                                                                            tuition.status === "meet to office" ? "bg-dark" :
+                                                                                                tuition.status === "selected" ? "bg-success" :
+                                                                                                    tuition.status === "confirmed" ? "bg-success" :
+                                                                                                        tuition.status === "refer to bm" ? "bg-info" :
+                                                                                                            "bg-secondary"
+                                                                }`}>
+                                                            {tuition.status}
+                                                        </span>
+                                                        {tuition.hasDue && (
+                                                            <span className="badge bg-warning text-dark">
+                                                                ডিউ আছে
+                                                            </span>
+                                                        )}
+                                                    </div>
                                                 </td>
                                                 <td style={getRowStyle(tuition)}>{tuition.premiumCode}</td>
                                                 <td style={getRowStyle(tuition)}>
@@ -1062,7 +1062,7 @@ const TuitionPage = () => {
                             <div className="alternating-timeline" style={{ position: 'relative', padding: '20px 0' }}>
                                 {/* Central line */}
                                 <div style={{ position: 'absolute', top: 0, bottom: 0, left: '50%', width: '3px', backgroundColor: '#dee2e6', transform: 'translateX(-50%)' }} />
-                                
+
                                 {statusHistoryList.map((log, index) => {
                                     const isLeft = index % 2 === 0;
                                     return (
@@ -1090,19 +1090,19 @@ const TuitionPage = () => {
                                             </div>
 
                                             {/* Dot indicator in the center */}
-                                            <div 
-                                                style={{ 
-                                                    position: 'absolute', 
-                                                    left: '50%', 
-                                                    transform: 'translateX(-50%)', 
-                                                    width: '16px', 
-                                                    height: '16px', 
-                                                    borderRadius: '50%', 
+                                            <div
+                                                style={{
+                                                    position: 'absolute',
+                                                    left: '50%',
+                                                    transform: 'translateX(-50%)',
+                                                    width: '16px',
+                                                    height: '16px',
+                                                    borderRadius: '50%',
                                                     backgroundColor: index === 0 ? '#0d6efd' : '#adb5bd',
                                                     border: '3px solid #fff',
                                                     boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
                                                     zIndex: 5
-                                                }} 
+                                                }}
                                             />
 
                                             {/* Right Card */}

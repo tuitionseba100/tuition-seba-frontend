@@ -267,7 +267,7 @@ const SocialPostModal = ({ show, onHide }) => {
 
     const areaOptions = useMemo(() =>
         locationData.areaOptions.chittagong.map(area => ({ value: area, label: area }))
-    , []);
+        , []);
 
     // Fetch area groups from settings
     useEffect(() => {
@@ -275,7 +275,7 @@ const SocialPostModal = ({ show, onHide }) => {
             const fetchAreaGroups = async () => {
                 try {
                     const token = localStorage.getItem('token');
-                    const response = await axios.get('https://tuition-seba-backend-1.onrender.com/api/settings', {
+                    const response = await axios.get('https://tuition-seba-backend-1-vk5b.onrender.com/api/settings', {
                         headers: { Authorization: token }
                     });
                     const areaSetting = response.data.find(s => s.key === 'area_groups');
@@ -292,21 +292,21 @@ const SocialPostModal = ({ show, onHide }) => {
 
     const handleAreaGroupClick = (group) => {
         const groupAreas = group.areas.map(area => ({ value: area, label: area }));
-        
+
         // Merge with existing selected areas, avoiding duplicates
         setFilters(prev => {
             const currentAreaValues = prev.area.map(a => a.value);
             const newAreas = [...prev.area];
-            
+
             groupAreas.forEach(ga => {
                 if (!currentAreaValues.includes(ga.value)) {
                     newAreas.push(ga);
                 }
             });
-            
+
             return { ...prev, area: newAreas };
         });
-        
+
         toast.info(`Added areas from group: ${group.name}`);
     };
 
@@ -351,7 +351,7 @@ const SocialPostModal = ({ show, onHide }) => {
                 specificCodes: filters.specificCodes.map(c => c.value).join(',')
             };
 
-            const response = await axios.get('https://tuition-seba-backend-1.onrender.com/api/tuition/post-data', {
+            const response = await axios.get('https://tuition-seba-backend-1-vk5b.onrender.com/api/tuition/post-data', {
                 params,
                 headers: { Authorization: token }
             });
@@ -491,7 +491,7 @@ const SocialPostModal = ({ show, onHide }) => {
                                                             </Tooltip>
                                                         }
                                                     >
-                                                        <AreaGroupChip 
+                                                        <AreaGroupChip
                                                             onClick={() => handleAreaGroupClick(group)}
                                                         >
                                                             {group.name}

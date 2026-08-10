@@ -81,7 +81,7 @@ const SettingsModal = ({ show, onClose }) => {
             }
 
             try {
-                const response = await fetchWithFallback('https://tuition-seba-backend-1.onrender.com/api/regTeacher/check-apply-possible',
+                const response = await fetchWithFallback('https://tuition-seba-backend-1-vk5b.onrender.com/api/regTeacher/check-apply-possible',
                     {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
@@ -114,7 +114,7 @@ const SettingsModal = ({ show, onClose }) => {
 
         localStorage.setItem('@user_settings', JSON.stringify(settingsData));
         window.dispatchEvent(new Event('userSettingsUpdated'));
-        
+
         toast.success('প্রোফাইল সেটিংস সফলভাবে সংরক্ষণ করা হয়েছে!');
         setSaving(false);
         onClose();

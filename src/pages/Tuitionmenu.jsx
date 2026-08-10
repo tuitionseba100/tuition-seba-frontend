@@ -57,7 +57,7 @@ const TuitionPage = () => {
         setShowStatusHistoryModal(true);
         setStatusHistoryLoading(true);
         try {
-            const response = await axios.get(`https://tuition-seba-backend-1.onrender.com/api/statusHistory/history/${moduleName}/${id}`, {
+            const response = await axios.get(`https://tuition-seba-backend-1-vk5b.onrender.com/api/statusHistory/history/${moduleName}/${id}`, {
                 headers: { Authorization: token }
             });
             setStatusHistoryList(response.data);
@@ -279,9 +279,9 @@ const TuitionPage = () => {
             }
 
             const [alertRes, pendingRes, guardianRes] = await Promise.all([
-                axios.get('https://tuition-seba-backend-1.onrender.com/api/tuition/alert-today', { params: alertParams }),
-                axios.get('https://tuition-seba-backend-1.onrender.com/api/tuition/pending-payment-creation'),
-                axios.get('https://tuition-seba-backend-1.onrender.com/api/tuition/guardian-followup-today', { params: alertParams })
+                axios.get('https://tuition-seba-backend-1-vk5b.onrender.com/api/tuition/alert-today', { params: alertParams }),
+                axios.get('https://tuition-seba-backend-1-vk5b.onrender.com/api/tuition/pending-payment-creation'),
+                axios.get('https://tuition-seba-backend-1-vk5b.onrender.com/api/tuition/guardian-followup-today', { params: alertParams })
             ]);
 
             setTuitionNeedsUpdateList(alertRes.data);
@@ -300,7 +300,7 @@ const TuitionPage = () => {
             if (role === 'superadmin' || role === 'admin') {
                 try {
                     const token = localStorage.getItem('token');
-                    const response = await axios.get('https://tuition-seba-backend-1.onrender.com/api/user/users', {
+                    const response = await axios.get('https://tuition-seba-backend-1-vk5b.onrender.com/api/user/users', {
                         headers: { Authorization: token }
                     });
                     const users = response.data.map(user => ({
@@ -346,7 +346,7 @@ const TuitionPage = () => {
         setIsMigrating(true);
         try {
             const token = localStorage.getItem('token');
-            const response = await axios.post('https://tuition-seba-backend-1.onrender.com/api/tuition/auto-migrate', {
+            const response = await axios.post('https://tuition-seba-backend-1-vk5b.onrender.com/api/tuition/auto-migrate', {
                 tuitionIds: selectedMigrationIds
             }, {
                 headers: { Authorization: token }
@@ -386,7 +386,7 @@ const TuitionPage = () => {
     const fetchTuitionRecords = async () => {
         setLoading(true);
         try {
-            const response = await axios.get('https://tuition-seba-backend-1.onrender.com/api/tuition/getTableData', {
+            const response = await axios.get('https://tuition-seba-backend-1-vk5b.onrender.com/api/tuition/getTableData', {
                 params: {
                     page: currentPage,
                     tuitionCode: appliedFilters.tuitionCode,
@@ -435,7 +435,7 @@ const TuitionPage = () => {
                 applyType: appliedFilters.applyTypeFilter || undefined
             };
 
-            const res = await axios.get('https://tuition-seba-backend-1.onrender.com/api/tuition/summary', {
+            const res = await axios.get('https://tuition-seba-backend-1-vk5b.onrender.com/api/tuition/summary', {
                 params: params
             });
             setExcelTuitionList(res.data.data);
@@ -464,7 +464,7 @@ const TuitionPage = () => {
             try {
                 const statusForFileName = selectedExportStatus.replace(/\s+/g, '_').toLowerCase();
                 const link = document.createElement('a');
-                link.href = `https://tuition-seba-backend-1.onrender.com/api/tuition/exportData?status=${selectedExportStatus}`;
+                link.href = `https://tuition-seba-backend-1-vk5b.onrender.com/api/tuition/exportData?status=${selectedExportStatus}`;
                 link.target = '_blank';
                 // Match backend file naming and CSV extension
                 link.download = `tuition_apply_${statusForFileName}.csv`;
@@ -543,7 +543,7 @@ const TuitionPage = () => {
         if (confirmDelete) {
             try {
                 setDeleteLoading(true);
-                await axios.delete(`https://tuition-seba-backend-1.onrender.com/api/tuition/delete/${id}`);
+                await axios.delete(`https://tuition-seba-backend-1-vk5b.onrender.com/api/tuition/delete/${id}`);
                 toast.success("Tuition record deleted successfully!");
                 await fetchTuitionRecords();
                 await fetchSummaryCounts();

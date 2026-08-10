@@ -115,7 +115,7 @@ const RefundPage = () => {
                 personalPhone: filters.personalPhone,
                 status: filters.status
             };
-            const response = await axios.get('https://tuition-seba-backend-1.onrender.com/api/refund/all', { params });
+            const response = await axios.get('https://tuition-seba-backend-1-vk5b.onrender.com/api/refund/all', { params });
             setRefundList(response.data.data);
             setTotalPages(response.data.totalPages);
             setCurrentPage(response.data.currentPage);
@@ -129,7 +129,7 @@ const RefundPage = () => {
 
     const fetchSummaryCounts = async () => {
         try {
-            const response = await axios.get('https://tuition-seba-backend-1.onrender.com/api/refund/summary');
+            const response = await axios.get('https://tuition-seba-backend-1-vk5b.onrender.com/api/refund/summary');
             setStatusCounts(response.data);
         } catch (err) {
             console.error('Error fetching summary:', err);
@@ -138,7 +138,7 @@ const RefundPage = () => {
 
     const fetchAlertToday = async () => {
         try {
-            const response = await axios.get('https://tuition-seba-backend-1.onrender.com/api/refund/alert-today');
+            const response = await axios.get('https://tuition-seba-backend-1-vk5b.onrender.com/api/refund/alert-today');
             setRefundsDueToday(response.data);
         } catch (err) {
             console.error('Error fetching today alerts:', err);
@@ -149,7 +149,7 @@ const RefundPage = () => {
         setScLoading(true);
         try {
             const currentSearch = searchOverride || scSearch;
-            const response = await axios.get(`https://tuition-seba-backend-1.onrender.com/api/serviceCharge/all`, {
+            const response = await axios.get(`https://tuition-seba-backend-1-vk5b.onrender.com/api/serviceCharge/all`, {
                 params: { page, limit: 50, tuitionCode: currentSearch.tuitionCode, phone: currentSearch.phone }
             });
             setScList(response.data.data);
@@ -165,7 +165,7 @@ const RefundPage = () => {
 
     const fetchServiceChargeSummary = async () => {
         try {
-            const response = await axios.get(`https://tuition-seba-backend-1.onrender.com/api/serviceCharge/summary`);
+            const response = await axios.get(`https://tuition-seba-backend-1-vk5b.onrender.com/api/serviceCharge/summary`);
             setScSummary(response.data);
         } catch (error) {
             console.error('Error fetching SC summary:', error);
@@ -227,7 +227,7 @@ const RefundPage = () => {
                 status: appliedFilters.status,
                 limit: 10000 // Large limit for export
             };
-            const response = await axios.get('https://tuition-seba-backend-1.onrender.com/api/refund/all', { params });
+            const response = await axios.get('https://tuition-seba-backend-1-vk5b.onrender.com/api/refund/all', { params });
             const allFilteredData = response.data.data;
 
             const now = new Date();
@@ -279,11 +279,11 @@ const RefundPage = () => {
         try {
             if (editingId) {
                 const updatedData = { ...updatedTuitionData, updatedBy: username };
-                await axios.put(`https://tuition-seba-backend-1.onrender.com/api/refund/edit/${editingId}`, updatedData);
+                await axios.put(`https://tuition-seba-backend-1-vk5b.onrender.com/api/refund/edit/${editingId}`, updatedData);
                 toast.success("Refund record updated successfully!");
             } else {
                 const newData = { ...updatedTuitionData, createdBy: username };
-                await axios.post('https://tuition-seba-backend-1.onrender.com/api/refund/add', newData);
+                await axios.post('https://tuition-seba-backend-1-vk5b.onrender.com/api/refund/add', newData);
                 toast.success("Refund record added successfully!");
             }
             setShowConfirmModal(false);
@@ -407,7 +407,7 @@ const RefundPage = () => {
     const handleDeleteRecord = async (id) => {
         if (window.confirm("Are you sure you want to delete this record?")) {
             try {
-                await axios.delete(`https://tuition-seba-backend-1.onrender.com/api/refund/delete/${id}`);
+                await axios.delete(`https://tuition-seba-backend-1-vk5b.onrender.com/api/refund/delete/${id}`);
                 toast.success("Record deleted successfully!");
                 fetchRefundApplyRecords(currentPage);
                 fetchSummaryCounts();
@@ -1105,15 +1105,15 @@ const RefundPage = () => {
                         {/* Search Bar */}
                         <Row className="mb-3 g-2">
                             <Col md={4}>
-                                <Form.Control 
-                                    placeholder="Search by Tuition Code" 
+                                <Form.Control
+                                    placeholder="Search by Tuition Code"
                                     value={scSearch.tuitionCode}
                                     onChange={(e) => setScSearch(prev => ({ ...prev, tuitionCode: e.target.value }))}
                                 />
                             </Col>
                             <Col md={4}>
-                                <Form.Control 
-                                    placeholder="Search by Phone" 
+                                <Form.Control
+                                    placeholder="Search by Phone"
                                     value={scSearch.phone}
                                     onChange={(e) => setScSearch(prev => ({ ...prev, phone: e.target.value }))}
                                 />
@@ -1178,8 +1178,8 @@ const RefundPage = () => {
                     </Modal.Body>
                     <Modal.Footer className="bg-light d-flex justify-content-between">
                         <div className="d-flex align-items-center gap-2">
-                            <Button 
-                                variant="outline-secondary" 
+                            <Button
+                                variant="outline-secondary"
                                 size="sm"
                                 disabled={scCurrentPage === 1 || scLoading}
                                 onClick={() => fetchServiceCharges(scCurrentPage - 1)}
@@ -1189,8 +1189,8 @@ const RefundPage = () => {
                             <span className="small text-muted">
                                 Page {scCurrentPage} of {scTotalPages || 1}
                             </span>
-                            <Button 
-                                variant="outline-secondary" 
+                            <Button
+                                variant="outline-secondary"
                                 size="sm"
                                 disabled={scCurrentPage >= scTotalPages || scLoading}
                                 onClick={() => fetchServiceCharges(scCurrentPage + 1)}

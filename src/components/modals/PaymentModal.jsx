@@ -31,7 +31,7 @@ const PaymentModal = ({ show, handleClose }) => {
 
         setLoading(true);
         try {
-            const res = await fetchWithFallback('https://tuition-seba-backend-1-vk5b.onrender.com/api/teacherPayment/add', {
+            const res = await fetchWithFallback('https://tuition-seba-backend-16yx.onrender.com/api/teacherPayment/add', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(form)

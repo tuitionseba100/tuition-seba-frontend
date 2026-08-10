@@ -56,7 +56,7 @@ export default function ConfirmationFollowUpModal({ show, onHide, tuition, onUpd
             };
 
             const response = await axios.post(
-                `https://tuition-seba-backend-1-vk5b.onrender.com/api/tuition/${tuition._id}/confirmation-followup`,
+                `https://tuition-seba-backend-16yx.onrender.com/api/tuition/${tuition._id}/confirmation-followup`,
                 payload,
                 { headers: { Authorization: token } }
             );

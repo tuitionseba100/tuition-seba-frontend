@@ -329,7 +329,7 @@ const TeacherRegistrationForm = () => {
                                 }
 
                                 try {
-                                    const res = await fetchWithFallback('https://tuition-seba-backend-1-vk5b.onrender.com/api/regTeacher/add', {
+                                    const res = await fetchWithFallback('https://tuition-seba-backend-16yx.onrender.com/api/regTeacher/add', {
                                         method: 'POST',
                                         headers: { 'Content-Type': 'application/json' },
                                         body: JSON.stringify(values),

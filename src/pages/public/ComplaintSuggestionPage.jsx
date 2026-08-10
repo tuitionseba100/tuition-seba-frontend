@@ -41,7 +41,7 @@ const ComplaintSuggestionPage = () => {
 
         setLoading(true);
         try {
-            await axios.post('https://tuition-seba-backend-1-vk5b.onrender.com/api/complaintSuggestion/submit', formData);
+            await axios.post('https://tuition-seba-backend-16yx.onrender.com/api/complaintSuggestion/submit', formData);
             setSubmitted(true);
             toast.success('আপনার আবেদনটি সফলভাবে জমা হয়েছে।');
         } catch (err) {

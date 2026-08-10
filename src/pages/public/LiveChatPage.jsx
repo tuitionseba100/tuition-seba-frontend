@@ -10,7 +10,7 @@ import { fetchWithFallback } from '../../services/fetchWithFallback';
 
 const BANGLA_FONT = "'Hind Siliguri', 'Inter', sans-serif";
 
-const BASE_URL = 'https://https://tuition-seba-backend-16yx.onrender.com/';
+const BASE_URL = 'https://tuition-seba-backend-16yx.onrender.com/';
 
 
 
@@ -832,4 +832,3 @@ const BulbTooltip = styled.div`
     50% { transform: translateY(-4px); }
   }
 `;
-  

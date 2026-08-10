@@ -43,7 +43,7 @@ const ResponseGuidelineWidget = () => {
     const fetchGuidelines = async () => {
         try {
             const token = localStorage.getItem('token');
-            const res = await axios.get(`https://tuition-seba-backend-1-vk5b.onrender.com/api/settings/response_guidelines`, {
+            const res = await axios.get(`https://tuition-seba-backend-16yx.onrender.com/api/settings/response_guidelines`, {
                 headers: { Authorization: token }
             });
             if (res.data && Array.isArray(res.data.value)) {

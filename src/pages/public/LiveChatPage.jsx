@@ -10,7 +10,7 @@ import { fetchWithFallback } from '../../services/fetchWithFallback';
 
 const BANGLA_FONT = "'Hind Siliguri', 'Inter', sans-serif";
 
-const BASE_URL = 'https://tuition-seba-backend-1.onrender.com';
+const BASE_URL = 'https://https://tuition-seba-backend-16yx.onrender.com/';
 
 
 
@@ -260,7 +260,7 @@ export default function LiveChatPage() {
           </a>
         );
       }
-      
+
       const numRegex = /(01[3-9]\d{2}-?\d{6})/g;
       if (numRegex.test(part)) {
         const subParts = part.split(numRegex);
@@ -832,3 +832,4 @@ const BulbTooltip = styled.div`
     50% { transform: translateY(-4px); }
   }
 `;
+  

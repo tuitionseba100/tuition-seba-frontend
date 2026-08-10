@@ -8,7 +8,7 @@ import NavbarPage from './NavbarPage';
 import locationData from '../data/locations.json';
 import PosterGenerator from '../components/PosterGenerator';
 
-const API_BASE_URL = 'https://https://tuition-seba-backend-1-vk5b.onrender.com/';
+const API_BASE_URL = 'https://https://tuition-seba-backend-16yx.onrender.com/';
 
 const SettingsPage = () => {
     const [role] = useState(localStorage.getItem('role'));

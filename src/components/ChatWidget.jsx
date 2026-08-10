@@ -4,7 +4,7 @@ import { BsChatDotsFill, BsX, BsArrowRightShort, BsTelephone, BsKey, BsSendFill,
 import { fetchWithFallback } from '../services/fetchWithFallback';
 import './ChatWidget.css';
 
-const BASE_URL = 'https://tuition-seba-backend-1.onrender.com';
+const BASE_URL = 'https://https://tuition-seba-backend-1-vk5b.onrender.com/';
 
 
 
@@ -75,7 +75,7 @@ export default function ChatWidget() {
       const tuitionCode = event.detail?.tuitionCode;
       if (!tuitionCode) return;
       const tuitionDetails = event.detail?.tuitionDetails;
-      
+
       const formatMessage = (details) => {
         if (!details) return `আমি এই টিউশনে (${tuitionCode}) অ্যাপ্লাই করতে চাই।`;
         const area = details.area ? `, ${details.area}` : '';
@@ -97,9 +97,9 @@ Joining: ${details.joining || ''}
       };
 
       const applyMsg = formatMessage(tuitionDetails);
-      
+
       const tuitionId = event.detail?.tuitionId;
-      
+
       let currentUser = user;
       if (!currentUser) {
         try {
@@ -109,7 +109,7 @@ Joining: ${details.joining || ''}
             if (parsed.phone && parsed.premiumCode) {
               setPhone(parsed.phone);
               setPremiumCode(parsed.premiumCode);
-              
+
               const res = await fetchWithFallback(`${BASE_URL}/api/regTeacher/check-apply-possible`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -125,7 +125,7 @@ Joining: ${details.joining || ''}
                   premiumCode: data.data.premiumCode
                 };
                 setUser(currentUser);
-                
+
                 const histRes = await fetchWithFallback(`${BASE_URL}/api/chat/history/${currentUser.phone}?limit=20`);
                 const histData = await histRes.json();
                 if (histData.length === 0) {
@@ -316,7 +316,7 @@ Joining: ${details.joining || ''}
                     premiumCode: data.data.premiumCode
                   };
                   setUser(verifiedUser);
-                  
+
                   const histRes = await fetchWithFallback(`${BASE_URL}/api/chat/history/${verifiedUser.phone}?limit=20`);
                   const histData = await histRes.json();
                   if (histData.length === 0) {
@@ -415,11 +415,11 @@ Joining: ${details.joining || ''}
           premiumCode: data.data.premiumCode
         };
         setUser(verifiedUser);
-        
+
         // Load history (Initial load limit = 20)
         const histRes = await fetchWithFallback(`${BASE_URL}/api/chat/history/${verifiedUser.phone}?limit=20`);
         const histData = await histRes.json();
-        
+
         if (histData.length === 0) {
           setMessages([
             {
@@ -519,7 +519,7 @@ Joining: ${details.joining || ''}
           </a>
         );
       }
-      
+
       const numRegex = /(01[3-9]\d{2}-?\d{6})/g;
       if (numRegex.test(part)) {
         const subParts = part.split(numRegex);
@@ -598,7 +598,7 @@ Joining: ${details.joining || ''}
 
   return (
     <div className="ts-chat-widget-container" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-      
+
       {/* WhatsApp Button and Label (Only visible when chat window is closed) */}
       {!isOpen && (
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -644,9 +644,9 @@ Joining: ${details.joining || ''}
             Live Chat
           </span>
         )}
-        
+
         {/* Floating Toggle Button */}
-        <button 
+        <button
           className="ts-chat-widget-toggle"
           onClick={() => setIsOpen(!isOpen)}
           aria-label="Toggle Live Chat"
@@ -668,7 +668,7 @@ Joining: ${details.joining || ''}
                   <h3>সরাসরি লাইভ চ্যাট</h3>
                   <p>ফোন নম্বর ও প্রিমিয়াম কোড দিয়ে ভেরিফাই করে সরাসরি আমাদের সাপোর্ট এজেন্টের সাথে চ্যাট শুরু করুন।</p>
                 </div>
-                
+
                 <form onSubmit={handleVerify} className="ts-verify-form">
                   <div className="ts-form-group">
                     <label>Phone Number</label>
@@ -721,11 +721,11 @@ Joining: ${details.joining || ''}
                     <BsX size={24} />
                   </button>
                 </div>
-                
+
                 <div ref={feedRef} className="ts-messages-container" onScroll={handleScroll}>
                   {hasMore && (
-                    <button 
-                      onClick={loadMoreMessages} 
+                    <button
+                      onClick={loadMoreMessages}
                       style={{
                         background: 'transparent',
                         border: 'none',
@@ -752,7 +752,7 @@ Joining: ${details.joining || ''}
                         width: '100%'
                       }}
                     >
-                      <div 
+                      <div
                         className={`ts-message ${msg.sender}`}
                         style={msg.sender === 'bot-auto-comment' ? {
                           backgroundColor: '#fff8e1',
@@ -788,13 +788,13 @@ Joining: ${details.joining || ''}
                     </div>
                   )}
                 </div>
-                
+
                 {showScrollBottom && (
                   <button className="ts-scroll-bottom-btn" onClick={scrollToBottom} aria-label="Scroll to bottom">
                     <BsArrowDownShort size={20} />
                   </button>
                 )}
-                
+
                 {/* Suggestions Panel */}
                 {!input.trim() && (
                   <div className="ts-widget-suggestions">

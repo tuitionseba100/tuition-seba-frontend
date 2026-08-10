@@ -183,7 +183,7 @@ const StatusHistoryReportPage = () => {
 
     const fetchUsers = async () => {
         try {
-            const res = await axios.get('https://tuition-seba-backend-1-vk5b.onrender.com/api/user/users', {
+            const res = await axios.get('https://tuition-seba-backend-16yx.onrender.com/api/user/users', {
                 headers: { Authorization: token }
             });
             setUsersList(res.data);
@@ -194,7 +194,7 @@ const StatusHistoryReportPage = () => {
 
     const fetchSettings = async () => {
         try {
-            const res = await axios.get('https://tuition-seba-backend-1-vk5b.onrender.com/api/settings/marketing_mediums', {
+            const res = await axios.get('https://tuition-seba-backend-16yx.onrender.com/api/settings/marketing_mediums', {
                 headers: { Authorization: token }
             });
             if (res.data && res.data.value) setMarketingMediums(res.data.value);
@@ -238,7 +238,7 @@ const StatusHistoryReportPage = () => {
         setMarketingLoading(true);
         try {
             const queryParams = new URLSearchParams(appliedMarketingFilters).toString();
-            const res = await axios.get(`https://tuition-seba-backend-1-vk5b.onrender.com/api/report/marketing?${queryParams}`, {
+            const res = await axios.get(`https://tuition-seba-backend-16yx.onrender.com/api/report/marketing?${queryParams}`, {
                 headers: { Authorization: token }
             });
             setMarketingReportData(res.data);
@@ -253,7 +253,7 @@ const StatusHistoryReportPage = () => {
     const fetchPaymentReport = async () => {
         setPaymentLoading(true);
         try {
-            const res = await axios.get('https://tuition-seba-backend-1-vk5b.onrender.com/api/payment/route-report', {
+            const res = await axios.get('https://tuition-seba-backend-16yx.onrender.com/api/payment/route-report', {
                 params: appliedPaymentFilters,
                 headers: { Authorization: token }
             });
@@ -269,7 +269,7 @@ const StatusHistoryReportPage = () => {
     const fetchOverallReport = async () => {
         setOverallLoading(true);
         try {
-            const res = await axios.get('https://tuition-seba-backend-1-vk5b.onrender.com/api/payment/overall-report', {
+            const res = await axios.get('https://tuition-seba-backend-16yx.onrender.com/api/payment/overall-report', {
                 params: appliedOverallFilters,
                 headers: { Authorization: token }
             });
@@ -285,7 +285,7 @@ const StatusHistoryReportPage = () => {
     const fetchTodayStats = async () => {
         setStatsLoading(true);
         try {
-            const res = await axios.get('https://tuition-seba-backend-1-vk5b.onrender.com/api/statusHistory/today-report', {
+            const res = await axios.get('https://tuition-seba-backend-16yx.onrender.com/api/statusHistory/today-report', {
                 params: appliedFilters,
                 headers: { Authorization: token }
             });
@@ -301,7 +301,7 @@ const StatusHistoryReportPage = () => {
     const fetchHistoryList = async () => {
         setLoading(true);
         try {
-            const res = await axios.get('https://tuition-seba-backend-1-vk5b.onrender.com/api/statusHistory/list', {
+            const res = await axios.get('https://tuition-seba-backend-16yx.onrender.com/api/statusHistory/list', {
                 params: {
                     page: currentPage,
                     limit: 25,
@@ -395,7 +395,7 @@ const StatusHistoryReportPage = () => {
     const fetchDateDetails = async (dateStr, type, pageNum) => {
         setDetailsLoading(true);
         try {
-            const res = await axios.get('https://tuition-seba-backend-1-vk5b.onrender.com/api/payment/date-details', {
+            const res = await axios.get('https://tuition-seba-backend-16yx.onrender.com/api/payment/date-details', {
                 params: { date: dateStr, type, page: pageNum, limit: 20 },
                 headers: { Authorization: token }
             });
@@ -691,7 +691,7 @@ const StatusHistoryReportPage = () => {
     const handleExportCSV = async () => {
         setExporting(true);
         try {
-            const res = await axios.get('https://tuition-seba-backend-1-vk5b.onrender.com/api/statusHistory/export-csv', {
+            const res = await axios.get('https://tuition-seba-backend-16yx.onrender.com/api/statusHistory/export-csv', {
                 params: {
                     ...appliedFilters
                 },

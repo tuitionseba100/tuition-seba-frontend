@@ -82,8 +82,8 @@ const GeneralPage = () => {
         setLoading(true);
         try {
             const endpoint = searchType === 'phone'
-                ? `https://tuition-seba-backend-1-vk5b.onrender.com/api/generalSearch/phone/${searchTerm}`
-                : `https://tuition-seba-backend-1-vk5b.onrender.com/api/generalSearch/tuition/${searchTerm}`;
+                ? `https://tuition-seba-backend-16yx.onrender.com/api/generalSearch/phone/${searchTerm}`
+                : `https://tuition-seba-backend-16yx.onrender.com/api/generalSearch/tuition/${searchTerm}`;
 
             const response = await axios.get(endpoint);
             setResults(response.data);

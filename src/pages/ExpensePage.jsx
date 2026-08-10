@@ -125,11 +125,11 @@ const ExpensePage = () => {
 
         try {
             const [expRes, summaryRes, todayRes, monthRes, overallRes] = await Promise.all([
-                axios.get(`https://tuition-seba-backend-1-vk5b.onrender.com/api/expense/all?startDate=${start}&endDate=${end}&category=${selectedCategory}&page=${currentPage}&limit=50`, { headers }),
-                axios.get(`https://tuition-seba-backend-1-vk5b.onrender.com/api/expense/summary?startDate=${start}&endDate=${end}&category=${selectedCategory}`, { headers }),
-                axios.get(`https://tuition-seba-backend-1-vk5b.onrender.com/api/expense/summary?startDate=${todayStart}&endDate=${todayEnd}`, { headers }),
-                axios.get(`https://tuition-seba-backend-1-vk5b.onrender.com/api/expense/summary?startDate=${monthStart}&endDate=${monthEnd}`, { headers }),
-                axios.get(`https://tuition-seba-backend-1-vk5b.onrender.com/api/expense/summary`, { headers })
+                axios.get(`https://tuition-seba-backend-16yx.onrender.com/api/expense/all?startDate=${start}&endDate=${end}&category=${selectedCategory}&page=${currentPage}&limit=50`, { headers }),
+                axios.get(`https://tuition-seba-backend-16yx.onrender.com/api/expense/summary?startDate=${start}&endDate=${end}&category=${selectedCategory}`, { headers }),
+                axios.get(`https://tuition-seba-backend-16yx.onrender.com/api/expense/summary?startDate=${todayStart}&endDate=${todayEnd}`, { headers }),
+                axios.get(`https://tuition-seba-backend-16yx.onrender.com/api/expense/summary?startDate=${monthStart}&endDate=${monthEnd}`, { headers }),
+                axios.get(`https://tuition-seba-backend-16yx.onrender.com/api/expense/summary`, { headers })
             ]);
             setExpenses(expRes.data.data || expRes.data);
             setTotalPages(expRes.data.totalPages || 1);
@@ -180,10 +180,10 @@ const ExpensePage = () => {
 
         try {
             if (editMode) {
-                await axios.put(`https://tuition-seba-backend-1-vk5b.onrender.com/api/expense/edit/${currentId}`, submitData, { headers });
+                await axios.put(`https://tuition-seba-backend-16yx.onrender.com/api/expense/edit/${currentId}`, submitData, { headers });
                 toast.success('Expense updated');
             } else {
-                await axios.post('https://tuition-seba-backend-1-vk5b.onrender.com/api/expense/add', submitData, { headers });
+                await axios.post('https://tuition-seba-backend-16yx.onrender.com/api/expense/add', submitData, { headers });
                 toast.success('Expense added');
             }
             setShowModal(false);
@@ -200,7 +200,7 @@ const ExpensePage = () => {
         setDeletingId(id);
         const token = localStorage.getItem('token');
         try {
-            await axios.delete(`https://tuition-seba-backend-1-vk5b.onrender.com/api/expense/delete/${id}`, {
+            await axios.delete(`https://tuition-seba-backend-16yx.onrender.com/api/expense/delete/${id}`, {
                 headers: { Authorization: token }
             });
             toast.success('Deleted');

@@ -8,7 +8,7 @@ import { ToastContainer, toast } from 'react-toastify';
 import { Spinner } from 'react-bootstrap';
 import * as XLSX from 'xlsx';
 
-const BASE_URL = 'https://tuition-seba-backend-1-vk5b.onrender.com/api/phone';
+const BASE_URL = 'https://tuition-seba-backend-16yx.onrender.com/api/phone';
 
 const PhonePage = () => {
     const [phoneList, setPhoneList] = useState([]);

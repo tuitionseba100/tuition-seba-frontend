@@ -1,0 +1,4 @@
+{
+  "PRIMARY_DOMAIN": "https://api.tuitionsebaforum.com",
+  "FALLBACK_DOMAIN": "https://api-2.tuitionsebaforum.com"
+}

@@ -1,4 +1,8 @@
 {
   "PRIMARY_DOMAIN": "https://api.tuitionsebaforum.com",
-  "FALLBACK_DOMAIN": "https://api-2.tuitionsebaforum.com"
+  "FALLBACK_DOMAIN": "https://api-2.tuitionsebaforum.com",
+  "MINIMUM_VERSION": "1.0.3",
+  "SUPPORT_WHATSAPP_NUMBER": "8801633920928",
+  "SUPPORT_WHATSAPP_TEXT": "01633920928",
+  "SUPPORT_PHONE_NUMBER": "01633920928"
 }

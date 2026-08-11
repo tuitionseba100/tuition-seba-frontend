@@ -1,4 +1,19 @@
 {
+    "headers": [
+        {
+            "source": "/app-config.json",
+            "headers": [
+                {
+                    "key": "Access-Control-Allow-Origin",
+                    "value": "*"
+                },
+                {
+                    "key": "Access-Control-Allow-Headers",
+                    "value": "Origin, X-Requested-With, Content-Type, Accept"
+                }
+            ]
+        }
+    ],
     "redirects": [
         {
             "source": "/:path(.+)\\.html",

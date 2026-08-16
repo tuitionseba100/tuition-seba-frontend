@@ -382,7 +382,7 @@ const PremiumTeacherPage = () => {
         if (updatingData.status === 'verified' && editingId && !formData.isSmsSent) {
             const premCode = formData.premiumCode || '';
             const recipient = formData.phone || '';
-            const msg = `প্রিয় শিক্ষক, আপনার প্রোফাইল ভেরিফাই করা হয়েছে। কোড: ${premCode} (এটি গোপন রাখুন)। আপনি টিউশনে আবেদন করতে পারবেন। -টিউশন সেবা ফোরাম`;
+            const msg = `Dear teacher, your profile has been verified. Code: ${premCode} (keep it secret). You can now apply for tuitions. -Tuition Seba Forum`;
             setSmsRecipient(recipient);
             setSmsMessage(msg);
             setShowSmsModal(true);

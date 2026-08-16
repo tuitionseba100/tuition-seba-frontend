@@ -38,7 +38,7 @@ const TuitionSection = () => {
     useEffect(() => {
         setLoading(true);
         axios
-            .get('https://tuition-seba-backend-16yx.onrender.com/api/tuition/available-web')
+            .get('https://tuition-seba-backend-a0pb.onrender.com/api/tuition/available-web')
             .then((res) => {
                 setTuitions(res.data);
                 setFiltered(res.data);

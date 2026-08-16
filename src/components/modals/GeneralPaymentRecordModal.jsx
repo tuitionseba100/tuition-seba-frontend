@@ -66,7 +66,7 @@ const GeneralPaymentRecordModal = ({ show, onHide, editingId, initialData, onSav
         if (role === 'superadmin' || role === 'admin') {
             try {
                 const token = localStorage.getItem('token');
-                const response = await axios.get('https://tuition-seba-backend-16yx.onrender.com/api/user/users', {
+                const response = await axios.get('https://tuition-seba-backend-a0pb.onrender.com/api/user/users', {
                     headers: { Authorization: token }
                 });
                 const options = response.data.map(user => ({

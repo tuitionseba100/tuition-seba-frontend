@@ -1,5 +1,5 @@
 import React from 'react';
-import { Modal, Button, Row, Col } from 'react-bootstrap';
+import { Modal, Button, Row, Col, Badge } from 'react-bootstrap';
 import { FaCopy } from 'react-icons/fa';
 
 const fieldConfig = [
@@ -24,33 +24,36 @@ const fieldConfig = [
     { name: 'guardianNumber', label: 'Guardian Number', group: 'details', col: 4, type: 'text' },
     { name: 'mediaFee', label: 'Media Fee', group: 'details', col: 4, type: 'text' },
 
+    // Admin Info Section
     { name: 'guardian_source_medium', label: 'গার্জিয়ান কিভাবে আমাদের সম্পর্কে জানলো', group: 'admin', col: 6, type: 'text' },
-    { name: 'status', label: 'Status', group: 'admin', col: 6, type: 'select', options: ['available', 'given number', 'guardian meet', 'demo class running', 'confirm', 'cancel'] },
     { name: 'note', label: 'Guardian Demand (Agent)', group: 'admin', col: 6, type: 'text' },
-    { name: 'guardianDemandForPublic', label: 'Guardian Demand (Public)', group: 'admin', col: 6, type: 'text' },
     { name: 'tuitionType', label: 'Tuition Type', group: 'admin', col: 6, type: 'text' },
-    { name: 'tutorNumber', label: 'Teacher Number', group: 'admin', col: 6, type: 'text' },
+    { name: 'guardianDemandForPublic', label: 'Guardian Demand (Public)', group: 'admin', col: 6, type: 'text' },
     { name: 'lastAvailableCheck', label: 'Last Available Check', group: 'admin', col: 6, type: 'datetime-local' },
-    { name: 'lastUpdate', label: 'Last Update', group: 'admin', col: 6, type: 'datetime-local' },
-    { name: 'lastUpdateComment', label: 'Last Update Comment', group: 'admin', col: 6, type: 'text' },
-
-    { name: 'nextUpdateDate', label: 'Next Update Date', group: 'admin', col: 6, type: 'datetime-local' },
-    { name: 'nextUpdateComment', label: 'Next Update Comment', group: 'admin', col: 6, type: 'text' },
-
-    { name: 'comment1', label: 'Cancel Teacher 1', group: 'admin', col: 6, type: 'text' },
-    { name: 'comment2', label: 'Cancel Teacher 2', group: 'admin', col: 6, type: 'text' },
-    { name: 'tuitionCancelReason', label: 'Tuition Cancel Reason', group: 'admin', col: 6, type: 'text' },
     { name: 'tuitionCancelReasonPublic', label: 'Tuition Cancel Reason Public', group: 'admin', col: 6, type: 'text' },
     { name: 'guardianBehavior', label: 'Guardian Behavior', group: 'admin', col: 6, type: 'text' },
-    { name: 'agentComment', label: 'Agent Comment', group: 'admin', col: 12, type: 'text' },
+    { name: 'agentComment', label: 'Agent Comment', group: 'admin', col: 6, type: 'text' },
 
-    { name: 'isPublish', label: 'Publish', group: 'admin', col: 4, type: 'switch', defaultValue: false },
-    { name: 'isUrgent', label: 'Is Emergency?', group: 'admin', col: 4, type: 'switch', defaultValue: false },
-    { name: 'applyType', label: 'Apply Type', group: 'admin', col: 4, type: 'text' },
-    { name: 'isReviewDone', label: 'Review Done?', group: 'admin', col: 4, type: 'switch', defaultValue: false },
-    { name: 'assignedTo', label: 'Assigned To', group: 'admin', col: 6, type: 'text' },
-    { name: 'createdBy', label: 'Created By', group: 'admin', col: 6, type: 'text' },
-    { name: 'updatedBy', label: 'Updated By', group: 'admin', col: 6, type: 'text' },
+    // Update Section
+    { name: 'tutorNumber', label: 'Current Teacher Number', group: 'update', col: 6, type: 'text' },
+    { name: 'tuitionCancelReason', label: 'Current teacher comment box', group: 'update', col: 6, type: 'text' },
+    { name: 'lastUpdate', label: 'last Update date', group: 'update', col: 6, type: 'datetime-local' },
+    { name: 'lastUpdateComment', label: 'Last Update comment', group: 'update', col: 6, type: 'text' },
+    { name: 'nextUpdateDate', label: 'Next Update date', group: 'update', col: 6, type: 'datetime-local' },
+    { name: 'nextUpdateComment', label: 'Next update comment', group: 'update', col: 6, type: 'text' },
+    { name: 'comment1', label: 'Cancel teacher 1', group: 'update', col: 6, type: 'text' },
+    { name: 'comment2', label: 'Cancel teacher 2', group: 'update', col: 6, type: 'text' },
+
+    // Others Section
+    { name: 'status', label: 'Status', group: 'others', col: 4, type: 'select', options: ['available', 'given number', 'guardian meet', 'demo class running', 'confirm', 'cancel'] },
+    { name: 'assignedTo', label: 'Assigned Now', group: 'others', col: 4, type: 'text' },
+    { name: 'applyType', label: 'Apply Type', group: 'others', col: 4, type: 'text' },
+    { name: 'isReviewDone', label: 'Review Done', group: 'others', col: 3, type: 'switch', defaultValue: false },
+    { name: 'isPublish', label: 'Publish', group: 'others', col: 3, type: 'switch', defaultValue: false },
+    { name: 'isUrgent', label: 'Is Emergency?', group: 'others', col: 3, type: 'switch', defaultValue: false },
+    { name: 'isPaymentCreated', label: 'Payment Created?', group: 'others', col: 3, type: 'switch', defaultValue: false },
+    { name: 'createdBy', label: 'Created By', group: 'others', col: 6, type: 'text' },
+    { name: 'updatedBy', label: 'Update by', group: 'others', col: 6, type: 'text' },
 ];
 
 const formatDateTimeDisplay = (isoString) => {
@@ -198,49 +201,88 @@ export default function TuitionDetailsModal({ show, onHide, detailsData, onCopy 
                     padding: '1rem 1.5rem',
                 }}
             >
-                {Object.entries(groups).map(([groupName, fields]) => (
-                    <div
-                        key={groupName}
-                        className="mb-5 p-3 rounded"
-                        style={{
-                            backgroundColor: groupName === 'admin' ? '#e9f0ff' : '#fefefe',
-                            border: '1px solid rgba(13,110,253,0.2)',
-                            boxShadow: '0 0 10px rgba(13, 110, 253, 0.05)',
-                        }}
-                    >
-                        <h5
-                            className="mb-4 text-capitalize fw-semibold"
-                            style={{ borderBottom: '2px solid rgba(13, 110, 253, 0.5)', paddingBottom: '0.5rem' }}
+                {Object.entries(groups).map(([groupName, fields]) => {
+                    const getGroupTitle = (name) => {
+                        switch (name) {
+                            case 'details': return 'Tuition Details';
+                            case 'admin': return 'Admin Info';
+                            case 'update': return 'Update Section';
+                            case 'others': return 'Others Section';
+                            default: return name;
+                        }
+                    };
+                    const getGroupBg = (name) => {
+                        switch (name) {
+                            case 'details': return '#fefefe';
+                            case 'admin': return '#e9f0ff';
+                            case 'update': return '#f0fbf4';
+                            case 'others': return '#fafafa';
+                            default: return '#ffffff';
+                        }
+                    };
+                    return (
+                        <div
+                            key={groupName}
+                            className="mb-5 p-3 rounded"
+                            style={{
+                                backgroundColor: getGroupBg(groupName),
+                                border: '1px solid rgba(13,110,253,0.2)',
+                                boxShadow: '0 0 10px rgba(13, 110, 253, 0.05)',
+                            }}
                         >
-                            {groupName === 'admin' ? 'Admin Info' : 'Tuition Details'}
-                        </h5>
+                            <h5
+                                className="mb-4 text-capitalize fw-semibold"
+                                style={{ borderBottom: '2px solid rgba(13, 110, 253, 0.5)', paddingBottom: '0.5rem' }}
+                            >
+                                {getGroupTitle(groupName)}
+                            </h5>
 
-                        <Row className="gy-3">
-                            {fields.map(field => (
-                                <Col md={field.col || 6} key={field.name}>
-                                    <div>
-                                        <label className="fw-semibold">{field.label}</label>
-                                        <div
-                                            style={{
-                                                minHeight: '38px',
-                                                padding: '6px 12px',
-                                                backgroundColor: 'white',
-                                                borderRadius: '0.375rem',
-                                                border: '1.5px solid rgba(13,110,253,0.3)',
-                                                boxShadow: '0 0 6px rgba(13,110,253,0.12)',
-                                                color: '#212529',
-                                                userSelect: 'text',
-                                                whiteSpace: 'pre-wrap',
-                                            }}
-                                        >
-                                            {displayValue(field)}
+                            <Row className="gy-3">
+                                {fields.map(field => (
+                                    <Col md={field.col || 6} key={field.name}>
+                                        <div>
+                                            <label className="fw-semibold">{field.label}</label>
+                                            {field.type === 'switch' ? (
+                                                <div className="d-flex align-items-center" style={{ minHeight: '38px' }}>
+                                                    <Badge
+                                                        bg={detailsData?.[field.name] ? 'success' : 'danger'}
+                                                        style={{
+                                                            fontSize: '0.85rem',
+                                                            padding: '6px 14px',
+                                                            borderRadius: '20px',
+                                                            fontWeight: '700',
+                                                            display: 'inline-flex',
+                                                            alignItems: 'center',
+                                                            gap: '4px',
+                                                        }}
+                                                    >
+                                                        {detailsData?.[field.name] ? 'Yes' : 'No'}
+                                                    </Badge>
+                                                </div>
+                                            ) : (
+                                                <div
+                                                    style={{
+                                                        minHeight: '38px',
+                                                        padding: '6px 12px',
+                                                        backgroundColor: 'white',
+                                                        borderRadius: '0.375rem',
+                                                        border: '1.5px solid rgba(13,110,253,0.3)',
+                                                        boxShadow: '0 0 6px rgba(13,110,253,0.12)',
+                                                        color: '#212529',
+                                                        userSelect: 'text',
+                                                        whiteSpace: 'pre-wrap',
+                                                    }}
+                                                >
+                                                    {displayValue(field)}
+                                                </div>
+                                            )}
                                         </div>
-                                    </div>
-                                </Col>
-                            ))}
-                        </Row>
-                    </div>
-                ))}
+                                    </Col>
+                                ))}
+                            </Row>
+                        </div>
+                    );
+                })}
                 {/* Confirmation Follow-up History */}
                 {(detailsData?.status === 'confirm' || (detailsData?.confirmationFollowUps && detailsData.confirmationFollowUps.length > 0)) && (
                     <div

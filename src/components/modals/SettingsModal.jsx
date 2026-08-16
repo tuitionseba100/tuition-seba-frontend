@@ -81,7 +81,7 @@ const SettingsModal = ({ show, onClose }) => {
             }
 
             try {
-                const response = await fetchWithFallback('https://tuition-seba-backend-16yx.onrender.com/api/regTeacher/check-apply-possible',
+                const response = await fetchWithFallback('https://tuition-seba-backend-a0pb.onrender.com/api/regTeacher/check-apply-possible',
                     {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },

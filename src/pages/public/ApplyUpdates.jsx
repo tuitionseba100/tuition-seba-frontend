@@ -35,7 +35,7 @@ const ApplyUpdates = () => {
 
         try {
             const response = await fetchWithFallback(
-                `https://tuition-seba-backend-16yx.onrender.com/api/tuitionApply/getTuitionStatusesByPhone?phone=${phoneToSearch}`
+                `https://tuition-seba-backend-a0pb.onrender.com/api/tuitionApply/getTuitionStatusesByPhone?phone=${phoneToSearch}`
             );
 
             if (!response.ok) {
@@ -83,7 +83,7 @@ const ApplyUpdates = () => {
         setShowModal(true);
         try {
             const response = await fetchWithFallback(
-                `https://tuition-seba-backend-16yx.onrender.com/api/tuition/byCodePublic?tuitionCode=${tuitionCode}`
+                `https://tuition-seba-backend-a0pb.onrender.com/api/tuition/byCodePublic?tuitionCode=${tuitionCode}`
             );
             if (!response.ok) {
                 throw new Error('টিউশন কোড পাওয়া যায়নি');

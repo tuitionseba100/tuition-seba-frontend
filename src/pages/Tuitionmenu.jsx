@@ -57,7 +57,7 @@ const TuitionPage = () => {
         setShowStatusHistoryModal(true);
         setStatusHistoryLoading(true);
         try {
-            const response = await axios.get(`https://tuition-seba-backend-16yx.onrender.com/api/statusHistory/history/${moduleName}/${id}`, {
+            const response = await axios.get(`https://tuition-seba-backend-a0pb.onrender.com/api/statusHistory/history/${moduleName}/${id}`, {
                 headers: { Authorization: token }
             });
             setStatusHistoryList(response.data);
@@ -279,9 +279,9 @@ const TuitionPage = () => {
             }
 
             const [alertRes, pendingRes, guardianRes] = await Promise.all([
-                axios.get('https://tuition-seba-backend-16yx.onrender.com/api/tuition/alert-today', { params: alertParams }),
-                axios.get('https://tuition-seba-backend-16yx.onrender.com/api/tuition/pending-payment-creation'),
-                axios.get('https://tuition-seba-backend-16yx.onrender.com/api/tuition/guardian-followup-today', { params: alertParams })
+                axios.get('https://tuition-seba-backend-a0pb.onrender.com/api/tuition/alert-today', { params: alertParams }),
+                axios.get('https://tuition-seba-backend-a0pb.onrender.com/api/tuition/pending-payment-creation'),
+                axios.get('https://tuition-seba-backend-a0pb.onrender.com/api/tuition/guardian-followup-today', { params: alertParams })
             ]);
 
             setTuitionNeedsUpdateList(alertRes.data);
@@ -300,7 +300,7 @@ const TuitionPage = () => {
             if (role === 'superadmin' || role === 'admin') {
                 try {
                     const token = localStorage.getItem('token');
-                    const response = await axios.get('https://tuition-seba-backend-16yx.onrender.com/api/user/users', {
+                    const response = await axios.get('https://tuition-seba-backend-a0pb.onrender.com/api/user/users', {
                         headers: { Authorization: token }
                     });
                     const users = response.data.map(user => ({
@@ -346,7 +346,7 @@ const TuitionPage = () => {
         setIsMigrating(true);
         try {
             const token = localStorage.getItem('token');
-            const response = await axios.post('https://tuition-seba-backend-16yx.onrender.com/api/tuition/auto-migrate', {
+            const response = await axios.post('https://tuition-seba-backend-a0pb.onrender.com/api/tuition/auto-migrate', {
                 tuitionIds: selectedMigrationIds
             }, {
                 headers: { Authorization: token }
@@ -386,7 +386,7 @@ const TuitionPage = () => {
     const fetchTuitionRecords = async () => {
         setLoading(true);
         try {
-            const response = await axios.get('https://tuition-seba-backend-16yx.onrender.com/api/tuition/getTableData', {
+            const response = await axios.get('https://tuition-seba-backend-a0pb.onrender.com/api/tuition/getTableData', {
                 params: {
                     page: currentPage,
                     tuitionCode: appliedFilters.tuitionCode,
@@ -435,7 +435,7 @@ const TuitionPage = () => {
                 applyType: appliedFilters.applyTypeFilter || undefined
             };
 
-            const res = await axios.get('https://tuition-seba-backend-16yx.onrender.com/api/tuition/summary', {
+            const res = await axios.get('https://tuition-seba-backend-a0pb.onrender.com/api/tuition/summary', {
                 params: params
             });
             setExcelTuitionList(res.data.data);
@@ -464,7 +464,7 @@ const TuitionPage = () => {
             try {
                 const statusForFileName = selectedExportStatus.replace(/\s+/g, '_').toLowerCase();
                 const link = document.createElement('a');
-                link.href = `https://tuition-seba-backend-16yx.onrender.com/api/tuition/exportData?status=${selectedExportStatus}`;
+                link.href = `https://tuition-seba-backend-a0pb.onrender.com/api/tuition/exportData?status=${selectedExportStatus}`;
                 link.target = '_blank';
                 // Match backend file naming and CSV extension
                 link.download = `tuition_apply_${statusForFileName}.csv`;
@@ -543,7 +543,7 @@ const TuitionPage = () => {
         if (confirmDelete) {
             try {
                 setDeleteLoading(true);
-                await axios.delete(`https://tuition-seba-backend-16yx.onrender.com/api/tuition/delete/${id}`);
+                await axios.delete(`https://tuition-seba-backend-a0pb.onrender.com/api/tuition/delete/${id}`);
                 toast.success("Tuition record deleted successfully!");
                 await fetchTuitionRecords();
                 await fetchSummaryCounts();
@@ -875,7 +875,7 @@ const TuitionPage = () => {
 
                     <Col md="auto">
                         <Form.Label className="fw-bold d-block" style={getLabelStyle(searchInputs.type)}>Type Filter</Form.Label>
-                        <div className="d-flex flex-wrap align-items-center border rounded px-3 bg-white" style={{ 
+                        <div className="d-flex flex-wrap align-items-center border rounded px-3 bg-white" style={{
                             minHeight: '38px',
                             border: searchInputs.type ? '2px solid #0d6efd' : '1px solid #ced4da',
                             backgroundColor: searchInputs.type ? '#f0f8ff' : '#fff'
@@ -915,7 +915,7 @@ const TuitionPage = () => {
 
                     <Col md="auto">
                         <Form.Label className="fw-bold d-block" style={getLabelStyle(searchInputs.isReviewDone)}>Review Filter</Form.Label>
-                        <div className="d-flex flex-wrap align-items-center border rounded px-3 bg-white" style={{ 
+                        <div className="d-flex flex-wrap align-items-center border rounded px-3 bg-white" style={{
                             minHeight: '38px',
                             border: searchInputs.isReviewDone ? '2px solid #0d6efd' : '1px solid #ced4da',
                             backgroundColor: searchInputs.isReviewDone ? '#f0f8ff' : '#fff'
@@ -1607,7 +1607,7 @@ const TuitionPage = () => {
                             <div className="alternating-timeline" style={{ position: 'relative', padding: '20px 0' }}>
                                 {/* Central line */}
                                 <div style={{ position: 'absolute', top: 0, bottom: 0, left: '50%', width: '3px', backgroundColor: '#dee2e6', transform: 'translateX(-50%)' }} />
-                                
+
                                 {statusHistoryList.map((log, index) => {
                                     const isLeft = index % 2 === 0;
                                     return (
@@ -1635,19 +1635,19 @@ const TuitionPage = () => {
                                             </div>
 
                                             {/* Dot indicator in the center */}
-                                            <div 
-                                                style={{ 
-                                                    position: 'absolute', 
-                                                    left: '50%', 
-                                                    transform: 'translateX(-50%)', 
-                                                    width: '16px', 
-                                                    height: '16px', 
-                                                    borderRadius: '50%', 
+                                            <div
+                                                style={{
+                                                    position: 'absolute',
+                                                    left: '50%',
+                                                    transform: 'translateX(-50%)',
+                                                    width: '16px',
+                                                    height: '16px',
+                                                    borderRadius: '50%',
                                                     backgroundColor: index === 0 ? '#0d6efd' : '#adb5bd',
                                                     border: '3px solid #fff',
                                                     boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
                                                     zIndex: 5
-                                                }} 
+                                                }}
                                             />
 
                                             {/* Right Card */}
@@ -1809,7 +1809,7 @@ const MemoizedTuitionTable = React.memo(({
                                 )}
                             </td>
 
-                            <td 
+                            <td
                                 className={tuition.isPublish ? "text-success fw-bold" : "text-danger fw-bold"}
                                 onClick={() => handleShowStatusHistory('Tuition', tuition._id, tuition.tuitionCode)}
                                 style={{ cursor: 'pointer' }}
@@ -1830,7 +1830,7 @@ const MemoizedTuitionTable = React.memo(({
                                 </div>
                             </td>
                             <td>
-                                <span 
+                                <span
                                     onClick={() => handleShowStatusHistory('Tuition', tuition._id, tuition.tuitionCode)}
                                     style={{ cursor: 'pointer' }}
                                     title="Click to view status history"

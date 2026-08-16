@@ -27,32 +27,34 @@ const fieldConfig = [
     { name: 'guardianNumber', label: 'Guardian Number', group: 'details', col: 4, type: 'text' },
     { name: 'mediaFee', label: 'Media Fee', group: 'details', col: 4, type: 'text' },
 
+    // Admin Info Section
     { name: 'guardian_source_medium', label: 'গার্জিয়ান কিভাবে আমাদের সম্পর্কে জানলো', group: 'admin', col: 6, type: 'select', options: [] },
-    { name: 'status', label: 'Status', group: 'admin', col: 6, type: 'select', options: ['available', 'given number', 'guardian meet', 'demo class running', 'confirm', 'cancel', 'refer BM', 'suspended', 'guardian no response', 'request for payment'] },
-    { name: 'tuitionCancelReasonPublic', label: 'Tuition Cancel Reason (Public)', group: 'admin', col: 6, type: 'text' },
     { name: 'note', label: 'Guardian Demand (Agent)', group: 'admin', col: 6, type: 'text' },
-    { name: 'guardianDemandForPublic', label: 'Guardian Demand (Public)', group: 'admin', col: 6, type: 'textarea' },
     { name: 'tuitionType', label: 'Tuition Type', group: 'admin', col: 6, type: 'select', options: ['High Salary - High Demand', 'High Salary - Medium Demand', 'High Salary - Low Demand', 'Medium Salary - High Demand', 'Medium Salary - Medium Demand', 'Medium Salary - Low Demand', 'Low Salary - High Demand', 'Low Salary - Medium Demand', 'Low Salary - Low Demand'] },
-    { name: 'tutorNumber', label: 'Teacher Number', group: 'admin', col: 6, type: 'text' },
+    { name: 'guardianDemandForPublic', label: 'Guardian Demand (Public)', group: 'admin', col: 6, type: 'textarea' },
     { name: 'lastAvailableCheck', label: 'Last Available Check', group: 'admin', col: 6, type: 'datetime-local' },
-    { name: 'lastUpdate', label: 'Last Update', group: 'admin', col: 6, type: 'datetime-local' },
-    { name: 'lastUpdateComment', label: 'Last Update Comment', group: 'admin', col: 6, type: 'text' },
-
-    { name: 'nextUpdateDate', label: 'Next Update Date', group: 'admin', col: 6, type: 'datetime-local' },
-    { name: 'nextUpdateComment', label: 'Next Update Comment', group: 'admin', col: 6, type: 'text' },
-
-    { name: 'comment1', label: 'Cancel Teacher 1', group: 'admin', col: 6, type: 'text' },
-    { name: 'comment2', label: 'Cancel Teacher 2', group: 'admin', col: 6, type: 'text' },
-    { name: 'tuitionCancelReason', label: 'Tuition Cancel Reason', group: 'admin', col: 6, type: 'text' },
+    { name: 'tuitionCancelReasonPublic', label: 'Tuition Cancel Reason Public', group: 'admin', col: 6, type: 'text' },
     { name: 'guardianBehavior', label: 'Guardian Behavior', group: 'admin', col: 6, type: 'text' },
-    { name: 'agentComment', label: 'Agent Comment', group: 'admin', col: 12, type: 'textarea' },
+    { name: 'agentComment', label: 'Agent Comment', group: 'admin', col: 6, type: 'textarea' },
 
-    { name: 'isPublish', label: 'Publish', group: 'admin', col: 4, type: 'switch', defaultValue: false },
-    { name: 'isUrgent', label: 'Is Emergency?', group: 'admin', col: 4, type: 'switch', defaultValue: false },
-    { name: 'applyType', label: 'Apply Type', group: 'admin', col: 4, type: 'select', options: ['Server', 'WhatsApp', 'Chat'], defaultValue: 'Server' },
-    { name: 'isPaymentCreated', label: 'Payment Created?', group: 'admin', col: 4, type: 'switch', defaultValue: false },
-    { name: 'isReviewDone', label: 'Review Done?', group: 'admin', col: 4, type: 'switch', defaultValue: false },
-    { name: 'assignedTo', label: 'Assigned To', group: 'admin', col: 6, type: 'select', options: [] }, // Options will be populated dynamically
+    // Update Section
+    { name: 'tutorNumber', label: 'Current Teacher Number', group: 'update', col: 6, type: 'text' },
+    { name: 'tuitionCancelReason', label: 'Current teacher comment box', group: 'update', col: 6, type: 'text' },
+    { name: 'lastUpdate', label: 'last Update date', group: 'update', col: 6, type: 'datetime-local' },
+    { name: 'lastUpdateComment', label: 'Last Update comment', group: 'update', col: 6, type: 'text' },
+    { name: 'nextUpdateDate', label: 'Next Update date', group: 'update', col: 6, type: 'datetime-local' },
+    { name: 'nextUpdateComment', label: 'Next update comment', group: 'update', col: 6, type: 'text' },
+    { name: 'comment1', label: 'Cancel teacher 1', group: 'update', col: 6, type: 'text' },
+    { name: 'comment2', label: 'Cancel teacher 2', group: 'update', col: 6, type: 'text' },
+
+    // Others Section
+    { name: 'status', label: 'Status', group: 'others', col: 4, type: 'select', options: ['available', 'given number', 'guardian meet', 'demo class running', 'confirm', 'cancel', 'refer BM', 'suspended', 'guardian no response', 'request for payment'] },
+    { name: 'assignedTo', label: 'Assigned Now', group: 'others', col: 4, type: 'select', options: [] },
+    { name: 'applyType', label: 'Apply Type', group: 'others', col: 4, type: 'select', options: ['Server', 'WhatsApp', 'Chat'], defaultValue: 'Server' },
+    { name: 'isReviewDone', label: 'Review Done', group: 'others', col: 3, type: 'switch', defaultValue: false },
+    { name: 'isPublish', label: 'Publish', group: 'others', col: 3, type: 'switch', defaultValue: false },
+    { name: 'isUrgent', label: 'Is Emergency?', group: 'others', col: 3, type: 'switch', defaultValue: false },
+    { name: 'isPaymentCreated', label: 'Payment Created?', group: 'others', col: 3, type: 'switch', defaultValue: false },
 ];
 
 const groups = fieldConfig.reduce((acc, field) => {
@@ -135,7 +137,7 @@ export default function TuitionModal({ show, onHide, editingData = null, editing
             if (role === 'superadmin') {
                 try {
                     const token = localStorage.getItem('token');
-                    const response = await axios.get('https://tuition-seba-backend-16yx.onrender.com/api/user/users', {
+                    const response = await axios.get('https://tuition-seba-backend-a0pb.onrender.com/api/user/users', {
                         headers: { Authorization: token }
                     });
                     const users = response.data.map(user => ({
@@ -152,7 +154,7 @@ export default function TuitionModal({ show, onHide, editingData = null, editing
         const fetchSettings = async () => {
             try {
                 const token = localStorage.getItem('token');
-                const response = await axios.get('https://tuition-seba-backend-16yx.onrender.com/api/settings/marketing_mediums', {
+                const response = await axios.get('https://tuition-seba-backend-a0pb.onrender.com/api/settings/marketing_mediums', {
                     headers: { Authorization: token }
                 });
                 if (response.data && response.data.value) {
@@ -289,11 +291,11 @@ export default function TuitionModal({ show, onHide, editingData = null, editing
                 updatedBy: username,
             };
             if (editingId) {
-                await axios.put(`https://tuition-seba-backend-16yx.onrender.com/api/tuition/edit/${editingId}`, updatedTuitionData);
+                await axios.put(`https://tuition-seba-backend-a0pb.onrender.com/api/tuition/edit/${editingId}`, updatedTuitionData);
                 toast.success('Tuition record updated successfully!');
             } else {
                 updatedTuitionData.createdBy = username;
-                await axios.post('https://tuition-seba-backend-16yx.onrender.com/api/tuition/add', updatedTuitionData);
+                await axios.post('https://tuition-seba-backend-a0pb.onrender.com/api/tuition/add', updatedTuitionData);
                 toast.success('Tuition record created successfully!');
             }
             onHide();
@@ -363,22 +365,41 @@ export default function TuitionModal({ show, onHide, editingData = null, editing
                         )}
 
                         <Form>
-                            {Object.entries(groups).map(([groupName, fields]) => (
-                                <div
-                                    key={groupName}
-                                    className="mb-5 p-3 rounded"
-                                    style={{
-                                        backgroundColor: groupName === 'admin' ? '#e9f0ff' : '#fefefe',
-                                        border: '1px solid rgba(13,110,253,0.2)',
-                                        boxShadow: '0 0 10px rgba(13, 110, 253, 0.05)',
-                                    }}
-                                >
-                                    <h5
-                                        className="mb-4 text-capitalize fw-semibold"
-                                        style={{ borderBottom: '2px solid rgba(13, 110, 253, 0.5)', paddingBottom: '0.5rem' }}
+                            {Object.entries(groups).map(([groupName, fields]) => {
+                                const getGroupTitle = (name) => {
+                                    switch (name) {
+                                        case 'details': return 'Tuition Details';
+                                        case 'admin': return 'Admin Info';
+                                        case 'update': return 'Update Section';
+                                        case 'others': return 'Others Section';
+                                        default: return name;
+                                    }
+                                };
+                                const getGroupBg = (name) => {
+                                    switch (name) {
+                                        case 'details': return '#fefefe';
+                                        case 'admin': return '#e9f0ff';
+                                        case 'update': return '#f0fbf4';
+                                        case 'others': return '#fafafa';
+                                        default: return '#ffffff';
+                                    }
+                                };
+                                return (
+                                    <div
+                                        key={groupName}
+                                        className="mb-5 p-3 rounded"
+                                        style={{
+                                            backgroundColor: getGroupBg(groupName),
+                                            border: '1px solid rgba(13,110,253,0.2)',
+                                            boxShadow: '0 0 10px rgba(13, 110, 253, 0.05)',
+                                        }}
                                     >
-                                        {groupName === 'admin' ? 'Admin Info' : 'Tuition Details'}
-                                    </h5>
+                                        <h5
+                                            className="mb-4 text-capitalize fw-semibold"
+                                            style={{ borderBottom: '2px solid rgba(13, 110, 253, 0.5)', paddingBottom: '0.5rem' }}
+                                        >
+                                            {getGroupTitle(groupName)}
+                                        </h5>
 
                                     <Row className="gy-3">
                                         {fields.map(field => {
@@ -595,8 +616,9 @@ export default function TuitionModal({ show, onHide, editingData = null, editing
                                             );
                                         })}
                                     </Row>
-                                </div>
-                            ))}
+                                    </div>
+                                );
+                            })}
                         </Form>
                     </div>
                 </Modal.Body>

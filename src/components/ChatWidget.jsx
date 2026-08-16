@@ -4,7 +4,7 @@ import { BsChatDotsFill, BsX, BsArrowRightShort, BsTelephone, BsKey, BsSendFill,
 import { fetchWithFallback } from '../services/fetchWithFallback';
 import './ChatWidget.css';
 
-const BASE_URL = 'https://tuition-seba-backend-16yx.onrender.com';
+const BASE_URL = 'https://tuition-seba-backend-a0pb.onrender.com';
 
 
 
@@ -265,7 +265,7 @@ Joining: ${details.joining || ''}
                   phone: data.data.phone,
                   premiumCode: data.data.premiumCode
                 };
-                
+
                 // Save user settings to localStorage so they don't lose session
                 const settingsData = {
                   userName: currentUser.name,

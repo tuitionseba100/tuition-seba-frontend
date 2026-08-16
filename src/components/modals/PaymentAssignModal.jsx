@@ -21,7 +21,7 @@ const PaymentAssignModal = ({ show, onHide, payment, fetchPaymentRecords, fetchA
         setFetchingUsers(true);
         try {
             const token = localStorage.getItem('token');
-            const response = await axios.get('https://tuition-seba-backend-16yx.onrender.com/api/user/users', {
+            const response = await axios.get('https://tuition-seba-backend-a0pb.onrender.com/api/user/users', {
                 headers: { Authorization: token }
             });
             setUsers(response.data);
@@ -45,7 +45,7 @@ const PaymentAssignModal = ({ show, onHide, payment, fetchPaymentRecords, fetchA
         setLoading(true);
         try {
             const username = localStorage.getItem('username');
-            await axios.put(`https://tuition-seba-backend-16yx.onrender.com/api/payment/edit/${payment._id}`, {
+            await axios.put(`https://tuition-seba-backend-a0pb.onrender.com/api/payment/edit/${payment._id}`, {
                 assignedTo: assignedTo,
                 updatedBy: username
             });

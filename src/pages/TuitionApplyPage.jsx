@@ -63,7 +63,7 @@ const TuitionPage = () => {
         setShowStatusHistoryModal(true);
         setStatusHistoryLoading(true);
         try {
-            const response = await axios.get(`https://tuition-seba-backend-16yx.onrender.com/api/statusHistory/history/${moduleName}/${id}`, {
+            const response = await axios.get(`https://tuition-seba-backend-a0pb.onrender.com/api/statusHistory/history/${moduleName}/${id}`, {
                 headers: { Authorization: token }
             });
             setStatusHistoryList(response.data);
@@ -84,7 +84,7 @@ const TuitionPage = () => {
         }
         setFetchingDetails(true);
         try {
-            const response = await axios.get(`https://tuition-seba-backend-16yx.onrender.com/api/tuition/${tuitionId}`);
+            const response = await axios.get(`https://tuition-seba-backend-a0pb.onrender.com/api/tuition/${tuitionId}`);
             if (response.data) {
                 setTuitionDetails(response.data);
                 setDetailsModalShow(true);
@@ -163,7 +163,7 @@ const TuitionPage = () => {
     const fetchTuitionApplyRecords = async (page = 1) => {
         setLoading(true);
         try {
-            const response = await axios.get('https://tuition-seba-backend-16yx.onrender.com/api/tuitionApply/getTableData', {
+            const response = await axios.get('https://tuition-seba-backend-a0pb.onrender.com/api/tuitionApply/getTableData', {
                 params: {
                     page: currentPage,
                     tuitionCode: appliedFilters.tuitionCode,
@@ -196,7 +196,7 @@ const TuitionPage = () => {
     };
 
     const fetchCardSummary = () => {
-        axios.get('https://tuition-seba-backend-16yx.onrender.com/api/tuitionApply/summary', {
+        axios.get('https://tuition-seba-backend-a0pb.onrender.com/api/tuitionApply/summary', {
             params: {
                 tuitionCode: appliedFilters.tuitionCode,
                 phone: appliedFilters.phone,
@@ -232,7 +232,7 @@ const TuitionPage = () => {
             try {
                 const statusForFileName = selectedExportStatus.replace(/\s+/g, '_').toLowerCase();
                 const link = document.createElement('a');
-                link.href = `https://tuition-seba-backend-16yx.onrender.com/api/tuitionApply/exportData?status=${selectedExportStatus}`;
+                link.href = `https://tuition-seba-backend-a0pb.onrender.com/api/tuitionApply/exportData?status=${selectedExportStatus}`;
                 link.target = '_blank';
                 // Match backend file naming and CSV extension
                 link.download = selectedExportStatus.toLowerCase() === 'all'
@@ -265,10 +265,10 @@ const TuitionPage = () => {
         };
         try {
             if (editingId) {
-                await axios.put(`https://tuition-seba-backend-16yx.onrender.com/api/tuitionApply/edit/${editingId}`, updatedTuitionData);
+                await axios.put(`https://tuition-seba-backend-a0pb.onrender.com/api/tuitionApply/edit/${editingId}`, updatedTuitionData);
                 toast.success("Tuition apply record updated successfully!");
             } else {
-                await axios.post('https://tuition-seba-backend-16yx.onrender.com/api/tuitionApply/add-web', updatedTuitionData);
+                await axios.post('https://tuition-seba-backend-a0pb.onrender.com/api/tuitionApply/add-web', updatedTuitionData);
                 toast.success("Tuition apply record created successfully!");
             }
             setShowModal(false);
@@ -311,7 +311,7 @@ const TuitionPage = () => {
         if (confirmDelete) {
             setDeleting(true);
             try {
-                await axios.delete(`https://tuition-seba-backend-16yx.onrender.com/api/tuitionApply/delete/${id}`);
+                await axios.delete(`https://tuition-seba-backend-a0pb.onrender.com/api/tuitionApply/delete/${id}`);
                 toast.success("Tuition record deleted successfully!");
                 fetchTuitionApplyRecords();
             } catch (err) {

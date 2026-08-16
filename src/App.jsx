@@ -107,6 +107,7 @@ import ComplaintSuggestionPage from './pages/public/ComplaintSuggestionPage';
 import ComplaintSuggestionAdminPage from './pages/ComplaintSuggestionAdminPage';
 import AdminChatConsole from './pages/AdminChatConsole';
 import LiveChatPage from './pages/public/LiveChatPage';
+import SmsLogPage from './pages/SmsLogPage';
 
 const AppRedirect = () => {
   React.useEffect(() => {
@@ -154,7 +155,7 @@ const App = () => {
             <Route path="general" element={<GeneralPage />} />
             <Route path="complaints" element={<ComplaintSuggestionAdminPage />} />
             <Route path="chat" element={<AdminChatConsole />} />
-
+            <Route path="sms-logs" element={<SmsLogPage />} />
           </Route>
 
           <Route element={<PrivateRoute role="superadmin" />}>

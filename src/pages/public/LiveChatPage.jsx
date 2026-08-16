@@ -10,7 +10,7 @@ import { fetchWithFallback } from '../../services/fetchWithFallback';
 
 const BANGLA_FONT = "'Hind Siliguri', 'Inter', sans-serif";
 
-const BASE_URL = 'https://tuition-seba-backend-a0pb.onrender.com';
+const BASE_URL = 'https://tuition-seba-backend-1-lpfs.onrender.com';
 
 
 

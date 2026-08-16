@@ -59,7 +59,7 @@ const ApplyModal = ({ show, onClose, tuitionCode, tuitionId }) => {
             }
 
             if (tuitionId) {
-                fetchWithFallback(`https://tuition-seba-backend-a0pb.onrender.com/api/tuitionApply/get-auto-comment/${tuitionId}`)
+                fetchWithFallback(`https://tuition-seba-backend-1-lpfs.onrender.com/api/tuitionApply/get-auto-comment/${tuitionId}`)
                     .then(res => res.json())
                     .then(data => setAutoComment(data.comment))
                     .catch(err => console.error('Error fetching auto comment:', err));
@@ -106,7 +106,7 @@ const ApplyModal = ({ show, onClose, tuitionCode, tuitionId }) => {
     const handleVerification = async (values, setFieldValue) => {
         setIsVerifying(true);
         try {
-            const checkRes = await fetchWithFallback('https://tuition-seba-backend-a0pb.onrender.com/api/regTeacher/check-apply-possible',
+            const checkRes = await fetchWithFallback('https://tuition-seba-backend-1-lpfs.onrender.com/api/regTeacher/check-apply-possible',
                 {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -258,7 +258,7 @@ const ApplyModal = ({ show, onClose, tuitionCode, tuitionId }) => {
                         }
 
                         try {
-                            const res = await fetchWithFallback('https://tuition-seba-backend-a0pb.onrender.com/api/tuitionApply/add-web',
+                            const res = await fetchWithFallback('https://tuition-seba-backend-1-lpfs.onrender.com/api/tuitionApply/add-web',
                                 {
                                     method: 'POST',
                                     headers: { 'Content-Type': 'application/json' },

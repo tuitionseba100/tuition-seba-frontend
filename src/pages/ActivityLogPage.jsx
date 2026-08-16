@@ -140,7 +140,7 @@ const ActivityLogPage = () => {
     });
 
 
-    const API_URL = 'https://tuition-seba-backend-a0pb.onrender.com';
+    const API_URL = 'https://tuition-seba-backend-1-lpfs.onrender.com';
 
     const fetchLogs = async (page = 1) => {
         setLoading(true);

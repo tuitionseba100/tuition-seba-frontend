@@ -9,7 +9,7 @@ import GlobalSearchModal from '../components/modals/GlobalSearchModal';
 import { io } from 'socket.io-client';
 import { axiosWithFallback as axios } from '../services/fetchWithFallback';
 
-const BASE_URL = 'https://tuition-seba-backend-a0pb.onrender.com';
+const BASE_URL = 'https://tuition-seba-backend-1-lpfs.onrender.com';
 
 const Navbar = () => {
     const navigate = useNavigate();
@@ -181,6 +181,7 @@ const Navbar = () => {
                                     {renderNavItem("/admin/general", "Search", "general")}
                                     {renderNavItem("/admin/complaints", "Complaints")}
                                     {renderNavItem("/admin/chat", "Chat")}
+                                    {renderNavItem("/admin/sms-logs", "SMS")}
                                 </>
                             ) : null}
 

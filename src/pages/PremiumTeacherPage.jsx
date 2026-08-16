@@ -35,6 +35,10 @@ const PremiumTeacherPage = () => {
     const [selectedDistrict, setSelectedDistrict] = useState('');
     const [districtList, setDistrictList] = useState([]);
     const [thanaList, setThanaList] = useState([]);
+    const [showSmsModal, setShowSmsModal] = useState(false);
+    const [smsMessage, setSmsMessage] = useState('');
+    const [smsRecipient, setSmsRecipient] = useState('');
+    const [saving, setSaving] = useState(false);
 
     const spamStyle = { backgroundColor: '#dc3545', color: 'white' };
     const bestStyle = { backgroundColor: '#007bff', color: 'white' };
@@ -60,7 +64,7 @@ const PremiumTeacherPage = () => {
         setShowStatusHistoryModal(true);
         setStatusHistoryLoading(true);
         try {
-            const response = await axios.get(`https://tuition-seba-backend-a0pb.onrender.com/api/statusHistory/history/${moduleName}/${id}`, {
+            const response = await axios.get(`https://tuition-seba-backend-1-lpfs.onrender.com/api/statusHistory/history/${moduleName}/${id}`, {
                 headers: { Authorization: token }
             });
             setStatusHistoryList(response.data);
@@ -227,7 +231,7 @@ const PremiumTeacherPage = () => {
     const fetchTableData = async () => {
         setLoading(true);
         try {
-            const response = await axios.get(`https://tuition-seba-backend-a0pb.onrender.com/api/regTeacher/getTableData`, {
+            const response = await axios.get(`https://tuition-seba-backend-1-lpfs.onrender.com/api/regTeacher/getTableData`, {
                 params: {
                     page: currentPage,
                     ...appliedFilters
@@ -265,7 +269,7 @@ const PremiumTeacherPage = () => {
 
     const fetchSummary = async () => {
         try {
-            const res = await axios.get(`https://tuition-seba-backend-a0pb.onrender.com/api/regTeacher/summary`, {
+            const res = await axios.get(`https://tuition-seba-backend-1-lpfs.onrender.com/api/regTeacher/summary`, {
                 params: appliedFilters,
                 headers: { Authorization: token }
             });
@@ -286,7 +290,7 @@ const PremiumTeacherPage = () => {
         setShowTuitionApplyModal(true);
         try {
             const response = await axios.get(
-                `https://tuition-seba-backend-a0pb.onrender.com/api/tuitionApply/byPremiumCode`,
+                `https://tuition-seba-backend-1-lpfs.onrender.com/api/tuitionApply/byPremiumCode`,
                 {
                     params: { premiumCode },
                     headers: { Authorization: token }
@@ -310,7 +314,7 @@ const PremiumTeacherPage = () => {
     const handleExportToExcel = async () => {
         setLoading(true);
         try {
-            const res = await axios.get(`https://tuition-seba-backend-a0pb.onrender.com/api/regTeacher/summary`, {
+            const res = await axios.get(`https://tuition-seba-backend-1-lpfs.onrender.com/api/regTeacher/summary`, {
                 params: { ...appliedFilters, allData: true },
                 headers: { Authorization: token }
             });
@@ -373,14 +377,27 @@ const PremiumTeacherPage = () => {
             status: formData.status ? formData.status : "pending"
         };
         const username = localStorage.getItem('username');
+
+        // Trigger SMS verification modal if status is verified, we are editing, and SMS wasn't already sent
+        if (updatingData.status === 'verified' && editingId && !formData.isSmsSent) {
+            const premCode = formData.premiumCode || '';
+            const recipient = formData.phone || '';
+            const msg = `প্রিয় শিক্ষক, আপনার প্রোফাইল ভেরিফাই করা হয়েছে। কোড: ${premCode} (এটি গোপন রাখুন)। আপনি টিউশনে আবেদন করতে পারবেন। -টিউশন সেবা ফোরাম`;
+            setSmsRecipient(recipient);
+            setSmsMessage(msg);
+            setShowSmsModal(true);
+            return;
+        }
+
         try {
+            setSaving(true);
             if (editingId) {
                 const updatedData = {
                     ...updatingData,
                     updatedBy: username
                 };
                 await axios.put(
-                    `https://tuition-seba-backend-a0pb.onrender.com/api/regTeacher/edit/${editingId}`,
+                    `https://tuition-seba-backend-1-lpfs.onrender.com/api/regTeacher/edit/${editingId}`,
                     updatedData,
                     {
                         headers: {
@@ -394,7 +411,7 @@ const PremiumTeacherPage = () => {
                     ...updatingData,
                     createdBy: username
                 };
-                await axios.post('https://tuition-seba-backend-a0pb.onrender.com/api/regTeacher/add', newData);
+                await axios.post('https://tuition-seba-backend-1-lpfs.onrender.com/api/regTeacher/add', newData);
                 toast.success("Teacher record created successfully!");
             }
             setShowModal(false);
@@ -404,6 +421,111 @@ const PremiumTeacherPage = () => {
         } catch (err) {
             console.error('Error saving Teacher record:', err);
             toast.error("Error saving Teacher record.");
+        } finally {
+            setSaving(false);
+        }
+    };
+
+    const handleSendVerificationSmsAndSave = async () => {
+        const username = localStorage.getItem('username');
+        const code = formData.premiumCode || '';
+
+        if (code && !smsMessage.includes(code)) {
+            toast.warning(`Validation failed: The premium code (${code}) must be present in the SMS message body.`);
+            return;
+        }
+
+        try {
+            setSaving(true);
+            // 1. Update the teacher status to verified and set isSmsSent to true
+            const updatedData = {
+                ...formData,
+                status: 'verified',
+                isSmsSent: true,
+                updatedBy: username
+            };
+
+            await axios.put(
+                `https://tuition-seba-backend-1-lpfs.onrender.com/api/regTeacher/edit/${editingId}`,
+                updatedData,
+                {
+                    headers: {
+                        Authorization: token
+                    }
+                }
+            );
+
+            // 2. Send verification SMS
+            const smsRes = await axios.post(
+                `https://tuition-seba-backend-1-lpfs.onrender.com/api/sms/send-single`,
+                {
+                    phone: smsRecipient,
+                    message: smsMessage,
+                    premiumCode: formData.premiumCode,
+                    category: 'Verification'
+                },
+                {
+                    headers: {
+                        Authorization: token,
+                        'x-user-name': username
+                    }
+                }
+            );
+
+            if (smsRes.data && !smsRes.data.success) {
+                console.error("Verification SMS sending failed:", smsRes.data);
+                toast.warning(`Teacher updated, but SMS failed: ${smsRes.data.statusMessage || 'Unknown API status error'}`);
+            } else {
+                toast.success("Teacher record updated and Verification SMS sent successfully!");
+            }
+            setShowSmsModal(false);
+            setShowModal(false);
+            fetchTableData();
+            fetchSummary();
+        } catch (err) {
+            console.error('Error saving record or sending SMS:', err);
+            if (err.response) {
+                console.error('API Error Response Data:', err.response.data);
+                console.error('API Error Response Status:', err.response.status);
+            }
+            toast.error(`Error: ${err.response?.data?.message || err.message || 'Unknown error occurred'}`);
+        } finally {
+            setSaving(false);
+        }
+    };
+
+    const handleSaveWithoutSms = async () => {
+        const username = localStorage.getItem('username');
+        try {
+            setSaving(true);
+            // Update the teacher status to verified and set isSmsSent to false
+            const updatedData = {
+                ...formData,
+                status: 'verified',
+                isSmsSent: false,
+                updatedBy: username
+            };
+
+            await axios.put(
+                `https://tuition-seba-backend-1-lpfs.onrender.com/api/regTeacher/edit/${editingId}`,
+                updatedData,
+                {
+                    headers: {
+                        Authorization: token
+                    }
+                }
+            );
+
+            toast.success("Teacher record updated successfully (SMS bypassed)!");
+            setShowSmsModal(false);
+            setShowModal(false);
+            fetchTableData();
+            fetchSummary();
+        } catch (err) {
+            console.error('Error saving record:', err);
+            toast.error("Error occurred while saving.");
+        } finally {
+            setSaving(false);
         }
     };
 
@@ -436,7 +558,7 @@ const PremiumTeacherPage = () => {
         if (confirmDelete) {
             try {
                 await axios.delete(
-                    `https://tuition-seba-backend-a0pb.onrender.com/api/regTeacher/delete/${id}`,
+                    `https://tuition-seba-backend-1-lpfs.onrender.com/api/regTeacher/delete/${id}`,
                     {
                         headers: {
                             Authorization: token
@@ -727,7 +849,7 @@ const PremiumTeacherPage = () => {
                                                     <td style={{ textAlign: 'center', verticalAlign: 'middle' }}>
                                                         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px' }}>
                                                             <span style={{ fontWeight: '700', fontSize: '1rem' }}>
-                                                                {index + 1}
+                                                                {(currentPage - 1) * 50 + index + 1}
                                                             </span>
                                                             {item.referPersonPhone && item.referPersonPhone.trim() !== '' && (
                                                                 <span
@@ -748,6 +870,26 @@ const PremiumTeacherPage = () => {
                                                                     }}
                                                                 >
                                                                     <FaUserPlus style={{ fontSize: '0.6rem' }} /> Refer
+                                                                </span>
+                                                            )}
+                                                            {item.isSmsSent && (
+                                                                <span
+                                                                    title="Verification SMS Sent"
+                                                                    style={{
+                                                                        display: 'inline-flex',
+                                                                        alignItems: 'center',
+                                                                        backgroundColor: '#e3f2fd',
+                                                                        color: '#0d6efd',
+                                                                        padding: '2px 8px',
+                                                                        borderRadius: '12px',
+                                                                        fontSize: '0.65rem',
+                                                                        fontWeight: 'bold',
+                                                                        textTransform: 'uppercase',
+                                                                        border: '1px solid #90caf9',
+                                                                        marginTop: '2px'
+                                                                    }}
+                                                                >
+                                                                    SMS Sent
                                                                 </span>
                                                             )}
                                                         </div>
@@ -1169,11 +1311,11 @@ const PremiumTeacherPage = () => {
                     </Modal.Body>
 
                     <Modal.Footer>
-                        <Button variant="secondary" onClick={() => setShowModal(false)}>
+                        <Button variant="secondary" onClick={() => setShowModal(false)} disabled={saving}>
                             Close
                         </Button>
-                        <Button variant="primary" onClick={handleSaveRecord}>
-                            Save
+                        <Button variant="primary" onClick={handleSaveRecord} disabled={saving}>
+                            {saving ? <><Spinner animation="border" size="sm" className="me-2" />Saving...</> : 'Save'}
                         </Button>
                     </Modal.Footer>
                 </Modal>
@@ -1431,6 +1573,46 @@ const PremiumTeacherPage = () => {
                     <Modal.Footer>
                         <Button variant="secondary" onClick={() => setShowStatusHistoryModal(false)}>
                             Close
+                        </Button>
+                    </Modal.Footer>
+                </Modal>
+
+                {/* Verification SMS Modal */}
+                <Modal show={showSmsModal} onHide={() => setShowSmsModal(false)} contentClassName="border border-3 border-success rounded-3 shadow-lg" centered>
+                    <Modal.Header closeButton>
+                        <Modal.Title className="fw-bold text-success">Send Verification SMS</Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body>
+                        <div className="alert alert-info py-2 fw-bold mb-3">
+                            Sending SMS to: {formData.phone || 'N/A'}
+                        </div>
+                        <Form.Group className="mb-3">
+                            <Form.Label className="fw-bold">Recipient Phone</Form.Label>
+                            <Form.Control
+                                type="text"
+                                value={smsRecipient}
+                                onChange={(e) => setSmsRecipient(e.target.value)}
+                            />
+                        </Form.Group>
+                        <Form.Group className="mb-3">
+                            <Form.Label className="fw-bold">Message Body</Form.Label>
+                            <Form.Control
+                                as="textarea"
+                                rows={6}
+                                value={smsMessage}
+                                onChange={(e) => setSmsMessage(e.target.value)}
+                            />
+                        </Form.Group>
+                    </Modal.Body>
+                    <Modal.Footer>
+                        <Button variant="secondary" onClick={() => setShowSmsModal(false)} disabled={saving}>
+                            Cancel
+                        </Button>
+                        <Button variant="primary" onClick={handleSaveWithoutSms} disabled={saving}>
+                            {saving ? <><Spinner animation="border" size="sm" className="me-2" />Saving...</> : 'Save Without SMS'}
+                        </Button>
+                        <Button variant="success" onClick={handleSendVerificationSmsAndSave} disabled={saving}>
+                            {saving ? <><Spinner animation="border" size="sm" className="me-2" />Sending...</> : 'Send SMS & Save'}
                         </Button>
                     </Modal.Footer>
                 </Modal>

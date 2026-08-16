@@ -43,7 +43,7 @@ const ApplyTutorPage = () => {
 
         setLoading(true);
         try {
-            const response = await fetchWithFallback('https://tuition-seba-backend-a0pb.onrender.com/api/guardianApply/add', {
+            const response = await fetchWithFallback('https://tuition-seba-backend-1-lpfs.onrender.com/api/guardianApply/add', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(form),

@@ -238,7 +238,7 @@ const PaymentPage = () => {
         try {
             const token = localStorage.getItem('token');
             const username = localStorage.getItem('username');
-            const response = await axios.put(`https://tuition-seba-backend-a0pb.onrender.com/api/payment/verify/${id}`, { verifiedBy: username }, {
+            const response = await axios.put(`https://tuition-seba-backend-1-lpfs.onrender.com/api/payment/verify/${id}`, { verifiedBy: username }, {
                 headers: { Authorization: token }
             });
             if (response.status === 200) {
@@ -297,7 +297,7 @@ const PaymentPage = () => {
         if (role === 'superadmin' || role === 'admin') {
             try {
                 const token = localStorage.getItem('token');
-                const response = await axios.get('https://tuition-seba-backend-a0pb.onrender.com/api/user/users', {
+                const response = await axios.get('https://tuition-seba-backend-1-lpfs.onrender.com/api/user/users', {
                     headers: { Authorization: token }
                 });
                 const options = [
@@ -318,7 +318,7 @@ const PaymentPage = () => {
     const fetchPaymentRecords = async () => {
         setLoading(true);
         try {
-            const response = await axios.get('https://tuition-seba-backend-a0pb.onrender.com/api/payment/getTableData', {
+            const response = await axios.get('https://tuition-seba-backend-1-lpfs.onrender.com/api/payment/getTableData', {
                 params: {
                     page: currentPage,
                     tuitionCode: appliedFilters.tuitionCode,
@@ -346,7 +346,7 @@ const PaymentPage = () => {
 
     const fetchSummary = async () => {
         try {
-            const res = await axios.get('https://tuition-seba-backend-a0pb.onrender.com/api/payment/summary', {
+            const res = await axios.get('https://tuition-seba-backend-1-lpfs.onrender.com/api/payment/summary', {
                 params: {
                     tuitionCode: appliedFilters.tuitionCode,
                     tutorNumber: appliedFilters.tutorNumber,
@@ -378,7 +378,7 @@ const PaymentPage = () => {
             try {
                 const statusForFileName = selectedExportStatus.replace(/\s+/g, '_').toLowerCase();
                 const link = document.createElement('a');
-                link.href = `https://tuition-seba-backend-a0pb.onrender.com/api/payment/exportData?paymentStatus=${selectedExportStatus}`;
+                link.href = `https://tuition-seba-backend-1-lpfs.onrender.com/api/payment/exportData?paymentStatus=${selectedExportStatus}`;
                 link.target = '_blank';
                 link.download = selectedExportStatus.toLowerCase() === 'all'
                     ? 'payments_all.csv'
@@ -404,7 +404,7 @@ const PaymentPage = () => {
             const currentUsername = localStorage.getItem('username');
             const alertParams = {};
 
-            const res = await axios.get('https://tuition-seba-backend-a0pb.onrender.com/api/payment/alert-today', { params: alertParams });
+            const res = await axios.get('https://tuition-seba-backend-1-lpfs.onrender.com/api/payment/alert-today', { params: alertParams });
             setDueTodayList(res.data);
         } catch (err) {
             console.error('Error fetching tuition due today:', err);
@@ -445,7 +445,7 @@ const PaymentPage = () => {
         setIsMigrating(true);
         try {
             const token = localStorage.getItem('token');
-            const response = await axios.post('https://tuition-seba-backend-a0pb.onrender.com/api/payment/auto-migrate', {
+            const response = await axios.post('https://tuition-seba-backend-1-lpfs.onrender.com/api/payment/auto-migrate', {
                 paymentIds: selectedMigrationIds
             }, {
                 headers: { Authorization: token }
@@ -506,11 +506,11 @@ const PaymentPage = () => {
         try {
             if (editingId) {
                 updatedPaymentData.updatedBy = username;
-                await axios.put(`https://tuition-seba-backend-a0pb.onrender.com/api/payment/edit/${editingId}`, updatedPaymentData);
+                await axios.put(`https://tuition-seba-backend-1-lpfs.onrender.com/api/payment/edit/${editingId}`, updatedPaymentData);
                 toast.success("Payment record updated successfully!");
             } else {
                 updatedPaymentData.createdBy = username;
-                await axios.post('https://tuition-seba-backend-a0pb.onrender.com/api/payment/add', updatedPaymentData);
+                await axios.post('https://tuition-seba-backend-1-lpfs.onrender.com/api/payment/add', updatedPaymentData);
                 toast.success("Payment record created successfully!");
             }
             setShowModal(false);
@@ -541,7 +541,7 @@ const PaymentPage = () => {
         if (confirmDelete) {
             setIsDeleting(true);
             try {
-                await axios.delete(`https://tuition-seba-backend-a0pb.onrender.com/api/payment/delete/${id}`);
+                await axios.delete(`https://tuition-seba-backend-1-lpfs.onrender.com/api/payment/delete/${id}`);
                 toast.success("Payment record deleted successfully!");
                 fetchPaymentRecords();
                 fetchTuitionAlertToday();

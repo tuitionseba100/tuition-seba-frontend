@@ -136,7 +136,7 @@ export default function OurTeacher() {
                 ...(genderFilter && { gender: genderFilter })
             });
 
-            const response = await fetchWithFallback(`https://tuition-seba-backend-a0pb.onrender.com/api/regTeacher/public-teachers?${params.toString()}`);
+            const response = await fetchWithFallback(`https://tuition-seba-backend-1-lpfs.onrender.com/api/regTeacher/public-teachers?${params.toString()}`);
             const data = await response.json();
             setTeachers(data.teachers || []);
             setTotalPages(data.totalPages || 1);
@@ -971,7 +971,7 @@ function RequestTeacherModal({ show, onHide, teacher, onSaved }) {
         };
 
         try {
-            const response = await axios.post('https://tuition-seba-backend-a0pb.onrender.com/api/guardianApply/add', payload);
+            const response = await axios.post('https://tuition-seba-backend-1-lpfs.onrender.com/api/guardianApply/add', payload);
             if (response && (response.status === 200 || response.status === 201)) {
                 toast.success('Request submitted successfully');
                 setShowSuccess(true);

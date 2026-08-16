@@ -46,7 +46,7 @@ const ComplaintSuggestionAdminPage = () => {
 
     const fetchSummary = async () => {
         try {
-            const res = await axios.get('https://tuition-seba-backend-a0pb.onrender.com/api/complaintSuggestion/summary', {
+            const res = await axios.get('https://tuition-seba-backend-1-lpfs.onrender.com/api/complaintSuggestion/summary', {
                 headers: { Authorization: token }
             });
             setSummary(res.data);
@@ -58,7 +58,7 @@ const ComplaintSuggestionAdminPage = () => {
     const fetchSubmissions = async () => {
         setLoading(true);
         try {
-            const res = await axios.get('https://tuition-seba-backend-a0pb.onrender.com/api/complaintSuggestion/list', {
+            const res = await axios.get('https://tuition-seba-backend-1-lpfs.onrender.com/api/complaintSuggestion/list', {
                 params: {
                     page: currentPage,
                     limit: 25,
@@ -100,7 +100,7 @@ const ComplaintSuggestionAdminPage = () => {
     const handleUpdateStatus = async () => {
         setUpdating(true);
         try {
-            await axios.put(`https://tuition-seba-backend-a0pb.onrender.com/api/complaintSuggestion/${selectedItem._id}/status`, {
+            await axios.put(`https://tuition-seba-backend-1-lpfs.onrender.com/api/complaintSuggestion/${selectedItem._id}/status`, {
                 status: statusUpdate,
                 adminComment: adminComment
             }, {
@@ -121,7 +121,7 @@ const ComplaintSuggestionAdminPage = () => {
     const handleDelete = async (id) => {
         if (!window.confirm('Are you sure you want to delete this record?')) return;
         try {
-            await axios.delete(`https://tuition-seba-backend-a0pb.onrender.com/api/complaintSuggestion/${id}`, {
+            await axios.delete(`https://tuition-seba-backend-1-lpfs.onrender.com/api/complaintSuggestion/${id}`, {
                 headers: { Authorization: token }
             });
             toast.success('Record deleted successfully!');
@@ -146,7 +146,7 @@ const ComplaintSuggestionAdminPage = () => {
 
     const handleExportCSV = async () => {
         try {
-            const res = await axios.get('https://tuition-seba-backend-a0pb.onrender.com/api/complaintSuggestion/list', {
+            const res = await axios.get('https://tuition-seba-backend-1-lpfs.onrender.com/api/complaintSuggestion/list', {
                 params: {
                     page: 1,
                     limit: 5000,

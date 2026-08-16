@@ -4,7 +4,7 @@ import { BsChatDotsFill, BsX, BsArrowRightShort, BsTelephone, BsKey, BsSendFill,
 import { fetchWithFallback } from '../services/fetchWithFallback';
 import './ChatWidget.css';
 
-const BASE_URL = 'https://tuition-seba-backend-a0pb.onrender.com';
+const BASE_URL = 'https://tuition-seba-backend-1-lpfs.onrender.com';
 
 
 

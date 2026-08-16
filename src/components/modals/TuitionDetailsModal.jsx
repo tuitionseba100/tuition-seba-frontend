@@ -19,20 +19,22 @@ const fieldConfig = [
     { name: 'city', label: 'City', group: 'details', col: 4, type: 'select' },
     { name: 'area', label: 'Area', group: 'details', col: 4, type: 'select' },
 
-    { name: 'location', label: 'Location', group: 'details', col: 4, type: 'text' },
-    { name: 'joining', label: 'Joining Date', group: 'details', col: 4, type: 'text' },
+    { name: 'location', label: 'Location', group: 'details', col: 6, type: 'text' },
+    { name: 'joining', label: 'Joining Date', group: 'details', col: 6, type: 'text' },
     { name: 'guardianNumber', label: 'Guardian Number', group: 'details', col: 4, type: 'text' },
     { name: 'mediaFee', label: 'Media Fee', group: 'details', col: 4, type: 'text' },
+    { name: 'status', label: 'Status', group: 'details', col: 4, type: 'select', options: ['available', 'given number', 'guardian meet', 'demo class running', 'confirm', 'cancel'] },
+    { name: 'isPublish', label: 'Publish', group: 'details', col: 6, type: 'switch', defaultValue: false },
+    { name: 'lastAvailableCheck', label: 'Last Available Check', group: 'details', col: 6, type: 'datetime-local' },
 
     // Admin Info Section
     { name: 'guardian_source_medium', label: 'গার্জিয়ান কিভাবে আমাদের সম্পর্কে জানলো', group: 'admin', col: 6, type: 'text' },
     { name: 'note', label: 'Guardian Demand (Agent)', group: 'admin', col: 6, type: 'text' },
     { name: 'tuitionType', label: 'Tuition Type', group: 'admin', col: 6, type: 'text' },
     { name: 'guardianDemandForPublic', label: 'Guardian Demand (Public)', group: 'admin', col: 6, type: 'text' },
-    { name: 'lastAvailableCheck', label: 'Last Available Check', group: 'admin', col: 6, type: 'datetime-local' },
     { name: 'tuitionCancelReasonPublic', label: 'Tuition Cancel Reason Public', group: 'admin', col: 6, type: 'text' },
     { name: 'guardianBehavior', label: 'Guardian Behavior', group: 'admin', col: 6, type: 'text' },
-    { name: 'agentComment', label: 'Agent Comment', group: 'admin', col: 6, type: 'text' },
+    { name: 'agentComment', label: 'Agent Comment', group: 'admin', col: 12, type: 'text' },
 
     // Update Section
     { name: 'tutorNumber', label: 'Current Teacher Number', group: 'update', col: 6, type: 'text' },
@@ -45,13 +47,11 @@ const fieldConfig = [
     { name: 'comment2', label: 'Cancel teacher 2', group: 'update', col: 6, type: 'text' },
 
     // Others Section
-    { name: 'status', label: 'Status', group: 'others', col: 4, type: 'select', options: ['available', 'given number', 'guardian meet', 'demo class running', 'confirm', 'cancel'] },
-    { name: 'assignedTo', label: 'Assigned Now', group: 'others', col: 4, type: 'text' },
-    { name: 'applyType', label: 'Apply Type', group: 'others', col: 4, type: 'text' },
-    { name: 'isReviewDone', label: 'Review Done', group: 'others', col: 3, type: 'switch', defaultValue: false },
-    { name: 'isPublish', label: 'Publish', group: 'others', col: 3, type: 'switch', defaultValue: false },
-    { name: 'isUrgent', label: 'Is Emergency?', group: 'others', col: 3, type: 'switch', defaultValue: false },
-    { name: 'isPaymentCreated', label: 'Payment Created?', group: 'others', col: 3, type: 'switch', defaultValue: false },
+    { name: 'assignedTo', label: 'Assigned Now', group: 'others', col: 6, type: 'text' },
+    { name: 'applyType', label: 'Apply Type', group: 'others', col: 6, type: 'text' },
+    { name: 'isReviewDone', label: 'Review Done', group: 'others', col: 4, type: 'switch', defaultValue: false },
+    { name: 'isUrgent', label: 'Is Emergency?', group: 'others', col: 4, type: 'switch', defaultValue: false },
+    { name: 'isPaymentCreated', label: 'Payment Created?', group: 'others', col: 4, type: 'switch', defaultValue: false },
     { name: 'createdBy', label: 'Created By', group: 'others', col: 6, type: 'text' },
     { name: 'updatedBy', label: 'Update by', group: 'others', col: 6, type: 'text' },
 ];

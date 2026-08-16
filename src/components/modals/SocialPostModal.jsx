@@ -275,7 +275,7 @@ const SocialPostModal = ({ show, onHide }) => {
             const fetchAreaGroups = async () => {
                 try {
                     const token = localStorage.getItem('token');
-                    const response = await axios.get('https://tuition-seba-backend-a0pb.onrender.com/api/settings', {
+                    const response = await axios.get('https://tuition-seba-backend-1-lpfs.onrender.com/api/settings', {
                         headers: { Authorization: token }
                     });
                     const areaSetting = response.data.find(s => s.key === 'area_groups');
@@ -351,7 +351,7 @@ const SocialPostModal = ({ show, onHide }) => {
                 specificCodes: filters.specificCodes.map(c => c.value).join(',')
             };
 
-            const response = await axios.get('https://tuition-seba-backend-a0pb.onrender.com/api/tuition/post-data', {
+            const response = await axios.get('https://tuition-seba-backend-1-lpfs.onrender.com/api/tuition/post-data', {
                 params,
                 headers: { Authorization: token }
             });

@@ -685,6 +685,7 @@ export default function TuitionProposalModal({ show, onHide, tuition }) {
                                                 <tr>
                                                     <th>Recipient</th>
                                                     <th>Premium Code</th>
+                                                    <th>Applied?</th>
                                                     <th>Message</th>
                                                     <th>Date/Time</th>
                                                     <th>Sender</th>
@@ -696,6 +697,15 @@ export default function TuitionProposalModal({ show, onHide, tuition }) {
                                                     <tr key={log._id}>
                                                         <td>{log.phone}</td>
                                                         <td className="fw-bold text-info">{log.premiumCode || '-'}</td>
+                                                        <td>
+                                                            {log.hasApplied ? (
+                                                                <Badge bg="info">
+                                                                    Applied ({log.applicationStatus || 'pending'})
+                                                                </Badge>
+                                                            ) : (
+                                                                <Badge bg="secondary">No</Badge>
+                                                            )}
+                                                        </td>
                                                         <td className="small" style={{ maxWidth: '300px', wordBreak: 'break-word' }}>{log.message}</td>
                                                         <td style={{ fontSize: '0.8rem', whiteSpace: 'nowrap' }}>
                                                             {new Date(log.createdAt).toLocaleString()}

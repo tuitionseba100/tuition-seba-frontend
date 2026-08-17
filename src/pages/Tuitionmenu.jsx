@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Button, Table, Modal, Form, Row, Col, Card, Tooltip, OverlayTrigger, Badge } from 'react-bootstrap';
-import { FaEdit, FaTrashAlt, FaWhatsapp, FaChevronLeft, FaChevronRight, FaGlobe, FaInfoCircle, FaBell, FaSearch, FaUndo, FaUserPlus, FaFileImage, FaHistory, FaComments } from 'react-icons/fa';
+import { FaEdit, FaTrashAlt, FaWhatsapp, FaChevronLeft, FaChevronRight, FaGlobe, FaInfoCircle, FaBell, FaSearch, FaUndo, FaUserPlus, FaFileImage, FaHistory, FaComments, FaPaperPlane } from 'react-icons/fa';
 import Select from 'react-select';
 import { axiosWithFallback as axios } from '../services/fetchWithFallback';
 import NavBarPage from './NavbarPage';
@@ -16,6 +16,7 @@ import TuitionAssignModal from '../components/modals/TuitionAssignModal';
 import SocialPostModal from '../components/modals/SocialPostModal';
 import TuitionPosterModal from '../components/modals/TuitionPosterModal';
 import ConfirmationFollowUpModal from '../components/modals/ConfirmationFollowUpModal';
+import TuitionProposalModal from '../components/modals/TuitionProposalModal';
 import locationData from '../data/locations.json';
 
 const TuitionPage = () => {
@@ -137,6 +138,14 @@ const TuitionPage = () => {
     const handleShowFollowUp = React.useCallback((tuition) => {
         setSelectedFollowUpTuition(tuition);
         setShowFollowUpModal(true);
+    }, []);
+
+    const [showProposalModal, setShowProposalModal] = useState(false);
+    const [selectedProposalTuition, setSelectedProposalTuition] = useState(null);
+
+    const handleShowProposal = React.useCallback((tuition) => {
+        setSelectedProposalTuition(tuition);
+        setShowProposalModal(true);
     }, []);
 
     const handleGeneratePoster = React.useCallback((tuition) => {
@@ -1049,6 +1058,7 @@ const TuitionPage = () => {
                                 bestStyle={bestStyle}
                                 handleShowStatusHistory={handleShowStatusHistory}
                                 handleShowFollowUp={handleShowFollowUp}
+                                handleShowProposal={handleShowProposal}
                             />
 
                         </div>
@@ -1430,6 +1440,15 @@ const TuitionPage = () => {
                     }}
                 />
 
+                <TuitionProposalModal
+                    show={showProposalModal}
+                    onHide={() => {
+                        setShowProposalModal(false);
+                        setSelectedProposalTuition(null);
+                    }}
+                    tuition={selectedProposalTuition}
+                />
+
                 <AppliedListModal
                     tuitionId={selectedTuitionId}
                     tuitionCode={selectedTuitionCode}
@@ -1704,7 +1723,8 @@ const MemoizedTuitionTable = React.memo(({
     spamStyle,
     bestStyle,
     handleShowStatusHistory,
-    handleShowFollowUp
+    handleShowFollowUp,
+    handleShowProposal
 }) => {
     return (
         <Table striped bordered hover responsive="lg">
@@ -1909,6 +1929,11 @@ const MemoizedTuitionTable = React.memo(({
                                 {tuition.status?.toLowerCase() === 'confirm' && (
                                     <Button variant="primary" style={{ background: 'linear-gradient(45deg, #0284c7, #0369a1)', border: 'none' }} onClick={() => handleShowFollowUp(tuition)} title="Confirmation Follow-up History">
                                         <FaHistory />
+                                    </Button>
+                                )}
+                                {tuition.status?.trim().toLowerCase() !== 'confirm' && tuition.isProposal && (
+                                    <Button variant="primary" style={{ background: 'linear-gradient(45deg, #2563eb, #3b82f6)', border: 'none' }} onClick={() => handleShowProposal(tuition)} title="Send SMS Proposals to Matched Teachers">
+                                        <FaPaperPlane />
                                     </Button>
                                 )}
                             </td>

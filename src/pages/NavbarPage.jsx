@@ -100,19 +100,19 @@ const Navbar = () => {
                 <Link
                     className={`nav-link fw-bold px-3 ${isActive ? 'active' : ''}`}
                     to={to}
-                    style={isUnseenChat ? { color: '#ff4d4d' } : undefined}
+                    style={isUnseenChat ? { color: '#ff4d4d', position: 'relative' } : undefined}
                 >
                     {label}
                     {isUnseenChat && (
                         <span
                             style={{
-                                display: 'inline-block',
-                                width: '8px',
-                                height: '8px',
+                                position: 'absolute',
+                                top: '3px',
+                                right: '3px',
+                                width: '6px',
+                                height: '6px',
                                 backgroundColor: '#ff4d4d',
-                                borderRadius: '50%',
-                                marginLeft: '5px',
-                                verticalAlign: 'middle'
+                                borderRadius: '50%'
                             }}
                         />
                     )}

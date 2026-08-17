@@ -52,9 +52,10 @@ const fieldConfig = [
     // Others Section
     { name: 'assignedTo', label: 'Assigned Now', group: 'others', col: 6, type: 'select', options: [] },
     { name: 'applyType', label: 'Apply Type', group: 'others', col: 6, type: 'select', options: ['Server', 'WhatsApp', 'Chat'], defaultValue: 'Server' },
-    { name: 'isReviewDone', label: 'Review Done', group: 'others', col: 4, type: 'switch', defaultValue: false },
-    { name: 'isUrgent', label: 'Is Emergency?', group: 'others', col: 4, type: 'switch', defaultValue: false },
-    { name: 'isPaymentCreated', label: 'Payment Created?', group: 'others', col: 4, type: 'switch', defaultValue: false },
+    { name: 'isReviewDone', label: 'Review Done', group: 'others', col: 3, type: 'switch', defaultValue: false },
+    { name: 'isUrgent', label: 'Is Emergency?', group: 'others', col: 3, type: 'switch', defaultValue: false },
+    { name: 'isPaymentCreated', label: 'Payment Created?', group: 'others', col: 3, type: 'switch', defaultValue: false },
+    { name: 'isProposal', label: 'Is Proposal?', group: 'others', col: 3, type: 'switch', defaultValue: false },
 ];
 
 const groups = fieldConfig.reduce((acc, field) => {

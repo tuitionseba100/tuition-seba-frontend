@@ -39,6 +39,7 @@ export default function TuitionProposalModal({ show, onHide, tuition }) {
     const [areaFilter, setAreaFilter] = useState([]);
     const [unicodeFilter, setUnicodeFilter] = useState([]);
     const [deptFilter, setDeptFilter] = useState('');
+    const [currentPage, setCurrentPage] = useState(1);
 
     // SMS Template
     const [template, setTemplate] = useState('');
@@ -46,6 +47,11 @@ export default function TuitionProposalModal({ show, onHide, tuition }) {
     const city = tuition?.city?.toLowerCase() || 'chittagong';
     const areaList = locationData.areaOptions[city] || [];
     const selectAreaOptions = areaList.map(area => ({ value: area, label: area }));
+
+    const pageSize = 50;
+    const totalPages = Math.ceil(teachers.length / pageSize);
+    const startIndex = (currentPage - 1) * pageSize;
+    const paginatedTeachers = teachers.slice(startIndex, startIndex + pageSize);
 
     // Set initial filters and template when tuition changes
     useEffect(() => {
@@ -166,10 +172,10 @@ export default function TuitionProposalModal({ show, onHide, tuition }) {
         try {
             const token = localStorage.getItem('token');
             const params = {};
-            if (statusVal && statusVal.length > 0 && !statusVal.includes('all')) params.status = statusVal.join(',');
+            params.status = (statusVal && statusVal.length > 0 && !statusVal.includes('all')) ? statusVal.join(',') : 'all';
             if (gender) params.gender = gender;
-            if (areaVal && areaVal.length > 0 && !areaVal.includes('all')) params.area = areaVal.join(',');
-            if (unicodeVal && unicodeVal.length > 0 && !unicodeVal.includes('all')) params.unicode = unicodeVal.join(',');
+            params.area = (areaVal && areaVal.length > 0 && !areaVal.includes('all')) ? areaVal.join(',') : 'all';
+            params.unicode = (unicodeVal && unicodeVal.length > 0 && !unicodeVal.includes('all')) ? unicodeVal.join(',') : 'all';
             if (deptVal) params.department = deptVal;
 
             const response = await axios.get(`https://tuition-seba-backend-1-lpfs.onrender.com/api/tuition/${tuition._id}/match-teachers`, {
@@ -179,8 +185,8 @@ export default function TuitionProposalModal({ show, onHide, tuition }) {
             if (response.data?.success) {
                 const fetchedTeachers = response.data.teachers || [];
                 setTeachers(fetchedTeachers);
-                // Pre-select only those who have not applied yet
-                setSelectedTeacherIds(fetchedTeachers.filter(t => !t.hasApplied).map(t => t._id));
+                setSelectedTeacherIds([]); // No teachers pre-selected initially
+                setCurrentPage(1); // Reset page to 1 on fresh match
             } else {
                 toast.error('Failed to load matching teachers');
             }
@@ -552,7 +558,7 @@ export default function TuitionProposalModal({ show, onHide, tuition }) {
                                                         </tr>
                                                     </thead>
                                                     <tbody>
-                                                        {teachers.map(t => (
+                                                        {paginatedTeachers.map(t => (
                                                             <tr key={t._id} style={t.hasApplied ? { backgroundColor: '#f3f4f6', color: '#6c757d' } : undefined}>
                                                                 <td className="text-center">
                                                                     <Form.Check 
@@ -585,6 +591,35 @@ export default function TuitionProposalModal({ show, onHide, tuition }) {
                                                         ))}
                                                     </tbody>
                                                 </Table>
+                                                
+                                                {totalPages > 1 && (
+                                                    <div className="d-flex justify-content-between align-items-center mt-3 pt-2 border-top">
+                                                        <div className="text-muted small">
+                                                            Showing {startIndex + 1} - {Math.min(startIndex + pageSize, teachers.length)} of {teachers.length} teachers
+                                                        </div>
+                                                        <div className="d-flex gap-1 align-items-center">
+                                                            <Button 
+                                                                variant="outline-primary" 
+                                                                size="sm" 
+                                                                disabled={currentPage === 1}
+                                                                onClick={() => setCurrentPage(p => p - 1)}
+                                                            >
+                                                                Previous
+                                                            </Button>
+                                                            <span className="small fw-bold px-2">
+                                                                Page {currentPage} of {totalPages}
+                                                            </span>
+                                                            <Button 
+                                                                variant="outline-primary" 
+                                                                size="sm" 
+                                                                disabled={currentPage === totalPages}
+                                                                onClick={() => setCurrentPage(p => p + 1)}
+                                                            >
+                                                                Next
+                                                            </Button>
+                                                        </div>
+                                                    </div>
+                                                )}
                                             </div>
                                         )}
                                     </div>

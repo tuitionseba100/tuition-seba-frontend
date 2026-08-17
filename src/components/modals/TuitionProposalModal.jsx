@@ -78,12 +78,14 @@ export default function TuitionProposalModal({ show, onHide, tuition }) {
         }
     }, [tuition]);
 
-    // Refetch when filters change
     const handleFilterChange = (status, gender, area) => {
         setStatusFilter(status);
         setGenderFilter(gender);
         setAreaFilter(area);
-        fetchMatchedTeachers(status, gender, area);
+    };
+
+    const handleApplyFilters = () => {
+        fetchMatchedTeachers(statusFilter, genderFilter, areaFilter);
     };
 
     const fetchMatchedTeachers = async (status, gender, areaVal) => {
@@ -297,7 +299,7 @@ export default function TuitionProposalModal({ show, onHide, tuition }) {
                                         <h6 className="fw-bold border-bottom pb-2 mb-3">Matched Teachers ({teachers.length})</h6>
                                         
                                         <Row className="gy-2 mb-3 align-items-end">
-                                            <Col md={4}>
+                                            <Col md={3}>
                                                 <Form.Group>
                                                     <Form.Label className="small fw-semibold">Teacher Status</Form.Label>
                                                     <Form.Select 
@@ -320,7 +322,7 @@ export default function TuitionProposalModal({ show, onHide, tuition }) {
                                                     </Form.Select>
                                                 </Form.Group>
                                             </Col>
-                                            <Col md={4}>
+                                            <Col md={3}>
                                                 <Form.Group>
                                                     <Form.Label className="small fw-semibold">Gender</Form.Label>
                                                     <Form.Select 
@@ -333,7 +335,7 @@ export default function TuitionProposalModal({ show, onHide, tuition }) {
                                                     </Form.Select>
                                                 </Form.Group>
                                             </Col>
-                                            <Col md={4}>
+                                            <Col md={3}>
                                                 <Form.Group>
                                                     <Form.Label className="small fw-semibold">Area Match</Form.Label>
                                                     <Select 
@@ -360,6 +362,18 @@ export default function TuitionProposalModal({ show, onHide, tuition }) {
                                                     />
                                                 </Form.Group>
                                             </Col>
+                                            <Col md={3}>
+                                                <Form.Group>
+                                                    <Button 
+                                                        variant="primary" 
+                                                        className="w-100 fw-bold d-flex align-items-center justify-content-center"
+                                                        onClick={handleApplyFilters}
+                                                        style={{ height: '38px' }}
+                                                    >
+                                                        🔍 Apply Filters
+                                                    </Button>
+                                                </Form.Group>
+                                            </Col>
                                         </Row>
 
                                         {loading ? (
@@ -384,10 +398,12 @@ export default function TuitionProposalModal({ show, onHide, tuition }) {
                                                                 />
                                                             </th>
                                                             <th>Premium Code</th>
+                                                            <th>Unicode</th>
                                                             <th>Name</th>
                                                             <th>Phone</th>
                                                             <th>Gender</th>
                                                             <th>Status</th>
+                                                            <th>Applied?</th>
                                                             <th>Current Area</th>
                                                         </tr>
                                                     </thead>
@@ -402,20 +418,23 @@ export default function TuitionProposalModal({ show, onHide, tuition }) {
                                                                     />
                                                                 </td>
                                                                 <td className="fw-semibold text-primary">{t.premiumCode || '-'}</td>
-                                                                <td>
-                                                                    {t.name} 
-                                                                    {t.hasApplied && (
-                                                                        <Badge bg="info" className="ms-2">
-                                                                            Applied ({t.applicationStatus || 'pending'})
-                                                                        </Badge>
-                                                                    )}
-                                                                </td>
+                                                                <td className="fw-semibold text-secondary">{t.uniCode || '-'}</td>
+                                                                <td>{t.name}</td>
                                                                 <td>{t.phone}</td>
                                                                 <td>{t.gender}</td>
                                                                 <td>
                                                                     <Badge bg={t.status === 'verified' ? 'success' : 'secondary'}>
                                                                         {t.status}
                                                                     </Badge>
+                                                                </td>
+                                                                <td>
+                                                                    {t.hasApplied ? (
+                                                                        <Badge bg="info">
+                                                                            Applied ({t.applicationStatus || 'pending'})
+                                                                        </Badge>
+                                                                    ) : (
+                                                                        <Badge bg="secondary">No</Badge>
+                                                                    )}
                                                                 </td>
                                                                 <td>{t.currentArea || '-'}</td>
                                                             </tr>

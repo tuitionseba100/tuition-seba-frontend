@@ -317,7 +317,7 @@ const PremiumTeacherPage = () => {
             const response = await axios.get(
                 `https://tuition-seba-backend-1-lpfs.onrender.com/api/sms/logs`,
                 {
-                    params: { premiumCode, limit: 100 },
+                    params: { premiumCode, limit: 100, category: 'Proposal' },
                     headers: { Authorization: token }
                 }
             );

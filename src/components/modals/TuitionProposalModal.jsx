@@ -36,6 +36,7 @@ export default function TuitionProposalModal({ show, onHide, tuition }) {
     const [statusFilter, setStatusFilter] = useState('verified');
     const [genderFilter, setGenderFilter] = useState('');
     const [areaFilter, setAreaFilter] = useState('');
+    const [unicodeFilter, setUnicodeFilter] = useState('');
 
     // SMS Template
     const [template, setTemplate] = useState('');
@@ -50,13 +51,14 @@ export default function TuitionProposalModal({ show, onHide, tuition }) {
         if (tuition) {
             // Determine default gender filter based on tuition's wantedTeacher field
             const wanted = tuition.wantedTeacher ? tuition.wantedTeacher.toLowerCase() : '';
+            let initialGender = '';
             if (wanted.includes('female')) {
-                setGenderFilter('Female');
+                initialGender = 'female';
             } else if (wanted.includes('male')) {
-                setGenderFilter('Male');
-            } else {
-                setGenderFilter('');
+                initialGender = 'male';
             }
+            setGenderFilter(initialGender);
+            setUnicodeFilter('');
 
             // Set default template pre-populated with actual values
             const code = tuition.tuitionCode || '';
@@ -72,23 +74,24 @@ export default function TuitionProposalModal({ show, onHide, tuition }) {
             setAreaFilter(initialArea);
 
             // Fetch matched teachers
-            fetchMatchedTeachers('verified', wanted.includes('female') ? 'Female' : wanted.includes('male') ? 'Male' : '', initialArea);
+            fetchMatchedTeachers('verified', initialGender, initialArea, '');
             // Fetch SMS history
             fetchSmsHistory();
         }
     }, [tuition]);
 
-    const handleFilterChange = (status, gender, area) => {
+    const handleFilterChange = (status, gender, area, unicode) => {
         setStatusFilter(status);
         setGenderFilter(gender);
         setAreaFilter(area);
+        setUnicodeFilter(unicode);
     };
 
     const handleApplyFilters = () => {
-        fetchMatchedTeachers(statusFilter, genderFilter, areaFilter);
+        fetchMatchedTeachers(statusFilter, genderFilter, areaFilter, unicodeFilter);
     };
 
-    const fetchMatchedTeachers = async (status, gender, areaVal) => {
+    const fetchMatchedTeachers = async (status, gender, areaVal, unicodeVal) => {
         if (!tuition?._id) return;
         setLoading(true);
         try {
@@ -97,6 +100,7 @@ export default function TuitionProposalModal({ show, onHide, tuition }) {
             if (status) params.status = status;
             if (gender) params.gender = gender;
             if (areaVal !== undefined) params.area = areaVal;
+            if (unicodeVal) params.unicode = unicodeVal;
 
             const response = await axios.get(`https://tuition-seba-backend-1-lpfs.onrender.com/api/tuition/${tuition._id}/match-teachers`, {
                 headers: { Authorization: token },
@@ -299,12 +303,12 @@ export default function TuitionProposalModal({ show, onHide, tuition }) {
                                         <h6 className="fw-bold border-bottom pb-2 mb-3">Matched Teachers ({teachers.length})</h6>
                                         
                                         <Row className="gy-2 mb-3 align-items-end">
-                                            <Col md={3}>
+                                            <Col md={2}>
                                                 <Form.Group>
                                                     <Form.Label className="small fw-semibold">Teacher Status</Form.Label>
                                                     <Form.Select 
                                                         value={statusFilter} 
-                                                        onChange={(e) => handleFilterChange(e.target.value, genderFilter, areaFilter)}
+                                                        onChange={(e) => handleFilterChange(e.target.value, genderFilter, areaFilter, unicodeFilter)}
                                                     >
                                                         <option value="">All Statuses</option>
                                                         <option value="pending">Pending</option>
@@ -322,16 +326,30 @@ export default function TuitionProposalModal({ show, onHide, tuition }) {
                                                     </Form.Select>
                                                 </Form.Group>
                                             </Col>
-                                            <Col md={3}>
+                                            <Col md={2}>
                                                 <Form.Group>
                                                     <Form.Label className="small fw-semibold">Gender</Form.Label>
                                                     <Form.Select 
                                                         value={genderFilter} 
-                                                        onChange={(e) => handleFilterChange(statusFilter, e.target.value, areaFilter)}
+                                                        onChange={(e) => handleFilterChange(statusFilter, e.target.value, areaFilter, unicodeFilter)}
                                                     >
                                                         <option value="">All Genders</option>
-                                                        <option value="Male">Male</option>
-                                                        <option value="Female">Female</option>
+                                                        <option value="male">Male</option>
+                                                        <option value="female">Female</option>
+                                                    </Form.Select>
+                                                </Form.Group>
+                                            </Col>
+                                            <Col md={2}>
+                                                <Form.Group>
+                                                    <Form.Label className="small fw-semibold">UniCode</Form.Label>
+                                                    <Form.Select 
+                                                        value={unicodeFilter} 
+                                                        onChange={(e) => handleFilterChange(statusFilter, genderFilter, areaFilter, e.target.value)}
+                                                    >
+                                                        <option value="">All Unicode</option>
+                                                        {['CMC', 'CUET', 'CU Science', 'CU Arts', 'CU Commerce', 'CVASU', 'Private Science', 'Private Commerce', 'Private Arts', 'National Science', 'National Arts', 'National Commerce', 'Arabic', 'NC English', 'BC English', 'Special'].map(opt => (
+                                                            <option key={opt} value={opt}>{opt}</option>
+                                                        ))}
                                                     </Form.Select>
                                                 </Form.Group>
                                             </Col>
@@ -341,7 +359,7 @@ export default function TuitionProposalModal({ show, onHide, tuition }) {
                                                     <Select 
                                                         options={selectAreaOptions}
                                                         value={currentAreaOption}
-                                                        onChange={(option) => handleFilterChange(statusFilter, genderFilter, option ? option.value : '')}
+                                                        onChange={(option) => handleFilterChange(statusFilter, genderFilter, option ? option.value : '', unicodeFilter)}
                                                         isClearable
                                                         placeholder="Select Area..."
                                                         styles={{

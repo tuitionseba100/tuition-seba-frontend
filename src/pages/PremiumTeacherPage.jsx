@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Button, Table, Modal, Form, Row, Col, Card } from 'react-bootstrap';
+import { Button, Table, Modal, Form, Row, Col, Card, Nav, Tab, Badge } from 'react-bootstrap';
 import { FaEdit, FaInfoCircle, FaTrashAlt, FaWhatsapp, FaChevronLeft, FaChevronRight, FaSearch, FaTimes, FaGlobe, FaGooglePlay, FaUserPlus } from 'react-icons/fa'; // React Icons
 import { axiosWithFallback as axios } from '../services/fetchWithFallback';
 import NavBarPage from './NavbarPage';
@@ -24,6 +24,9 @@ const PremiumTeacherPage = () => {
     const [tuitionApplyList, setTuitionApplyList] = useState([]);
     const [selectedPremiumCode, setSelectedPremiumCode] = useState('');
     const [applyLoading, setApplyLoading] = useState(false);
+    const [activeModalTab, setActiveModalTab] = useState('applications');
+    const [proposalsList, setProposalsList] = useState([]);
+    const [proposalsLoading, setProposalsLoading] = useState(false);
     const [selectedCity, setSelectedCity] = useState('');
     const [areaList, setAreaList] = useState([]);
     const token = localStorage.getItem('token');
@@ -287,7 +290,11 @@ const PremiumTeacherPage = () => {
     const handleShowTuitionApply = async (premiumCode) => {
         setSelectedPremiumCode(premiumCode);
         setApplyLoading(true);
+        setProposalsLoading(true);
         setShowTuitionApplyModal(true);
+        setActiveModalTab('applications');
+        
+        // Fetch Applications
         try {
             const response = await axios.get(
                 `https://tuition-seba-backend-1-lpfs.onrender.com/api/tuitionApply/byPremiumCode`,
@@ -301,13 +308,34 @@ const PremiumTeacherPage = () => {
             console.error('Error fetching tuition applies:', err);
             toast.error("Failed to load tuition applications.");
             setTuitionApplyList([]);
+        } finally {
+            setApplyLoading(false);
         }
-        setApplyLoading(false);
+
+        // Fetch Proposals
+        try {
+            const response = await axios.get(
+                `https://tuition-seba-backend-1-lpfs.onrender.com/api/sms/logs`,
+                {
+                    params: { premiumCode, limit: 100 },
+                    headers: { Authorization: token }
+                }
+            );
+            if (response.data?.success) {
+                setProposalsList(response.data.logs || []);
+            }
+        } catch (err) {
+            console.error('Error fetching SMS proposals:', err);
+            setProposalsList([]);
+        } finally {
+            setProposalsLoading(false);
+        }
     };
 
     const handleCloseTuitionApplyModal = () => {
         setShowTuitionApplyModal(false);
         setTuitionApplyList([]);
+        setProposalsList([]);
         setSelectedPremiumCode('');
     };
 
@@ -1330,149 +1358,224 @@ const PremiumTeacherPage = () => {
                 >
                     <Modal.Header closeButton className="border-bottom-0">
                         <Modal.Title className="fw-bold fs-4">
-                            Tuition Applications
+                            Teacher Activities - Code: {selectedPremiumCode}
                         </Modal.Title>
                     </Modal.Header>
 
                     <Modal.Body className="px-4 py-3" style={{ maxHeight: '75vh', overflowY: 'auto' }}>
-                        {applyLoading ? (
-                            <div className="text-center py-5">
-                                <Spinner animation="border" variant="primary" />
-                                <p className="mt-2">Loading applications...</p>
-                            </div>
-                        ) : tuitionApplyList.length > 0 ? (
-                            <>
-                                {/* Summary Section */}
-                                <div className="mb-4 p-3 bg-light rounded shadow-sm">
-                                    <div className="row text-center g-2">
-                                        <div className="col-md-3 col-6 mb-2">
-                                            <div className="bg-white p-2 rounded border h-100">
-                                                <small className="text-primary mb-1 d-block">Premium Code</small>
-                                                <div className="fw-bold">{selectedPremiumCode}</div>
-                                            </div>
+                        <Tab.Container activeKey={activeModalTab} onSelect={k => setActiveModalTab(k)}>
+                            <Nav variant="tabs" className="mb-3">
+                                <Nav.Item>
+                                    <Nav.Link eventKey="applications" className="fw-bold">
+                                        Applications ({tuitionApplyList.length})
+                                    </Nav.Link>
+                                </Nav.Item>
+                                <Nav.Item>
+                                    <Nav.Link eventKey="proposals" className="fw-bold">
+                                        Proposals/SMS ({proposalsList.length})
+                                    </Nav.Link>
+                                </Nav.Item>
+                            </Nav>
+
+                            <Tab.Content>
+                                <Tab.Pane eventKey="applications">
+                                    {applyLoading ? (
+                                        <div className="text-center py-5">
+                                            <Spinner animation="border" variant="primary" />
+                                            <p className="mt-2">Loading applications...</p>
                                         </div>
-                                        <div className="col-md-3 col-6 mb-2">
-                                            <div className="bg-white p-2 rounded border h-100">
-                                                <small className="text-primary mb-1 d-block">Teacher Name</small>
-                                                <div className="fw-bold">{tuitionApplyList[0]?.name || 'N/A'}</div>
-                                            </div>
-                                        </div>
-                                        <div className="col-md-3 col-6 mb-2">
-                                            <div className="bg-white p-2 rounded border h-100">
-                                                <small className="text-primary mb-1 d-block">Total</small>
-                                                <div className="fw-bold text-success">{tuitionApplyList.length}</div>
-                                            </div>
-                                        </div>
-                                        <div className="col-md-3 col-6 mb-2">
-                                            <div className="bg-white p-2 rounded border h-100">
-                                                <small className="text-primary mb-1 d-block">Status Summary</small>
-                                                <div className="d-flex justify-content-center gap-2">
-                                                    <span className="badge bg-warning text-dark">
-                                                        Selected: {tuitionApplyList.filter(a => a.status === 'selected').length}
-                                                    </span>
-                                                    <span className="badge bg-info text-white">
-                                                        Shortlisted: {tuitionApplyList.filter(a => a.status === 'shortlisted').length}
-                                                    </span>
+                                    ) : tuitionApplyList.length > 0 ? (
+                                        <>
+                                            {/* Summary Section */}
+                                            <div className="mb-4 p-3 bg-light rounded shadow-sm">
+                                                <div className="row text-center g-2">
+                                                    <div className="col-md-4 col-6 mb-2">
+                                                        <div className="bg-white p-2 rounded border h-100">
+                                                            <small className="text-primary mb-1 d-block">Teacher Name</small>
+                                                            <div className="fw-bold">{tuitionApplyList[0]?.name || 'N/A'}</div>
+                                                        </div>
+                                                    </div>
+                                                    <div className="col-md-4 col-6 mb-2">
+                                                        <div className="bg-white p-2 rounded border h-100">
+                                                            <small className="text-primary mb-1 d-block">Total</small>
+                                                            <div className="fw-bold text-success">{tuitionApplyList.length}</div>
+                                                        </div>
+                                                    </div>
+                                                    <div className="col-md-4 col-12 mb-2">
+                                                        <div className="bg-white p-2 rounded border h-100">
+                                                            <small className="text-primary mb-1 d-block">Status Summary</small>
+                                                            <div className="d-flex justify-content-center gap-2">
+                                                                <span className="badge bg-warning text-dark">
+                                                                    Selected: {tuitionApplyList.filter(a => a.status === 'selected').length}
+                                                                </span>
+                                                                <span className="badge bg-info text-white">
+                                                                    Shortlisted: {tuitionApplyList.filter(a => a.status === 'shortlisted').length}
+                                                                </span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
                                                 </div>
                                             </div>
+                                            <Table striped bordered hover responsive className="text-center">
+                                                <thead className="table-primary">
+                                                    <tr>
+                                                        <th>SL</th>
+                                                        <th>Tuition Code</th>
+                                                        <th>Phone</th>
+                                                        <th>Status</th>
+                                                        <th>Comment For Teacher</th>
+                                                        <th>Applied At</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {tuitionApplyList.map((apply, index) => {
+                                                        const rowStyle = getRowStyle(apply);
+                                                        return (
+                                                            <tr key={index}>
+                                                                <td style={{ ...rowStyle, textAlign: 'center', verticalAlign: 'middle', minWidth: '80px' }}>
+                                                                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px' }}>
+                                                                        <span style={{ fontWeight: '700', fontSize: '1rem' }}>
+                                                                            {index + 1}
+                                                                        </span>
+                                                                        {apply.isAppApply
+                                                                            ? (
+                                                                                <span style={{
+                                                                                    display: 'inline-flex', alignItems: 'center', gap: '4px',
+                                                                                    backgroundColor: '#01875f', color: '#fff',
+                                                                                    padding: '2px 8px', borderRadius: '12px',
+                                                                                    fontSize: '0.65rem', fontWeight: 'bold', textTransform: 'uppercase',
+                                                                                    boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+                                                                                }}>
+                                                                                    <FaGooglePlay style={{ fontSize: '0.6rem' }} /> App
+                                                                                </span>
+                                                                            )
+                                                                            : (
+                                                                                <span style={{
+                                                                                    display: 'inline-flex', alignItems: 'center', gap: '4px',
+                                                                                    backgroundColor: '#1a73e8', color: '#fff',
+                                                                                    padding: '2px 8px', borderRadius: '12px',
+                                                                                    fontSize: '0.65rem', fontWeight: 'bold', textTransform: 'uppercase',
+                                                                                    boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+                                                                                }}>
+                                                                                    <FaGlobe style={{ fontSize: '0.6rem' }} /> Web
+                                                                                </span>
+                                                                            )}
+                                                                    </div>
+                                                                </td>
+
+                                                                <td style={rowStyle}>{apply.tuitionCode}</td>
+
+                                                                <td style={rowStyle}>{apply.phone}</td>
+                                                                <td style={rowStyle}>
+                                                                    <div className="d-flex flex-column align-items-center gap-1">
+                                                                        <span
+                                                                            style={apply.status === 'pending' ? {
+                                                                                backgroundColor: '#FFD966',
+                                                                                color: '#000',
+                                                                                padding: '3px 10px',
+                                                                                borderRadius: '5px',
+                                                                                fontWeight: '600',
+                                                                                fontSize: '12px',
+                                                                                textTransform: 'capitalize',
+                                                                                display: 'inline-block'
+                                                                            } : {
+                                                                                backgroundColor: '#4CAF50',
+                                                                                color: '#fff',
+                                                                                padding: '3px 10px',
+                                                                                borderRadius: '5px',
+                                                                                fontWeight: '600',
+                                                                                fontSize: '12px',
+                                                                                textTransform: 'capitalize',
+                                                                                display: 'inline-block'
+                                                                            }}
+                                                                        >
+                                                                            {apply.status}
+                                                                        </span>
+                                                                        {apply.hasDue && (
+                                                                            <span className="badge bg-warning text-dark">
+                                                                                ডিউ আছে
+                                                                            </span>
+                                                                        )}
+                                                                    </div>
+                                                                </td>
+                                                                <td style={rowStyle}>{apply.commentForTeacher}</td>
+                                                                <td style={rowStyle}>{formatDate(apply.appliedAt)}</td>
+                                                            </tr>
+                                                        );
+                                                    })}
+                                                </tbody>
+                                            </Table>
+                                        </>
+                                    ) : (
+                                        <div className="text-center py-5">
+                                            <p className="text-muted fst-italic">No tuition applications found for this premium code.</p>
                                         </div>
-                                    </div>
-                                </div>
-                                <Table striped bordered hover responsive className="text-center">
-                                    <thead className="table-primary">
-                                        <tr>
-                                            <th>SL</th>
-                                            <th>Tuition Code</th>
-                                            <th>Phone</th>
-                                            <th>Status</th>
-                                            <th>Comment For Teacher</th>
-                                            <th>Applied At</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {tuitionApplyList.map((apply, index) => {
-                                            const rowStyle = getRowStyle(apply);
-                                            return (
-                                                <tr key={index}>
-                                                    <td style={{ ...rowStyle, textAlign: 'center', verticalAlign: 'middle', minWidth: '80px' }}>
-                                                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px' }}>
-                                                            <span style={{ fontWeight: '700', fontSize: '1rem' }}>
-                                                                {index + 1}
-                                                            </span>
-                                                            {apply.isAppApply
-                                                                ? (
-                                                                    <span style={{
-                                                                        display: 'inline-flex', alignItems: 'center', gap: '4px',
-                                                                        backgroundColor: '#01875f', color: '#fff',
-                                                                        padding: '2px 8px', borderRadius: '12px',
-                                                                        fontSize: '0.65rem', fontWeight: 'bold', textTransform: 'uppercase',
-                                                                        boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
-                                                                    }}>
-                                                                        <FaGooglePlay style={{ fontSize: '0.6rem' }} /> App
-                                                                    </span>
-                                                                )
-                                                                : (
-                                                                    <span style={{
-                                                                        display: 'inline-flex', alignItems: 'center', gap: '4px',
-                                                                        backgroundColor: '#1a73e8', color: '#fff',
-                                                                        padding: '2px 8px', borderRadius: '12px',
-                                                                        fontSize: '0.65rem', fontWeight: 'bold', textTransform: 'uppercase',
-                                                                        boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
-                                                                    }}>
-                                                                        <FaGlobe style={{ fontSize: '0.6rem' }} /> Web
-                                                                    </span>
-                                                                )}
-                                                        </div>
-                                                    </td>
+                                    )}
+                                </Tab.Pane>
 
-                                                    <td style={rowStyle}>{apply.tuitionCode}</td>
-
-                                                    <td style={rowStyle}>{apply.phone}</td>
-                                                    <td style={rowStyle}>
-                                                        <div className="d-flex flex-column align-items-center gap-1">
-                                                            <span
-                                                                style={apply.status === 'pending' ? {
-                                                                    backgroundColor: '#FFD966',
-                                                                    color: '#000',
-                                                                    padding: '3px 10px',
-                                                                    borderRadius: '5px',
-                                                                    fontWeight: '600',
-                                                                    fontSize: '12px',
-                                                                    textTransform: 'capitalize',
-                                                                    display: 'inline-block'
-                                                                } : {
-                                                                    backgroundColor: '#4CAF50',
-                                                                    color: '#fff',
-                                                                    padding: '3px 10px',
-                                                                    borderRadius: '5px',
-                                                                    fontWeight: '600',
-                                                                    fontSize: '12px',
-                                                                    textTransform: 'capitalize',
-                                                                    display: 'inline-block'
-                                                                }}
-                                                            >
-                                                                {apply.status}
-                                                            </span>
-                                                            {apply.hasDue && (
-                                                                <span className="badge bg-warning text-dark">
-                                                                    ডিউ আছে
-                                                                </span>
-                                                            )}
-                                                        </div>
-                                                    </td>
-                                                    <td style={rowStyle}>{apply.commentForTeacher}</td>
-                                                    <td style={rowStyle}>{formatDate(apply.appliedAt)}</td>
+                                <Tab.Pane eventKey="proposals">
+                                    {proposalsLoading ? (
+                                        <div className="text-center py-5">
+                                            <Spinner animation="border" variant="primary" />
+                                            <p className="mt-2">Loading proposals...</p>
+                                        </div>
+                                    ) : proposalsList.length > 0 ? (
+                                        <Table striped bordered hover responsive className="text-center align-middle">
+                                            <thead className="table-primary">
+                                                <tr>
+                                                    <th>SL</th>
+                                                    <th>Time</th>
+                                                    <th>Tuition Code</th>
+                                                    <th>Recipient Phone</th>
+                                                    <th>Message</th>
+                                                    <th>Sent By</th>
+                                                    <th>Applied?</th>
+                                                    <th>Status</th>
                                                 </tr>
-                                            );
-                                        })}
-                                    </tbody>
-                                </Table>
-                            </>
-                        ) : (
-                            <div className="text-center py-5">
-                                <p className="text-muted fst-italic">No tuition applications found for this premium code.</p>
-                            </div>
-                        )}
+                                            </thead>
+                                            <tbody>
+                                                {proposalsList.map((prop, idx) => (
+                                                    <tr key={prop._id}>
+                                                        <td style={{ fontWeight: '700' }}>{idx + 1}</td>
+                                                        <td>{formatDate(prop.createdAt)}</td>
+                                                        <td>
+                                                            {prop.tuitionCode ? (
+                                                                <Badge bg="primary">{prop.tuitionCode}</Badge>
+                                                            ) : (
+                                                                <span className="text-muted">-</span>
+                                                            )}
+                                                        </td>
+                                                        <td>{prop.phone}</td>
+                                                        <td className="text-start small" style={{ maxWidth: '300px', wordBreak: 'break-word' }}>
+                                                            {prop.message}
+                                                        </td>
+                                                        <td>{prop.sentBy}</td>
+                                                        <td>
+                                                            {prop.hasApplied ? (
+                                                                <Badge bg="info">
+                                                                    Applied ({prop.applicationStatus || 'pending'})
+                                                                </Badge>
+                                                            ) : (
+                                                                <Badge bg="secondary">No</Badge>
+                                                            )}
+                                                        </td>
+                                                        <td>
+                                                            <Badge bg={prop.status === 'success' ? 'success' : 'danger'}>
+                                                                {prop.status.toUpperCase()}
+                                                            </Badge>
+                                                        </td>
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </Table>
+                                    ) : (
+                                        <div className="text-center py-5">
+                                            <p className="text-muted fst-italic">No SMS proposals found for this premium code.</p>
+                                        </div>
+                                    )}
+                                </Tab.Pane>
+                            </Tab.Content>
+                        </Tab.Container>
                     </Modal.Body>
 
                     <Modal.Footer className="border-top-0">

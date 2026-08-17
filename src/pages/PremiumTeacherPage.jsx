@@ -1520,54 +1520,75 @@ const PremiumTeacherPage = () => {
                                             <p className="mt-2">Loading proposals...</p>
                                         </div>
                                     ) : proposalsList.length > 0 ? (
-                                        <Table striped bordered hover responsive className="text-center align-middle">
-                                            <thead className="table-primary">
-                                                <tr>
-                                                    <th>SL</th>
-                                                    <th>Time</th>
-                                                    <th>Tuition Code</th>
-                                                    <th>Recipient Phone</th>
-                                                    <th>Message</th>
-                                                    <th>Sent By</th>
-                                                    <th>Applied?</th>
-                                                    <th>Status</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                {proposalsList.map((prop, idx) => (
-                                                    <tr key={prop._id}>
-                                                        <td style={{ fontWeight: '700' }}>{idx + 1}</td>
-                                                        <td>{formatDate(prop.createdAt)}</td>
-                                                        <td>
-                                                            {prop.tuitionCode ? (
-                                                                <Badge bg="primary">{prop.tuitionCode}</Badge>
-                                                            ) : (
-                                                                <span className="text-muted">-</span>
-                                                            )}
-                                                        </td>
-                                                        <td>{prop.phone}</td>
-                                                        <td className="text-start small" style={{ maxWidth: '300px', wordBreak: 'break-word' }}>
-                                                            {prop.message}
-                                                        </td>
-                                                        <td>{prop.sentBy}</td>
-                                                        <td>
-                                                            {prop.hasApplied ? (
-                                                                <Badge bg="info">
-                                                                    Applied ({prop.applicationStatus || 'pending'})
-                                                                </Badge>
-                                                            ) : (
-                                                                <Badge bg="secondary">No</Badge>
-                                                            )}
-                                                        </td>
-                                                        <td>
-                                                            <Badge bg={prop.status === 'success' ? 'success' : 'danger'}>
-                                                                {prop.status.toUpperCase()}
-                                                            </Badge>
-                                                        </td>
+                                        <>
+                                            {/* Summary Section for Proposals */}
+                                            <div className="mb-4 p-3 bg-light rounded shadow-sm">
+                                                <div className="row text-center g-2">
+                                                    <div className="col-md-6 col-6 mb-2">
+                                                        <div className="bg-white p-2 rounded border h-100">
+                                                            <small className="text-primary mb-1 d-block">Total Proposals Sent</small>
+                                                            <div className="fw-bold text-success">{proposalsList.length}</div>
+                                                        </div>
+                                                    </div>
+                                                    <div className="col-md-6 col-6 mb-2">
+                                                        <div className="bg-white p-2 rounded border h-100">
+                                                            <small className="text-primary mb-1 d-block">Total Applied</small>
+                                                            <div className="fw-bold text-info">
+                                                                {proposalsList.filter(p => p.hasApplied).length}
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <Table striped bordered hover responsive className="text-center align-middle">
+                                                <thead className="table-primary">
+                                                    <tr>
+                                                        <th>SL</th>
+                                                        <th>Time</th>
+                                                        <th>Tuition Code</th>
+                                                        <th>Recipient Phone</th>
+                                                        <th>Message</th>
+                                                        <th>Sent By</th>
+                                                        <th>Applied?</th>
+                                                        <th>Status</th>
                                                     </tr>
-                                                ))}
-                                            </tbody>
-                                        </Table>
+                                                </thead>
+                                                <tbody>
+                                                    {proposalsList.map((prop, idx) => (
+                                                        <tr key={prop._id}>
+                                                            <td style={{ fontWeight: '700' }}>{idx + 1}</td>
+                                                            <td>{formatDate(prop.createdAt)}</td>
+                                                            <td>
+                                                                {prop.tuitionCode ? (
+                                                                    <Badge bg="primary">{prop.tuitionCode}</Badge>
+                                                                ) : (
+                                                                    <span className="text-muted">-</span>
+                                                                )}
+                                                            </td>
+                                                            <td>{prop.phone}</td>
+                                                            <td className="text-start small" style={{ maxWidth: '300px', wordBreak: 'break-word' }}>
+                                                                {prop.message}
+                                                            </td>
+                                                            <td>{prop.sentBy}</td>
+                                                            <td>
+                                                                {prop.hasApplied ? (
+                                                                    <Badge bg="info">
+                                                                        Applied ({prop.applicationStatus || 'pending'})
+                                                                    </Badge>
+                                                                ) : (
+                                                                    <Badge bg="secondary">No</Badge>
+                                                                )}
+                                                            </td>
+                                                            <td>
+                                                                <Badge bg={prop.status === 'success' ? 'success' : 'danger'}>
+                                                                    {prop.status.toUpperCase()}
+                                                                </Badge>
+                                                            </td>
+                                                        </tr>
+                                                    ))}
+                                                </tbody>
+                                            </Table>
+                                        </>
                                     ) : (
                                         <div className="text-center py-5">
                                             <p className="text-muted fst-italic">No SMS proposals found for this premium code.</p>

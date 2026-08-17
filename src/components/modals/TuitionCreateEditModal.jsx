@@ -249,6 +249,12 @@ export default function TuitionModal({ show, onHide, editingData = null, editing
 
         let guardianNumber = formData.guardianNumber ? formData.guardianNumber.toString().trim() : '';
 
+        if (!editingId && !guardianNumber) {
+            toast.error('Guardian number is required');
+            setSaving(false);
+            return;
+        }
+
         if (guardianNumber && guardianNumber.length < 11) {
             toast.error('Guardian number must be at least 11 digits long');
             setSaving(false);
@@ -600,16 +606,17 @@ export default function TuitionModal({ show, onHide, editingData = null, editing
                                                             <Form.Label className="fw-semibold">
                                                                 {label}
                                                                 {isCancelReasonPublic && <span className="text-danger ms-1">*</span>}
+                                                                {!editingId && name === 'guardianNumber' && <span className="text-danger ms-1">*</span>}
                                                             </Form.Label>
                                                             <Form.Control
                                                                 type={type}
                                                                 name={name}
                                                                 value={value}
                                                                 onChange={(e) => handleInputChange(e, field)}
-                                                                required={isCancelReasonPublic ? true : false}
+                                                                required={isCancelReasonPublic || (!editingId && name === 'guardianNumber') ? true : false}
                                                                 disabled={saving}
                                                                 style={customStyle}
-                                                                placeholder={isCancelReasonPublic ? 'Please state the reason for cancel/suspended' : ''}
+                                                                placeholder={isCancelReasonPublic ? 'Please state the reason for cancel/suspended' : (name === 'guardianNumber' && !editingId) ? 'Enter Guardian Number (Required)' : ''}
                                                             />
                                                         </Form.Group>
                                                     </Col>

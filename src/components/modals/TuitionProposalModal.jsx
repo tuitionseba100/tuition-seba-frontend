@@ -91,6 +91,71 @@ export default function TuitionProposalModal({ show, onHide, tuition }) {
         setDeptFilter(dept);
     };
 
+    const statusOptions = [
+        { value: 'all', label: 'All Statuses' },
+        { value: 'pending', label: 'Pending' },
+        { value: 'under review', label: 'Under Review' },
+        { value: 'pending payment', label: 'Pending Payment' },
+        { value: 'Must Advance', label: 'Must Advance' },
+        { value: 'After Confirmation', label: 'After Confirmation' },
+        { value: 'After Salary', label: 'After Salary' },
+        { value: '30% Advance', label: '30% Advance' },
+        { value: 'rejected', label: 'Rejected' },
+        { value: 'Free - Must Advance', label: 'Free - Must Advance' },
+        { value: 'verified', label: 'Verified' },
+        { value: 'suspended', label: 'Suspended' },
+        { value: 'Not interested', label: 'Not interested' }
+    ];
+
+    const unicodeOptions = [
+        { value: 'all', label: 'All Unicode' },
+        ...['CMC', 'CUET', 'CU Science', 'CU Arts', 'CU Commerce', 'CVASU', 'Private Science', 'Private Commerce', 'Private Arts', 'National Science', 'National Arts', 'National Commerce', 'Arabic', 'NC English', 'BC English', 'Special'].map(opt => ({ value: opt, label: opt }))
+    ];
+
+    const areaOptions = [
+        { value: 'all', label: 'All Areas' },
+        ...selectAreaOptions
+    ];
+
+    const handleStatusFilterChange = (selectedOptions) => {
+        const values = selectedOptions ? selectedOptions.map(o => o.value) : [];
+        let finalValues = values;
+        if (values.includes('all')) {
+            if (values[values.length - 1] === 'all') {
+                finalValues = ['all'];
+            } else {
+                finalValues = values.filter(v => v !== 'all');
+            }
+        }
+        handleFilterChange(finalValues, genderFilter, areaFilter, unicodeFilter, deptFilter);
+    };
+
+    const handleUnicodeFilterChange = (selectedOptions) => {
+        const values = selectedOptions ? selectedOptions.map(o => o.value) : [];
+        let finalValues = values;
+        if (values.includes('all')) {
+            if (values[values.length - 1] === 'all') {
+                finalValues = ['all'];
+            } else {
+                finalValues = values.filter(v => v !== 'all');
+            }
+        }
+        handleFilterChange(statusFilter, genderFilter, areaFilter, finalValues, deptFilter);
+    };
+
+    const handleAreaFilterChange = (selectedOptions) => {
+        const values = selectedOptions ? selectedOptions.map(o => o.value) : [];
+        let finalValues = values;
+        if (values.includes('all')) {
+            if (values[values.length - 1] === 'all') {
+                finalValues = ['all'];
+            } else {
+                finalValues = values.filter(v => v !== 'all');
+            }
+        }
+        handleFilterChange(statusFilter, genderFilter, finalValues, unicodeFilter, deptFilter);
+    };
+
     const handleApplyFilters = () => {
         fetchMatchedTeachers(statusFilter, genderFilter, areaFilter, unicodeFilter, deptFilter);
     };
@@ -101,10 +166,10 @@ export default function TuitionProposalModal({ show, onHide, tuition }) {
         try {
             const token = localStorage.getItem('token');
             const params = {};
-            if (statusVal && statusVal.length > 0) params.status = statusVal.join(',');
+            if (statusVal && statusVal.length > 0 && !statusVal.includes('all')) params.status = statusVal.join(',');
             if (gender) params.gender = gender;
-            if (areaVal && areaVal.length > 0) params.area = areaVal.join(',');
-            if (unicodeVal && unicodeVal.length > 0) params.unicode = unicodeVal.join(',');
+            if (areaVal && areaVal.length > 0 && !areaVal.includes('all')) params.area = areaVal.join(',');
+            if (unicodeVal && unicodeVal.length > 0 && !unicodeVal.includes('all')) params.unicode = unicodeVal.join(',');
             if (deptVal) params.department = deptVal;
 
             const response = await axios.get(`https://tuition-seba-backend-1-lpfs.onrender.com/api/tuition/${tuition._id}/match-teachers`, {
@@ -270,12 +335,19 @@ export default function TuitionProposalModal({ show, onHide, tuition }) {
             </Modal.Header>
             <Modal.Body className="bg-light">
                 {tuition && (
-                    <div className="bg-white p-3 rounded mb-3 border d-flex justify-content-between align-items-center flex-wrap gap-2">
-                        <div><strong>Class:</strong> {tuition.class}</div>
-                        <div><strong>Subjects:</strong> {tuition.subject}</div>
-                        <div><strong>Salary:</strong> {tuition.salary}</div>
-                        <div><strong>Area:</strong> <Badge bg="primary">{tuition.area}</Badge></div>
-                        <div><strong>Wanted:</strong> <Badge bg="info">{tuition.wantedTeacher || 'Any'}</Badge></div>
+                    <div className="bg-white p-3 rounded mb-3 border">
+                        <div className="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-2 pb-2 border-bottom">
+                            <div><strong>Class:</strong> {tuition.class}</div>
+                            <div><strong>Subjects:</strong> {tuition.subject}</div>
+                            <div><strong>Salary:</strong> {tuition.salary}</div>
+                            <div><strong>Area:</strong> <Badge bg="primary">{tuition.area}</Badge></div>
+                            <div><strong>Wanted:</strong> <Badge bg="info">{tuition.wantedTeacher || 'Any'}</Badge></div>
+                        </div>
+                        {tuition.note && (
+                            <div className="small text-secondary">
+                                <strong>Guardian Demand:</strong> {tuition.note}
+                            </div>
+                        )}
                     </div>
                 )}
 
@@ -306,35 +378,9 @@ export default function TuitionProposalModal({ show, onHide, tuition }) {
                                                     <Form.Label className="small fw-semibold">Teacher Status</Form.Label>
                                                     <Select 
                                                         isMulti
-                                                        options={[
-                                                            { value: 'pending', label: 'Pending' },
-                                                            { value: 'under review', label: 'Under Review' },
-                                                            { value: 'pending payment', label: 'Pending Payment' },
-                                                            { value: 'Must Advance', label: 'Must Advance' },
-                                                            { value: 'After Confirmation', label: 'After Confirmation' },
-                                                            { value: 'After Salary', label: 'After Salary' },
-                                                            { value: '30% Advance', label: '30% Advance' },
-                                                            { value: 'rejected', label: 'Rejected' },
-                                                            { value: 'Free - Must Advance', label: 'Free - Must Advance' },
-                                                            { value: 'verified', label: 'Verified' },
-                                                            { value: 'suspended', label: 'Suspended' },
-                                                            { value: 'Not interested', label: 'Not interested' }
-                                                        ]}
-                                                        value={[
-                                                            { value: 'pending', label: 'Pending' },
-                                                            { value: 'under review', label: 'Under Review' },
-                                                            { value: 'pending payment', label: 'Pending Payment' },
-                                                            { value: 'Must Advance', label: 'Must Advance' },
-                                                            { value: 'After Confirmation', label: 'After Confirmation' },
-                                                            { value: 'After Salary', label: 'After Salary' },
-                                                            { value: '30% Advance', label: '30% Advance' },
-                                                            { value: 'rejected', label: 'Rejected' },
-                                                            { value: 'Free - Must Advance', label: 'Free - Must Advance' },
-                                                            { value: 'verified', label: 'Verified' },
-                                                            { value: 'suspended', label: 'Suspended' },
-                                                            { value: 'Not interested', label: 'Not interested' }
-                                                        ].filter(opt => statusFilter.includes(opt.value))}
-                                                        onChange={(options) => handleFilterChange(options ? options.map(o => o.value) : [], genderFilter, areaFilter, unicodeFilter, deptFilter)}
+                                                        options={statusOptions}
+                                                        value={statusOptions.filter(opt => statusFilter.includes(opt.value))}
+                                                        onChange={handleStatusFilterChange}
                                                         placeholder="Status..."
                                                         styles={{
                                                             control: (base, state) => ({
@@ -372,9 +418,9 @@ export default function TuitionProposalModal({ show, onHide, tuition }) {
                                                     <Form.Label className="small fw-semibold">UniCode</Form.Label>
                                                     <Select 
                                                         isMulti
-                                                        options={['CMC', 'CUET', 'CU Science', 'CU Arts', 'CU Commerce', 'CVASU', 'Private Science', 'Private Commerce', 'Private Arts', 'National Science', 'National Arts', 'National Commerce', 'Arabic', 'NC English', 'BC English', 'Special'].map(opt => ({ value: opt, label: opt }))}
-                                                        value={['CMC', 'CUET', 'CU Science', 'CU Arts', 'CU Commerce', 'CVASU', 'Private Science', 'Private Commerce', 'Private Arts', 'National Science', 'National Arts', 'National Commerce', 'Arabic', 'NC English', 'BC English', 'Special'].map(opt => ({ value: opt, label: opt })).filter(opt => unicodeFilter.includes(opt.value))}
-                                                        onChange={(options) => handleFilterChange(statusFilter, genderFilter, areaFilter, options ? options.map(o => o.value) : [], deptFilter)}
+                                                        options={unicodeOptions}
+                                                        value={unicodeOptions.filter(opt => unicodeFilter.includes(opt.value))}
+                                                        onChange={handleUnicodeFilterChange}
                                                         placeholder="Unicode..."
                                                         styles={{
                                                             control: (base, state) => ({
@@ -410,9 +456,9 @@ export default function TuitionProposalModal({ show, onHide, tuition }) {
                                                     <Form.Label className="small fw-semibold">Area Match</Form.Label>
                                                     <Select 
                                                         isMulti
-                                                        options={selectAreaOptions}
-                                                        value={selectAreaOptions.filter(opt => areaFilter.includes(opt.value))}
-                                                        onChange={(options) => handleFilterChange(statusFilter, genderFilter, options ? options.map(o => o.value) : [], unicodeFilter, deptFilter)}
+                                                        options={areaOptions}
+                                                        value={areaOptions.filter(opt => areaFilter.includes(opt.value))}
+                                                        onChange={handleAreaFilterChange}
                                                         placeholder="Select Area..."
                                                         styles={{
                                                             control: (base, state) => ({

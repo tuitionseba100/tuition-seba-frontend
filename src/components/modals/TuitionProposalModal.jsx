@@ -27,16 +27,18 @@ export default function TuitionProposalModal({ show, onHide, tuition }) {
     const [loading, setLoading] = useState(false);
     const [historyLoading, setHistoryLoading] = useState(false);
     const [sending, setSending] = useState(false);
+    const [showConfirmModal, setShowConfirmModal] = useState(false);
 
     const [teachers, setTeachers] = useState([]);
     const [selectedTeacherIds, setSelectedTeacherIds] = useState([]);
     const [smsHistory, setSmsHistory] = useState([]);
 
     // Filters
-    const [statusFilter, setStatusFilter] = useState('verified');
+    const [statusFilter, setStatusFilter] = useState(['verified']);
     const [genderFilter, setGenderFilter] = useState('');
-    const [areaFilter, setAreaFilter] = useState('');
-    const [unicodeFilter, setUnicodeFilter] = useState('');
+    const [areaFilter, setAreaFilter] = useState([]);
+    const [unicodeFilter, setUnicodeFilter] = useState([]);
+    const [deptFilter, setDeptFilter] = useState('');
 
     // SMS Template
     const [template, setTemplate] = useState('');
@@ -44,7 +46,6 @@ export default function TuitionProposalModal({ show, onHide, tuition }) {
     const city = tuition?.city?.toLowerCase() || 'chittagong';
     const areaList = locationData.areaOptions[city] || [];
     const selectAreaOptions = areaList.map(area => ({ value: area, label: area }));
-    const currentAreaOption = selectAreaOptions.find(opt => opt.value === areaFilter) || (areaFilter ? { value: areaFilter, label: areaFilter } : null);
 
     // Set initial filters and template when tuition changes
     useEffect(() => {
@@ -58,7 +59,9 @@ export default function TuitionProposalModal({ show, onHide, tuition }) {
                 initialGender = 'male';
             }
             setGenderFilter(initialGender);
-            setUnicodeFilter('');
+            setUnicodeFilter([]);
+            setStatusFilter(['verified']);
+            setDeptFilter('');
 
             // Set default template pre-populated with actual values
             const code = tuition.tuitionCode || '';
@@ -70,37 +73,39 @@ export default function TuitionProposalModal({ show, onHide, tuition }) {
             const defaultTemplate = `[Tuition Alert]\nCode: ${code}\nClass: ${cls} (${subj})\nArea: ${area}\nSalary: ${salary}\nApply: tuitionsebaforum.com\nWhatsApp: 01571305804`;
             setTemplate(defaultTemplate);
 
-            const initialArea = tuition.area || '';
-            setAreaFilter(initialArea);
+            const initialAreas = tuition.area ? tuition.area.split(',').map(a => a.trim()).filter(Boolean) : [];
+            setAreaFilter(initialAreas);
 
             // Fetch matched teachers
-            fetchMatchedTeachers('verified', initialGender, initialArea, '');
+            fetchMatchedTeachers(['verified'], initialGender, initialAreas, [], '');
             // Fetch SMS history
             fetchSmsHistory();
         }
     }, [tuition]);
 
-    const handleFilterChange = (status, gender, area, unicode) => {
+    const handleFilterChange = (status, gender, area, unicode, dept) => {
         setStatusFilter(status);
         setGenderFilter(gender);
         setAreaFilter(area);
         setUnicodeFilter(unicode);
+        setDeptFilter(dept);
     };
 
     const handleApplyFilters = () => {
-        fetchMatchedTeachers(statusFilter, genderFilter, areaFilter, unicodeFilter);
+        fetchMatchedTeachers(statusFilter, genderFilter, areaFilter, unicodeFilter, deptFilter);
     };
 
-    const fetchMatchedTeachers = async (status, gender, areaVal, unicodeVal) => {
+    const fetchMatchedTeachers = async (statusVal, gender, areaVal, unicodeVal, deptVal) => {
         if (!tuition?._id) return;
         setLoading(true);
         try {
             const token = localStorage.getItem('token');
             const params = {};
-            if (status) params.status = status;
+            if (statusVal && statusVal.length > 0) params.status = statusVal.join(',');
             if (gender) params.gender = gender;
-            if (areaVal !== undefined) params.area = areaVal;
-            if (unicodeVal) params.unicode = unicodeVal;
+            if (areaVal && areaVal.length > 0) params.area = areaVal.join(',');
+            if (unicodeVal && unicodeVal.length > 0) params.unicode = unicodeVal.join(',');
+            if (deptVal) params.department = deptVal;
 
             const response = await axios.get(`https://tuition-seba-backend-1-lpfs.onrender.com/api/tuition/${tuition._id}/match-teachers`, {
                 headers: { Authorization: token },
@@ -197,7 +202,7 @@ export default function TuitionProposalModal({ show, onHide, tuition }) {
 
     const { chars, parts, isUnicode } = calculateSmsParts(template);
 
-    const handleSendProposals = async () => {
+    const handleOpenConfirmation = () => {
         if (selectedTeacherIds.length === 0) {
             toast.warning('Please select at least one teacher');
             return;
@@ -206,27 +211,19 @@ export default function TuitionProposalModal({ show, onHide, tuition }) {
             toast.warning('SMS message cannot be empty');
             return;
         }
-
-        const selectedTeachers = teachers.filter(t => selectedTeacherIds.includes(t._id));
-
         if (template.length > 160) {
             toast.error('Cannot send: SMS messages cannot exceed the 160-character limit.');
             return;
         }
+        setShowConfirmModal(true);
+    };
 
-        const appliedSelectedCount = selectedTeachers.filter(t => t.hasApplied).length;
-        if (appliedSelectedCount > 0) {
-            const proceedApplied = window.confirm(`Warning: ${appliedSelectedCount} of the selected teachers have already applied for this tuition. Are you sure you want to send proposals to them?`);
-            if (!proceedApplied) return;
-        }
-
-        const confirmSend = window.confirm(`Are you sure you want to send proposals to ${selectedTeachers.length} teachers?`);
-        if (!confirmSend) return;
-
+    const handleSendProposals = async () => {
         setSending(true);
         try {
             const token = localStorage.getItem('token');
             const username = localStorage.getItem('username') || 'Admin';
+            const selectedTeachers = teachers.filter(t => selectedTeacherIds.includes(t._id));
 
             // Construct messages for /api/sms/send-dynamic
             const messages = selectedTeachers.map(teacher => {
@@ -246,6 +243,7 @@ export default function TuitionProposalModal({ show, onHide, tuition }) {
 
             if (response.data?.success) {
                 toast.success(`Successfully queued SMS proposals for ${selectedTeachers.length} teachers!`);
+                setShowConfirmModal(false);
                 fetchSmsHistory();
                 setActiveTab('history');
             } else {
@@ -306,24 +304,54 @@ export default function TuitionProposalModal({ show, onHide, tuition }) {
                                             <Col md={2}>
                                                 <Form.Group>
                                                     <Form.Label className="small fw-semibold">Teacher Status</Form.Label>
-                                                    <Form.Select 
-                                                        value={statusFilter} 
-                                                        onChange={(e) => handleFilterChange(e.target.value, genderFilter, areaFilter, unicodeFilter)}
-                                                    >
-                                                        <option value="">All Statuses</option>
-                                                        <option value="pending">Pending</option>
-                                                        <option value="under review">Under Review</option>
-                                                        <option value="pending payment">Pending Payment</option>
-                                                        <option value="Must Advance">Must Advance</option>
-                                                        <option value="After Confirmation">After Confirmation</option>
-                                                        <option value="After Salary">After Salary</option>
-                                                        <option value="30% Advance">30% Advance</option>
-                                                        <option value="rejected">Rejected</option>
-                                                        <option value="Free - Must Advance">Free - Must Advance</option>
-                                                        <option value="verified">Verified</option>
-                                                        <option value="suspended">Suspended</option>
-                                                        <option value="Not interested">Not interested</option>
-                                                    </Form.Select>
+                                                    <Select 
+                                                        isMulti
+                                                        options={[
+                                                            { value: 'pending', label: 'Pending' },
+                                                            { value: 'under review', label: 'Under Review' },
+                                                            { value: 'pending payment', label: 'Pending Payment' },
+                                                            { value: 'Must Advance', label: 'Must Advance' },
+                                                            { value: 'After Confirmation', label: 'After Confirmation' },
+                                                            { value: 'After Salary', label: 'After Salary' },
+                                                            { value: '30% Advance', label: '30% Advance' },
+                                                            { value: 'rejected', label: 'Rejected' },
+                                                            { value: 'Free - Must Advance', label: 'Free - Must Advance' },
+                                                            { value: 'verified', label: 'Verified' },
+                                                            { value: 'suspended', label: 'Suspended' },
+                                                            { value: 'Not interested', label: 'Not interested' }
+                                                        ]}
+                                                        value={[
+                                                            { value: 'pending', label: 'Pending' },
+                                                            { value: 'under review', label: 'Under Review' },
+                                                            { value: 'pending payment', label: 'Pending Payment' },
+                                                            { value: 'Must Advance', label: 'Must Advance' },
+                                                            { value: 'After Confirmation', label: 'After Confirmation' },
+                                                            { value: 'After Salary', label: 'After Salary' },
+                                                            { value: '30% Advance', label: '30% Advance' },
+                                                            { value: 'rejected', label: 'Rejected' },
+                                                            { value: 'Free - Must Advance', label: 'Free - Must Advance' },
+                                                            { value: 'verified', label: 'Verified' },
+                                                            { value: 'suspended', label: 'Suspended' },
+                                                            { value: 'Not interested', label: 'Not interested' }
+                                                        ].filter(opt => statusFilter.includes(opt.value))}
+                                                        onChange={(options) => handleFilterChange(options ? options.map(o => o.value) : [], genderFilter, areaFilter, unicodeFilter, deptFilter)}
+                                                        placeholder="Status..."
+                                                        styles={{
+                                                            control: (base, state) => ({
+                                                                ...base,
+                                                                border: '1.5px solid rgba(13,110,253,0.3)',
+                                                                boxShadow: state.isFocused
+                                                                    ? '0 0 6px rgba(13,110,253,0.25)'
+                                                                    : '0 0 4px rgba(13,110,253,0.12)',
+                                                                '&:hover': { borderColor: 'rgba(13,110,253,0.5)' },
+                                                                minHeight: '38px',
+                                                                borderRadius: '0.375rem',
+                                                                backgroundColor: 'white',
+                                                            }),
+                                                            menuPortal: (base) => ({ ...base, zIndex: 9999 })
+                                                        }}
+                                                        menuPortalTarget={document.body}
+                                                    />
                                                 </Form.Group>
                                             </Col>
                                             <Col md={2}>
@@ -331,7 +359,7 @@ export default function TuitionProposalModal({ show, onHide, tuition }) {
                                                     <Form.Label className="small fw-semibold">Gender</Form.Label>
                                                     <Form.Select 
                                                         value={genderFilter} 
-                                                        onChange={(e) => handleFilterChange(statusFilter, e.target.value, areaFilter, unicodeFilter)}
+                                                        onChange={(e) => handleFilterChange(statusFilter, e.target.value, areaFilter, unicodeFilter, deptFilter)}
                                                     >
                                                         <option value="">All Genders</option>
                                                         <option value="male">Male</option>
@@ -342,25 +370,49 @@ export default function TuitionProposalModal({ show, onHide, tuition }) {
                                             <Col md={2}>
                                                 <Form.Group>
                                                     <Form.Label className="small fw-semibold">UniCode</Form.Label>
-                                                    <Form.Select 
-                                                        value={unicodeFilter} 
-                                                        onChange={(e) => handleFilterChange(statusFilter, genderFilter, areaFilter, e.target.value)}
-                                                    >
-                                                        <option value="">All Unicode</option>
-                                                        {['CMC', 'CUET', 'CU Science', 'CU Arts', 'CU Commerce', 'CVASU', 'Private Science', 'Private Commerce', 'Private Arts', 'National Science', 'National Arts', 'National Commerce', 'Arabic', 'NC English', 'BC English', 'Special'].map(opt => (
-                                                            <option key={opt} value={opt}>{opt}</option>
-                                                        ))}
-                                                    </Form.Select>
+                                                    <Select 
+                                                        isMulti
+                                                        options={['CMC', 'CUET', 'CU Science', 'CU Arts', 'CU Commerce', 'CVASU', 'Private Science', 'Private Commerce', 'Private Arts', 'National Science', 'National Arts', 'National Commerce', 'Arabic', 'NC English', 'BC English', 'Special'].map(opt => ({ value: opt, label: opt }))}
+                                                        value={['CMC', 'CUET', 'CU Science', 'CU Arts', 'CU Commerce', 'CVASU', 'Private Science', 'Private Commerce', 'Private Arts', 'National Science', 'National Arts', 'National Commerce', 'Arabic', 'NC English', 'BC English', 'Special'].map(opt => ({ value: opt, label: opt })).filter(opt => unicodeFilter.includes(opt.value))}
+                                                        onChange={(options) => handleFilterChange(statusFilter, genderFilter, areaFilter, options ? options.map(o => o.value) : [], deptFilter)}
+                                                        placeholder="Unicode..."
+                                                        styles={{
+                                                            control: (base, state) => ({
+                                                                ...base,
+                                                                border: '1.5px solid rgba(13,110,253,0.3)',
+                                                                boxShadow: state.isFocused
+                                                                    ? '0 0 6px rgba(13,110,253,0.25)'
+                                                                    : '0 0 4px rgba(13,110,253,0.12)',
+                                                                '&:hover': { borderColor: 'rgba(13,110,253,0.5)' },
+                                                                minHeight: '38px',
+                                                                borderRadius: '0.375rem',
+                                                                backgroundColor: 'white',
+                                                            }),
+                                                            menuPortal: (base) => ({ ...base, zIndex: 9999 })
+                                                        }}
+                                                        menuPortalTarget={document.body}
+                                                    />
                                                 </Form.Group>
                                             </Col>
-                                            <Col md={3}>
+                                            <Col md={2}>
+                                                <Form.Group>
+                                                    <Form.Label className="small fw-semibold">Department</Form.Label>
+                                                    <Form.Control 
+                                                        type="text" 
+                                                        value={deptFilter} 
+                                                        onChange={(e) => handleFilterChange(statusFilter, genderFilter, areaFilter, unicodeFilter, e.target.value)}
+                                                        placeholder="Search Dept..."
+                                                    />
+                                                </Form.Group>
+                                            </Col>
+                                            <Col md={2}>
                                                 <Form.Group>
                                                     <Form.Label className="small fw-semibold">Area Match</Form.Label>
                                                     <Select 
+                                                        isMulti
                                                         options={selectAreaOptions}
-                                                        value={currentAreaOption}
-                                                        onChange={(option) => handleFilterChange(statusFilter, genderFilter, option ? option.value : '', unicodeFilter)}
-                                                        isClearable
+                                                        value={selectAreaOptions.filter(opt => areaFilter.includes(opt.value))}
+                                                        onChange={(options) => handleFilterChange(statusFilter, genderFilter, options ? options.map(o => o.value) : [], unicodeFilter, deptFilter)}
                                                         placeholder="Select Area..."
                                                         styles={{
                                                             control: (base, state) => ({
@@ -380,7 +432,7 @@ export default function TuitionProposalModal({ show, onHide, tuition }) {
                                                     />
                                                 </Form.Group>
                                             </Col>
-                                            <Col md={3}>
+                                            <Col md={2}>
                                                 <Form.Group>
                                                     <Button 
                                                         variant="primary" 
@@ -495,17 +547,10 @@ export default function TuitionProposalModal({ show, onHide, tuition }) {
                                         <Button 
                                             variant="primary" 
                                             className="w-100 fw-bold" 
-                                            onClick={handleSendProposals}
-                                            disabled={sending || selectedTeacherIds.length === 0 || chars > 160}
+                                            onClick={handleOpenConfirmation}
+                                            disabled={selectedTeacherIds.length === 0 || chars > 160}
                                         >
-                                            {sending ? (
-                                                <>
-                                                    <Spinner animation="grow" size="sm" className="me-2" />
-                                                    Sending ({selectedTeacherIds.length})...
-                                                </>
-                                            ) : (
-                                                `Send Proposals (${selectedTeacherIds.length})`
-                                            )}
+                                            Send Proposals ({selectedTeacherIds.length})
                                         </Button>
                                     </div>
                                 </Col>
@@ -565,6 +610,67 @@ export default function TuitionProposalModal({ show, onHide, tuition }) {
             </Modal.Body>
             <Modal.Footer>
                 <Button variant="secondary" onClick={onHide} disabled={sending}>Close</Button>
+            </Modal.Footer>
+        </Modal>
+
+        {/* Confirmation Modal */}
+        <Modal show={showConfirmModal} onHide={() => setShowConfirmModal(false)} size="lg" centered backdrop="static" style={{ zIndex: 1055 }}>
+            <Modal.Header closeButton className="bg-warning text-dark">
+                <Modal.Title className="fw-bold">⚠️ Confirm Sending Proposals</Modal.Title>
+            </Modal.Header>
+            <Modal.Body className="bg-light">
+                {/* Warning if already applied */}
+                {teachers.filter(t => selectedTeacherIds.includes(t._id) && t.hasApplied).length > 0 && (
+                    <div className="alert alert-danger fw-semibold py-2 px-3 mb-3" style={{ fontSize: '0.9rem' }}>
+                        ⚠️ Warning: {teachers.filter(t => selectedTeacherIds.includes(t._id) && t.hasApplied).length} of the selected teachers have already applied for this tuition.
+                    </div>
+                )}
+                
+                <h6 className="fw-bold mb-2">Message Body Preview:</h6>
+                <div className="p-3 border rounded bg-white mb-3" style={{ whiteSpace: 'pre-wrap', fontSize: '0.9rem', fontFamily: 'monospace' }}>
+                    {template}
+                </div>
+
+                <h6 className="fw-bold mb-2">Selected Recipients ({selectedTeacherIds.length}):</h6>
+                <div style={{ maxHeight: '200px', overflowY: 'auto' }} className="border rounded bg-white p-2">
+                    <Table striped hover size="sm" className="mb-0 align-middle" style={{ fontSize: '0.85rem' }}>
+                        <thead>
+                            <tr>
+                                <th>Premium Code</th>
+                                <th>Unicode</th>
+                                <th>Name</th>
+                                <th>Phone</th>
+                                <th>Applied?</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {teachers.filter(t => selectedTeacherIds.includes(t._id)).map(t => (
+                                <tr key={t._id}>
+                                    <td>{t.premiumCode || '-'}</td>
+                                    <td>{t.uniCode || '-'}</td>
+                                    <td>{t.name}</td>
+                                    <td>{t.phone}</td>
+                                    <td>{t.hasApplied ? <Badge bg="danger">Yes</Badge> : <Badge bg="secondary">No</Badge>}</td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </Table>
+                </div>
+            </Modal.Body>
+            <Modal.Footer>
+                <Button variant="secondary" onClick={() => setShowConfirmModal(false)} disabled={sending}>
+                    Cancel
+                </Button>
+                <Button variant="primary" onClick={handleSendProposals} disabled={sending}>
+                    {sending ? (
+                        <>
+                            <Spinner animation="grow" size="sm" className="me-2" />
+                            Sending...
+                        </>
+                    ) : (
+                        'Confirm & Send'
+                    )}
+                </Button>
             </Modal.Footer>
         </Modal>
         </>

@@ -212,18 +212,31 @@ export default function TuitionProposalModal({ show, onHide, tuition }) {
 
 
 
+    const isValidBDPhoneNumber = (phone) => {
+        if (!phone) return false;
+        const cleanPhone = phone.trim();
+        return /^(?:\+8801|8801|01)\d{9}$/.test(cleanPhone);
+    };
+
     const handleSelectAll = (e) => {
         if (e.target.checked) {
-            const appliedTeachersCount = teachers.filter(t => t.hasApplied).length;
+            const invalidCount = teachers.filter(t => !isValidBDPhoneNumber(t.phone)).length;
+            if (invalidCount > 0) {
+                toast.warning(`Filtered out ${invalidCount} teachers with invalid phone number formats.`);
+            }
+
+            const validTeachers = teachers.filter(t => isValidBDPhoneNumber(t.phone));
+            const appliedTeachersCount = validTeachers.filter(t => t.hasApplied).length;
+            
             if (appliedTeachersCount > 0) {
                 const proceed = window.confirm(`Warning: ${appliedTeachersCount} of the matched teachers have already applied for this tuition. Do you want to select them as well?`);
                 if (proceed) {
-                    setSelectedTeacherIds(teachers.map(t => t._id));
+                    setSelectedTeacherIds(validTeachers.map(t => t._id));
                 } else {
-                    setSelectedTeacherIds(teachers.filter(t => !t.hasApplied).map(t => t._id));
+                    setSelectedTeacherIds(validTeachers.filter(t => !t.hasApplied).map(t => t._id));
                 }
             } else {
-                setSelectedTeacherIds(teachers.map(t => t._id));
+                setSelectedTeacherIds(validTeachers.map(t => t._id));
             }
         } else {
             setSelectedTeacherIds([]);
@@ -235,9 +248,15 @@ export default function TuitionProposalModal({ show, onHide, tuition }) {
         
         if (!isCurrentlySelected) {
             const teacher = teachers.find(t => t._id === id);
-            if (teacher && teacher.hasApplied) {
-                const proceed = window.confirm(`Warning: Teacher ${teacher.name} (Code: ${teacher.premiumCode}) has already applied for this tuition. Are you sure you want to select them?`);
-                if (!proceed) return;
+            if (teacher) {
+                if (!isValidBDPhoneNumber(teacher.phone)) {
+                    toast.error(`Invalid Phone Number format: "${teacher.phone || 'empty'}" for teacher ${teacher.name}. Phone number must be 11 digits (starting with 01) or 13/14 digits with 88 prefix.`);
+                    return;
+                }
+                if (teacher.hasApplied) {
+                    const proceed = window.confirm(`Warning: Teacher ${teacher.name} (Code: ${teacher.premiumCode}) has already applied for this tuition. Are you sure you want to select them?`);
+                    if (!proceed) return;
+                }
             }
         }
 
@@ -280,6 +299,15 @@ export default function TuitionProposalModal({ show, onHide, tuition }) {
             toast.error('Cannot send: SMS messages cannot exceed the 160-character limit.');
             return;
         }
+
+        const selectedTeachers = teachers.filter(t => selectedTeacherIds.includes(t._id));
+        const invalidTeachers = selectedTeachers.filter(t => !isValidBDPhoneNumber(t.phone));
+        if (invalidTeachers.length > 0) {
+            const invalidNames = invalidTeachers.map(t => `${t.name} (${t.phone || 'empty'})`).join(', ');
+            toast.error(`Cannot send: The following selected teachers have invalid phone numbers: ${invalidNames}. Please deselect them before sending.`);
+            return;
+        }
+
         setShowConfirmModal(true);
     };
 

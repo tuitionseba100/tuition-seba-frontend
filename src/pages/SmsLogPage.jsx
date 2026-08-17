@@ -263,7 +263,6 @@ const SmsLogPage = () => {
                                         <th>Category</th>
                                         <th>Tuition Code</th>
                                         <th>Premium Code</th>
-                                        <th>Applied?</th>
                                         <th>Message</th>
                                         <th className="text-center">Status</th>
                                     </tr>
@@ -271,7 +270,7 @@ const SmsLogPage = () => {
                                 <tbody>
                                     {loading ? (
                                         <tr>
-                                            <td colSpan="10" className="text-center">
+                                            <td colSpan="9" className="text-center">
                                                 <div className="d-flex justify-content-center align-items-center py-4">
                                                     <Spinner animation="border" variant="primary" />
                                                 </div>
@@ -293,7 +292,20 @@ const SmsLogPage = () => {
                                                 </td>
                                                 <td style={{ verticalAlign: 'middle' }}>
                                                     {log.tuitionCode ? (
-                                                        <Badge bg="primary">{log.tuitionCode}</Badge>
+                                                        <>
+                                                            <Badge bg="primary">{log.tuitionCode}</Badge>
+                                                            {log.hasApplied ? (
+                                                                <div className="mt-1">
+                                                                    <Badge bg="info" style={{ fontSize: '0.75rem' }}>
+                                                                        Applied ({log.applicationStatus || 'pending'})
+                                                                    </Badge>
+                                                                </div>
+                                                            ) : (
+                                                                <div className="mt-1">
+                                                                    <Badge bg="secondary" style={{ fontSize: '0.75rem' }}>No</Badge>
+                                                                </div>
+                                                            )}
+                                                        </>
                                                     ) : (
                                                         <span className="text-muted">-</span>
                                                     )}
@@ -303,15 +315,6 @@ const SmsLogPage = () => {
                                                         <Badge bg="info" className="text-dark">{log.premiumCode}</Badge>
                                                     ) : (
                                                         <span className="text-muted">-</span>
-                                                    )}
-                                                </td>
-                                                <td style={{ verticalAlign: 'middle' }}>
-                                                    {log.hasApplied ? (
-                                                        <Badge bg="info">
-                                                            Applied ({log.applicationStatus || 'pending'})
-                                                        </Badge>
-                                                    ) : (
-                                                        <Badge bg="secondary">No</Badge>
                                                     )}
                                                 </td>
                                                 <td
@@ -344,7 +347,7 @@ const SmsLogPage = () => {
                                         ))
                                     ) : (
                                         <tr>
-                                            <td colSpan="10" className="text-center py-4 text-muted">
+                                            <td colSpan="9" className="text-center py-4 text-muted">
                                                 No SMS logs found.
                                             </td>
                                         </tr>

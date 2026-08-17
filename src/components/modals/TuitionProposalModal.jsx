@@ -296,7 +296,7 @@ export default function TuitionProposalModal({ show, onHide, tuition }) {
                         <Tab.Pane eventKey="send">
                             <Row>
                                 {/* Left Side: Filters & Teachers List */}
-                                <Col lg={8}>
+                                <Col lg={9}>
                                     <div className="bg-white p-3 rounded border mb-3">
                                         <h6 className="fw-bold border-bottom pb-2 mb-3">Matched Teachers ({teachers.length})</h6>
                                         
@@ -354,7 +354,7 @@ export default function TuitionProposalModal({ show, onHide, tuition }) {
                                                     />
                                                 </Form.Group>
                                             </Col>
-                                            <Col md={2}>
+                                            <Col md={1}>
                                                 <Form.Group>
                                                     <Form.Label className="small fw-semibold">Gender</Form.Label>
                                                     <Form.Select 
@@ -405,7 +405,7 @@ export default function TuitionProposalModal({ show, onHide, tuition }) {
                                                     />
                                                 </Form.Group>
                                             </Col>
-                                            <Col md={2}>
+                                            <Col md={3}>
                                                 <Form.Group>
                                                     <Form.Label className="small fw-semibold">Area Match</Form.Label>
                                                     <Select 
@@ -517,7 +517,7 @@ export default function TuitionProposalModal({ show, onHide, tuition }) {
                                 </Col>
 
                                 {/* Right Side: SMS Template and Preview */}
-                                <Col lg={4}>
+                                <Col lg={3}>
                                     <div className="bg-white p-3 rounded border mb-3">
                                         <h6 className="fw-bold border-bottom pb-2 mb-3">SMS Message Template</h6>
                                         <Form.Group className="mb-2">

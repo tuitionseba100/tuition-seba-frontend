@@ -294,7 +294,7 @@ const SmsLogPage = () => {
                                                     {log.tuitionCode ? (
                                                         <>
                                                             <Badge bg="primary">{log.tuitionCode}</Badge>
-                                                            {log.category !== 'Guardian Notification' && (
+                                                            {log.category === 'Proposal' && (
                                                                 log.hasApplied ? (
                                                                     <div className="mt-1">
                                                                         <Badge bg="info" style={{ fontSize: '0.75rem' }}>

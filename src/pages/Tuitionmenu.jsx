@@ -1884,9 +1884,16 @@ const MemoizedTuitionTable = React.memo(({
                                     <span>{tuition.isPublish ? "Yes" : "No"}</span>
                                     {tuition.isPublish && (
                                         tuition.isGuardianSmsSent ? (
-                                            <span className="badge bg-success mt-1" style={{ fontSize: '0.65rem' }}>SMS Sent</span>
+                                            <span className="badge bg-success mt-1" style={{ fontSize: '0.65rem' }}>Publish SMS Sent</span>
                                         ) : (
-                                            <span className="badge bg-warning text-dark mt-1" style={{ fontSize: '0.65rem' }}>SMS Not Sent</span>
+                                            <span className="badge bg-warning text-dark mt-1" style={{ fontSize: '0.65rem' }}>Publish SMS Not Sent</span>
+                                        )
+                                    )}
+                                    {tuition.status?.toLowerCase() === 'guardian no response' && (
+                                        tuition.isGuardianNoResponseSmsSent ? (
+                                            <span className="badge bg-info mt-1" style={{ fontSize: '0.65rem' }}>No Response SMS Sent</span>
+                                        ) : (
+                                            <span className="badge bg-secondary mt-1" style={{ fontSize: '0.65rem' }}>No Response SMS Not Sent</span>
                                         )
                                     )}
                                 </div>

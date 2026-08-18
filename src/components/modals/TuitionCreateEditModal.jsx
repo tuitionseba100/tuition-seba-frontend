@@ -65,9 +65,13 @@ const groups = fieldConfig.reduce((acc, field) => {
     return acc;
 }, {});
 
-const BANGLA_TEMPLATE = `সম্মানিত অভিভাবক,\nদক্ষ ও মানসম্মত শিক্ষক খুঁজতে আমাদের টিম কাজ করছে। অনুগ্রহ করে আমাদের ২৪ ঘণ্টা সময় দিন।\nযোগাযোগ: 01891-644064\n-টিউশন সেবা ফোরাম`;
+const BANGLA_TEMPLATE = `সম্মানিত অভিভাবক, দক্ষ, অভিজ্ঞ ও মানসম্মত শিক্ষক খুঁজতে আমাদের ২৪ ঘণ্টা সময় দিন।\nContact: 01891-644064 | Tuition Seba Forum`;
 
-const ENGLISH_TEMPLATE = `Dear Guardian,\nYour tutor request is active. Please wait 24h to find the best tutor. Avoid confirming via other tuition media.\nContact: 01891-644064\n-TSF`;
+const ENGLISH_TEMPLATE = `Dear Guardian,\nYour tutor request is active. Please wait 24h to find the best tutor. Avoid confirming via other tuition media.\nContact: 01891-644064 | TSF`;
+
+const NO_RESPONSE_BANGLA_TEMPLATE = `আপনি শিক্ষকের জন্য যোগাযোগ করেছিলেন, কিন্তু বারবার চেষ্টা করেও উত্তর পাইনি। এখনো প্রয়োজন হলে দ্রুত যোগাযোগ করুন।\nContact: 01891-644064 | TSF`;
+
+const NO_RESPONSE_ENGLISH_TEMPLATE = `We tried reaching you about your tutor request but got no response. If still needed, please contact us soon.\nContact: 01891-644064 | TSF`;
 
 const modalStyles = `
     .form-control:focus,
@@ -138,6 +142,7 @@ export default function TuitionModal({ show, onHide, editingData = null, editing
     const [smsMessage, setSmsMessage] = useState('');
     const [smsRecipient, setSmsRecipient] = useState('');
     const [smsLanguage, setSmsLanguage] = useState('bangla');
+    const [smsModalType, setSmsModalType] = useState('publish'); // 'publish' | 'noResponse'
     const role = localStorage.getItem('role');
 
     const cityOptions = locationData.cityOptions.map(({ value, label }) => ({ value, label }));
@@ -271,10 +276,10 @@ export default function TuitionModal({ show, onHide, editingData = null, editing
 
     const handleLanguageChange = (lang) => {
         setSmsLanguage(lang);
-        if (lang === 'bangla') {
-            setSmsMessage(BANGLA_TEMPLATE);
+        if (smsModalType === 'noResponse') {
+            setSmsMessage(lang === 'bangla' ? NO_RESPONSE_BANGLA_TEMPLATE : NO_RESPONSE_ENGLISH_TEMPLATE);
         } else {
-            setSmsMessage(ENGLISH_TEMPLATE);
+            setSmsMessage(lang === 'bangla' ? BANGLA_TEMPLATE : ENGLISH_TEMPLATE);
         }
     };
 
@@ -329,8 +334,29 @@ export default function TuitionModal({ show, onHide, editingData = null, editing
 
         if (isPublishChangedToTrue && !formData.isGuardianSmsSent) {
             setSmsLanguage('bangla');
+            setSmsModalType('publish');
             const defaultMsg = BANGLA_TEMPLATE;
             
+            let primaryPhone = guardianNumber;
+            if (guardianNumber.includes('/')) {
+                primaryPhone = guardianNumber.split('/')[0].trim();
+            }
+
+            setSmsRecipient(primaryPhone);
+            setSmsMessage(defaultMsg);
+            setShowSmsModal(true);
+            setSaving(false);
+            return;
+        }
+
+        const isNoResponseStatus = currentStatus === 'guardian no response';
+        const wasNoResponseBefore = (editingData?.status || '').toLowerCase() === 'guardian no response';
+
+        if (isNoResponseStatus && !wasNoResponseBefore && !formData.isGuardianNoResponseSmsSent) {
+            setSmsLanguage('bangla');
+            setSmsModalType('noResponse');
+            const defaultMsg = NO_RESPONSE_BANGLA_TEMPLATE;
+
             let primaryPhone = guardianNumber;
             if (guardianNumber.includes('/')) {
                 primaryPhone = guardianNumber.split('/')[0].trim();
@@ -377,12 +403,17 @@ export default function TuitionModal({ show, onHide, editingData = null, editing
         const currentStatus = formData.status ? formData.status.toLowerCase() : 'available';
         const guardianNumber = formData.guardianNumber ? formData.guardianNumber.toString().trim() : '';
 
+        const isNoResponse = smsModalType === 'noResponse';
+
         try {
             const updatedTuitionData = {
                 ...formData,
                 guardianNumber: guardianNumber,
                 status: currentStatus,
-                isGuardianSmsSent: true,
+                ...(isNoResponse
+                    ? { isGuardianNoResponseSmsSent: true }
+                    : { isGuardianSmsSent: true }
+                ),
                 updatedBy: username,
             };
 
@@ -393,13 +424,15 @@ export default function TuitionModal({ show, onHide, editingData = null, editing
                 await axios.post('https://tuition-seba-backend-1-lpfs.onrender.com/api/tuition/add', updatedTuitionData);
             }
 
+            const smsCategory = isNoResponse ? 'Guardian No Response' : 'Guardian Publish Notification';
+
             const smsRes = await axios.post(
                 `https://tuition-seba-backend-1-lpfs.onrender.com/api/sms/send-single`,
                 {
                     phone: smsRecipient,
                     message: smsMessage,
                     tuitionCode: formData.tuitionCode || '',
-                    category: 'Guardian Notification'
+                    category: smsCategory
                 },
                 {
                     headers: {
@@ -436,12 +469,17 @@ export default function TuitionModal({ show, onHide, editingData = null, editing
         const currentStatus = formData.status ? formData.status.toLowerCase() : 'available';
         const guardianNumber = formData.guardianNumber ? formData.guardianNumber.toString().trim() : '';
 
+        const isNoResponse = smsModalType === 'noResponse';
+
         try {
             const updatedTuitionData = {
                 ...formData,
                 guardianNumber: guardianNumber,
                 status: currentStatus,
-                isGuardianSmsSent: false,
+                ...(isNoResponse
+                    ? { isGuardianNoResponseSmsSent: false }
+                    : { isGuardianSmsSent: false }
+                ),
                 updatedBy: username,
             };
 
@@ -810,7 +848,9 @@ export default function TuitionModal({ show, onHide, editingData = null, editing
             {/* Guardian SMS Modal */}
             <Modal show={showSmsModal} onHide={() => setShowSmsModal(false)} size="lg" contentClassName="border border-3 border-success rounded-3 shadow-lg" centered>
                 <Modal.Header closeButton>
-                    <Modal.Title className="fw-bold text-success">Send Guardian Notification SMS</Modal.Title>
+                    <Modal.Title className="fw-bold text-success">
+                        {smsModalType === 'noResponse' ? 'Send Guardian No Response SMS' : 'Send Guardian Notification SMS'}
+                    </Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
                     <Form.Group className="mb-3" controlId="smsPhone">

@@ -193,7 +193,6 @@ const LeadPage = () => {
         const updatedData = {
             ...leadData,
             followUpDate: leadData.followUpDate ? toUTCStringFromBangladesh(leadData.followUpDate) : null,
-            createdBy: username
         };
 
         try {
@@ -205,6 +204,7 @@ const LeadPage = () => {
                 });
                 toast.success("Record updated successfully!");
             } else {
+                updatedData.createdBy = username;
                 await axios.post('https://tuition-seba-backend-1-lpfs.onrender.com/api/lead/add', updatedData, {
                     headers: { Authorization: token },
                 });

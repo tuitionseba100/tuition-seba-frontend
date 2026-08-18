@@ -69,9 +69,9 @@ const BANGLA_TEMPLATE = `সম্মানিত অভিভাবক, দক�
 
 const ENGLISH_TEMPLATE = `Dear Guardian,\nYour tutor request is active. Please wait 24h to find the best tutor. Avoid confirming via other tuition media.\nContact: 01891-644064 | TSF`;
 
-const NO_RESPONSE_BANGLA_TEMPLATE = `আপনি শিক্ষকের জন্য যোগাযোগ করেছিলেন, কিন্তু বারবার চেষ্টা করেও উত্তর পাইনি। এখনো প্রয়োজন হলে দ্রুত যোগাযোগ করুন।\nContact: 01891-644064 | TSF`;
+const NO_RESPONSE_BANGLA_TEMPLATE = `শিক্ষকের জন্য যোগাযোগ করেছিলেন, কিন্তু উত্তর পাইনি। এখনো দরকার হলে যোগাযোগ করুন।\nContact: 01891-644064 | TSF`;
 
-const NO_RESPONSE_ENGLISH_TEMPLATE = `We tried reaching you about your tutor request but got no response. If still needed, please contact us soon.\nContact: 01891-644064 | TSF`;
+const NO_RESPONSE_ENGLISH_TEMPLATE = `Dear Guardian,\nWe tried reaching you about your tutor request but got no response. If still needed, please contact us soon.\nContact: 01891-644064 | TSF`;
 
 const modalStyles = `
     .form-control:focus,

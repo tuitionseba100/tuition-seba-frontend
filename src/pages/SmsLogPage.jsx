@@ -294,16 +294,18 @@ const SmsLogPage = () => {
                                                     {log.tuitionCode ? (
                                                         <>
                                                             <Badge bg="primary">{log.tuitionCode}</Badge>
-                                                            {log.hasApplied ? (
-                                                                <div className="mt-1">
-                                                                    <Badge bg="info" style={{ fontSize: '0.75rem' }}>
-                                                                        Applied ({log.applicationStatus || 'pending'})
-                                                                    </Badge>
-                                                                </div>
-                                                            ) : (
-                                                                <div className="mt-1">
-                                                                    <Badge bg="secondary" style={{ fontSize: '0.75rem' }}>No</Badge>
-                                                                </div>
+                                                            {log.category !== 'Guardian Notification' && (
+                                                                log.hasApplied ? (
+                                                                    <div className="mt-1">
+                                                                        <Badge bg="info" style={{ fontSize: '0.75rem' }}>
+                                                                            Applied ({log.applicationStatus || 'pending'})
+                                                                        </Badge>
+                                                                    </div>
+                                                                ) : (
+                                                                    <div className="mt-1">
+                                                                        <Badge bg="secondary" style={{ fontSize: '0.75rem' }}>No</Badge>
+                                                                    </div>
+                                                                )
                                                             )}
                                                         </>
                                                     ) : (

@@ -1,6 +1,6 @@
 import React from "react";
 import { Container, Row, Col } from "react-bootstrap";
-import { FaFacebookF, FaWhatsapp, FaPhoneAlt, FaEnvelope, FaMapMarkerAlt, FaGlobe, FaGooglePlay } from "react-icons/fa";
+import { FaFacebookF, FaWhatsapp, FaPhoneAlt, FaEnvelope, FaMapMarkerAlt, FaGlobe, FaGooglePlay, FaCode } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 
@@ -349,6 +349,48 @@ const Footer = () => {
                                 <li className="list-inline-item mx-2"><a href="#" className="text-white-50 small text-decoration-none">Terms</a></li>
                                 <li className="list-inline-item mx-2"><a href="#" className="text-white-50 small text-decoration-none">Privacy</a></li>
                             </ul>
+                        </div>
+                    </div>
+
+                    <div className="row mt-3 justify-content-center">
+                        <div className="col-12 text-center">
+                            <p className="mb-0 small text-white-50 d-flex align-items-center justify-content-center gap-1 flex-wrap" style={{ fontSize: '0.85rem' }}>
+                                <FaCode style={{ color: '#61dafb', marginRight: '4px' }} />
+                                <span className="text-white fw-bold">Developed by</span>
+                                <span style={{ color: '#61dafb', fontWeight: '800', letterSpacing: '0.5px' }}>Md Arif Uddin</span>
+                                <span className="mx-1 text-white-50">|</span>
+                                <a
+                                    href="https://wa.me/8801825334505"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="d-inline-flex align-items-center gap-1 fw-bold text-decoration-none px-2 py-1 rounded"
+                                    style={{
+                                        color: '#25d366',
+                                        backgroundColor: 'rgba(37, 211, 102, 0.08)',
+                                        border: '1px solid rgba(37, 211, 102, 0.15)',
+                                        fontSize: '0.8rem',
+                                        transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                                        boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+                                    }}
+                                    onMouseEnter={(e) => {
+                                        e.currentTarget.style.backgroundColor = 'rgba(37, 211, 102, 0.2)';
+                                        e.currentTarget.style.borderColor = '#25d366';
+                                        e.currentTarget.style.color = '#fff';
+                                        e.currentTarget.style.transform = 'translateY(-1px)';
+                                        e.currentTarget.style.boxShadow = '0 4px 8px rgba(37, 211, 102, 0.2)';
+                                    }}
+                                    onMouseLeave={(e) => {
+                                        e.currentTarget.style.backgroundColor = 'rgba(37, 211, 102, 0.08)';
+                                        e.currentTarget.style.borderColor = 'rgba(37, 211, 102, 0.15)';
+                                        e.currentTarget.style.color = '#25d366';
+                                        e.currentTarget.style.transform = 'none';
+                                        e.currentTarget.style.boxShadow = '0 2px 4px rgba(0,0,0,0.1)';
+                                    }}
+                                >
+                                    <FaWhatsapp style={{ fontSize: '0.95rem' }} />
+                                    01825334505
+                                </a>
+                            </p>
                         </div>
                     </div>
                 </Container>

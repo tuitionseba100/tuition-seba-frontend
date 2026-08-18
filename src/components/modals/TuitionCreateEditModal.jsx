@@ -56,6 +56,7 @@ const fieldConfig = [
     { name: 'isUrgent', label: 'Is Emergency?', group: 'others', col: 3, type: 'switch', defaultValue: false },
     { name: 'isPaymentCreated', label: 'Payment Created?', group: 'others', col: 3, type: 'switch', defaultValue: false },
     { name: 'isProposal', label: 'Is Proposal?', group: 'others', col: 3, type: 'switch', defaultValue: false },
+    { name: 'isGuardianSmsSent', label: 'Guardian SMS Sent?', group: 'others', col: 3, type: 'switch', defaultValue: false },
 ];
 
 const groups = fieldConfig.reduce((acc, field) => {
@@ -63,6 +64,10 @@ const groups = fieldConfig.reduce((acc, field) => {
     acc[field.group].push(field);
     return acc;
 }, {});
+
+const BANGLA_TEMPLATE = `সম্মানিত অভিভাবক,\nদক্ষ ও মানসম্মত শিক্ষক খুঁজতে আমাদের টিম কাজ করছে। অনুগ্রহ করে আমাদের ২৪ ঘণ্টা সময় দিন।\nযোগাযোগ: 01891-644064\n-টিউশন সেবা ফোরাম`;
+
+const ENGLISH_TEMPLATE = `Dear Guardian,\nYour tutor request is active. Please wait 24h to find the best tutor. Avoid confirming via other tuition media.\nContact: 01891-644064\n-TSF`;
 
 const modalStyles = `
     .form-control:focus,
@@ -129,6 +134,10 @@ export default function TuitionModal({ show, onHide, editingData = null, editing
     const [userOptions, setUserOptions] = useState([]);
     const [marketingMediums, setMarketingMediums] = useState([]);
     const [saving, setSaving] = useState(false);
+    const [showSmsModal, setShowSmsModal] = useState(false);
+    const [smsMessage, setSmsMessage] = useState('');
+    const [smsRecipient, setSmsRecipient] = useState('');
+    const [smsLanguage, setSmsLanguage] = useState('bangla');
     const role = localStorage.getItem('role');
 
     const cityOptions = locationData.cityOptions.map(({ value, label }) => ({ value, label }));
@@ -243,6 +252,32 @@ export default function TuitionModal({ show, onHide, editingData = null, editing
         setFormData(prev => ({ ...prev, area: areaValue }));
     };
 
+    const validatePhoneNumber = (number) => {
+        if (!number) return false;
+        const cleanNumber = number.replace(/\s+/g, '');
+        return /^(?:\+?88)?01[3-9]\d{8}$/.test(cleanNumber);
+    };
+
+    const getSmsPartsCount = (text) => {
+        if (!text) return 0;
+        const isUnicode = /[^\u0000-\u007F]/.test(text);
+        const len = text.length;
+        if (isUnicode) {
+            return len <= 70 ? 1 : Math.ceil(len / 67);
+        } else {
+            return len <= 160 ? 1 : Math.ceil(len / 153);
+        }
+    };
+
+    const handleLanguageChange = (lang) => {
+        setSmsLanguage(lang);
+        if (lang === 'bangla') {
+            setSmsMessage(BANGLA_TEMPLATE);
+        } else {
+            setSmsMessage(ENGLISH_TEMPLATE);
+        }
+    };
+
     const handleSaveTuition = async () => {
         setSaving(true);
 
@@ -290,6 +325,24 @@ export default function TuitionModal({ show, onHide, editingData = null, editing
             formData.tuitionCancelReasonPublic = '';
         }
 
+        const isPublishChangedToTrue = (formData.isPublish === true || formData.isPublish === 'true') && (!editingId || !editingData?.isPublish);
+
+        if (isPublishChangedToTrue && !formData.isGuardianSmsSent) {
+            setSmsLanguage('bangla');
+            const defaultMsg = BANGLA_TEMPLATE;
+            
+            let primaryPhone = guardianNumber;
+            if (guardianNumber.includes('/')) {
+                primaryPhone = guardianNumber.split('/')[0].trim();
+            }
+
+            setSmsRecipient(primaryPhone);
+            setSmsMessage(defaultMsg);
+            setShowSmsModal(true);
+            setSaving(false);
+            return;
+        }
+
         try {
             const updatedTuitionData = {
                 ...formData,
@@ -315,6 +368,103 @@ export default function TuitionModal({ show, onHide, editingData = null, editing
             toast.error(errorMessage);
         }
         setSaving(false);
+    };
+
+    const handleSendSmsAndSave = async () => {
+        setSaving(true);
+        const username = localStorage.getItem('username');
+        const token = localStorage.getItem('token');
+        const currentStatus = formData.status ? formData.status.toLowerCase() : 'available';
+        const guardianNumber = formData.guardianNumber ? formData.guardianNumber.toString().trim() : '';
+
+        try {
+            const updatedTuitionData = {
+                ...formData,
+                guardianNumber: guardianNumber,
+                status: currentStatus,
+                isGuardianSmsSent: true,
+                updatedBy: username,
+            };
+
+            if (editingId) {
+                await axios.put(`https://tuition-seba-backend-1-lpfs.onrender.com/api/tuition/edit/${editingId}`, updatedTuitionData);
+            } else {
+                updatedTuitionData.createdBy = username;
+                await axios.post('https://tuition-seba-backend-1-lpfs.onrender.com/api/tuition/add', updatedTuitionData);
+            }
+
+            const smsRes = await axios.post(
+                `https://tuition-seba-backend-1-lpfs.onrender.com/api/sms/send-single`,
+                {
+                    phone: smsRecipient,
+                    message: smsMessage,
+                    tuitionCode: formData.tuitionCode || '',
+                    category: 'Guardian Notification'
+                },
+                {
+                    headers: {
+                        Authorization: token,
+                        'x-user-name': username
+                    }
+                }
+            );
+
+            if (smsRes.data && !smsRes.data.success) {
+                console.error("Guardian SMS sending failed:", smsRes.data);
+                toast.warning(`Tuition record saved, but SMS failed: ${smsRes.data.statusMessage || 'Unknown API status error'}`);
+            } else {
+                toast.success('Tuition record saved and SMS sent successfully!');
+            }
+
+            setShowSmsModal(false);
+            onHide();
+            fetchTuitionRecords();
+            fetchSummaryCounts();
+            if (fetchAlertData) fetchAlertData();
+        } catch (err) {
+            console.error('Error saving tuition record or sending SMS:', err);
+            const errorMessage = err.response?.data?.message || 'Error saving tuition record.';
+            toast.error(errorMessage);
+        } finally {
+            setSaving(false);
+        }
+    };
+
+    const handleSaveWithoutSms = async () => {
+        setSaving(true);
+        const username = localStorage.getItem('username');
+        const currentStatus = formData.status ? formData.status.toLowerCase() : 'available';
+        const guardianNumber = formData.guardianNumber ? formData.guardianNumber.toString().trim() : '';
+
+        try {
+            const updatedTuitionData = {
+                ...formData,
+                guardianNumber: guardianNumber,
+                status: currentStatus,
+                isGuardianSmsSent: false,
+                updatedBy: username,
+            };
+
+            if (editingId) {
+                await axios.put(`https://tuition-seba-backend-1-lpfs.onrender.com/api/tuition/edit/${editingId}`, updatedTuitionData);
+            } else {
+                updatedTuitionData.createdBy = username;
+                await axios.post('https://tuition-seba-backend-1-lpfs.onrender.com/api/tuition/add', updatedTuitionData);
+            }
+
+            toast.success('Tuition record saved successfully (SMS bypassed)!');
+            setShowSmsModal(false);
+            onHide();
+            fetchTuitionRecords();
+            fetchSummaryCounts();
+            if (fetchAlertData) fetchAlertData();
+        } catch (err) {
+            console.error('Error saving tuition record:', err);
+            const errorMessage = err.response?.data?.message || 'Error saving tuition record.';
+            toast.error(errorMessage);
+        } finally {
+            setSaving(false);
+        }
     };
 
     const inputBorderStyle = {
@@ -653,6 +803,90 @@ export default function TuitionModal({ show, onHide, editingData = null, editing
                         ) : (
                             'Save'
                         )}
+                    </Button>
+                </Modal.Footer>
+            </Modal>
+
+            {/* Guardian SMS Modal */}
+            <Modal show={showSmsModal} onHide={() => setShowSmsModal(false)} size="lg" contentClassName="border border-3 border-success rounded-3 shadow-lg" centered>
+                <Modal.Header closeButton>
+                    <Modal.Title className="fw-bold text-success">Send Guardian Notification SMS</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <Form.Group className="mb-3" controlId="smsPhone">
+                        <Form.Label className="fw-semibold">Sending SMS to:</Form.Label>
+                        <Form.Control 
+                            type="text" 
+                            value={smsRecipient} 
+                            onChange={(e) => setSmsRecipient(e.target.value)} 
+                            disabled={saving} 
+                        />
+                        {!validatePhoneNumber(smsRecipient) && (
+                            <Form.Text className="text-danger fw-bold d-block mt-1">
+                                ⚠️ অনুগ্রহ করে একটি সঠিক বাংলাদেশী মোবাইল নম্বর লিখুন (যেমন: 01825334505)।
+                            </Form.Text>
+                        )}
+                    </Form.Group>
+                    <Form.Group className="mb-3">
+                        <Form.Label className="fw-semibold d-block">Select SMS Language / টেমপ্লেট নির্বাচন করুন:</Form.Label>
+                        <div className="d-flex gap-3 bg-light p-2 rounded border border-1 border-success-subtle">
+                            <Form.Check
+                                type="radio"
+                                label="Bangla (বাংলা)"
+                                name="smsLanguage"
+                                id="smsLangBangla"
+                                checked={smsLanguage === 'bangla'}
+                                onChange={() => handleLanguageChange('bangla')}
+                                className="fw-medium text-success"
+                                disabled={saving}
+                            />
+                            <Form.Check
+                                type="radio"
+                                label="English (ইংরেজি)"
+                                name="smsLanguage"
+                                id="smsLangEnglish"
+                                checked={smsLanguage === 'english'}
+                                onChange={() => handleLanguageChange('english')}
+                                className="fw-medium text-success"
+                                disabled={saving}
+                            />
+                        </div>
+                    </Form.Group>
+                    <Form.Group className="mb-3" controlId="smsText">
+                        <Form.Label className="fw-semibold">SMS Message Body:</Form.Label>
+                        <Form.Control 
+                            as="textarea" 
+                            rows={6} 
+                            value={smsMessage} 
+                            onChange={(e) => setSmsMessage(e.target.value)} 
+                            disabled={saving} 
+                        />
+                        <Form.Text className="text-muted d-block mt-1 d-flex justify-content-between">
+                            <span>Characters typed: <strong>{smsMessage.length}</strong></span>
+                            <span>SMS Parts: <strong>{getSmsPartsCount(smsMessage)}</strong></span>
+                        </Form.Text>
+                    </Form.Group>
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="secondary" onClick={() => setShowSmsModal(false)} disabled={saving}>
+                        Cancel
+                    </Button>
+                    <Button variant="primary" onClick={handleSaveWithoutSms} disabled={saving}>
+                        {saving ? <><Spinner animation="border" size="sm" className="me-2" />Saving...</> : 'Save Without SMS'}
+                    </Button>
+                    <Button 
+                        variant="success" 
+                        onClick={() => {
+                            if (!validatePhoneNumber(smsRecipient)) {
+                                alert('মোবাইল নম্বরটি সঠিক নয়! অনুগ্রহ করে একটি সঠিক বাংলাদেশী মোবাইল নম্বর লিখুন।');
+                                return;
+                            }
+                            handleSendSmsAndSave();
+                        }} 
+                        disabled={saving}
+                        style={!validatePhoneNumber(smsRecipient) ? { opacity: 0.5, cursor: 'not-allowed' } : {}}
+                    >
+                        {saving ? <><Spinner animation="border" size="sm" className="me-2" />Sending...</> : 'Send SMS & Save'}
                     </Button>
                 </Modal.Footer>
             </Modal>

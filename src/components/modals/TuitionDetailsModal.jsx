@@ -52,6 +52,7 @@ const fieldConfig = [
     { name: 'isReviewDone', label: 'Review Done', group: 'others', col: 4, type: 'switch', defaultValue: false },
     { name: 'isUrgent', label: 'Is Emergency?', group: 'others', col: 4, type: 'switch', defaultValue: false },
     { name: 'isPaymentCreated', label: 'Payment Created?', group: 'others', col: 4, type: 'switch', defaultValue: false },
+    { name: 'isGuardianSmsSent', label: 'Guardian SMS Sent?', group: 'others', col: 4, type: 'switch', defaultValue: false },
     { name: 'createdBy', label: 'Created By', group: 'others', col: 6, type: 'text' },
     { name: 'updatedBy', label: 'Update by', group: 'others', col: 6, type: 'text' },
 ];

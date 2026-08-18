@@ -1835,7 +1835,16 @@ const MemoizedTuitionTable = React.memo(({
                                 style={{ cursor: 'pointer' }}
                                 title="Click to view status history"
                             >
-                                {tuition.isPublish ? "Yes" : "No"}
+                                <div className="d-flex flex-column align-items-center">
+                                    <span>{tuition.isPublish ? "Yes" : "No"}</span>
+                                    {tuition.isPublish && (
+                                        tuition.isGuardianSmsSent ? (
+                                            <span className="badge bg-success mt-1" style={{ fontSize: '0.65rem' }}>SMS Sent</span>
+                                        ) : (
+                                            <span className="badge bg-warning text-dark mt-1" style={{ fontSize: '0.65rem' }}>SMS Not Sent</span>
+                                        )
+                                    )}
+                                </div>
                             </td>
                             <td>
                                 <div className="d-flex flex-column align-items-center">

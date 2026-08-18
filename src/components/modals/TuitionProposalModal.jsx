@@ -698,7 +698,9 @@ export default function TuitionProposalModal({ show, onHide, tuition }) {
                                                         <td>{log.phone}</td>
                                                         <td className="fw-bold text-info">{log.premiumCode || '-'}</td>
                                                         <td>
-                                                            {log.hasApplied ? (
+                                                            {log.category === 'Guardian Notification' ? (
+                                                                '-'
+                                                            ) : log.hasApplied ? (
                                                                 <Badge bg="info">
                                                                     Applied ({log.applicationStatus || 'pending'})
                                                                 </Badge>

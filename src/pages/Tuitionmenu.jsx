@@ -81,7 +81,8 @@ const TuitionPage = () => {
         type: '',
         isReviewDone: '',
         tuitionTypeFilter: '',
-        applyTypeFilter: ''
+        applyTypeFilter: '',
+        isProposalFilter: ''
     });
 
     const [appliedFilters, setAppliedFilters] = useState({
@@ -96,7 +97,8 @@ const TuitionPage = () => {
         type: '',
         isReviewDone: '',
         tuitionTypeFilter: '',
-        applyTypeFilter: ''
+        applyTypeFilter: '',
+        isProposalFilter: ''
     });
 
     const [userOptions, setUserOptions] = useState([]);
@@ -263,7 +265,8 @@ const TuitionPage = () => {
             type: '',
             isReviewDone: '',
             tuitionTypeFilter: '',
-            applyTypeFilter: ''
+            applyTypeFilter: '',
+            isProposalFilter: ''
         };
         setSearchInputs(resetFilters);
         setAppliedFilters(resetFilters);
@@ -409,7 +412,8 @@ const TuitionPage = () => {
                     type: appliedFilters.type,
                     isReviewDone: appliedFilters.isReviewDone === "Yes" ? 'true' : appliedFilters.isReviewDone === "No" ? 'false' : undefined,
                     tuitionType: appliedFilters.tuitionTypeFilter || undefined,
-                    applyType: appliedFilters.applyTypeFilter || undefined
+                    applyType: appliedFilters.applyTypeFilter || undefined,
+                    isProposal: appliedFilters.isProposalFilter === "Yes" ? 'true' : appliedFilters.isProposalFilter === "No" ? 'false' : undefined
                 }
             });
 
@@ -441,7 +445,8 @@ const TuitionPage = () => {
                 type: appliedFilters.type,
                 isReviewDone: appliedFilters.isReviewDone === "Yes" ? 'true' : appliedFilters.isReviewDone === "No" ? 'false' : undefined,
                 tuitionType: appliedFilters.tuitionTypeFilter || undefined,
-                applyType: appliedFilters.applyTypeFilter || undefined
+                applyType: appliedFilters.applyTypeFilter || undefined,
+                isProposal: appliedFilters.isProposalFilter === "Yes" ? 'true' : appliedFilters.isProposalFilter === "No" ? 'false' : undefined
             };
 
             const res = await axios.get('https://tuition-seba-backend-1-lpfs.onrender.com/api/tuition/summary', {
@@ -957,6 +962,46 @@ const TuitionPage = () => {
                                 id="review-no"
                                 checked={searchInputs.isReviewDone === 'No'}
                                 onChange={() => handleSearchInputChange('isReviewDone', 'No')}
+                                onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+                            />
+                        </div>
+                    </Col>
+
+                    <Col md="auto">
+                        <Form.Label className="fw-bold d-block" style={getLabelStyle(searchInputs.isProposalFilter)}>Proposal Filter</Form.Label>
+                        <div className="d-flex flex-wrap align-items-center border rounded px-3 bg-white" style={{
+                            minHeight: '38px',
+                            border: searchInputs.isProposalFilter ? '2px solid #0d6efd' : '1px solid #ced4da',
+                            backgroundColor: searchInputs.isProposalFilter ? '#f0f8ff' : '#fff'
+                        }}>
+                            <Form.Check
+                                inline
+                                label="All"
+                                name="proposalGroup"
+                                type="radio"
+                                id="proposal-all"
+                                checked={searchInputs.isProposalFilter === ''}
+                                onChange={() => handleSearchInputChange('isProposalFilter', '')}
+                                onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+                            />
+                            <Form.Check
+                                inline
+                                label={<span className="text-primary">Proposal</span>}
+                                name="proposalGroup"
+                                type="radio"
+                                id="proposal-yes"
+                                checked={searchInputs.isProposalFilter === 'Yes'}
+                                onChange={() => handleSearchInputChange('isProposalFilter', 'Yes')}
+                                onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+                            />
+                            <Form.Check
+                                inline
+                                label={<span className="text-secondary">Regular</span>}
+                                name="proposalGroup"
+                                type="radio"
+                                id="proposal-no"
+                                checked={searchInputs.isProposalFilter === 'No'}
+                                onChange={() => handleSearchInputChange('isProposalFilter', 'No')}
                                 onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
                             />
                         </div>

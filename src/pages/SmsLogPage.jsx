@@ -6,6 +6,7 @@ import { FaSearch, FaTimes, FaEye } from 'react-icons/fa';
 import moment from 'moment';
 import styled from 'styled-components';
 import NavBarPage from './NavbarPage';
+import CreateSmsModal from '../components/modals/CreateSmsModal';
 
 const BASE_URL = 'https://tuition-seba-backend-1-lpfs.onrender.com';
 
@@ -18,6 +19,7 @@ const SmsLogPage = () => {
     const [limit, setLimit] = useState(50);
     const [selectedMsg, setSelectedMsg] = useState('');
     const [showMsgModal, setShowMsgModal] = useState(false);
+    const [showCreateModal, setShowCreateModal] = useState(false);
 
     const [searchInputs, setSearchInputs] = useState({
         search: '',
@@ -171,6 +173,9 @@ const SmsLogPage = () => {
             <Container>
                 <Header>
                     <h2 className='text-primary fw-bold'>SMS Sent Logs</h2>
+                    <Button variant="primary" onClick={() => setShowCreateModal(true)}>
+                        Send New SMS
+                    </Button>
                 </Header>
 
                 {/* Search bar styled identically to Premium Teacher Page */}
@@ -378,6 +383,13 @@ const SmsLogPage = () => {
                         </Button>
                     </Modal.Footer>
                 </Modal>
+
+                {/* Create SMS Modal */}
+                <CreateSmsModal
+                    show={showCreateModal}
+                    onHide={() => setShowCreateModal(false)}
+                    onSuccess={fetchLogs}
+                />
             </Container>
         </>
     );

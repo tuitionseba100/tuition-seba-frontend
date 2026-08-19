@@ -42,6 +42,7 @@ const smsTemplates = [
 const CreateSmsModal = ({ show, onHide, onSuccess }) => {
     const [activeTab, setActiveTab] = useState('single');
     const [loading, setLoading] = useState(false);
+    const [showConfirmModal, setShowConfirmModal] = useState(false);
 
     // Form inputs
     const [phone, setPhone] = useState('');
@@ -214,7 +215,7 @@ const CreateSmsModal = ({ show, onHide, onSuccess }) => {
         return true;
     };
 
-    // Handle submit
+    // Handle submit (triggers confirmation modal)
     const handleSubmit = async (e) => {
         e.preventDefault();
 
@@ -258,16 +259,31 @@ const CreateSmsModal = ({ show, onHide, onSuccess }) => {
             return;
         }
 
-        // 3. Confirm multi-part SMS
-        if (smsParts > 1) {
-            const confirmSend = window.confirm(
-                `Warning: This message consists of ${smsParts} SMS parts. Sending this will consume ${smsParts} credits per recipient. Are you sure you want to proceed?`
-            );
-            if (!confirmSend) {
+        // 3. Validate Phone numbers
+        if (activeTab === 'single') {
+            const normalized = normalizePhone(phone);
+            if (!isValidBDMobile(normalized)) {
+                toast.error('Invalid Bangladesh mobile number format. (Must be 11-digit or include 88 prefix)');
+                return;
+            }
+        } else {
+            if (duplicateCount > 0) {
+                toast.error('Duplicate phone numbers are not allowed. Please remove duplicates before sending.');
+                return;
+            }
+
+            if (parsedPhones.length === 0) {
+                toast.error('No valid phone numbers found to send.');
                 return;
             }
         }
 
+        setShowConfirmModal(true);
+    };
+
+    // Actual API dispatch handler called from confirmation modal
+    const handleActualSend = async () => {
+        const finalCategory = categorySelect === 'Other' ? customCategory.trim() : categorySelect;
         const token = localStorage.getItem('token');
         const username = localStorage.getItem('username') || 'Admin';
         const headers = {
@@ -279,14 +295,7 @@ const CreateSmsModal = ({ show, onHide, onSuccess }) => {
 
         try {
             if (activeTab === 'single') {
-                // Single SMS validation
                 const normalized = normalizePhone(phone);
-                if (!isValidBDMobile(normalized)) {
-                    toast.error('Invalid Bangladesh mobile number format. (Must be 11-digit or include 88 prefix)');
-                    setLoading(false);
-                    return;
-                }
-
                 const response = await axios.post(
                     `${BASE_URL}/api/sms/send-single`,
                     {
@@ -303,24 +312,12 @@ const CreateSmsModal = ({ show, onHide, onSuccess }) => {
                     toast.success('SMS sent successfully!');
                     handleResetForm();
                     onSuccess();
+                    setShowConfirmModal(false);
                     onHide();
                 } else {
                     toast.error(response.data?.statusMessage || 'Failed to send single SMS');
                 }
             } else {
-                // Broadcast SMS validation
-                if (duplicateCount > 0) {
-                    toast.error('Duplicate phone numbers are not allowed. Please remove duplicates before sending.');
-                    setLoading(false);
-                    return;
-                }
-
-                if (parsedPhones.length === 0) {
-                    toast.error('No valid phone numbers found to send.');
-                    setLoading(false);
-                    return;
-                }
-
                 const response = await axios.post(
                     `${BASE_URL}/api/sms/send-bulk`,
                     {
@@ -337,6 +334,7 @@ const CreateSmsModal = ({ show, onHide, onSuccess }) => {
                     toast.success(`Successfully sent SMS broadcast to ${parsedPhones.length} recipient(s)!`);
                     handleResetForm();
                     onSuccess();
+                    setShowConfirmModal(false);
                     onHide();
                 } else {
                     toast.error(response.data?.statusMessage || 'Failed to send broadcast SMS');
@@ -615,6 +613,93 @@ const CreateSmsModal = ({ show, onHide, onSuccess }) => {
                 </Modal.Footer>
             </Form>
         </Modal>
+
+        {/* Confirmation Modal */}
+        <Modal show={showConfirmModal} onHide={() => setShowConfirmModal(false)} size="md" centered backdrop="static">
+            <Modal.Header closeButton className="bg-warning text-dark">
+                <Modal.Title className="fw-bold">Confirm SMS Dispatch</Modal.Title>
+            </Modal.Header>
+            <Modal.Body>
+                <p className="text-muted mb-4">Please review the details below before sending the SMS:</p>
+                
+                <Row className="mb-2">
+                    <Col xs={4} className="fw-bold text-secondary">Send Type:</Col>
+                    <Col xs={8} className="text-dark fw-semibold">
+                        {activeTab === 'single' ? 'Single SMS' : `Broadcast SMS (${parsedPhones.length} recipients)`}
+                    </Col>
+                </Row>
+                
+                <Row className="mb-2">
+                    <Col xs={4} className="fw-bold text-secondary">Recipients:</Col>
+                    <Col xs={8} className="text-dark text-break">
+                        {activeTab === 'single' ? (
+                            <code>{normalizePhone(phone)}</code>
+                        ) : (
+                            <div style={{ maxHeight: '100px', overflowY: 'auto', border: '1px solid #dee2e6', padding: '5px', borderRadius: '4px', background: '#f8f9fa' }}>
+                                {parsedPhones.map((p, idx) => (
+                                    <div key={idx} className="small"><code>{p}</code></div>
+                                ))}
+                            </div>
+                        )}
+                    </Col>
+                </Row>
+                
+                <Row className="mb-2">
+                    <Col xs={4} className="fw-bold text-secondary">Category:</Col>
+                    <Col xs={8}>
+                        <Badge bg="info" className="text-dark fw-semibold">
+                            {categorySelect === 'Other' ? customCategory.trim() : categorySelect}
+                        </Badge>
+                    </Col>
+                </Row>
+
+                {(tuitionCode.trim() || premiumCode.trim()) && (
+                    <Row className="mb-2">
+                        <Col xs={4} className="fw-bold text-secondary">Codes:</Col>
+                        <Col xs={8}>
+                            {tuitionCode.trim() && <Badge bg="primary" className="me-1">Tuition: {tuitionCode.trim()}</Badge>}
+                            {premiumCode.trim() && <Badge bg="secondary">Premium: {premiumCode.trim()}</Badge>}
+                        </Col>
+                    </Row>
+                )}
+
+                <Row className="mb-2">
+                    <Col xs={4} className="fw-bold text-secondary">SMS Details:</Col>
+                    <Col xs={8} className="small">
+                        Parts: <strong>{smsParts}</strong> | Encoding: <strong>{isUnicode ? 'Unicode' : 'ASCII'}</strong>
+                    </Col>
+                </Row>
+
+                <hr />
+
+                <div className="mb-2 fw-bold text-secondary">Message Content:</div>
+                <div className="bg-light p-3 rounded text-dark text-break" style={{ whiteSpace: 'pre-wrap', maxHeight: '150px', overflowY: 'auto', border: '1px solid #e9ecef' }}>
+                    {message}
+                </div>
+
+                {smsParts > 1 && (
+                    <div className="alert alert-warning mt-3 mb-0 py-2 small d-flex align-items-center">
+                        <strong>Note:</strong> &nbsp; This is a multi-part SMS ({smsParts} parts) and will consume more credits.
+                    </div>
+                )}
+            </Modal.Body>
+            <Modal.Footer>
+                <Button variant="secondary" onClick={() => setShowConfirmModal(false)} disabled={loading}>
+                    Back to Edit
+                </Button>
+                <Button variant="success" onClick={handleActualSend} disabled={loading}>
+                    {loading ? (
+                        <>
+                            <Spinner animation="border" size="sm" className="me-2" />
+                            Sending...
+                        </>
+                    ) : (
+                        'Confirm & Send'
+                    )}
+                </Button>
+            </Modal.Footer>
+        </Modal>
+    </>
     );
 };
 

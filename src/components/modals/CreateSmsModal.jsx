@@ -368,6 +368,7 @@ const CreateSmsModal = ({ show, onHide, onSuccess }) => {
     const isBroadcastEmpty = broadcastPhones.map(p => p.trim()).filter(Boolean).length === 0;
 
     return (
+        <>
         <Modal show={show} onHide={onHide} size="lg" centered backdrop="static">
             <Modal.Header closeButton>
                 <Modal.Title className="fw-bold text-primary">Send New SMS</Modal.Title>

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Modal, Button, Form, Table, Row, Col, Spinner, Badge, Nav, Tab } from 'react-bootstrap';
+import { Modal, Button, Form, Table, Row, Col, Spinner, Badge, Nav, Tab, OverlayTrigger, Tooltip } from 'react-bootstrap';
 import { axiosWithFallback as axios } from '../../services/fetchWithFallback';
 import { toast } from 'react-toastify';
 import Select from 'react-select';
@@ -20,6 +20,16 @@ const modalStyles = `
         flex: 1 !important;
         overflow-y: auto !important;
     }
+    .cursor-pointer {
+        cursor: pointer !important;
+    }
+    .hover-lift {
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .hover-lift:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
 `;
 
 export default function TuitionProposalModal({ show, onHide, tuition }) {
@@ -32,6 +42,7 @@ export default function TuitionProposalModal({ show, onHide, tuition }) {
     const [teachers, setTeachers] = useState([]);
     const [selectedTeacherIds, setSelectedTeacherIds] = useState([]);
     const [smsHistory, setSmsHistory] = useState([]);
+    const [areaGroups, setAreaGroups] = useState([]);
 
     // Filters
     const [statusFilter, setStatusFilter] = useState(['verified']);
@@ -52,6 +63,27 @@ export default function TuitionProposalModal({ show, onHide, tuition }) {
     const totalPages = Math.ceil(teachers.length / pageSize);
     const startIndex = (currentPage - 1) * pageSize;
     const paginatedTeachers = teachers.slice(startIndex, startIndex + pageSize);
+
+    // Fetch area groups from settings
+    useEffect(() => {
+        if (show) {
+            const fetchAreaGroups = async () => {
+                try {
+                    const token = localStorage.getItem('token');
+                    const response = await axios.get('https://tuition-seba-backend-1-lpfs.onrender.com/api/settings', {
+                        headers: { Authorization: token }
+                    });
+                    const areaSetting = response.data.find(s => s.key === 'area_groups');
+                    if (areaSetting && Array.isArray(areaSetting.value)) {
+                        setAreaGroups(areaSetting.value);
+                    }
+                } catch (error) {
+                    console.error('Error fetching area groups:', error);
+                }
+            };
+            fetchAreaGroups();
+        }
+    }, [show]);
 
     // Set initial filters and template when tuition changes
     useEffect(() => {
@@ -88,6 +120,19 @@ export default function TuitionProposalModal({ show, onHide, tuition }) {
             fetchSmsHistory();
         }
     }, [tuition]);
+
+    const handleAreaGroupClick = (group) => {
+        const groupAreas = group.areas || [];
+        const newAreas = [...areaFilter];
+        groupAreas.forEach(area => {
+            if (!newAreas.includes(area)) {
+                newAreas.push(area);
+            }
+        });
+        const finalAreas = newAreas.filter(a => a !== 'all');
+        setAreaFilter(finalAreas);
+        toast.info(`Added areas from group: ${group.name}. Click "Apply Filters" to refresh.`);
+    };
 
     const handleFilterChange = (status, gender, area, unicode, dept) => {
         setStatusFilter(status);
@@ -406,6 +451,31 @@ export default function TuitionProposalModal({ show, onHide, tuition }) {
                                     <div className="bg-white p-3 rounded border mb-3">
                                         <h6 className="fw-bold border-bottom pb-2 mb-3">Matched Teachers ({teachers.length})</h6>
                                         
+                                        {areaGroups.length > 0 && (
+                                            <div className="mb-3 d-flex flex-wrap gap-1 align-items-center bg-light p-2 rounded border border-success-subtle">
+                                                <span className="text-success fw-bold small me-1">Quick Select Area Group:</span>
+                                                {areaGroups.map((group, idx) => (
+                                                    <OverlayTrigger
+                                                        key={idx}
+                                                        placement="top"
+                                                        overlay={
+                                                            <Tooltip id={`tooltip-group-${idx}`}>
+                                                                {group.areas.join(', ')}
+                                                            </Tooltip>
+                                                        }
+                                                    >
+                                                        <span
+                                                            onClick={() => handleAreaGroupClick(group)}
+                                                            className="badge bg-success text-white border-0 rounded-pill px-2 py-1 cursor-pointer hover-lift text-decoration-none"
+                                                            style={{ cursor: 'pointer', fontSize: '0.75rem', fontWeight: 600 }}
+                                                        >
+                                                            {group.name}
+                                                        </span>
+                                                    </OverlayTrigger>
+                                                ))}
+                                            </div>
+                                        )}
+
                                         <Row className="gy-2 mb-3 align-items-end">
                                             <Col md={2}>
                                                 <Form.Group>

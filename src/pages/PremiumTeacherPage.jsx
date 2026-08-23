@@ -87,7 +87,8 @@ const PremiumTeacherPage = () => {
         status: '',
         gender: '',
         uniCode: '',
-        referStatus: ''
+        referStatus: '',
+        referPersonPhone: ''
     });
 
     const [appliedFilters, setAppliedFilters] = useState({
@@ -99,22 +100,21 @@ const PremiumTeacherPage = () => {
         status: '',
         gender: '',
         uniCode: '',
-        referStatus: ''
+        referStatus: '',
+        referPersonPhone: ''
     });
 
     const searchFields = [
-        { key: 'premiumCode', label: 'Premium Code', type: 'text', col: 1 },
-        { key: 'department', label: 'Department', type: 'text', col: 1 },
-        {
-            key: 'uniCode', label: 'UniCode', type: 'select', options: ['CMC', 'CUET', 'CU Science', 'CU Arts', 'CU Commerce', 'CVASU', 'Private Science', 'Private Commerce', 'Private Arts', 'National Science', 'National Arts', 'National Commerce', 'Arabic', 'NC English', 'BC English', 'Special']
-            , col: 1
-        },
-        { key: 'name', label: 'Name', type: 'text', col: 1 },
-        { key: 'phone', label: 'Phone|Alt.|WhatsApp', type: 'text', col: 2 },
+        { key: 'premiumCode', label: 'Premium Code', type: 'text', col: 2 },
+        { key: 'name', label: 'Name', type: 'text', col: 2 },
+        { key: 'phone', label: 'Phone / WP / Alt', type: 'text', col: 2 },
+        { key: 'department', label: 'Department', type: 'text', col: 2 },
+        { key: 'uniCode', label: 'UniCode', type: 'select', options: ['CMC', 'CUET', 'CU Science', 'CU Arts', 'CU Commerce', 'CVASU', 'Private Science', 'Private Commerce', 'Private Arts', 'National Science', 'National Arts', 'National Commerce', 'Arabic', 'NC English', 'BC English', 'Special'], col: 2 },
         { key: 'currentArea', label: 'Area', type: 'text', col: 2 },
-        { key: 'status', label: 'Status', type: 'select', options: ['pending', 'under review', 'pending payment', 'Must Advance', 'After Confirmation', 'After Salary', '30% Advance', 'rejected', 'Free - Must Advance', 'verified', 'suspended', 'Not interested'], col: 1 },
-        { key: 'gender', label: 'Gender', type: 'select', options: ['male', 'female'], col: 1 },
-        { key: 'referStatus', label: 'Refer Status', type: 'select', options: ['pending', 'in review', 'canceled', 'spam', 'paid'], col: 1 }
+        { key: 'status', label: 'Status', type: 'select', options: ['pending', 'under review', 'pending payment', 'Must Advance', 'After Confirmation', 'After Salary', '30% Advance', 'rejected', 'Free - Must Advance', 'verified', 'suspended', 'Not interested'], col: 2 },
+        { key: 'gender', label: 'Gender', type: 'select', options: ['male', 'female'], col: 2 },
+        { key: 'referStatus', label: 'Refer Status', type: 'select', options: ['pending', 'in review', 'canceled', 'spam', 'paid'], col: 2 },
+        { key: 'referPersonPhone', label: 'Referred Phone', type: 'text', col: 2 }
     ];
 
     const fieldConfig = [
@@ -263,7 +263,8 @@ const PremiumTeacherPage = () => {
             status: '',
             gender: '',
             uniCode: '',
-            referStatus: ''
+            referStatus: '',
+            referPersonPhone: ''
         };
         setSearchInputs(resetFilters);
         setAppliedFilters(resetFilters);
@@ -723,87 +724,109 @@ const PremiumTeacherPage = () => {
                     </Card.Body>
                 </Card>
 
-                {/* Search bar */}
-                <Row className="mt-2 mb-3">
-                    {searchFields.map(({ key, label, type, options, col }) => (
-                        <Col md={col} key={key}>
-                            <Form.Label className="fw-bold">{label}</Form.Label>
+                {/* Search bar inside Card */}
+                <Card className="mt-2 mb-2 shadow-sm">
+                    <Card.Body className="py-2 px-3">
+                        <h6 className="text-primary fw-bold mb-2">Search & Filters</h6>
+                        <Row className="g-2">
+                            {searchFields.map(({ key, label, type, options, col }) => (
+                                <Col md={col} key={key}>
+                                    <Form.Label className="fw-bold mb-1" style={{ fontSize: '0.85rem' }}>{label}</Form.Label>
 
-                            {key === 'currentArea' ? (
-                                <CreatableSelect
-                                    isClearable
-                                    value={
-                                        searchInputs.currentArea
-                                            ? { label: searchInputs.currentArea, value: searchInputs.currentArea }
-                                            : null
-                                    }
-                                    onChange={(newValue) =>
-                                        handleSearchInputChange('currentArea', newValue ? newValue.value : '')
-                                    }
-                                    onKeyDown={(e) => {
-                                        if (e.key === 'Enter') handleSearch();
-                                    }}
-                                    options={[
-                                        ...areaOptions.chittagong.map((a) => ({ ...a, city: 'Chittagong' })),
-                                        ...areaOptions.dhaka.map((a) => ({ ...a, city: 'Dhaka' }))
-                                    ]
-                                        .sort((a, b) => a.value.localeCompare(b.value))
-                                        .map((opt) => ({ value: opt.value, label: `${opt.value} (${opt.city})` }))}
-                                    menuPortalTarget={document.body}
-                                    menuPosition="fixed"
-                                    styles={{
-                                        menuPortal: (base) => ({ ...base, zIndex: 9999 })
-                                    }}
-                                />
-                            ) : type === 'select' ? (
-                                <Form.Select
-                                    value={searchInputs[key]}
-                                    onChange={(e) => handleSearchInputChange(key, e.target.value)}
-                                    onKeyPress={handleKeyPress}
-                                >
-                                    <option value="">All</option>
-                                    {options.map((opt) => (
-                                        <option key={opt} value={opt}>
-                                            {opt}
-                                        </option>
-                                    ))}
-                                </Form.Select>
-                            ) : (
-                                <Form.Control
-                                    type="text"
-                                    placeholder={`Search by ${label}`}
-                                    value={searchInputs[key]}
-                                    onChange={(e) => handleSearchInputChange(key, e.target.value)}
-                                    onKeyPress={handleKeyPress}
-                                />
-                            )}
-                        </Col>
-                    ))}
+                                    {key === 'currentArea' ? (
+                                        <CreatableSelect
+                                            isClearable
+                                            value={
+                                                searchInputs.currentArea
+                                                    ? { label: searchInputs.currentArea, value: searchInputs.currentArea }
+                                                    : null
+                                            }
+                                            onChange={(newValue) =>
+                                                handleSearchInputChange('currentArea', newValue ? newValue.value : '')
+                                            }
+                                            onKeyDown={(e) => {
+                                                if (e.key === 'Enter') handleSearch();
+                                            }}
+                                            options={[
+                                                ...areaOptions.chittagong.map((a) => ({ ...a, city: 'Chittagong' })),
+                                                ...areaOptions.dhaka.map((a) => ({ ...a, city: 'Dhaka' }))
+                                            ]
+                                                .sort((a, b) => a.value.localeCompare(b.value))
+                                                .map((opt) => ({ value: opt.value, label: `${opt.value} (${opt.city})` }))}
+                                            menuPortalTarget={document.body}
+                                            menuPosition="fixed"
+                                            styles={{
+                                                menuPortal: (base) => ({ ...base, zIndex: 9999 }),
+                                                control: (base) => ({ ...base, minHeight: '31px', height: '31px' }),
+                                                valueContainer: (base) => ({ ...base, height: '31px', padding: '0 6px', fontSize: '0.85rem' }),
+                                                input: (base) => ({ ...base, margin: '0px' }),
+                                                indicatorsContainer: (base) => ({ ...base, height: '31px' }),
+                                                dropdownIndicator: (base) => ({ ...base, padding: '2px' }),
+                                                clearIndicator: (base) => ({ ...base, padding: '2px' })
+                                            }}
+                                        />
+                                    ) : type === 'select' ? (
+                                        <Form.Select
+                                            size="sm"
+                                            style={{ fontSize: '0.85rem' }}
+                                            value={searchInputs[key]}
+                                            onChange={(e) => handleSearchInputChange(key, e.target.value)}
+                                            onKeyPress={handleKeyPress}
+                                        >
+                                            <option value="">All</option>
+                                            {options.map((opt) => (
+                                                <option key={opt} value={opt}>
+                                                    {opt}
+                                                </option>
+                                            ))}
+                                        </Form.Select>
+                                    ) : (
+                                        <Form.Control
+                                            size="sm"
+                                            style={{ fontSize: '0.85rem' }}
+                                            type="text"
+                                            placeholder={`Search by ${label}`}
+                                            value={searchInputs[key]}
+                                            onChange={(e) => handleSearchInputChange(key, e.target.value)}
+                                            onKeyPress={handleKeyPress}
+                                        />
+                                    )}
+                                </Col>
+                            ))}
 
-                    <Col md={1} className="d-flex align-items-end">
-                        <Row className="g-1 w-100">
-                            <Col xs={6}>
-                                <Button
-                                    variant="success"
-                                    onClick={handleSearch}
-                                    className="d-flex align-items-center justify-content-center w-100"
-                                    disabled={loading}
-                                >
-                                    {loading ? <Spinner animation="border" size="sm" /> : <FaSearch />}
-                                </Button>
-                            </Col>
-                            <Col xs={6}>
-                                <Button
-                                    variant="danger"
-                                    onClick={handleResetFilters}
-                                    className="d-flex align-items-center justify-content-center w-100"
-                                >
-                                    <FaTimes />
-                                </Button>
+                            {/* Spacer to align buttons to the rightmost column of the 2nd row */}
+                            <Col md={2}></Col>
+
+                            <Col md={2} className="d-flex align-items-end">
+                                <Row className="g-1 w-100">
+                                    <Col xs={6}>
+                                        <Button
+                                            variant="success"
+                                            size="sm"
+                                            onClick={handleSearch}
+                                            className="d-flex align-items-center justify-content-center w-100"
+                                            disabled={loading}
+                                            style={{ height: '31px' }}
+                                        >
+                                            {loading ? <Spinner animation="border" size="sm" /> : <FaSearch />}
+                                        </Button>
+                                    </Col>
+                                    <Col xs={6}>
+                                        <Button
+                                            variant="danger"
+                                            size="sm"
+                                            onClick={handleResetFilters}
+                                            className="d-flex align-items-center justify-content-center w-100"
+                                            style={{ height: '31px' }}
+                                        >
+                                            <FaTimes />
+                                        </Button>
+                                    </Col>
+                                </Row>
                             </Col>
                         </Row>
-                    </Col>
-                </Row>
+                    </Card.Body>
+                </Card>
 
 
 

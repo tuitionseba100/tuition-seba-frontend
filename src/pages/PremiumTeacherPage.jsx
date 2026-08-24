@@ -407,8 +407,9 @@ const PremiumTeacherPage = () => {
         };
         const username = localStorage.getItem('username');
 
-        // Trigger SMS verification modal if status is verified, we are editing, and SMS wasn't already sent
-        if (updatingData.status === 'verified' && editingId && !formData.isSmsSent) {
+        // Trigger SMS verification modal if status is verified/Must Advance/After Confirmation/After Salary/30% Advance/Free - Must Advance, we are editing, and SMS wasn't already sent
+        const smsTriggerStatuses = ['verified', 'Must Advance', 'After Confirmation', 'After Salary', '30% Advance', 'Free - Must Advance'];
+        if (smsTriggerStatuses.includes(updatingData.status) && editingId && !formData.isSmsSent) {
             const premCode = formData.premiumCode || '';
             const recipient = formData.phone || '';
             const msg = `Dear teacher, your profile has been verified. Code: ${premCode} (keep it secret). You can now apply for tuitions. -Tuition Seba Forum`;
@@ -466,10 +467,10 @@ const PremiumTeacherPage = () => {
 
         try {
             setSaving(true);
-            // 1. Update the teacher status to verified and set isSmsSent to true
+            // 1. Update the teacher status to selected status and set isSmsSent to true
             const updatedData = {
                 ...formData,
-                status: 'verified',
+                status: formData.status || 'pending',
                 isSmsSent: true,
                 updatedBy: username
             };
@@ -527,10 +528,10 @@ const PremiumTeacherPage = () => {
         const username = localStorage.getItem('username');
         try {
             setSaving(true);
-            // Update the teacher status to verified and set isSmsSent to false
+            // Update the teacher status to selected status and set isSmsSent to false
             const updatedData = {
                 ...formData,
-                status: 'verified',
+                status: formData.status || 'pending',
                 isSmsSent: false,
                 updatedBy: username
             };

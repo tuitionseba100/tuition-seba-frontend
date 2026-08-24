@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Button, Table, Modal, Form, Row, Col, Card, Spinner, Tooltip, OverlayTrigger, Popover } from 'react-bootstrap';
+import { Button, Table, Modal, Form, Row, Col, Card, Spinner, Tooltip, OverlayTrigger, Popover, Badge } from 'react-bootstrap';
 import { FaEdit, FaTrashAlt, FaInfoCircle, FaBell, FaChevronLeft, FaChevronRight, FaPlus, FaFilter, FaFileExport, FaMoneyBillWave, FaExclamationCircle, FaCheckCircle, FaSearch, FaHistory, FaWhatsapp, FaUndo, FaUserPlus } from 'react-icons/fa';
 import GeneralPaymentRecordModal from '../components/modals/GeneralPaymentRecordModal';
 import GeneralPaymentViewModal from '../components/modals/GeneralPaymentViewModal';
 import WhatsAppPaymentMessageModal from '../components/modals/WhatsAppPaymentMessageModal';
 import PaymentAssignModal from '../components/modals/PaymentAssignModal';
+import WhatsAppServiceChargeModal from '../components/modals/WhatsAppServiceChargeModal';
 import { axiosWithFallback as axios } from '../services/fetchWithFallback';
 import NavBarPage from './NavbarPage';
 import styled from 'styled-components';
@@ -186,6 +187,39 @@ const PaymentPage = () => {
         setShowAssignModal(true);
     };
     const [expandedComments, setExpandedComments] = useState({});
+    
+    // Service Charge List States
+    const [scModalOpen, setScModalOpen] = useState(false);
+    const [scList, setScList] = useState([]);
+    const [scLoading, setScLoading] = useState(false);
+    const [scCurrentPage, setScCurrentPage] = useState(1);
+    const [scTotalPages, setScTotalPages] = useState(1);
+    const [scTotalRecords, setScTotalRecords] = useState(0);
+    const [scSearch, setScSearch] = useState({ tuitionCode: '', phone: '' });
+    const [scSummary, setScSummary] = useState({ today: 0, week: 0, month: 0, total: 0 });
+
+    // Standalone Service Charge Form Modal States
+    const [scFormOpen, setScFormOpen] = useState(false);
+    const [scFormData, setScFormData] = useState({
+        tuitionCode: '',
+        name: '',
+        paymentNumber: '',
+        personalPhone: '',
+        amount: '',
+        comment: '',
+        date: '',
+        status: 'pending'
+    });
+    const [scEditingId, setScEditingId] = useState(null);
+
+    // WhatsApp service charge modal state
+    const [showWhatsAppScModal, setShowWhatsAppScModal] = useState(false);
+    const [whatsAppSc, setWhatsAppSc] = useState(null);
+
+    const handleOpenWhatsAppSc = (sc) => {
+        setWhatsAppSc(sc);
+        setShowWhatsAppScModal(true);
+    };
     const toggleComment = (id, type) => {
         setExpandedComments(prev => ({
             ...prev,
@@ -291,6 +325,114 @@ const PaymentPage = () => {
         setSearchInputs(resetFilters);
         setAppliedFilters(resetFilters);
         setCurrentPage(1);
+    };
+
+    const fetchServiceCharges = async (page = 1, searchOverride = null) => {
+        setScLoading(true);
+        try {
+            const currentSearch = searchOverride || scSearch;
+            const response = await axios.get(`https://tuition-seba-backend-1-lpfs.onrender.com/api/serviceCharge/all`, {
+                params: { page, limit: 50, tuitionCode: currentSearch.tuitionCode, phone: currentSearch.phone }
+            });
+            setScList(response.data.data);
+            setScCurrentPage(response.data.currentPage);
+            setScTotalPages(response.data.totalPages);
+            setScTotalRecords(response.data.totalRecords);
+        } catch (error) {
+            console.error('Error fetching service charges:', error);
+            toast.error("Failed to load service charges.");
+        }
+        setScLoading(false);
+    };
+
+    const fetchServiceChargeSummary = async () => {
+        try {
+            const response = await axios.get(`https://tuition-seba-backend-1-lpfs.onrender.com/api/serviceCharge/summary`);
+            setScSummary(response.data);
+        } catch (error) {
+            console.error('Error fetching SC summary:', error);
+        }
+    };
+
+    const handleOpenScModal = () => {
+        fetchServiceCharges(1);
+        fetchServiceChargeSummary();
+        setScModalOpen(true);
+    };
+
+    const handleOpenCreateSc = () => {
+        setScFormData({
+            tuitionCode: '',
+            name: '',
+            paymentNumber: '',
+            personalPhone: '',
+            amount: '',
+            comment: '',
+            date: new Date().toISOString().split('T')[0],
+            status: ''
+        });
+        setScEditingId(null);
+        setScFormOpen(true);
+    };
+
+    const handleOpenEditSc = (sc) => {
+        setScFormData({
+            tuitionCode: sc.tuitionCode || '',
+            name: sc.name || '',
+            paymentNumber: sc.paymentNumber || '',
+            personalPhone: sc.personalPhone || '',
+            amount: sc.amount || '',
+            comment: sc.comment || '',
+            date: sc.date ? sc.date.split('T')[0] : '',
+            status: sc.status || 'pending'
+        });
+        setScEditingId(sc._id);
+        setScFormOpen(true);
+    };
+
+    const handleSaveStandaloneSc = async (e) => {
+        if (e) e.preventDefault();
+        
+        if (!scFormData.tuitionCode || !scFormData.name || !scFormData.personalPhone || !scFormData.amount || !scFormData.date) {
+            toast.error("Please fill in all required fields.");
+            return;
+        }
+
+        const username = localStorage.getItem('username') || 'Admin';
+        const headers = { 'x-user-name': username };
+
+        try {
+            if (scEditingId) {
+                await axios.put(`https://tuition-seba-backend-1-lpfs.onrender.com/api/serviceCharge/edit/${scEditingId}`, scFormData, { headers });
+                toast.success("Service charge updated successfully!");
+            } else {
+                await axios.post('https://tuition-seba-backend-1-lpfs.onrender.com/api/serviceCharge/add', scFormData, { headers });
+                toast.success("Service charge added successfully!");
+            }
+            setScFormOpen(false);
+            fetchServiceCharges(scCurrentPage);
+            fetchServiceChargeSummary();
+        } catch (err) {
+            console.error('Error saving standalone service charge:', err);
+            toast.error(err.response?.data?.message || "Failed to save service charge.");
+        }
+    };
+
+    const handleDeleteSc = async (id) => {
+        if (!window.confirm("Are you sure you want to delete this service charge?")) return;
+
+        const username = localStorage.getItem('username') || 'Admin';
+        const headers = { 'x-user-name': username };
+
+        try {
+            await axios.delete(`https://tuition-seba-backend-1-lpfs.onrender.com/api/serviceCharge/delete/${id}`, { headers });
+            toast.success("Service charge deleted successfully!");
+            fetchServiceCharges(scCurrentPage);
+            fetchServiceChargeSummary();
+        } catch (err) {
+            console.error('Error deleting service charge:', err);
+            toast.error("Failed to delete service charge.");
+        }
     };
 
     const fetchUsers = async () => {
@@ -610,6 +752,9 @@ const PaymentPage = () => {
                                 Auto Migrate Update Today
                             </Button>
                         )}
+                        <Button variant="info" onClick={handleOpenScModal} className="text-white">
+                            <FaInfoCircle className="me-2" /> Service Charges
+                        </Button>
                         <Button variant="primary" onClick={() => { setEditingId(null); setSelectedPaymentForEdit(null); setShowModal(true); }}>
                             Create Payment Record
                         </Button>
@@ -1268,6 +1413,311 @@ const PaymentPage = () => {
                             disabled={isMigrating || selectedMigrationIds.length === 0}
                         >
                             {isMigrating ? <Spinner animation="border" size="sm" /> : `Migrate Selected (${selectedMigrationIds.length})`}
+                        </Button>
+                    </Modal.Footer>
+                </Modal>
+
+                <WhatsAppServiceChargeModal
+                    show={showWhatsAppScModal}
+                    onHide={() => setShowWhatsAppScModal(false)}
+                    scData={whatsAppSc}
+                />
+
+                {/* Create/Edit Standalone Service Charge Modal */}
+                <Modal show={scFormOpen} onHide={() => setScFormOpen(false)} centered size="lg">
+                    <Modal.Header closeButton className="border-0 pb-0">
+                        <Modal.Title className="fw-bold ps-2">
+                            {scEditingId ? "Edit Service Charge" : "Create Standalone Service Charge"}
+                        </Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body className="p-4" style={{ backgroundColor: '#fdfdfd' }}>
+                        <Form onSubmit={handleSaveStandaloneSc}>
+                            <div className="p-4 rounded-3 border shadow-sm bg-white" style={{ borderColor: '#f0f0f0' }}>
+                                <Row className="g-4">
+                                    <Col md={6}>
+                                        <Form.Group>
+                                            <Form.Label className="text-muted small fw-bold mb-2">TUITION CODE *</Form.Label>
+                                            <Form.Control
+                                                type="text"
+                                                placeholder="Enter Tuition Code"
+                                                className="border p-2 px-3"
+                                                style={{ borderRadius: '8px', fontSize: '0.9rem' }}
+                                                value={scFormData.tuitionCode}
+                                                onChange={(e) => setScFormData({ ...scFormData, tuitionCode: e.target.value })}
+                                                required
+                                            />
+                                        </Form.Group>
+                                    </Col>
+                                    <Col md={6}>
+                                        <Form.Group>
+                                            <Form.Label className="text-muted small fw-bold mb-2">TEACHER NAME *</Form.Label>
+                                            <Form.Control
+                                                type="text"
+                                                placeholder="Enter Teacher Name"
+                                                className="border p-2 px-3"
+                                                style={{ borderRadius: '8px', fontSize: '0.9rem' }}
+                                                value={scFormData.name}
+                                                onChange={(e) => setScFormData({ ...scFormData, name: e.target.value })}
+                                                required
+                                            />
+                                        </Form.Group>
+                                    </Col>
+                                    <Col md={6}>
+                                        <Form.Group>
+                                            <Form.Label className="text-muted small fw-bold mb-2">PERSONAL PHONE *</Form.Label>
+                                            <Form.Control
+                                                type="text"
+                                                placeholder="Enter Personal Phone"
+                                                className="border p-2 px-3"
+                                                style={{ borderRadius: '8px', fontSize: '0.9rem' }}
+                                                value={scFormData.personalPhone}
+                                                onChange={(e) => setScFormData({ ...scFormData, personalPhone: e.target.value })}
+                                                required
+                                            />
+                                        </Form.Group>
+                                    </Col>
+                                    <Col md={6}>
+                                        <Form.Group>
+                                            <Form.Label className="text-muted small fw-bold mb-2">PAYMENT NUMBER (SENDER)</Form.Label>
+                                            <Form.Control
+                                                type="text"
+                                                placeholder="Account No (e.g. Bkash No)"
+                                                className="border p-2 px-3"
+                                                style={{ borderRadius: '8px', fontSize: '0.9rem' }}
+                                                value={scFormData.paymentNumber}
+                                                onChange={(e) => setScFormData({ ...scFormData, paymentNumber: e.target.value })}
+                                            />
+                                        </Form.Group>
+                                    </Col>
+                                    <Col md={6}>
+                                        <Form.Group>
+                                            <Form.Label className="text-muted small fw-bold mb-2">SERVICE CHARGE AMOUNT (৳) *</Form.Label>
+                                            <Form.Control
+                                                type="number"
+                                                placeholder="Amount in BDT"
+                                                className="border p-2 px-3 fw-bold text-danger"
+                                                style={{ borderRadius: '8px', fontSize: '1rem', backgroundColor: '#fff5f5' }}
+                                                value={scFormData.amount}
+                                                onChange={(e) => setScFormData({ ...scFormData, amount: e.target.value })}
+                                                required
+                                            />
+                                        </Form.Group>
+                                    </Col>
+                                    <Col md={6}>
+                                        <Form.Group>
+                                            <Form.Label className="text-muted small fw-bold mb-2">DATE *</Form.Label>
+                                            <Form.Control
+                                                type="date"
+                                                className="border p-2 px-3"
+                                                style={{ borderRadius: '8px', fontSize: '0.9rem' }}
+                                                value={scFormData.date || ''}
+                                                onChange={(e) => setScFormData({ ...scFormData, date: e.target.value })}
+                                                required
+                                            />
+                                        </Form.Group>
+                                    </Col>
+                                    <Col md={6}>
+                                        <Form.Group>
+                                            <Form.Label className="text-muted small fw-bold mb-2">STATUS *</Form.Label>
+                                            <Form.Select
+                                                className="border p-2 px-3"
+                                                style={{ borderRadius: '8px', fontSize: '0.9rem' }}
+                                                value={scFormData.status || ''}
+                                                onChange={(e) => setScFormData({ ...scFormData, status: e.target.value })}
+                                                required
+                                            >
+                                                <option value="">-- Select Status --</option>
+                                                <option value="pending">Pending</option>
+                                                <option value="completed">Completed</option>
+                                                <option value="cancelled">Cancelled</option>
+                                            </Form.Select>
+                                        </Form.Group>
+                                    </Col>
+                                    <Col md={12}>
+                                        <Form.Group>
+                                            <Form.Label className="text-muted small fw-bold mb-2">COMMENT / NOTES</Form.Label>
+                                            <Form.Control
+                                                as="textarea"
+                                                rows={2}
+                                                placeholder="Add internal notes..."
+                                                className="border p-3"
+                                                style={{ borderRadius: '12px', fontSize: '0.9rem' }}
+                                                value={scFormData.comment}
+                                                onChange={(e) => setScFormData({ ...scFormData, comment: e.target.value })}
+                                            />
+                                        </Form.Group>
+                                    </Col>
+                                </Row>
+                            </div>
+                            <div className="d-flex justify-content-end gap-2 mt-4">
+                                <Button variant="secondary" onClick={() => setScFormOpen(false)}>
+                                    Cancel
+                                </Button>
+                                <Button variant="primary" type="submit">
+                                    Save Changes
+                                </Button>
+                            </div>
+                        </Form>
+                    </Modal.Body>
+                </Modal>
+
+                {/* Service Charge List Modal */}
+                <style>
+                    {`
+                        .custom-modal-95w {
+                            max-width: 95% !important;
+                        }
+                    `}
+                </style>
+                <Modal show={scModalOpen} onHide={() => setScModalOpen(false)} dialogClassName="custom-modal-95w" centered>
+                    <Modal.Header closeButton className="bg-light">
+                        <Modal.Title className="fw-bold text-dark d-flex justify-content-between align-items-center w-100 pe-3">
+                            <div>
+                                <FaInfoCircle className="me-2 text-info" /> Service Charges (Total: {scTotalRecords})
+                            </div>
+                            <Button variant="primary" size="sm" onClick={handleOpenCreateSc}>
+                                + Add Standalone Service Charge
+                            </Button>
+                        </Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body style={{ maxHeight: '70vh', overflowY: 'auto' }}>
+                        {/* Summary Cards */}
+                        <div className="d-flex flex-nowrap overflow-auto gap-2 pb-3 mb-3 border-bottom text-center" style={{ scrollbarWidth: 'thin' }}>
+                            {[
+                                { label: 'Today', count: scSummary.today, color: 'primary' },
+                                { label: 'This Week', count: scSummary.week, color: 'info' },
+                                { label: 'This Month', count: scSummary.month, color: 'warning' },
+                                { label: 'Total', count: scSummary.total, color: 'dark' }
+                            ].map((stat, idx) => (
+                                <div key={idx} className={`card p-2 shadow-sm border-${stat.color} flex-fill`} style={{ minWidth: '120px' }}>
+                                    <small className={`text-${stat.color} fw-bold text-nowrap`}>{stat.label}</small>
+                                    <h5 className="mb-0">৳{stat.count}</h5>
+                                </div>
+                            ))}
+                        </div>
+
+                        {/* Search Bar */}
+                        <Row className="mb-3 g-2">
+                            <Col md={4}>
+                                <Form.Control
+                                    placeholder="Search by Tuition Code"
+                                    value={scSearch.tuitionCode}
+                                    onChange={(e) => setScSearch(prev => ({ ...prev, tuitionCode: e.target.value }))}
+                                />
+                            </Col>
+                            <Col md={4}>
+                                <Form.Control
+                                    placeholder="Search by Phone"
+                                    value={scSearch.phone}
+                                    onChange={(e) => setScSearch(prev => ({ ...prev, phone: e.target.value }))}
+                                />
+                            </Col>
+                            <Col md={4} className="d-flex gap-2">
+                                <Button variant="primary" className="w-100 flex-grow-1" onClick={() => fetchServiceCharges(1)}>
+                                    <FaSearch /> Search
+                                </Button>
+                                <Button variant="outline-secondary" className="w-100 flex-grow-1" onClick={() => {
+                                    setScSearch({ tuitionCode: '', phone: '' });
+                                    fetchServiceCharges(1, { tuitionCode: '', phone: '' });
+                                }}>
+                                    Reset
+                                </Button>
+                            </Col>
+                        </Row>
+                        {scLoading ? (
+                            <div className="text-center py-5">
+                                <Spinner animation="border" variant="info" />
+                            </div>
+                        ) : (
+                            <Table responsive hover className="align-middle">
+                                <thead className="table-light">
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Tuition Code</th>
+                                        <th>Name</th>
+                                        <th>Phone</th>
+                                        <th>Amount</th>
+                                        <th>Created By</th>
+                                        <th>Updated By</th>
+                                        <th>Comment</th>
+                                        <th className="text-center">Status</th>
+                                        <th className="text-center">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {scList.length > 0 ? scList.map(sc => (
+                                        <tr key={sc._id}>
+                                            <td>{sc.date ? new Date(sc.date).toLocaleDateString() : '-'}</td>
+                                            <td><span className="fw-bold text-primary">{sc.tuitionCode || '-'}</span></td>
+                                            <td>{sc.name || '-'}</td>
+                                            <td>{sc.personalPhone || '-'}</td>
+                                            <td className="fw-bold text-dark">৳{sc.amount}</td>
+                                            <td>{sc.createdBy || '-'}</td>
+                                            <td>{sc.updatedBy || '-'}</td>
+                                            <td className="small">{sc.comment || '-'}</td>
+                                            <td className="text-center">
+                                                <Badge bg={
+                                                    sc.status === 'completed' ? 'success' :
+                                                    sc.status === 'cancelled' ? 'secondary' :
+                                                    'warning'
+                                                } className="text-uppercase" style={{ fontSize: '0.8rem' }}>
+                                                    {sc.status || 'pending'}
+                                                </Badge>
+                                            </td>
+                                            <td className="text-center">
+                                                <div className="d-flex gap-1 justify-content-center">
+                                                    <Button variant="success" size="sm" onClick={() => handleOpenWhatsAppSc(sc)}>
+                                                        <FaWhatsapp />
+                                                    </Button>
+                                                    {!sc.referenceId ? (
+                                                        <>
+                                                            <Button variant="warning" size="sm" onClick={() => handleOpenEditSc(sc)}>
+                                                                <FaEdit />
+                                                            </Button>
+                                                            <Button variant="danger" size="sm" onClick={() => handleDeleteSc(sc._id)}>
+                                                                <FaTrashAlt />
+                                                            </Button>
+                                                        </>
+                                                    ) : (
+                                                        <Badge bg="secondary" className="d-flex align-items-center" style={{ fontSize: '0.7rem' }}>Linked</Badge>
+                                                    )}
+                                                </div>
+                                            </td>
+                                        </tr>
+
+                                    )) : (
+                                        <tr>
+                                            <td colSpan="10" className="text-center py-3 text-muted">No service charges found.</td>
+                                        </tr>
+                                    )}
+                                </tbody>
+                            </Table>
+                        )}
+                    </Modal.Body>
+                    <Modal.Footer className="bg-light d-flex justify-content-between">
+                        <div className="d-flex align-items-center gap-2">
+                            <Button
+                                variant="outline-secondary"
+                                size="sm"
+                                disabled={scCurrentPage === 1 || scLoading}
+                                onClick={() => fetchServiceCharges(scCurrentPage - 1)}
+                            >
+                                <FaChevronLeft />
+                            </Button>
+                            <span className="small text-muted">
+                                Page {scCurrentPage} of {scTotalPages || 1}
+                            </span>
+                            <Button
+                                variant="outline-secondary"
+                                size="sm"
+                                disabled={scCurrentPage >= scTotalPages || scLoading}
+                                onClick={() => fetchServiceCharges(scCurrentPage + 1)}
+                            >
+                                <FaChevronRight />
+                            </Button>
+                        </div>
+                        <Button variant="secondary" onClick={() => setScModalOpen(false)}>
+                            Close
                         </Button>
                     </Modal.Footer>
                 </Modal>

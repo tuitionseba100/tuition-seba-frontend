@@ -57,6 +57,19 @@ const RefundPage = () => {
     const [scSummary, setScSummary] = useState({ today: 0, week: 0, month: 0, total: 0 });
     const limit = 20;
 
+    // Standalone Service Charge Form Modal States
+    const [scFormOpen, setScFormOpen] = useState(false);
+    const [scFormData, setScFormData] = useState({
+        tuitionCode: '',
+        name: '',
+        paymentNumber: '',
+        personalPhone: '',
+        amount: '',
+        comment: '',
+        date: ''
+    });
+    const [scEditingId, setScEditingId] = useState(null);
+
     const [searchInputs, setSearchInputs] = useState({
         tuitionCode: '',
         paymentNumber: '',
@@ -176,6 +189,83 @@ const RefundPage = () => {
         fetchServiceCharges(1);
         fetchServiceChargeSummary();
         setScModalOpen(true);
+    };
+
+    const handleOpenCreateSc = () => {
+        setScFormData({
+            tuitionCode: '',
+            name: '',
+            paymentNumber: '',
+            personalPhone: '',
+            amount: '',
+            comment: '',
+            date: new Date().toISOString().split('T')[0],
+            status: ''
+        });
+        setScEditingId(null);
+        setScFormOpen(true);
+    };
+
+    const handleOpenEditSc = (sc) => {
+        setScFormData({
+            tuitionCode: sc.tuitionCode || '',
+            name: sc.name || '',
+            paymentNumber: sc.paymentNumber || '',
+            personalPhone: sc.personalPhone || '',
+            amount: sc.amount || '',
+            comment: sc.comment || '',
+            date: sc.date ? sc.date.split('T')[0] : '',
+            status: sc.status || 'pending'
+        });
+        setScEditingId(sc._id);
+        setScFormOpen(true);
+    };
+
+    const handleSaveStandaloneSc = async (e) => {
+        if (e) e.preventDefault();
+        
+        if (!scFormData.tuitionCode || !scFormData.name || !scFormData.personalPhone || !scFormData.amount || !scFormData.date) {
+            toast.error("Please fill in all required fields.");
+            return;
+        }
+
+        const username = localStorage.getItem('username') || 'Admin';
+        const headers = { 'x-user-name': username };
+
+        try {
+            if (scEditingId) {
+                await axios.put(`https://tuition-seba-backend-1-lpfs.onrender.com/api/serviceCharge/edit/${scEditingId}`, scFormData, { headers });
+                toast.success("Service charge updated successfully!");
+            } else {
+                await axios.post('https://tuition-seba-backend-1-lpfs.onrender.com/api/serviceCharge/add', scFormData, { headers });
+                toast.success("Service charge added successfully!");
+            }
+            setScFormOpen(false);
+            fetchServiceCharges(scCurrentPage);
+            fetchServiceChargeSummary();
+            fetchSummaryCounts(); // Updates overall counts if necessary
+        } catch (err) {
+            console.error('Error saving standalone service charge:', err);
+            toast.error(err.response?.data?.message || "Failed to save service charge.");
+        }
+    };
+
+    const handleDeleteSc = async (id) => {
+        if (!window.confirm("Are you sure you want to delete this service charge?")) return;
+
+        const username = localStorage.getItem('username') || 'Admin';
+        const headers = { 'x-user-name': username };
+
+        try {
+            await axios.delete(`https://tuition-seba-backend-1-lpfs.onrender.com/api/serviceCharge/delete/${id}`, { headers });
+            toast.success("Service charge deleted successfully!");
+            fetchServiceCharges(scCurrentPage);
+            fetchServiceChargeSummary();
+            fetchSummaryCounts();
+        } catch (err) {
+            console.error('Error deleting service charge:', err);
+            toast.error("Failed to delete service charge.");
+        }
     };
 
     useEffect(() => {
@@ -1072,6 +1162,144 @@ const RefundPage = () => {
                         </Button>
                     </Modal.Footer>
                 </Modal>
+                {/* Create/Edit Standalone Service Charge Modal */}
+                <Modal show={scFormOpen} onHide={() => setScFormOpen(false)} centered size="lg">
+                    <Modal.Header closeButton className="border-0 pb-0">
+                        <Modal.Title className="fw-bold ps-2">
+                            {scEditingId ? "Edit Service Charge" : "Create Standalone Service Charge"}
+                        </Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body className="p-4" style={{ backgroundColor: '#fdfdfd' }}>
+                        <Form onSubmit={handleSaveStandaloneSc}>
+                            <div className="p-4 rounded-3 border shadow-sm bg-white" style={{ borderColor: '#f0f0f0' }}>
+                                <Row className="g-4">
+                                    <Col md={6}>
+                                        <Form.Group>
+                                            <Form.Label className="text-muted small fw-bold mb-2">TUITION CODE *</Form.Label>
+                                            <Form.Control
+                                                type="text"
+                                                placeholder="Enter Tuition Code"
+                                                className="border p-2 px-3"
+                                                style={{ borderRadius: '8px', fontSize: '0.9rem' }}
+                                                value={scFormData.tuitionCode}
+                                                onChange={(e) => setScFormData({ ...scFormData, tuitionCode: e.target.value })}
+                                                required
+                                            />
+                                        </Form.Group>
+                                    </Col>
+                                    <Col md={6}>
+                                        <Form.Group>
+                                            <Form.Label className="text-muted small fw-bold mb-2">TEACHER NAME *</Form.Label>
+                                            <Form.Control
+                                                type="text"
+                                                placeholder="Enter Teacher Name"
+                                                className="border p-2 px-3"
+                                                style={{ borderRadius: '8px', fontSize: '0.9rem' }}
+                                                value={scFormData.name}
+                                                onChange={(e) => setScFormData({ ...scFormData, name: e.target.value })}
+                                                required
+                                            />
+                                        </Form.Group>
+                                    </Col>
+                                    <Col md={6}>
+                                        <Form.Group>
+                                            <Form.Label className="text-muted small fw-bold mb-2">PERSONAL PHONE *</Form.Label>
+                                            <Form.Control
+                                                type="text"
+                                                placeholder="Enter Personal Phone"
+                                                className="border p-2 px-3"
+                                                style={{ borderRadius: '8px', fontSize: '0.9rem' }}
+                                                value={scFormData.personalPhone}
+                                                onChange={(e) => setScFormData({ ...scFormData, personalPhone: e.target.value })}
+                                                required
+                                            />
+                                        </Form.Group>
+                                    </Col>
+                                    <Col md={6}>
+                                        <Form.Group>
+                                            <Form.Label className="text-muted small fw-bold mb-2">PAYMENT NUMBER (SENDER)</Form.Label>
+                                            <Form.Control
+                                                type="text"
+                                                placeholder="Account No (e.g. Bkash No)"
+                                                className="border p-2 px-3"
+                                                style={{ borderRadius: '8px', fontSize: '0.9rem' }}
+                                                value={scFormData.paymentNumber}
+                                                onChange={(e) => setScFormData({ ...scFormData, paymentNumber: e.target.value })}
+                                            />
+                                        </Form.Group>
+                                    </Col>
+                                    <Col md={6}>
+                                        <Form.Group>
+                                            <Form.Label className="text-muted small fw-bold mb-2">SERVICE CHARGE AMOUNT (৳) *</Form.Label>
+                                            <Form.Control
+                                                type="number"
+                                                placeholder="Amount in BDT"
+                                                className="border p-2 px-3 fw-bold text-danger"
+                                                style={{ borderRadius: '8px', fontSize: '1rem', backgroundColor: '#fff5f5' }}
+                                                value={scFormData.amount}
+                                                onChange={(e) => setScFormData({ ...scFormData, amount: e.target.value })}
+                                                required
+                                            />
+                                        </Form.Group>
+                                    </Col>
+                                    <Col md={6}>
+                                        <Form.Group>
+                                            <Form.Label className="text-muted small fw-bold mb-2">DATE *</Form.Label>
+                                            <Form.Control
+                                                type="date"
+                                                className="border p-2 px-3"
+                                                style={{ borderRadius: '8px', fontSize: '0.9rem' }}
+                                                value={scFormData.date || ''}
+                                                onChange={(e) => setScFormData({ ...scFormData, date: e.target.value })}
+                                                required
+                                            />
+                                        </Form.Group>
+                                    </Col>
+                                    <Col md={6}>
+                                        <Form.Group>
+                                            <Form.Label className="text-muted small fw-bold mb-2">STATUS *</Form.Label>
+                                            <Form.Select
+                                                className="border p-2 px-3"
+                                                style={{ borderRadius: '8px', fontSize: '0.9rem' }}
+                                                value={scFormData.status || ''}
+                                                onChange={(e) => setScFormData({ ...scFormData, status: e.target.value })}
+                                                required
+                                            >
+                                                <option value="">-- Select Status --</option>
+                                                <option value="pending">Pending</option>
+                                                <option value="completed">Completed</option>
+                                                <option value="cancelled">Cancelled</option>
+                                            </Form.Select>
+                                        </Form.Group>
+                                    </Col>
+                                    <Col md={12}>
+                                        <Form.Group>
+                                            <Form.Label className="text-muted small fw-bold mb-2">COMMENT / NOTES</Form.Label>
+                                            <Form.Control
+                                                as="textarea"
+                                                rows={2}
+                                                placeholder="Add internal notes..."
+                                                className="border p-3"
+                                                style={{ borderRadius: '12px', fontSize: '0.9rem' }}
+                                                value={scFormData.comment}
+                                                onChange={(e) => setScFormData({ ...scFormData, comment: e.target.value })}
+                                            />
+                                        </Form.Group>
+                                    </Col>
+                                </Row>
+                            </div>
+                            <div className="d-flex justify-content-end gap-2 mt-4">
+                                <Button variant="secondary" onClick={() => setScFormOpen(false)}>
+                                    Cancel
+                                </Button>
+                                <Button variant="primary" type="submit">
+                                    Save Changes
+                                </Button>
+                            </div>
+                        </Form>
+                    </Modal.Body>
+                </Modal>
+
                 {/* Service Charge List Modal */}
                 <style>
                     {`
@@ -1082,8 +1310,13 @@ const RefundPage = () => {
                 </style>
                 <Modal show={scModalOpen} onHide={() => setScModalOpen(false)} dialogClassName="custom-modal-95w" centered>
                     <Modal.Header closeButton className="bg-light">
-                        <Modal.Title className="fw-bold text-dark">
-                            <FaInfoCircle className="me-2 text-info" /> Service Charges (Total: {scTotalRecords})
+                        <Modal.Title className="fw-bold text-dark d-flex justify-content-between align-items-center w-100 pe-3">
+                            <div>
+                                <FaInfoCircle className="me-2 text-info" /> Service Charges (Total: {scTotalRecords})
+                            </div>
+                            <Button variant="primary" size="sm" onClick={handleOpenCreateSc}>
+                                + Add Standalone Service Charge
+                            </Button>
                         </Modal.Title>
                     </Modal.Header>
                     <Modal.Body style={{ maxHeight: '70vh', overflowY: 'auto' }}>
@@ -1146,6 +1379,7 @@ const RefundPage = () => {
                                         <th>Created By</th>
                                         <th>Updated By</th>
                                         <th>Comment</th>
+                                        <th className="text-center">Status</th>
                                         <th className="text-center">Actions</th>
                                     </tr>
                                 </thead>
@@ -1161,15 +1395,38 @@ const RefundPage = () => {
                                             <td>{sc.updatedBy || '-'}</td>
                                             <td className="small">{sc.comment || '-'}</td>
                                             <td className="text-center">
-                                                <Button variant="success" size="sm" onClick={() => handleOpenWhatsAppSc(sc)}>
-                                                    <FaWhatsapp />
-                                                </Button>
+                                                <Badge bg={
+                                                    sc.status === 'completed' ? 'success' :
+                                                    sc.status === 'cancelled' ? 'secondary' :
+                                                    'warning'
+                                                } className="text-uppercase" style={{ fontSize: '0.8rem' }}>
+                                                    {sc.status || 'pending'}
+                                                </Badge>
+                                            </td>
+                                            <td className="text-center">
+                                                <div className="d-flex gap-1 justify-content-center">
+                                                    <Button variant="success" size="sm" onClick={() => handleOpenWhatsAppSc(sc)}>
+                                                        <FaWhatsapp />
+                                                    </Button>
+                                                    {!sc.referenceId ? (
+                                                        <>
+                                                            <Button variant="warning" size="sm" onClick={() => handleOpenEditSc(sc)}>
+                                                                <FaEdit />
+                                                            </Button>
+                                                            <Button variant="danger" size="sm" onClick={() => handleDeleteSc(sc._id)}>
+                                                                <FaTrashAlt />
+                                                            </Button>
+                                                        </>
+                                                    ) : (
+                                                        <Badge bg="secondary" className="d-flex align-items-center" style={{ fontSize: '0.7rem' }}>Linked</Badge>
+                                                    )}
+                                                </div>
                                             </td>
                                         </tr>
 
                                     )) : (
                                         <tr>
-                                            <td colSpan="9" className="text-center py-3 text-muted">No service charges found.</td>
+                                            <td colSpan="10" className="text-center py-3 text-muted">No service charges found.</td>
                                         </tr>
                                     )}
                                 </tbody>

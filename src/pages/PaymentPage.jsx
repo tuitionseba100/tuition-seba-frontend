@@ -1657,11 +1657,11 @@ const PaymentPage = () => {
                                             <td className="small">{sc.comment || '-'}</td>
                                             <td className="text-center">
                                                 <Badge bg={
-                                                    sc.status === 'completed' ? 'success' :
-                                                    sc.status === 'cancelled' ? 'secondary' :
+                                                    (sc.status || 'completed') === 'completed' ? 'success' :
+                                                    (sc.status || 'completed') === 'cancelled' ? 'secondary' :
                                                     'warning'
                                                 } className="text-uppercase" style={{ fontSize: '0.8rem' }}>
-                                                    {sc.status || 'pending'}
+                                                    {sc.status || 'completed'}
                                                 </Badge>
                                             </td>
                                             <td className="text-center">

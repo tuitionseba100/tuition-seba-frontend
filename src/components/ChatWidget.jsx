@@ -4,7 +4,7 @@ import { BsChatDotsFill, BsX, BsArrowRightShort, BsTelephone, BsKey, BsSendFill,
 import { fetchWithFallback } from '../services/fetchWithFallback';
 import './ChatWidget.css';
 
-const BASE_URL = 'https://tuition-seba-backend-1-lpfs.onrender.com';
+const BASE_URL = 'https://tuition-seba-backend-1.onrender.com';
 
 
 
@@ -123,6 +123,7 @@ export default function ChatWidget() {
           address: combinedAddress,
           comment: 'Applied via Live Chat',
           agentComment: 'Chat Apply',
+          regTeacherStatus: teacher.status || '',
         })
       });
 

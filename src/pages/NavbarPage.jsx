@@ -4,12 +4,12 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import { checkDayStarted } from '../utilities/checkDayStarted';
 import '../components/DashboardNavbar.css'; // Import admin navbar styles
 import ResponseGuidelineWidget from '../components/modals/ResponseGuidelineWidget';
-import { FaSearch, FaCog } from 'react-icons/fa';
+import { FaSearch, FaCog, FaComments } from 'react-icons/fa';
 import GlobalSearchModal from '../components/modals/GlobalSearchModal';
 import { io } from 'socket.io-client';
 import { axiosWithFallback as axios } from '../services/fetchWithFallback';
 
-const BASE_URL = 'https://tuition-seba-backend-1-lpfs.onrender.com';
+const BASE_URL = 'https://tuition-seba-backend-1.onrender.com';
 
 const Navbar = () => {
     const navigate = useNavigate();
@@ -17,6 +17,7 @@ const Navbar = () => {
     const [dayStarted, setDayStarted] = useState(true);
     const [role, setRole] = useState(localStorage.getItem("role"));
     const [hasUnseenChat, setHasUnseenChat] = useState(false);
+    const [hasUnseenInternalChat, setHasUnseenInternalChat] = useState(false);
 
     const checkUnseenChats = async () => {
         const token = localStorage.getItem('token');
@@ -41,6 +42,18 @@ const Navbar = () => {
 
         const socket = io(BASE_URL);
         socket.on('session_updated', checkUnseenChats);
+
+        // Listen for internal chat unread updates
+        const username = localStorage.getItem('username');
+        if (username) {
+            socket.emit('join_internal_room', { username });
+        }
+        socket.on('internal_conversation_updated', (conv) => {
+            const myUsername = localStorage.getItem('username');
+            if (!myUsername) return;
+            const count = conv.unreadCounts?.[myUsername] || 0;
+            if (count > 0) setHasUnseenInternalChat(true);
+        });
 
         const interval = setInterval(checkUnseenChats, 20000);
 
@@ -94,16 +107,20 @@ const Navbar = () => {
         }
 
         const isUnseenChat = to === "/admin/chat" && hasUnseenChat;
+        const isUnseenInternalChat = to === "/admin/internal-chat" && hasUnseenInternalChat;
 
         return (
             <li className="nav-item">
                 <Link
                     className={`nav-link fw-bold px-3 ${isActive ? 'active' : ''}`}
                     to={to}
-                    style={isUnseenChat ? { color: '#ff4d4d', position: 'relative' } : undefined}
+                    style={(isUnseenChat || isUnseenInternalChat) ? { color: '#ff4d4d', position: 'relative' } : undefined}
+                    onClick={() => {
+                        if (to === '/admin/internal-chat') setHasUnseenInternalChat(false);
+                    }}
                 >
                     {label}
-                    {isUnseenChat && (
+                    {(isUnseenChat || isUnseenInternalChat) && (
                         <span
                             style={{
                                 position: 'absolute',
@@ -174,14 +191,33 @@ const Navbar = () => {
                                     {renderNavItem("/admin/refund", "Refund", "refund")}
                                     {renderNavItem("/admin/guardianApply", "Guardian", "guardianApply")}
                                     {renderNavItem("/admin/task", "Task", "task")}
-                                    {renderNavItem("/admin/tuitionApply", "Tuition Apply", "tuitionApply")}
+                                    {renderNavItem("/admin/tuitionApply", "Apply", "tuitionApply")}
                                     {renderNavItem("/admin/premiumTeacher", "Premium", "premiumTeacher")}
-                                    {renderNavItem("/admin/spamBest", "Spam/Best", "spamBest")}
+                                    {renderNavItem("/admin/spamBest", "Spam", "spamBest")}
                                     {renderNavItem("/admin/lead", "Lead", "lead")}
                                     {renderNavItem("/admin/general", "Search", "general")}
                                     {renderNavItem("/admin/complaints", "Complaints")}
                                     {renderNavItem("/admin/chat", "Chat")}
                                     {renderNavItem("/admin/sms-logs", "SMS")}
+                                    {/* Team Chat — icon button to save navbar space */}
+                                    <li className="nav-item">
+                                        <Link
+                                            className="btn btn-light fw-bold rounded-pill px-3 py-2 ms-2 d-inline-flex align-items-center justify-content-center position-relative"
+                                            to="/admin/internal-chat"
+                                            title="Team Chat"
+                                            style={location.pathname === '/admin/internal-chat' ? { color: '#0d6efd' } : { color: '#0d6efd' }}
+                                            onClick={() => setHasUnseenInternalChat(false)}
+                                        >
+                                            <FaComments size={18} />
+                                            {hasUnseenInternalChat && (
+                                                <span style={{
+                                                    position: 'absolute', top: 4, right: 4,
+                                                    width: 8, height: 8, borderRadius: '50%',
+                                                    background: '#dc3545', border: '1.5px solid #fff'
+                                                }} />
+                                            )}
+                                        </Link>
+                                    </li>
                                 </>
                             ) : null}
 

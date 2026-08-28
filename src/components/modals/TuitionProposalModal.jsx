@@ -70,7 +70,7 @@ export default function TuitionProposalModal({ show, onHide, tuition }) {
             const fetchAreaGroups = async () => {
                 try {
                     const token = localStorage.getItem('token');
-                    const response = await axios.get('https://tuition-seba-backend-1-lpfs.onrender.com/api/settings', {
+                    const response = await axios.get('https://tuition-seba-backend-1.onrender.com/api/settings', {
                         headers: { Authorization: token }
                     });
                     const areaSetting = response.data.find(s => s.key === 'area_groups');
@@ -223,7 +223,7 @@ export default function TuitionProposalModal({ show, onHide, tuition }) {
             params.unicode = (unicodeVal && unicodeVal.length > 0 && !unicodeVal.includes('all')) ? unicodeVal.join(',') : 'all';
             if (deptVal) params.department = deptVal;
 
-            const response = await axios.get(`https://tuition-seba-backend-1-lpfs.onrender.com/api/tuition/${tuition._id}/match-teachers`, {
+            const response = await axios.get(`https://tuition-seba-backend-1.onrender.com/api/tuition/${tuition._id}/match-teachers`, {
                 headers: { Authorization: token },
                 params
             });
@@ -248,7 +248,7 @@ export default function TuitionProposalModal({ show, onHide, tuition }) {
         setHistoryLoading(true);
         try {
             const token = localStorage.getItem('token');
-            const response = await axios.get(`https://tuition-seba-backend-1-lpfs.onrender.com/api/tuition/${tuition._id}/sms-history`, {
+            const response = await axios.get(`https://tuition-seba-backend-1.onrender.com/api/tuition/${tuition._id}/sms-history`, {
                 headers: { Authorization: token }
             });
             if (response.data?.success) {
@@ -380,7 +380,7 @@ export default function TuitionProposalModal({ show, onHide, tuition }) {
                 };
             });
 
-            const response = await axios.post('https://tuition-seba-backend-1-lpfs.onrender.com/api/sms/send-dynamic', 
+            const response = await axios.post('https://tuition-seba-backend-1.onrender.com/api/sms/send-dynamic', 
                 { messages, category: 'Proposal' },
                 { headers: { Authorization: token, 'x-user-name': username } }
             );

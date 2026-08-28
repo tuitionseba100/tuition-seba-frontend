@@ -152,7 +152,7 @@ export default function TuitionModal({ show, onHide, editingData = null, editing
             if (role === 'superadmin') {
                 try {
                     const token = localStorage.getItem('token');
-                    const response = await axios.get('https://tuition-seba-backend-1-lpfs.onrender.com/api/user/users', {
+                    const response = await axios.get('https://tuition-seba-backend-1.onrender.com/api/user/users', {
                         headers: { Authorization: token }
                     });
                     const users = response.data.map(user => ({
@@ -169,7 +169,7 @@ export default function TuitionModal({ show, onHide, editingData = null, editing
         const fetchSettings = async () => {
             try {
                 const token = localStorage.getItem('token');
-                const response = await axios.get('https://tuition-seba-backend-1-lpfs.onrender.com/api/settings/marketing_mediums', {
+                const response = await axios.get('https://tuition-seba-backend-1.onrender.com/api/settings/marketing_mediums', {
                     headers: { Authorization: token }
                 });
                 if (response.data && response.data.value) {
@@ -377,11 +377,11 @@ export default function TuitionModal({ show, onHide, editingData = null, editing
                 updatedBy: username,
             };
             if (editingId) {
-                await axios.put(`https://tuition-seba-backend-1-lpfs.onrender.com/api/tuition/edit/${editingId}`, updatedTuitionData);
+                await axios.put(`https://tuition-seba-backend-1.onrender.com/api/tuition/edit/${editingId}`, updatedTuitionData);
                 toast.success('Tuition record updated successfully!');
             } else {
                 updatedTuitionData.createdBy = username;
-                await axios.post('https://tuition-seba-backend-1-lpfs.onrender.com/api/tuition/add', updatedTuitionData);
+                await axios.post('https://tuition-seba-backend-1.onrender.com/api/tuition/add', updatedTuitionData);
                 toast.success('Tuition record created successfully!');
             }
             onHide();
@@ -418,16 +418,16 @@ export default function TuitionModal({ show, onHide, editingData = null, editing
             };
 
             if (editingId) {
-                await axios.put(`https://tuition-seba-backend-1-lpfs.onrender.com/api/tuition/edit/${editingId}`, updatedTuitionData);
+                await axios.put(`https://tuition-seba-backend-1.onrender.com/api/tuition/edit/${editingId}`, updatedTuitionData);
             } else {
                 updatedTuitionData.createdBy = username;
-                await axios.post('https://tuition-seba-backend-1-lpfs.onrender.com/api/tuition/add', updatedTuitionData);
+                await axios.post('https://tuition-seba-backend-1.onrender.com/api/tuition/add', updatedTuitionData);
             }
 
             const smsCategory = isNoResponse ? 'Guardian No Response' : 'Guardian Publish Notification';
 
             const smsRes = await axios.post(
-                `https://tuition-seba-backend-1-lpfs.onrender.com/api/sms/send-single`,
+                `https://tuition-seba-backend-1.onrender.com/api/sms/send-single`,
                 {
                     phone: smsRecipient,
                     message: smsMessage,
@@ -484,10 +484,10 @@ export default function TuitionModal({ show, onHide, editingData = null, editing
             };
 
             if (editingId) {
-                await axios.put(`https://tuition-seba-backend-1-lpfs.onrender.com/api/tuition/edit/${editingId}`, updatedTuitionData);
+                await axios.put(`https://tuition-seba-backend-1.onrender.com/api/tuition/edit/${editingId}`, updatedTuitionData);
             } else {
                 updatedTuitionData.createdBy = username;
-                await axios.post('https://tuition-seba-backend-1-lpfs.onrender.com/api/tuition/add', updatedTuitionData);
+                await axios.post('https://tuition-seba-backend-1.onrender.com/api/tuition/add', updatedTuitionData);
             }
 
             toast.success('Tuition record saved successfully (SMS bypassed)!');

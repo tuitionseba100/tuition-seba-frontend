@@ -67,7 +67,7 @@ const PremiumTeacherPage = () => {
         setShowStatusHistoryModal(true);
         setStatusHistoryLoading(true);
         try {
-            const response = await axios.get(`https://tuition-seba-backend-1-lpfs.onrender.com/api/statusHistory/history/${moduleName}/${id}`, {
+            const response = await axios.get(`https://tuition-seba-backend-1.onrender.com/api/statusHistory/history/${moduleName}/${id}`, {
                 headers: { Authorization: token }
             });
             setStatusHistoryList(response.data);
@@ -234,7 +234,7 @@ const PremiumTeacherPage = () => {
     const fetchTableData = async () => {
         setLoading(true);
         try {
-            const response = await axios.get(`https://tuition-seba-backend-1-lpfs.onrender.com/api/regTeacher/getTableData`, {
+            const response = await axios.get(`https://tuition-seba-backend-1.onrender.com/api/regTeacher/getTableData`, {
                 params: {
                     page: currentPage,
                     ...appliedFilters
@@ -273,7 +273,7 @@ const PremiumTeacherPage = () => {
 
     const fetchSummary = async () => {
         try {
-            const res = await axios.get(`https://tuition-seba-backend-1-lpfs.onrender.com/api/regTeacher/summary`, {
+            const res = await axios.get(`https://tuition-seba-backend-1.onrender.com/api/regTeacher/summary`, {
                 params: appliedFilters,
                 headers: { Authorization: token }
             });
@@ -298,7 +298,7 @@ const PremiumTeacherPage = () => {
         // Fetch Applications
         try {
             const response = await axios.get(
-                `https://tuition-seba-backend-1-lpfs.onrender.com/api/tuitionApply/byPremiumCode`,
+                `https://tuition-seba-backend-1.onrender.com/api/tuitionApply/byPremiumCode`,
                 {
                     params: { premiumCode },
                     headers: { Authorization: token }
@@ -316,7 +316,7 @@ const PremiumTeacherPage = () => {
         // Fetch Proposals
         try {
             const response = await axios.get(
-                `https://tuition-seba-backend-1-lpfs.onrender.com/api/sms/logs`,
+                `https://tuition-seba-backend-1.onrender.com/api/sms/logs`,
                 {
                     params: { premiumCode, limit: 100, category: 'Proposal' },
                     headers: { Authorization: token }
@@ -343,7 +343,7 @@ const PremiumTeacherPage = () => {
     const handleExportToExcel = async () => {
         setLoading(true);
         try {
-            const res = await axios.get(`https://tuition-seba-backend-1-lpfs.onrender.com/api/regTeacher/summary`, {
+            const res = await axios.get(`https://tuition-seba-backend-1.onrender.com/api/regTeacher/summary`, {
                 params: { ...appliedFilters, allData: true },
                 headers: { Authorization: token }
             });
@@ -427,7 +427,7 @@ const PremiumTeacherPage = () => {
                     updatedBy: username
                 };
                 await axios.put(
-                    `https://tuition-seba-backend-1-lpfs.onrender.com/api/regTeacher/edit/${editingId}`,
+                    `https://tuition-seba-backend-1.onrender.com/api/regTeacher/edit/${editingId}`,
                     updatedData,
                     {
                         headers: {
@@ -441,7 +441,7 @@ const PremiumTeacherPage = () => {
                     ...updatingData,
                     createdBy: username
                 };
-                await axios.post('https://tuition-seba-backend-1-lpfs.onrender.com/api/regTeacher/add', newData);
+                await axios.post('https://tuition-seba-backend-1.onrender.com/api/regTeacher/add', newData);
                 toast.success("Teacher record created successfully!");
             }
             setShowModal(false);
@@ -476,7 +476,7 @@ const PremiumTeacherPage = () => {
             };
 
             await axios.put(
-                `https://tuition-seba-backend-1-lpfs.onrender.com/api/regTeacher/edit/${editingId}`,
+                `https://tuition-seba-backend-1.onrender.com/api/regTeacher/edit/${editingId}`,
                 updatedData,
                 {
                     headers: {
@@ -487,7 +487,7 @@ const PremiumTeacherPage = () => {
 
             // 2. Send verification SMS
             const smsRes = await axios.post(
-                `https://tuition-seba-backend-1-lpfs.onrender.com/api/sms/send-single`,
+                `https://tuition-seba-backend-1.onrender.com/api/sms/send-single`,
                 {
                     phone: smsRecipient,
                     message: smsMessage,
@@ -537,7 +537,7 @@ const PremiumTeacherPage = () => {
             };
 
             await axios.put(
-                `https://tuition-seba-backend-1-lpfs.onrender.com/api/regTeacher/edit/${editingId}`,
+                `https://tuition-seba-backend-1.onrender.com/api/regTeacher/edit/${editingId}`,
                 updatedData,
                 {
                     headers: {
@@ -588,7 +588,7 @@ const PremiumTeacherPage = () => {
         if (confirmDelete) {
             try {
                 await axios.delete(
-                    `https://tuition-seba-backend-1-lpfs.onrender.com/api/regTeacher/delete/${id}`,
+                    `https://tuition-seba-backend-1.onrender.com/api/regTeacher/delete/${id}`,
                     {
                         headers: {
                             Authorization: token

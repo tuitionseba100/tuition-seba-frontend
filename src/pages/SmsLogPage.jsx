@@ -8,7 +8,7 @@ import styled from 'styled-components';
 import NavBarPage from './NavbarPage';
 import CreateSmsModal from '../components/modals/CreateSmsModal';
 
-const BASE_URL = 'https://tuition-seba-backend-1-lpfs.onrender.com';
+const BASE_URL = 'https://tuition-seba-backend-1.onrender.com';
 
 const SmsLogPage = () => {
     const [logs, setLogs] = useState([]);

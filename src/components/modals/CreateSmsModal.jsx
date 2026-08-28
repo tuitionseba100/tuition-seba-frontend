@@ -4,7 +4,7 @@ import { axiosWithFallback as axios } from '../../services/fetchWithFallback';
 import { toast } from 'react-toastify';
 import { FaTrash, FaPlus } from 'react-icons/fa';
 
-const BASE_URL = 'https://tuition-seba-backend-1-lpfs.onrender.com';
+const BASE_URL = 'https://tuition-seba-backend-1.onrender.com';
 
 const smsTemplates = [
     {

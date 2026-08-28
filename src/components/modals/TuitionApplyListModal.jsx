@@ -242,7 +242,16 @@ function AppliedListModal({ tuitionId, tuitionCode, show, onHide }) {
                                                     </div>
                                                 </td>
                                                 <td style={style}>{app.updatedBy || ""}</td>
-                                                <td style={style}>{app.premiumCode}</td>
+                                                <td style={style}>
+                                                    <div>
+                                                        <div>{app.premiumCode}</div>
+                                                        {app.regTeacherStatus && (
+                                                            <div style={{ fontSize: '11px', color: (app.isSpam || app.isBest || app.isExpress) ? 'rgba(255,255,255,0.7)' : '#6c757d', marginTop: '2px', textTransform: 'capitalize' }}>
+                                                                ({app.regTeacherStatus})
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                </td>
                                                 <td style={style}>{app.phone}</td>
                                                 <td style={style}>{app.name}</td>
                                                 <td style={style}>{app.institute}</td>

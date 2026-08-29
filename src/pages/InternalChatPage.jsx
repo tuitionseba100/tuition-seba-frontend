@@ -497,7 +497,7 @@ export default function InternalChatPage() {
     // ── Update Task Status ────────────────────────────────────────────────────
     const updateTaskStatus = async (taskId, status) => {
         try {
-            await axios.patch(`${BASE_URL}/api/internal-chat/tasks/${taskId}/status`, { status }, { headers: authHeaders() });
+            await axios.patch(`${BASE_URL}/api/internal-chat/messages/${taskId}/task-status`, { status }, { headers: authHeaders() });
         } catch (err) {
             toast.error(err.response?.data?.message || 'Failed to update task');
         }

@@ -59,6 +59,9 @@ const GuardianApplyPage = () => {
         'pending',
         'called (interested)',
         'called (no response)',
+        '1st Call No Response',
+        '2nd Call No Response',
+        '3rd Call No Response',
         'meeting scheduled',
         'meeting done',
         'confirmed',
@@ -517,6 +520,9 @@ const GuardianApplyPage = () => {
                             <option value="pending">Pending</option>
                             <option value="called (interested)">Called (Interested)</option>
                             <option value="called (no response)">Called (No Response)</option>
+                            <option value="1st Call No Response">1st Call No Response</option>
+                            <option value="2nd Call No Response">2nd Call No Response</option>
+                            <option value="3rd Call No Response">3rd Call No Response</option>
                             <option value="meeting scheduled">Meeting Scheduled</option>
                             <option value="meeting done">Meeting Done</option>
                             <option value="confirmed">Confirmed</option>
@@ -669,6 +675,9 @@ const GuardianApplyPage = () => {
                                                              ${rowData.status === "pending" ? "bg-warning text-dark" : ""}  
                                                              ${rowData.status === "called (interested)" ? "bg-primary text-light" : ""}  
                                                              ${rowData.status === "called (no response)" ? "bg-secondary text-light" : ""}  
+                                                             ${rowData.status === "1st Call No Response" ? "bg-secondary text-light" : ""}  
+                                                             ${rowData.status === "2nd Call No Response" ? "bg-secondary text-light" : ""}  
+                                                             ${rowData.status === "3rd Call No Response" ? "bg-secondary text-light" : ""}  
                                                              ${rowData.status === "meeting scheduled" ? "bg-info text-dark" : ""}  
                                                              ${rowData.status === "meeting done" ? "bg-success text-light" : ""}  
                                                              ${rowData.status === "confirmed" ? "bg-success" : ""}  

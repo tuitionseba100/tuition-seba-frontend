@@ -619,6 +619,10 @@ const TuitionPage = () => {
         "given number": { bg: "bg-primary", text: "text-white" },
         "guardian meet": { bg: "bg-secondary", text: "text-white" },
         "demo class running": { bg: "bg-warning", text: "text-dark" },
+        "1st Demo Class": { bg: "bg-warning", text: "text-dark" },
+        "2nd Demo Class": { bg: "bg-warning", text: "text-dark" },
+        "1st demo class": { bg: "bg-warning", text: "text-dark" },
+        "2nd demo class": { bg: "bg-warning", text: "text-dark" },
         "confirm": { bg: "bg-info", text: "text-dark" },
         "cancel": { bg: "bg-danger", text: "text-white" },
         "suspended": { bg: "bg-dark", text: "text-white" },
@@ -806,6 +810,8 @@ const TuitionPage = () => {
                             <option value="given number">Given Number</option>
                             <option value="guardian meet">Guardian Meet</option>
                             <option value="demo class running">Demo Class Running</option>
+                            <option value="1st Demo Class">1st Demo Class</option>
+                            <option value="2nd Demo Class">2nd Demo Class</option>
                             <option value="confirm">Confirm</option>
                             <option value="cancel">Cancel</option>
                             <option value="refer BM">Refer BM</option>
@@ -1534,6 +1540,8 @@ const TuitionPage = () => {
                                 <option value="given number">Given Number</option>
                                 <option value="guardian meet">Guardian Meet</option>
                                 <option value="demo class running">Demo Class Running</option>
+                                <option value="1st Demo Class">1st Demo Class</option>
+                                <option value="2nd Demo Class">2nd Demo Class</option>
                                 <option value="confirm">Confirm</option>
                                 <option value="cancel">Cancel</option>
                                 <option value="refer BM">Refer BM</option>

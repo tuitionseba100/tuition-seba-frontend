@@ -257,6 +257,8 @@ const SocialPostModal = ({ show, onHide }) => {
         { value: 'given number', label: 'Given Number' },
         { value: 'guardian meet', label: 'Guardian Meet' },
         { value: 'demo class running', label: 'Demo Class Running' },
+        { value: '1st Demo Class', label: '1st Demo Class' },
+        { value: '2nd Demo Class', label: '2nd Demo Class' },
         { value: 'confirm', label: 'Confirm' },
         { value: 'cancel', label: 'Cancel' },
         { value: 'refer BM', label: 'Refer BM' },

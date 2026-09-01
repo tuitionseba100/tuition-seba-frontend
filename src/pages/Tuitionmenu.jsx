@@ -810,8 +810,8 @@ const TuitionPage = () => {
                             <option value="given number">Given Number</option>
                             <option value="guardian meet">Guardian Meet</option>
                             <option value="demo class running">Demo Class Running</option>
-                            <option value="1st Demo Class">1st Demo Class</option>
-                            <option value="2nd Demo Class">2nd Demo Class</option>
+                            <option value="1st demo class">1st Demo Class</option>
+                            <option value="2nd demo class">2nd Demo Class</option>
                             <option value="confirm">Confirm</option>
                             <option value="cancel">Cancel</option>
                             <option value="refer BM">Refer BM</option>
@@ -1540,8 +1540,8 @@ const TuitionPage = () => {
                                 <option value="given number">Given Number</option>
                                 <option value="guardian meet">Guardian Meet</option>
                                 <option value="demo class running">Demo Class Running</option>
-                                <option value="1st Demo Class">1st Demo Class</option>
-                                <option value="2nd Demo Class">2nd Demo Class</option>
+                                <option value="1st demo class">1st Demo Class</option>
+                                <option value="2nd demo class">2nd Demo Class</option>
                                 <option value="confirm">Confirm</option>
                                 <option value="cancel">Cancel</option>
                                 <option value="refer BM">Refer BM</option>

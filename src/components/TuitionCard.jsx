@@ -220,6 +220,7 @@ Joining: ${tuitionDetails.joining}
                     onClose={() => setShowModal(false)}
                     tuitionCode={tuition.tuitionCode}
                     tuitionId={tuition._id}
+                    tuition={tuition}
                 />
             )}
         </>

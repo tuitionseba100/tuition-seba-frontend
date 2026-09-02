@@ -7,6 +7,7 @@ import ApplySuccessModal from '../../components/modals/ApplySuccessModal';
 import CustomErrorModal from '../../components/modals/CustomErrorModal';
 import ProcessingModal from '../../components/modals/ProcessingModal';
 import SuspendedWarningModal from '../../components/modals/SuspendedWarningModal';
+import TuitionApplyConfirmModal from '../../components/modals/TuitionApplyConfirmModal';
 
 import { fetchWithFallback } from '../../services/fetchWithFallback';
 const spinnerStyle = {
@@ -19,11 +20,14 @@ const spinnerStyle = {
     marginRight: 8,
 };
 
-const ApplyModal = ({ show, onClose, tuitionCode, tuitionId }) => {
+const ApplyModal = ({ show, onClose, tuitionCode, tuitionId, tuition = {} }) => {
     const modalBodyRef = useRef(null);
     const [showSuccess, setShowSuccess] = useState(false);
     const [errorMessage, setErrorMessage] = useState('');
     const [showSuspendedModal, setShowSuspendedModal] = useState(false);
+    const [showConfirmModal, setShowConfirmModal] = useState(false);
+    const [pendingValues, setPendingValues] = useState(null);
+    const [isFinalSubmitting, setIsFinalSubmitting] = useState(false);
     const [isVerified, setIsVerified] = useState(false);
     const [teacherData, setTeacherData] = useState(null);
     const [isVerifying, setIsVerifying] = useState(false);
@@ -69,10 +73,44 @@ const ApplyModal = ({ show, onClose, tuitionCode, tuitionId }) => {
             setIsVerified(false);
             setTeacherData(null);
             setShowSuccess(false);
+            setShowConfirmModal(false);
+            setPendingValues(null);
+            setIsFinalSubmitting(false);
             setErrorMessage('');
             setShowAutofillMessage(false);
         }
     }, [show, tuitionId]);
+
+    const handleConfirmSubmit = async (modalComment) => {
+        if (!pendingValues) return;
+        setIsFinalSubmitting(true);
+        try {
+            const payload = {
+                ...pendingValues,
+                comment: modalComment !== undefined ? modalComment : (pendingValues.comment || ''),
+            };
+            const res = await fetchWithFallback('https://tuition-seba-backend-1.onrender.com/api/tuitionApply/add-web',
+                {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload),
+                }
+            );
+            const data = await res.json();
+            if (res.ok) {
+                setShowConfirmModal(false);
+                setShowSuccess(true);
+            } else {
+                setShowConfirmModal(false);
+                setErrorMessage(data.message || 'Submission failed');
+            }
+        } catch (error) {
+            setShowConfirmModal(false);
+            setErrorMessage(error.message);
+        } finally {
+            setIsFinalSubmitting(false);
+        }
+    };
 
     const verificationSchema = Yup.object({
         premiumCode: Yup.string().required('Please enter your premium code'),
@@ -250,36 +288,17 @@ const ApplyModal = ({ show, onClose, tuitionCode, tuitionId }) => {
                     }}
                     enableReinitialize
                     validationSchema={isVerified ? fullValidationSchema : verificationSchema}
-                    onSubmit={async (values, { setSubmitting }) => {
+                    onSubmit={(values, { setSubmitting }) => {
+                        setSubmitting(false);
                         if (!isVerified) {
-                            // This shouldn't happen, but just in case
-                            setSubmitting(false);
                             return;
                         }
-
-                        try {
-                            const payload = {
-                                ...values,
-                                regTeacherStatus: teacherData?.status || '',
-                            };
-                            const res = await fetchWithFallback('https://tuition-seba-backend-1.onrender.com/api/tuitionApply/add-web',
-                                {
-                                    method: 'POST',
-                                    headers: { 'Content-Type': 'application/json' },
-                                    body: JSON.stringify(payload),
-                                }
-                            );
-                            const data = await res.json();
-                            if (res.ok) {
-                                setShowSuccess(true);
-                            } else {
-                                setErrorMessage(data.message || 'Submission failed');
-                            }
-                        } catch (error) {
-                            setErrorMessage(error.message);
-                        } finally {
-                            setSubmitting(false);
-                        }
+                        const payload = {
+                            ...values,
+                            regTeacherStatus: teacherData?.status || '',
+                        };
+                        setPendingValues(payload);
+                        setShowConfirmModal(true);
                     }}
                 >
                     {({ isSubmitting, errors, submitCount, values, setFieldValue }) => {
@@ -493,26 +512,6 @@ const ApplyModal = ({ show, onClose, tuitionCode, tuitionId }) => {
                                                     />
                                                 </div>
                                             ))}
-
-                                            <div className="mb-3">
-                                                <label htmlFor="comment" className="form-label">
-                                                    Comment (Optional)
-                                                </label>
-                                                <Field
-                                                    as="textarea"
-                                                    name="comment"
-                                                    className="form-control"
-                                                    rows="3"
-                                                    placeholder="Additional info or remarks"
-                                                    style={{
-                                                        border: '1.5px solid #3c81e1',
-                                                        borderRadius: 6,
-                                                        padding: '8px 12px',
-                                                        resize: 'vertical',
-                                                        transition: 'border-color 0.3s',
-                                                    }}
-                                                />
-                                            </div>
                                         </>
                                     )}
 
@@ -605,6 +604,20 @@ const ApplyModal = ({ show, onClose, tuitionCode, tuitionId }) => {
                 <SuspendedWarningModal
                     show={showSuspendedModal}
                     onClose={() => setShowSuspendedModal(false)}
+                />
+                <TuitionApplyConfirmModal
+                    show={showConfirmModal}
+                    onClose={() => {
+                        if (!isFinalSubmitting) {
+                            setShowConfirmModal(false);
+                        }
+                    }}
+                    onConfirm={handleConfirmSubmit}
+                    tuition={{
+                        ...(tuition || {}),
+                        tuitionCode: tuitionCode || tuition?.tuitionCode,
+                    }}
+                    isLoading={isFinalSubmitting}
                 />
             </div>
 

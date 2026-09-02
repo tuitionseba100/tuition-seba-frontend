@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { io } from 'socket.io-client';
 import { BsChatDotsFill, BsX, BsArrowRightShort, BsTelephone, BsKey, BsSendFill, BsRobot, BsCircleFill, BsWhatsapp, BsArrowDownShort, BsLightbulb, BsFileEarmarkPerson, BsBoxArrowUpRight } from 'react-icons/bs';
 import { fetchWithFallback } from '../services/fetchWithFallback';
+import TuitionApplyConfirmModal from './modals/TuitionApplyConfirmModal';
 import './ChatWidget.css';
 
 const BASE_URL = 'https://tuition-seba-backend-1.onrender.com';
@@ -24,6 +25,7 @@ export default function ChatWidget() {
   const [showScrollBottom, setShowScrollBottom] = useState(false);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [showTooltip, setShowTooltip] = useState(false);
+  const [confirmTuitionModal, setConfirmTuitionModal] = useState(null);
   const teacherDataRef = useRef(null);
   const pendingApplyRef = useRef(null);
 
@@ -70,7 +72,7 @@ export default function ChatWidget() {
     }
   }, [isOpen]);
 
-  const executeApply = async (currentUser, tuitionCode, tuitionId, applyMsg) => {
+  const executeApply = async (currentUser, tuitionCode, tuitionId, applyMsg, userComment = '') => {
     // Show temporary loading status message in the chat feed
     const tempId = 'temp-loading-' + Date.now();
     setMessages(prev => [...prev, {
@@ -108,6 +110,9 @@ export default function ChatWidget() {
         combinedAddress = combinedAddress ? `${combinedAddress}. Area: ${teacher.currentArea}` : `Area: ${teacher.currentArea}`;
       }
 
+      const formattedComment = userComment ? `Applied via Live Chat - ${userComment}` : 'Applied via Live Chat';
+      const formattedAgentComment = userComment ? `Chat Apply (${userComment})` : 'Chat Apply';
+
       const applyRes = await fetchWithFallback(`${BASE_URL}/api/tuitionApply/add-web`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -121,8 +126,8 @@ export default function ChatWidget() {
           department: teacher.department || teacher.honorsDept || teacher.mastersDept || '',
           academicYear: teacher.academicYear || '',
           address: combinedAddress,
-          comment: 'Applied via Live Chat',
-          agentComment: 'Chat Apply',
+          comment: formattedComment,
+          agentComment: formattedAgentComment,
           regTeacherStatus: teacher.status || '',
         })
       });
@@ -143,13 +148,17 @@ export default function ChatWidget() {
       }
 
       // Send the member's application message if save succeeded
+      const chatMessageToSend = userComment && userComment.trim()
+        ? `${applyMsg}\n\n💬 **Teacher Comment / বিশেষ বক্তব্য:**\n${userComment.trim()}`
+        : applyMsg;
+
       if (socketRef.current) {
         socketRef.current.emit('send_message', {
           phone: currentUser.phone,
           premiumCode: currentUser.premiumCode,
           sender: 'member',
           senderName: currentUser.name,
-          text: applyMsg
+          text: chatMessageToSend
         });
       }
 
@@ -241,8 +250,8 @@ Joining: ${details.joining || ''}
 
       let currentUser = user;
       if (!currentUser) {
-        // Store the application details to execute once verification finishes successfully
-        pendingApplyRef.current = { tuitionCode, tuitionId, applyMsg };
+        // Store the application details to show confirmation once verification finishes successfully
+        pendingApplyRef.current = { tuitionCode, tuitionId, applyMsg, tuitionDetails };
 
         try {
           const saved = localStorage.getItem('@user_settings');
@@ -288,9 +297,13 @@ Joining: ${details.joining || ''}
 
       if (currentUser) {
         pendingApplyRef.current = null;
-        setTimeout(() => {
-          executeApply(currentUser, tuitionCode, tuitionId, applyMsg);
-        }, 800);
+        setConfirmTuitionModal({
+          tuitionCode,
+          tuitionId,
+          applyMsg,
+          tuitionDetails: tuitionDetails || { tuitionCode },
+          user: currentUser
+        });
       }
     };
 
@@ -393,9 +406,15 @@ Joining: ${details.joining || ''}
 
     // Check if there is a pending tuition application to process now that user is verified and socket is ready
     if (pendingApplyRef.current) {
-      const { tuitionCode, tuitionId, applyMsg } = pendingApplyRef.current;
+      const { tuitionCode, tuitionId, applyMsg, tuitionDetails } = pendingApplyRef.current;
       pendingApplyRef.current = null; // clear it immediately to prevent duplicate runs
-      executeApply(user, tuitionCode, tuitionId, applyMsg);
+      setConfirmTuitionModal({
+        tuitionCode,
+        tuitionId,
+        applyMsg,
+        tuitionDetails: tuitionDetails || { tuitionCode },
+        user: user
+      });
     }
 
     return () => {
@@ -406,6 +425,13 @@ Joining: ${details.joining || ''}
       if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
     };
   }, [user, isOpen]);
+
+  const handleConfirmChatApply = (modalComment) => {
+    if (!confirmTuitionModal) return;
+    const { user: applyUser, tuitionCode, tuitionId, applyMsg } = confirmTuitionModal;
+    setConfirmTuitionModal(null);
+    executeApply(applyUser, tuitionCode, tuitionId, applyMsg, modalComment);
+  };
 
   const handleVerify = async (e) => {
     e.preventDefault();
@@ -940,6 +966,13 @@ Joining: ${details.joining || ''}
           </div>
         )}
       </div>
+
+      <TuitionApplyConfirmModal
+        show={!!confirmTuitionModal}
+        onClose={() => setConfirmTuitionModal(null)}
+        onConfirm={handleConfirmChatApply}
+        tuition={confirmTuitionModal?.tuitionDetails || { tuitionCode: confirmTuitionModal?.tuitionCode }}
+      />
     </div>
   );
 }

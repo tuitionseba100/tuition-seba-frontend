@@ -20,7 +20,7 @@ const spinnerStyle = {
     marginRight: 8,
 };
 
-const ApplyModal = ({ show, onClose, tuitionCode, tuitionId, tuition = {} }) => {
+const ApplyModal = ({ show, onClose, tuitionCode, tuitionId, tuition = {}, isChatApply = false }) => {
     const modalBodyRef = useRef(null);
     const [showSuccess, setShowSuccess] = useState(false);
     const [errorMessage, setErrorMessage] = useState('');
@@ -85,9 +85,11 @@ const ApplyModal = ({ show, onClose, tuitionCode, tuitionId, tuition = {} }) => 
         if (!pendingValues) return;
         setIsFinalSubmitting(true);
         try {
+            const isChat = Boolean(isChatApply || tuition.applyType === 'Chat');
             const payload = {
                 ...pendingValues,
                 comment: modalComment !== undefined ? modalComment : (pendingValues.comment || ''),
+                agentComment: isChat ? (modalComment ? `Chat Apply (${modalComment})` : 'Chat Apply') : (pendingValues.agentComment || undefined),
             };
             const res = await fetchWithFallback('https://tuition-seba-backend-1.onrender.com/api/tuitionApply/add-web',
                 {
@@ -99,7 +101,26 @@ const ApplyModal = ({ show, onClose, tuitionCode, tuitionId, tuition = {} }) => 
             const data = await res.json();
             if (res.ok) {
                 setShowConfirmModal(false);
-                setShowSuccess(true);
+                if (isChat) {
+                    onClose();
+                    const event = new CustomEvent('openChatWidget', {
+                        detail: {
+                            tuitionCode: tuitionCode,
+                            tuitionId: tuitionId,
+                            tuitionDetails: tuition,
+                            userComment: modalComment,
+                            alreadySubmitted: true,
+                            teacherInfo: {
+                                name: payload.name || 'Premium Member',
+                                phone: payload.phone,
+                                premiumCode: payload.premiumCode
+                            }
+                        }
+                    });
+                    window.dispatchEvent(event);
+                } else {
+                    setShowSuccess(true);
+                }
             } else {
                 setShowConfirmModal(false);
                 setErrorMessage(data.message || 'Submission failed');

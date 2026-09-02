@@ -28,6 +28,7 @@ export default function ChatWidget() {
   const [confirmTuitionModal, setConfirmTuitionModal] = useState(null);
   const teacherDataRef = useRef(null);
   const pendingApplyRef = useRef(null);
+  const pendingAlreadySubmittedSendRef = useRef(null);
 
   const feedRef = useRef(null);
   const typingTimeoutRef = useRef(null);
@@ -247,11 +248,21 @@ Joining: ${details.joining || ''}
 
       const applyMsg = formatMessage(tuitionDetails);
       const tuitionId = event.detail?.tuitionId;
+      const isAlreadySubmitted = Boolean(event.detail?.alreadySubmitted);
+      const userComment = event.detail?.userComment || '';
+      const teacherInfo = event.detail?.teacherInfo;
 
-      let currentUser = user;
+      let currentUser = user || teacherInfo;
+      if (teacherInfo && (!currentUser || currentUser.phone !== teacherInfo.phone)) {
+        currentUser = teacherInfo;
+        setUser(teacherInfo);
+      }
+
       if (!currentUser) {
-        // Store the application details to show confirmation once verification finishes successfully
-        pendingApplyRef.current = { tuitionCode, tuitionId, applyMsg, tuitionDetails };
+        if (!isAlreadySubmitted) {
+          // Store the application details to show confirmation once verification finishes successfully
+          pendingApplyRef.current = { tuitionCode, tuitionId, applyMsg, tuitionDetails };
+        }
 
         try {
           const saved = localStorage.getItem('@user_settings');
@@ -293,6 +304,51 @@ Joining: ${details.joining || ''}
         } catch (e) {
           console.error(e);
         }
+      }
+
+      if (isAlreadySubmitted) {
+        pendingApplyRef.current = null;
+        setConfirmTuitionModal(null);
+
+        const chatMessageToSend = userComment && userComment.trim()
+          ? `${applyMsg}\n\n💬 **Teacher Comment / বিশেষ বক্তব্য:**\n${userComment.trim()}`
+          : applyMsg;
+
+        if (socketRef.current && currentUser) {
+          socketRef.current.emit('send_message', {
+            phone: currentUser.phone,
+            premiumCode: currentUser.premiumCode,
+            sender: 'member',
+            senderName: currentUser.name,
+            text: chatMessageToSend
+          });
+
+          if (tuitionId) {
+            fetchWithFallback(`${BASE_URL}/api/tuitionApply/get-auto-comment/${tuitionId}`)
+              .then(res => res.json())
+              .then(commentData => {
+                if (commentData && commentData.comment && socketRef.current) {
+                  setTimeout(() => {
+                    socketRef.current.emit('send_message', {
+                      phone: currentUser.phone,
+                      premiumCode: currentUser.premiumCode,
+                      sender: 'bot',
+                      senderName: 'System',
+                      text: `🤖 **Auto Reply:**\n${commentData.comment}`
+                    });
+                  }, 600);
+                }
+              })
+              .catch(e => console.error('Error fetching auto comment for alreadySubmitted apply:', e));
+          }
+        } else {
+          pendingAlreadySubmittedSendRef.current = {
+            chatMessageToSend,
+            tuitionId,
+            currentUser
+          };
+        }
+        return;
       }
 
       if (currentUser) {
@@ -403,6 +459,39 @@ Joining: ${details.joining || ''}
         ));
       }
     });
+
+    // Check if there is an alreadySubmitted application message to send now that socket is ready
+    if (pendingAlreadySubmittedSendRef.current) {
+      const { chatMessageToSend, tuitionId: pTuitionId, currentUser: pUser } = pendingAlreadySubmittedSendRef.current;
+      pendingAlreadySubmittedSendRef.current = null;
+      const sendUser = pUser || user;
+      socketRef.current.emit('send_message', {
+        phone: sendUser.phone,
+        premiumCode: sendUser.premiumCode,
+        sender: 'member',
+        senderName: sendUser.name,
+        text: chatMessageToSend
+      });
+
+      if (pTuitionId) {
+        fetchWithFallback(`${BASE_URL}/api/tuitionApply/get-auto-comment/${pTuitionId}`)
+          .then(res => res.json())
+          .then(commentData => {
+            if (commentData && commentData.comment && socketRef.current) {
+              setTimeout(() => {
+                socketRef.current.emit('send_message', {
+                  phone: sendUser.phone,
+                  premiumCode: sendUser.premiumCode,
+                  sender: 'bot',
+                  senderName: 'System',
+                  text: `🤖 **Auto Reply:**\n${commentData.comment}`
+                });
+              }, 600);
+            }
+          })
+          .catch(e => console.error('Error fetching auto comment:', e));
+      }
+    }
 
     // Check if there is a pending tuition application to process now that user is verified and socket is ready
     if (pendingApplyRef.current) {

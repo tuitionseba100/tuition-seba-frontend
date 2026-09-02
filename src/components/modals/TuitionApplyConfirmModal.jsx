@@ -44,14 +44,11 @@ const TuitionApplyConfirmModal = ({
 
     const locationText = `${tuition.location || ''}${tuition.area ? (tuition.location ? ', ' : '') + tuition.area : ''}`.trim();
 
-    // Formatted merged values for clean display
-    const teacherAndStudent = [tuition.wantedTeacher, tuition.student].filter(Boolean).join(' • ');
-    
-    const classMediumInstitute = [
+    // Formatted helper values
+    const classAndMedium = [
         tuition.class ? `Class ${tuition.class}` : '',
-        tuition.medium ? `(${tuition.medium})` : '',
-        tuition.institute || ''
-    ].filter(Boolean).join(' ').replace('( ', '(');
+        tuition.medium ? `(${tuition.medium})` : ''
+    ].filter(Boolean).join(' ');
 
     const dayAndTime = [
         tuition.day ? `${tuition.day} Days` : '',
@@ -60,7 +57,7 @@ const TuitionApplyConfirmModal = ({
 
     const salaryAndFee = [
         formattedSalary,
-        tuition.mediaFee && tuition.mediaFee.trim() !== '' ? `(Fee: ${tuition.mediaFee})` : ''
+        tuition.mediaFee && tuition.mediaFee.trim() !== '' ? `(Media Fee: ${tuition.mediaFee})` : ''
     ].filter(Boolean).join(' ');
 
     const compactRow = (icon, label, value, highlight = false, fullWidth = false) => {
@@ -106,26 +103,29 @@ const TuitionApplyConfirmModal = ({
                     background: 'linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%)',
                     color: '#ffffff',
                     borderBottom: 'none',
-                    padding: '12px 18px',
+                    padding: '10px 14px',
                     borderTopLeftRadius: 12,
                     borderTopRightRadius: 12,
                 }}
             >
-                <div className="d-flex align-items-center gap-2 w-100 justify-content-between">
-                    <div className="d-flex align-items-center gap-2">
-                        <FaExclamationTriangle className="text-warning" style={{ fontSize: '1.2rem' }} />
-                        <span className="fw-bold fs-5">আবেদন নিশ্চিতকরণ</span>
+                <div className="d-flex align-items-center justify-content-between w-100 flex-nowrap gap-1">
+                    <div className="d-flex align-items-center gap-1.5 flex-nowrap flex-shrink-1 overflow-hidden" style={{ minWidth: 0 }}>
+                        <FaExclamationTriangle className="text-warning flex-shrink-0" style={{ fontSize: '1.05rem' }} />
+                        <span className="fw-bold text-truncate" style={{ fontSize: 'clamp(0.9rem, 3.8vw, 1.15rem)', whiteSpace: 'nowrap' }}>
+                            আবেদন নিশ্চিতকরণ
+                        </span>
                     </div>
-                    <div className="d-flex align-items-center gap-2">
+                    <div className="d-flex align-items-center gap-1.5 flex-nowrap flex-shrink-0">
                         {tuition.tuitionCode && (
                             <span
                                 style={{
                                     backgroundColor: 'rgba(255, 255, 255, 0.2)',
-                                    padding: '3px 10px',
+                                    padding: '2px 8px',
                                     borderRadius: '12px',
-                                    fontSize: '0.82rem',
+                                    fontSize: '0.78rem',
                                     fontWeight: '700',
-                                    letterSpacing: '0.5px'
+                                    letterSpacing: '0.5px',
+                                    whiteSpace: 'nowrap'
                                 }}
                             >
                                 Code: {tuition.tuitionCode}
@@ -141,20 +141,21 @@ const TuitionApplyConfirmModal = ({
                                 border: 'none',
                                 color: '#ffffff',
                                 borderRadius: '50%',
-                                width: '28px',
-                                height: '28px',
+                                width: '26px',
+                                height: '26px',
                                 display: 'flex',
                                 alignItems: 'center',
                                 justifyContent: 'center',
                                 cursor: isLoading ? 'not-allowed' : 'pointer',
                                 transition: 'all 0.2s ease',
                                 padding: 0,
-                                outline: 'none'
+                                outline: 'none',
+                                flexShrink: 0
                             }}
                             onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.35)'}
                             onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.2)'}
                         >
-                            <FaTimes style={{ fontSize: '0.85rem' }} />
+                            <FaTimes style={{ fontSize: '0.8rem' }} />
                         </button>
                     </div>
                 </div>
@@ -188,13 +189,16 @@ const TuitionApplyConfirmModal = ({
                     </div>
 
                     <div className="row g-1.5">
-                        {compactRow(<FaChalkboardTeacher />, 'Teacher & Student', teacherAndStudent)}
-                        {compactRow(<FaBook />, 'Class & Institute', classMediumInstitute)}
-                        {compactRow(<FaBookOpen />, 'Subject', tuition.subject)}
+                        {compactRow(<FaChalkboardTeacher />, 'Wanted Teacher', tuition.wantedTeacher)}
+                        {compactRow(<FaUsers />, 'Students', tuition.student)}
+                        {compactRow(<FaBook />, 'Class', tuition.class ? (tuition.class.toString().toLowerCase().includes('class') ? tuition.class : `Class ${tuition.class}`) : '')}
+                        {compactRow(<FaLanguage />, 'Medium', tuition.medium)}
+                        {tuition.institute && compactRow(<FaUniversity />, 'Institute', tuition.institute)}
+                        {tuition.joining && compactRow(<FaCalendarCheck />, 'Joining', tuition.joining)}
                         {compactRow(<FaCalendarDay />, 'Day & Time', dayAndTime)}
                         {compactRow(<FaMoneyBillWave />, 'Salary', salaryAndFee, true)}
-                        {tuition.joining && compactRow(<FaCalendarCheck />, 'Joining', tuition.joining)}
-                        {compactRow(<FaMapMarkerAlt />, 'Location', locationText, false, !tuition.joining)}
+                        {compactRow(<FaBookOpen />, 'Subject', tuition.subject, false, true)}
+                        {compactRow(<FaMapMarkerAlt />, 'Location', locationText, false, true)}
                     </div>
                 </div>
 

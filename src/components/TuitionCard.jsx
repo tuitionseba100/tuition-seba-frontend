@@ -25,15 +25,6 @@ const TuitionCard = ({ tuition }) => {
         const type = tuition.applyType || 'Server';
         if (type === 'WhatsApp') {
             redirectToWhatsApp(tuition);
-        } else if (type === 'Chat') {
-            const event = new CustomEvent('openChatWidget', {
-                detail: {
-                    tuitionCode: tuition.tuitionCode,
-                    tuitionId: tuition._id,
-                    tuitionDetails: tuition
-                }
-            });
-            window.dispatchEvent(event);
         } else {
             setShowModal(true);
         }
@@ -214,13 +205,14 @@ Joining: ${tuitionDetails.joining}
                 </Card.Footer>
             </Card>
 
-            {(tuition.applyType || 'Server') === 'Server' && (
+            {(tuition.applyType || 'Server') !== 'WhatsApp' && (
                 <ApplyModal
                     show={showModal}
                     onClose={() => setShowModal(false)}
                     tuitionCode={tuition.tuitionCode}
                     tuitionId={tuition._id}
                     tuition={tuition}
+                    isChatApply={tuition.applyType === 'Chat'}
                 />
             )}
         </>

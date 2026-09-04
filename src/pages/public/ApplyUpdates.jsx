@@ -282,6 +282,11 @@ const ApplyUpdates = () => {
                             </div>
                         </Form>
 
+                        <div style={{ marginTop: '12px', fontSize: '12.5px', color: '#64748b', fontFamily: BANGLA_FONT, display: 'flex', alignItems: 'center', gap: '6px' }}>
+                            <FiInfo size={14} style={{ color: '#3b82f6', flexShrink: 0 }} />
+                            <span>সর্বশেষ ২ মাসের আবেদনের তথ্য দেখানো হচ্ছে।</span>
+                        </div>
+
                         {error && (
                             <div className="au-error">
                                 <FiAlertCircle size={15} />
@@ -296,7 +301,7 @@ const ApplyUpdates = () => {
                             <FiInfo size={48} strokeWidth={1} />
                             <h3>এই নম্বরে কোনো আবেদন পাওয়া যায়নি</h3>
                             <p>
-                                এই নম্বর দিয়ে কোনো টিউশন আবেদন পাওয়া যায়নি। যদি কোনো অসুবিধা ফেস করেন তবে অনুগ্রহ করে আমাদের সাথে যোগাযোগ করুন।
+                                এই নম্বর দিয়ে গত ২ মাসে কোনো টিউশন আবেদন পাওয়া যায়নি। যদি কোনো অসুবিধা ফেস করেন তবে অনুগ্রহ করে আমাদের সাথে যোগাযোগ করুন।
                             </p>
                         </div>
                     )}
@@ -306,7 +311,9 @@ const ApplyUpdates = () => {
                         <div className="au-results">
                             <div className="au-results-header">
                                 <div>
-                                    <h2 className="au-results-title">আপনার আবেদনসমূহ</h2>
+                                    <h2 className="au-results-title">
+                                        আপনার আবেদনসমূহ <span style={{ fontSize: '12.5px', fontWeight: '600', color: '#2563eb', background: '#eff6ff', padding: '3px 10px', borderRadius: '12px', verticalAlign: 'middle', border: '1px solid #bfdbfe', marginLeft: '6px' }}>সর্বশেষ ২ মাস</span>
+                                    </h2>
                                     <p style={{
                                         fontFamily: BANGLA_FONT,
                                         fontSize: '12.5px',

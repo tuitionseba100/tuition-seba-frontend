@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Button, Table, Modal, Form, Row, Col, Card, Tooltip, OverlayTrigger, Badge } from 'react-bootstrap';
-import { FaEdit, FaTrashAlt, FaWhatsapp, FaChevronLeft, FaChevronRight, FaGlobe, FaInfoCircle, FaBell, FaSearch, FaUndo, FaUserPlus, FaFileImage, FaHistory, FaComments, FaPaperPlane } from 'react-icons/fa';
+import { FaEdit, FaTrashAlt, FaWhatsapp, FaChevronLeft, FaChevronRight, FaGlobe, FaInfoCircle, FaBell, FaSearch, FaUndo, FaUserPlus, FaFileImage, FaHistory, FaComments, FaPaperPlane, FaClock } from 'react-icons/fa';
 import Select from 'react-select';
 import { axiosWithFallback as axios } from '../services/fetchWithFallback';
 import NavBarPage from './NavbarPage';
@@ -130,6 +130,8 @@ const TuitionPage = () => {
     const [selectedExportStatus, setSelectedExportStatus] = useState('');
     const [showAutoMigrate, setShowAutoMigrate] = useState(false);
     const [isMigrating, setIsMigrating] = useState(false);
+    const [showGuardianAutoMigrate, setShowGuardianAutoMigrate] = useState(false);
+    const [isMigratingGuardian, setIsMigratingGuardian] = useState(false);
     const [showMigrateModal, setShowMigrateModal] = useState(false);
     const [selectedMigrationIds, setSelectedMigrationIds] = useState([]);
     const [showPosterModal, setShowPosterModal] = useState(false);
@@ -293,7 +295,7 @@ const TuitionPage = () => {
             const [alertRes, pendingRes, guardianRes] = await Promise.all([
                 axios.get('https://tuition-seba-backend-1.onrender.com/api/tuition/alert-today', { params: alertParams }),
                 axios.get('https://tuition-seba-backend-1.onrender.com/api/tuition/pending-payment-creation'),
-                axios.get('https://tuition-seba-backend-1.onrender.com/api/tuition/guardian-followup-today', { params: alertParams })
+                axios.get('https://tuition-seba-backend-1.onrender.com/api/tuition/guardian-followup-today')
             ]);
 
             setTuitionNeedsUpdateList(alertRes.data);
@@ -337,13 +339,43 @@ const TuitionPage = () => {
             const now = new Date();
             const hours = now.getHours();
             // Show only between 10:00 PM and 11:59 PM (22:00 - 23:59)
-            // AND only if there are tuitions needing update today
+            // AND only if there are items needing update/follow-up today
             setShowAutoMigrate((hours === 22 || hours === 23) && tuitionNeedsUpdateList.length > 0);
+            setShowGuardianAutoMigrate((hours === 22 || hours === 23) && guardianFollowUpList.length > 0);
         };
         checkTime();
         const interval = setInterval(checkTime, 60000); // Check every minute
         return () => clearInterval(interval);
-    }, [tuitionNeedsUpdateList]);
+    }, [tuitionNeedsUpdateList, guardianFollowUpList]);
+
+    const handleMigrateGuardianFollowUps = async () => {
+        if (guardianFollowUpList.length === 0) {
+            toast.error("No guardian follow-up scheduled for today.");
+            return;
+        }
+
+        if (!window.confirm(`Are you sure you want to migrate ${guardianFollowUpList.length} scheduled guardian follow-up(s) from today to next day?`)) {
+            return;
+        }
+
+        setIsMigratingGuardian(true);
+        try {
+            const token = localStorage.getItem('token');
+            const response = await axios.post('https://tuition-seba-backend-1.onrender.com/api/tuition/guardian-followup/auto-migrate', {
+                tuitionIds: guardianFollowUpList.map(t => t._id)
+            }, {
+                headers: { Authorization: token }
+            });
+            toast.success(response.data.message || 'Guardian follow-ups migrated to next day successfully!');
+            await fetchAlertData();
+            await fetchTuitionRecords();
+        } catch (error) {
+            console.error('Guardian follow-up migration failed:', error);
+            toast.error(error.response?.data?.message || 'Migration failed. Please try again.');
+        } finally {
+            setIsMigratingGuardian(false);
+        }
+    };
 
     const handleAutoMigrate = async () => {
         if (selectedMigrationIds.length === 0) {
@@ -1598,6 +1630,22 @@ const TuitionPage = () => {
                                 Guardian Follow Up Today: {guardianFollowUpList.length}
                             </span>
                         </Modal.Title>
+                        {showGuardianAutoMigrate && (
+                            <Button
+                                variant="warning"
+                                size="sm"
+                                className="fw-bold me-2 d-flex align-items-center gap-1"
+                                onClick={handleMigrateGuardianFollowUps}
+                                disabled={isMigratingGuardian}
+                            >
+                                {isMigratingGuardian ? (
+                                    <Spinner animation="border" size="sm" />
+                                ) : (
+                                    <FaClock />
+                                )}
+                                Migrate To Next Day
+                            </Button>
+                        )}
                     </Modal.Header>
                     <Modal.Body className="p-0 bg-light">
                         {guardianFollowUpList.length > 0 ? (

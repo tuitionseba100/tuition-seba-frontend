@@ -342,7 +342,7 @@ const ApplyUpdates = () => {
 
                             {/* Standalone card/table for each apply */}
                             <div className="au-applies-list" style={{ marginTop: '24px' }}>
-                                {tuitionData.map((item, index) => {
+                                {tuitionData.slice().reverse().map((item, index) => {
                                     const { date, time } = formatDate(item.appliedAt);
                                     const statusColor = getStatusColor(item.status);
                                     const statusBg = getStatusBgColor(item.status);
@@ -381,7 +381,7 @@ const ApplyUpdates = () => {
                                                         alignItems: 'center',
                                                         justifyContent: 'center',
                                                         fontSize: '13px'
-                                                    }}>{index + 1}</span>
+                                                    }}>{tuitionData.length - index}</span>
 
                                                     <span style={{ color: '#ffffff', fontWeight: '700', fontSize: '15px', letterSpacing: '0.3px' }}>
                                                         টিউশন কোড: {item.tuitionCode}

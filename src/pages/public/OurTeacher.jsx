@@ -44,6 +44,7 @@ export default function OurTeacher() {
     const [debouncedUniversitySearch, setDebouncedUniversitySearch] = useState('');
     const [totalPages, setTotalPages] = useState(1);
     const [totalTeachersCount, setTotalTeachersCount] = useState(0);
+    const [showScrollTop, setShowScrollTop] = useState(false);
 
     // Debounce filters to avoid excessive API requests
     useEffect(() => {

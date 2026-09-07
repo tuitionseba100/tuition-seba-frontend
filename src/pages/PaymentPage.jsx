@@ -195,7 +195,7 @@ const PaymentPage = () => {
     const [scCurrentPage, setScCurrentPage] = useState(1);
     const [scTotalPages, setScTotalPages] = useState(1);
     const [scTotalRecords, setScTotalRecords] = useState(0);
-    const [scSearch, setScSearch] = useState({ tuitionCode: '', phone: '', toBePaidToday: false });
+    const [scSearch, setScSearch] = useState({ tuitionCode: '', phone: '', status: '', toBePaidToday: false });
     const [scSummary, setScSummary] = useState({ today: 0, week: 0, month: 0, total: 0, toBePaidTodayCount: 0 });
 
     // Standalone Service Charge Form Modal States
@@ -207,6 +207,7 @@ const PaymentPage = () => {
         personalPhone: '',
         amount: '',
         comment: '',
+        nextComment: '',
         date: '',
         nextPaymentDate: '',
         status: 'pending'
@@ -338,6 +339,7 @@ const PaymentPage = () => {
                     limit: 50,
                     tuitionCode: currentSearch.tuitionCode,
                     phone: currentSearch.phone,
+                    status: currentSearch.status || undefined,
                     toBePaidToday: currentSearch.toBePaidToday ? 'true' : undefined
                 }
             });
@@ -362,7 +364,7 @@ const PaymentPage = () => {
     };
 
     const handleOpenScModal = () => {
-        const initialSearch = { tuitionCode: '', phone: '', toBePaidToday: false };
+        const initialSearch = { tuitionCode: '', phone: '', status: '', toBePaidToday: false };
         setScSearch(initialSearch);
         fetchServiceCharges(1, initialSearch);
         fetchServiceChargeSummary();
@@ -384,6 +386,7 @@ const PaymentPage = () => {
             personalPhone: '',
             amount: '',
             comment: '',
+            nextComment: '',
             date: new Date().toISOString().split('T')[0],
             nextPaymentDate: '',
             status: ''
@@ -400,6 +403,7 @@ const PaymentPage = () => {
             personalPhone: sc.personalPhone || '',
             amount: sc.amount || '',
             comment: sc.comment || '',
+            nextComment: sc.nextComment || '',
             date: sc.date ? sc.date.split('T')[0] : '',
             nextPaymentDate: sc.nextPaymentDate ? sc.nextPaymentDate.split('T')[0] : '',
             status: sc.status || 'pending'
@@ -1523,19 +1527,6 @@ const PaymentPage = () => {
                                     </Col>
                                     <Col md={6}>
                                         <Form.Group>
-                                            <Form.Label className="text-muted small fw-bold mb-2">DATE *</Form.Label>
-                                            <Form.Control
-                                                type="date"
-                                                className="border p-2 px-3"
-                                                style={{ borderRadius: '8px', fontSize: '0.9rem' }}
-                                                value={scFormData.date || ''}
-                                                onChange={(e) => setScFormData({ ...scFormData, date: e.target.value })}
-                                                required
-                                            />
-                                        </Form.Group>
-                                    </Col>
-                                    <Col md={6}>
-                                        <Form.Group>
                                             <Form.Label className="text-muted small fw-bold mb-2">STATUS *</Form.Label>
                                             <Form.Select
                                                 className="border p-2 px-3"
@@ -1553,6 +1544,33 @@ const PaymentPage = () => {
                                     </Col>
                                     <Col md={6}>
                                         <Form.Group>
+                                            <Form.Label className="text-muted small fw-bold mb-2">DATE *</Form.Label>
+                                            <Form.Control
+                                                type="date"
+                                                className="border p-2 px-3"
+                                                style={{ borderRadius: '8px', fontSize: '0.9rem' }}
+                                                value={scFormData.date || ''}
+                                                onChange={(e) => setScFormData({ ...scFormData, date: e.target.value })}
+                                                required
+                                            />
+                                        </Form.Group>
+                                    </Col>
+                                    <Col md={6}>
+                                        <Form.Group>
+                                            <Form.Label className="text-muted small fw-bold mb-2">LAST COMMENT / NOTES</Form.Label>
+                                            <Form.Control
+                                                as="textarea"
+                                                rows={2}
+                                                placeholder="Add last comment / notes..."
+                                                className="border p-2 px-3"
+                                                style={{ borderRadius: '8px', fontSize: '0.9rem', resize: 'vertical' }}
+                                                value={scFormData.comment}
+                                                onChange={(e) => setScFormData({ ...scFormData, comment: e.target.value })}
+                                            />
+                                        </Form.Group>
+                                    </Col>
+                                    <Col md={6}>
+                                        <Form.Group>
                                             <Form.Label className="text-muted small fw-bold mb-2">NEXT PAYMENT DATE</Form.Label>
                                             <Form.Control
                                                 type="date"
@@ -1563,17 +1581,17 @@ const PaymentPage = () => {
                                             />
                                         </Form.Group>
                                     </Col>
-                                    <Col md={12}>
+                                    <Col md={6}>
                                         <Form.Group>
-                                            <Form.Label className="text-muted small fw-bold mb-2">COMMENT / NOTES</Form.Label>
+                                            <Form.Label className="text-muted small fw-bold mb-2">NEXT COMMENT / NOTES</Form.Label>
                                             <Form.Control
                                                 as="textarea"
                                                 rows={2}
-                                                placeholder="Add internal notes..."
-                                                className="border p-3"
-                                                style={{ borderRadius: '12px', fontSize: '0.9rem' }}
-                                                value={scFormData.comment}
-                                                onChange={(e) => setScFormData({ ...scFormData, comment: e.target.value })}
+                                                placeholder="Add next comment..."
+                                                className="border p-2 px-3"
+                                                style={{ borderRadius: '8px', fontSize: '0.9rem', resize: 'vertical' }}
+                                                value={scFormData.nextComment || ''}
+                                                onChange={(e) => setScFormData({ ...scFormData, nextComment: e.target.value })}
                                             />
                                         </Form.Group>
                                     </Col>
@@ -1667,26 +1685,42 @@ const PaymentPage = () => {
 
                         {/* Search Bar */}
                         <Row className="mb-3 g-2">
-                            <Col md={4}>
+                            <Col md={3}>
                                 <Form.Control
                                     placeholder="Search by Tuition Code"
                                     value={scSearch.tuitionCode}
                                     onChange={(e) => setScSearch(prev => ({ ...prev, tuitionCode: e.target.value }))}
                                 />
                             </Col>
-                            <Col md={4}>
+                            <Col md={3}>
                                 <Form.Control
                                     placeholder="Search by Phone"
                                     value={scSearch.phone}
                                     onChange={(e) => setScSearch(prev => ({ ...prev, phone: e.target.value }))}
                                 />
                             </Col>
-                            <Col md={4} className="d-flex gap-2">
+                            <Col md={3}>
+                                <Form.Select
+                                    value={scSearch.status}
+                                    onChange={(e) => {
+                                        const newStatus = e.target.value;
+                                        const newSearch = { ...scSearch, status: newStatus };
+                                        setScSearch(newSearch);
+                                        fetchServiceCharges(1, newSearch);
+                                    }}
+                                >
+                                    <option value="">All Statuses</option>
+                                    <option value="pending">Pending</option>
+                                    <option value="completed">Completed</option>
+                                    <option value="cancelled">Cancelled</option>
+                                </Form.Select>
+                            </Col>
+                            <Col md={3} className="d-flex gap-2">
                                 <Button variant="primary" className="w-100 flex-grow-1" onClick={() => fetchServiceCharges(1)}>
                                     <FaSearch /> Search
                                 </Button>
                                 <Button variant="outline-secondary" className="w-100 flex-grow-1" onClick={() => {
-                                    const reset = { tuitionCode: '', phone: '', toBePaidToday: false };
+                                    const reset = { tuitionCode: '', phone: '', status: '', toBePaidToday: false };
                                     setScSearch(reset);
                                     fetchServiceCharges(1, reset);
                                 }}>
@@ -1710,7 +1744,8 @@ const PaymentPage = () => {
                                         <th>Amount</th>
                                         <th>Created By</th>
                                         <th>Updated By</th>
-                                        <th>Comment</th>
+                                        <th>Last Comment</th>
+                                        <th>Next Comment</th>
                                         <th className="text-center">Status</th>
                                         <th className="text-center">Actions</th>
                                     </tr>
@@ -1727,6 +1762,7 @@ const PaymentPage = () => {
                                             <td>{sc.createdBy || '-'}</td>
                                             <td>{sc.updatedBy || '-'}</td>
                                             <td className="small">{sc.comment || '-'}</td>
+                                            <td className="small">{sc.nextComment || '-'}</td>
                                             <td className="text-center">
                                                 <Badge bg={
                                                     (sc.status || 'completed') === 'completed' ? 'success' :
@@ -1759,7 +1795,7 @@ const PaymentPage = () => {
 
                                     )) : (
                                         <tr>
-                                            <td colSpan="11" className="text-center py-3 text-muted">No service charges found.</td>
+                                            <td colSpan="12" className="text-center py-3 text-muted">No service charges found.</td>
                                         </tr>
                                     )}
                                 </tbody>

@@ -4,35 +4,46 @@ import { FaWhatsapp } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 
 const getServiceChargeWhatsAppMessage = (sc) => {
+    const tuitionCode = sc.tuitionCode || '';
     const amount = sc.amount || '0';
-    let formattedDate = '';
-    if (sc.date) {
+    let duePaymentDate = '';
+    if (sc.nextPaymentDate) {
+        const d = new Date(sc.nextPaymentDate);
+        if (!isNaN(d.getTime())) {
+            duePaymentDate = new Intl.DateTimeFormat('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }).format(d);
+        } else {
+            duePaymentDate = sc.nextPaymentDate;
+        }
+    } else if (sc.date) {
         const d = new Date(sc.date);
         if (!isNaN(d.getTime())) {
-            formattedDate = new Intl.DateTimeFormat('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }).format(d);
+            duePaymentDate = new Intl.DateTimeFormat('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }).format(d);
         } else {
-            formattedDate = sc.date;
+            duePaymentDate = sc.date;
         }
     } else {
-        formattedDate = new Intl.DateTimeFormat('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }).format(new Date());
+        duePaymentDate = new Intl.DateTimeFormat('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }).format(new Date());
     }
 
     return `Dear Respected Teacher,
 
-We would like to inform you that your Service Charge has been successfully received.
+This is to inform you that your Service Charge is currently due for Tuition Code: ${tuitionCode}.
 
-Amount Received: ${amount} BDT 
-Payment Status: Completed
-Payment Date: ${formattedDate}
+Payment Status: Due
 
-Thank you for your trust and support. Your service charge helps us continue providing verified tuition opportunities, dedicated support, and a better experience for our teachers.
+Remaining Due Amount: ${amount} BDT
+Due Payment Date: ${duePaymentDate}
 
-We sincerely appreciate your contribution and look forward to serving you with more quality tuition opportunities.
+Please clear the outstanding Service Charge within the mentioned date.
 
-If you have any questions or need assistance, please feel free to contact us or call directly at 01633920928.
+Your service charge helps us continue providing verified tuition opportunities, dedicated support, and quality service to our teachers.
+
+Thank you for your cooperation and continued support.
+
+For any questions or assistance, please contact us or call directly at 01633920928.
 
 Regards,
-Accounts Department
+Payment Department
 Tuition Seba Forum`;
 };
 
@@ -63,7 +74,7 @@ const WhatsAppServiceChargeModal = ({ show, onHide, scData }) => {
             <Modal.Header closeButton className="bg-success text-white">
                 <Modal.Title className="fw-bold">
                     <FaWhatsapp className="me-2" />
-                    Share Service Charge Receipt via WhatsApp
+                    Share Service Charge Notice via WhatsApp
                 </Modal.Title>
             </Modal.Header>
             <Modal.Body className="p-4">

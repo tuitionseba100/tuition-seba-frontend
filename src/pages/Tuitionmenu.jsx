@@ -542,11 +542,11 @@ const TuitionPage = () => {
                 "Guardian Demand": t.note,
                 "Cancel Teacher 1": t.comment1,
                 "Cancel Teacher 2": t.comment2,
-                "Tuition Cancel Reason": t.tuitionCancelReason,
                 "Guardian Behavior": t.guardianBehavior,
                 "Last Update Comment": t.lastUpdateComment,
                 "Next Update Comment": t.nextUpdateComment,
                 "Teacher Number": t.tutorNumber,
+                "Current teacher comment box": t.tuitionCancelReason,
                 "Guardian Number": t.guardianNumber,
                 "Created By": t.createdBy,
                 "Updated By": t.updatedBy
@@ -561,11 +561,11 @@ const TuitionPage = () => {
                 { wch: 40 }, // Guardian Demand
                 { wch: 40 }, // Cancel Teacher 1
                 { wch: 40 }, // Cancel Teacher 2
-                { wch: 40 }, // Tuition Cancel Reason
                 { wch: 40 }, // Guardian Behavior
                 { wch: 40 }, // Last Update Comment
                 { wch: 40 }, // Next Update Comment
                 { wch: 15 }, // Teacher Number
+                { wch: 40 }, // Current teacher comment box
                 { wch: 15 }, // Guardian Number
                 { wch: 15 }, // Created By
                 { wch: 15 }  // Updated By
@@ -1234,13 +1234,13 @@ const TuitionPage = () => {
                                             <th>Guardian Demand</th>
                                             <th>Cancel Teacher 1</th>
                                             <th>Cancel Teacher 2</th>
-                                            <th>Tuition Cancel Reason</th>
                                             <th>Guardian Behavior</th>
                                             <th>Last Update Comment</th>
                                             <th>Next Update Comment</th>
                                             <th>Status</th>
                                             <th>Assigned To</th>
                                             <th>Teacher Number</th>
+                                            <th>Current teacher comment box</th>
                                             <th>Guardian Number</th>
                                             <th>Actions</th>
                                         </tr>
@@ -1280,7 +1280,6 @@ const TuitionPage = () => {
                                                 <td>{tuition.note || '-'}</td>
                                                 <td>{tuition.comment1 || '-'}</td>
                                                 <td>{tuition.comment2 || '-'}</td>
-                                                <td>{tuition.tuitionCancelReason || '-'}</td>
                                                 <td>{tuition.guardianBehavior || '-'}</td>
                                                 <td>{tuition.lastUpdateComment || '-'}</td>
                                                 <td>{tuition.nextUpdateComment || '-'}</td>
@@ -1298,6 +1297,7 @@ const TuitionPage = () => {
                                                     </div>
                                                 </td>
                                                 <td>{tuition.tutorNumber}</td>
+                                                <td>{tuition.tuitionCancelReason || '-'}</td>
                                                 <td>
                                                     <div className="d-flex flex-column align-items-center">
                                                         <span>{tuition.guardianNumber}</span>
@@ -1859,10 +1859,10 @@ const MemoizedTuitionTable = React.memo(({
                     <th>Area</th>
                     <th>Guardian No.</th>
                     <th>Teacher No.</th>
+                    <th>Current teacher comment box</th>
                     <th>Guardian Demand</th>
                     <th>Cancel Teacher 1</th>
                     <th>Cancel Teacher 2</th>
-                    <th>Tuition Cancel Reason</th>
                     <th>Guardian Behavior</th>
                     <th style={{ position: 'sticky', right: 0, zIndex: 3, minWidth: '150px' }}>Actions</th>
                 </tr>
@@ -2013,10 +2013,10 @@ const MemoizedTuitionTable = React.memo(({
                                 </div>
                             </td>
                             <td>{tuition.tutorNumber}</td>
+                            <td>{tuition.tuitionCancelReason || '-'}</td>
                             <td>{tuition.note}</td>
                             <td>{tuition.comment1}</td>
                             <td>{tuition.comment2}</td>
-                            <td>{tuition.tuitionCancelReason}</td>
                             <td>{tuition.guardianBehavior}</td>
                             <td style={{ display: 'flex', justifyContent: 'flex-start', gap: '8px', position: 'sticky', right: 0, zIndex: 2, backgroundColor: 'inherit' }}>
                                 <Button variant="info" onClick={() => handleShowDetails(tuition)} title="View Details">

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Button, Table, Modal, Form, Row, Col, Card, Spinner, Tooltip, OverlayTrigger, Popover, Badge } from 'react-bootstrap';
-import { FaEdit, FaTrashAlt, FaInfoCircle, FaBell, FaChevronLeft, FaChevronRight, FaPlus, FaFilter, FaFileExport, FaMoneyBillWave, FaExclamationCircle, FaCheckCircle, FaSearch, FaHistory, FaWhatsapp, FaUndo, FaUserPlus } from 'react-icons/fa';
+import { FaEdit, FaTrashAlt, FaInfoCircle, FaBell, FaChevronLeft, FaChevronRight, FaPlus, FaFilter, FaFileExport, FaMoneyBillWave, FaExclamationCircle, FaCheckCircle, FaSearch, FaHistory, FaWhatsapp, FaUndo, FaUserPlus, FaCalendarAlt } from 'react-icons/fa';
 import GeneralPaymentRecordModal from '../components/modals/GeneralPaymentRecordModal';
 import GeneralPaymentViewModal from '../components/modals/GeneralPaymentViewModal';
 import WhatsAppPaymentMessageModal from '../components/modals/WhatsAppPaymentMessageModal';
@@ -195,8 +195,8 @@ const PaymentPage = () => {
     const [scCurrentPage, setScCurrentPage] = useState(1);
     const [scTotalPages, setScTotalPages] = useState(1);
     const [scTotalRecords, setScTotalRecords] = useState(0);
-    const [scSearch, setScSearch] = useState({ tuitionCode: '', phone: '' });
-    const [scSummary, setScSummary] = useState({ today: 0, week: 0, month: 0, total: 0 });
+    const [scSearch, setScSearch] = useState({ tuitionCode: '', phone: '', toBePaidToday: false });
+    const [scSummary, setScSummary] = useState({ today: 0, week: 0, month: 0, total: 0, toBePaidTodayCount: 0 });
 
     // Standalone Service Charge Form Modal States
     const [scFormOpen, setScFormOpen] = useState(false);
@@ -208,6 +208,7 @@ const PaymentPage = () => {
         amount: '',
         comment: '',
         date: '',
+        nextPaymentDate: '',
         status: 'pending'
     });
     const [scEditingId, setScEditingId] = useState(null);
@@ -330,9 +331,15 @@ const PaymentPage = () => {
     const fetchServiceCharges = async (page = 1, searchOverride = null) => {
         setScLoading(true);
         try {
-            const currentSearch = searchOverride || scSearch;
+            const currentSearch = searchOverride !== null ? searchOverride : scSearch;
             const response = await axios.get(`https://tuition-seba-backend-1.onrender.com/api/serviceCharge/all`, {
-                params: { page, limit: 50, tuitionCode: currentSearch.tuitionCode, phone: currentSearch.phone }
+                params: {
+                    page,
+                    limit: 50,
+                    tuitionCode: currentSearch.tuitionCode,
+                    phone: currentSearch.phone,
+                    toBePaidToday: currentSearch.toBePaidToday ? 'true' : undefined
+                }
             });
             setScList(response.data.data);
             setScCurrentPage(response.data.currentPage);
@@ -355,9 +362,18 @@ const PaymentPage = () => {
     };
 
     const handleOpenScModal = () => {
-        fetchServiceCharges(1);
+        const initialSearch = { tuitionCode: '', phone: '', toBePaidToday: false };
+        setScSearch(initialSearch);
+        fetchServiceCharges(1, initialSearch);
         fetchServiceChargeSummary();
         setScModalOpen(true);
+    };
+
+    const handleToggleToBePaidToday = () => {
+        const nextVal = !scSearch.toBePaidToday;
+        const newSearch = { ...scSearch, toBePaidToday: nextVal };
+        setScSearch(newSearch);
+        fetchServiceCharges(1, newSearch);
     };
 
     const handleOpenCreateSc = () => {
@@ -369,6 +385,7 @@ const PaymentPage = () => {
             amount: '',
             comment: '',
             date: new Date().toISOString().split('T')[0],
+            nextPaymentDate: '',
             status: ''
         });
         setScEditingId(null);
@@ -384,6 +401,7 @@ const PaymentPage = () => {
             amount: sc.amount || '',
             comment: sc.comment || '',
             date: sc.date ? sc.date.split('T')[0] : '',
+            nextPaymentDate: sc.nextPaymentDate ? sc.nextPaymentDate.split('T')[0] : '',
             status: sc.status || 'pending'
         });
         setScEditingId(sc._id);
@@ -1533,6 +1551,18 @@ const PaymentPage = () => {
                                             </Form.Select>
                                         </Form.Group>
                                     </Col>
+                                    <Col md={6}>
+                                        <Form.Group>
+                                            <Form.Label className="text-muted small fw-bold mb-2">NEXT PAYMENT DATE</Form.Label>
+                                            <Form.Control
+                                                type="date"
+                                                className="border p-2 px-3"
+                                                style={{ borderRadius: '8px', fontSize: '0.9rem' }}
+                                                value={scFormData.nextPaymentDate || ''}
+                                                onChange={(e) => setScFormData({ ...scFormData, nextPaymentDate: e.target.value })}
+                                            />
+                                        </Form.Group>
+                                    </Col>
                                     <Col md={12}>
                                         <Form.Group>
                                             <Form.Label className="text-muted small fw-bold mb-2">COMMENT / NOTES</Form.Label>
@@ -1571,27 +1601,66 @@ const PaymentPage = () => {
                 </style>
                 <Modal show={scModalOpen} onHide={() => setScModalOpen(false)} dialogClassName="custom-modal-95w" centered>
                     <Modal.Header closeButton className="bg-light">
-                        <Modal.Title className="fw-bold text-dark d-flex justify-content-between align-items-center w-100 pe-3">
-                            <div>
-                                <FaInfoCircle className="me-2 text-info" /> Service Charges (Total: {scTotalRecords})
+                        <Modal.Title className="fw-bold text-dark d-flex justify-content-between align-items-center w-100 pe-3 flex-wrap gap-2">
+                            <div className="d-flex align-items-center gap-2">
+                                <FaInfoCircle className="text-info" />
+                                <span>Service Charges (Total: {scTotalRecords})</span>
+                                {scSearch.toBePaidToday && (
+                                    <Badge bg="warning" text="dark" className="ms-2 fw-bold">
+                                        Filtered: To Be Paid Today
+                                    </Badge>
+                                )}
                             </div>
-                            <Button variant="primary" size="sm" onClick={handleOpenCreateSc}>
-                                + Add Standalone Service Charge
-                            </Button>
+                            <div className="d-flex align-items-center gap-2">
+                                <Button
+                                    variant={scSearch.toBePaidToday ? "warning" : "outline-warning"}
+                                    size="sm"
+                                    className="fw-bold d-flex align-items-center gap-1 shadow-sm text-dark"
+                                    style={scSearch.toBePaidToday ? { backgroundColor: '#ffc107', borderColor: '#ffc107' } : {}}
+                                    onClick={handleToggleToBePaidToday}
+                                >
+                                    <FaCalendarAlt className="me-1" />
+                                    {scSearch.toBePaidToday ? "Showing: To Be Paid Today" : "To Be Paid Today"}
+                                    {scSummary?.toBePaidTodayCount !== undefined && (
+                                        <Badge bg={scSearch.toBePaidToday ? "dark" : "danger"} className="ms-1">
+                                            {scSummary.toBePaidTodayCount}
+                                        </Badge>
+                                    )}
+                                </Button>
+                                <Button variant="primary" size="sm" onClick={handleOpenCreateSc}>
+                                    + Add Standalone Service Charge
+                                </Button>
+                            </div>
                         </Modal.Title>
                     </Modal.Header>
                     <Modal.Body style={{ maxHeight: '70vh', overflowY: 'auto' }}>
                         {/* Summary Cards */}
                         <div className="d-flex flex-nowrap overflow-auto gap-2 pb-3 mb-3 border-bottom text-center" style={{ scrollbarWidth: 'thin' }}>
                             {[
-                                { label: 'Today', count: scSummary.today, color: 'primary' },
-                                { label: 'This Week', count: scSummary.week, color: 'info' },
-                                { label: 'This Month', count: scSummary.month, color: 'warning' },
-                                { label: 'Total', count: scSummary.total, color: 'dark' }
+                                { label: 'Today Paid', count: `৳${scSummary.today}`, color: 'primary' },
+                                { label: 'This Week Paid', count: `৳${scSummary.week}`, color: 'info' },
+                                { label: 'This Month Paid', count: `৳${scSummary.month}`, color: 'success' },
+                                { label: 'Total Paid', count: `৳${scSummary.total}`, color: 'dark' },
+                                {
+                                    label: 'To Be Paid Today',
+                                    count: `${scSummary.toBePaidTodayCount || 0} Records`,
+                                    color: 'warning',
+                                    isToBePaid: true,
+                                    active: scSearch.toBePaidToday
+                                }
                             ].map((stat, idx) => (
-                                <div key={idx} className={`card p-2 shadow-sm border-${stat.color} flex-fill`} style={{ minWidth: '120px' }}>
-                                    <small className={`text-${stat.color} fw-bold text-nowrap`}>{stat.label}</small>
-                                    <h5 className="mb-0">৳{stat.count}</h5>
+                                <div
+                                    key={idx}
+                                    className={`card p-2 shadow-sm border-${stat.color} flex-fill ${stat.active ? 'bg-warning bg-opacity-25 border-3' : ''}`}
+                                    style={{ minWidth: '130px', cursor: stat.isToBePaid ? 'pointer' : 'default', transition: 'all 0.2s ease' }}
+                                    onClick={stat.isToBePaid ? handleToggleToBePaidToday : undefined}
+                                    title={stat.isToBePaid ? "Click to toggle service charges to be paid today" : ""}
+                                >
+                                    <small className={`text-${stat.color} fw-bold text-nowrap d-flex align-items-center justify-content-center gap-1`}>
+                                        {stat.isToBePaid && <FaCalendarAlt size={11} />}
+                                        {stat.label}
+                                    </small>
+                                    <h6 className="mb-0 fw-bold">{stat.count}</h6>
                                 </div>
                             ))}
                         </div>
@@ -1617,10 +1686,11 @@ const PaymentPage = () => {
                                     <FaSearch /> Search
                                 </Button>
                                 <Button variant="outline-secondary" className="w-100 flex-grow-1" onClick={() => {
-                                    setScSearch({ tuitionCode: '', phone: '' });
-                                    fetchServiceCharges(1, { tuitionCode: '', phone: '' });
+                                    const reset = { tuitionCode: '', phone: '', toBePaidToday: false };
+                                    setScSearch(reset);
+                                    fetchServiceCharges(1, reset);
                                 }}>
-                                    Reset
+                                    <FaUndo /> Reset
                                 </Button>
                             </Col>
                         </Row>
@@ -1633,6 +1703,7 @@ const PaymentPage = () => {
                                 <thead className="table-light">
                                     <tr>
                                         <th>Date</th>
+                                        <th>Next Payment Date</th>
                                         <th>Tuition Code</th>
                                         <th>Name</th>
                                         <th>Phone</th>
@@ -1648,6 +1719,7 @@ const PaymentPage = () => {
                                     {scList.length > 0 ? scList.map(sc => (
                                         <tr key={sc._id}>
                                             <td>{sc.date ? new Date(sc.date).toLocaleDateString() : '-'}</td>
+                                            <td>{sc.nextPaymentDate ? new Date(sc.nextPaymentDate).toLocaleDateString() : '-'}</td>
                                             <td><span className="fw-bold text-primary">{sc.tuitionCode || '-'}</span></td>
                                             <td>{sc.name || '-'}</td>
                                             <td>{sc.personalPhone || '-'}</td>
@@ -1687,7 +1759,7 @@ const PaymentPage = () => {
 
                                     )) : (
                                         <tr>
-                                            <td colSpan="10" className="text-center py-3 text-muted">No service charges found.</td>
+                                            <td colSpan="11" className="text-center py-3 text-muted">No service charges found.</td>
                                         </tr>
                                     )}
                                 </tbody>

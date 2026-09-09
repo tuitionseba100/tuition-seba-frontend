@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { Button, Table, Modal, Form, Row, Col, Card, Spinner, Tooltip, OverlayTrigger, Popover, Badge } from 'react-bootstrap';
-import { FaEdit, FaTrashAlt, FaInfoCircle, FaBell, FaChevronLeft, FaChevronRight, FaPlus, FaFilter, FaFileExport, FaMoneyBillWave, FaExclamationCircle, FaCheckCircle, FaSearch, FaHistory, FaWhatsapp, FaUndo, FaUserPlus, FaCalendarAlt } from 'react-icons/fa';
+import { FaEdit, FaTrashAlt, FaInfoCircle, FaBell, FaChevronLeft, FaChevronRight, FaPlus, FaFilter, FaFileExport, FaMoneyBillWave, FaExclamationCircle, FaCheckCircle, FaSearch, FaHistory, FaWhatsapp, FaUndo, FaUserPlus, FaCalendarAlt, FaPrint } from 'react-icons/fa';
 import GeneralPaymentRecordModal from '../components/modals/GeneralPaymentRecordModal';
 import GeneralPaymentViewModal from '../components/modals/GeneralPaymentViewModal';
 import WhatsAppPaymentMessageModal from '../components/modals/WhatsAppPaymentMessageModal';
 import PaymentAssignModal from '../components/modals/PaymentAssignModal';
 import WhatsAppServiceChargeModal from '../components/modals/WhatsAppServiceChargeModal';
+import MainPaymentInvoiceModal from '../components/modals/MainPaymentInvoiceModal';
 import { axiosWithFallback as axios } from '../services/fetchWithFallback';
 import NavBarPage from './NavbarPage';
 import styled from 'styled-components';
@@ -134,6 +135,14 @@ const PaymentPage = () => {
 
     const [showWhatsappModal, setShowWhatsappModal] = useState(false);
     const [whatsappPaymentData, setWhatsappPaymentData] = useState(null);
+
+    const [showInvoiceModal, setShowInvoiceModal] = useState(false);
+    const [selectedPaymentForInvoice, setSelectedPaymentForInvoice] = useState(null);
+
+    const handlePrintInvoice = (payment) => {
+        setSelectedPaymentForInvoice(payment);
+        setShowInvoiceModal(true);
+    };
 
     const [searchInputs, setSearchInputs] = useState({
         tuitionCode: '',
@@ -1125,6 +1134,9 @@ const PaymentPage = () => {
                                                 <td>{payment.duePayDate ? formatDate(payment.duePayDate) : ''}</td>
                                                 <td>{payment.comment}</td>
                                                 <td style={{ display: 'flex', justifyContent: 'flex-start', gap: '8px' }}>
+                                                    <Button variant="outline-primary" onClick={() => handlePrintInvoice(payment)} title="Print Invoice" className="mr-2" style={{ borderColor: '#0d6efd', color: '#0d6efd' }}>
+                                                        <FaPrint />
+                                                    </Button>
                                                     <Button variant="success" onClick={() => handleWhatsAppClick(payment)} className="mr-2" style={{ background: '#25D366', borderColor: '#25D366' }}>
                                                         <FaWhatsapp />
                                                     </Button>
@@ -1279,6 +1291,9 @@ const PaymentPage = () => {
                                                     {renderCommentWithPopover(payment.comment)}
                                                 </td>
                                                 <td style={{ display: 'flex', justifyContent: 'flex-start', gap: '8px' }}>
+                                                    <Button variant="outline-primary" onClick={() => handlePrintInvoice(payment)} title="Print Invoice" className="mr-2" style={{ borderColor: '#0d6efd', color: '#0d6efd' }}>
+                                                        <FaPrint />
+                                                    </Button>
                                                     <Button variant="success" onClick={() => handleWhatsAppClick(payment)} className="mr-2" style={{ background: '#25D366', borderColor: '#25D366' }}>
                                                         <FaWhatsapp />
                                                     </Button>
@@ -1367,6 +1382,15 @@ const PaymentPage = () => {
                     }}
                     paymentData={whatsappPaymentData}
                     formatDate={formatDate}
+                />
+
+                <MainPaymentInvoiceModal
+                    show={showInvoiceModal}
+                    onClose={() => {
+                        setShowInvoiceModal(false);
+                        setSelectedPaymentForInvoice(null);
+                    }}
+                    payment={selectedPaymentForInvoice}
                 />
 
                 <PaymentAssignModal

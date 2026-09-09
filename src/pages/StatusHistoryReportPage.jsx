@@ -22,7 +22,8 @@ const allStatusOptions = [
     { value: 'unpublished', label: 'Unpublished', module: 'Tuition' },
     { value: 'deleted', label: 'Tuition Deleted', module: 'Tuition' },
     { value: 'selected', label: 'Selected', module: 'TuitionApply' },
-    { value: 'confirmed', label: 'Confirmed', module: 'TuitionApply' }
+    { value: 'confirmed', label: 'Confirmed', module: 'TuitionApply' },
+    { value: 'cancelled by teacher', label: 'Cancelled by Teacher', module: 'TuitionApply' }
 ];
 
 const StatusHistoryReportPage = () => {
@@ -37,6 +38,7 @@ const StatusHistoryReportPage = () => {
         cancelledTuitionsCount: 0,
         suspendedTuitionsCount: 0,
         confirmedApplicationsCount: 0,
+        applicationsSummaryCount: 0,
         tuitionsCreatedTodayCount: 0,
         tuitionsDeletedTodayCount: 0,
         verifiedBreakdown: {
@@ -47,7 +49,8 @@ const StatusHistoryReportPage = () => {
         },
         applyBreakdown: {
             selected: 0,
-            confirmed: 0
+            confirmed: 0,
+            cancelledByTeacher: 0
         }
     });
     const [statsLoading, setStatsLoading] = useState(false);
@@ -341,7 +344,8 @@ const StatusHistoryReportPage = () => {
                 'suspend': 'Tuition',
                 'deleted': 'Tuition',
                 'selected': 'TuitionApply',
-                'confirmed': 'TuitionApply'
+                'confirmed': 'TuitionApply',
+                'cancelled by teacher': 'TuitionApply'
             };
             if (prev.newStatus && statusToSectionMap[prev.newStatus] !== value && value !== '') {
                 nextFilters.newStatus = '';
@@ -364,7 +368,8 @@ const StatusHistoryReportPage = () => {
                 'suspend': 'Tuition',
                 'deleted': 'Tuition',
                 'selected': 'TuitionApply',
-                'confirmed': 'TuitionApply'
+                'confirmed': 'TuitionApply',
+                'cancelled by teacher': 'TuitionApply'
             };
             if (value && statusToSectionMap[value]) {
                 nextFilters.moduleName = statusToSectionMap[value];
@@ -871,7 +876,7 @@ const StatusHistoryReportPage = () => {
                                                         <div className="fw-bold fs-6">{todayStats.verifiedBreakdown?.verified || 0}</div>
                                                     </Col>
                                                     <Col xs={6}>
-                                                        <div className="text-dark text-uppercase fw-bold" style={{ fontSize: '11px' }}>Confirmed</div>
+                                                        <div className="text-dark text-uppercase fw-bold" style={{ fontSize: '11px' }}>After Confirmation</div>
                                                         <div className="fw-bold fs-6">{todayStats.verifiedBreakdown?.afterConfirmation || 0}</div>
                                                     </Col>
                                                     <Col xs={6} style={{ borderRight: '1px solid rgba(0, 0, 0, 0.1)', borderTop: '1px solid rgba(0, 0, 0, 0.1)', paddingTop: '4px' }}>
@@ -931,8 +936,11 @@ const StatusHistoryReportPage = () => {
                                                     <FaUserCheck size={24} />
                                                 </div>
                                                 <div>
-                                                    <span className="text-dark text-uppercase fw-bold tracking-wider" style={{ fontSize: '0.85rem' }}>Applications Confirmed{showTodaySuffix ? ' Today' : ''}</span>
-                                                    <h2 className="fw-extrabold text-dark mb-0 mt-1" style={{ fontSize: '1.75rem' }}>{todayStats.confirmedApplicationsCount}</h2>
+                                                    <span className="text-dark text-uppercase fw-bold tracking-wider" style={{ fontSize: '0.85rem' }}>Applications Summary{showTodaySuffix ? ' Today' : ''}</span>
+                                                    <div className="d-flex align-items-baseline gap-1 mt-1">
+                                                        <span className="text-muted fw-bold text-uppercase" style={{ fontSize: '0.72rem', letterSpacing: '0.3px' }}>Total Confirmed:</span>
+                                                        <h2 className="fw-extrabold text-dark mb-0" style={{ fontSize: '1.6rem', lineHeight: 1 }}>{todayStats.confirmedApplicationsCount || 0}</h2>
+                                                    </div>
                                                 </div>
                                             </div>
                                             <div style={{ borderTop: '1px solid rgba(0, 0, 0, 0.1)', paddingTop: '6px', marginTop: '6px' }}>
@@ -945,10 +953,9 @@ const StatusHistoryReportPage = () => {
                                                         <div className="text-dark text-uppercase fw-bold" style={{ fontSize: '11px' }}>Confirmed</div>
                                                         <div className="fw-bold fs-6">{todayStats.applyBreakdown?.confirmed || 0}</div>
                                                     </Col>
-                                                    {/* Ghost second row to balance Card 1 height */}
-                                                    <Col xs={12} style={{ opacity: 0, pointerEvents: 'none', paddingTop: '4px' }}>
-                                                        <div className="fw-bold">Placeholder</div>
-                                                        <div className="fw-bold fs-6">0</div>
+                                                    <Col xs={12} style={{ borderTop: '1px solid rgba(0, 0, 0, 0.1)', paddingTop: '4px' }}>
+                                                        <div className="text-dark text-uppercase fw-bold" style={{ fontSize: '11px' }}>Cancelled by Teacher</div>
+                                                        <div className="fw-bold fs-6">{todayStats.applyBreakdown?.cancelledByTeacher || 0}</div>
                                                     </Col>
                                                 </Row>
                                             </div>

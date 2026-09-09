@@ -6,25 +6,55 @@ import { toast } from 'react-toastify';
 const getServiceChargeWhatsAppMessage = (sc) => {
     const tuitionCode = sc.tuitionCode || '';
     const amount = sc.amount || '0';
-    let duePaymentDate = '';
-    if (sc.nextPaymentDate) {
-        const d = new Date(sc.nextPaymentDate);
-        if (!isNaN(d.getTime())) {
-            duePaymentDate = new Intl.DateTimeFormat('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }).format(d);
-        } else {
-            duePaymentDate = sc.nextPaymentDate;
-        }
-    } else if (sc.date) {
-        const d = new Date(sc.date);
-        if (!isNaN(d.getTime())) {
-            duePaymentDate = new Intl.DateTimeFormat('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }).format(d);
-        } else {
-            duePaymentDate = sc.date;
-        }
-    } else {
-        duePaymentDate = new Intl.DateTimeFormat('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }).format(new Date());
+    const status = (sc.status || 'completed').toLowerCase();
+
+    const formatDate = (dateVal) => {
+        if (!dateVal) return '';
+        const d = new Date(dateVal);
+        return !isNaN(d.getTime())
+            ? new Intl.DateTimeFormat('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }).format(d)
+            : dateVal;
+    };
+
+    const paymentDate = formatDate(sc.date) || formatDate(new Date());
+    const nextPaymentDate = formatDate(sc.nextPaymentDate) || paymentDate;
+
+    // 1. Completed / Received Status
+    if (status === 'completed') {
+        return `Dear Respected Teacher,
+
+We would like to confirm that your Service Charge for Tuition Code: ${tuitionCode} has been successfully received.
+
+Payment Status: Completed
+Received Amount: ${amount} BDT
+Payment Date: ${paymentDate}
+
+Thank you for your cooperation and timely payment. Your support helps us continue providing quality service and verified tuition opportunities.
+
+For any questions or assistance, please contact us or call directly at 01633920928.
+
+Regards,
+Payment Department
+Tuition Seba Forum`;
     }
 
+    // 2. Cancelled Status
+    if (status === 'cancelled') {
+        return `Dear Respected Teacher,
+
+This is to inform you that the Service Charge notice for Tuition Code: ${tuitionCode} has been cancelled.
+
+Payment Status: Cancelled
+Amount: ${amount} BDT
+
+If you have any questions or need further clarification, please feel free to contact us or call directly at 01633920928.
+
+Regards,
+Payment Department
+Tuition Seba Forum`;
+    }
+
+    // 3. Pending / Due Status (Default fallback)
     return `Dear Respected Teacher,
 
 This is to inform you that your Service Charge is currently due for Tuition Code: ${tuitionCode}.
@@ -32,7 +62,7 @@ This is to inform you that your Service Charge is currently due for Tuition Code
 Payment Status: Due
 
 Remaining Due Amount: ${amount} BDT
-Due Payment Date: ${duePaymentDate}
+Due Payment Date: ${nextPaymentDate}
 
 Please clear the outstanding Service Charge within the mentioned date.
 

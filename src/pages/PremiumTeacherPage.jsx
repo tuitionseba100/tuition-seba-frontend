@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Button, Table, Modal, Form, Row, Col, Card, Nav, Tab, Badge } from 'react-bootstrap';
-import { FaEdit, FaInfoCircle, FaTrashAlt, FaWhatsapp, FaChevronLeft, FaChevronRight, FaSearch, FaTimes, FaGlobe, FaGooglePlay, FaUserPlus } from 'react-icons/fa'; // React Icons
+import { FaEdit, FaInfoCircle, FaTrashAlt, FaWhatsapp, FaChevronLeft, FaChevronRight, FaSearch, FaTimes, FaGlobe, FaGooglePlay, FaUserPlus, FaCamera, FaTrash, FaUserCircle, FaExternalLinkAlt, FaCheckCircle, FaIdCard, FaImages } from 'react-icons/fa'; // React Icons
 import { axiosWithFallback as axios } from '../services/fetchWithFallback';
 import NavBarPage from './NavbarPage';
 import styled from 'styled-components';
@@ -10,6 +10,7 @@ import * as XLSX from 'xlsx';
 import Select from 'react-select';
 import locationsBd from '../data/DivisonWiseLocation.json';
 import CreatableSelect from 'react-select/creatable';
+import { compressImageUnderMaxKB } from '../utilities/imageCompressor';
 
 const PremiumTeacherPage = () => {
     const [reacrodsList, setReacrodsList] = useState([]);
@@ -42,6 +43,34 @@ const PremiumTeacherPage = () => {
     const [smsMessage, setSmsMessage] = useState('');
     const [smsRecipient, setSmsRecipient] = useState('');
     const [saving, setSaving] = useState(false);
+    const [uploadingPhoto, setUploadingPhoto] = useState(false);
+    const [photoSizeKB, setPhotoSizeKB] = useState(null);
+    const [pendingPhotoFile, setPendingPhotoFile] = useState(null);
+    const [pendingPhotoPreview, setPendingPhotoPreview] = useState(null);
+    const [uploadingNid, setUploadingNid] = useState(false);
+    const [nidSizeKB, setNidSizeKB] = useState(null);
+    const [pendingNidFile, setPendingNidFile] = useState(null);
+    const [pendingNidPreview, setPendingNidPreview] = useState(null);
+
+    const resetMediaPendingStates = () => {
+        setPendingPhotoFile(null);
+        setPendingPhotoPreview(prev => {
+            if (prev) URL.revokeObjectURL(prev);
+            return null;
+        });
+        setPendingNidFile(null);
+        setPendingNidPreview(prev => {
+            if (prev) URL.revokeObjectURL(prev);
+            return null;
+        });
+        setPhotoSizeKB(null);
+        setNidSizeKB(null);
+    };
+
+    const handleCloseModal = () => {
+        resetMediaPendingStates();
+        setShowModal(false);
+    };
 
     const spamStyle = { backgroundColor: '#dc3545', color: 'white' };
     const bestStyle = { backgroundColor: '#007bff', color: 'white' };
@@ -203,10 +232,14 @@ const PremiumTeacherPage = () => {
         { key: 'verified', label: 'Verified', borderColor: 'success', textColor: 'success' },
     ];
 
-    const initialData = fieldConfig.reduce((acc, field) => {
-        acc[field.name] = field.type === 'checkbox' ? false : (field.type === 'star-rating' ? 0 : '');
-        return acc;
-    }, {});
+    const initialData = {
+        ...fieldConfig.reduce((acc, field) => {
+            acc[field.name] = field.type === 'checkbox' ? false : (field.type === 'star-rating' ? 0 : '');
+            return acc;
+        }, {}),
+        photo: '',
+        nidPhoto: ''
+    };
     const [formData, setFormData] = useState(initialData);
 
     useEffect(() => {
@@ -375,6 +408,58 @@ const PremiumTeacherPage = () => {
         return `${datePart}_${timePart}`;
     };
 
+    const uploadMediaWithFallback = async (file, endpointPath) => {
+        const PRIMARY_URL = `https://tuition-seba-backend-1.onrender.com/api/upload/${endpointPath}`;
+        const FALLBACK_URL = `https://tuition-seba-backend-production-ac2d.up.railway.app/api/upload/${endpointPath}`;
+
+        const uploadData = new FormData();
+        uploadData.append('photo', file);
+
+        let resultData = null;
+
+        // Try Primary (Render)
+        try {
+            const response = await fetch(PRIMARY_URL, {
+                method: 'POST',
+                headers: { Authorization: token },
+                body: uploadData
+            });
+
+            if (response.ok) {
+                resultData = await response.json();
+            } else if ([502, 503, 504].includes(response.status)) {
+                throw new Error(`Primary server returned status ${response.status}`);
+            } else {
+                const errJson = await response.json().catch(() => ({}));
+                throw new Error(errJson.message || `Upload failed with status ${response.status}`);
+            }
+        } catch (primaryErr) {
+            console.warn(`Primary Render upload failed for ${endpointPath}, switching to Railway fallback...`, primaryErr);
+
+            // Try Fallback (Railway)
+            const fallbackData = new FormData();
+            fallbackData.append('photo', file);
+
+            const fallbackResponse = await fetch(FALLBACK_URL, {
+                method: 'POST',
+                headers: { Authorization: token },
+                body: fallbackData
+            });
+
+            if (!fallbackResponse.ok) {
+                const errJson = await fallbackResponse.json().catch(() => ({}));
+                throw new Error(errJson.message || `Fallback upload failed with status ${fallbackResponse.status}`);
+            }
+
+            resultData = await fallbackResponse.json();
+        }
+
+        if (resultData && resultData.url) {
+            return resultData;
+        }
+        throw new Error('No URL returned from upload server');
+    };
+
     const handleSaveRecord = async () => {
         const amount = formData.amount;
         const paymentDate = formData.paymentDate;
@@ -421,6 +506,21 @@ const PremiumTeacherPage = () => {
 
         try {
             setSaving(true);
+
+            // Upload pending photo on Save
+            if (pendingPhotoFile) {
+                setUploadingPhoto(true);
+                const photoRes = await uploadMediaWithFallback(pendingPhotoFile, 'teacher-photo');
+                updatingData.photo = photoRes.url;
+            }
+
+            // Upload pending NID on Save
+            if (pendingNidFile) {
+                setUploadingNid(true);
+                const nidRes = await uploadMediaWithFallback(pendingNidFile, 'teacher-nid');
+                updatingData.nidPhoto = nidRes.url;
+            }
+
             if (editingId) {
                 const updatedData = {
                     ...updatingData,
@@ -444,15 +544,18 @@ const PremiumTeacherPage = () => {
                 await axios.post('https://tuition-seba-backend-1.onrender.com/api/regTeacher/add', newData);
                 toast.success("Teacher record created successfully!");
             }
+            resetMediaPendingStates();
             setShowModal(false);
             fetchTableData();
             fetchSummary();
 
         } catch (err) {
             console.error('Error saving Teacher record:', err);
-            toast.error("Error saving Teacher record.");
+            toast.error(err.message || "Error saving Teacher record.");
         } finally {
             setSaving(false);
+            setUploadingPhoto(false);
+            setUploadingNid(false);
         }
     };
 
@@ -467,6 +570,7 @@ const PremiumTeacherPage = () => {
 
         try {
             setSaving(true);
+
             // 1. Update the teacher status to selected status and set isSmsSent to true
             const updatedData = {
                 ...formData,
@@ -474,6 +578,20 @@ const PremiumTeacherPage = () => {
                 isSmsSent: true,
                 updatedBy: username
             };
+
+            // Upload pending photo on Save
+            if (pendingPhotoFile) {
+                setUploadingPhoto(true);
+                const photoRes = await uploadMediaWithFallback(pendingPhotoFile, 'teacher-photo');
+                updatedData.photo = photoRes.url;
+            }
+
+            // Upload pending NID on Save
+            if (pendingNidFile) {
+                setUploadingNid(true);
+                const nidRes = await uploadMediaWithFallback(pendingNidFile, 'teacher-nid');
+                updatedData.nidPhoto = nidRes.url;
+            }
 
             await axios.put(
                 `https://tuition-seba-backend-1.onrender.com/api/regTeacher/edit/${editingId}`,
@@ -508,6 +626,7 @@ const PremiumTeacherPage = () => {
             } else {
                 toast.success("Teacher record updated and Verification SMS sent successfully!");
             }
+            resetMediaPendingStates();
             setShowSmsModal(false);
             setShowModal(false);
             fetchTableData();
@@ -521,6 +640,8 @@ const PremiumTeacherPage = () => {
             toast.error(`Error: ${err.response?.data?.message || err.message || 'Unknown error occurred'}`);
         } finally {
             setSaving(false);
+            setUploadingPhoto(false);
+            setUploadingNid(false);
         }
     };
 
@@ -536,6 +657,20 @@ const PremiumTeacherPage = () => {
                 updatedBy: username
             };
 
+            // Upload pending photo on Save
+            if (pendingPhotoFile) {
+                setUploadingPhoto(true);
+                const photoRes = await uploadMediaWithFallback(pendingPhotoFile, 'teacher-photo');
+                updatedData.photo = photoRes.url;
+            }
+
+            // Upload pending NID on Save
+            if (pendingNidFile) {
+                setUploadingNid(true);
+                const nidRes = await uploadMediaWithFallback(pendingNidFile, 'teacher-nid');
+                updatedData.nidPhoto = nidRes.url;
+            }
+
             await axios.put(
                 `https://tuition-seba-backend-1.onrender.com/api/regTeacher/edit/${editingId}`,
                 updatedData,
@@ -547,6 +682,7 @@ const PremiumTeacherPage = () => {
             );
 
             toast.success("Teacher record updated successfully (SMS bypassed)!");
+            resetMediaPendingStates();
             setShowSmsModal(false);
             setShowModal(false);
             fetchTableData();
@@ -556,6 +692,8 @@ const PremiumTeacherPage = () => {
             toast.error("Error occurred while saving.");
         } finally {
             setSaving(false);
+            setUploadingPhoto(false);
+            setUploadingNid(false);
         }
     };
 
@@ -572,6 +710,7 @@ const PremiumTeacherPage = () => {
     };
 
     const handleEditTeacher = (teacher) => {
+        resetMediaPendingStates();
         const formattedTeacher = { ...teacher };
         if (formattedTeacher.paymentDate) {
             formattedTeacher.paymentDate = new Date(formattedTeacher.paymentDate).toISOString().split('T')[0];
@@ -580,6 +719,78 @@ const PremiumTeacherPage = () => {
         setAreaList(areaOptions[teacher.city] || []);
         setEditingId(teacher._id);
         setShowModal(true);
+    };
+
+    const handlePhotoUpload = async (e) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        try {
+            // Compress on client side to guaranteed < 100KB
+            const { file: compressedFile, sizeKB } = await compressImageUnderMaxKB(file, 95);
+            setPhotoSizeKB(sizeKB);
+
+            if (pendingPhotoPreview) {
+                URL.revokeObjectURL(pendingPhotoPreview);
+            }
+            const previewUrl = URL.createObjectURL(compressedFile);
+            setPendingPhotoFile(compressedFile);
+            setPendingPhotoPreview(previewUrl);
+
+            toast.info(`Photo selected (${sizeKB} KB). Click "Save" below to upload and save.`);
+        } catch (err) {
+            console.error('Photo processing error:', err);
+            toast.error(err.message || 'Failed to process photo');
+        } finally {
+            if (e.target) e.target.value = '';
+        }
+    };
+
+    const handleRemovePhoto = () => {
+        if (pendingPhotoPreview) {
+            URL.revokeObjectURL(pendingPhotoPreview);
+        }
+        setPendingPhotoFile(null);
+        setPendingPhotoPreview(null);
+        setFormData(prev => ({ ...prev, photo: '' }));
+        setPhotoSizeKB(null);
+        toast.info('Photo removed from form. Click "Save" below to apply changes.');
+    };
+
+    const handleNidUpload = async (e) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        try {
+            // Compress on client side under 100KB (max 1200px dimension for document text)
+            const { file: compressedFile, sizeKB } = await compressImageUnderMaxKB(file, 95, 1200);
+            setNidSizeKB(sizeKB);
+
+            if (pendingNidPreview) {
+                URL.revokeObjectURL(pendingNidPreview);
+            }
+            const previewUrl = URL.createObjectURL(compressedFile);
+            setPendingNidFile(compressedFile);
+            setPendingNidPreview(previewUrl);
+
+            toast.info(`NID document selected (${sizeKB} KB). Click "Save" below to upload and save.`);
+        } catch (err) {
+            console.error('NID processing error:', err);
+            toast.error(err.message || 'Failed to process NID document');
+        } finally {
+            if (e.target) e.target.value = '';
+        }
+    };
+
+    const handleRemoveNid = () => {
+        if (pendingNidPreview) {
+            URL.revokeObjectURL(pendingNidPreview);
+        }
+        setPendingNidFile(null);
+        setPendingNidPreview(null);
+        setFormData(prev => ({ ...prev, nidPhoto: '' }));
+        setNidSizeKB(null);
+        toast.info('NID document removed from form. Click "Save" below to apply changes.');
     };
 
     const handleDeleteTeacher = async (id) => {
@@ -609,10 +820,13 @@ const PremiumTeacherPage = () => {
     };
 
     const getEmptyFormData = () => {
-        return fieldConfig.reduce((acc, field) => {
+        const data = fieldConfig.reduce((acc, field) => {
             acc[field.name] = field.type === 'checkbox' ? false : (field.type === 'star-rating' ? 0 : '');
             return acc;
         }, {});
+        data.photo = '';
+        data.nidPhoto = '';
+        return data;
     };
 
     const handleShare = (teacherDetails) => {
@@ -697,6 +911,7 @@ const PremiumTeacherPage = () => {
                     <Button
                         variant="primary"
                         onClick={() => {
+                            resetMediaPendingStates();
                             setShowModal(true);
                             setEditingId(null);
                             setFormData(getEmptyFormData());
@@ -878,7 +1093,7 @@ const PremiumTeacherPage = () => {
                                 <tbody>
                                     {loading ? (
                                         <tr>
-                                            <td colSpan="15" className="text-center">
+                                            <td colSpan="17" className="text-center">
                                                 <div
                                                     className="d-flex justify-content-center align-items-center"
                                                     style={{
@@ -1067,21 +1282,260 @@ const PremiumTeacherPage = () => {
                     </Card.Body>
                 </Card>
 
+                <style>{`
+                    .teacher-details-modal-full {
+                        max-width: calc(100vw - 20px) !important;
+                        width: calc(100vw - 20px) !important;
+                        margin: 10px auto !important;
+                        padding: 0 !important;
+                    }
+                    .teacher-details-modal-full .modal-content {
+                        height: calc(100vh - 20px) !important;
+                        max-height: calc(100vh - 20px) !important;
+                        border-radius: 14px !important;
+                        display: flex !important;
+                        flex-direction: column !important;
+                        overflow: hidden !important;
+                    }
+                    .teacher-details-modal-full .modal-body {
+                        flex: 1 1 auto !important;
+                        max-height: none !important;
+                        overflow-y: auto !important;
+                    }
+                `}</style>
+
                 <Modal
                     show={showDetailsModal}
                     onHide={() => setShowDetailsModal(false)}
-                    size="xl"
+                    dialogClassName="teacher-details-modal-full"
                     centered
                     scrollable
                 >
-                    <Modal.Header closeButton className="border-bottom-0">
+                    <Modal.Header closeButton className="border-bottom-0 pb-2">
                         <Modal.Title className="fw-bold fs-4">Teacher Details</Modal.Title>
                     </Modal.Header>
 
-                    <Modal.Body
-                        className="px-4 py-3"
-                        style={{ maxHeight: '75vh', overflowY: 'auto' }}
-                    >
+                    <Modal.Body className="px-4 py-3">
+                        {selectedTeacher && (
+                            <Card className="mb-4 shadow-sm border bg-white" style={{ borderRadius: '14px', overflow: 'hidden' }}>
+                                {/* Gallery Header Bar */}
+                                <div className="px-4 py-2 bg-light border-bottom d-flex flex-wrap align-items-center justify-content-between gap-2">
+                                    <div className="d-flex align-items-center gap-2">
+                                        <FaImages className="text-primary fs-5" />
+                                        <span className="fw-bold text-dark" style={{ fontSize: '0.95rem' }}>Photo Gallery & Document Preview</span>
+                                    </div>
+                                    <div className="d-flex align-items-center gap-2">
+                                        <span className="badge bg-primary fs-6 px-3 py-1">Code: {selectedTeacher.premiumCode || 'N/A'}</span>
+                                        <span
+                                            className="badge text-uppercase px-2 py-1"
+                                            style={{
+                                                backgroundColor: statusStyles[selectedTeacher.status]?.bg || '#6c757d',
+                                                color: statusStyles[selectedTeacher.status]?.color || '#fff'
+                                            }}
+                                        >
+                                            {selectedTeacher.status || 'Pending'}
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <Card.Body className="p-3 p-md-4">
+                                    <Row className="g-4 align-items-stretch">
+                                        {/* Gallery Item 1: Profile Photo (Covered, Rectangular, Not Circle) */}
+                                        <Col xs={12} sm={6} md={3}>
+                                            <div className="d-flex flex-column h-100 align-items-center">
+                                                <div
+                                                    className="w-100 overflow-hidden shadow-sm border position-relative d-flex align-items-center justify-content-center"
+                                                    style={{
+                                                        borderRadius: '12px',
+                                                        height: '240px',
+                                                        backgroundColor: '#0f172a',
+                                                        cursor: selectedTeacher.photo ? 'pointer' : 'default'
+                                                    }}
+                                                    onClick={() => selectedTeacher.photo && window.open(selectedTeacher.photo, '_blank')}
+                                                    title={selectedTeacher.photo ? 'Click to open full photo in new tab' : 'No photo uploaded'}
+                                                >
+                                                    {selectedTeacher.photo ? (
+                                                        <img
+                                                            src={selectedTeacher.photo}
+                                                            alt={selectedTeacher.name || 'Teacher Profile Photo'}
+                                                            style={{
+                                                                maxWidth: '100%',
+                                                                maxHeight: '100%',
+                                                                width: 'auto',
+                                                                height: 'auto',
+                                                                objectFit: 'contain',
+                                                                display: 'block',
+                                                                transition: 'transform 0.25s ease'
+                                                            }}
+                                                            onMouseOver={e => e.currentTarget.style.transform = 'scale(1.02)'}
+                                                            onMouseOut={e => e.currentTarget.style.transform = 'scale(1)'}
+                                                        />
+                                                    ) : (
+                                                        <div className="h-100 w-100 d-flex flex-column align-items-center justify-content-center text-muted p-2">
+                                                            <FaCamera style={{ fontSize: '2.5rem' }} className="mb-2 text-secondary opacity-50" />
+                                                            <span className="small fw-semibold text-white-50">No Photo</span>
+                                                        </div>
+                                                    )}
+
+                                                    {selectedTeacher.photo && (
+                                                        <div
+                                                            className="position-absolute bottom-0 start-0 end-0 p-1 text-white text-center"
+                                                            style={{
+                                                                background: 'linear-gradient(to top, rgba(0,0,0,0.8), transparent)',
+                                                                fontSize: '0.72rem'
+                                                            }}
+                                                        >
+                                                            <FaExternalLinkAlt className="me-1" /> View Full Image
+                                                        </div>
+                                                    )}
+                                                </div>
+                                                <div className="mt-2 text-center">
+                                                    <span className="badge bg-primary text-white fw-semibold px-2 py-1" style={{ fontSize: '0.75rem' }}>
+                                                        Profile Photo
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </Col>
+
+                                        {/* Gallery Item 2: NID / Birth Document (Full Uncropped Document) */}
+                                        <Col xs={12} sm={6} md={4}>
+                                            <div className="d-flex flex-column h-100 align-items-center">
+                                                <div
+                                                    className="w-100 overflow-hidden shadow-sm border position-relative d-flex align-items-center justify-content-center"
+                                                    style={{
+                                                        borderRadius: '12px',
+                                                        height: '240px',
+                                                        backgroundColor: '#0f172a',
+                                                        cursor: selectedTeacher.nidPhoto ? 'pointer' : 'default'
+                                                    }}
+                                                    onClick={() => selectedTeacher.nidPhoto && window.open(selectedTeacher.nidPhoto, '_blank')}
+                                                    title={selectedTeacher.nidPhoto ? 'Click to open full document in new tab' : 'No NID document uploaded'}
+                                                >
+                                                    {selectedTeacher.nidPhoto ? (
+                                                        <img
+                                                            src={selectedTeacher.nidPhoto}
+                                                            alt="NID or Birth Document"
+                                                            style={{
+                                                                maxWidth: '100%',
+                                                                maxHeight: '100%',
+                                                                width: 'auto',
+                                                                height: 'auto',
+                                                                objectFit: 'contain',
+                                                                display: 'block',
+                                                                transition: 'transform 0.25s ease'
+                                                            }}
+                                                            onMouseOver={e => e.currentTarget.style.transform = 'scale(1.02)'}
+                                                            onMouseOut={e => e.currentTarget.style.transform = 'scale(1)'}
+                                                        />
+                                                    ) : (
+                                                        <div className="h-100 w-100 d-flex flex-column align-items-center justify-content-center text-muted p-2">
+                                                            <FaIdCard style={{ fontSize: '2.5rem' }} className="mb-2 text-secondary opacity-50" />
+                                                            <span className="small fw-semibold text-white-50">No NID Attached</span>
+                                                        </div>
+                                                    )}
+
+                                                    {selectedTeacher.nidPhoto && (
+                                                        <div
+                                                            className="position-absolute bottom-0 start-0 end-0 p-1 text-white text-center"
+                                                            style={{
+                                                                background: 'linear-gradient(to top, rgba(0,0,0,0.8), transparent)',
+                                                                fontSize: '0.72rem'
+                                                            }}
+                                                        >
+                                                            <FaExternalLinkAlt className="me-1" /> View Full Document
+                                                        </div>
+                                                    )}
+                                                </div>
+                                                <div className="mt-2 text-center">
+                                                    <span className={`badge ${selectedTeacher.nidPhoto ? 'bg-success text-white' : 'bg-light text-muted border'} fw-semibold px-2 py-1`} style={{ fontSize: '0.75rem' }}>
+                                                        {selectedTeacher.nidPhoto ? 'NID / Birth Document' : 'No NID Document'}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </Col>
+
+                                        {/* Teacher Quick Summary Card */}
+                                        <Col xs={12} md={5}>
+                                            <div className="p-3 rounded border bg-light h-100 d-flex flex-column justify-content-between">
+                                                <div>
+                                                    <h3 className="fw-bold mb-2 text-dark">{selectedTeacher.name || 'Unnamed Teacher'}</h3>
+                                                    
+                                                    <div className="d-flex flex-wrap gap-2 mb-3">
+                                                        {selectedTeacher.uniCode && (
+                                                            <span className="badge bg-info text-dark px-2 py-1">Uni: {selectedTeacher.uniCode}</span>
+                                                        )}
+                                                        {selectedTeacher.gender && (
+                                                            <span className="badge bg-white text-dark border text-capitalize px-2 py-1">{selectedTeacher.gender}</span>
+                                                        )}
+                                                        {selectedTeacher.city && (
+                                                            <span className="badge bg-secondary px-2 py-1">{selectedTeacher.city}</span>
+                                                        )}
+                                                        {selectedTeacher.currentArea && (
+                                                            <span className="badge bg-white text-secondary border px-2 py-1">{selectedTeacher.currentArea}</span>
+                                                        )}
+                                                    </div>
+
+                                                    <div className="small text-secondary mb-3">
+                                                        {selectedTeacher.phone && (
+                                                            <div className="d-flex align-items-center gap-2 mb-2">
+                                                                <strong>Phone:</strong>
+                                                                <span className="fw-semibold text-dark">{selectedTeacher.phone}</span>
+                                                                <Button
+                                                                    variant="outline-success"
+                                                                    size="sm"
+                                                                    className="py-0 px-2"
+                                                                    style={{ fontSize: '0.75rem' }}
+                                                                    onClick={() => window.open(`https://api.whatsapp.com/send?phone=88${selectedTeacher.phone.replace(/^0+/, '')}`, '_blank')}
+                                                                >
+                                                                    <FaWhatsapp className="me-1" /> WhatsApp
+                                                                </Button>
+                                                            </div>
+                                                        )}
+                                                        {selectedTeacher.honorsUniversity && (
+                                                            <div className="mb-1">
+                                                                <strong>University:</strong> {selectedTeacher.honorsUniversity} {selectedTeacher.honorsDept ? `(${selectedTeacher.honorsDept})` : ''}
+                                                            </div>
+                                                        )}
+                                                        {selectedTeacher.academicYear && (
+                                                            <div className="mb-1">
+                                                                <strong>Academic Year:</strong> {selectedTeacher.academicYear}
+                                                            </div>
+                                                        )}
+                                                        {selectedTeacher.experience && (
+                                                            <div>
+                                                                <strong>Experience:</strong> {selectedTeacher.experience}
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                </div>
+
+                                                <div className="d-flex gap-2 pt-2 border-top">
+                                                    <Button
+                                                        variant="primary"
+                                                        size="sm"
+                                                        className="d-flex align-items-center gap-1"
+                                                        onClick={() => {
+                                                            setShowDetailsModal(false);
+                                                            handleEditTeacher(selectedTeacher);
+                                                        }}
+                                                    >
+                                                        <FaEdit /> Edit Teacher
+                                                    </Button>
+                                                    <Button
+                                                        variant="outline-success"
+                                                        size="sm"
+                                                        className="d-flex align-items-center gap-1"
+                                                        onClick={() => handleShare(selectedTeacher)}
+                                                    >
+                                                        <FaWhatsapp /> Share CV
+                                                    </Button>
+                                                </div>
+                                            </div>
+                                        </Col>
+                                    </Row>
+                                </Card.Body>
+                            </Card>
+                        )}
                         {selectedTeacher?.password && (
                             <div className="mb-4">
                                 <div
@@ -1199,12 +1653,274 @@ const PremiumTeacherPage = () => {
                 </Modal>
 
                 {/* Create/Edit Tuition Modal */}
-                <Modal show={showModal} onHide={() => setShowModal(false)} size="xl" centered scrollable>
+                <Modal show={showModal} onHide={handleCloseModal} size="xl" centered scrollable>
                     <Modal.Header closeButton>
                         <Modal.Title className="fw-bold text-primary">{editingId ? "Edit Teacher" : "Create Teacher"}</Modal.Title>
                     </Modal.Header>
 
                     <Modal.Body>
+                        {/* Profile Photo & NID/Birth Registration Uploader Row */}
+                        <Row className="g-3 mb-4">
+                            {/* Profile Photo Uploader */}
+                            <Col md={6}>
+                                <div className="p-3 rounded border bg-light shadow-sm h-100 d-flex flex-column">
+                                    <div className="d-flex align-items-center gap-3 mb-2">
+                                        <div style={{ position: 'relative' }}>
+                                            {(pendingPhotoPreview || formData.photo) ? (
+                                                <img
+                                                    src={pendingPhotoPreview || formData.photo}
+                                                    alt="Teacher Profile"
+                                                    style={{
+                                                        width: '80px',
+                                                        height: '90px',
+                                                        borderRadius: '8px',
+                                                        objectFit: 'contain',
+                                                        backgroundColor: '#f1f3f5',
+                                                        border: pendingPhotoFile ? '2px solid #ffc107' : '2px solid #0d6efd',
+                                                        boxShadow: '0 2px 6px rgba(0,0,0,0.15)',
+                                                        cursor: 'pointer'
+                                                    }}
+                                                    onClick={() => window.open(pendingPhotoPreview || formData.photo, '_blank')}
+                                                    title="Click to view full image"
+                                                />
+                                            ) : (
+                                                <div
+                                                    style={{
+                                                        width: '80px',
+                                                        height: '90px',
+                                                        borderRadius: '8px',
+                                                        backgroundColor: '#dee2e6',
+                                                        color: '#6c757d',
+                                                        display: 'flex',
+                                                        flexDirection: 'column',
+                                                        alignItems: 'center',
+                                                        justifyContent: 'center',
+                                                        fontSize: '1.8rem',
+                                                        border: '2px dashed #adb5bd'
+                                                    }}
+                                                >
+                                                    <FaCamera />
+                                                    <span style={{ fontSize: '0.6rem' }} className="mt-1">No Photo</span>
+                                                </div>
+                                            )}
+                                            {uploadingPhoto && (
+                                                <div
+                                                    style={{
+                                                        position: 'absolute',
+                                                        top: 0,
+                                                        left: 0,
+                                                        width: '100%',
+                                                        height: '100%',
+                                                        borderRadius: '8px',
+                                                        backgroundColor: 'rgba(255,255,255,0.85)',
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        justifyContent: 'center'
+                                                    }}
+                                                >
+                                                    <Spinner animation="border" size="sm" variant="primary" />
+                                                </div>
+                                            )}
+                                        </div>
+
+                                        <div className="flex-grow-1">
+                                            <h6 className="fw-bold mb-0">Profile Photo</h6>
+                                            <small className="text-muted d-block mb-1">
+                                                Max 100 KB
+                                                {photoSizeKB && (
+                                                    <span className={`ms-2 badge ${pendingPhotoFile ? 'bg-warning text-dark' : 'bg-success'}`}>
+                                                        {pendingPhotoFile ? `Pending: ${photoSizeKB} KB` : `${photoSizeKB} KB`}
+                                                    </span>
+                                                )}
+                                            </small>
+
+                                            <div className="d-flex flex-wrap gap-1 align-items-center">
+                                                <label className={`btn btn-sm btn-primary d-inline-flex align-items-center gap-1 mb-0 ${uploadingPhoto ? 'disabled' : ''}`} style={{ cursor: uploadingPhoto ? 'not-allowed' : 'pointer', fontSize: '0.78rem' }}>
+                                                    <FaCamera />
+                                                    {uploadingPhoto ? 'Uploading...' : ((pendingPhotoPreview || formData.photo) ? 'Change' : 'Select Photo')}
+                                                    <input
+                                                        type="file"
+                                                        accept="image/*"
+                                                        onChange={handlePhotoUpload}
+                                                        style={{ display: 'none' }}
+                                                        disabled={uploadingPhoto || saving}
+                                                    />
+                                                </label>
+
+                                                {(pendingPhotoPreview || formData.photo) && (
+                                                    <Button
+                                                        variant="outline-danger"
+                                                        size="sm"
+                                                        onClick={handleRemovePhoto}
+                                                        disabled={uploadingPhoto || saving}
+                                                        style={{ fontSize: '0.78rem' }}
+                                                        className="d-inline-flex align-items-center gap-1"
+                                                    >
+                                                        <FaTrash /> Remove
+                                                    </Button>
+                                                )}
+
+                                                {formData.photo && !pendingPhotoPreview && (
+                                                    <a
+                                                        href={formData.photo}
+                                                        target="_blank"
+                                                        rel="noreferrer"
+                                                        style={{ fontSize: '0.78rem' }}
+                                                        className="btn btn-sm btn-outline-secondary d-inline-flex align-items-center gap-1"
+                                                    >
+                                                        <FaExternalLinkAlt /> View
+                                                    </a>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="mt-auto">
+                                        {pendingPhotoFile ? (
+                                            <small className="text-warning fw-semibold d-flex align-items-center gap-1">
+                                                <FaInfoCircle /> Selected &mdash; will upload when you click Save
+                                            </small>
+                                        ) : formData.photo ? (
+                                            <small className="text-success d-flex align-items-center gap-1">
+                                                <FaCheckCircle /> Saved profile photo
+                                            </small>
+                                        ) : (
+                                            <small className="text-muted">No photo selected</small>
+                                        )}
+                                    </div>
+                                </div>
+                            </Col>
+
+                            {/* NID / Birth Registration Photo Uploader */}
+                            <Col md={6}>
+                                <div className="p-3 rounded border bg-light shadow-sm h-100 d-flex flex-column">
+                                    <div className="d-flex align-items-center gap-3 mb-2">
+                                        <div style={{ position: 'relative' }}>
+                                            {(pendingNidPreview || formData.nidPhoto) ? (
+                                                <img
+                                                    src={pendingNidPreview || formData.nidPhoto}
+                                                    alt="NID Document"
+                                                    style={{
+                                                        width: '100px',
+                                                        height: '65px',
+                                                        borderRadius: '6px',
+                                                        objectFit: 'contain',
+                                                        backgroundColor: '#f1f3f5',
+                                                        border: pendingNidFile ? '2px solid #ffc107' : '2px solid #198754',
+                                                        boxShadow: '0 2px 6px rgba(0,0,0,0.15)',
+                                                        cursor: 'pointer'
+                                                    }}
+                                                    onClick={() => window.open(pendingNidPreview || formData.nidPhoto, '_blank')}
+                                                />
+                                            ) : (
+                                                <div
+                                                    style={{
+                                                        width: '100px',
+                                                        height: '65px',
+                                                        borderRadius: '6px',
+                                                        backgroundColor: '#dee2e6',
+                                                        color: '#6c757d',
+                                                        display: 'flex',
+                                                        flexDirection: 'column',
+                                                        alignItems: 'center',
+                                                        justifyContent: 'center',
+                                                        fontSize: '1.6rem',
+                                                        border: '2px dashed #adb5bd'
+                                                    }}
+                                                >
+                                                    <FaIdCard />
+                                                    <span style={{ fontSize: '0.6rem' }}>No NID</span>
+                                                </div>
+                                            )}
+                                            {uploadingNid && (
+                                                <div
+                                                    style={{
+                                                        position: 'absolute',
+                                                        top: 0,
+                                                        left: 0,
+                                                        width: '100%',
+                                                        height: '100%',
+                                                        borderRadius: '6px',
+                                                        backgroundColor: 'rgba(255,255,255,0.85)',
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        justifyContent: 'center'
+                                                    }}
+                                                >
+                                                    <Spinner animation="border" size="sm" variant="success" />
+                                                </div>
+                                            )}
+                                        </div>
+
+                                        <div className="flex-grow-1">
+                                            <h6 className="fw-bold mb-0">NID / Birth Certificate</h6>
+                                            <small className="text-muted d-block mb-1">
+                                                Max 100 KB
+                                                {nidSizeKB && (
+                                                    <span className={`ms-2 badge ${pendingNidFile ? 'bg-warning text-dark' : 'bg-success'}`}>
+                                                        {pendingNidFile ? `Pending: ${nidSizeKB} KB` : `${nidSizeKB} KB`}
+                                                    </span>
+                                                )}
+                                            </small>
+
+                                            <div className="d-flex flex-wrap gap-1 align-items-center">
+                                                <label className={`btn btn-sm btn-success d-inline-flex align-items-center gap-1 mb-0 ${uploadingNid ? 'disabled' : ''}`} style={{ cursor: uploadingNid ? 'not-allowed' : 'pointer', fontSize: '0.78rem' }}>
+                                                    <FaIdCard />
+                                                    {uploadingNid ? 'Uploading...' : ((pendingNidPreview || formData.nidPhoto) ? 'Change NID' : 'Select NID')}
+                                                    <input
+                                                        type="file"
+                                                        accept="image/*"
+                                                        onChange={handleNidUpload}
+                                                        style={{ display: 'none' }}
+                                                        disabled={uploadingNid || saving}
+                                                    />
+                                                </label>
+
+                                                {(pendingNidPreview || formData.nidPhoto) && (
+                                                    <Button
+                                                        variant="outline-danger"
+                                                        size="sm"
+                                                        onClick={handleRemoveNid}
+                                                        disabled={uploadingNid || saving}
+                                                        style={{ fontSize: '0.78rem' }}
+                                                        className="d-inline-flex align-items-center gap-1"
+                                                    >
+                                                        <FaTrash /> Remove
+                                                    </Button>
+                                                )}
+
+                                                {formData.nidPhoto && !pendingNidPreview && (
+                                                    <a
+                                                        href={formData.nidPhoto}
+                                                        target="_blank"
+                                                        rel="noreferrer"
+                                                        style={{ fontSize: '0.78rem' }}
+                                                        className="btn btn-sm btn-outline-secondary d-inline-flex align-items-center gap-1"
+                                                    >
+                                                        <FaExternalLinkAlt /> View
+                                                    </a>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="mt-auto">
+                                        {pendingNidFile ? (
+                                            <small className="text-warning fw-semibold d-flex align-items-center gap-1">
+                                                <FaInfoCircle /> Selected &mdash; will upload when you click Save
+                                            </small>
+                                        ) : formData.nidPhoto ? (
+                                            <small className="text-success d-flex align-items-center gap-1">
+                                                <FaCheckCircle /> Saved NID document
+                                            </small>
+                                        ) : (
+                                            <small className="text-muted">No document uploaded</small>
+                                        )}
+                                    </div>
+                                </div>
+                            </Col>
+                        </Row>
+
                         <Form>
                             {Object.entries(
                                 fieldConfig.reduce((groups, field) => {
@@ -1363,11 +2079,18 @@ const PremiumTeacherPage = () => {
                     </Modal.Body>
 
                     <Modal.Footer>
-                        <Button variant="secondary" onClick={() => setShowModal(false)} disabled={saving}>
+                        <Button variant="secondary" onClick={handleCloseModal} disabled={saving}>
                             Close
                         </Button>
                         <Button variant="primary" onClick={handleSaveRecord} disabled={saving}>
-                            {saving ? <><Spinner animation="border" size="sm" className="me-2" />Saving...</> : 'Save'}
+                            {saving ? (
+                                <>
+                                    <Spinner animation="border" size="sm" className="me-2" />
+                                    {uploadingPhoto || uploadingNid ? 'Uploading images...' : 'Saving...'}
+                                </>
+                            ) : (
+                                editingId ? 'Update Teacher' : 'Save Teacher'
+                            )}
                         </Button>
                     </Modal.Footer>
                 </Modal>

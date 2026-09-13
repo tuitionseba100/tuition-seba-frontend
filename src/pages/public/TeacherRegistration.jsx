@@ -8,6 +8,7 @@ import {
     ProgressBar,
     Card,
     Modal,
+    Spinner,
 } from 'react-bootstrap';
 import {
     FaGraduationCap,
@@ -30,6 +31,13 @@ import {
     FaCalendarAlt,
     FaExclamationTriangle,
     FaUserPlus,
+    FaCamera,
+    FaIdCard,
+    FaFileAlt,
+    FaTimes,
+    FaCheckCircle,
+    FaExpandAlt,
+    FaLock,
 } from 'react-icons/fa';
 
 import { Formik } from 'formik';
@@ -45,6 +53,50 @@ import NavBar from '../../components/NavBar';
 import Footer from '../../components/Footer';
 
 import { fetchWithFallback } from '../../services/fetchWithFallback';
+import { compressImageUnderMaxKB } from '../../utilities/imageCompressor';
+
+const documentConfigs = [
+    {
+        key: 'photo',
+        label: 'প্রোফাইল ছবি',
+        sublabel: 'Profile Photo',
+        endpoint: 'teacher-photo',
+        field: 'photo',
+        icon: <FaCamera />,
+    },
+    {
+        key: 'nidPhoto',
+        label: 'NID / জন্ম নিবন্ধন',
+        sublabel: 'NID or Birth Certificate',
+        endpoint: 'teacher-nid',
+        field: 'nidPhoto',
+        icon: <FaIdCard />,
+    },
+    {
+        key: 'sscMarksheet',
+        label: 'SSC মার্কশীট',
+        sublabel: 'SSC Marksheet',
+        endpoint: 'teacher-ssc',
+        field: 'sscMarksheet',
+        icon: <FaFileAlt />,
+    },
+    {
+        key: 'hscMarksheet',
+        label: 'HSC মার্কশীট',
+        sublabel: 'HSC Marksheet',
+        endpoint: 'teacher-hsc',
+        field: 'hscMarksheet',
+        icon: <FaFileAlt />,
+    },
+    {
+        key: 'universityIdCard',
+        label: 'ভার্সিটি আইডি / স্লিপ',
+        sublabel: 'University ID / Slip',
+        endpoint: 'teacher-uni-id',
+        field: 'universityIdCard',
+        icon: <FaGraduationCap />,
+    }
+];
 const getPhoneErrorMessage = (label, value) => {
     if (!value) return '';
     const trimmed = value.trim();
@@ -126,6 +178,61 @@ const TeacherRegistrationForm = () => {
     const [errorMessage, setErrorMessage] = useState('');
     const [areas, setAreas] = useState([]);
 
+    // Optional Documents Upload State
+    const [uploadedDocs, setUploadedDocs] = useState({});
+    const [compressingDoc, setCompressingDoc] = useState(null);
+    const [previewModalImg, setPreviewModalImg] = useState(null);
+
+    const handleDocChange = async (key, file) => {
+        if (!file) return;
+        if (!file.type.startsWith('image/')) {
+            alert('অনুগ্রহ করে শুধুমাত্র ছবি ফাইল (JPG, PNG, WebP) নির্বাচন করুন');
+            return;
+        }
+
+        setCompressingDoc(key);
+        try {
+            const compressed = await compressImageUnderMaxKB(file, 100, 1200);
+            setUploadedDocs(prev => {
+                if (prev[key]?.previewUrl) {
+                    URL.revokeObjectURL(prev[key].previewUrl);
+                }
+                return {
+                    ...prev,
+                    [key]: {
+                        file: compressed.file,
+                        previewUrl: compressed.previewUrl,
+                        sizeKB: compressed.sizeKB,
+                    }
+                };
+            });
+        } catch (err) {
+            console.error('Image compression failed:', err);
+            alert('ছবি প্রসেস করতে সমস্যা হয়েছে, অনুগ্রহ করে অন্য একটি ছবি দিন');
+        } finally {
+            setCompressingDoc(null);
+        }
+    };
+
+    const handleDocRemove = (key) => {
+        setUploadedDocs(prev => {
+            if (prev[key]?.previewUrl) {
+                URL.revokeObjectURL(prev[key].previewUrl);
+            }
+            const updated = { ...prev };
+            delete updated[key];
+            return updated;
+        });
+    };
+
+    useEffect(() => {
+        return () => {
+            Object.values(uploadedDocs).forEach(doc => {
+                if (doc?.previewUrl) URL.revokeObjectURL(doc.previewUrl);
+            });
+        };
+    }, []);
+
     const cityOptions = locationData.cityOptions;
     const areaOptions = locationData.areaOptions;
 
@@ -179,6 +286,11 @@ const TeacherRegistrationForm = () => {
         if (type === 'checkbox') initialValues[name] = false;
         else initialValues[name] = '';
     });
+    initialValues.photo = '';
+    initialValues.nidPhoto = '';
+    initialValues.sscMarksheet = '';
+    initialValues.hscMarksheet = '';
+    initialValues.universityIdCard = '';
 
     const validationSchemaFields = {};
     fieldConfig.forEach(({ name, label }) => {
@@ -329,15 +441,49 @@ const TeacherRegistrationForm = () => {
                                 }
 
                                 try {
+                                    // 1. Upload any selected optional documents to R2
+                                    const finalValues = { ...values };
+                                    const docEntries = Object.entries(uploadedDocs);
+
+                                    if (docEntries.length > 0) {
+                                        for (const config of documentConfigs) {
+                                            const doc = uploadedDocs[config.key];
+                                            if (doc?.file) {
+                                                try {
+                                                    const formData = new FormData();
+                                                    formData.append('photo', doc.file);
+
+                                                    const uploadRes = await fetchWithFallback(`https://tuition-seba-backend-1.onrender.com/api/upload/${config.endpoint}`, {
+                                                        method: 'POST',
+                                                        body: formData,
+                                                    });
+
+                                                    if (uploadRes.ok) {
+                                                        const uploadData = await uploadRes.json();
+                                                        if (uploadData && uploadData.url) {
+                                                            finalValues[config.field] = uploadData.url;
+                                                        }
+                                                    }
+                                                } catch (uploadErr) {
+                                                    console.warn(`Optional document upload skipped for ${config.key}:`, uploadErr);
+                                                }
+                                            }
+                                        }
+                                    }
+
                                     const res = await fetchWithFallback('https://tuition-seba-backend-1.onrender.com/api/regTeacher/add', {
                                         method: 'POST',
                                         headers: { 'Content-Type': 'application/json' },
-                                        body: JSON.stringify(values),
+                                        body: JSON.stringify(finalValues),
                                     });
 
                                     if (res.ok) {
                                         resetForm();
                                         setAreas([]);
+                                        Object.values(uploadedDocs).forEach(doc => {
+                                            if (doc?.previewUrl) URL.revokeObjectURL(doc.previewUrl);
+                                        });
+                                        setUploadedDocs({});
                                         setShowSuccessModal(true);
                                     } else if (res.status === 400) {
                                         const data = await res.json();
@@ -614,6 +760,175 @@ const TeacherRegistrationForm = () => {
                                                     </small>
                                                 </Form.Group>
                                             </div>
+
+                                            {/* Documents & Photo Upload Section (Fully Optional) */}
+                                            <div className="mb-4 mt-4">
+                                                <div
+                                                    className="p-3 mb-3 d-flex align-items-center justify-content-between flex-wrap gap-2"
+                                                    style={{
+                                                        background: 'linear-gradient(135deg, #004085 0%, #0066cc 100%)',
+                                                        color: 'white',
+                                                        borderRadius: '10px',
+                                                        boxShadow: '0 4px 15px rgba(0, 64, 133, 0.2)'
+                                                    }}
+                                                >
+                                                    <h5 className="mb-0 d-flex align-items-center gap-2" style={{ fontSize: '1.05rem' }}>
+                                                        <FaIdCard /> প্রয়োজনীয় ডকুমেন্টস ও ছবি আপলোড
+                                                    </h5>
+                                                    <span className="badge bg-warning text-dark px-2 py-1" style={{ fontSize: '0.78rem', fontWeight: '700' }}>
+                                                        সম্পূর্ণ ঐচ্ছিক (চাইলে এড়িয়ে যেতে পারেন)
+                                                    </span>
+                                                </div>
+
+                                                {/* Instructions Card */}
+                                                <div
+                                                    className="p-2 px-3 mb-3"
+                                                    style={{
+                                                        backgroundColor: '#f0f7ff',
+                                                        border: '1px solid #bae0ff',
+                                                        borderLeft: '4px solid #1677ff',
+                                                        borderRadius: '8px',
+                                                        fontSize: '0.8rem',
+                                                        lineHeight: 1.45
+                                                    }}
+                                                >
+                                                    <div className="fw-bold text-primary mb-1 d-flex align-items-center gap-1" style={{ fontSize: '0.84rem' }}>
+                                                        <FaInfoCircle size={13} /> কিছু তথ্য (সম্পূর্ণ ঐচ্ছিক):
+                                                    </div>
+                                                    <ul className="mb-0 ps-3 text-secondary" style={{ fontSize: '0.8rem', paddingLeft: '1rem' }}>
+                                                        <li>
+                                                            <strong>সম্পূর্ণ ঐচ্ছিক:</strong> ডকুমেন্টস ছাড়াও আবেদন করা যাবে (তবে মার্কশীট দিলে যোগ্যতা নিশ্চিত হওয়ায় দ্রুত টিউশন পাওয়ার সুযোগ বাড়ে)।
+                                                        </li>
+                                                        <li>
+                                                            <strong>প্রোফাইল ছবি:</strong> ছবি দেওয়া বাধ্যতামূলক নয় (নারী টিউটরগণ চাইলে বাদ দিতে পারেন)।
+                                                        </li>
+                                                        <li>
+                                                            <strong>সহজ আপলোড:</strong> সরাসরি ছবি তুলুন বা গ্যালারি থেকে দিন, সাইজ স্বয়ংক্রিয়ভাবে ১০০ KB-তে অপ্টিমাইজ হবে।
+                                                        </li>
+                                                    </ul>
+                                                    <div className="mt-2 pt-1 border-top d-flex align-items-center gap-1 text-muted" style={{ fontSize: '0.74rem' }}>
+                                                        <FaLock size={10} className="text-success flex-shrink-0" />
+                                                        <span>
+                                                            <strong>তথ্য সুরক্ষা:</strong> সংগৃহীত ডকুমেন্টস কেবল অভ্যন্তরীণ যাচাইয়ের জন্য; এটি সম্পূর্ণ গোপন থাকবে এবং ওয়েবসাইটে কখনো দেখানো বা কারো সাথে শেয়ার করা হবে না।
+                                                        </span>
+                                                    </div>
+                                                </div>
+
+                                                {/* Compact Responsive Document Cards */}
+                                                <Row className="g-2 g-md-3">
+                                                    {documentConfigs.map((doc) => {
+                                                        const uploaded = uploadedDocs[doc.key];
+                                                        const isCompressing = compressingDoc === doc.key;
+
+                                                        return (
+                                                            <Col xs={6} sm={4} md={4} className="col-lg" key={doc.key}>
+                                                                <div
+                                                                    className="p-2 rounded h-100 d-flex flex-column justify-content-between text-center"
+                                                                    style={{
+                                                                        backgroundColor: uploaded ? '#ffffff' : '#f8fafc',
+                                                                        border: uploaded ? '1.5px solid #1677ff' : '1.5px dashed #cbd5e1',
+                                                                        borderRadius: '10px',
+                                                                        boxShadow: uploaded ? '0 2px 8px rgba(22, 119, 255, 0.12)' : 'none',
+                                                                        transition: 'all 0.2s ease',
+                                                                        minHeight: '140px'
+                                                                    }}
+                                                                >
+                                                                    {/* Title */}
+                                                                    <div>
+                                                                        <div className="fw-bold text-dark text-truncate" style={{ fontSize: '0.82rem' }} title={doc.label}>
+                                                                            {doc.label}
+                                                                        </div>
+                                                                        <div className="text-muted text-truncate" style={{ fontSize: '0.67rem' }}>
+                                                                            {doc.sublabel}
+                                                                        </div>
+                                                                    </div>
+
+                                                                    {/* Center Target Box */}
+                                                                    <div
+                                                                        className="my-1 rounded position-relative d-flex align-items-center justify-content-center overflow-hidden"
+                                                                        style={{
+                                                                            height: '72px',
+                                                                            backgroundColor: uploaded ? '#ffffff' : '#f1f5f9',
+                                                                            border: uploaded ? '1px solid #e2e8f0' : 'none'
+                                                                        }}
+                                                                    >
+                                                                        {isCompressing ? (
+                                                                            <div className="text-center p-1">
+                                                                                <Spinner animation="border" size="sm" variant="primary" />
+                                                                                <div style={{ fontSize: '0.62rem' }} className="text-muted mt-1">প্রসেসিং...</div>
+                                                                            </div>
+                                                                        ) : uploaded ? (
+                                                                            <>
+                                                                                <img
+                                                                                    src={uploaded.previewUrl}
+                                                                                    alt={doc.label}
+                                                                                    style={{
+                                                                                        maxWidth: '100%',
+                                                                                        maxHeight: '100%',
+                                                                                        objectFit: 'contain',
+                                                                                        cursor: 'pointer'
+                                                                                    }}
+                                                                                    onClick={() => setPreviewModalImg({ url: uploaded.previewUrl, title: doc.label })}
+                                                                                    title="বড় করে দেখতে ক্লিক করুন"
+                                                                                />
+                                                                                <button
+                                                                                    type="button"
+                                                                                    className="btn btn-danger btn-sm rounded-circle position-absolute top-0 end-0 m-1 d-flex align-items-center justify-content-center"
+                                                                                    style={{ width: '22px', height: '22px', padding: 0, fontSize: '10px', zIndex: 2 }}
+                                                                                    onClick={(e) => {
+                                                                                        e.stopPropagation();
+                                                                                        handleDocRemove(doc.key);
+                                                                                    }}
+                                                                                    title="ছবি বাতিল করুন"
+                                                                                >
+                                                                                    <FaTimes />
+                                                                                </button>
+                                                                            </>
+                                                                        ) : (
+                                                                            <label
+                                                                                className="w-100 h-100 d-flex flex-column align-items-center justify-content-center text-muted mb-0"
+                                                                                style={{ cursor: 'pointer' }}
+                                                                            >
+                                                                                <span className="text-secondary" style={{ fontSize: '1.3rem' }}>
+                                                                                    {doc.icon}
+                                                                                </span>
+                                                                                <span style={{ fontSize: '0.68rem', color: '#0d6efd' }} className="mt-1 fw-semibold">
+                                                                                    + ছবি নির্বাচন
+                                                                                </span>
+                                                                                <input
+                                                                                    type="file"
+                                                                                    accept="image/*"
+                                                                                    style={{ display: 'none' }}
+                                                                                    onChange={(e) => {
+                                                                                        if (e.target.files?.[0]) {
+                                                                                            handleDocChange(doc.key, e.target.files[0]);
+                                                                                            e.target.value = '';
+                                                                                        }
+                                                                                    }}
+                                                                                />
+                                                                            </label>
+                                                                        )}
+                                                                    </div>
+
+                                                                    {/* Bottom Status */}
+                                                                    <div>
+                                                                        {uploaded ? (
+                                                                            <span className="badge bg-success-subtle text-success border border-success-subtle py-1 px-1 text-truncate d-inline-block" style={{ fontSize: '0.64rem', maxWidth: '100%' }}>
+                                                                                <FaCheckCircle className="me-1" /> যুক্ত হয়েছে ({uploaded.sizeKB} KB)
+                                                                            </span>
+                                                                        ) : (
+                                                                            <span className="badge bg-light text-muted border py-1 px-2" style={{ fontSize: '0.64rem' }}>
+                                                                                ঐচ্ছিক (খালি)
+                                                                            </span>
+                                                                        )}
+                                                                    </div>
+                                                                </div>
+                                                            </Col>
+                                                        );
+                                                    })}
+                                                </Row>
+                                            </div>
+
                                             <div className="text-center mt-3">
                                                 <p className="text-muted mb-2">
                                                     <small>* ফোন বা হোয়াটসঅ্যাপের মধ্যে অন্তত একটি অবশ্যই দিতে হবে, তারপরই আবেদন করতে পারবেন।</small>
@@ -647,14 +962,67 @@ const TeacherRegistrationForm = () => {
                 <RegistrationSteps show={showStepsModal} handleClose={() => setShowStepsModal(false)} />
                 <PhoneRequiredModal show={showPhoneRequiredModal} handleClose={() => setShowPhoneRequiredModal(false)} validationErrors={phoneModalErrors} />
 
-                {/* Find the isSubmitting state from Formik context if needed, or pass it down. 
-                    Since we are inside the component but outside Formik here, we can't access isSubmitting directly easiest way.
-                    Let's use a local state wrapper or similar if needed, OR just put it inside Formik content? 
-                    Actually, we can see the Formik component above wraps the form. 
-                    Wait, `isSubmitting` is inside Formik's render prop. 
-                    We need to lift the loading state or render the modal inside Formik. 
-                    Let's render it inside Formik for simplicity.
-                */}
+                {/* Optional Document Fullscreen Preview Lightbox */}
+                {previewModalImg && (
+                    <div
+                        style={{
+                            position: 'fixed',
+                            top: 0,
+                            left: 0,
+                            right: 0,
+                            bottom: 0,
+                            backgroundColor: 'rgba(15, 23, 42, 0.95)',
+                            backdropFilter: 'blur(5px)',
+                            zIndex: 99999,
+                            display: 'flex',
+                            flexDirection: 'column',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            padding: '16px'
+                        }}
+                        onClick={() => setPreviewModalImg(null)}
+                    >
+                        <div
+                            style={{
+                                position: 'absolute',
+                                top: 0,
+                                left: 0,
+                                right: 0,
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'space-between',
+                                padding: '14px 20px',
+                                background: 'linear-gradient(to bottom, rgba(0,0,0,0.85), transparent)',
+                                color: '#fff',
+                                zIndex: 100000
+                            }}
+                            onClick={(e) => e.stopPropagation()}
+                        >
+                            <span className="fw-bold fs-6 text-white">{previewModalImg.title}</span>
+                            <button
+                                type="button"
+                                className="btn btn-sm btn-danger rounded-circle d-flex align-items-center justify-content-center"
+                                style={{ width: '32px', height: '32px' }}
+                                onClick={() => setPreviewModalImg(null)}
+                            >
+                                <FaTimes />
+                            </button>
+                        </div>
+                        <img
+                            src={previewModalImg.url}
+                            alt={previewModalImg.title}
+                            style={{
+                                maxWidth: '92vw',
+                                maxHeight: '82vh',
+                                objectFit: 'contain',
+                                borderRadius: '8px',
+                                boxShadow: '0 8px 30px rgba(0,0,0,0.7)'
+                            }}
+                            onClick={(e) => e.stopPropagation()}
+                        />
+                        <div className="text-white-50 small mt-2">ছবিতে বা যেকোনো জায়গায় ট্যাপ করে ফিরে যান</div>
+                    </div>
+                )}
             </div >
             <Footer />
         </>

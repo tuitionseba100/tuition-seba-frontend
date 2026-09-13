@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Button, Table, Modal, Form, Row, Col, Card, Nav, Tab, Badge } from 'react-bootstrap';
-import { FaEdit, FaInfoCircle, FaTrashAlt, FaWhatsapp, FaChevronLeft, FaChevronRight, FaSearch, FaTimes, FaGlobe, FaGooglePlay, FaUserPlus, FaCamera, FaTrash, FaUserCircle, FaExternalLinkAlt, FaCheckCircle, FaIdCard, FaImages } from 'react-icons/fa'; // React Icons
+import { FaEdit, FaInfoCircle, FaTrashAlt, FaWhatsapp, FaChevronLeft, FaChevronRight, FaSearch, FaTimes, FaGlobe, FaGooglePlay, FaUserPlus, FaCamera, FaTrash, FaUserCircle, FaExternalLinkAlt, FaCheckCircle, FaIdCard, FaImages, FaFileAlt, FaGraduationCap } from 'react-icons/fa'; // React Icons
 import { axiosWithFallback as axios } from '../services/fetchWithFallback';
 import NavBarPage from './NavbarPage';
 import styled from 'styled-components';
@@ -47,10 +47,26 @@ const PremiumTeacherPage = () => {
     const [photoSizeKB, setPhotoSizeKB] = useState(null);
     const [pendingPhotoFile, setPendingPhotoFile] = useState(null);
     const [pendingPhotoPreview, setPendingPhotoPreview] = useState(null);
+
     const [uploadingNid, setUploadingNid] = useState(false);
     const [nidSizeKB, setNidSizeKB] = useState(null);
     const [pendingNidFile, setPendingNidFile] = useState(null);
     const [pendingNidPreview, setPendingNidPreview] = useState(null);
+
+    const [uploadingSsc, setUploadingSsc] = useState(false);
+    const [sscSizeKB, setSscSizeKB] = useState(null);
+    const [pendingSscFile, setPendingSscFile] = useState(null);
+    const [pendingSscPreview, setPendingSscPreview] = useState(null);
+
+    const [uploadingHsc, setUploadingHsc] = useState(false);
+    const [hscSizeKB, setHscSizeKB] = useState(null);
+    const [pendingHscFile, setPendingHscFile] = useState(null);
+    const [pendingHscPreview, setPendingHscPreview] = useState(null);
+
+    const [uploadingUniId, setUploadingUniId] = useState(false);
+    const [uniIdSizeKB, setUniIdSizeKB] = useState(null);
+    const [pendingUniIdFile, setPendingUniIdFile] = useState(null);
+    const [pendingUniIdPreview, setPendingUniIdPreview] = useState(null);
 
     const resetMediaPendingStates = () => {
         setPendingPhotoFile(null);
@@ -63,8 +79,26 @@ const PremiumTeacherPage = () => {
             if (prev) URL.revokeObjectURL(prev);
             return null;
         });
+        setPendingSscFile(null);
+        setPendingSscPreview(prev => {
+            if (prev) URL.revokeObjectURL(prev);
+            return null;
+        });
+        setPendingHscFile(null);
+        setPendingHscPreview(prev => {
+            if (prev) URL.revokeObjectURL(prev);
+            return null;
+        });
+        setPendingUniIdFile(null);
+        setPendingUniIdPreview(prev => {
+            if (prev) URL.revokeObjectURL(prev);
+            return null;
+        });
         setPhotoSizeKB(null);
         setNidSizeKB(null);
+        setSscSizeKB(null);
+        setHscSizeKB(null);
+        setUniIdSizeKB(null);
     };
 
     const handleCloseModal = () => {
@@ -238,7 +272,10 @@ const PremiumTeacherPage = () => {
             return acc;
         }, {}),
         photo: '',
-        nidPhoto: ''
+        nidPhoto: '',
+        sscMarksheet: '',
+        hscMarksheet: '',
+        universityIdCard: ''
     };
     const [formData, setFormData] = useState(initialData);
 
@@ -521,6 +558,27 @@ const PremiumTeacherPage = () => {
                 updatingData.nidPhoto = nidRes.url;
             }
 
+            // Upload pending SSC Marksheet on Save
+            if (pendingSscFile) {
+                setUploadingSsc(true);
+                const sscRes = await uploadMediaWithFallback(pendingSscFile, 'teacher-ssc');
+                updatingData.sscMarksheet = sscRes.url;
+            }
+
+            // Upload pending HSC Marksheet on Save
+            if (pendingHscFile) {
+                setUploadingHsc(true);
+                const hscRes = await uploadMediaWithFallback(pendingHscFile, 'teacher-hsc');
+                updatingData.hscMarksheet = hscRes.url;
+            }
+
+            // Upload pending University ID on Save
+            if (pendingUniIdFile) {
+                setUploadingUniId(true);
+                const uniIdRes = await uploadMediaWithFallback(pendingUniIdFile, 'teacher-uni-id');
+                updatingData.universityIdCard = uniIdRes.url;
+            }
+
             if (editingId) {
                 const updatedData = {
                     ...updatingData,
@@ -556,6 +614,9 @@ const PremiumTeacherPage = () => {
             setSaving(false);
             setUploadingPhoto(false);
             setUploadingNid(false);
+            setUploadingSsc(false);
+            setUploadingHsc(false);
+            setUploadingUniId(false);
         }
     };
 
@@ -591,6 +652,27 @@ const PremiumTeacherPage = () => {
                 setUploadingNid(true);
                 const nidRes = await uploadMediaWithFallback(pendingNidFile, 'teacher-nid');
                 updatedData.nidPhoto = nidRes.url;
+            }
+
+            // Upload pending SSC Marksheet on Save
+            if (pendingSscFile) {
+                setUploadingSsc(true);
+                const sscRes = await uploadMediaWithFallback(pendingSscFile, 'teacher-ssc');
+                updatedData.sscMarksheet = sscRes.url;
+            }
+
+            // Upload pending HSC Marksheet on Save
+            if (pendingHscFile) {
+                setUploadingHsc(true);
+                const hscRes = await uploadMediaWithFallback(pendingHscFile, 'teacher-hsc');
+                updatedData.hscMarksheet = hscRes.url;
+            }
+
+            // Upload pending University ID on Save
+            if (pendingUniIdFile) {
+                setUploadingUniId(true);
+                const uniIdRes = await uploadMediaWithFallback(pendingUniIdFile, 'teacher-uni-id');
+                updatedData.universityIdCard = uniIdRes.url;
             }
 
             await axios.put(
@@ -642,6 +724,9 @@ const PremiumTeacherPage = () => {
             setSaving(false);
             setUploadingPhoto(false);
             setUploadingNid(false);
+            setUploadingSsc(false);
+            setUploadingHsc(false);
+            setUploadingUniId(false);
         }
     };
 
@@ -671,6 +756,27 @@ const PremiumTeacherPage = () => {
                 updatedData.nidPhoto = nidRes.url;
             }
 
+            // Upload pending SSC Marksheet on Save
+            if (pendingSscFile) {
+                setUploadingSsc(true);
+                const sscRes = await uploadMediaWithFallback(pendingSscFile, 'teacher-ssc');
+                updatedData.sscMarksheet = sscRes.url;
+            }
+
+            // Upload pending HSC Marksheet on Save
+            if (pendingHscFile) {
+                setUploadingHsc(true);
+                const hscRes = await uploadMediaWithFallback(pendingHscFile, 'teacher-hsc');
+                updatedData.hscMarksheet = hscRes.url;
+            }
+
+            // Upload pending University ID on Save
+            if (pendingUniIdFile) {
+                setUploadingUniId(true);
+                const uniIdRes = await uploadMediaWithFallback(pendingUniIdFile, 'teacher-uni-id');
+                updatedData.universityIdCard = uniIdRes.url;
+            }
+
             await axios.put(
                 `https://tuition-seba-backend-1.onrender.com/api/regTeacher/edit/${editingId}`,
                 updatedData,
@@ -694,7 +800,30 @@ const PremiumTeacherPage = () => {
             setSaving(false);
             setUploadingPhoto(false);
             setUploadingNid(false);
+            setUploadingSsc(false);
+            setUploadingHsc(false);
+            setUploadingUniId(false);
         }
+    };
+
+    const formatPhoneForWhatsApp = (rawPhone) => {
+        if (!rawPhone) return '';
+        const digits = String(rawPhone).replace(/\D/g, '');
+        if (!digits) return '';
+
+        if (digits.startsWith('880')) {
+            return digits;
+        }
+        if (digits.startsWith('0')) {
+            return '88' + digits;
+        }
+        if (digits.startsWith('88')) {
+            return '880' + digits.slice(2);
+        }
+        if (digits.startsWith('1')) {
+            return '880' + digits;
+        }
+        return digits;
     };
 
     const formatDate = (dateString) => {
@@ -793,6 +922,111 @@ const PremiumTeacherPage = () => {
         toast.info('NID document removed from form. Click "Save" below to apply changes.');
     };
 
+    const handleSscUpload = async (e) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        try {
+            const { file: compressedFile, sizeKB } = await compressImageUnderMaxKB(file, 95, 1200);
+            setSscSizeKB(sizeKB);
+
+            if (pendingSscPreview) {
+                URL.revokeObjectURL(pendingSscPreview);
+            }
+            const previewUrl = URL.createObjectURL(compressedFile);
+            setPendingSscFile(compressedFile);
+            setPendingSscPreview(previewUrl);
+
+            toast.info(`SSC Marksheet selected (${sizeKB} KB). Click "Save" below to upload and save.`);
+        } catch (err) {
+            console.error('SSC Marksheet processing error:', err);
+            toast.error(err.message || 'Failed to process SSC Marksheet');
+        } finally {
+            if (e.target) e.target.value = '';
+        }
+    };
+
+    const handleRemoveSsc = () => {
+        if (pendingSscPreview) {
+            URL.revokeObjectURL(pendingSscPreview);
+        }
+        setPendingSscFile(null);
+        setPendingSscPreview(null);
+        setFormData(prev => ({ ...prev, sscMarksheet: '' }));
+        setSscSizeKB(null);
+        toast.info('SSC Marksheet removed from form. Click "Save" below to apply changes.');
+    };
+
+    const handleHscUpload = async (e) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        try {
+            const { file: compressedFile, sizeKB } = await compressImageUnderMaxKB(file, 95, 1200);
+            setHscSizeKB(sizeKB);
+
+            if (pendingHscPreview) {
+                URL.revokeObjectURL(pendingHscPreview);
+            }
+            const previewUrl = URL.createObjectURL(compressedFile);
+            setPendingHscFile(compressedFile);
+            setPendingHscPreview(previewUrl);
+
+            toast.info(`HSC Marksheet selected (${sizeKB} KB). Click "Save" below to upload and save.`);
+        } catch (err) {
+            console.error('HSC Marksheet processing error:', err);
+            toast.error(err.message || 'Failed to process HSC Marksheet');
+        } finally {
+            if (e.target) e.target.value = '';
+        }
+    };
+
+    const handleRemoveHsc = () => {
+        if (pendingHscPreview) {
+            URL.revokeObjectURL(pendingHscPreview);
+        }
+        setPendingHscFile(null);
+        setPendingHscPreview(null);
+        setFormData(prev => ({ ...prev, hscMarksheet: '' }));
+        setHscSizeKB(null);
+        toast.info('HSC Marksheet removed from form. Click "Save" below to apply changes.');
+    };
+
+    const handleUniIdUpload = async (e) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        try {
+            const { file: compressedFile, sizeKB } = await compressImageUnderMaxKB(file, 95, 1200);
+            setUniIdSizeKB(sizeKB);
+
+            if (pendingUniIdPreview) {
+                URL.revokeObjectURL(pendingUniIdPreview);
+            }
+            const previewUrl = URL.createObjectURL(compressedFile);
+            setPendingUniIdFile(compressedFile);
+            setPendingUniIdPreview(previewUrl);
+
+            toast.info(`University ID / Admission Slip selected (${sizeKB} KB). Click "Save" below to upload and save.`);
+        } catch (err) {
+            console.error('University ID processing error:', err);
+            toast.error(err.message || 'Failed to process University ID / Admission Slip');
+        } finally {
+            if (e.target) e.target.value = '';
+        }
+    };
+
+    const handleRemoveUniId = () => {
+        if (pendingUniIdPreview) {
+            URL.revokeObjectURL(pendingUniIdPreview);
+        }
+        setPendingUniIdFile(null);
+        setPendingUniIdPreview(null);
+        setFormData(prev => ({ ...prev, universityIdCard: '' }));
+        setUniIdSizeKB(null);
+        toast.info('University ID / Admission Slip removed from form. Click "Save" below to apply changes.');
+    };
+
     const handleDeleteTeacher = async (id) => {
         const confirmDelete = window.confirm("Are you sure you want to delete this record?");
 
@@ -826,6 +1060,9 @@ const PremiumTeacherPage = () => {
         }, {});
         data.photo = '';
         data.nidPhoto = '';
+        data.sscMarksheet = '';
+        data.hscMarksheet = '';
+        data.universityIdCard = '';
         return data;
     };
 
@@ -1339,9 +1576,10 @@ const PremiumTeacherPage = () => {
                                 </div>
 
                                 <Card.Body className="p-3 p-md-4">
-                                    <Row className="g-4 align-items-stretch">
+                                    {/* Top Row: Profile Photo & Teacher Summary */}
+                                    <Row className="g-4 align-items-stretch mb-4">
                                         {/* Gallery Item 1: Profile Photo (Covered, Rectangular, Not Circle) */}
-                                        <Col xs={12} sm={6} md={3}>
+                                        <Col xs={12} sm={5} md={3}>
                                             <div className="d-flex flex-column h-100 align-items-center">
                                                 <div
                                                     className="w-100 overflow-hidden shadow-sm border position-relative d-flex align-items-center justify-content-center"
@@ -1397,65 +1635,8 @@ const PremiumTeacherPage = () => {
                                             </div>
                                         </Col>
 
-                                        {/* Gallery Item 2: NID / Birth Document (Full Uncropped Document) */}
-                                        <Col xs={12} sm={6} md={4}>
-                                            <div className="d-flex flex-column h-100 align-items-center">
-                                                <div
-                                                    className="w-100 overflow-hidden shadow-sm border position-relative d-flex align-items-center justify-content-center"
-                                                    style={{
-                                                        borderRadius: '12px',
-                                                        height: '240px',
-                                                        backgroundColor: '#0f172a',
-                                                        cursor: selectedTeacher.nidPhoto ? 'pointer' : 'default'
-                                                    }}
-                                                    onClick={() => selectedTeacher.nidPhoto && window.open(selectedTeacher.nidPhoto, '_blank')}
-                                                    title={selectedTeacher.nidPhoto ? 'Click to open full document in new tab' : 'No NID document uploaded'}
-                                                >
-                                                    {selectedTeacher.nidPhoto ? (
-                                                        <img
-                                                            src={selectedTeacher.nidPhoto}
-                                                            alt="NID or Birth Document"
-                                                            style={{
-                                                                maxWidth: '100%',
-                                                                maxHeight: '100%',
-                                                                width: 'auto',
-                                                                height: 'auto',
-                                                                objectFit: 'contain',
-                                                                display: 'block',
-                                                                transition: 'transform 0.25s ease'
-                                                            }}
-                                                            onMouseOver={e => e.currentTarget.style.transform = 'scale(1.02)'}
-                                                            onMouseOut={e => e.currentTarget.style.transform = 'scale(1)'}
-                                                        />
-                                                    ) : (
-                                                        <div className="h-100 w-100 d-flex flex-column align-items-center justify-content-center text-muted p-2">
-                                                            <FaIdCard style={{ fontSize: '2.5rem' }} className="mb-2 text-secondary opacity-50" />
-                                                            <span className="small fw-semibold text-white-50">No NID Attached</span>
-                                                        </div>
-                                                    )}
-
-                                                    {selectedTeacher.nidPhoto && (
-                                                        <div
-                                                            className="position-absolute bottom-0 start-0 end-0 p-1 text-white text-center"
-                                                            style={{
-                                                                background: 'linear-gradient(to top, rgba(0,0,0,0.8), transparent)',
-                                                                fontSize: '0.72rem'
-                                                            }}
-                                                        >
-                                                            <FaExternalLinkAlt className="me-1" /> View Full Document
-                                                        </div>
-                                                    )}
-                                                </div>
-                                                <div className="mt-2 text-center">
-                                                    <span className={`badge ${selectedTeacher.nidPhoto ? 'bg-success text-white' : 'bg-light text-muted border'} fw-semibold px-2 py-1`} style={{ fontSize: '0.75rem' }}>
-                                                        {selectedTeacher.nidPhoto ? 'NID / Birth Document' : 'No NID Document'}
-                                                    </span>
-                                                </div>
-                                            </div>
-                                        </Col>
-
                                         {/* Teacher Quick Summary Card */}
-                                        <Col xs={12} md={5}>
+                                        <Col xs={12} sm={7} md={9}>
                                             <div className="p-3 rounded border bg-light h-100 d-flex flex-column justify-content-between">
                                                 <div>
                                                     <h3 className="fw-bold mb-2 text-dark">{selectedTeacher.name || 'Unnamed Teacher'}</h3>
@@ -1480,15 +1661,40 @@ const PremiumTeacherPage = () => {
                                                             <div className="d-flex align-items-center gap-2 mb-2">
                                                                 <strong>Phone:</strong>
                                                                 <span className="fw-semibold text-dark">{selectedTeacher.phone}</span>
-                                                                <Button
-                                                                    variant="outline-success"
-                                                                    size="sm"
-                                                                    className="py-0 px-2"
-                                                                    style={{ fontSize: '0.75rem' }}
-                                                                    onClick={() => window.open(`https://api.whatsapp.com/send?phone=88${selectedTeacher.phone.replace(/^0+/, '')}`, '_blank')}
-                                                                >
-                                                                    <FaWhatsapp className="me-1" /> WhatsApp
-                                                                </Button>
+                                                                {formatPhoneForWhatsApp(selectedTeacher.whatsapp || selectedTeacher.phone) && (
+                                                                    <Button
+                                                                        variant="outline-success"
+                                                                        size="sm"
+                                                                        className="py-0 px-2"
+                                                                        style={{ fontSize: '0.75rem' }}
+                                                                        onClick={() => {
+                                                                            const target = formatPhoneForWhatsApp(selectedTeacher.whatsapp || selectedTeacher.phone);
+                                                                            window.open(`https://api.whatsapp.com/send?phone=${target}`, '_blank');
+                                                                        }}
+                                                                    >
+                                                                        <FaWhatsapp className="me-1" /> WhatsApp
+                                                                    </Button>
+                                                                )}
+                                                            </div>
+                                                        )}
+                                                        {selectedTeacher.whatsapp && selectedTeacher.whatsapp !== selectedTeacher.phone && (
+                                                            <div className="d-flex align-items-center gap-2 mb-2">
+                                                                <strong>WhatsApp:</strong>
+                                                                <span className="fw-semibold text-dark">{selectedTeacher.whatsapp}</span>
+                                                                {formatPhoneForWhatsApp(selectedTeacher.whatsapp) && (
+                                                                    <Button
+                                                                        variant="success"
+                                                                        size="sm"
+                                                                        className="py-0 px-2"
+                                                                        style={{ fontSize: '0.75rem' }}
+                                                                        onClick={() => {
+                                                                            const target = formatPhoneForWhatsApp(selectedTeacher.whatsapp);
+                                                                            window.open(`https://api.whatsapp.com/send?phone=${target}`, '_blank');
+                                                                        }}
+                                                                    >
+                                                                        <FaWhatsapp className="me-1" /> Chat
+                                                                    </Button>
+                                                                )}
                                                             </div>
                                                         )}
                                                         {selectedTeacher.honorsUniversity && (
@@ -1533,6 +1739,83 @@ const PremiumTeacherPage = () => {
                                             </div>
                                         </Col>
                                     </Row>
+
+                                    {/* Bottom Row: Verification & Academic Credentials (4 Document Cards) */}
+                                    <div className="pt-3 border-top">
+                                        <h6 className="fw-bold text-secondary mb-3 d-flex align-items-center gap-2">
+                                            <FaIdCard className="text-primary" /> Verification & Academic Documents
+                                        </h6>
+                                        <Row className="g-3">
+                                            {[
+                                                { label: 'NID / Birth Certificate', key: 'nidPhoto', icon: <FaIdCard style={{ fontSize: '2.3rem' }} className="mb-2 text-secondary opacity-50" /> },
+                                                { label: 'SSC Marksheet', key: 'sscMarksheet', icon: <FaFileAlt style={{ fontSize: '2.3rem' }} className="mb-2 text-secondary opacity-50" /> },
+                                                { label: 'HSC Marksheet', key: 'hscMarksheet', icon: <FaFileAlt style={{ fontSize: '2.3rem' }} className="mb-2 text-secondary opacity-50" /> },
+                                                { label: 'University ID / Admission Slip', key: 'universityIdCard', icon: <FaGraduationCap style={{ fontSize: '2.3rem' }} className="mb-2 text-secondary opacity-50" /> },
+                                            ].map(doc => {
+                                                const docUrl = selectedTeacher[doc.key];
+                                                return (
+                                                    <Col xs={12} sm={6} md={3} key={doc.key}>
+                                                        <div className="d-flex flex-column h-100 align-items-center p-2 rounded border bg-light">
+                                                            <div
+                                                                className="w-100 overflow-hidden shadow-sm border position-relative d-flex align-items-center justify-content-center"
+                                                                style={{
+                                                                    borderRadius: '8px',
+                                                                    height: '190px',
+                                                                    backgroundColor: '#0f172a',
+                                                                    cursor: docUrl ? 'pointer' : 'default'
+                                                                }}
+                                                                onClick={() => docUrl && window.open(docUrl, '_blank')}
+                                                                title={docUrl ? `Click to open ${doc.label} in new tab` : `No ${doc.label} attached`}
+                                                            >
+                                                                {docUrl ? (
+                                                                    <img
+                                                                        src={docUrl}
+                                                                        alt={doc.label}
+                                                                        style={{
+                                                                            maxWidth: '100%',
+                                                                            maxHeight: '100%',
+                                                                            width: 'auto',
+                                                                            height: 'auto',
+                                                                            objectFit: 'contain',
+                                                                            display: 'block',
+                                                                            transition: 'transform 0.25s ease'
+                                                                        }}
+                                                                        onMouseOver={e => e.currentTarget.style.transform = 'scale(1.02)'}
+                                                                        onMouseOut={e => e.currentTarget.style.transform = 'scale(1)'}
+                                                                    />
+                                                                ) : (
+                                                                    <div className="h-100 w-100 d-flex flex-column align-items-center justify-content-center text-muted p-2">
+                                                                        {doc.icon}
+                                                                        <span className="small fw-semibold text-white-50">Not Attached</span>
+                                                                    </div>
+                                                                )}
+
+                                                                {docUrl && (
+                                                                    <div
+                                                                        className="position-absolute bottom-0 start-0 end-0 p-1 text-white text-center"
+                                                                        style={{
+                                                                            background: 'linear-gradient(to top, rgba(0,0,0,0.8), transparent)',
+                                                                            fontSize: '0.72rem'
+                                                                        }}
+                                                                    >
+                                                                        <FaExternalLinkAlt className="me-1" /> View Full Document
+                                                                    </div>
+                                                                )}
+                                                            </div>
+                                                            <div className="mt-2 text-center w-100">
+                                                                <div className="fw-semibold small text-dark text-truncate mb-1" title={doc.label}>
+                                                                    {doc.label}
+                                                                </div>
+                                                                <span className={`badge ${docUrl ? 'bg-success text-white' : 'bg-light text-muted border'} fw-semibold px-2 py-1`} style={{ fontSize: '0.72rem' }}>
+                                                                    {docUrl ? 'Uploaded' : 'Not Uploaded'}
+                                                                </span>
+                                                            </div>
+                                                        </div>
+                                                    </Col>
+                                                );
+                                            })}
+                                        </Row>
+                                    </div>
                                 </Card.Body>
                             </Card>
                         )}
@@ -1912,6 +2195,396 @@ const PremiumTeacherPage = () => {
                                         ) : formData.nidPhoto ? (
                                             <small className="text-success d-flex align-items-center gap-1">
                                                 <FaCheckCircle /> Saved NID document
+                                            </small>
+                                        ) : (
+                                            <small className="text-muted">No document uploaded</small>
+                                        )}
+                                    </div>
+                                </div>
+                            </Col>
+                        </Row>
+
+                        {/* Academic & Verification Documents Upload Row */}
+                        <Row className="g-3 mb-4">
+                            {/* SSC Marksheet */}
+                            <Col md={4}>
+                                <div className="p-3 rounded border bg-light shadow-sm h-100 d-flex flex-column">
+                                    <div className="d-flex align-items-center gap-3 mb-2">
+                                        <div style={{ position: 'relative' }}>
+                                            {(pendingSscPreview || formData.sscMarksheet) ? (
+                                                <img
+                                                    src={pendingSscPreview || formData.sscMarksheet}
+                                                    alt="SSC Marksheet"
+                                                    style={{
+                                                        width: '85px',
+                                                        height: '65px',
+                                                        borderRadius: '6px',
+                                                        objectFit: 'contain',
+                                                        backgroundColor: '#f1f3f5',
+                                                        border: pendingSscFile ? '2px solid #ffc107' : '2px solid #0d6efd',
+                                                        boxShadow: '0 2px 6px rgba(0,0,0,0.15)',
+                                                        cursor: 'pointer'
+                                                    }}
+                                                    onClick={() => window.open(pendingSscPreview || formData.sscMarksheet, '_blank')}
+                                                />
+                                            ) : (
+                                                <div
+                                                    style={{
+                                                        width: '85px',
+                                                        height: '65px',
+                                                        borderRadius: '6px',
+                                                        backgroundColor: '#dee2e6',
+                                                        color: '#6c757d',
+                                                        display: 'flex',
+                                                        flexDirection: 'column',
+                                                        alignItems: 'center',
+                                                        justifyContent: 'center',
+                                                        fontSize: '1.4rem',
+                                                        border: '2px dashed #adb5bd'
+                                                    }}
+                                                >
+                                                    <FaFileAlt />
+                                                    <span style={{ fontSize: '0.6rem' }}>No SSC</span>
+                                                </div>
+                                            )}
+                                            {uploadingSsc && (
+                                                <div
+                                                    style={{
+                                                        position: 'absolute',
+                                                        top: 0,
+                                                        left: 0,
+                                                        width: '100%',
+                                                        height: '100%',
+                                                        borderRadius: '6px',
+                                                        backgroundColor: 'rgba(255,255,255,0.85)',
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        justifyContent: 'center'
+                                                    }}
+                                                >
+                                                    <Spinner animation="border" size="sm" variant="primary" />
+                                                </div>
+                                            )}
+                                        </div>
+
+                                        <div className="flex-grow-1 overflow-hidden">
+                                            <h6 className="fw-bold mb-0 text-truncate" title="SSC Marksheet">SSC Marksheet</h6>
+                                            <small className="text-muted d-block mb-1">
+                                                Max 100 KB
+                                                {sscSizeKB && (
+                                                    <span className={`ms-2 badge ${pendingSscFile ? 'bg-warning text-dark' : 'bg-success'}`}>
+                                                        {pendingSscFile ? `Pending: ${sscSizeKB} KB` : `${sscSizeKB} KB`}
+                                                    </span>
+                                                )}
+                                            </small>
+
+                                            <div className="d-flex flex-wrap gap-1 align-items-center">
+                                                <label className={`btn btn-sm btn-outline-primary d-inline-flex align-items-center gap-1 mb-0 ${uploadingSsc ? 'disabled' : ''}`} style={{ cursor: uploadingSsc ? 'not-allowed' : 'pointer', fontSize: '0.75rem' }}>
+                                                    <FaFileAlt />
+                                                    {uploadingSsc ? 'Uploading...' : ((pendingSscPreview || formData.sscMarksheet) ? 'Change' : 'Select')}
+                                                    <input
+                                                        type="file"
+                                                        accept="image/*"
+                                                        onChange={handleSscUpload}
+                                                        style={{ display: 'none' }}
+                                                        disabled={uploadingSsc || saving}
+                                                    />
+                                                </label>
+
+                                                {(pendingSscPreview || formData.sscMarksheet) && (
+                                                    <Button
+                                                        variant="outline-danger"
+                                                        size="sm"
+                                                        onClick={handleRemoveSsc}
+                                                        disabled={uploadingSsc || saving}
+                                                        style={{ fontSize: '0.75rem' }}
+                                                        className="d-inline-flex align-items-center gap-1 px-2"
+                                                    >
+                                                        <FaTrash />
+                                                    </Button>
+                                                )}
+
+                                                {formData.sscMarksheet && !pendingSscPreview && (
+                                                    <a
+                                                        href={formData.sscMarksheet}
+                                                        target="_blank"
+                                                        rel="noreferrer"
+                                                        style={{ fontSize: '0.75rem' }}
+                                                        className="btn btn-sm btn-outline-secondary d-inline-flex align-items-center gap-1 px-2"
+                                                    >
+                                                        <FaExternalLinkAlt /> View
+                                                    </a>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="mt-auto">
+                                        {pendingSscFile ? (
+                                            <small className="text-warning fw-semibold d-flex align-items-center gap-1">
+                                                <FaInfoCircle /> Selected &mdash; uploads on Save
+                                            </small>
+                                        ) : formData.sscMarksheet ? (
+                                            <small className="text-success d-flex align-items-center gap-1">
+                                                <FaCheckCircle /> Saved SSC Marksheet
+                                            </small>
+                                        ) : (
+                                            <small className="text-muted">No document uploaded</small>
+                                        )}
+                                    </div>
+                                </div>
+                            </Col>
+
+                            {/* HSC Marksheet */}
+                            <Col md={4}>
+                                <div className="p-3 rounded border bg-light shadow-sm h-100 d-flex flex-column">
+                                    <div className="d-flex align-items-center gap-3 mb-2">
+                                        <div style={{ position: 'relative' }}>
+                                            {(pendingHscPreview || formData.hscMarksheet) ? (
+                                                <img
+                                                    src={pendingHscPreview || formData.hscMarksheet}
+                                                    alt="HSC Marksheet"
+                                                    style={{
+                                                        width: '85px',
+                                                        height: '65px',
+                                                        borderRadius: '6px',
+                                                        objectFit: 'contain',
+                                                        backgroundColor: '#f1f3f5',
+                                                        border: pendingHscFile ? '2px solid #ffc107' : '2px solid #0d6efd',
+                                                        boxShadow: '0 2px 6px rgba(0,0,0,0.15)',
+                                                        cursor: 'pointer'
+                                                    }}
+                                                    onClick={() => window.open(pendingHscPreview || formData.hscMarksheet, '_blank')}
+                                                />
+                                            ) : (
+                                                <div
+                                                    style={{
+                                                        width: '85px',
+                                                        height: '65px',
+                                                        borderRadius: '6px',
+                                                        backgroundColor: '#dee2e6',
+                                                        color: '#6c757d',
+                                                        display: 'flex',
+                                                        flexDirection: 'column',
+                                                        alignItems: 'center',
+                                                        justifyContent: 'center',
+                                                        fontSize: '1.4rem',
+                                                        border: '2px dashed #adb5bd'
+                                                    }}
+                                                >
+                                                    <FaFileAlt />
+                                                    <span style={{ fontSize: '0.6rem' }}>No HSC</span>
+                                                </div>
+                                            )}
+                                            {uploadingHsc && (
+                                                <div
+                                                    style={{
+                                                        position: 'absolute',
+                                                        top: 0,
+                                                        left: 0,
+                                                        width: '100%',
+                                                        height: '100%',
+                                                        borderRadius: '6px',
+                                                        backgroundColor: 'rgba(255,255,255,0.85)',
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        justifyContent: 'center'
+                                                    }}
+                                                >
+                                                    <Spinner animation="border" size="sm" variant="primary" />
+                                                </div>
+                                            )}
+                                        </div>
+
+                                        <div className="flex-grow-1 overflow-hidden">
+                                            <h6 className="fw-bold mb-0 text-truncate" title="HSC Marksheet">HSC Marksheet</h6>
+                                            <small className="text-muted d-block mb-1">
+                                                Max 100 KB
+                                                {hscSizeKB && (
+                                                    <span className={`ms-2 badge ${pendingHscFile ? 'bg-warning text-dark' : 'bg-success'}`}>
+                                                        {pendingHscFile ? `Pending: ${hscSizeKB} KB` : `${hscSizeKB} KB`}
+                                                    </span>
+                                                )}
+                                            </small>
+
+                                            <div className="d-flex flex-wrap gap-1 align-items-center">
+                                                <label className={`btn btn-sm btn-outline-primary d-inline-flex align-items-center gap-1 mb-0 ${uploadingHsc ? 'disabled' : ''}`} style={{ cursor: uploadingHsc ? 'not-allowed' : 'pointer', fontSize: '0.75rem' }}>
+                                                    <FaFileAlt />
+                                                    {uploadingHsc ? 'Uploading...' : ((pendingHscPreview || formData.hscMarksheet) ? 'Change' : 'Select')}
+                                                    <input
+                                                        type="file"
+                                                        accept="image/*"
+                                                        onChange={handleHscUpload}
+                                                        style={{ display: 'none' }}
+                                                        disabled={uploadingHsc || saving}
+                                                    />
+                                                </label>
+
+                                                {(pendingHscPreview || formData.hscMarksheet) && (
+                                                    <Button
+                                                        variant="outline-danger"
+                                                        size="sm"
+                                                        onClick={handleRemoveHsc}
+                                                        disabled={uploadingHsc || saving}
+                                                        style={{ fontSize: '0.75rem' }}
+                                                        className="d-inline-flex align-items-center gap-1 px-2"
+                                                    >
+                                                        <FaTrash />
+                                                    </Button>
+                                                )}
+
+                                                {formData.hscMarksheet && !pendingHscPreview && (
+                                                    <a
+                                                        href={formData.hscMarksheet}
+                                                        target="_blank"
+                                                        rel="noreferrer"
+                                                        style={{ fontSize: '0.75rem' }}
+                                                        className="btn btn-sm btn-outline-secondary d-inline-flex align-items-center gap-1 px-2"
+                                                    >
+                                                        <FaExternalLinkAlt /> View
+                                                    </a>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="mt-auto">
+                                        {pendingHscFile ? (
+                                            <small className="text-warning fw-semibold d-flex align-items-center gap-1">
+                                                <FaInfoCircle /> Selected &mdash; uploads on Save
+                                            </small>
+                                        ) : formData.hscMarksheet ? (
+                                            <small className="text-success d-flex align-items-center gap-1">
+                                                <FaCheckCircle /> Saved HSC Marksheet
+                                            </small>
+                                        ) : (
+                                            <small className="text-muted">No document uploaded</small>
+                                        )}
+                                    </div>
+                                </div>
+                            </Col>
+
+                            {/* University ID / Admission Slip */}
+                            <Col md={4}>
+                                <div className="p-3 rounded border bg-light shadow-sm h-100 d-flex flex-column">
+                                    <div className="d-flex align-items-center gap-3 mb-2">
+                                        <div style={{ position: 'relative' }}>
+                                            {(pendingUniIdPreview || formData.universityIdCard) ? (
+                                                <img
+                                                    src={pendingUniIdPreview || formData.universityIdCard}
+                                                    alt="University ID / Admission Slip"
+                                                    style={{
+                                                        width: '85px',
+                                                        height: '65px',
+                                                        borderRadius: '6px',
+                                                        objectFit: 'contain',
+                                                        backgroundColor: '#f1f3f5',
+                                                        border: pendingUniIdFile ? '2px solid #ffc107' : '2px solid #0d6efd',
+                                                        boxShadow: '0 2px 6px rgba(0,0,0,0.15)',
+                                                        cursor: 'pointer'
+                                                    }}
+                                                    onClick={() => window.open(pendingUniIdPreview || formData.universityIdCard, '_blank')}
+                                                />
+                                            ) : (
+                                                <div
+                                                    style={{
+                                                        width: '85px',
+                                                        height: '65px',
+                                                        borderRadius: '6px',
+                                                        backgroundColor: '#dee2e6',
+                                                        color: '#6c757d',
+                                                        display: 'flex',
+                                                        flexDirection: 'column',
+                                                        alignItems: 'center',
+                                                        justifyContent: 'center',
+                                                        fontSize: '1.4rem',
+                                                        border: '2px dashed #adb5bd'
+                                                    }}
+                                                >
+                                                    <FaGraduationCap />
+                                                    <span style={{ fontSize: '0.55rem' }}>No Uni ID</span>
+                                                </div>
+                                            )}
+                                            {uploadingUniId && (
+                                                <div
+                                                    style={{
+                                                        position: 'absolute',
+                                                        top: 0,
+                                                        left: 0,
+                                                        width: '100%',
+                                                        height: '100%',
+                                                        borderRadius: '6px',
+                                                        backgroundColor: 'rgba(255,255,255,0.85)',
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        justifyContent: 'center'
+                                                    }}
+                                                >
+                                                    <Spinner animation="border" size="sm" variant="primary" />
+                                                </div>
+                                            )}
+                                        </div>
+
+                                        <div className="flex-grow-1 overflow-hidden">
+                                            <h6 className="fw-bold mb-0 text-truncate" title="University ID / Admission Slip">Uni ID / Slip</h6>
+                                            <small className="text-muted d-block mb-1">
+                                                Max 100 KB
+                                                {uniIdSizeKB && (
+                                                    <span className={`ms-2 badge ${pendingUniIdFile ? 'bg-warning text-dark' : 'bg-success'}`}>
+                                                        {pendingUniIdFile ? `Pending: ${uniIdSizeKB} KB` : `${uniIdSizeKB} KB`}
+                                                    </span>
+                                                )}
+                                            </small>
+
+                                            <div className="d-flex flex-wrap gap-1 align-items-center">
+                                                <label className={`btn btn-sm btn-outline-primary d-inline-flex align-items-center gap-1 mb-0 ${uploadingUniId ? 'disabled' : ''}`} style={{ cursor: uploadingUniId ? 'not-allowed' : 'pointer', fontSize: '0.75rem' }}>
+                                                    <FaGraduationCap />
+                                                    {uploadingUniId ? 'Uploading...' : ((pendingUniIdPreview || formData.universityIdCard) ? 'Change' : 'Select')}
+                                                    <input
+                                                        type="file"
+                                                        accept="image/*"
+                                                        onChange={handleUniIdUpload}
+                                                        style={{ display: 'none' }}
+                                                        disabled={uploadingUniId || saving}
+                                                    />
+                                                </label>
+
+                                                {(pendingUniIdPreview || formData.universityIdCard) && (
+                                                    <Button
+                                                        variant="outline-danger"
+                                                        size="sm"
+                                                        onClick={handleRemoveUniId}
+                                                        disabled={uploadingUniId || saving}
+                                                        style={{ fontSize: '0.75rem' }}
+                                                        className="d-inline-flex align-items-center gap-1 px-2"
+                                                    >
+                                                        <FaTrash />
+                                                    </Button>
+                                                )}
+
+                                                {formData.universityIdCard && !pendingUniIdPreview && (
+                                                    <a
+                                                        href={formData.universityIdCard}
+                                                        target="_blank"
+                                                        rel="noreferrer"
+                                                        style={{ fontSize: '0.75rem' }}
+                                                        className="btn btn-sm btn-outline-secondary d-inline-flex align-items-center gap-1 px-2"
+                                                    >
+                                                        <FaExternalLinkAlt /> View
+                                                    </a>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="mt-auto">
+                                        {pendingUniIdFile ? (
+                                            <small className="text-warning fw-semibold d-flex align-items-center gap-1">
+                                                <FaInfoCircle /> Selected &mdash; uploads on Save
+                                            </small>
+                                        ) : formData.universityIdCard ? (
+                                            <small className="text-success d-flex align-items-center gap-1">
+                                                <FaCheckCircle /> Saved Uni ID / Slip
                                             </small>
                                         ) : (
                                             <small className="text-muted">No document uploaded</small>

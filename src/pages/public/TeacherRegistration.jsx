@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import {
     Container,
     Row,
@@ -38,6 +38,7 @@ import {
     FaCheckCircle,
     FaExpandAlt,
     FaLock,
+    FaImages,
 } from 'react-icons/fa';
 
 import { Formik } from 'formik';
@@ -182,6 +183,10 @@ const TeacherRegistrationForm = () => {
     const [uploadedDocs, setUploadedDocs] = useState({});
     const [compressingDoc, setCompressingDoc] = useState(null);
     const [previewModalImg, setPreviewModalImg] = useState(null);
+    const [sourceModalDoc, setSourceModalDoc] = useState(null);
+    const activeDocKeyRef = useRef(null);
+    const cameraInputRef = useRef(null);
+    const galleryInputRef = useRef(null);
 
     const handleDocChange = async (key, file) => {
         if (!file) return;
@@ -814,6 +819,35 @@ const TeacherRegistrationForm = () => {
                                                     </div>
                                                 </div>
 
+                                                {/* Hidden Inputs for Direct Camera and Direct Gallery */}
+                                                <input
+                                                    ref={cameraInputRef}
+                                                    type="file"
+                                                    accept="image/*"
+                                                    capture="environment"
+                                                    style={{ display: 'none' }}
+                                                    onChange={(e) => {
+                                                        const key = activeDocKeyRef.current;
+                                                        if (key && e.target.files?.[0]) {
+                                                            handleDocChange(key, e.target.files[0]);
+                                                            e.target.value = '';
+                                                        }
+                                                    }}
+                                                />
+                                                <input
+                                                    ref={galleryInputRef}
+                                                    type="file"
+                                                    accept="image/*"
+                                                    style={{ display: 'none' }}
+                                                    onChange={(e) => {
+                                                        const key = activeDocKeyRef.current;
+                                                        if (key && e.target.files?.[0]) {
+                                                            handleDocChange(key, e.target.files[0]);
+                                                            e.target.value = '';
+                                                        }
+                                                    }}
+                                                />
+
                                                 {/* Compact Responsive Document Cards */}
                                                 <Row className="g-2 g-md-3">
                                                     {documentConfigs.map((doc) => {
@@ -885,9 +919,12 @@ const TeacherRegistrationForm = () => {
                                                                                 </button>
                                                                             </>
                                                                         ) : (
-                                                                            <label
+                                                                            <div
                                                                                 className="w-100 h-100 d-flex flex-column align-items-center justify-content-center text-muted mb-0"
                                                                                 style={{ cursor: 'pointer' }}
+                                                                                onClick={() => setSourceModalDoc(doc)}
+                                                                                role="button"
+                                                                                title="ছবি যুক্ত করতে ট্যাপ করুন"
                                                                             >
                                                                                 <span className="text-secondary" style={{ fontSize: '1.3rem' }}>
                                                                                     {doc.icon}
@@ -895,18 +932,7 @@ const TeacherRegistrationForm = () => {
                                                                                 <span style={{ fontSize: '0.68rem', color: '#0d6efd' }} className="mt-1 fw-semibold">
                                                                                     + ছবি নির্বাচন
                                                                                 </span>
-                                                                                <input
-                                                                                    type="file"
-                                                                                    accept="image/*"
-                                                                                    style={{ display: 'none' }}
-                                                                                    onChange={(e) => {
-                                                                                        if (e.target.files?.[0]) {
-                                                                                            handleDocChange(doc.key, e.target.files[0]);
-                                                                                            e.target.value = '';
-                                                                                        }
-                                                                                    }}
-                                                                                />
-                                                                            </label>
+                                                                            </div>
                                                                         )}
                                                                     </div>
 
@@ -1023,6 +1049,57 @@ const TeacherRegistrationForm = () => {
                         <div className="text-white-50 small mt-2">ছবিতে বা যেকোনো জায়গায় ট্যাপ করে ফিরে যান</div>
                     </div>
                 )}
+                {/* Source Choice Modal (Camera vs Gallery) */}
+                <Modal
+                    show={!!sourceModalDoc}
+                    onHide={() => setSourceModalDoc(null)}
+                    centered
+                    size="sm"
+                    contentClassName="border-0 shadow"
+                >
+                    <Modal.Header closeButton className="border-0 pb-1">
+                        <Modal.Title style={{ fontSize: '1rem' }} className="fw-bold text-dark d-flex align-items-center gap-2">
+                            {sourceModalDoc?.icon} {sourceModalDoc?.label}
+                        </Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body className="pt-1 pb-3 px-3">
+                        <p className="text-muted mb-3" style={{ fontSize: '0.84rem' }}>
+                            ছবি আপলোড করতে নিচের যেকোনো একটি নির্বাচন করুন:
+                        </p>
+                        <div className="d-flex flex-column gap-2">
+                            <Button
+                                variant="outline-primary"
+                                className="w-100 py-2 d-flex align-items-center justify-content-center gap-2 fw-semibold"
+                                style={{ borderRadius: '8px', fontSize: '0.9rem' }}
+                                onClick={() => {
+                                    const key = sourceModalDoc?.key;
+                                    activeDocKeyRef.current = key;
+                                    setSourceModalDoc(null);
+                                    if (cameraInputRef.current) {
+                                        cameraInputRef.current.click();
+                                    }
+                                }}
+                            >
+                                <FaCamera size={16} /> সরাসরি ক্যামেরা দিয়ে ছবি তুলুন
+                            </Button>
+                            <Button
+                                variant="outline-secondary"
+                                className="w-100 py-2 d-flex align-items-center justify-content-center gap-2 fw-semibold"
+                                style={{ borderRadius: '8px', fontSize: '0.9rem' }}
+                                onClick={() => {
+                                    const key = sourceModalDoc?.key;
+                                    activeDocKeyRef.current = key;
+                                    setSourceModalDoc(null);
+                                    if (galleryInputRef.current) {
+                                        galleryInputRef.current.click();
+                                    }
+                                }}
+                            >
+                                <FaImages size={16} /> গ্যালারি / ফাইল থেকে বাছাই করুন
+                            </Button>
+                        </div>
+                    </Modal.Body>
+                </Modal>
             </div >
             <Footer />
         </>

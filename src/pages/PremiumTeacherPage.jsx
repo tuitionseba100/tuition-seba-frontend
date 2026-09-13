@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Button, Table, Modal, Form, Row, Col, Card, Nav, Tab, Badge } from 'react-bootstrap';
-import { FaEdit, FaInfoCircle, FaTrashAlt, FaWhatsapp, FaChevronLeft, FaChevronRight, FaSearch, FaTimes, FaGlobe, FaGooglePlay, FaUserPlus, FaCamera, FaTrash, FaUserCircle, FaExternalLinkAlt, FaCheckCircle, FaIdCard, FaImages, FaFileAlt, FaGraduationCap } from 'react-icons/fa'; // React Icons
+import { FaEdit, FaInfoCircle, FaTrashAlt, FaWhatsapp, FaChevronLeft, FaChevronRight, FaSearch, FaTimes, FaGlobe, FaGooglePlay, FaUserPlus, FaCamera, FaTrash, FaUserCircle, FaExternalLinkAlt, FaCheckCircle, FaIdCard, FaImages, FaFileAlt, FaGraduationCap, FaExpandAlt } from 'react-icons/fa'; // React Icons
 import { axiosWithFallback as axios } from '../services/fetchWithFallback';
 import NavBarPage from './NavbarPage';
 import styled from 'styled-components';
@@ -67,6 +67,23 @@ const PremiumTeacherPage = () => {
     const [uniIdSizeKB, setUniIdSizeKB] = useState(null);
     const [pendingUniIdFile, setPendingUniIdFile] = useState(null);
     const [pendingUniIdPreview, setPendingUniIdPreview] = useState(null);
+
+    // Fullscreen Image Lightbox State
+    const [enlargedImage, setEnlargedImage] = useState(null);
+
+    useEffect(() => {
+        const handleKeyDown = (e) => {
+            if (e.key === 'Escape' && enlargedImage) {
+                setEnlargedImage(null);
+            }
+        };
+        if (enlargedImage) {
+            window.addEventListener('keydown', handleKeyDown);
+        }
+        return () => {
+            window.removeEventListener('keydown', handleKeyDown);
+        };
+    }, [enlargedImage]);
 
     const resetMediaPendingStates = () => {
         setPendingPhotoFile(null);
@@ -1554,18 +1571,18 @@ const PremiumTeacherPage = () => {
 
                     <Modal.Body className="px-4 py-3">
                         {selectedTeacher && (
-                            <Card className="mb-4 shadow-sm border bg-white" style={{ borderRadius: '14px', overflow: 'hidden' }}>
-                                {/* Gallery Header Bar */}
-                                <div className="px-4 py-2 bg-light border-bottom d-flex flex-wrap align-items-center justify-content-between gap-2">
-                                    <div className="d-flex align-items-center gap-2">
-                                        <FaImages className="text-primary fs-5" />
-                                        <span className="fw-bold text-dark" style={{ fontSize: '0.95rem' }}>Photo Gallery & Document Preview</span>
-                                    </div>
-                                    <div className="d-flex align-items-center gap-2">
-                                        <span className="badge bg-primary fs-6 px-3 py-1">Code: {selectedTeacher.premiumCode || 'N/A'}</span>
+                            <Card className="mb-3 border-0 shadow-sm" style={{ borderRadius: '12px', overflow: 'hidden', border: '1px solid #e2e8f0' }}>
+                                {/* Top Header: Compact summary & actions */}
+                                <div className="px-3 py-2 bg-light border-bottom d-flex flex-wrap align-items-center justify-content-between gap-2">
+                                    <div className="d-flex align-items-center gap-2 flex-wrap">
+                                        <h5 className="fw-bold mb-0 text-dark">{selectedTeacher.name || 'Unnamed Teacher'}</h5>
+                                        <span className="badge bg-primary px-2 py-1" style={{ fontSize: '0.78rem' }}>
+                                            Code: {selectedTeacher.premiumCode || 'N/A'}
+                                        </span>
                                         <span
                                             className="badge text-uppercase px-2 py-1"
                                             style={{
+                                                fontSize: '0.75rem',
                                                 backgroundColor: statusStyles[selectedTeacher.status]?.bg || '#6c757d',
                                                 color: statusStyles[selectedTeacher.status]?.color || '#fff'
                                             }}
@@ -1573,241 +1590,281 @@ const PremiumTeacherPage = () => {
                                             {selectedTeacher.status || 'Pending'}
                                         </span>
                                     </div>
+                                    <div className="d-flex align-items-center gap-2">
+                                        <Button
+                                            variant="primary"
+                                            size="sm"
+                                            className="d-flex align-items-center gap-1 py-1 px-2"
+                                            style={{ fontSize: '0.8rem' }}
+                                            onClick={() => {
+                                                setShowDetailsModal(false);
+                                                handleEditTeacher(selectedTeacher);
+                                            }}
+                                        >
+                                            <FaEdit size={12} /> Edit Teacher
+                                        </Button>
+                                        <Button
+                                            variant="outline-success"
+                                            size="sm"
+                                            className="d-flex align-items-center gap-1 py-1 px-2"
+                                            style={{ fontSize: '0.8rem' }}
+                                            onClick={() => handleShare(selectedTeacher)}
+                                        >
+                                            <FaWhatsapp size={13} /> Share CV
+                                        </Button>
+                                    </div>
                                 </div>
 
-                                <Card.Body className="p-3 p-md-4">
-                                    {/* Top Row: Profile Photo & Teacher Summary */}
-                                    <Row className="g-4 align-items-stretch mb-4">
-                                        {/* Gallery Item 1: Profile Photo (Covered, Rectangular, Not Circle) */}
-                                        <Col xs={12} sm={5} md={3}>
-                                            <div className="d-flex flex-column h-100 align-items-center">
-                                                <div
-                                                    className="w-100 overflow-hidden shadow-sm border position-relative d-flex align-items-center justify-content-center"
-                                                    style={{
-                                                        borderRadius: '12px',
-                                                        height: '240px',
-                                                        backgroundColor: '#0f172a',
-                                                        cursor: selectedTeacher.photo ? 'pointer' : 'default'
-                                                    }}
-                                                    onClick={() => selectedTeacher.photo && window.open(selectedTeacher.photo, '_blank')}
-                                                    title={selectedTeacher.photo ? 'Click to open full photo in new tab' : 'No photo uploaded'}
-                                                >
-                                                    {selectedTeacher.photo ? (
+                                <Card.Body className="p-3">
+                                    {/* Profile Photo + Teacher Details Row */}
+                                    <div className="d-flex flex-column flex-sm-row align-items-center align-items-sm-start gap-3 mb-3">
+                                        {/* Profile Photo Thumbnail */}
+                                        <div className="flex-shrink-0 text-center">
+                                            <div
+                                                className="position-relative shadow-sm rounded overflow-hidden"
+                                                style={{
+                                                    width: '105px',
+                                                    height: '110px',
+                                                    backgroundColor: '#f8fafc',
+                                                    border: selectedTeacher.photo ? '2px solid #0d6efd' : '2px dashed #cbd5e1',
+                                                    cursor: selectedTeacher.photo ? 'pointer' : 'default',
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    justifyContent: 'center',
+                                                    transition: 'all 0.2s ease'
+                                                }}
+                                                onClick={() => {
+                                                    if (selectedTeacher.photo) {
+                                                        setEnlargedImage({
+                                                            url: selectedTeacher.photo,
+                                                            title: `${selectedTeacher.name || 'Teacher'} - Profile Photo`
+                                                        });
+                                                    }
+                                                }}
+                                                title={selectedTeacher.photo ? 'Click to enlarge full-screen' : 'No photo uploaded'}
+                                            >
+                                                {selectedTeacher.photo ? (
+                                                    <>
                                                         <img
                                                             src={selectedTeacher.photo}
-                                                            alt={selectedTeacher.name || 'Teacher Profile Photo'}
+                                                            alt={selectedTeacher.name || 'Profile'}
                                                             style={{
-                                                                maxWidth: '100%',
-                                                                maxHeight: '100%',
-                                                                width: 'auto',
-                                                                height: 'auto',
-                                                                objectFit: 'contain',
-                                                                display: 'block',
-                                                                transition: 'transform 0.25s ease'
+                                                                width: '100%',
+                                                                height: '100%',
+                                                                objectFit: 'cover'
                                                             }}
-                                                            onMouseOver={e => e.currentTarget.style.transform = 'scale(1.02)'}
-                                                            onMouseOut={e => e.currentTarget.style.transform = 'scale(1)'}
                                                         />
-                                                    ) : (
-                                                        <div className="h-100 w-100 d-flex flex-column align-items-center justify-content-center text-muted p-2">
-                                                            <FaCamera style={{ fontSize: '2.5rem' }} className="mb-2 text-secondary opacity-50" />
-                                                            <span className="small fw-semibold text-white-50">No Photo</span>
-                                                        </div>
-                                                    )}
-
-                                                    {selectedTeacher.photo && (
                                                         <div
-                                                            className="position-absolute bottom-0 start-0 end-0 p-1 text-white text-center"
+                                                            className="position-absolute bottom-0 start-0 end-0 text-white text-center py-1"
                                                             style={{
-                                                                background: 'linear-gradient(to top, rgba(0,0,0,0.8), transparent)',
-                                                                fontSize: '0.72rem'
+                                                                background: 'rgba(0,0,0,0.65)',
+                                                                fontSize: '0.68rem',
+                                                                lineHeight: 1
                                                             }}
                                                         >
-                                                            <FaExternalLinkAlt className="me-1" /> View Full Image
+                                                            <FaExpandAlt className="me-1" size={9} /> Enlarge
                                                         </div>
-                                                    )}
-                                                </div>
-                                                <div className="mt-2 text-center">
-                                                    <span className="badge bg-primary text-white fw-semibold px-2 py-1" style={{ fontSize: '0.75rem' }}>
-                                                        Profile Photo
+                                                    </>
+                                                ) : (
+                                                    <div className="d-flex flex-column align-items-center justify-content-center text-muted p-1">
+                                                        <FaUserCircle style={{ fontSize: '2.5rem', color: '#94a3b8' }} />
+                                                        <span style={{ fontSize: '0.68rem', color: '#64748b' }} className="fw-semibold mt-1">No Photo</span>
+                                                    </div>
+                                                )}
+                                            </div>
+                                            <div className="mt-1" style={{ fontSize: '0.72rem', color: '#64748b', fontWeight: '500' }}>
+                                                Profile Photo
+                                            </div>
+                                        </div>
+
+                                        {/* Teacher Core Attributes */}
+                                        <div className="flex-grow-1 w-100">
+                                            {/* Badges */}
+                                            <div className="d-flex flex-wrap gap-1 mb-2">
+                                                {selectedTeacher.gender && (
+                                                    <span className="badge bg-light text-dark border text-capitalize px-2 py-1" style={{ fontSize: '0.75rem' }}>
+                                                        {selectedTeacher.gender}
                                                     </span>
-                                                </div>
+                                                )}
+                                                {selectedTeacher.uniCode && (
+                                                    <span className="badge bg-info-subtle text-info-emphasis border border-info-subtle px-2 py-1" style={{ fontSize: '0.75rem' }}>
+                                                        Uni: {selectedTeacher.uniCode}
+                                                    </span>
+                                                )}
+                                                {selectedTeacher.city && (
+                                                    <span className="badge bg-secondary-subtle text-secondary-emphasis border border-secondary-subtle px-2 py-1" style={{ fontSize: '0.75rem' }}>
+                                                        {selectedTeacher.city}
+                                                    </span>
+                                                )}
+                                                {selectedTeacher.currentArea && (
+                                                    <span className="badge bg-light text-secondary border px-2 py-1" style={{ fontSize: '0.75rem' }}>
+                                                        {selectedTeacher.currentArea}
+                                                    </span>
+                                                )}
                                             </div>
-                                        </Col>
 
-                                        {/* Teacher Quick Summary Card */}
-                                        <Col xs={12} sm={7} md={9}>
-                                            <div className="p-3 rounded border bg-light h-100 d-flex flex-column justify-content-between">
-                                                <div>
-                                                    <h3 className="fw-bold mb-2 text-dark">{selectedTeacher.name || 'Unnamed Teacher'}</h3>
-                                                    
-                                                    <div className="d-flex flex-wrap gap-2 mb-3">
-                                                        {selectedTeacher.uniCode && (
-                                                            <span className="badge bg-info text-dark px-2 py-1">Uni: {selectedTeacher.uniCode}</span>
-                                                        )}
-                                                        {selectedTeacher.gender && (
-                                                            <span className="badge bg-white text-dark border text-capitalize px-2 py-1">{selectedTeacher.gender}</span>
-                                                        )}
-                                                        {selectedTeacher.city && (
-                                                            <span className="badge bg-secondary px-2 py-1">{selectedTeacher.city}</span>
-                                                        )}
-                                                        {selectedTeacher.currentArea && (
-                                                            <span className="badge bg-white text-secondary border px-2 py-1">{selectedTeacher.currentArea}</span>
+                                            {/* Contact & Info Grid */}
+                                            <div className="row g-1 small text-secondary">
+                                                {selectedTeacher.phone && (
+                                                    <div className="col-12 col-md-6 d-flex align-items-center gap-2 py-1">
+                                                        <span className="text-muted fw-semibold">Phone:</span>
+                                                        <span className="fw-bold text-dark">{selectedTeacher.phone}</span>
+                                                        {formatPhoneForWhatsApp(selectedTeacher.whatsapp || selectedTeacher.phone) && (
+                                                            <button
+                                                                type="button"
+                                                                className="btn btn-sm btn-outline-success py-0 px-2 d-inline-flex align-items-center gap-1"
+                                                                style={{ fontSize: '0.72rem', height: '22px' }}
+                                                                onClick={() => {
+                                                                    const target = formatPhoneForWhatsApp(selectedTeacher.whatsapp || selectedTeacher.phone);
+                                                                    window.open(`https://api.whatsapp.com/send?phone=${target}`, '_blank');
+                                                                }}
+                                                            >
+                                                                <FaWhatsapp /> WhatsApp
+                                                            </button>
                                                         )}
                                                     </div>
+                                                )}
 
-                                                    <div className="small text-secondary mb-3">
-                                                        {selectedTeacher.phone && (
-                                                            <div className="d-flex align-items-center gap-2 mb-2">
-                                                                <strong>Phone:</strong>
-                                                                <span className="fw-semibold text-dark">{selectedTeacher.phone}</span>
-                                                                {formatPhoneForWhatsApp(selectedTeacher.whatsapp || selectedTeacher.phone) && (
-                                                                    <Button
-                                                                        variant="outline-success"
-                                                                        size="sm"
-                                                                        className="py-0 px-2"
-                                                                        style={{ fontSize: '0.75rem' }}
-                                                                        onClick={() => {
-                                                                            const target = formatPhoneForWhatsApp(selectedTeacher.whatsapp || selectedTeacher.phone);
-                                                                            window.open(`https://api.whatsapp.com/send?phone=${target}`, '_blank');
-                                                                        }}
-                                                                    >
-                                                                        <FaWhatsapp className="me-1" /> WhatsApp
-                                                                    </Button>
-                                                                )}
-                                                            </div>
-                                                        )}
-                                                        {selectedTeacher.whatsapp && selectedTeacher.whatsapp !== selectedTeacher.phone && (
-                                                            <div className="d-flex align-items-center gap-2 mb-2">
-                                                                <strong>WhatsApp:</strong>
-                                                                <span className="fw-semibold text-dark">{selectedTeacher.whatsapp}</span>
-                                                                {formatPhoneForWhatsApp(selectedTeacher.whatsapp) && (
-                                                                    <Button
-                                                                        variant="success"
-                                                                        size="sm"
-                                                                        className="py-0 px-2"
-                                                                        style={{ fontSize: '0.75rem' }}
-                                                                        onClick={() => {
-                                                                            const target = formatPhoneForWhatsApp(selectedTeacher.whatsapp);
-                                                                            window.open(`https://api.whatsapp.com/send?phone=${target}`, '_blank');
-                                                                        }}
-                                                                    >
-                                                                        <FaWhatsapp className="me-1" /> Chat
-                                                                    </Button>
-                                                                )}
-                                                            </div>
-                                                        )}
-                                                        {selectedTeacher.honorsUniversity && (
-                                                            <div className="mb-1">
-                                                                <strong>University:</strong> {selectedTeacher.honorsUniversity} {selectedTeacher.honorsDept ? `(${selectedTeacher.honorsDept})` : ''}
-                                                            </div>
-                                                        )}
-                                                        {selectedTeacher.academicYear && (
-                                                            <div className="mb-1">
-                                                                <strong>Academic Year:</strong> {selectedTeacher.academicYear}
-                                                            </div>
-                                                        )}
-                                                        {selectedTeacher.experience && (
-                                                            <div>
-                                                                <strong>Experience:</strong> {selectedTeacher.experience}
-                                                            </div>
+                                                {selectedTeacher.whatsapp && selectedTeacher.whatsapp !== selectedTeacher.phone && (
+                                                    <div className="col-12 col-md-6 d-flex align-items-center gap-2 py-1">
+                                                        <span className="text-muted fw-semibold">WhatsApp:</span>
+                                                        <span className="fw-bold text-dark">{selectedTeacher.whatsapp}</span>
+                                                        {formatPhoneForWhatsApp(selectedTeacher.whatsapp) && (
+                                                            <button
+                                                                type="button"
+                                                                className="btn btn-sm btn-success py-0 px-2 d-inline-flex align-items-center gap-1"
+                                                                style={{ fontSize: '0.72rem', height: '22px' }}
+                                                                onClick={() => {
+                                                                    const target = formatPhoneForWhatsApp(selectedTeacher.whatsapp);
+                                                                    window.open(`https://api.whatsapp.com/send?phone=${target}`, '_blank');
+                                                                }}
+                                                            >
+                                                                <FaWhatsapp /> Chat
+                                                            </button>
                                                         )}
                                                     </div>
-                                                </div>
+                                                )}
 
-                                                <div className="d-flex gap-2 pt-2 border-top">
-                                                    <Button
-                                                        variant="primary"
-                                                        size="sm"
-                                                        className="d-flex align-items-center gap-1"
-                                                        onClick={() => {
-                                                            setShowDetailsModal(false);
-                                                            handleEditTeacher(selectedTeacher);
-                                                        }}
-                                                    >
-                                                        <FaEdit /> Edit Teacher
-                                                    </Button>
-                                                    <Button
-                                                        variant="outline-success"
-                                                        size="sm"
-                                                        className="d-flex align-items-center gap-1"
-                                                        onClick={() => handleShare(selectedTeacher)}
-                                                    >
-                                                        <FaWhatsapp /> Share CV
-                                                    </Button>
-                                                </div>
+                                                {selectedTeacher.honorsUniversity && (
+                                                    <div className="col-12 col-md-6 py-1">
+                                                        <span className="text-muted fw-semibold">University:</span>{' '}
+                                                        <span className="text-dark fw-medium">
+                                                            {selectedTeacher.honorsUniversity} {selectedTeacher.honorsDept ? `(${selectedTeacher.honorsDept})` : ''}
+                                                        </span>
+                                                    </div>
+                                                )}
+
+                                                {selectedTeacher.academicYear && (
+                                                    <div className="col-12 col-md-6 py-1">
+                                                        <span className="text-muted fw-semibold">Academic Year:</span>{' '}
+                                                        <span className="text-dark fw-medium">{selectedTeacher.academicYear}</span>
+                                                    </div>
+                                                )}
+
+                                                {selectedTeacher.experience && (
+                                                    <div className="col-12 col-md-6 py-1">
+                                                        <span className="text-muted fw-semibold">Experience:</span>{' '}
+                                                        <span className="text-dark fw-medium">{selectedTeacher.experience}</span>
+                                                    </div>
+                                                )}
                                             </div>
-                                        </Col>
-                                    </Row>
+                                        </div>
+                                    </div>
 
-                                    {/* Bottom Row: Verification & Academic Credentials (4 Document Cards) */}
-                                    <div className="pt-3 border-top">
-                                        <h6 className="fw-bold text-secondary mb-3 d-flex align-items-center gap-2">
-                                            <FaIdCard className="text-primary" /> Verification & Academic Documents
-                                        </h6>
-                                        <Row className="g-3">
+                                    {/* Documents Strip */}
+                                    <div className="pt-2 border-top">
+                                        <div className="d-flex align-items-center justify-content-between mb-2">
+                                            <span className="fw-semibold text-secondary d-flex align-items-center gap-1" style={{ fontSize: '0.82rem' }}>
+                                                <FaIdCard className="text-primary" /> Verification & Academic Documents
+                                            </span>
+                                            <span className="badge bg-light text-secondary border" style={{ fontSize: '0.72rem' }}>
+                                                {[selectedTeacher.nidPhoto, selectedTeacher.sscMarksheet, selectedTeacher.hscMarksheet, selectedTeacher.universityIdCard].filter(Boolean).length} of 4 Attached
+                                            </span>
+                                        </div>
+
+                                        <Row className="g-2">
                                             {[
-                                                { label: 'NID / Birth Certificate', key: 'nidPhoto', icon: <FaIdCard style={{ fontSize: '2.3rem' }} className="mb-2 text-secondary opacity-50" /> },
-                                                { label: 'SSC Marksheet', key: 'sscMarksheet', icon: <FaFileAlt style={{ fontSize: '2.3rem' }} className="mb-2 text-secondary opacity-50" /> },
-                                                { label: 'HSC Marksheet', key: 'hscMarksheet', icon: <FaFileAlt style={{ fontSize: '2.3rem' }} className="mb-2 text-secondary opacity-50" /> },
-                                                { label: 'University ID / Admission Slip', key: 'universityIdCard', icon: <FaGraduationCap style={{ fontSize: '2.3rem' }} className="mb-2 text-secondary opacity-50" /> },
+                                                { label: 'NID / Birth Certificate', key: 'nidPhoto', icon: <FaIdCard style={{ fontSize: '1.4rem' }} className="text-secondary opacity-50" /> },
+                                                { label: 'SSC Marksheet', key: 'sscMarksheet', icon: <FaFileAlt style={{ fontSize: '1.4rem' }} className="text-secondary opacity-50" /> },
+                                                { label: 'HSC Marksheet', key: 'hscMarksheet', icon: <FaFileAlt style={{ fontSize: '1.4rem' }} className="text-secondary opacity-50" /> },
+                                                { label: 'University ID / Admission Slip', key: 'universityIdCard', icon: <FaGraduationCap style={{ fontSize: '1.4rem' }} className="text-secondary opacity-50" /> },
                                             ].map(doc => {
                                                 const docUrl = selectedTeacher[doc.key];
                                                 return (
-                                                    <Col xs={12} sm={6} md={3} key={doc.key}>
-                                                        <div className="d-flex flex-column h-100 align-items-center p-2 rounded border bg-light">
+                                                    <Col xs={6} md={3} key={doc.key}>
+                                                        <div
+                                                            className="h-100 p-2 rounded d-flex flex-column justify-content-between"
+                                                            style={{
+                                                                backgroundColor: docUrl ? '#ffffff' : '#f8fafc',
+                                                                border: docUrl ? '1px solid #cbd5e1' : '1px dashed #e2e8f0',
+                                                                transition: 'all 0.2s ease',
+                                                                boxShadow: docUrl ? '0 1px 3px rgba(0,0,0,0.06)' : 'none'
+                                                            }}
+                                                        >
+                                                            {/* Document Preview Box */}
                                                             <div
-                                                                className="w-100 overflow-hidden shadow-sm border position-relative d-flex align-items-center justify-content-center"
+                                                                className="w-100 rounded overflow-hidden position-relative d-flex align-items-center justify-content-center mb-1"
                                                                 style={{
-                                                                    borderRadius: '8px',
-                                                                    height: '190px',
-                                                                    backgroundColor: '#0f172a',
-                                                                    cursor: docUrl ? 'pointer' : 'default'
+                                                                    height: '80px',
+                                                                    backgroundColor: docUrl ? '#ffffff' : '#f1f5f9',
+                                                                    cursor: docUrl ? 'pointer' : 'default',
+                                                                    border: docUrl ? '1px solid #e2e8f0' : 'none'
                                                                 }}
-                                                                onClick={() => docUrl && window.open(docUrl, '_blank')}
-                                                                title={docUrl ? `Click to open ${doc.label} in new tab` : `No ${doc.label} attached`}
+                                                                onClick={() => {
+                                                                    if (docUrl) {
+                                                                        setEnlargedImage({
+                                                                            url: docUrl,
+                                                                            title: `${selectedTeacher.name || 'Teacher'} - ${doc.label}`
+                                                                        });
+                                                                    }
+                                                                }}
+                                                                title={docUrl ? `Click to enlarge ${doc.label}` : `No ${doc.label} attached`}
                                                             >
                                                                 {docUrl ? (
-                                                                    <img
-                                                                        src={docUrl}
-                                                                        alt={doc.label}
-                                                                        style={{
-                                                                            maxWidth: '100%',
-                                                                            maxHeight: '100%',
-                                                                            width: 'auto',
-                                                                            height: 'auto',
-                                                                            objectFit: 'contain',
-                                                                            display: 'block',
-                                                                            transition: 'transform 0.25s ease'
-                                                                        }}
-                                                                        onMouseOver={e => e.currentTarget.style.transform = 'scale(1.02)'}
-                                                                        onMouseOut={e => e.currentTarget.style.transform = 'scale(1)'}
-                                                                    />
+                                                                    <>
+                                                                        <img
+                                                                            src={docUrl}
+                                                                            alt={doc.label}
+                                                                            style={{
+                                                                                maxWidth: '100%',
+                                                                                maxHeight: '100%',
+                                                                                objectFit: 'contain',
+                                                                                display: 'block'
+                                                                            }}
+                                                                        />
+                                                                        <div
+                                                                            className="position-absolute bottom-0 start-0 end-0 text-white text-center py-1"
+                                                                            style={{
+                                                                                background: 'rgba(0,0,0,0.65)',
+                                                                                fontSize: '0.65rem',
+                                                                                lineHeight: 1
+                                                                            }}
+                                                                        >
+                                                                            <FaExpandAlt className="me-1" size={8} /> Click to Enlarge
+                                                                        </div>
+                                                                    </>
                                                                 ) : (
-                                                                    <div className="h-100 w-100 d-flex flex-column align-items-center justify-content-center text-muted p-2">
+                                                                    <div className="d-flex flex-column align-items-center justify-content-center text-muted p-1">
                                                                         {doc.icon}
-                                                                        <span className="small fw-semibold text-white-50">Not Attached</span>
-                                                                    </div>
-                                                                )}
-
-                                                                {docUrl && (
-                                                                    <div
-                                                                        className="position-absolute bottom-0 start-0 end-0 p-1 text-white text-center"
-                                                                        style={{
-                                                                            background: 'linear-gradient(to top, rgba(0,0,0,0.8), transparent)',
-                                                                            fontSize: '0.72rem'
-                                                                        }}
-                                                                    >
-                                                                        <FaExternalLinkAlt className="me-1" /> View Full Document
+                                                                        <span style={{ fontSize: '0.65rem', color: '#94a3b8' }} className="mt-1">Not Attached</span>
                                                                     </div>
                                                                 )}
                                                             </div>
-                                                            <div className="mt-2 text-center w-100">
-                                                                <div className="fw-semibold small text-dark text-truncate mb-1" title={doc.label}>
+
+                                                            {/* Label & Status Pill */}
+                                                            <div className="text-center w-100">
+                                                                <div
+                                                                    className="fw-semibold text-dark text-truncate"
+                                                                    style={{ fontSize: '0.72rem' }}
+                                                                    title={doc.label}
+                                                                >
                                                                     {doc.label}
                                                                 </div>
-                                                                <span className={`badge ${docUrl ? 'bg-success text-white' : 'bg-light text-muted border'} fw-semibold px-2 py-1`} style={{ fontSize: '0.72rem' }}>
-                                                                    {docUrl ? 'Uploaded' : 'Not Uploaded'}
+                                                                <span
+                                                                    className={`badge ${docUrl ? 'bg-success text-white' : 'bg-light text-muted border'} px-2 py-0 mt-1`}
+                                                                    style={{ fontSize: '0.65rem' }}
+                                                                >
+                                                                    {docUrl ? 'Attached' : 'Empty'}
                                                                 </span>
                                                             </div>
                                                         </div>
@@ -1963,8 +2020,8 @@ const PremiumTeacherPage = () => {
                                                         boxShadow: '0 2px 6px rgba(0,0,0,0.15)',
                                                         cursor: 'pointer'
                                                     }}
-                                                    onClick={() => window.open(pendingPhotoPreview || formData.photo, '_blank')}
-                                                    title="Click to view full image"
+                                                    onClick={() => setEnlargedImage({ url: pendingPhotoPreview || formData.photo, title: `${formData.name || 'Teacher'} - Profile Photo Preview` })}
+                                                    title="Click to view enlarged image"
                                                 />
                                             ) : (
                                                 <div
@@ -2093,7 +2150,8 @@ const PremiumTeacherPage = () => {
                                                         boxShadow: '0 2px 6px rgba(0,0,0,0.15)',
                                                         cursor: 'pointer'
                                                     }}
-                                                    onClick={() => window.open(pendingNidPreview || formData.nidPhoto, '_blank')}
+                                                    onClick={() => setEnlargedImage({ url: pendingNidPreview || formData.nidPhoto, title: `${formData.name || 'Teacher'} - NID Document Preview` })}
+                                                    title="Click to view enlarged image"
                                                 />
                                             ) : (
                                                 <div
@@ -2225,7 +2283,8 @@ const PremiumTeacherPage = () => {
                                                         boxShadow: '0 2px 6px rgba(0,0,0,0.15)',
                                                         cursor: 'pointer'
                                                     }}
-                                                    onClick={() => window.open(pendingSscPreview || formData.sscMarksheet, '_blank')}
+                                                    onClick={() => setEnlargedImage({ url: pendingSscPreview || formData.sscMarksheet, title: `${formData.name || 'Teacher'} - SSC Marksheet Preview` })}
+                                                    title="Click to view enlarged image"
                                                 />
                                             ) : (
                                                 <div
@@ -2354,7 +2413,8 @@ const PremiumTeacherPage = () => {
                                                         boxShadow: '0 2px 6px rgba(0,0,0,0.15)',
                                                         cursor: 'pointer'
                                                     }}
-                                                    onClick={() => window.open(pendingHscPreview || formData.hscMarksheet, '_blank')}
+                                                    onClick={() => setEnlargedImage({ url: pendingHscPreview || formData.hscMarksheet, title: `${formData.name || 'Teacher'} - HSC Marksheet Preview` })}
+                                                    title="Click to view enlarged image"
                                                 />
                                             ) : (
                                                 <div
@@ -2483,7 +2543,8 @@ const PremiumTeacherPage = () => {
                                                         boxShadow: '0 2px 6px rgba(0,0,0,0.15)',
                                                         cursor: 'pointer'
                                                     }}
-                                                    onClick={() => window.open(pendingUniIdPreview || formData.universityIdCard, '_blank')}
+                                                    onClick={() => setEnlargedImage({ url: pendingUniIdPreview || formData.universityIdCard, title: `${formData.name || 'Teacher'} - University ID Preview` })}
+                                                    title="Click to view enlarged image"
                                                 />
                                             ) : (
                                                 <div
@@ -3160,6 +3221,108 @@ const PremiumTeacherPage = () => {
                         </Button>
                     </Modal.Footer>
                 </Modal>
+
+                {/* Fullscreen Image Lightbox Modal */}
+                {enlargedImage && (
+                    <div
+                        style={{
+                            position: 'fixed',
+                            top: 0,
+                            left: 0,
+                            right: 0,
+                            bottom: 0,
+                            backgroundColor: 'rgba(15, 23, 42, 0.95)',
+                            backdropFilter: 'blur(5px)',
+                            zIndex: 99999,
+                            display: 'flex',
+                            flexDirection: 'column',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            padding: '16px'
+                        }}
+                        onClick={() => setEnlargedImage(null)}
+                    >
+                        {/* Top Bar */}
+                        <div
+                            style={{
+                                position: 'absolute',
+                                top: 0,
+                                left: 0,
+                                right: 0,
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'space-between',
+                                padding: '14px 24px',
+                                background: 'linear-gradient(to bottom, rgba(0,0,0,0.85), transparent)',
+                                color: '#fff',
+                                zIndex: 100000
+                            }}
+                            onClick={(e) => e.stopPropagation()}
+                        >
+                            <div className="d-flex align-items-center gap-2">
+                                <FaImages className="text-info fs-5" />
+                                <span className="fw-bold fs-6 text-white text-truncate" style={{ maxWidth: '60vw' }}>
+                                    {enlargedImage.title || 'Document Preview'}
+                                </span>
+                            </div>
+                            <div className="d-flex align-items-center gap-2">
+                                <a
+                                    href={enlargedImage.url}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    className="btn btn-sm btn-outline-light d-flex align-items-center gap-1"
+                                    style={{ fontSize: '0.8rem' }}
+                                    title="Open original image in new tab"
+                                >
+                                    <FaExternalLinkAlt size={11} /> New Tab
+                                </a>
+                                <button
+                                    type="button"
+                                    className="btn btn-sm btn-danger rounded-circle d-flex align-items-center justify-content-center"
+                                    style={{ width: '34px', height: '34px', fontSize: '16px' }}
+                                    onClick={() => setEnlargedImage(null)}
+                                    title="Close (or press Esc to return to modal)"
+                                >
+                                    <FaTimes />
+                                </button>
+                            </div>
+                        </div>
+
+                        {/* Image Canvas */}
+                        <div
+                            style={{
+                                maxWidth: '92vw',
+                                maxHeight: '84vh',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center'
+                            }}
+                            onClick={(e) => e.stopPropagation()}
+                        >
+                            <img
+                                src={enlargedImage.url}
+                                alt={enlargedImage.title || 'Enlarged Preview'}
+                                style={{
+                                    maxWidth: '100%',
+                                    maxHeight: '84vh',
+                                    width: 'auto',
+                                    height: 'auto',
+                                    objectFit: 'contain',
+                                    borderRadius: '8px',
+                                    boxShadow: '0 10px 40px rgba(0,0,0,0.8)'
+                                }}
+                            />
+                        </div>
+
+                        <div
+                            className="text-white-50 small mt-2 d-flex align-items-center gap-1"
+                            style={{ fontSize: '0.78rem' }}
+                            onClick={(e) => e.stopPropagation()}
+                        >
+                            Click background or press <kbd className="bg-secondary text-white px-1 rounded">Esc</kbd> to return to modal
+                        </div>
+                    </div>
+                )}
 
                 <ToastContainer />
             </Container>

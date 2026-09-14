@@ -15,7 +15,7 @@ const smsTemplates = [
     {
         name: 'Tuition Alert (Proposal)',
         category: 'Proposal',
-        text: '[Tuition Alert]\\nCode: [Code]\\nClass: [Class] ([Subject])\\nArea: [Area]\\nSalary: [Salary]\\nApply: tuitionsebaforum.com\\nWhatsApp: 01571305804'
+        text: '[Tuition Alert]\\nCode: [Code]\\nClass: [Class] ([Subject])\\nArea: [Area]\\nSalary: [Salary]\\nApply: tuitionsebaforum.com\\nWhatsApp: 01633920928'
     },
     {
         name: 'Guardian Publish (BN)',

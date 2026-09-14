@@ -432,7 +432,7 @@ const SocialPostModal = ({ show, onHide }) => {
                 if (fieldConfig.location) text += `${b}Location:${b} ${t.location || ''} ${t.area ? '(' + t.area + ')' : ''}\n`;
                 if (fieldConfig.joining) text += `${b}Joining:${b} ${t.joining || 'As soon as'}\n`;
 
-                text += `📲 ${b}Whatsapp:${b} +8801571305804\n`;
+                text += `📲 ${b}Whatsapp:${b} 01633920928\n`;
                 text += `📌 ${b}Interested teachers—apply fast. Visit our Website/ Apps [Tuition Seba Forum]${b}\n`;
 
                 if (index < groupedByArea[area].length - 1) {

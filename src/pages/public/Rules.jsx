@@ -625,7 +625,7 @@ const Rules = () => {
                             <a href="tel:01633920928" className="btn-support btn-call">
                                 <FaPhoneAlt /> কল করুন: 01633920928
                             </a>
-                            <a href="https://wa.me/8801571305804" target="_blank" rel="noopener noreferrer" className="btn-support btn-ws">
+                            <a href="https://wa.me/8801633920928" target="_blank" rel="noopener noreferrer" className="btn-support btn-ws">
                                 <FaWhatsapp /> হোয়াটসঅ্যাপ
                             </a>
                         </div>

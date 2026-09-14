@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { FaPhoneAlt, FaWhatsapp, FaCopy } from 'react-icons/fa';
 
 const OFFICE_PHONE = '+8801633920928';
-const WHATSAPP_NUMBER = '8801571305804';
+const WHATSAPP_NUMBER = '8801633920928';
 
 const SuspendedWarningModal = ({ show, onClose }) => {
     const [copied, setCopied] = useState(false);

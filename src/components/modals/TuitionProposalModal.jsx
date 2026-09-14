@@ -108,7 +108,7 @@ export default function TuitionProposalModal({ show, onHide, tuition }) {
             const area = tuition.area || '';
             const salary = tuition.salary || '';
 
-            const defaultTemplate = `[Tuition Alert]\nCode: ${code}\nClass: ${cls} (${subj})\nArea: ${area}\nSalary: ${salary}\nApply: tuitionsebaforum.com\nWhatsApp: 01571305804`;
+            const defaultTemplate = `[Tuition Alert]\nCode: ${code}\nClass: ${cls} (${subj})\nArea: ${area}\nSalary: ${salary}\nApply: tuitionsebaforum.com\nWhatsApp: 01633920928`;
             setTemplate(defaultTemplate);
 
             const initialAreas = tuition.area ? tuition.area.split(',').map(a => a.trim()).filter(Boolean) : [];

@@ -745,7 +745,7 @@ Joining: ${details.joining || ''}
       {!isOpen && (
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <a
-            href="whatsapp://send?phone=+8801571305804"
+            href="whatsapp://send?phone=+8801633920928"
             target="_blank"
             rel="noopener noreferrer"
             aria-label="Chat with us on WhatsApp"

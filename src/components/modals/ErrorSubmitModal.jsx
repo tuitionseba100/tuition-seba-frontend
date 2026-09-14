@@ -32,7 +32,7 @@ const ErrorModal = ({ show, handleClose, message }) => {
                     <div className="d-flex align-items-center justify-content-center">
                         <span className="text-muted me-2">সহযোগিতার জন্য:</span>
                         <a
-                            href="tel:+8801571305804"
+                            href="tel:+8801633920928"
                             className="text-decoration-none fw-bold text-danger d-flex align-items-center"
                         >
                             <BsTelephoneFill className="me-2" /> 01540-376020

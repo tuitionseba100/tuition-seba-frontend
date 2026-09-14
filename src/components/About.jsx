@@ -27,7 +27,7 @@ const AboutUs = () => {
                             <div>
                                 <Button
                                     variant="success"
-                                    href="https://wa.me/88001633920928"
+                                    href="https://wa.me/8801633920928"
                                     target="_blank"
                                     className="me-2 px-3"
                                 >

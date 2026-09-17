@@ -476,10 +476,13 @@ const PaymentPage = () => {
                 const options = [
                     { value: 'assigned', label: '--- Assigned ---' },
                     { value: 'unassigned', label: '--- Unassigned ---' },
-                    ...response.data.map(user => ({
-                        value: user.username,
-                        label: `${user.name} (${user.username})`
-                    }))
+                    ...(response.data || []).map(user => {
+                        const isInactive = user.isLocked || (user.status && user.status.toLowerCase() === 'disabled');
+                        return {
+                            value: user.username,
+                            label: `${user.name} (${user.username})${isInactive ? ' [Inactive]' : ''}`
+                        };
+                    })
                 ];
                 setUserOptions(options);
             } catch (err) {

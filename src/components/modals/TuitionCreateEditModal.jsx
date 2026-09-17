@@ -155,7 +155,8 @@ export default function TuitionModal({ show, onHide, editingData = null, editing
                     const response = await axios.get('https://tuition-seba-backend-1.onrender.com/api/user/users', {
                         headers: { Authorization: token }
                     });
-                    const users = response.data.map(user => ({
+                    const activeUsers = (response.data || []).filter(u => !u.isLocked && (u.status ? u.status.toLowerCase() !== 'disabled' : true));
+                    const users = activeUsers.map(user => ({
                         value: user.username,
                         label: `${user.name} (${user.username})`
                     }));

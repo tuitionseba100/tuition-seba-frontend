@@ -317,10 +317,13 @@ const TuitionPage = () => {
                     const response = await axios.get('https://tuition-seba-backend-1.onrender.com/api/user/users', {
                         headers: { Authorization: token }
                     });
-                    const users = response.data.map(user => ({
-                        value: user.username,
-                        label: `${user.name} (${user.username})`
-                    }));
+                    const users = (response.data || []).map(user => {
+                        const isInactive = user.isLocked || (user.status && user.status.toLowerCase() === 'disabled');
+                        return {
+                            value: user.username,
+                            label: `${user.name} (${user.username})${isInactive ? ' [Inactive]' : ''}`
+                        };
+                    });
                     setUserOptions([
                         { value: 'unassigned', label: 'Unassigned' },
                         { value: 'assigned', label: 'Assigned' },

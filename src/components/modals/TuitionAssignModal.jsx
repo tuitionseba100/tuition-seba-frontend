@@ -24,7 +24,9 @@ const TuitionAssignModal = ({ show, onHide, tuition, fetchTuitionRecords, fetchA
             const response = await axios.get('https://tuition-seba-backend-1.onrender.com/api/user/users', {
                 headers: { Authorization: token }
             });
-            setUsers(response.data);
+            // Show only active employees (not locked and not disabled)
+            const activeUsers = (response.data || []).filter(user => !user.isLocked && (user.status ? user.status.toLowerCase() !== 'disabled' : true));
+            setUsers(activeUsers);
         } catch (error) {
             console.error('Error fetching users:', error);
             toast.error('Failed to load users list');
@@ -87,10 +89,14 @@ const TuitionAssignModal = ({ show, onHide, tuition, fetchTuitionRecords, fetchA
                                 value: user.username,
                                 label: `${user.name} (${user.username})`
                             }))}
-                            value={users.find(u => u.username === assignedTo) ? {
-                                value: assignedTo,
-                                label: `${users.find(u => u.username === assignedTo).name} (${assignedTo})`
-                            } : null}
+                            value={
+                                users.find(u => u.username === assignedTo)
+                                    ? {
+                                        value: assignedTo,
+                                        label: `${users.find(u => u.username === assignedTo).name} (${assignedTo})`
+                                    }
+                                    : (assignedTo ? { value: assignedTo, label: `${assignedTo} (Current / Inactive)` } : null)
+                            }
                             onChange={(option) => setAssignedTo(option ? option.value : '')}
                             isClearable
                             placeholder="Search or select employee..."

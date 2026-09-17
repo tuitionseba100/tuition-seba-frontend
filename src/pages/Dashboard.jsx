@@ -31,7 +31,8 @@ import {
     FaArrowRight,
     FaMapMarkerAlt,
     FaUserFriends,
-    FaBell
+    FaBell,
+    FaUtensils
 } from 'react-icons/fa';
 import NavBarPage from './NavbarPage';
 import GlobalSearchModal from '../components/modals/GlobalSearchModal';
@@ -131,9 +132,16 @@ const Dashboard = () => {
         GreetingIcon = FaMoon;
     }
 
-    const hours24 = String(currentTime.getHours()).padStart(2, '0');
-    const minutes24 = String(currentTime.getMinutes()).padStart(2, '0');
-    const seconds24 = String(currentTime.getSeconds()).padStart(2, '0');
+    const rawHours = currentTime.getHours();
+    const rawMinutes = currentTime.getMinutes();
+    const currentTotalMinutes = rawHours * 60 + rawMinutes;
+    // Official lunch break: 1:30 PM (13:30 = 810 mins) to 3:00 PM (15:00 = 900 mins)
+    const isLunchBreak = currentTotalMinutes >= 810 && currentTotalMinutes < 900;
+
+    const hours12 = String(rawHours % 12 || 12).padStart(2, '0');
+    const minutes = String(rawMinutes).padStart(2, '0');
+    const seconds = String(currentTime.getSeconds()).padStart(2, '0');
+    const ampm = rawHours >= 12 ? 'PM' : 'AM';
     const currentDayOfWeek = currentTime.getDay(); // 0 = SUN, 1 = MON, ...
 
     const weekDays = [
@@ -465,13 +473,51 @@ const Dashboard = () => {
                                     </motion.div>
                                 </h1>
 
-                                <p className="mb-3.5 d-flex align-items-center gap-1.5" style={{ fontSize: '0.92rem', color: 'rgba(224, 242, 254, 0.85)', letterSpacing: '0.2px' }}>
+                                <p className="mb-2.5 d-flex align-items-center gap-1.5" style={{ fontSize: '0.92rem', color: 'rgba(224, 242, 254, 0.85)', letterSpacing: '0.2px' }}>
                                     <span>Tuition Seba Forum</span>
                                     <span>•</span>
                                     <span>Admin Console</span>
                                 </p>
 
-                                <div className="d-flex gap-2 flex-wrap align-items-center">
+                                {/* High-Humor Official Lunch Break Banner (1:30 PM – 3:00 PM) */}
+                                {isLunchBreak && (
+                                    <motion.div
+                                        initial={{ opacity: 0, y: 6 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        transition={{ duration: 0.35 }}
+                                        className="my-3 p-2.5 px-3 rounded-4 d-flex align-items-center gap-2.5"
+                                        style={{
+                                            background: 'linear-gradient(135deg, rgba(251, 146, 60, 0.22) 0%, rgba(239, 68, 68, 0.18) 100%)',
+                                            border: '1px solid rgba(251, 191, 36, 0.45)',
+                                            backdropFilter: 'blur(10px)',
+                                            boxShadow: '0 8px 24px rgba(245, 158, 11, 0.22), inset 0 1px 0 rgba(255,255,255,0.2)'
+                                        }}
+                                    >
+                                        <div
+                                            className="rounded-circle d-flex align-items-center justify-content-center text-white flex-shrink-0"
+                                            style={{
+                                                width: '38px',
+                                                height: '38px',
+                                                background: 'linear-gradient(135deg, #f59e0b 0%, #ef4444 100%)',
+                                                fontSize: '1.2rem',
+                                                boxShadow: '0 0 10px rgba(245, 158, 11, 0.6)'
+                                            }}
+                                        >
+                                            🍗
+                                        </div>
+                                        <div>
+                                            <div className="fw-bold d-flex align-items-center gap-1.5 text-warning flex-wrap" style={{ fontSize: '0.86rem', letterSpacing: '0.3px' }}>
+                                                <span>🍱 OFFICIAL LUNCH & REST PROTOCOL ENGAGED!</span>
+                                                <span className="badge bg-danger text-white rounded-pill px-2 py-0.5" style={{ fontSize: '0.66rem' }}>1:30 PM – 3:00 PM</span>
+                                            </div>
+                                            <div className="text-white mt-0.5" style={{ fontSize: '0.8rem', opacity: 0.95, lineHeight: 1.3 }}>
+                                                ⚠️ Brain is executing heavy calorie calculations. Keyboards are resting, stomachs are compiling Biryani. Tuitions can wait, food cannot! 🍛😴
+                                            </div>
+                                        </div>
+                                    </motion.div>
+                                )}
+
+                                <div className="d-flex gap-2 flex-wrap align-items-center mt-2">
                                     <Button
                                         variant="light"
                                         size="sm"
@@ -546,11 +592,23 @@ const Dashboard = () => {
                                             <div style={{ width: '20px', height: '4px', backgroundColor: '#475569', borderRadius: '3px 3px 0 0', boxShadow: '0 -1px 2px rgba(0,0,0,0.5)' }} />
                                         </div>
 
-                                        {/* Location & Status Line */}
-                                        <div className="d-flex align-items-center justify-content-between mb-1.5 px-1" style={{ fontSize: '0.72rem' }}>
-                                            <div className="d-flex align-items-center gap-1" style={{ color: '#38bdf8' }}>
-                                                <FaMapMarkerAlt size={10} />
-                                                <span className="fw-semibold" style={{ letterSpacing: '0.4px' }}>Chittagong, Bangladesh</span>
+                                        {/* TSF Brand & Status Line */}
+                                        <div className="d-flex align-items-center justify-content-between mb-1.5 px-1" style={{ fontSize: '0.74rem' }}>
+                                            <div className="d-flex align-items-center gap-1.5" style={{ color: '#38bdf8' }}>
+                                                <span
+                                                    className="fw-bold px-2 py-0.5 rounded"
+                                                    style={{
+                                                        fontFamily: "'Orbitron', sans-serif",
+                                                        fontSize: '0.72rem',
+                                                        letterSpacing: '1.8px',
+                                                        backgroundColor: 'rgba(56, 189, 248, 0.16)',
+                                                        border: '1px solid rgba(56, 189, 248, 0.35)',
+                                                        color: '#f0f9ff',
+                                                        textShadow: '0 0 6px rgba(56, 189, 248, 0.8)'
+                                                    }}
+                                                >
+                                                    TSF
+                                                </span>
                                             </div>
                                             <div className="d-flex align-items-center gap-1" style={{ color: '#0ea5e9', fontSize: '0.68rem', fontWeight: 'bold' }}>
                                                 <span className="led-pulse-dot" />
@@ -567,14 +625,51 @@ const Dashboard = () => {
                                                 boxShadow: 'inset 0 2px 8px rgba(0, 0, 0, 0.8)'
                                             }}
                                         >
-                                            {/* Digital 7-Segment Hours & Minutes */}
+                                            {/* Digital 7-Segment 12-Hour Time & AM/PM */}
                                             <div className="d-flex align-items-center justify-content-center flex-grow-1">
-                                                {/* Hours */}
+                                                {/* AM / PM LED Indicator Stack */}
+                                                <div
+                                                    className="d-flex flex-column justify-content-center me-1.5 pe-1 border-end"
+                                                    style={{
+                                                        borderColor: 'rgba(255, 255, 255, 0.1) !important',
+                                                        fontFamily: "'Orbitron', monospace",
+                                                        fontSize: '0.62rem',
+                                                        lineHeight: '1.25',
+                                                        minWidth: '22px'
+                                                    }}
+                                                >
+                                                    <span
+                                                        style={{
+                                                            color: ampm === 'AM' ? '#38bdf8' : '#0284c7',
+                                                            opacity: ampm === 'AM' ? 1 : 0.22,
+                                                            fontWeight: ampm === 'AM' ? 900 : 600,
+                                                            textShadow: ampm === 'AM' ? '0 0 8px rgba(56, 189, 248, 0.95)' : 'none',
+                                                            transform: ampm === 'AM' ? 'scale(1.08)' : 'scale(1)',
+                                                            transition: 'all 0.2s ease'
+                                                        }}
+                                                    >
+                                                        AM
+                                                    </span>
+                                                    <span
+                                                        style={{
+                                                            color: ampm === 'PM' ? '#38bdf8' : '#0284c7',
+                                                            opacity: ampm === 'PM' ? 1 : 0.22,
+                                                            fontWeight: ampm === 'PM' ? 900 : 600,
+                                                            textShadow: ampm === 'PM' ? '0 0 8px rgba(56, 189, 248, 0.95)' : 'none',
+                                                            transform: ampm === 'PM' ? 'scale(1.08)' : 'scale(1)',
+                                                            transition: 'all 0.2s ease'
+                                                        }}
+                                                    >
+                                                        PM
+                                                    </span>
+                                                </div>
+
+                                                {/* Hours (12-Hour Format) */}
                                                 <span
                                                     className="led-number"
                                                     style={{
                                                         fontFamily: "'Orbitron', 'Share Tech Mono', monospace",
-                                                        fontSize: '2.5rem',
+                                                        fontSize: '2.4rem',
                                                         fontWeight: 900,
                                                         color: '#f0f9ff',
                                                         letterSpacing: '2px',
@@ -582,7 +677,7 @@ const Dashboard = () => {
                                                         textShadow: '0 0 10px rgba(56, 189, 248, 0.95), 0 0 22px rgba(14, 165, 233, 0.7)'
                                                     }}
                                                 >
-                                                    {hours24}
+                                                    {hours12}
                                                 </span>
 
                                                 {/* Center Colon with Alarm Bell Icons */}
@@ -592,7 +687,7 @@ const Dashboard = () => {
                                                         className="digital-blinking-colon"
                                                         style={{
                                                             fontFamily: "'Orbitron', monospace",
-                                                            fontSize: '2.1rem',
+                                                            fontSize: '2rem',
                                                             fontWeight: 900,
                                                             color: '#38bdf8',
                                                             lineHeight: 0.85,
@@ -609,7 +704,7 @@ const Dashboard = () => {
                                                     className="led-number"
                                                     style={{
                                                         fontFamily: "'Orbitron', 'Share Tech Mono', monospace",
-                                                        fontSize: '2.5rem',
+                                                        fontSize: '2.4rem',
                                                         fontWeight: 900,
                                                         color: '#f0f9ff',
                                                         letterSpacing: '2px',
@@ -617,7 +712,7 @@ const Dashboard = () => {
                                                         textShadow: '0 0 10px rgba(56, 189, 248, 0.95), 0 0 22px rgba(14, 165, 233, 0.7)'
                                                     }}
                                                 >
-                                                    {minutes24}
+                                                    {minutes}
                                                 </span>
 
                                                 {/* Small Seconds Sub-Display */}
@@ -625,7 +720,7 @@ const Dashboard = () => {
                                                     <span
                                                         style={{
                                                             fontFamily: "'Orbitron', monospace",
-                                                            fontSize: '0.92rem',
+                                                            fontSize: '0.88rem',
                                                             fontWeight: 800,
                                                             color: '#38bdf8',
                                                             lineHeight: 1,
@@ -633,12 +728,12 @@ const Dashboard = () => {
                                                             letterSpacing: '1px'
                                                         }}
                                                     >
-                                                        {seconds24}
+                                                        {seconds}
                                                     </span>
                                                     <span
                                                         style={{
                                                             fontFamily: "'Orbitron', monospace",
-                                                            fontSize: '0.52rem',
+                                                            fontSize: '0.5rem',
                                                             color: '#0284c7',
                                                             fontWeight: 700,
                                                             marginTop: '2px',

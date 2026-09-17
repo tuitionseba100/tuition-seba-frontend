@@ -31,8 +31,7 @@ import {
     FaArrowRight,
     FaMapMarkerAlt,
     FaUserFriends,
-    FaBell,
-    FaUtensils
+    FaBell
 } from 'react-icons/fa';
 import NavBarPage from './NavbarPage';
 import GlobalSearchModal from '../components/modals/GlobalSearchModal';
@@ -134,9 +133,6 @@ const Dashboard = () => {
 
     const rawHours = currentTime.getHours();
     const rawMinutes = currentTime.getMinutes();
-    const currentTotalMinutes = rawHours * 60 + rawMinutes;
-    // Official lunch break: 1:30 PM (13:30 = 810 mins) to 3:00 PM (15:00 = 900 mins)
-    const isLunchBreak = currentTotalMinutes >= 810 && currentTotalMinutes < 900;
 
     const hours12 = String(rawHours % 12 || 12).padStart(2, '0');
     const minutes = String(rawMinutes).padStart(2, '0');
@@ -478,44 +474,6 @@ const Dashboard = () => {
                                     <span>•</span>
                                     <span>Admin Console</span>
                                 </p>
-
-                                {/* High-Humor Official Lunch Break Banner (1:30 PM – 3:00 PM) */}
-                                {isLunchBreak && (
-                                    <motion.div
-                                        initial={{ opacity: 0, y: 6 }}
-                                        animate={{ opacity: 1, y: 0 }}
-                                        transition={{ duration: 0.35 }}
-                                        className="my-3 p-2.5 px-3 rounded-4 d-flex align-items-center gap-2.5"
-                                        style={{
-                                            background: 'linear-gradient(135deg, rgba(251, 146, 60, 0.22) 0%, rgba(239, 68, 68, 0.18) 100%)',
-                                            border: '1px solid rgba(251, 191, 36, 0.45)',
-                                            backdropFilter: 'blur(10px)',
-                                            boxShadow: '0 8px 24px rgba(245, 158, 11, 0.22), inset 0 1px 0 rgba(255,255,255,0.2)'
-                                        }}
-                                    >
-                                        <div
-                                            className="rounded-circle d-flex align-items-center justify-content-center text-white flex-shrink-0"
-                                            style={{
-                                                width: '38px',
-                                                height: '38px',
-                                                background: 'linear-gradient(135deg, #f59e0b 0%, #ef4444 100%)',
-                                                fontSize: '1.2rem',
-                                                boxShadow: '0 0 10px rgba(245, 158, 11, 0.6)'
-                                            }}
-                                        >
-                                            🍗
-                                        </div>
-                                        <div>
-                                            <div className="fw-bold d-flex align-items-center gap-1.5 text-warning flex-wrap" style={{ fontSize: '0.86rem', letterSpacing: '0.3px' }}>
-                                                <span>🍱 OFFICIAL LUNCH & REST PROTOCOL ENGAGED!</span>
-                                                <span className="badge bg-danger text-white rounded-pill px-2 py-0.5" style={{ fontSize: '0.66rem' }}>1:30 PM – 3:00 PM</span>
-                                            </div>
-                                            <div className="text-white mt-0.5" style={{ fontSize: '0.8rem', opacity: 0.95, lineHeight: 1.3 }}>
-                                                ⚠️ Brain is executing heavy calorie calculations. Keyboards are resting, stomachs are compiling Biryani. Tuitions can wait, food cannot! 🍛😴
-                                            </div>
-                                        </div>
-                                    </motion.div>
-                                )}
 
                                 <div className="d-flex gap-2 flex-wrap align-items-center mt-2">
                                     <Button

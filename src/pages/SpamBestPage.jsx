@@ -23,6 +23,7 @@ const PhonePage = () => {
         isExpress: false,
         isActive: false,
         isBestGuardian: false,
+        isBanned: false,
     });
     const [searchInputs, setSearchInputs] = useState({
         phone: '',
@@ -41,7 +42,8 @@ const PhonePage = () => {
         spam: 0,
         best: 0,
         express: 0,
-        bestGuardian: 0
+        bestGuardian: 0,
+        banned: 0
     });
     const role = localStorage.getItem('role');
 
@@ -119,6 +121,7 @@ const PhonePage = () => {
                 "IsSpam",
                 "IsBest",
                 "IsBest Guardian",
+                "Is Banned",
                 "Created By",
                 "Updated By"
             ];
@@ -132,6 +135,7 @@ const PhonePage = () => {
                 String(item.isSpam ?? ""),
                 String(item.isBest ?? ""),
                 String(item.isBestGuardian ?? ""),
+                String(item.isBanned ?? ""),
                 String(item.createdBy ?? ""),
                 String(item.updatedBy ?? ""),
             ]);
@@ -166,6 +170,18 @@ const PhonePage = () => {
 
         const inputNumbers = phone.split('/').map(n => n.trim()).filter(n => n);
 
+        if (inputNumbers.length === 0) {
+            toast.error("Please enter a valid phone number.");
+            return;
+        }
+
+        // Check for self-duplicates in the input
+        const uniqueNumbers = new Set(inputNumbers);
+        if (uniqueNumbers.size !== inputNumbers.length) {
+            toast.error("Duplicate phone number entered in the same record. The same number cannot be added twice.");
+            return;
+        }
+
         // Validation: Each number must start with 0
         for (const num of inputNumbers) {
             if (!num.startsWith('0')) {
@@ -174,11 +190,24 @@ const PhonePage = () => {
             }
         }
 
+        // Client-side quick check against existing loaded records
+        const duplicateInList = phoneList.find(record => {
+            if (editingId && record._id === editingId) return false;
+            if (!record.phone) return false;
+            const existingNums = record.phone.split('/').map(n => n.trim()).filter(n => n);
+            return inputNumbers.some(inNum => existingNums.includes(inNum));
+        });
+
+        if (duplicateInList) {
+            toast.error(`Phone number already exists in record: ${duplicateInList.phone}`);
+            return;
+        }
+
         const username = localStorage.getItem('username');
 
         const updatedData = {
             ...phoneData,
-            phone: phone // use trimmed version
+            phone: inputNumbers.join('/')
         };
         try {
             if (editingId) {
@@ -221,6 +250,7 @@ const PhonePage = () => {
             isBest: !!data.isBest,
             isActive: !!data.isActive,
             isBestGuardian: !!data.isBestGuardian,
+            isBanned: !!data.isBanned,
         });
         setEditingId(data._id);
         setShowModal(true);
@@ -258,7 +288,7 @@ const PhonePage = () => {
                             onClick={() => {
                                 setShowModal(true);
                                 setEditingId(null);
-                                setPhoneData({ phone: '', note: '', isSpam: false, isBest: false, isExpress: false, isActive: false, isBestGuardian: false });
+                                setPhoneData({ phone: '', note: '', isSpam: false, isBest: false, isExpress: false, isActive: false, isBestGuardian: false, isBanned: false });
                             }}
                         >
                             Create Phone Record
@@ -309,6 +339,15 @@ const PhonePage = () => {
                                     <div className="d-flex flex-column align-items-center text-info">
                                         <span style={{ fontWeight: 'bolder' }}>Total Best Guardian</span>
                                         <span>{summaryCounts?.bestGuardian || 0}</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="col-6 col-sm-4 col-md-2 mb-3">
+                                <div className="card p-3 shadow border border-dark">
+                                    <div className="d-flex flex-column align-items-center text-dark">
+                                        <span style={{ fontWeight: 'bolder' }}>Total Banned</span>
+                                        <span>{summaryCounts?.banned || 0}</span>
                                     </div>
                                 </div>
                             </div>
@@ -387,6 +426,17 @@ const PhonePage = () => {
                                 onChange={(e) => setSearchInputs({ ...searchInputs, type: e.target.value })}
                                 onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
                             />
+                            <Form.Check
+                                inline
+                                type="radio"
+                                id="typeFilterBanned"
+                                label="Banned"
+                                name="typeFilter"
+                                value="banned"
+                                checked={searchInputs.type === 'banned'}
+                                onChange={(e) => setSearchInputs({ ...searchInputs, type: e.target.value })}
+                                onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+                            />
                         </div>
                     </Col>
 
@@ -443,6 +493,7 @@ const PhonePage = () => {
                                         <th>Is Best Teacher</th>
                                         <th>Is Express</th>
                                         <th>Is Best Guardian</th>
+                                        <th>Is Banned</th>
                                         <th>Is Active</th>
                                         <th>Actions</th>
                                     </tr>
@@ -469,7 +520,7 @@ const PhonePage = () => {
                                                 <td
                                                     style={{
                                                         fontWeight: 'bold',
-                                                        color: item.isSpam ? '#dc3545' : '#007bff'
+                                                        color: item.isSpam ? '#dc3545' : item.isBanned ? '#dc3545' : '#007bff'
                                                     }}
                                                 >
                                                     {item.phone}
@@ -480,7 +531,8 @@ const PhonePage = () => {
                                                         item.isBest && <span key="best" className="text-primary">Best Teacher</span>,
                                                         item.isBestGuardian && <span key="bg" className="text-info">Best Guardian</span>,
                                                         item.isSpam && <span key="spam" className="text-danger">Spam</span>,
-                                                        item.isExpress && <span key="express" className="text-success">Express Teacher</span>
+                                                        item.isExpress && <span key="express" className="text-success">Express Teacher</span>,
+                                                        item.isBanned && <span key="banned" className="text-dark">Banned</span>
                                                     ]
                                                         .filter(Boolean)
                                                         .reduce((acc, curr, idx) => (
@@ -510,6 +562,11 @@ const PhonePage = () => {
                                                         fontWeight: 'bold',
                                                         color: item.isBestGuardian ? '#dc3545' : '#007bff'
                                                     }}>{item.isBestGuardian ? 'Yes' : 'No'}</td>
+                                                <td
+                                                    style={{
+                                                        fontWeight: 'bold',
+                                                        color: item.isBanned ? '#dc3545' : '#007bff'
+                                                    }}>{item.isBanned ? 'Yes' : 'No'}</td>
                                                 <td>{item.isActive ? 'Yes' : 'No'}</td>
                                                 <td style={{ display: 'flex', justifyContent: 'flex-start', gap: '8px' }}>
                                                     <Button variant="warning" onClick={() => handleEditRecord(item)} className="mr-2">
@@ -694,6 +751,21 @@ const PhonePage = () => {
                                                     }
                                                     setPhoneData({ ...phoneData, isBestGuardian: isChecked });
                                                 }}
+                                            />
+                                        </div>
+                                    </Col>
+
+                                    <Col sm={6} md={4}>
+                                        <div className="p-3 border border-dark rounded shadow-sm h-100 d-flex align-items-center bg-white">
+                                            <Form.Check
+                                                type="switch"
+                                                id="isBanned"
+                                                label={<span className="text-dark">Is Banned?</span>}
+                                                className="fw-bold w-100"
+                                                checked={!!phoneData.isBanned}
+                                                onChange={(e) =>
+                                                    setPhoneData({ ...phoneData, isBanned: e.target.checked })
+                                                }
                                             />
                                         </div>
                                     </Col>

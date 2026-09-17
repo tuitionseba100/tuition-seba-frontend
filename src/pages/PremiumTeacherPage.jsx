@@ -123,12 +123,14 @@ const PremiumTeacherPage = () => {
         setShowModal(false);
     };
 
+    const bannedStyle = { backgroundColor: '#000000', color: '#ffffff' };
     const spamStyle = { backgroundColor: '#dc3545', color: 'white' };
     const bestStyle = { backgroundColor: '#007bff', color: 'white' };
     const manualExpressStyle = { backgroundColor: '#28a745', color: 'white' };
     const dueStyle = { backgroundColor: '#FFFF00', color: 'black' };
 
     const getRowStyle = (tuition) => {
+        if (tuition.isBanned) return bannedStyle;
         if (tuition.isSpam) return spamStyle;
         if (tuition.hasDue) return dueStyle;
         if (tuition.isBest) return bestStyle;

@@ -132,12 +132,14 @@ function AppliedListModal({ tuitionId, tuitionCode, show, onHide }) {
     const handleFocus = (field) => setFocusField(field);
     const handleBlur = () => setFocusField(null);
 
+    const bannedStyle = { backgroundColor: '#000000', color: '#ffffff' };
     const spamStyle = { backgroundColor: '#dc3545', color: 'white' };
     const bestStyle = { backgroundColor: '#007bff', color: 'white' };
     const manualExpressStyle = { backgroundColor: '#28a745', color: 'white' };
     const dueStyle = { backgroundColor: '#FFFF00', color: 'black' };
 
     const getRowStyle = (tuition) => {
+        if (tuition.isBanned) return bannedStyle;
         if (tuition.isSpam) return spamStyle;
         if (tuition.hasDue) return dueStyle;
         if (tuition.isBest) return bestStyle;
@@ -146,6 +148,7 @@ function AppliedListModal({ tuitionId, tuitionCode, show, onHide }) {
     };
 
     const getButtonVariant = (tuition, defaultVariant) => {
+        if (tuition.isBanned) return 'light';
         if (tuition.isSpam) return 'light';
         if (tuition.isBest) return 'primary';
         return defaultVariant;
@@ -214,7 +217,7 @@ function AppliedListModal({ tuitionId, tuitionCode, show, onHide }) {
                                                 <td style={{ ...style, textAlign: 'center', verticalAlign: 'middle', minWidth: '80px' }}>
                                                     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px' }}>
                                                         <span style={{ fontWeight: '700', fontSize: '1rem' }}>
-                                                            {index + 1} {app.isBest && <span title="Best">⭐</span>}
+                                                            {index + 1} {app.isBanned && <span title="Banned">🚫</span>} {app.isBest && <span title="Best">⭐</span>}
                                                         </span>
                                                         {app.isAppApply
                                                             ? (
@@ -246,7 +249,7 @@ function AppliedListModal({ tuitionId, tuitionCode, show, onHide }) {
                                                     <div>
                                                         <div>{app.premiumCode}</div>
                                                         {app.regTeacherStatus && (
-                                                            <div style={{ fontSize: '11px', color: (app.isSpam || app.isBest || app.isExpress) ? 'rgba(255,255,255,0.7)' : '#6c757d', marginTop: '2px', textTransform: 'capitalize' }}>
+                                                            <div style={{ fontSize: '11px', color: (app.isBanned || app.isSpam || app.isBest || app.isExpress) ? 'rgba(255,255,255,0.7)' : '#6c757d', marginTop: '2px', textTransform: 'capitalize' }}>
                                                                 ({app.regTeacherStatus})
                                                             </div>
                                                         )}

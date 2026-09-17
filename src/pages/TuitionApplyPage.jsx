@@ -98,6 +98,7 @@ const TuitionPage = () => {
             setFetchingDetails(false);
         }
     };
+    const bannedStyle = { backgroundColor: '#000000', color: '#ffffff' };
     const spamStyle = { backgroundColor: '#dc3545', color: 'white' };
     const bestStyle = { backgroundColor: '#007bff', color: 'white' };
     const manualExpressStyle = { backgroundColor: '#28a745', color: 'white' };
@@ -121,6 +122,7 @@ const TuitionPage = () => {
     });
 
     const getRowStyle = (tuition) => {
+        if (tuition.isBanned) return bannedStyle;
         if (tuition.isSpam) return spamStyle;
         if (tuition.hasDue) return dueStyle;
         if (tuition.isBest) return bestStyle;
@@ -129,6 +131,7 @@ const TuitionPage = () => {
     };
 
     const getButtonVariant = (tuition, defaultVariant) => {
+        if (tuition.isBanned) return 'light';
         if (tuition.isSpam) return 'light';
         if (tuition.isBest) return 'primary';
         return defaultVariant;
@@ -514,7 +517,7 @@ const TuitionPage = () => {
                                                 <td style={{ ...getRowStyle(tuition), textAlign: 'center', verticalAlign: 'middle', minWidth: '80px' }}>
                                                     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px' }}>
                                                         <span style={{ fontWeight: '700', fontSize: '1rem' }}>
-                                                            {index + 1} {tuition.isBest && <span title="Best">⭐</span>}
+                                                            {index + 1} {tuition.isBanned && <span title="Banned">🚫</span>} {tuition.isBest && <span title="Best">⭐</span>}
                                                         </span>
                                                         {tuition.isAppApply
                                                             ? (
@@ -577,7 +580,7 @@ const TuitionPage = () => {
                                                     <div>
                                                         <div>{tuition.premiumCode}</div>
                                                         {tuition.regTeacherStatus && (
-                                                            <div style={{ fontSize: '11px', color: (tuition.isSpam || tuition.isBest || tuition.isExpress) ? 'rgba(255,255,255,0.7)' : '#6c757d', marginTop: '2px', textTransform: 'capitalize' }}>
+                                                            <div style={{ fontSize: '11px', color: (tuition.isBanned || tuition.isSpam || tuition.isBest || tuition.isExpress) ? 'rgba(255,255,255,0.7)' : '#6c757d', marginTop: '2px', textTransform: 'capitalize' }}>
                                                                 ({tuition.regTeacherStatus})
                                                             </div>
                                                         )}
@@ -586,7 +589,7 @@ const TuitionPage = () => {
                                                 <td style={getRowStyle(tuition)}>
                                                     <div className="d-flex flex-column gap-1">
                                                         <span
-                                                            style={{ cursor: 'pointer', color: tuition.hasDue ? '#000' : (tuition.isSpam || tuition.isBest || tuition.isExpress) ? '#fff' : '#0d6efd', textDecoration: 'underline', fontWeight: '600' }}
+                                                            style={{ cursor: 'pointer', color: tuition.hasDue ? '#000' : (tuition.isBanned || tuition.isSpam || tuition.isBest || tuition.isExpress) ? '#fff' : '#0d6efd', textDecoration: 'underline', fontWeight: '600' }}
                                                             onClick={() => handleShowDetails(tuition.tuitionId)}
                                                         >
                                                             {tuition.tuitionCode}
@@ -597,8 +600,8 @@ const TuitionPage = () => {
                                                                 style={{
                                                                     fontSize: '0.7rem',
                                                                     maxWidth: 'fit-content',
-                                                                    backgroundColor: tuition.tuitionStatus.toLowerCase() === 'available' ? undefined : (tuition.hasDue ? '#6c757d' : (tuition.isSpam || tuition.isBest || tuition.isExpress) ? 'rgba(255,255,255,0.25)' : undefined),
-                                                                    color: (tuition.isSpam || tuition.isBest || tuition.isExpress) ? '#fff' : undefined
+                                                                    backgroundColor: tuition.tuitionStatus.toLowerCase() === 'available' ? undefined : (tuition.hasDue ? '#6c757d' : (tuition.isBanned || tuition.isSpam || tuition.isBest || tuition.isExpress) ? 'rgba(255,255,255,0.25)' : undefined),
+                                                                    color: (tuition.isBanned || tuition.isSpam || tuition.isBest || tuition.isExpress) ? '#fff' : undefined
                                                                 }}
                                                             >
                                                                 {tuition.tuitionStatus}

@@ -570,8 +570,8 @@ const TuitionPage = () => {
                                                             {tuition.status}
                                                         </span>
                                                         {tuition.hasDue && (
-                                                            <span className="badge bg-warning text-dark">
-                                                                ডিউ আছে
+                                                            <span className="badge bg-warning text-dark fw-bold">
+                                                                {tuition.dueAmount ? `ডিউ: ৳${Number(tuition.dueAmount).toLocaleString()}` : 'ডিউ আছে'}
                                                             </span>
                                                         )}
                                                     </div>

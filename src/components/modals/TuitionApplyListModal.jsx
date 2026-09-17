@@ -281,8 +281,8 @@ function AppliedListModal({ tuitionId, tuitionCode, show, onHide }) {
                                                             {app.status}
                                                         </span>
                                                         {app.hasDue && (
-                                                            <span className="badge bg-warning text-dark">
-                                                                ডিউ আছে
+                                                            <span className="badge bg-warning text-dark fw-bold">
+                                                                {app.dueAmount ? `ডিউ: ৳${Number(app.dueAmount).toLocaleString()}` : 'ডিউ আছে'}
                                                             </span>
                                                         )}
                                                     </div>

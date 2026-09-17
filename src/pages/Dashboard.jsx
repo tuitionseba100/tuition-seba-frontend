@@ -30,8 +30,7 @@ import {
     FaHeadset,
     FaArrowRight,
     FaMapMarkerAlt,
-    FaUserFriends,
-    FaBell
+    FaUserFriends
 } from 'react-icons/fa';
 import NavBarPage from './NavbarPage';
 import GlobalSearchModal from '../components/modals/GlobalSearchModal';
@@ -638,9 +637,8 @@ const Dashboard = () => {
                                                     {hours12}
                                                 </span>
 
-                                                {/* Center Colon with Alarm Bell Icons */}
-                                                <div className="d-flex flex-column align-items-center mx-1.5">
-                                                    <FaBell size={7} style={{ color: '#38bdf8', opacity: 0.85, marginBottom: '2px' }} />
+                                                {/* Center Colon */}
+                                                <div className="d-flex align-items-center mx-1.5">
                                                     <span
                                                         className="digital-blinking-colon"
                                                         style={{
@@ -654,7 +652,6 @@ const Dashboard = () => {
                                                     >
                                                         :
                                                     </span>
-                                                    <FaBell size={7} style={{ color: '#38bdf8', opacity: 0.85, marginTop: '2px' }} />
                                                 </div>
 
                                                 {/* Minutes */}

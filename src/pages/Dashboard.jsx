@@ -93,7 +93,6 @@ const Dashboard = () => {
             to === '/admin/finance' ||
             to === '/admin/user' ||
             to === '/admin/activity-log' ||
-            to === '/admin/settings' ||
             to === '/admin/reports'
         ) {
             return false;
@@ -224,7 +223,7 @@ const Dashboard = () => {
                 {
                     title: 'Attendance',
                     to: '/admin/attendance',
-                    permissionKey: null,
+                    permissionKey: 'attendance',
                     icon: FaCalendarAlt,
                     bg: 'linear-gradient(145deg, #6366f1 0%, #4338ca 100%)',
                     shadow: 'rgba(99, 102, 241, 0.3)'
@@ -232,7 +231,7 @@ const Dashboard = () => {
                 {
                     title: 'Complaints',
                     to: '/admin/complaints',
-                    permissionKey: null,
+                    permissionKey: 'complaints',
                     icon: FaExclamationCircle,
                     bg: 'linear-gradient(145deg, #f97316 0%, #c2410c 100%)',
                     shadow: 'rgba(249, 115, 22, 0.3)'
@@ -282,7 +281,7 @@ const Dashboard = () => {
                 {
                     title: 'Live Chat',
                     to: '/admin/chat',
-                    permissionKey: null,
+                    permissionKey: 'chat',
                     icon: FaHeadset,
                     bg: 'linear-gradient(145deg, #06b6d4 0%, #0e7490 100%)',
                     shadow: 'rgba(6, 182, 212, 0.3)'
@@ -290,7 +289,7 @@ const Dashboard = () => {
                 {
                     title: 'Team Chat',
                     to: '/admin/internal-chat',
-                    permissionKey: null,
+                    permissionKey: 'internalChat',
                     icon: FaComments,
                     bg: 'linear-gradient(145deg, #a855f7 0%, #7e22ce 100%)',
                     shadow: 'rgba(168, 85, 247, 0.3)'
@@ -298,7 +297,7 @@ const Dashboard = () => {
                 {
                     title: 'SMS Logs',
                     to: '/admin/sms-logs',
-                    permissionKey: null,
+                    permissionKey: 'smsLogs',
                     icon: FaSms,
                     bg: 'linear-gradient(145deg, #14b8a6 0%, #0f766e 100%)',
                     shadow: 'rgba(20, 184, 166, 0.3)'
@@ -335,7 +334,7 @@ const Dashboard = () => {
                 {
                     title: 'Settings',
                     to: '/admin/settings',
-                    permissionKey: null,
+                    permissionKey: 'settings',
                     icon: FaCog,
                     bg: 'linear-gradient(145deg, #64748b 0%, #334155 100%)',
                     shadow: 'rgba(100, 116, 139, 0.3)'

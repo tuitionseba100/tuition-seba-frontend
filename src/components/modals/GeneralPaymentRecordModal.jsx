@@ -63,7 +63,7 @@ const GeneralPaymentRecordModal = ({ show, onHide, editingId, initialData, onSav
     }, []);
 
     const fetchUsers = async () => {
-        if (role === 'superadmin' || role === 'admin') {
+        if (role === 'superadmin' || role === 'admin' || role === 'manager') {
             try {
                 const token = localStorage.getItem('token');
                 const response = await axios.get('https://tuition-seba-backend-1.onrender.com/api/user/users', {
@@ -519,7 +519,7 @@ const GeneralPaymentRecordModal = ({ show, onHide, editingId, initialData, onSav
                             </Col>
                         </Row>
                         <Row>
-                            {(role === 'superadmin' || role === 'admin') && (
+                            {(role === 'superadmin' || role === 'admin' || role === 'manager') && (
                                 <Col md={6}>
                                     <Form.Group className="mb-3">
                                         <Form.Label className="fw-bold">Assigned To</Form.Label>

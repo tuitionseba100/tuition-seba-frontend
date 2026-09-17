@@ -288,7 +288,7 @@ const TaskPage = () => {
             <Container>
                 <Header>
                     <h2 className='text-primary fw-bold'>Task Dashboard</h2>
-                    {(userRole === 'superadmin' || userRole === 'admin') && (
+                    {(userRole === 'superadmin' || userRole === 'admin' || userRole === 'manager') && (
                         <Button variant="primary" onClick={() => { setEditingTask(null); setShowModal(true); }}>
                             Create Task
                         </Button>
@@ -483,7 +483,7 @@ const TaskPage = () => {
                                                     <Button variant="warning" onClick={() => handleEditTask(task)} className="mr-2">
                                                         <FaEdit />
                                                     </Button>
-                                                    {(userRole === 'superadmin' || (userRole === 'admin' && task.createdBy === currentUserId)) && (
+                                                    {(userRole === 'superadmin' || ((userRole === 'admin' || userRole === 'manager') && task.createdBy === currentUserId)) && (
                                                         <Button variant="danger" onClick={() => handleDeleteTask(task._id)}>
                                                             <FaTrashAlt />
                                                         </Button>

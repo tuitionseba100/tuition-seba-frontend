@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Button, Table, Modal, Form, Spinner } from 'react-bootstrap';
-import { FaTrashAlt, FaEdit, FaSearch, FaUserShield, FaUserCog, FaPlus, FaCheckCircle, FaTimesCircle, FaKey, FaInfoCircle, FaEye, FaEyeSlash, FaLock, FaUnlock, FaHistory, FaMoon } from 'react-icons/fa';
+import { FaTrashAlt, FaEdit, FaSearch, FaUserShield, FaUserCog, FaUserTie, FaPlus, FaCheckCircle, FaTimesCircle, FaKey, FaInfoCircle, FaEye, FaEyeSlash, FaLock, FaUnlock, FaHistory, FaMoon } from 'react-icons/fa';
 import { axiosWithFallback as axios } from '../services/fetchWithFallback';
 import { useNavigate } from 'react-router-dom';
 import NavBarPage from './NavbarPage';
@@ -199,9 +199,15 @@ const RoleBadge = styled.span`
   align-items: center;
   gap: 0.4rem;
   
-  background: ${props => props.role === 'superadmin' ? 'rgba(235, 248, 255, 1)' : 'rgba(247, 250, 252, 1)'};
-  color: ${props => props.role === 'superadmin' ? '#2b6cb0' : '#4a5568'};
-  border: 1px solid ${props => props.role === 'superadmin' ? '#bee3f8' : '#e2e8f0'};
+  background: ${props => 
+    props.role === 'superadmin' ? 'rgba(235, 248, 255, 1)' : 
+    props.role === 'manager' ? '#ecfdf5' : 'rgba(247, 250, 252, 1)'};
+  color: ${props => 
+    props.role === 'superadmin' ? '#2b6cb0' : 
+    props.role === 'manager' ? '#047857' : '#4a5568'};
+  border: 1px solid ${props => 
+    props.role === 'superadmin' ? '#bee3f8' : 
+    props.role === 'manager' ? '#a7f3d0' : '#e2e8f0'};
 `;
 
 const ActionBtn = styled.button`
@@ -264,55 +270,80 @@ const ModalHeaderStyled = styled(Modal.Header)`
 `;
 
 const FormGroup = styled(Form.Group)`
-  margin-bottom: 1.5rem;
+  margin-bottom: 1rem;
   
   label {
     font-weight: 600;
     color: #4a5568;
-    margin-bottom: 0.5rem;
-    font-size: 0.9rem;
+    margin-bottom: 0.35rem;
+    font-size: 0.85rem;
   }
   
   input, select {
-    padding: 0.75rem 1rem;
-    border-radius: 10px;
+    padding: 0.55rem 0.85rem;
+    border-radius: 8px;
     border: 1px solid #e2e8f0;
-    transition: all 0.3s;
+    font-size: 0.88rem;
+    transition: all 0.2s;
     
     &:focus {
-      border-color: #4299e1;
-      box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.1);
+      border-color: #3b82f6;
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
     }
   }
 `;
 
 const PermissionSection = styled.div`
-  background: #f7fafc;
-  border-radius: 12px;
-  padding: 1.25rem;
-  border: 1px solid #edf2f7;
+  background: #f8fafc;
+  border-radius: 10px;
+  padding: 0.75rem 0.85rem;
+  border: 1px solid #e2e8f0;
 
   .permission-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-    gap: 0.75rem;
+    gap: 0.45rem 0.55rem;
   }
 `;
 
-const PermissionCheck = styled(Form.Check)`
-  label {
-    font-weight: 500 !important;
-    font-size: 0.85rem !important;
-    color: #4a5568 !important;
-    cursor: pointer;
+const PermissionItem = styled.label`
+  background: white;
+  padding: 0.42rem 0.65rem;
+  border-radius: 6px;
+  border: 1px solid ${props => props.$checked ? '#93c5fd' : '#e2e8f0'};
+  background: ${props => props.$checked ? '#f0f7ff' : '#ffffff'};
+  transition: all 0.15s ease-in-out;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  min-height: 34px;
+  cursor: pointer;
+  user-select: none;
+  margin: 0;
+
+  &:hover {
+    border-color: #60a5fa;
+    background: ${props => props.$checked ? '#eff6ff' : '#f8fafc'};
   }
-  
-  .form-check-input {
+
+  input[type="checkbox"] {
     cursor: pointer;
-    &:checked {
-      background-color: #4299e1;
-      border-color: #4299e1;
-    }
+    margin: 0 !important;
+    width: 15px;
+    height: 15px;
+    flex-shrink: 0;
+    accent-color: #2563eb;
+  }
+
+  .perm-text {
+    font-weight: 500;
+    font-size: 0.8rem;
+    color: ${props => props.$checked ? '#1e3a8a' : '#334155'};
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    flex: 1;
+    line-height: 1.2;
   }
 `;
 
@@ -349,16 +380,22 @@ const SkeletonLine = styled.div`
 
 const AVAILABLE_MODULES = [
     { key: 'tuition', label: 'Tuitions' },
-    { key: 'payment', label: 'Payments' },
-    { key: 'teacherPayment', label: 'Teacher Payments' },
-    { key: 'refund', label: 'Refund' },
-    { key: 'guardianApply', label: 'Guardian' },
-    { key: 'task', label: 'Task' },
     { key: 'tuitionApply', label: 'Tuition Apply' },
-    { key: 'premiumTeacher', label: 'Premium' },
-    { key: 'spamBest', label: 'Spam/Best' },
-    { key: 'lead', label: 'Lead' },
-    { key: 'general', label: 'Search' }
+    { key: 'guardianApply', label: 'Guardian Apply' },
+    { key: 'premiumTeacher', label: 'Premium Teachers' },
+    { key: 'payment', label: 'Guardian Payments' },
+    { key: 'teacherPayment', label: 'Teacher Payments' },
+    { key: 'refund', label: 'Refund Requests' },
+    { key: 'task', label: 'Tasks' },
+    { key: 'lead', label: 'Leads' },
+    { key: 'attendance', label: 'Attendance' },
+    { key: 'complaints', label: 'Complaints & Suggestions' },
+    { key: 'chat', label: 'Live Chat' },
+    { key: 'internalChat', label: 'Team Chat' },
+    { key: 'smsLogs', label: 'SMS Logs' },
+    { key: 'spamBest', label: 'Spam / Best' },
+    { key: 'general', label: 'Global Search' },
+    { key: 'settings', label: 'Settings' }
 ];
 
 const HistoryItem = styled.div`
@@ -616,8 +653,8 @@ const UserPage = () => {
             toast.error('Password is required');
             return;
         }
-        if (newUser.role === 'admin' && (!newUser.permissions || newUser.permissions.length === 0)) {
-            toast.error('Please select at least one permission for admin role');
+        if (newUser.role !== 'superadmin' && (!newUser.permissions || newUser.permissions.length === 0)) {
+            toast.error(`Please select at least one permission for ${newUser.role} role`);
             return;
         }
 
@@ -770,9 +807,23 @@ const UserPage = () => {
 
                                 <div>
                                     <RoleBadge role={user.role}>
-                                        {user.role === 'superadmin' ? <FaUserShield /> : <FaUserCog />}
-                                        {user.role === 'superadmin' ? 'Super Admin' : 'Admin'}
+                                        {user.role === 'superadmin' ? <FaUserShield /> : (user.role === 'manager' ? <FaUserTie /> : <FaUserCog />)}
+                                        {user.role === 'superadmin' ? 'Super Admin' : (user.role === 'manager' ? 'Manager' : 'Admin')}
                                     </RoleBadge>
+                                    {user.role !== 'superadmin' && (
+                                        <div className="mt-1">
+                                            <span
+                                                className="badge bg-light text-secondary border"
+                                                style={{ fontSize: '0.68rem', fontWeight: '600', cursor: 'help' }}
+                                                title={(user.permissions || []).map(p => {
+                                                    const m = AVAILABLE_MODULES.find(mod => mod.key === p);
+                                                    return m ? m.label : p;
+                                                }).join(', ') || 'No permissions'}
+                                            >
+                                                {(user.permissions || []).length} / {AVAILABLE_MODULES.length} Modules
+                                            </span>
+                                        </div>
+                                    )}
                                 </div>
 
                                 <div>
@@ -835,11 +886,11 @@ const UserPage = () => {
                     onHide={handleCloseModal}
                     centered
                     size="lg"
-                    contentClassName="border-0 shadow-lg"
+                    contentClassName="border-0 shadow-xl"
                     style={{ borderRadius: '1rem' }}
                 >
-                    <ModalHeaderStyled closeButton>
-                        <Modal.Title>{editingUser ? 'Update User Details' : 'Register New Account'}</Modal.Title>
+                    <ModalHeaderStyled closeButton className="py-3 px-4">
+                        <Modal.Title className="fs-5">{editingUser ? 'Update User Details' : 'Register New Account'}</Modal.Title>
                     </ModalHeaderStyled>
                     <Modal.Body className="p-4">
                         <Form>
@@ -890,26 +941,27 @@ const UserPage = () => {
                                             onChange={handleInputChange}
                                         >
                                             <option value="admin">Admin</option>
+                                            <option value="manager">Manager</option>
                                             <option value="superadmin">Super Admin</option>
                                         </Form.Select>
                                     </FormGroup>
                                 </div>
                             </div>
 
-                            {newUser.role === 'admin' && (
+                            {newUser.role !== 'superadmin' && (
                                 <>
-                                    <div className="mt-4 p-3 bg-light rounded-3 border">
+                                    <div className="mt-2 mb-3 p-2.5 px-3 bg-light rounded-3 border">
                                         <div className="row align-items-center">
                                             <div className="col-md-7">
-                                                <div className="fw-bold text-dark">
-                                                    <FaMoon className="text-primary me-2" /> Night Lock (12AM - 7AM)
+                                                <div className="fw-bold text-dark" style={{ fontSize: '0.82rem' }}>
+                                                    <FaMoon className="text-primary me-1.5" /> Night Lock (12AM - 7AM)
                                                 </div>
-                                                <div className="small text-muted mt-1">
-                                                    Automatically restrict login access during night hours in Bangladesh (GMT+6).
+                                                <div className="text-muted" style={{ fontSize: '0.74rem' }}>
+                                                    Restrict login access during night hours in BD (GMT+6).
                                                 </div>
                                             </div>
-                                            <div className="col-md-5 d-flex justify-content-end align-items-center gap-3">
-                                                <span className={`small fw-bold ${newUser.autoLock ? 'text-primary' : 'text-muted'}`}>
+                                            <div className="col-md-5 d-flex justify-content-end align-items-center gap-2">
+                                                <span className={`fw-bold ${newUser.autoLock ? 'text-primary' : 'text-muted'}`} style={{ fontSize: '0.74rem' }}>
                                                     {newUser.autoLock ? 'ACTIVE' : 'DISABLED'}
                                                 </span>
                                                 <ToggleSwitch
@@ -922,35 +974,51 @@ const UserPage = () => {
                                         </div>
                                     </div>
 
-                                    <div className="mt-4 mb-3">
-                                        <div className="d-flex justify-content-between align-items-center mb-3">
-                                            <Form.Label className="fw-bold mb-0 text-dark">Access Permissions</Form.Label>
+                                    <div className="mt-3 mb-2">
+                                        <div className="d-flex justify-content-between align-items-center mb-2">
+                                            <div>
+                                                <Form.Label className="fw-bold mb-0 text-dark" style={{ fontSize: '0.85rem' }}>Access Permissions</Form.Label>
+                                                <div className="text-muted" style={{ fontSize: '0.75rem' }}>
+                                                    {newUser.permissions.length} of {AVAILABLE_MODULES.length} modules selected
+                                                </div>
+                                            </div>
                                             <Button
-                                                variant="link"
+                                                variant="outline-primary"
                                                 size="sm"
                                                 onClick={handleCheckAll}
-                                                className="text-decoration-none fw-semibold"
+                                                className="rounded-pill px-3 py-1 fw-semibold text-decoration-none"
+                                                style={{ fontSize: '0.74rem' }}
                                             >
                                                 {newUser.permissions.length === AVAILABLE_MODULES.length ? 'Revoke All' : 'Grant All'}
                                             </Button>
                                         </div>
                                         <PermissionSection>
                                             <div className="permission-grid">
-                                                {AVAILABLE_MODULES.map((module) => (
-                                                    <PermissionCheck
-                                                        key={module.key}
-                                                        type="checkbox"
-                                                        id={`perm-${module.key}`}
-                                                        label={module.label}
-                                                        checked={newUser.permissions.includes(module.key)}
-                                                        onChange={() => handlePermissionChange(module.key)}
-                                                    />
-                                                ))}
+                                                {AVAILABLE_MODULES.map((module) => {
+                                                    const isChecked = newUser.permissions.includes(module.key);
+                                                    return (
+                                                        <PermissionItem
+                                                            key={module.key}
+                                                            $checked={isChecked}
+                                                            htmlFor={`perm-${module.key}`}
+                                                        >
+                                                            <input
+                                                                type="checkbox"
+                                                                id={`perm-${module.key}`}
+                                                                checked={isChecked}
+                                                                onChange={() => handlePermissionChange(module.key)}
+                                                            />
+                                                            <span className="perm-text" title={module.label}>
+                                                                {module.label}
+                                                            </span>
+                                                        </PermissionItem>
+                                                    );
+                                                })}
                                             </div>
                                         </PermissionSection>
-                                        <div className="mt-3 small text-muted d-flex align-items-center gap-2">
-                                            <FaInfoCircle color="#4299e1" />
-                                            <span>Attendance is public. Finance & User management are restricted to Super Admins.</span>
+                                        <div className="mt-2 text-muted d-flex align-items-center gap-1.5" style={{ fontSize: '0.74rem' }}>
+                                            <FaInfoCircle color="#4299e1" size={12} />
+                                            <span>Finance, Logs, Reports & User management are strictly restricted to Super Admins.</span>
                                         </div>
                                     </div>
                                 </>

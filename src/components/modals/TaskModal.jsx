@@ -4,7 +4,7 @@ import Select from 'react-select';
 
 const TaskModal = ({ show, handleClose, onSave, editingTask, userList, userRole, currentUserId }) => {
     const isFullEditAllowed = userRole === 'superadmin' || 
-        (userRole === 'admin' && (!editingTask || editingTask.createdBy === currentUserId));
+        ((userRole === 'admin' || userRole === 'manager') && (!editingTask || editingTask.createdBy === currentUserId));
     const [taskData, setTaskData] = useState({
         tuitionCode: '',
         employeeName: '',

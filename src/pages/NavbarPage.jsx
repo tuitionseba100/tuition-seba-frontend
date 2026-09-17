@@ -97,8 +97,8 @@ const Navbar = () => {
 
         // Visibility logic
         if (role !== "superadmin") {
-            // Finance, Users, Logs, Settings, and Status History are strictly superadmin
-            if (to === "/admin/finance" || to === "/admin/user" || to === "/admin/activity-log" || to === "/admin/settings" || to === "/admin/reports") return null;
+            // Finance, Users, Logs, and Status History are strictly superadmin
+            if (to === "/admin/finance" || to === "/admin/user" || to === "/admin/activity-log" || to === "/admin/reports") return null;
 
             // Other items require specific permission if key is provided
             if (permissionKey && !permissions.includes(permissionKey)) {
@@ -169,12 +169,14 @@ const Navbar = () => {
                         <ul className="navbar-nav ms-auto nav-scroll-container">
                             {role === "superadmin" || dayStarted ? (
                                 <>
-                                    <li className="nav-item">
-                                        <button className="btn btn-light text-primary fw-bold rounded-pill px-3 py-2 ms-2" onClick={() => setShowSearchModal(true)} title="Global Search">
-                                            <FaSearch size={18} />
-                                        </button>
-                                    </li>
-                                    {role === "superadmin" && (
+                                    {(role === "superadmin" || permissions.includes("general")) && (
+                                        <li className="nav-item">
+                                            <button className="btn btn-light text-primary fw-bold rounded-pill px-3 py-2 ms-2" onClick={() => setShowSearchModal(true)} title="Global Search">
+                                                <FaSearch size={18} />
+                                            </button>
+                                        </li>
+                                    )}
+                                    {(role === "superadmin" || permissions.includes("settings")) && (
                                         <li className="nav-item">
                                             <Link className="btn btn-light text-primary fw-bold rounded-pill px-3 py-2 ms-2 d-inline-flex align-items-center justify-content-center" to="/admin/settings" title="Settings">
                                                 <FaCog size={18} />
@@ -196,32 +198,34 @@ const Navbar = () => {
                                     {renderNavItem("/admin/spamBest", "Spam", "spamBest")}
                                     {renderNavItem("/admin/lead", "Lead", "lead")}
                                     {renderNavItem("/admin/general", "Search", "general")}
-                                    {renderNavItem("/admin/complaints", "Complaints")}
-                                    {renderNavItem("/admin/chat", "Chat")}
-                                    {renderNavItem("/admin/sms-logs", "SMS")}
+                                    {renderNavItem("/admin/complaints", "Complaints", "complaints")}
+                                    {renderNavItem("/admin/chat", "Chat", "chat")}
+                                    {renderNavItem("/admin/sms-logs", "SMS", "smsLogs")}
                                     {/* Team Chat — icon button to save navbar space */}
-                                    <li className="nav-item">
-                                        <Link
-                                            className="btn btn-light fw-bold rounded-pill px-3 py-2 ms-2 d-inline-flex align-items-center justify-content-center position-relative"
-                                            to="/admin/internal-chat"
-                                            title="Team Chat"
-                                            style={location.pathname === '/admin/internal-chat' ? { color: '#0d6efd' } : { color: '#0d6efd' }}
-                                            onClick={() => setHasUnseenInternalChat(false)}
-                                        >
-                                            <FaComments size={18} />
-                                            {hasUnseenInternalChat && (
-                                                <span style={{
-                                                    position: 'absolute', top: 4, right: 4,
-                                                    width: 8, height: 8, borderRadius: '50%',
-                                                    background: '#dc3545', border: '1.5px solid #fff'
-                                                }} />
-                                            )}
-                                        </Link>
-                                    </li>
+                                    {(role === "superadmin" || permissions.includes("internalChat")) && (
+                                        <li className="nav-item">
+                                            <Link
+                                                className="btn btn-light fw-bold rounded-pill px-3 py-2 ms-2 d-inline-flex align-items-center justify-content-center position-relative"
+                                                to="/admin/internal-chat"
+                                                title="Team Chat"
+                                                style={location.pathname === '/admin/internal-chat' ? { color: '#0d6efd' } : { color: '#0d6efd' }}
+                                                onClick={() => setHasUnseenInternalChat(false)}
+                                            >
+                                                <FaComments size={18} />
+                                                {hasUnseenInternalChat && (
+                                                    <span style={{
+                                                        position: 'absolute', top: 4, right: 4,
+                                                        width: 8, height: 8, borderRadius: '50%',
+                                                        background: '#dc3545', border: '1.5px solid #fff'
+                                                    }} />
+                                                )}
+                                            </Link>
+                                        </li>
+                                    )}
                                 </>
                             ) : null}
 
-                            {renderNavItem("/admin/attendance", "Attendance")}
+                            {renderNavItem("/admin/attendance", "Attendance", "attendance")}
 
                             <li className="nav-item">
                                 <button className="btn btn-light text-primary fw-bold rounded-pill px-3 py-2 ms-2" onClick={handleLogout} title="Logout">

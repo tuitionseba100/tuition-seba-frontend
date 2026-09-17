@@ -311,7 +311,7 @@ const TuitionPage = () => {
         fetchAlertData();
 
         const fetchUsers = async () => {
-            if (role === 'superadmin' || role === 'admin') {
+            if (role === 'superadmin' || role === 'admin' || role === 'manager') {
                 try {
                     const token = localStorage.getItem('token');
                     const response = await axios.get('https://tuition-seba-backend-1.onrender.com/api/user/users', {
@@ -901,7 +901,7 @@ const TuitionPage = () => {
                         </Form.Select>
                     </Col>
 
-                    {(role === 'superadmin' || role === 'admin') && (
+                    {(role === 'superadmin' || role === 'admin' || role === 'manager') && (
                         <Col md={2}>
                             <Form.Label className="fw-bold" style={getLabelStyle(searchInputs.assignedTo)}>Assigned To</Form.Label>
                             <Select
@@ -1322,7 +1322,7 @@ const TuitionPage = () => {
                                                     <Button variant="success" onClick={() => handleShare(tuition)}>
                                                         <FaWhatsapp />
                                                     </Button>
-                                                    {role === 'superadmin' && (
+                                                    {(role === 'superadmin' || role === 'manager') && (
                                                         <Button variant="dark" onClick={() => handleOpenAssignModal(tuition)} title="Assign Employee">
                                                             <FaUserPlus />
                                                         </Button>
@@ -1410,7 +1410,7 @@ const TuitionPage = () => {
                                                             <FaTrashAlt />
                                                         </Button>
                                                     )}
-                                                    {role === 'superadmin' && (
+                                                    {(role === 'superadmin' || role === 'manager') && (
                                                         <Button variant="dark" onClick={() => handleOpenAssignModal(tuition)} title="Assign Employee">
                                                             <FaUserPlus />
                                                         </Button>
@@ -2035,7 +2035,7 @@ const MemoizedTuitionTable = React.memo(({
                                 <Button variant="success" onClick={() => handleShare(tuition)}>
                                     <FaWhatsapp />
                                 </Button>
-                                {role === 'superadmin' && (
+                                {(role === 'superadmin' || role === 'manager') && (
                                     <Button variant="dark" onClick={() => handleOpenAssignModal(tuition)} title="Assign Employee">
                                         <FaUserPlus />
                                     </Button>

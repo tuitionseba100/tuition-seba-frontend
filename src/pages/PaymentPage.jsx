@@ -467,7 +467,7 @@ const PaymentPage = () => {
     };
 
     const fetchUsers = async () => {
-        if (role === 'superadmin' || role === 'admin') {
+        if (role === 'superadmin' || role === 'admin' || role === 'manager') {
             try {
                 const token = localStorage.getItem('token');
                 const response = await axios.get('https://tuition-seba-backend-1.onrender.com/api/user/users', {
@@ -922,7 +922,7 @@ const PaymentPage = () => {
                         />
                     </Col>
 
-                    {(role === 'superadmin' || role === 'admin') && (
+                    {(role === 'superadmin' || role === 'admin' || role === 'manager') && (
                         <Col md={2}>
                             <Form.Label className="fw-bold">Assigned To</Form.Label>
                             <Select

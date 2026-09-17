@@ -158,13 +158,13 @@ const App = () => {
             <Route path="chat" element={<AdminChatConsole />} />
             <Route path="sms-logs" element={<SmsLogPage />} />
             <Route path="internal-chat" element={<InternalChatPage />} />
+            <Route path="settings" element={<SettingsPage />} />
           </Route>
 
           <Route element={<PrivateRoute role="superadmin" />}>
             <Route path="user" element={<UserPage />} />
             <Route path="finance" element={<ExpensePage />} />
             <Route path="activity-log" element={<ActivityLogPage />} />
-            <Route path="settings" element={<SettingsPage />} />
             <Route path="reports" element={<StatusHistoryReportPage />} />
           </Route>
         </Route>

@@ -65,6 +65,13 @@ const ServiceChargePage = () => {
     const [showWhatsAppScModal, setShowWhatsAppScModal] = useState(false);
     const [whatsAppSc, setWhatsAppSc] = useState(null);
 
+    // Auto migration state (shows between 10:00 PM and 11:59 PM)
+    const [dueTodayList, setDueTodayList] = useState([]);
+    const [showAutoMigrate, setShowAutoMigrate] = useState(false);
+    const [isMigrating, setIsMigrating] = useState(false);
+    const [showMigrateModal, setShowMigrateModal] = useState(false);
+    const [selectedMigrationIds, setSelectedMigrationIds] = useState([]);
+
     const handleOpenWhatsAppSc = (sc) => {
         setWhatsAppSc(sc);
         setShowWhatsAppScModal(true);
@@ -109,10 +116,95 @@ const ServiceChargePage = () => {
         }
     };
 
+    // Fetch service charges due today (alert-today)
+    const fetchDueTodayList = async () => {
+        try {
+            const token = localStorage.getItem('token');
+            const res = await axios.get('https://tuition-seba-backend-1.onrender.com/api/serviceCharge/alert-today', {
+                headers: token ? { Authorization: token } : {}
+            });
+            setDueTodayList(res.data || []);
+        } catch (err) {
+            console.error('Error fetching service charges due today:', err);
+        }
+    };
+
     useEffect(() => {
         fetchServiceCharges(1);
         fetchServiceChargeSummary();
+        fetchDueTodayList();
     }, [fetchServiceCharges]);
+
+    useEffect(() => {
+        const checkTime = () => {
+            const now = new Date();
+            const hours = now.getHours();
+
+            // Only show between 10:00 PM and 11:59 PM
+            const isNightTime = hours === 22 || hours === 23;
+            const hasData = dueTodayList.length > 0;
+            setShowAutoMigrate(isNightTime && hasData);
+        };
+
+        checkTime();
+        const interval = setInterval(checkTime, 60000); // Check every minute
+        return () => clearInterval(interval);
+    }, [dueTodayList]);
+
+    const handleAutoMigrate = async () => {
+        if (selectedMigrationIds.length === 0) {
+            toast.error("Please select at least one service charge to migrate.");
+            return;
+        }
+
+        if (!window.confirm(`Are you sure you want to migrate ${selectedMigrationIds.length} selected service charge(s) from today to tomorrow?`)) {
+            return;
+        }
+
+        setIsMigrating(true);
+        try {
+            const token = localStorage.getItem('token');
+            const username = localStorage.getItem('username') || 'Admin';
+            const response = await axios.post('https://tuition-seba-backend-1.onrender.com/api/serviceCharge/auto-migrate', {
+                serviceChargeIds: selectedMigrationIds
+            }, {
+                headers: { 
+                    Authorization: token,
+                    'x-user-name': username
+                }
+            });
+            toast.success(response.data.message || "Service charges migrated successfully!");
+            setShowMigrateModal(false);
+            setSelectedMigrationIds([]);
+            await fetchDueTodayList();
+            await fetchServiceCharges(scCurrentPage);
+            await fetchServiceChargeSummary();
+        } catch (error) {
+            console.error('Migration failed:', error);
+            toast.error(error.response?.data?.message || 'Migration failed. Please try again.');
+        } finally {
+            setIsMigrating(false);
+        }
+    };
+
+    const toggleMigrationSelection = (id) => {
+        setSelectedMigrationIds(prev =>
+            prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]
+        );
+    };
+
+    const handleSelectAllMigration = () => {
+        if (selectedMigrationIds.length === dueTodayList.length) {
+            setSelectedMigrationIds([]);
+        } else {
+            setSelectedMigrationIds(dueTodayList.map(p => p._id));
+        }
+    };
+
+    const openMigrateModal = () => {
+        setSelectedMigrationIds(dueTodayList.map(p => p._id));
+        setShowMigrateModal(true);
+    };
 
     // Open Add Standalone modal
     const handleOpenCreateSc = () => {
@@ -171,6 +263,7 @@ const ServiceChargePage = () => {
             setScFormOpen(false);
             fetchServiceCharges(scCurrentPage);
             fetchServiceChargeSummary();
+            fetchDueTodayList();
         } catch (err) {
             console.error('Save service charge error:', err);
             toast.error(err.response?.data?.message || "Failed to save service charge.");
@@ -185,6 +278,7 @@ const ServiceChargePage = () => {
                 toast.success("Service charge deleted successfully!");
                 fetchServiceCharges(scCurrentPage);
                 fetchServiceChargeSummary();
+                fetchDueTodayList();
             } catch (err) {
                 console.error('Delete service charge error:', err);
                 toast.error("Failed to delete record.");
@@ -214,7 +308,17 @@ const ServiceChargePage = () => {
                 {/* Header Section */}
                 <Header>
                     <h2 className='text-primary fw-bold mb-0'>Service Charges</h2>
-                    <div className="d-flex gap-2">
+                    <div className="d-flex gap-2 align-items-center">
+                        {showAutoMigrate && (
+                            <Button
+                                variant="warning"
+                                className="fw-bold"
+                                onClick={openMigrateModal}
+                                style={{ borderRadius: '30px', padding: '8px 24px' }}
+                            >
+                                Auto Migrate Update Today
+                            </Button>
+                        )}
                         <Button variant="primary" onClick={handleOpenCreateSc} className="rounded-3 shadow-sm px-4">
                             + Add Service Charge
                         </Button>
@@ -447,7 +551,7 @@ const ServiceChargePage = () => {
                 )}
 
                 {/* Create/Edit Service Charge Modal */}
-                <Modal show={scFormOpen} onHide={() => setScFormOpen(false)} centered size="lg">
+                <Modal show={scFormOpen} onHide={() => setScFormOpen(false)} centered size="xl">
                     <Modal.Header closeButton className="border-0 pb-0">
                         <Modal.Title className="fw-bold ps-2">
                             {scEditingId ? "Edit Service Charge" : "Add Standalone Service Charge"}
@@ -503,7 +607,7 @@ const ServiceChargePage = () => {
                                         />
                                     </Form.Group>
                                 </Col>
-                                <Col md={4}>
+                                <Col md={3}>
                                     <Form.Group>
                                         <Form.Label className="fw-bold small">Amount (BDT) *</Form.Label>
                                         <Form.Control
@@ -515,7 +619,7 @@ const ServiceChargePage = () => {
                                         />
                                     </Form.Group>
                                 </Col>
-                                <Col md={4}>
+                                <Col md={3}>
                                     <Form.Group>
                                         <Form.Label className="fw-bold small">Payment Date *</Form.Label>
                                         <Form.Control
@@ -526,7 +630,17 @@ const ServiceChargePage = () => {
                                         />
                                     </Form.Group>
                                 </Col>
-                                <Col md={4}>
+                                <Col md={3}>
+                                    <Form.Group>
+                                        <Form.Label className="fw-bold small">Next Payment Date</Form.Label>
+                                        <Form.Control
+                                            type="date"
+                                            value={scFormData.nextPaymentDate || ''}
+                                            onChange={(e) => setScFormData({ ...scFormData, nextPaymentDate: e.target.value })}
+                                        />
+                                    </Form.Group>
+                                </Col>
+                                <Col md={3}>
                                     <Form.Group>
                                         <Form.Label className="fw-bold small">Status</Form.Label>
                                         <Form.Select
@@ -540,25 +654,15 @@ const ServiceChargePage = () => {
                                         </Form.Select>
                                     </Form.Group>
                                 </Col>
-                                <Col md={6}>
+                                <Col md={12}>
                                     <Form.Group>
                                         <Form.Label className="fw-bold small">Last Comment / Notes</Form.Label>
                                         <Form.Control
                                             as="textarea"
-                                            rows={2}
+                                            rows={4}
                                             placeholder="Add last comment / notes..."
                                             value={scFormData.comment}
                                             onChange={(e) => setScFormData({ ...scFormData, comment: e.target.value })}
-                                        />
-                                    </Form.Group>
-                                </Col>
-                                <Col md={6}>
-                                    <Form.Group>
-                                        <Form.Label className="fw-bold small">Next Payment Date</Form.Label>
-                                        <Form.Control
-                                            type="date"
-                                            value={scFormData.nextPaymentDate || ''}
-                                            onChange={(e) => setScFormData({ ...scFormData, nextPaymentDate: e.target.value })}
                                         />
                                     </Form.Group>
                                 </Col>
@@ -567,7 +671,7 @@ const ServiceChargePage = () => {
                                         <Form.Label className="fw-bold small">Next Comment / Follow-up Notes</Form.Label>
                                         <Form.Control
                                             as="textarea"
-                                            rows={2}
+                                            rows={3}
                                             placeholder="Add follow-up notes..."
                                             value={scFormData.nextComment || ''}
                                             onChange={(e) => setScFormData({ ...scFormData, nextComment: e.target.value })}
@@ -593,6 +697,85 @@ const ServiceChargePage = () => {
                     onHide={() => setShowWhatsAppScModal(false)}
                     sc={whatsAppSc}
                 />
+
+                {/* Auto Migrate Modal */}
+                <Modal 
+                    show={showMigrateModal} 
+                    onHide={() => !isMigrating && setShowMigrateModal(false)} 
+                    size="lg" 
+                    backdrop={isMigrating ? 'static' : true} 
+                    keyboard={!isMigrating}
+                >
+                    <Modal.Header closeButton={!isMigrating}>
+                        <Modal.Title className="fw-bold">Auto Migrate Service Charges (Today to Tomorrow)</Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body>
+                        <div className="mb-3 d-flex justify-content-between align-items-center">
+                            <span className="fw-bold">Total service charges to be paid today: {dueTodayList.length}</span>
+                            <Button variant="outline-primary" size="sm" onClick={handleSelectAllMigration}>
+                                {selectedMigrationIds.length === dueTodayList.length ? 'Deselect All' : 'Select All'}
+                            </Button>
+                        </div>
+                        <div style={{ maxHeight: '450px', overflowY: 'auto' }}>
+                            <Table striped bordered hover size="sm">
+                                <thead style={{ position: 'sticky', top: 0, backgroundColor: 'white', zIndex: 1 }}>
+                                    <tr>
+                                        <th className="text-center">Select</th>
+                                        <th>Tuition Code</th>
+                                        <th>Teacher Name</th>
+                                        <th>Phone</th>
+                                        <th>Amount</th>
+                                        <th>Status</th>
+                                        <th>Next Payment Date</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {dueTodayList.map(sc => (
+                                        <tr key={sc._id}>
+                                            <td className="text-center">
+                                                <Form.Check
+                                                    type="checkbox"
+                                                    checked={selectedMigrationIds.includes(sc._id)}
+                                                    onChange={() => toggleMigrationSelection(sc._id)}
+                                                />
+                                            </td>
+                                            <td className="fw-bold text-primary">{sc.tuitionCode || '-'}</td>
+                                            <td>{sc.name || '-'}</td>
+                                            <td>{sc.personalPhone || sc.paymentNumber || '-'}</td>
+                                            <td className="fw-bold">৳{sc.amount}</td>
+                                            <td>
+                                                <span className={`badge ${
+                                                    (sc.status || 'completed') === 'completed' ? 'bg-success' :
+                                                    (sc.status || 'completed') === 'pending' ? 'bg-warning text-dark' :
+                                                    (sc.status || 'completed') === 'cancelled' ? 'bg-secondary' :
+                                                    'bg-light text-dark'
+                                                }`}>
+                                                    {sc.status || 'completed'}
+                                                </span>
+                                            </td>
+                                            <td>{formatDateOnly(sc.nextPaymentDate)}</td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </Table>
+                        </div>
+                        <div className="mt-3 text-muted small">
+                            * Selected service charges will have their "Next Payment Date" moved to tomorrow and "Updated By" set to "auto migration".
+                        </div>
+                    </Modal.Body>
+                    <Modal.Footer>
+                        {isMigrating && <span className="text-danger fw-bold me-auto">⚠️ Please don't close while updating...</span>}
+                        <Button variant="secondary" onClick={() => setShowMigrateModal(false)} disabled={isMigrating}>Cancel</Button>
+                        <Button
+                            variant="warning"
+                            className="fw-bold"
+                            onClick={handleAutoMigrate}
+                            disabled={isMigrating || selectedMigrationIds.length === 0}
+                        >
+                            {isMigrating ? <Spinner animation="border" size="sm" /> : `Migrate Selected (${selectedMigrationIds.length})`}
+                        </Button>
+                    </Modal.Footer>
+                </Modal>
 
                 <ToastContainer />
             </Container>

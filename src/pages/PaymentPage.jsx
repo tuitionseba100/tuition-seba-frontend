@@ -149,7 +149,8 @@ const PaymentPage = () => {
         paymentNumber: '',
         paymentStatus: '',
         paymentType: '',
-        assignedTo: ''
+        assignedTo: '',
+        dueToday: false
     });
 
     const [appliedFilters, setAppliedFilters] = useState({
@@ -158,7 +159,8 @@ const PaymentPage = () => {
         paymentNumber: '',
         paymentStatus: '',
         paymentType: '',
-        assignedTo: ''
+        assignedTo: '',
+        dueToday: false
     });
 
     const [summaryCounts, setSummaryCounts] = useState({
@@ -295,14 +297,21 @@ const PaymentPage = () => {
             paymentNumber: '',
             paymentStatus: '',
             paymentType: '',
-            assignedTo: ''
+            assignedTo: '',
+            dueToday: false
         };
         setSearchInputs(resetFilters);
         setAppliedFilters(resetFilters);
         setCurrentPage(1);
     };
 
-
+    const handleToggleDueToday = () => {
+        const nextVal = !appliedFilters.dueToday;
+        const newFilters = { ...appliedFilters, dueToday: nextVal };
+        setSearchInputs(prev => ({ ...prev, dueToday: nextVal }));
+        setAppliedFilters(newFilters);
+        setCurrentPage(1);
+    };
 
     const fetchUsers = async () => {
         if (role === 'superadmin' || role === 'admin' || role === 'manager') {
@@ -340,7 +349,8 @@ const PaymentPage = () => {
                     paymentNumber: appliedFilters.paymentNumber,
                     paymentStatus: appliedFilters.paymentStatus,
                     paymentType: appliedFilters.paymentType,
-                    assignedTo: appliedFilters.assignedTo
+                    assignedTo: appliedFilters.assignedTo,
+                    dueToday: appliedFilters.dueToday
                 }
             });
 
@@ -811,15 +821,24 @@ const PaymentPage = () => {
 
 
                 <div className="d-flex align-items-center justify-content-center">
-                    <h5 className="me-3 d-flex align-items-center gap-2">
+                    <h5 className="me-3 d-flex align-items-center gap-2 mb-0">
                         <FaBell className="text-primary" />
                         <span>Due to be paid today: {dueTodayList.length}</span>
+                        <Button 
+                            size="sm" 
+                            variant={appliedFilters.dueToday ? "warning" : "outline-primary"} 
+                            onClick={handleToggleDueToday} 
+                            className="ms-2"
+                        >
+                            <FaInfoCircle className="me-1" />
+                            {appliedFilters.dueToday ? "Showing Today (Click to Reset)" : "Filter Today"}
+                        </Button>
                         <OverlayTrigger
                             placement="top"
-                            overlay={<Tooltip id="tooltip">Click to see details</Tooltip>}
+                            overlay={<Tooltip id="tooltip">Click to see details modal</Tooltip>}
                         >
-                            <Button size="sm" onClick={() => setShowDueModal(true)} className="ms-2">
-                                <FaInfoCircle />
+                            <Button size="sm" variant="outline-secondary" onClick={() => setShowDueModal(true)} className="ms-1">
+                                View Modal
                             </Button>
                         </OverlayTrigger>
                     </h5>

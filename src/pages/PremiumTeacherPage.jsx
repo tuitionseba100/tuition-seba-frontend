@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Button, Table, Modal, Form, Row, Col, Card, Nav, Tab, Badge } from 'react-bootstrap';
-import { FaEdit, FaInfoCircle, FaTrashAlt, FaWhatsapp, FaChevronLeft, FaChevronRight, FaSearch, FaTimes, FaGlobe, FaGooglePlay, FaUserPlus, FaCamera, FaTrash, FaUserCircle, FaExternalLinkAlt, FaCheckCircle, FaIdCard, FaImages, FaFileAlt, FaGraduationCap, FaExpandAlt } from 'react-icons/fa'; // React Icons
+import { FaEdit, FaInfoCircle, FaTrashAlt, FaWhatsapp, FaChevronLeft, FaChevronRight, FaSearch, FaTimes, FaGlobe, FaGooglePlay, FaUserPlus, FaCamera, FaTrash, FaUserCircle, FaExternalLinkAlt, FaCheckCircle, FaIdCard, FaImages, FaFileAlt, FaGraduationCap, FaExpandAlt, FaShieldAlt, FaPhoneAlt, FaTimesCircle } from 'react-icons/fa'; // React Icons
 import { axiosWithFallback as axios } from '../services/fetchWithFallback';
 import NavBarPage from './NavbarPage';
 import styled from 'styled-components';
@@ -160,6 +160,61 @@ const PremiumTeacherPage = () => {
         }
     };
 
+    // Info Verified Modal State
+    const [showInfoVerifiedModal, setShowInfoVerifiedModal] = useState(false);
+    const [targetInfoTeacher, setTargetInfoTeacher] = useState(null);
+    const [infoVerifiedToggle, setInfoVerifiedToggle] = useState(false);
+    const [infoVerifiedUpdating, setInfoVerifiedUpdating] = useState(false);
+
+    const handleOpenInfoVerifiedModal = (teacher) => {
+        setTargetInfoTeacher(teacher);
+        setInfoVerifiedToggle(Boolean(teacher.isInfoVerified));
+        setShowInfoVerifiedModal(true);
+    };
+
+    const handleSaveInfoVerified = async () => {
+        if (!targetInfoTeacher) return;
+        const currentStatus = Boolean(targetInfoTeacher.isInfoVerified);
+        if (infoVerifiedToggle === currentStatus) {
+            toast.info("Nothing to update");
+            return;
+        }
+
+        const confirmMsg = infoVerifiedToggle
+            ? `Are you sure you want to mark "${targetInfoTeacher.name}" (${targetInfoTeacher.premiumCode || 'No Code'}) as Info Verified?`
+            : `Are you sure you want to mark "${targetInfoTeacher.name}" (${targetInfoTeacher.premiumCode || 'No Code'}) as NOT Info Verified?`;
+
+        if (!window.confirm(confirmMsg)) {
+            return;
+        }
+
+        setInfoVerifiedUpdating(true);
+        try {
+            const username = localStorage.getItem('username');
+            await axios.put(
+                `https://tuition-seba-backend-1.onrender.com/api/regTeacher/edit/${targetInfoTeacher._id}`,
+                {
+                    isInfoVerified: infoVerifiedToggle,
+                    updatedBy: username
+                },
+                {
+                    headers: {
+                        Authorization: token
+                    }
+                }
+            );
+            toast.success("Info verification status updated successfully!");
+            setShowInfoVerifiedModal(false);
+            fetchTableData();
+            fetchSummary();
+        } catch (err) {
+            console.error("Error updating info verified status:", err);
+            toast.error(err.response?.data?.message || err.message || "Failed to update info verification status.");
+        } finally {
+            setInfoVerifiedUpdating(false);
+        }
+    };
+
     const [searchInputs, setSearchInputs] = useState({
         premiumCode: '',
         name: '',
@@ -170,7 +225,8 @@ const PremiumTeacherPage = () => {
         gender: '',
         uniCode: '',
         referStatus: '',
-        referPersonPhone: ''
+        referPersonPhone: '',
+        isInfoVerified: ''
     });
 
     const [appliedFilters, setAppliedFilters] = useState({
@@ -183,7 +239,8 @@ const PremiumTeacherPage = () => {
         gender: '',
         uniCode: '',
         referStatus: '',
-        referPersonPhone: ''
+        referPersonPhone: '',
+        isInfoVerified: ''
     });
 
     const searchFields = [
@@ -196,7 +253,8 @@ const PremiumTeacherPage = () => {
         { key: 'status', label: 'Status', type: 'select', options: ['pending', 'under review', 'pending payment', 'Must Advance', 'After Confirmation', 'After Salary', '30% Advance', 'rejected', 'Free - Must Advance', 'verified', 'suspended', 'Not interested'], col: 2 },
         { key: 'gender', label: 'Gender', type: 'select', options: ['male', 'female'], col: 2 },
         { key: 'referStatus', label: 'Refer Status', type: 'select', options: ['pending', 'in review', 'canceled', 'spam', 'paid'], col: 2 },
-        { key: 'referPersonPhone', label: 'Referred Phone', type: 'text', col: 2 }
+        { key: 'referPersonPhone', label: 'Referred Phone', type: 'text', col: 2 },
+        { key: 'isInfoVerified', label: 'Info Verified', type: 'select', options: ['true', 'false'], col: 2 }
     ];
 
     const fieldConfig = [
@@ -247,7 +305,8 @@ const PremiumTeacherPage = () => {
         { name: 'paymentType', label: 'Payment Method', col: 6, group: 'Subscription & Payment Details' },
         { name: 'amount', label: 'Amount Paid', col: 6, group: 'Subscription & Payment Details' },
         { name: 'paymentDate', label: 'Payment Date', type: 'date', col: 6, group: 'Subscription & Payment Details' },
-        { name: 'isBiodataShow', label: 'Show Biodata?', col: 12, group: 'Subscription & Payment Details', type: 'checkbox' },
+        { name: 'isBiodataShow', label: 'Show Biodata?', col: 6, group: 'Subscription & Payment Details', type: 'checkbox' },
+        { name: 'isInfoVerified', label: 'Info Verified?', col: 6, group: 'Subscription & Payment Details', type: 'checkbox' },
 
         // Notes & Feedback
         { name: 'comment', label: 'Comment from agent', col: 6, group: 'Notes & Feedback' },
@@ -353,7 +412,8 @@ const PremiumTeacherPage = () => {
             gender: '',
             uniCode: '',
             referStatus: '',
-            referPersonPhone: ''
+            referPersonPhone: '',
+            isInfoVerified: ''
         };
         setSearchInputs(resetFilters);
         setAppliedFilters(resetFilters);
@@ -1248,7 +1308,7 @@ const PremiumTeacherPage = () => {
                                             <option value="">All</option>
                                             {options.map((opt) => (
                                                 <option key={opt} value={opt}>
-                                                    {opt}
+                                                    {opt === 'true' ? 'Verified' : opt === 'false' ? 'Not Verified' : opt}
                                                 </option>
                                             ))}
                                         </Form.Select>
@@ -1332,6 +1392,7 @@ const PremiumTeacherPage = () => {
                                         <th>Premium Code</th>
                                         <th>Uni Code</th>
                                         <th>Status</th>
+                                        <th>Info Verified</th>
                                         <th>Name</th>
                                         <th>Phone</th>
                                         <th>Phone (WP)</th>
@@ -1349,7 +1410,7 @@ const PremiumTeacherPage = () => {
                                 <tbody>
                                     {loading ? (
                                         <tr>
-                                            <td colSpan="17" className="text-center">
+                                            <td colSpan="18" className="text-center">
                                                 <div
                                                     className="d-flex justify-content-center align-items-center"
                                                     style={{
@@ -1456,6 +1517,50 @@ const PremiumTeacherPage = () => {
                                                         >
                                                             {item.status}
                                                         </span>
+                                                    </td>
+
+                                                    <td style={{ textAlign: 'center', verticalAlign: 'middle' }}>
+                                                        <div
+                                                            onClick={() => handleOpenInfoVerifiedModal(item)}
+                                                            style={{ cursor: 'pointer', display: 'inline-block' }}
+                                                            title="Click to update Info Verified status"
+                                                        >
+                                                            {item.isInfoVerified ? (
+                                                                <span
+                                                                    style={{
+                                                                        backgroundColor: '#e8f5e9',
+                                                                        color: '#2e7d32',
+                                                                        padding: '3px 8px',
+                                                                        borderRadius: '5px',
+                                                                        fontWeight: '600',
+                                                                        fontSize: '12px',
+                                                                        display: 'inline-flex',
+                                                                        alignItems: 'center',
+                                                                        gap: '4px',
+                                                                        border: '1px solid #a5d6a7',
+                                                                        boxShadow: '0 1px 2px rgba(0,0,0,0.05)'
+                                                                    }}
+                                                                >
+                                                                    <FaCheckCircle style={{ fontSize: '0.7rem' }} /> Verified
+                                                                </span>
+                                                            ) : (
+                                                                <span
+                                                                    style={{
+                                                                        backgroundColor: '#ffebee',
+                                                                        color: '#c62828',
+                                                                        padding: '3px 8px',
+                                                                        borderRadius: '5px',
+                                                                        fontWeight: '600',
+                                                                        fontSize: '12px',
+                                                                        display: 'inline-block',
+                                                                        border: '1px solid #ffcdd2',
+                                                                        boxShadow: '0 1px 2px rgba(0,0,0,0.05)'
+                                                                    }}
+                                                                >
+                                                                    Not Verified
+                                                                </span>
+                                                            )}
+                                                        </div>
                                                     </td>
 
                                                     <td>{item.name}</td>
@@ -1591,6 +1696,14 @@ const PremiumTeacherPage = () => {
                                         >
                                             {selectedTeacher.status || 'Pending'}
                                         </span>
+                                        {selectedTeacher.isInfoVerified && (
+                                            <span
+                                                className="badge bg-success px-2 py-1 d-inline-flex align-items-center gap-1"
+                                                style={{ fontSize: '0.75rem' }}
+                                            >
+                                                <FaCheckCircle size={10} /> Info Verified
+                                            </span>
+                                        )}
                                     </div>
                                     <div className="d-flex align-items-center gap-2">
                                         <Button
@@ -3182,6 +3295,215 @@ const PremiumTeacherPage = () => {
                             Close
                         </Button>
                     </Modal.Footer>
+                </Modal>
+
+                {/* Info Verified Quick Update Modal */}
+                <Modal
+                    show={showInfoVerifiedModal}
+                    onHide={() => setShowInfoVerifiedModal(false)}
+                    centered
+                    dialogClassName="modal-dialog-centered"
+                    contentClassName="border-0 shadow-lg"
+                    style={{ zIndex: 10050 }}
+                >
+                    <div style={{ borderRadius: '14px', overflow: 'hidden', backgroundColor: '#fff' }}>
+                        {/* Header */}
+                        <div
+                            className="px-4 py-3 d-flex align-items-center justify-content-between text-white"
+                            style={{
+                                background: 'linear-gradient(135deg, #1e40af 0%, #3b82f6 100%)',
+                                borderBottom: '1px solid rgba(255,255,255,0.1)'
+                            }}
+                        >
+                            <div className="d-flex align-items-center gap-2">
+                                <div
+                                    style={{
+                                        width: '34px',
+                                        height: '34px',
+                                        borderRadius: '9px',
+                                        backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        backdropFilter: 'blur(4px)'
+                                    }}
+                                >
+                                    <FaShieldAlt size={16} />
+                                </div>
+                                <div>
+                                    <h6 className="mb-0 fw-bold" style={{ fontSize: '0.98rem', letterSpacing: '-0.2px' }}>
+                                        Info Verification
+                                    </h6>
+                                    <small style={{ fontSize: '0.72rem', opacity: 0.9 }}>Profile verification status</small>
+                                </div>
+                            </div>
+                            <button
+                                type="button"
+                                className="btn-close btn-close-white"
+                                style={{ opacity: 0.85, fontSize: '0.8rem' }}
+                                onClick={() => setShowInfoVerifiedModal(false)}
+                            />
+                        </div>
+
+                        {/* Body */}
+                        <Modal.Body className="p-3 p-sm-4" style={{ backgroundColor: '#f8fafc' }}>
+                            {targetInfoTeacher && (
+                                <div className="d-flex flex-column gap-3">
+                                    {/* Teacher Info Card */}
+                                    <div
+                                        className="p-3 bg-white border shadow-sm"
+                                        style={{ borderRadius: '12px', borderColor: '#e2e8f0' }}
+                                    >
+                                        <div className="d-flex align-items-center gap-3">
+                                            <div
+                                                style={{
+                                                    width: '42px',
+                                                    height: '42px',
+                                                    borderRadius: '50%',
+                                                    background: 'linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%)',
+                                                    color: '#1d4ed8',
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    justifyContent: 'center',
+                                                    fontWeight: '700',
+                                                    fontSize: '1.1rem',
+                                                    flexShrink: 0
+                                                }}
+                                            >
+                                                {targetInfoTeacher.name ? targetInfoTeacher.name.charAt(0).toUpperCase() : 'T'}
+                                            </div>
+                                            <div className="overflow-hidden flex-grow-1">
+                                                <div className="fw-bold text-dark text-truncate" style={{ fontSize: '0.95rem' }}>
+                                                    {targetInfoTeacher.name || 'Unnamed Teacher'}
+                                                </div>
+                                                <div className="d-flex align-items-center gap-2 mt-1 flex-wrap">
+                                                    <span
+                                                        className="badge px-2 py-1 d-inline-flex align-items-center gap-1"
+                                                        style={{
+                                                            backgroundColor: '#eff6ff',
+                                                            color: '#1d4ed8',
+                                                            border: '1px solid #bfdbfe',
+                                                            fontSize: '0.72rem',
+                                                            fontWeight: '600'
+                                                        }}
+                                                    >
+                                                        <FaIdCard size={10} /> {targetInfoTeacher.premiumCode || 'No Code'}
+                                                    </span>
+                                                    {targetInfoTeacher.phone && (
+                                                        <span
+                                                            className="badge px-2 py-1 d-inline-flex align-items-center gap-1"
+                                                            style={{
+                                                                backgroundColor: '#f1f5f9',
+                                                                color: '#475569',
+                                                                border: '1px solid #cbd5e1',
+                                                                fontSize: '0.72rem',
+                                                                fontWeight: '600'
+                                                            }}
+                                                        >
+                                                            <FaPhoneAlt size={9} /> {targetInfoTeacher.phone}
+                                                        </span>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Interactive Toggle Card */}
+                                    <div
+                                        onClick={() => setInfoVerifiedToggle(prev => !prev)}
+                                        className="p-3 border"
+                                        style={{
+                                            borderRadius: '12px',
+                                            cursor: 'pointer',
+                                            backgroundColor: infoVerifiedToggle ? '#f0fdf4' : '#ffffff',
+                                            borderColor: infoVerifiedToggle ? '#86efac' : '#e2e8f0',
+                                            boxShadow: infoVerifiedToggle ? '0 4px 12px rgba(16, 185, 129, 0.12)' : '0 1px 3px rgba(0,0,0,0.04)',
+                                            transition: 'all 0.2s ease'
+                                        }}
+                                    >
+                                        <div className="d-flex align-items-center justify-content-between">
+                                            <div className="d-flex align-items-center gap-3">
+                                                <div
+                                                    style={{
+                                                        width: '38px',
+                                                        height: '38px',
+                                                        borderRadius: '10px',
+                                                        backgroundColor: infoVerifiedToggle ? '#dcfce7' : '#f1f5f9',
+                                                        color: infoVerifiedToggle ? '#16a34a' : '#94a3b8',
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        justifyContent: 'center',
+                                                        transition: 'all 0.2s ease'
+                                                    }}
+                                                >
+                                                    {infoVerifiedToggle ? <FaCheckCircle size={19} /> : <FaTimesCircle size={19} />}
+                                                </div>
+                                                <div>
+                                                    <div className="fw-bold" style={{ fontSize: '0.92rem', color: infoVerifiedToggle ? '#15803d' : '#334155' }}>
+                                                        {infoVerifiedToggle ? 'Info Verified' : 'Not Verified'}
+                                                    </div>
+                                                    <small className="text-muted d-block" style={{ fontSize: '0.74rem', marginTop: '1px' }}>
+                                                        {infoVerifiedToggle ? 'Documents & information verified' : 'Click card to toggle verification'}
+                                                    </small>
+                                                </div>
+                                            </div>
+
+                                            <Form.Check
+                                                type="switch"
+                                                id="info-verified-switch-action"
+                                                style={{ fontSize: '1.4rem', cursor: 'pointer' }}
+                                                checked={infoVerifiedToggle}
+                                                onChange={(e) => setInfoVerifiedToggle(e.target.checked)}
+                                                onClick={(e) => e.stopPropagation()}
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+                        </Modal.Body>
+
+                        {/* Footer */}
+                        <div
+                            className="px-4 py-3 bg-white d-flex align-items-center justify-content-end gap-2"
+                            style={{ borderTop: '1px solid #e2e8f0' }}
+                        >
+                            <Button
+                                variant="light"
+                                className="px-3 py-2 fw-semibold"
+                                style={{
+                                    borderRadius: '8px',
+                                    border: '1px solid #cbd5e1',
+                                    color: '#475569',
+                                    fontSize: '0.85rem'
+                                }}
+                                onClick={() => setShowInfoVerifiedModal(false)}
+                                disabled={infoVerifiedUpdating}
+                            >
+                                Cancel
+                            </Button>
+                            <Button
+                                className="px-4 py-2 fw-semibold d-flex align-items-center gap-2 text-white border-0"
+                                style={{
+                                    borderRadius: '8px',
+                                    background: 'linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)',
+                                    fontSize: '0.85rem',
+                                    boxShadow: '0 4px 10px rgba(37, 99, 235, 0.25)'
+                                }}
+                                onClick={handleSaveInfoVerified}
+                                disabled={infoVerifiedUpdating}
+                            >
+                                {infoVerifiedUpdating ? (
+                                    <>
+                                        <Spinner size="sm" animation="border" className="me-1" /> Saving...
+                                    </>
+                                ) : (
+                                    <>
+                                        <FaCheckCircle size={13} /> Save Changes
+                                    </>
+                                )}
+                            </Button>
+                        </div>
+                    </div>
                 </Modal>
 
                 {/* Verification SMS Modal */}

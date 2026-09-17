@@ -112,7 +112,7 @@ const Navbar = () => {
         return (
             <li className="nav-item">
                 <Link
-                    className={`nav-link fw-bold px-3 ${isActive ? 'active' : ''}`}
+                    className={`nav-link fw-bold ${isActive ? 'active' : ''}`}
                     to={to}
                     style={(isUnseenChat || isUnseenInternalChat) ? { color: '#ff4d4d', position: 'relative' } : undefined}
                     onClick={() => {
@@ -191,6 +191,7 @@ const Navbar = () => {
                                     {renderNavItem("/admin/payment", "Payments", "payment")}
                                     {renderNavItem("/admin/teacherPayment", "Teacher Payments", "teacherPayment")}
                                     {renderNavItem("/admin/refund", "Refund", "refund")}
+                                    {renderNavItem("/admin/service-charge", "Service Charge", "serviceCharge")}
                                     {renderNavItem("/admin/guardianApply", "Guardian", "guardianApply")}
                                     {renderNavItem("/admin/task", "Task", "task")}
                                     {renderNavItem("/admin/tuitionApply", "Apply", "tuitionApply")}

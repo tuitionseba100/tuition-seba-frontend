@@ -386,6 +386,7 @@ const AVAILABLE_MODULES = [
     { key: 'payment', label: 'Guardian Payments' },
     { key: 'teacherPayment', label: 'Teacher Payments' },
     { key: 'refund', label: 'Refund Requests' },
+    { key: 'serviceCharge', label: 'Service Charges' },
     { key: 'task', label: 'Tasks' },
     { key: 'lead', label: 'Leads' },
     { key: 'attendance', label: 'Attendance' },

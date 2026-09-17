@@ -109,6 +109,7 @@ import AdminChatConsole from './pages/AdminChatConsole';
 import LiveChatPage from './pages/public/LiveChatPage';
 import SmsLogPage from './pages/SmsLogPage';
 import InternalChatPage from './pages/InternalChatPage';
+import ServiceChargePage from './pages/ServiceChargePage';
 
 const AppRedirect = () => {
   React.useEffect(() => {
@@ -147,6 +148,8 @@ const App = () => {
             <Route path="payment" element={<PaymentPage />} />
             <Route path="teacherPayment" element={<TeacherPaymentPage />} />
             <Route path="refund" element={<RefundPage />} />
+            <Route path="service-charge" element={<ServiceChargePage />} />
+            <Route path="serviceCharge" element={<ServiceChargePage />} />
             <Route path="guardianApply" element={<GuardianApplyPage />} />
             <Route path="task" element={<TaskPage />} />
             <Route path="tuitionApply" element={<TuitionApply />} />

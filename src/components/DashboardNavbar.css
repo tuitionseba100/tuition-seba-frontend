@@ -17,9 +17,9 @@
 .admin-navbar .navbar-nav .nav-link {
     color: rgba(255, 255, 255, 0.85) !important;
     font-weight: 600;
-    font-size: 13.5px;
-    padding: 0.4rem 0.6rem !important;
-    margin: 2px 2px;
+    font-size: 13px;
+    padding: 0.35rem 0.45rem !important;
+    margin: 1px 1px;
     border-radius: 4px;
     transition: all 0.3s ease;
     white-space: nowrap;
@@ -37,6 +37,7 @@
     border-bottom: none;
     border-radius: 50px;
     font-weight: 700;
+    padding: 0.35rem 0.75rem !important;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
@@ -47,6 +48,7 @@
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
     transition: all 0.3s ease;
     white-space: nowrap;
+    padding: 0.35rem 0.55rem !important;
 }
 
 .admin-navbar .navbar-toggler {
@@ -57,32 +59,40 @@
     box-shadow: none;
 }
 
-/* Flex wrap layout for items on desktop */
+/* Single line desktop layout with clean dynamic scaling */
 @media (min-width: 1200px) {
     .admin-navbar .navbar-collapse {
-        overflow-x: visible;
-        overflow-y: visible;
+        overflow-x: auto;
+        overflow-y: hidden;
+        scrollbar-width: none; /* Firefox */
+    }
+    .admin-navbar .navbar-collapse::-webkit-scrollbar {
+        display: none; /* Chrome, Safari */
     }
 
     .admin-navbar .navbar-nav {
-        flex-wrap: wrap;
+        flex-wrap: nowrap;
         align-items: center;
+        gap: 2px;
     }
 }
 
-/* Adjust font size and padding dynamically for smaller desktop resolutions to fit all items */
-@media (min-width: 1200px) and (max-width: 1600px) {
+/* Adjust font size and padding dynamically for standard desktop resolutions to fit all items */
+@media (min-width: 1200px) and (max-width: 1680px) {
     .admin-navbar .navbar-nav .nav-link {
-        font-size: 13px !important;
-        padding: 0.4rem 0.5rem !important;
-        margin: 2px 1px !important;
+        font-size: 12px !important;
+        padding: 0.3rem 0.4rem !important;
+        margin: 0 !important;
+    }
+    .admin-navbar .navbar-nav .nav-link.active {
+        padding: 0.3rem 0.6rem !important;
     }
     .admin-navbar .btn-light {
-        padding: 0.4rem 0.6rem !important;
-        font-size: 13px !important;
+        padding: 0.3rem 0.5rem !important;
+        font-size: 12px !important;
     }
     .admin-navbar .navbar-brand img {
-        height: 36px !important;
+        height: 32px !important;
     }
 }
 

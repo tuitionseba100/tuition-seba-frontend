@@ -30,7 +30,8 @@ import {
     FaHeadset,
     FaArrowRight,
     FaMapMarkerAlt,
-    FaUserFriends
+    FaUserFriends,
+    FaFileInvoiceDollar
 } from 'react-icons/fa';
 import NavBarPage from './NavbarPage';
 import GlobalSearchModal from '../components/modals/GlobalSearchModal';
@@ -264,6 +265,14 @@ const Dashboard = () => {
                     icon: FaUndoAlt,
                     bg: 'linear-gradient(145deg, #ef4444 0%, #b91c1c 100%)',
                     shadow: 'rgba(239, 68, 68, 0.3)'
+                },
+                {
+                    title: 'Service Charges',
+                    to: '/admin/service-charge',
+                    permissionKey: 'serviceCharge',
+                    icon: FaFileInvoiceDollar,
+                    bg: 'linear-gradient(145deg, #0284c7 0%, #0369a1 100%)',
+                    shadow: 'rgba(2, 132, 199, 0.3)'
                 },
                 {
                     title: 'Expense & Accounts',

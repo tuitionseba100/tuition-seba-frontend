@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Table, Button, Form, Row, Col, Spinner, Badge, Modal } from 'react-bootstrap';
+import { Table, Button, Form, Row, Col, Spinner, Badge, Modal, Card, Pagination } from 'react-bootstrap';
 import { 
     FaSearch, 
     FaUndo, 
@@ -9,7 +9,8 @@ import {
     FaCalendarAlt, 
     FaChevronLeft, 
     FaChevronRight, 
-    FaPlus, 
+    FaBell,
+    FaInfoCircle,
     FaFileInvoiceDollar 
 } from 'react-icons/fa';
 import { axiosWithFallback as axios } from '../services/fetchWithFallback';
@@ -25,6 +26,7 @@ const ServiceChargePage = () => {
     const [scCurrentPage, setScCurrentPage] = useState(1);
     const [scTotalPages, setScTotalPages] = useState(1);
     const [scTotalRecords, setScTotalRecords] = useState(0);
+    const limit = 15;
 
     // Summary statistics state
     const [scSummary, setScSummary] = useState({
@@ -76,7 +78,7 @@ const ServiceChargePage = () => {
             const response = await axios.get(`https://tuition-seba-backend-1.onrender.com/api/serviceCharge/all`, {
                 params: {
                     page,
-                    limit: 15,
+                    limit,
                     tuitionCode: filters.tuitionCode,
                     phone: filters.phone,
                     status: filters.status,
@@ -112,14 +114,9 @@ const ServiceChargePage = () => {
         fetchServiceChargeSummary();
     }, [fetchServiceCharges]);
 
-    const handleToggleToBePaidToday = () => {
-        const nextVal = !scSearch.toBePaidToday;
-        const newSearch = { ...scSearch, toBePaidToday: nextVal };
-        setScSearch(newSearch);
-        fetchServiceCharges(1, newSearch);
-    };
-
+    // Open Add Standalone modal
     const handleOpenCreateSc = () => {
+        setScEditingId(null);
         setScFormData({
             tuitionCode: '',
             name: '',
@@ -132,11 +129,12 @@ const ServiceChargePage = () => {
             nextPaymentDate: '',
             status: ''
         });
-        setScEditingId(null);
         setScFormOpen(true);
     };
 
+    // Open Edit modal
     const handleOpenEditSc = (sc) => {
+        setScEditingId(sc._id);
         setScFormData({
             tuitionCode: sc.tuitionCode || '',
             name: sc.name || '',
@@ -147,204 +145,196 @@ const ServiceChargePage = () => {
             nextComment: sc.nextComment || '',
             date: sc.date ? sc.date.split('T')[0] : '',
             nextPaymentDate: sc.nextPaymentDate ? sc.nextPaymentDate.split('T')[0] : '',
-            status: sc.status || 'pending'
+            status: sc.status || 'completed'
         });
-        setScEditingId(sc._id);
         setScFormOpen(true);
     };
 
+    // Save Create / Edit
     const handleSaveStandaloneSc = async (e) => {
-        if (e) e.preventDefault();
-        
-        if (!scFormData.tuitionCode || !scFormData.name || !scFormData.personalPhone || !scFormData.amount || !scFormData.date) {
-            toast.error("Please fill in all required fields.");
-            return;
-        }
-
-        const username = localStorage.getItem('username') || 'Admin';
-        const headers = { 'x-user-name': username };
-
+        e.preventDefault();
         try {
+            const username = localStorage.getItem('username') || 'Admin';
             if (scEditingId) {
-                await axios.put(`https://tuition-seba-backend-1.onrender.com/api/serviceCharge/edit/${scEditingId}`, scFormData, { headers });
+                await axios.put(`https://tuition-seba-backend-1.onrender.com/api/serviceCharge/edit/${scEditingId}`, {
+                    ...scFormData,
+                    updatedBy: username
+                });
                 toast.success("Service charge updated successfully!");
             } else {
-                await axios.post('https://tuition-seba-backend-1.onrender.com/api/serviceCharge/add', scFormData, { headers });
+                await axios.post(`https://tuition-seba-backend-1.onrender.com/api/serviceCharge/add`, {
+                    ...scFormData,
+                    createdBy: username
+                });
                 toast.success("Service charge added successfully!");
             }
             setScFormOpen(false);
             fetchServiceCharges(scCurrentPage);
             fetchServiceChargeSummary();
         } catch (err) {
-            console.error('Error saving standalone service charge:', err);
+            console.error('Save service charge error:', err);
             toast.error(err.response?.data?.message || "Failed to save service charge.");
         }
     };
 
+    // Delete Standalone
     const handleDeleteSc = async (id) => {
-        if (!window.confirm("Are you sure you want to delete this service charge?")) return;
-
-        const username = localStorage.getItem('username') || 'Admin';
-        const headers = { 'x-user-name': username };
-
-        try {
-            await axios.delete(`https://tuition-seba-backend-1.onrender.com/api/serviceCharge/delete/${id}`, { headers });
-            toast.success("Service charge deleted successfully!");
-            fetchServiceCharges(scCurrentPage);
-            fetchServiceChargeSummary();
-        } catch (err) {
-            console.error('Error deleting service charge:', err);
-            toast.error("Failed to delete service charge.");
+        if (window.confirm("Are you sure you want to delete this service charge record?")) {
+            try {
+                await axios.delete(`https://tuition-seba-backend-1.onrender.com/api/serviceCharge/delete/${id}`);
+                toast.success("Service charge deleted successfully!");
+                fetchServiceCharges(scCurrentPage);
+                fetchServiceChargeSummary();
+            } catch (err) {
+                console.error('Delete service charge error:', err);
+                toast.error("Failed to delete record.");
+            }
         }
+    };
+
+    // Toggle "To Be Paid Today" filter
+    const handleToggleToBePaidToday = () => {
+        const nextVal = !scSearch.toBePaidToday;
+        const newSearch = { ...scSearch, toBePaidToday: nextVal };
+        setScSearch(newSearch);
+        fetchServiceCharges(1, newSearch);
+    };
+
+    const formatDateOnly = (dateString) => {
+        if (!dateString) return '-';
+        const date = new Date(dateString);
+        if (isNaN(date.getTime())) return dateString;
+        return new Intl.DateTimeFormat('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }).format(date);
     };
 
     return (
         <>
             <NavBarPage />
-            <PageWrapper>
+            <Container>
                 {/* Header Section */}
-                <div className="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
-                    <div>
-                        <h3 className="fw-bold text-dark d-flex align-items-center gap-2 mb-1">
-                            <FaFileInvoiceDollar className="text-primary" />
-                            <span>Service Charge Management</span>
-                        </h3>
-                        <p className="text-muted small mb-0">
-                            Track, collect, and manage service charges from registered teachers
-                        </p>
-                    </div>
-                    <div className="d-flex align-items-center gap-2">
-                        <Button
-                            variant={scSearch.toBePaidToday ? "warning" : "outline-warning"}
-                            className="fw-bold d-flex align-items-center gap-1.5 shadow-sm text-dark px-3 py-2"
-                            style={scSearch.toBePaidToday ? { backgroundColor: '#ffc107', borderColor: '#ffc107' } : {}}
-                            onClick={handleToggleToBePaidToday}
-                        >
-                            <FaCalendarAlt />
-                            <span>{scSearch.toBePaidToday ? "Showing: To Be Paid Today" : "To Be Paid Today"}</span>
-                            {scSummary?.toBePaidTodayCount !== undefined && (
-                                <Badge bg={scSearch.toBePaidToday ? "dark" : "danger"} className="ms-1">
-                                    {scSummary.toBePaidTodayCount}
-                                </Badge>
-                            )}
-                        </Button>
-                        <Button variant="primary" className="fw-bold d-flex align-items-center gap-1.5 shadow-sm px-3 py-2" onClick={handleOpenCreateSc}>
-                            <FaPlus /> <span>Add Service Charge</span>
+                <Header>
+                    <h2 className='text-primary fw-bold mb-0'>Service Charges</h2>
+                    <div className="d-flex gap-2">
+                        <Button variant="primary" onClick={handleOpenCreateSc} className="rounded-3 shadow-sm px-4">
+                            + Add Service Charge
                         </Button>
                     </div>
-                </div>
+                </Header>
 
                 {/* Summary Cards */}
-                <div className="d-flex flex-nowrap overflow-auto gap-3 pb-3 mb-4" style={{ scrollbarWidth: 'thin' }}>
-                    {[
-                        { label: 'Today Paid', count: `৳${scSummary.today?.toLocaleString() || 0}`, color: '#2563eb', bg: '#eff6ff' },
-                        { label: 'This Week Paid', count: `৳${scSummary.week?.toLocaleString() || 0}`, color: '#0284c7', bg: '#f0f9ff' },
-                        { label: 'This Month Paid', count: `৳${scSummary.month?.toLocaleString() || 0}`, color: '#059669', bg: '#ecfdf5' },
-                        { label: 'Total Paid', count: `৳${scSummary.total?.toLocaleString() || 0}`, color: '#334155', bg: '#f8fafc' },
-                        {
-                            label: 'To Be Paid Today',
-                            count: `${scSummary.toBePaidTodayCount || 0} Records`,
-                            color: '#d97706',
-                            bg: scSearch.toBePaidToday ? '#fef3c7' : '#fffbeb',
-                            isToBePaid: true,
-                            active: scSearch.toBePaidToday
-                        }
-                    ].map((stat, idx) => (
-                        <StatCard
-                            key={idx}
-                            style={{
-                                background: stat.bg,
-                                borderColor: stat.active ? '#d97706' : '#e2e8f0',
-                                cursor: stat.isToBePaid ? 'pointer' : 'default'
-                            }}
-                            onClick={stat.isToBePaid ? handleToggleToBePaidToday : undefined}
-                            title={stat.isToBePaid ? "Click to toggle service charges to be paid today" : ""}
-                        >
-                            <div className="stat-label" style={{ color: stat.color }}>
-                                {stat.isToBePaid && <FaCalendarAlt size={12} className="me-1" />}
-                                {stat.label}
-                            </div>
-                            <div className="stat-value">{stat.count}</div>
-                        </StatCard>
-                    ))}
-                </div>
+                <Card className="mt-4 shadow-sm border-0">
+                    <Card.Body>
+                        <div className="d-flex flex-nowrap overflow-auto gap-2 pb-2 text-center" style={{ scrollbarWidth: 'thin' }}>
+                            {[
+                                { label: 'Today', count: `${scSummary.today?.toLocaleString() || 0} ৳`, color: 'primary' },
+                                { label: 'This Week', count: `${scSummary.week?.toLocaleString() || 0} ৳`, color: 'info' },
+                                { label: 'This Month', count: `${scSummary.month?.toLocaleString() || 0} ৳`, color: 'success' },
+                                { label: 'Total', count: `${scSummary.total?.toLocaleString() || 0} ৳`, color: 'dark' },
+                                { label: 'To Be Paid Today', count: `${scSummary.toBePaidTodayCount || 0}`, color: 'warning' }
+                            ].map((stat, idx) => (
+                                <div 
+                                    key={idx} 
+                                    className={`card p-2 shadow-sm border-${stat.color} flex-fill`} 
+                                    style={{ 
+                                        minWidth: '130px', 
+                                        cursor: stat.label === 'To Be Paid Today' ? 'pointer' : 'default',
+                                        backgroundColor: stat.label === 'To Be Paid Today' && scSearch.toBePaidToday ? '#fff3cd' : 'inherit'
+                                    }}
+                                    onClick={stat.label === 'To Be Paid Today' ? handleToggleToBePaidToday : undefined}
+                                    title={stat.label === 'To Be Paid Today' ? "Click to filter service charges to be paid today" : ""}
+                                >
+                                    <small className={`text-${stat.color} fw-bold text-nowrap`}>
+                                        {stat.label === 'To Be Paid Today' && <FaCalendarAlt className="me-1" />}
+                                        {stat.label}
+                                    </small>
+                                    <h5 className="mb-0">{stat.count}</h5>
+                                </div>
+                            ))}
+                        </div>
+                    </Card.Body>
+                </Card>
 
-                {/* Search & Filter Card */}
-                <div className="card shadow-sm border-0 mb-4 p-3 rounded-3 bg-white">
-                    <Row className="g-2 align-items-center">
-                        <Col md={3}>
-                            <Form.Label className="small text-muted fw-bold mb-1">Tuition Code</Form.Label>
-                            <Form.Control
-                                placeholder="Search by Tuition Code"
-                                value={scSearch.tuitionCode}
-                                onChange={(e) => setScSearch(prev => ({ ...prev, tuitionCode: e.target.value }))}
-                                onKeyDown={(e) => e.key === 'Enter' && fetchServiceCharges(1)}
-                            />
-                        </Col>
-                        <Col md={3}>
-                            <Form.Label className="small text-muted fw-bold mb-1">Phone Number</Form.Label>
-                            <Form.Control
-                                placeholder="Search by Phone"
-                                value={scSearch.phone}
-                                onChange={(e) => setScSearch(prev => ({ ...prev, phone: e.target.value }))}
-                                onKeyDown={(e) => e.key === 'Enter' && fetchServiceCharges(1)}
-                            />
-                        </Col>
-                        <Col md={3}>
-                            <Form.Label className="small text-muted fw-bold mb-1">Payment Status</Form.Label>
-                            <Form.Select
-                                value={scSearch.status}
-                                onChange={(e) => {
-                                    const newStatus = e.target.value;
-                                    const newSearch = { ...scSearch, status: newStatus };
-                                    setScSearch(newSearch);
-                                    fetchServiceCharges(1, newSearch);
-                                }}
-                            >
-                                <option value="">All Statuses</option>
-                                <option value="pending">Pending</option>
-                                <option value="completed">Completed</option>
-                                <option value="cancelled">Cancelled</option>
-                            </Form.Select>
-                        </Col>
-                        <Col md={3} className="d-flex gap-2 align-items-end mt-3 mt-md-0">
-                            <Button variant="primary" className="w-100 fw-semibold d-flex align-items-center justify-content-center gap-1.5" onClick={() => fetchServiceCharges(1)}>
-                                <FaSearch /> <span>Search</span>
-                            </Button>
-                            <Button variant="outline-secondary" className="w-100 fw-semibold d-flex align-items-center justify-content-center gap-1.5" onClick={() => {
-                                const reset = { tuitionCode: '', phone: '', status: '', toBePaidToday: false };
-                                setScSearch(reset);
-                                fetchServiceCharges(1, reset);
-                            }}>
-                                <FaUndo /> <span>Reset</span>
-                            </Button>
-                        </Col>
-                    </Row>
+                {/* Search & Filter Bar */}
+                <Card className="mt-4 shadow-sm border-0">
+                    <Card.Body>
+                        <Row className="g-3 align-items-end">
+                            <Col md={3}>
+                                <Form.Label className="fw-bold small">Tuition Code</Form.Label>
+                                <Form.Control
+                                    placeholder="Search Tuition Code"
+                                    value={scSearch.tuitionCode}
+                                    onChange={(e) => setScSearch(prev => ({ ...prev, tuitionCode: e.target.value }))}
+                                    onKeyDown={(e) => e.key === 'Enter' && fetchServiceCharges(1)}
+                                />
+                            </Col>
+                            <Col md={3}>
+                                <Form.Label className="fw-bold small">Phone Number</Form.Label>
+                                <Form.Control
+                                    placeholder="Search Phone"
+                                    value={scSearch.phone}
+                                    onChange={(e) => setScSearch(prev => ({ ...prev, phone: e.target.value }))}
+                                    onKeyDown={(e) => e.key === 'Enter' && fetchServiceCharges(1)}
+                                />
+                            </Col>
+                            <Col md={3}>
+                                <Form.Label className="fw-bold small">Status</Form.Label>
+                                <Form.Select
+                                    value={scSearch.status}
+                                    onChange={(e) => {
+                                        const newStatus = e.target.value;
+                                        const newSearch = { ...scSearch, status: newStatus };
+                                        setScSearch(newSearch);
+                                        fetchServiceCharges(1, newSearch);
+                                    }}
+                                >
+                                    <option value="">All Status</option>
+                                    <option value="pending">Pending</option>
+                                    <option value="completed">Completed</option>
+                                    <option value="cancelled">Cancelled</option>
+                                </Form.Select>
+                            </Col>
+                            <Col md={3} className="d-flex gap-2">
+                                <Button variant="primary" onClick={() => fetchServiceCharges(1)} className="flex-grow-1">
+                                    <FaSearch className="me-1" /> Search
+                                </Button>
+                                <Button variant="outline-secondary" onClick={() => {
+                                    const reset = { tuitionCode: '', phone: '', status: '', toBePaidToday: false };
+                                    setScSearch(reset);
+                                    fetchServiceCharges(1, reset);
+                                }}>
+                                    <FaUndo />
+                                </Button>
+                            </Col>
+                        </Row>
+                    </Card.Body>
+                </Card>
+
+                {/* To be done today notification */}
+                <div className="d-flex align-items-center justify-content-center mt-3">
+                    <h5 className="me-3 d-flex align-items-center gap-2 mb-0">
+                        <FaBell className="text-primary" />
+                        <span>Service charges to be paid today: {scSummary.toBePaidTodayCount || 0}</span>
+                        <Button 
+                            size="sm" 
+                            variant={scSearch.toBePaidToday ? "warning" : "outline-primary"} 
+                            onClick={handleToggleToBePaidToday} 
+                            className="ms-2"
+                        >
+                            <FaInfoCircle className="me-1" />
+                            {scSearch.toBePaidToday ? "Showing Today (Click to Reset)" : "Filter Today"}
+                        </Button>
+                    </h5>
                 </div>
 
                 {/* Table Section */}
-                <div className="card shadow-sm border-0 rounded-3 bg-white overflow-hidden">
-                    <div className="card-header bg-white py-3 px-3 border-bottom d-flex justify-content-between align-items-center flex-wrap gap-2">
-                        <span className="fw-bold text-dark">
-                            Service Charge Records ({scTotalRecords})
-                        </span>
-                        {scSearch.toBePaidToday && (
-                            <Badge bg="warning" text="dark" className="fw-bold px-2 py-1">
-                                Filtered: To Be Paid Today
-                            </Badge>
-                        )}
-                    </div>
-                    {scLoading ? (
-                        <div className="text-center py-5">
-                            <Spinner animation="border" variant="primary" />
-                            <div className="mt-2 text-muted small">Loading records...</div>
-                        </div>
-                    ) : (
-                        <div className="table-responsive">
-                            <Table responsive hover className="align-middle mb-0">
-                                <thead className="table-light">
+                <Card className="mt-3 shadow-sm border-0">
+                    <Card.Body className="p-0">
+                        <div style={{ maxHeight: "700px", overflowY: "auto" }}>
+                            <Table striped hover responsive className="mb-0">
+                                <thead className="table-primary sticky-top">
                                     <tr>
-                                        <th className="px-3">Date</th>
+                                        <th>SL</th>
+                                        <th>Date</th>
                                         <th>Next Payment Date</th>
                                         <th>Tuition Code</th>
                                         <th>Name</th>
@@ -355,92 +345,115 @@ const ServiceChargePage = () => {
                                         <th>Last Comment</th>
                                         <th>Next Comment</th>
                                         <th className="text-center">Status</th>
-                                        <th className="text-center px-3">Actions</th>
+                                        <th className="text-center">Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {scList.length > 0 ? scList.map(sc => (
-                                        <tr key={sc._id}>
-                                            <td className="px-3 text-nowrap">{sc.date ? new Date(sc.date).toLocaleDateString() : '-'}</td>
-                                            <td className="text-nowrap">{sc.nextPaymentDate ? new Date(sc.nextPaymentDate).toLocaleDateString() : '-'}</td>
-                                            <td><span className="fw-bold text-primary">{sc.tuitionCode || '-'}</span></td>
-                                            <td>{sc.name || '-'}</td>
-                                            <td>{sc.personalPhone || '-'}</td>
-                                            <td className="fw-bold text-dark">৳{sc.amount}</td>
-                                            <td>{sc.createdBy || '-'}</td>
-                                            <td>{sc.updatedBy || '-'}</td>
-                                            <td className="small text-muted" style={{ maxWidth: '180px' }}>{sc.comment || '-'}</td>
-                                            <td className="small text-muted" style={{ maxWidth: '180px' }}>{sc.nextComment || '-'}</td>
-                                            <td className="text-center">
-                                                <Badge bg={
-                                                    (sc.status || 'completed') === 'completed' ? 'success' :
-                                                    (sc.status || 'completed') === 'cancelled' ? 'secondary' :
-                                                    'warning'
-                                                } className="text-uppercase" style={{ fontSize: '0.78rem' }}>
-                                                    {sc.status || 'completed'}
-                                                </Badge>
-                                            </td>
-                                            <td className="text-center">
-                                                <div className="d-flex gap-2 justify-content-center">
-                                                    <Button variant="warning" size="sm" onClick={() => handleOpenEditSc(sc)} title="Edit">
-                                                        <FaEdit />
-                                                    </Button>
-                                                    <Button variant="danger" size="sm" onClick={() => handleDeleteSc(sc._id)} title="Delete">
-                                                        <FaTrashAlt />
-                                                    </Button>
-                                                    <Button variant="success" size="sm" onClick={() => handleOpenWhatsAppSc(sc)} title="Share via WhatsApp">
-                                                        <FaWhatsapp />
-                                                    </Button>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    )) : (
+                                    {scLoading ? (
                                         <tr>
-                                            <td colSpan="12" className="text-center py-5 text-muted">
-                                                <FaFileInvoiceDollar size={32} className="text-muted opacity-50 mb-2" />
-                                                <div>No service charges found.</div>
+                                            <td colSpan="13" className="text-center py-5">
+                                                <Spinner animation="border" variant="primary" />
                                             </td>
                                         </tr>
+                                    ) : scList.length === 0 ? (
+                                        <tr>
+                                            <td colSpan="13" className="text-center py-4">No records found.</td>
+                                        </tr>
+                                    ) : (
+                                        scList.map((sc, index) => (
+                                            <tr key={sc._id} className={sc.status === 'completed' ? 'table-success' : ''}>
+                                                <td>{(scCurrentPage - 1) * limit + index + 1}</td>
+                                                <td className="small text-nowrap">{formatDateOnly(sc.date)}</td>
+                                                <td className="fw-bold text-nowrap" style={{ color: sc.status === 'completed' ? '#155724' : '#0d6efd' }}>
+                                                    {formatDateOnly(sc.nextPaymentDate)}
+                                                </td>
+                                                <td><span className="fw-bold text-primary">{sc.tuitionCode || '-'}</span></td>
+                                                <td>{sc.name || '-'}</td>
+                                                <td>{sc.personalPhone || sc.paymentNumber || '-'}</td>
+                                                <td className="fw-bold text-dark">৳{sc.amount}</td>
+                                                <td>{sc.createdBy || '-'}</td>
+                                                <td>{sc.updatedBy || '-'}</td>
+                                                <td className="small text-muted" style={{ maxWidth: '180px' }}>{sc.comment || '-'}</td>
+                                                <td className="small text-muted" style={{ maxWidth: '180px' }}>{sc.nextComment || '-'}</td>
+                                                <td className="text-center">
+                                                    <span className={`badge ${
+                                                        (sc.status || 'completed') === 'completed' ? 'bg-success' :
+                                                        (sc.status || 'completed') === 'pending' ? 'bg-warning text-dark' :
+                                                        (sc.status || 'completed') === 'cancelled' ? 'bg-secondary' :
+                                                        'bg-light text-dark'
+                                                    }`}>
+                                                        {sc.status || 'completed'}
+                                                    </span>
+                                                </td>
+                                                <td className="text-center">
+                                                    <div className="d-flex gap-2 justify-content-center">
+                                                        <Button variant="warning" size="sm" onClick={() => handleOpenEditSc(sc)} title="Edit">
+                                                            <FaEdit />
+                                                        </Button>
+                                                        <Button variant="danger" size="sm" onClick={() => handleDeleteSc(sc._id)} title="Delete">
+                                                            <FaTrashAlt />
+                                                        </Button>
+                                                        <Button variant="success" size="sm" onClick={() => handleOpenWhatsAppSc(sc)} title="Share via WhatsApp">
+                                                            <FaWhatsapp />
+                                                        </Button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        ))
                                     )}
                                 </tbody>
                             </Table>
                         </div>
-                    )}
+                    </Card.Body>
+                </Card>
 
-                    {/* Pagination Footer */}
-                    <div className="card-footer bg-white d-flex justify-content-between align-items-center p-3 border-top">
-                        <div className="small text-muted">
-                            Showing Page <strong>{scCurrentPage}</strong> of <strong>{scTotalPages || 1}</strong> ({scTotalRecords} records)
-                        </div>
-                        <div className="d-flex align-items-center gap-2">
-                            <Button
-                                variant="outline-secondary"
-                                size="sm"
-                                disabled={scCurrentPage === 1 || scLoading}
+                {/* Pagination Controls */}
+                {!scLoading && scTotalPages > 1 && (
+                    <div className="d-flex justify-content-center mt-4">
+                        <Pagination className="pagination-rounded-pill">
+                            <Pagination.Prev
                                 onClick={() => fetchServiceCharges(scCurrentPage - 1)}
+                                disabled={scCurrentPage === 1}
                             >
-                                <FaChevronLeft /> Prev
-                            </Button>
-                            <Button
-                                variant="outline-secondary"
-                                size="sm"
-                                disabled={scCurrentPage >= scTotalPages || scLoading}
+                                <FaChevronLeft className="me-1" /> Prev
+                            </Pagination.Prev>
+
+                            {[...Array(scTotalPages)].map((_, i) => {
+                                const page = i + 1;
+                                if (page === 1 || page === scTotalPages || (page >= scCurrentPage - 2 && page <= scCurrentPage + 2)) {
+                                    return (
+                                        <Pagination.Item
+                                            key={page}
+                                            active={page === scCurrentPage}
+                                            onClick={() => fetchServiceCharges(page)}
+                                        >
+                                            {page}
+                                        </Pagination.Item>
+                                    );
+                                } else if (page === scCurrentPage - 3 || page === scCurrentPage + 3) {
+                                    return <Pagination.Ellipsis key={page} />;
+                                }
+                                return null;
+                            })}
+
+                            <Pagination.Next
                                 onClick={() => fetchServiceCharges(scCurrentPage + 1)}
+                                disabled={scCurrentPage === scTotalPages}
                             >
-                                Next <FaChevronRight />
-                            </Button>
-                        </div>
+                                Next <FaChevronRight className="ms-1" />
+                            </Pagination.Next>
+                        </Pagination>
                     </div>
-                </div>
+                )}
 
                 {/* Create/Edit Service Charge Modal */}
                 <Modal show={scFormOpen} onHide={() => setScFormOpen(false)} centered size="lg">
-                    <Modal.Header closeButton className="bg-primary text-white">
-                        <Modal.Title className="fw-bold">
+                    <Modal.Header closeButton className="border-0 pb-0">
+                        <Modal.Title className="fw-bold ps-2">
                             {scEditingId ? "Edit Service Charge" : "Add Standalone Service Charge"}
                         </Modal.Title>
                     </Modal.Header>
-                    <Modal.Body className="p-4">
+                    <Modal.Body className="p-4" style={{ backgroundColor: '#fdfdfd' }}>
                         <Form onSubmit={handleSaveStandaloneSc}>
                             <Row className="g-3">
                                 <Col md={6}>
@@ -582,7 +595,7 @@ const ServiceChargePage = () => {
                 />
 
                 <ToastContainer />
-            </PageWrapper>
+            </Container>
         </>
     );
 };
@@ -590,37 +603,30 @@ const ServiceChargePage = () => {
 export default ServiceChargePage;
 
 // Styled Components
-const PageWrapper = styled.div`
-  padding: 24px;
+const Container = styled.div`
+  padding: 20px;
   background: #f8f9fa;
-  min-height: calc(100vh - 60px);
+  min-height: 100vh;
+
+  .pagination-rounded-pill .page-item .page-link {
+    border-radius: 50px;
+    margin: 0 4px;
+    border: none;
+    padding: 8px 16px;
+    font-weight: 600;
+    color: #444;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  }
+
+  .pagination-rounded-pill .page-item.active .page-link {
+    background-color: #0d6efd;
+    color: white;
+  }
 `;
 
-const StatCard = styled.div`
-  padding: 14px 18px;
-  border-radius: 12px;
-  border: 1px solid #e2e8f0;
-  min-width: 170px;
-  flex: 1;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.04);
-  transition: all 0.2s ease-in-out;
-
-  &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.06);
-  }
-
-  .stat-label {
-    font-size: 0.8rem;
-    font-weight: 700;
-    margin-bottom: 4px;
-    display: flex;
-    align-items: center;
-  }
-
-  .stat-value {
-    font-size: 1.25rem;
-    font-weight: 800;
-    color: #0f172a;
-  }
+const Header = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
 `;

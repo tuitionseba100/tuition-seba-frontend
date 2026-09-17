@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Button, Table, Modal, Form, Row, Col, Card, Nav, Tab, Badge } from 'react-bootstrap';
+import { Button, Table, Modal, Form, Row, Col, Card, Nav, Tab, Badge, Pagination } from 'react-bootstrap';
 import { FaEdit, FaInfoCircle, FaTrashAlt, FaWhatsapp, FaChevronLeft, FaChevronRight, FaSearch, FaTimes, FaGlobe, FaGooglePlay, FaUserPlus, FaCamera, FaTrash, FaUserCircle, FaExternalLinkAlt, FaCheckCircle, FaIdCard, FaImages, FaFileAlt, FaGraduationCap, FaExpandAlt, FaShieldAlt, FaPhoneAlt, FaTimesCircle } from 'react-icons/fa'; // React Icons
 import { axiosWithFallback as axios } from '../services/fetchWithFallback';
 import NavBarPage from './NavbarPage';
@@ -1617,29 +1617,47 @@ const PremiumTeacherPage = () => {
                                 </tbody>
                             </Table>
                         </div>
-                        <div className="d-flex justify-content-center align-items-center gap-3 mt-4 flex-wrap">
-                            <Button
-                                variant="outline-primary"
-                                className="d-flex align-items-center gap-2 px-3 py-2 rounded-pill"
-                                disabled={currentPage === 1}
-                                onClick={() => setCurrentPage(prev => prev - 1)}
-                            >
-                                <FaChevronLeft /> Previous
-                            </Button>
+                        {!loading && totalPages > 1 && (
+                            <div className="d-flex justify-content-center mt-4">
+                                <Pagination className="pagination-rounded-pill flex-wrap justify-content-center">
+                                    <Pagination.Prev
+                                        onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                                        disabled={currentPage === 1}
+                                    >
+                                        <FaChevronLeft className="me-1" /> Previous
+                                    </Pagination.Prev>
 
-                            <span className="fw-semibold text-primary-emphasis fs-5">
-                                Page {currentPage} of {totalPages}
-                            </span>
+                                    {[...Array(totalPages)].map((_, i) => {
+                                        const page = i + 1;
+                                        if (
+                                            page === 1 ||
+                                            page === totalPages ||
+                                            (page >= currentPage - 2 && page <= currentPage + 2)
+                                        ) {
+                                            return (
+                                                <Pagination.Item
+                                                    key={page}
+                                                    active={page === currentPage}
+                                                    onClick={() => setCurrentPage(page)}
+                                                >
+                                                    {page}
+                                                </Pagination.Item>
+                                            );
+                                        } else if (page === currentPage - 3 || page === currentPage + 3) {
+                                            return <Pagination.Ellipsis key={page} disabled />;
+                                        }
+                                        return null;
+                                    })}
 
-                            <Button
-                                variant="outline-primary"
-                                className="d-flex align-items-center gap-2 px-3 py-2 rounded-pill"
-                                disabled={currentPage === totalPages}
-                                onClick={() => setCurrentPage(prev => prev + 1)}
-                            >
-                                Next <FaChevronRight />
-                            </Button>
-                        </div>
+                                    <Pagination.Next
+                                        onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                                        disabled={currentPage === totalPages}
+                                    >
+                                        Next <FaChevronRight className="ms-1" />
+                                    </Pagination.Next>
+                                </Pagination>
+                            </div>
+                        )}
                     </Card.Body>
                 </Card>
 
@@ -3660,6 +3678,21 @@ export default PremiumTeacherPage;
 const Container = styled.div`
   padding: 30px;
   background: #f4f4f9;
+
+  .pagination-rounded-pill .page-item .page-link {
+    border-radius: 50px;
+    margin: 0 3px;
+    border: none;
+    padding: 8px 14px;
+    font-weight: 600;
+    color: #444;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  }
+
+  .pagination-rounded-pill .page-item.active .page-link {
+    background-color: #0d6efd;
+    color: white;
+  }
 `;
 
 const Header = styled.div`

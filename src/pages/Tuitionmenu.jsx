@@ -82,7 +82,10 @@ const TuitionPage = () => {
         isReviewDone: '',
         tuitionTypeFilter: '',
         applyTypeFilter: '',
-        isProposalFilter: ''
+        isProposalFilter: '',
+        needsUpdateToday: false,
+        pendingPaymentCreation: false,
+        guardianFollowUpToday: false
     });
 
     const [appliedFilters, setAppliedFilters] = useState({
@@ -98,7 +101,10 @@ const TuitionPage = () => {
         isReviewDone: '',
         tuitionTypeFilter: '',
         applyTypeFilter: '',
-        isProposalFilter: ''
+        isProposalFilter: '',
+        needsUpdateToday: false,
+        pendingPaymentCreation: false,
+        guardianFollowUpToday: false
     });
 
     const [userOptions, setUserOptions] = useState([]);
@@ -268,10 +274,67 @@ const TuitionPage = () => {
             isReviewDone: '',
             tuitionTypeFilter: '',
             applyTypeFilter: '',
-            isProposalFilter: ''
+            isProposalFilter: '',
+            needsUpdateToday: false,
+            pendingPaymentCreation: false,
+            guardianFollowUpToday: false
         };
         setSearchInputs(resetFilters);
         setAppliedFilters(resetFilters);
+        setCurrentPage(1);
+    };
+
+    const handleToggleNeedsUpdateToday = () => {
+        const nextVal = !appliedFilters.needsUpdateToday;
+        const newFilters = { 
+            ...appliedFilters, 
+            needsUpdateToday: nextVal,
+            pendingPaymentCreation: false,
+            guardianFollowUpToday: false
+        };
+        setSearchInputs(prev => ({ 
+            ...prev, 
+            needsUpdateToday: nextVal,
+            pendingPaymentCreation: false,
+            guardianFollowUpToday: false 
+        }));
+        setAppliedFilters(newFilters);
+        setCurrentPage(1);
+    };
+
+    const handleTogglePendingPaymentCreation = () => {
+        const nextVal = !appliedFilters.pendingPaymentCreation;
+        const newFilters = { 
+            ...appliedFilters, 
+            pendingPaymentCreation: nextVal,
+            needsUpdateToday: false,
+            guardianFollowUpToday: false
+        };
+        setSearchInputs(prev => ({ 
+            ...prev, 
+            pendingPaymentCreation: nextVal,
+            needsUpdateToday: false,
+            guardianFollowUpToday: false 
+        }));
+        setAppliedFilters(newFilters);
+        setCurrentPage(1);
+    };
+
+    const handleToggleGuardianFollowUpToday = () => {
+        const nextVal = !appliedFilters.guardianFollowUpToday;
+        const newFilters = { 
+            ...appliedFilters, 
+            guardianFollowUpToday: nextVal,
+            needsUpdateToday: false,
+            pendingPaymentCreation: false
+        };
+        setSearchInputs(prev => ({ 
+            ...prev, 
+            guardianFollowUpToday: nextVal,
+            needsUpdateToday: false,
+            pendingPaymentCreation: false 
+        }));
+        setAppliedFilters(newFilters);
         setCurrentPage(1);
     };
 
@@ -448,7 +511,10 @@ const TuitionPage = () => {
                     isReviewDone: appliedFilters.isReviewDone === "Yes" ? 'true' : appliedFilters.isReviewDone === "No" ? 'false' : undefined,
                     tuitionType: appliedFilters.tuitionTypeFilter || undefined,
                     applyType: appliedFilters.applyTypeFilter || undefined,
-                    isProposal: appliedFilters.isProposalFilter === "Yes" ? 'true' : appliedFilters.isProposalFilter === "No" ? 'false' : undefined
+                    isProposal: appliedFilters.isProposalFilter === "Yes" ? 'true' : appliedFilters.isProposalFilter === "No" ? 'false' : undefined,
+                    needsUpdateToday: appliedFilters.needsUpdateToday ? 'true' : undefined,
+                    pendingPaymentCreation: appliedFilters.pendingPaymentCreation ? 'true' : undefined,
+                    guardianFollowUpToday: appliedFilters.guardianFollowUpToday ? 'true' : undefined
                 }
             });
 
@@ -481,7 +547,10 @@ const TuitionPage = () => {
                 isReviewDone: appliedFilters.isReviewDone === "Yes" ? 'true' : appliedFilters.isReviewDone === "No" ? 'false' : undefined,
                 tuitionType: appliedFilters.tuitionTypeFilter || undefined,
                 applyType: appliedFilters.applyTypeFilter || undefined,
-                isProposal: appliedFilters.isProposalFilter === "Yes" ? 'true' : appliedFilters.isProposalFilter === "No" ? 'false' : undefined
+                isProposal: appliedFilters.isProposalFilter === "Yes" ? 'true' : appliedFilters.isProposalFilter === "No" ? 'false' : undefined,
+                needsUpdateToday: appliedFilters.needsUpdateToday ? 'true' : undefined,
+                pendingPaymentCreation: appliedFilters.pendingPaymentCreation ? 'true' : undefined,
+                guardianFollowUpToday: appliedFilters.guardianFollowUpToday ? 'true' : undefined
             };
 
             const res = await axios.get('https://tuition-seba-backend-1.onrender.com/api/tuition/summary', {
@@ -1074,40 +1143,67 @@ const TuitionPage = () => {
 
                 </Row>
 
-                <div className="d-flex align-items-center justify-content-center">
-                    <h5 className="me-3 d-flex align-items-center gap-2">
+                <div className="d-flex align-items-center justify-content-center flex-wrap gap-2">
+                    <h5 className="me-3 d-flex align-items-center gap-2 mb-0">
                         <FaBell className="text-primary" />
                         <span>Tuitions needs update today: {tuitionNeedsUpdateList.length}</span>
+                        <Button 
+                            size="sm" 
+                            variant={appliedFilters.needsUpdateToday ? "warning" : "outline-primary"} 
+                            onClick={handleToggleNeedsUpdateToday} 
+                            className="ms-1"
+                        >
+                            <FaInfoCircle className="me-1" />
+                            {appliedFilters.needsUpdateToday ? "Showing Today (Click to Reset)" : "Filter Today"}
+                        </Button>
                         <OverlayTrigger
                             placement="top"
-                            overlay={<Tooltip id="tooltip">Click to see list</Tooltip>}
+                            overlay={<Tooltip id="tooltip">Click to see list modal</Tooltip>}
                         >
-                            <Button size="sm" onClick={() => setShowUpdateListModal(true)} className="ms-2">
-                                <FaInfoCircle />
+                            <Button size="sm" variant="outline-secondary" onClick={() => setShowUpdateListModal(true)} className="ms-1">
+                                View Modal
                             </Button>
                         </OverlayTrigger>
                     </h5>
-                    <h5 className="me-3 d-flex align-items-center gap-2">
+                    <h5 className="me-3 d-flex align-items-center gap-2 mb-0">
                         <FaBell className="text-primary" />
                         <span>Pending payment creation: {tuitionNeedsPaymentCreation.length}</span>
+                        <Button 
+                            size="sm" 
+                            variant={appliedFilters.pendingPaymentCreation ? "warning" : "outline-primary"} 
+                            onClick={handleTogglePendingPaymentCreation} 
+                            className="ms-1"
+                        >
+                            <FaInfoCircle className="me-1" />
+                            {appliedFilters.pendingPaymentCreation ? "Showing Pending (Click to Reset)" : "Filter Pending"}
+                        </Button>
                         <OverlayTrigger
                             placement="top"
-                            overlay={<Tooltip id="tooltip">Click to see list</Tooltip>}
+                            overlay={<Tooltip id="tooltip">Click to see list modal</Tooltip>}
                         >
-                            <Button size="sm" onClick={() => setShowPaymentPendingModal(true)} className="ms-2">
-                                <FaInfoCircle />
+                            <Button size="sm" variant="outline-secondary" onClick={() => setShowPaymentPendingModal(true)} className="ms-1">
+                                View Modal
                             </Button>
                         </OverlayTrigger>
                     </h5>
-                    <h5 className="me-3 d-flex align-items-center gap-2">
+                    <h5 className="me-3 d-flex align-items-center gap-2 mb-0">
                         <FaBell className="text-primary" />
                         <span>Guardian Follow Up Today: {guardianFollowUpList.length}</span>
+                        <Button 
+                            size="sm" 
+                            variant={appliedFilters.guardianFollowUpToday ? "warning" : "outline-primary"} 
+                            onClick={handleToggleGuardianFollowUpToday} 
+                            className="ms-1"
+                        >
+                            <FaInfoCircle className="me-1" />
+                            {appliedFilters.guardianFollowUpToday ? "Showing Today (Click to Reset)" : "Filter Today"}
+                        </Button>
                         <OverlayTrigger
                             placement="top"
-                            overlay={<Tooltip id="tooltip">Click to see list</Tooltip>}
+                            overlay={<Tooltip id="tooltip">Click to see list modal</Tooltip>}
                         >
-                            <Button size="sm" onClick={() => setShowGuardianFollowUpModal(true)} className="ms-2">
-                                <FaInfoCircle />
+                            <Button size="sm" variant="outline-secondary" onClick={() => setShowGuardianFollowUpModal(true)} className="ms-1">
+                                View Modal
                             </Button>
                         </OverlayTrigger>
                     </h5>

@@ -237,7 +237,7 @@ const ServiceChargePage = () => {
             nextComment: sc.nextComment || '',
             date: sc.date ? sc.date.split('T')[0] : '',
             nextPaymentDate: sc.nextPaymentDate ? sc.nextPaymentDate.split('T')[0] : '',
-            status: sc.status || 'completed'
+            status: sc.status || ''
         });
         setScFormOpen(true);
     };
@@ -245,6 +245,10 @@ const ServiceChargePage = () => {
     // Save Create / Edit
     const handleSaveStandaloneSc = async (e) => {
         e.preventDefault();
+        if (!scFormData.status) {
+            toast.error("Please select a status (Completed, Pending, or Cancelled).");
+            return;
+        }
         try {
             const username = localStorage.getItem('username') || 'Admin';
             if (scEditingId) {
@@ -480,14 +484,18 @@ const ServiceChargePage = () => {
                                                 <td className="small text-muted" style={{ maxWidth: '180px' }}>{sc.comment || '-'}</td>
                                                 <td className="small text-muted" style={{ maxWidth: '180px' }}>{sc.nextComment || '-'}</td>
                                                 <td className="text-center">
-                                                    <span className={`badge ${
-                                                        (sc.status || 'completed') === 'completed' ? 'bg-success' :
-                                                        (sc.status || 'completed') === 'pending' ? 'bg-warning text-dark' :
-                                                        (sc.status || 'completed') === 'cancelled' ? 'bg-secondary' :
-                                                        'bg-light text-dark'
-                                                    }`}>
-                                                        {sc.status || 'completed'}
-                                                    </span>
+                                                    {sc.status ? (
+                                                        <span className={`badge ${
+                                                            sc.status === 'completed' ? 'bg-success' :
+                                                            sc.status === 'pending' ? 'bg-warning text-dark' :
+                                                            sc.status === 'cancelled' ? 'bg-secondary' :
+                                                            'bg-light text-dark'
+                                                        }`}>
+                                                            {sc.status}
+                                                        </span>
+                                                    ) : (
+                                                        <span className="text-muted">-</span>
+                                                    )}
                                                 </td>
                                                 <td className="text-center">
                                                     <div className="d-flex gap-2 justify-content-center">
@@ -642,14 +650,15 @@ const ServiceChargePage = () => {
                                 </Col>
                                 <Col md={3}>
                                     <Form.Group>
-                                        <Form.Label className="fw-bold small">Status</Form.Label>
+                                        <Form.Label className="fw-bold small">Status *</Form.Label>
                                         <Form.Select
+                                            required
                                             value={scFormData.status}
                                             onChange={(e) => setScFormData({ ...scFormData, status: e.target.value })}
                                         >
-                                            <option value="">Default (Completed)</option>
-                                            <option value="pending">Pending</option>
+                                            <option value="">Select Status *</option>
                                             <option value="completed">Completed</option>
+                                            <option value="pending">Pending</option>
                                             <option value="cancelled">Cancelled</option>
                                         </Form.Select>
                                     </Form.Group>
@@ -744,14 +753,18 @@ const ServiceChargePage = () => {
                                             <td>{sc.personalPhone || sc.paymentNumber || '-'}</td>
                                             <td className="fw-bold">৳{sc.amount}</td>
                                             <td>
-                                                <span className={`badge ${
-                                                    (sc.status || 'completed') === 'completed' ? 'bg-success' :
-                                                    (sc.status || 'completed') === 'pending' ? 'bg-warning text-dark' :
-                                                    (sc.status || 'completed') === 'cancelled' ? 'bg-secondary' :
-                                                    'bg-light text-dark'
-                                                }`}>
-                                                    {sc.status || 'completed'}
-                                                </span>
+                                                {sc.status ? (
+                                                    <span className={`badge ${
+                                                        sc.status === 'completed' ? 'bg-success' :
+                                                        sc.status === 'pending' ? 'bg-warning text-dark' :
+                                                        sc.status === 'cancelled' ? 'bg-secondary' :
+                                                        'bg-light text-dark'
+                                                    }`}>
+                                                        {sc.status}
+                                                    </span>
+                                                ) : (
+                                                    <span className="text-muted">-</span>
+                                                )}
                                             </td>
                                             <td>{formatDateOnly(sc.nextPaymentDate)}</td>
                                         </tr>

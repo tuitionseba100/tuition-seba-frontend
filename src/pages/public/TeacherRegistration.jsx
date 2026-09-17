@@ -172,6 +172,7 @@ const TeacherRegistrationForm = () => {
     const [progress, setProgress] = useState(0);
     const [showInfoModal, setShowInfoModal] = useState(false);
     const [showSuccessModal, setShowSuccessModal] = useState(false);
+    const [assignedTeacherCode, setAssignedTeacherCode] = useState('');
     const [showErrorModal, setShowErrorModal] = useState(false);
     const [showStepsModal, setShowStepsModal] = useState(false);
     const [showPhoneRequiredModal, setShowPhoneRequiredModal] = useState(false);
@@ -483,6 +484,8 @@ const TeacherRegistrationForm = () => {
                                     });
 
                                     if (res.ok) {
+                                        const savedData = await res.json().catch(() => ({}));
+                                        setAssignedTeacherCode(savedData.premiumCode || '');
                                         resetForm();
                                         setAreas([]);
                                         Object.values(uploadedDocs).forEach(doc => {
@@ -983,7 +986,7 @@ const TeacherRegistrationForm = () => {
                 </Container>
 
                 <InfoModal show={showInfoModal} handleClose={() => setShowInfoModal(false)} />
-                <SuccessModal show={showSuccessModal} handleClose={() => setShowSuccessModal(false)} />
+                <SuccessModal show={showSuccessModal} handleClose={() => setShowSuccessModal(false)} teacherCode={assignedTeacherCode} />
                 <ErrorModal show={showErrorModal} handleClose={() => setShowErrorModal(false)} message={errorMessage} />
                 <RegistrationSteps show={showStepsModal} handleClose={() => setShowStepsModal(false)} />
                 <PhoneRequiredModal show={showPhoneRequiredModal} handleClose={() => setShowPhoneRequiredModal(false)} validationErrors={phoneModalErrors} />

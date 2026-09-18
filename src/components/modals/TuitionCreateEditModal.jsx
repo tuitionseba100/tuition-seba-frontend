@@ -188,35 +188,63 @@ export default function TuitionModal({ show, onHide, editingData = null, editing
         fetchSettings();
     }, [role]);
 
-    useEffect(() => {
-        if (editingData) {
-            const normalizedData = { ...editingData };
+    const [loadingDetails, setLoadingDetails] = useState(false);
 
-            ['lastAvailableCheck', 'lastUpdate', 'nextUpdateDate'].forEach(field => {
-                if (normalizedData[field]) {
-                    normalizedData[field] = formatForDatetimeLocal(normalizedData[field]);
-                } else {
-                    normalizedData[field] = '';
-                }
-            });
+    const populateForm = (data) => {
+        const normalizedData = { ...data };
 
-            if (typeof normalizedData.isPublish === 'boolean') {
-                normalizedData.isPublish = normalizedData.isPublish ? true : false;
-            }
-
-            setFormData(normalizedData);
-
-            if (normalizedData.city && locationData.areaOptions[normalizedData.city]) {
-                let areas = locationData.areaOptions[normalizedData.city].map(area => ({ value: area, label: area }));
-                if (normalizedData.area && !areas.some(a => a.value === normalizedData.area)) {
-                    areas.push({ value: normalizedData.area, label: normalizedData.area });
-                }
-                setAreaOptions(areas);
-            } else if (normalizedData.area) {
-                setAreaOptions([{ value: normalizedData.area, label: normalizedData.area }]);
+        ['lastAvailableCheck', 'lastUpdate', 'nextUpdateDate'].forEach(field => {
+            if (normalizedData[field]) {
+                normalizedData[field] = formatForDatetimeLocal(normalizedData[field]);
             } else {
-                setAreaOptions([]);
+                normalizedData[field] = '';
             }
+        });
+
+        if (typeof normalizedData.isPublish === 'boolean') {
+            normalizedData.isPublish = normalizedData.isPublish ? true : false;
+        }
+
+        setFormData(normalizedData);
+
+        if (normalizedData.city && locationData.areaOptions[normalizedData.city]) {
+            let areas = locationData.areaOptions[normalizedData.city].map(area => ({ value: area, label: area }));
+            if (normalizedData.area && !areas.some(a => a.value === normalizedData.area)) {
+                areas.push({ value: normalizedData.area, label: normalizedData.area });
+            }
+            setAreaOptions(areas);
+        } else if (normalizedData.area) {
+            setAreaOptions([{ value: normalizedData.area, label: normalizedData.area }]);
+        } else {
+            setAreaOptions([]);
+        }
+    };
+
+    useEffect(() => {
+        if (!show) {
+            setLoadingDetails(false);
+            return;
+        }
+
+        const targetId = editingId || editingData?._id;
+        if (targetId) {
+            setLoadingDetails(true);
+            axios.get(`https://tuition-seba-backend-1.onrender.com/api/tuition/${targetId}`)
+                .then(res => {
+                    populateForm(res.data);
+                })
+                .catch(err => {
+                    console.error('Error fetching full tuition data by ID:', err);
+                    if (editingData) {
+                        populateForm(editingData);
+                    }
+                })
+                .finally(() => {
+                    setLoadingDetails(false);
+                });
+        } else if (editingData) {
+            populateForm(editingData);
+            setLoadingDetails(false);
         } else {
             const initData = {};
             fieldConfig.forEach(({ name, defaultValue, type }) => {
@@ -230,8 +258,9 @@ export default function TuitionModal({ show, onHide, editingData = null, editing
             });
             setFormData(initData);
             setAreaOptions([]);
+            setLoadingDetails(false);
         }
-    }, [editingData, show]);
+    }, [editingId, editingData, show]);
 
     const handleInputChange = (e, field) => {
         const { name, checked, value } = e.target;
@@ -560,263 +589,268 @@ export default function TuitionModal({ show, onHide, editingData = null, editing
                             </div>
                         )}
 
-                        <Form>
-                            {Object.entries(groups).map(([groupName, fields]) => {
-                                const getGroupTitle = (name) => {
-                                    switch (name) {
-                                        case 'details': return 'Tuition Details';
-                                        case 'admin': return 'Admin Info';
-                                        case 'update': return 'Update Section';
-                                        case 'others': return 'Others Section';
-                                        default: return name;
-                                    }
-                                };
-                                const getGroupBg = (name) => {
-                                    switch (name) {
-                                        case 'details': return '#fefefe';
-                                        case 'admin': return '#e9f0ff';
-                                        case 'update': return '#f0fbf4';
-                                        case 'others': return '#fafafa';
-                                        default: return '#ffffff';
-                                    }
-                                };
-                                return (
-                                    <div
-                                        key={groupName}
-                                        className="mb-5 p-3 rounded"
-                                        style={{
-                                            backgroundColor: getGroupBg(groupName),
-                                            border: '1px solid rgba(13,110,253,0.2)',
-                                            boxShadow: '0 0 10px rgba(13, 110, 253, 0.05)',
-                                        }}
-                                    >
-                                        <h5
-                                            className="mb-4 text-capitalize fw-semibold"
-                                            style={{ borderBottom: '2px solid rgba(13, 110, 253, 0.5)', paddingBottom: '0.5rem' }}
+                        {loadingDetails ? (
+                            <div className="d-flex flex-column justify-content-center align-items-center py-5">
+                                <Spinner animation="border" variant="primary" style={{ width: '3rem', height: '3rem' }} />
+                                <span className="mt-3 text-muted fw-bold">Loading tuition data...</span>
+                            </div>
+                        ) : (
+                            <Form>
+                                {Object.entries(groups).map(([groupName, fields]) => {
+                                    const getGroupTitle = (name) => {
+                                        switch (name) {
+                                            case 'details': return 'Tuition Details';
+                                            case 'admin': return 'Admin Info';
+                                            case 'update': return 'Update Section';
+                                            case 'others': return 'Others Section';
+                                            default: return name;
+                                        }
+                                    };
+                                    const getGroupBg = (name) => {
+                                        switch (name) {
+                                            case 'details': return '#fefefe';
+                                            case 'admin': return '#e9f0ff';
+                                            case 'update': return '#f0fbf4';
+                                            case 'others': return '#fafafa';
+                                            default: return '#ffffff';
+                                        }
+                                    };
+                                    return (
+                                        <div
+                                            key={groupName}
+                                            className="mb-5 p-3 rounded"
+                                            style={{
+                                                backgroundColor: getGroupBg(groupName),
+                                                border: '1px solid rgba(13,110,253,0.2)',
+                                                boxShadow: '0 0 10px rgba(13, 110, 253, 0.05)',
+                                            }}
                                         >
-                                            {getGroupTitle(groupName)}
-                                        </h5>
+                                            <h5
+                                                className="mb-4 text-capitalize fw-semibold"
+                                                style={{ borderBottom: '2px solid rgba(13, 110, 253, 0.5)', paddingBottom: '0.5rem' }}
+                                            >
+                                                {getGroupTitle(groupName)}
+                                            </h5>
 
-                                        <Row className="gy-3">
-                                            {fields.map(field => {
-                                                const { name, label, col = 6, type = 'text', options: fieldOptions } = field;
+                                            <Row className="gy-3">
+                                                {fields.map(field => {
+                                                    const { name, label, col = 6, type = 'text', options: fieldOptions } = field;
 
-                                                // Only show assignedTo to superadmin
-                                                const options = fieldOptions;
+                                                    // Only show assignedTo to superadmin
+                                                    const options = fieldOptions;
 
-                                                let value = formData[name];
-                                                if (value === undefined || value === null) value = type === 'switch' ? false : '';
+                                                    let value = formData[name];
+                                                    if (value === undefined || value === null) value = type === 'switch' ? false : '';
 
-                                                if (name === 'tuitionCancelReasonPublic' && formData.status?.toLowerCase() !== 'cancel' && formData.status?.toLowerCase() !== 'suspended') {
-                                                    return null;
-                                                }
+                                                    if (name === 'tuitionCancelReasonPublic' && formData.status?.toLowerCase() !== 'cancel' && formData.status?.toLowerCase() !== 'suspended') {
+                                                        return null;
+                                                    }
 
-                                                if (name === 'assignedTo' || name === 'guardian_source_medium') {
-                                                    if (name === 'assignedTo' && role !== 'superadmin') return null;
-                                                    const currentOptions = name === 'assignedTo' ? userOptions : marketingMediums;
-                                                    return (
-                                                        <Col md={col} key={name}>
-                                                            <Form.Group controlId={name}>
-                                                                <Form.Label className="fw-semibold">{label}</Form.Label>
-                                                                <Select
-                                                                    options={currentOptions}
-                                                                    value={currentOptions.find(opt => opt.value === value) || null}
-                                                                    onChange={(option) => setFormData(prev => ({ ...prev, [name]: option ? option.value : '' }))}
-                                                                    isClearable
-                                                                    placeholder={`Select ${label}...`}
-                                                                    isDisabled={saving}
-                                                                    menuPortalTarget={document.body}
-                                                                    styles={{
-                                                                        control: (base, state) => ({
-                                                                            ...base,
-                                                                            border: '1.5px solid rgba(13,110,253,0.3)',
-                                                                            boxShadow: state.isFocused
-                                                                                ? '0 0 6px rgba(13,110,253,0.25)'
-                                                                                : '0 0 4px rgba(13,110,253,0.12)',
-                                                                            '&:hover': { borderColor: 'rgba(13,110,253,0.5)' },
-                                                                            minHeight: '38px',
-                                                                            borderRadius: '0.375rem',
-                                                                            backgroundColor: 'white',
-                                                                        }),
-                                                                        menuPortal: (base) => ({ ...base, zIndex: 9999 })
-                                                                    }}
-                                                                />
-                                                            </Form.Group>
-                                                        </Col>
-                                                    );
-                                                }
+                                                    if (name === 'assignedTo' || name === 'guardian_source_medium') {
+                                                        if (name === 'assignedTo' && role !== 'superadmin') return null;
+                                                        const currentOptions = name === 'assignedTo' ? userOptions : marketingMediums;
+                                                        return (
+                                                            <Col md={col} key={name}>
+                                                                <Form.Group controlId={name}>
+                                                                    <Form.Label className="fw-semibold">{label}</Form.Label>
+                                                                    <Select
+                                                                        options={currentOptions}
+                                                                        value={currentOptions.find(opt => opt.value === value) || null}
+                                                                        onChange={(option) => setFormData(prev => ({ ...prev, [name]: option ? option.value : '' }))}
+                                                                        isClearable
+                                                                        placeholder={`Select ${label}...`}
+                                                                        isDisabled={saving}
+                                                                        menuPortalTarget={document.body}
+                                                                        styles={{
+                                                                            control: (base, state) => ({
+                                                                                ...base,
+                                                                                border: '1.5px solid rgba(13,110,253,0.3)',
+                                                                                boxShadow: state.isFocused
+                                                                                    ? '0 0 6px rgba(13,110,253,0.25)'
+                                                                                    : '0 0 4px rgba(13,110,253,0.12)',
+                                                                                '&:hover': { borderColor: 'rgba(13,110,253,0.5)' },
+                                                                                minHeight: '38px',
+                                                                                borderRadius: '0.375rem',
+                                                                                backgroundColor: 'white',
+                                                                            }),
+                                                                            menuPortal: (base) => ({ ...base, zIndex: 9999 })
+                                                                        }}
+                                                                    />
+                                                                </Form.Group>
+                                                            </Col>
+                                                        );
+                                                    }
 
-                                                if (name === 'city') {
-                                                    return (
-                                                        <Col md={col} key={name}>
-                                                            <Form.Group controlId={name}>
-                                                                <Form.Label className="fw-semibold">{label}</Form.Label>
-                                                                <Select
-                                                                    options={cityOptions}
-                                                                    value={cityOptions.find(c => c.value === value) || null}
-                                                                    onChange={handleCityChange}
-                                                                    isClearable
-                                                                    placeholder={`Select or type ${label}...`}
-                                                                    isDisabled={saving}
-                                                                    menuPortalTarget={document.body}
-                                                                    styles={{
-                                                                        control: (base, state) => ({
-                                                                            ...base,
-                                                                            border: '1.5px solid rgba(13,110,253,0.3)',
-                                                                            boxShadow: state.isFocused
-                                                                                ? '0 0 6px rgba(13,110,253,0.25)'
-                                                                                : '0 0 4px rgba(13,110,253,0.12)',
-                                                                            '&:hover': { borderColor: 'rgba(13,110,253,0.5)' },
-                                                                            minHeight: '38px',
-                                                                            borderRadius: '0.375rem',
-                                                                            backgroundColor: 'white',
-                                                                        }),
-                                                                        menuPortal: (base) => ({ ...base, zIndex: 9999 })
-                                                                    }}
-                                                                />
-                                                            </Form.Group>
-                                                        </Col>
-                                                    );
-                                                }
+                                                    if (name === 'city') {
+                                                        return (
+                                                            <Col md={col} key={name}>
+                                                                <Form.Group controlId={name}>
+                                                                    <Form.Label className="fw-semibold">{label}</Form.Label>
+                                                                    <Select
+                                                                        options={cityOptions}
+                                                                        value={cityOptions.find(c => c.value === value) || null}
+                                                                        onChange={handleCityChange}
+                                                                        isClearable
+                                                                        placeholder={`Select or type ${label}...`}
+                                                                        isDisabled={saving}
+                                                                        menuPortalTarget={document.body}
+                                                                        styles={{
+                                                                            control: (base, state) => ({
+                                                                                ...base,
+                                                                                border: '1.5px solid rgba(13,110,253,0.3)',
+                                                                                boxShadow: state.isFocused
+                                                                                    ? '0 0 6px rgba(13,110,253,0.25)'
+                                                                                    : '0 0 4px rgba(13,110,253,0.12)',
+                                                                                '&:hover': { borderColor: 'rgba(13,110,253,0.5)' },
+                                                                                minHeight: '38px',
+                                                                                borderRadius: '0.375rem',
+                                                                                backgroundColor: 'white',
+                                                                            }),
+                                                                            menuPortal: (base) => ({ ...base, zIndex: 9999 })
+                                                                        }}
+                                                                    />
+                                                                </Form.Group>
+                                                            </Col>
+                                                        );
+                                                    }
 
-                                                if (name === 'area') {
-                                                    return (
-                                                        <Col md={col} key={name}>
-                                                            <Form.Group controlId={name}>
-                                                                <Form.Label className="fw-semibold">{label}</Form.Label>
-                                                                <Select
-                                                                    options={areaOptions}
-                                                                    value={areaOptions.find(a => a.value === value) || null}
-                                                                    onChange={handleAreaChange}
-                                                                    isClearable
-                                                                    placeholder={`Select or type ${label}...`}
-                                                                    isDisabled={saving}
-                                                                    menuPortalTarget={document.body}
-                                                                    styles={{
-                                                                        control: (base, state) => ({
-                                                                            ...base,
-                                                                            border: '1.5px solid rgba(13,110,253,0.3)',
-                                                                            boxShadow: state.isFocused
-                                                                                ? '0 0 6px rgba(13,110,253,0.25)'
-                                                                                : '0 0 4px rgba(13,110,253,0.12)',
-                                                                            '&:hover': { borderColor: 'rgba(13,110,253,0.5)' },
-                                                                            minHeight: '38px',
-                                                                            borderRadius: '0.375rem',
-                                                                            backgroundColor: 'white',
-                                                                        }),
-                                                                        menuPortal: (base) => ({ ...base, zIndex: 9999 })
-                                                                    }}
-                                                                />
-                                                            </Form.Group>
-                                                        </Col>
-                                                    );
-                                                }
+                                                    if (name === 'area') {
+                                                        return (
+                                                            <Col md={col} key={name}>
+                                                                <Form.Group controlId={name}>
+                                                                    <Form.Label className="fw-semibold">{label}</Form.Label>
+                                                                    <Select
+                                                                        options={areaOptions}
+                                                                        value={areaOptions.find(a => a.value === value) || null}
+                                                                        onChange={handleAreaChange}
+                                                                        isClearable
+                                                                        placeholder={`Select or type ${label}...`}
+                                                                        isDisabled={saving}
+                                                                        menuPortalTarget={document.body}
+                                                                        styles={{
+                                                                            control: (base, state) => ({
+                                                                                ...base,
+                                                                                border: '1.5px solid rgba(13,110,253,0.3)',
+                                                                                boxShadow: state.isFocused
+                                                                                    ? '0 0 6px rgba(13,110,253,0.25)'
+                                                                                    : '0 0 4px rgba(13,110,253,0.12)',
+                                                                                '&:hover': { borderColor: 'rgba(13,110,253,0.5)' },
+                                                                                minHeight: '38px',
+                                                                                borderRadius: '0.375rem',
+                                                                                backgroundColor: 'white',
+                                                                            }),
+                                                                            menuPortal: (base) => ({ ...base, zIndex: 9999 })
+                                                                        }}
+                                                                    />
+                                                                </Form.Group>
+                                                            </Col>
+                                                        );
+                                                    }
 
-                                                if (type === 'select') {
-                                                    return (
-                                                        <Col md={col} key={name}>
-                                                            <Form.Group controlId={name}>
-                                                                <Form.Label className="fw-semibold">{label}</Form.Label>
-                                                                <Form.Select
-                                                                    name={name}
-                                                                    value={value}
-                                                                    onChange={(e) => handleInputChange(e, field)}
-                                                                    required
-                                                                    disabled={saving}
-                                                                    style={inputBorderStyle}
-                                                                >
-                                                                    <option value="">Select {label}</option>
-                                                                    {options?.map(opt => (
-                                                                        <option key={opt} value={opt}>{opt}</option>
-                                                                    ))}
-                                                                </Form.Select>
-                                                            </Form.Group>
-                                                        </Col>
-                                                    );
-                                                }
-
-                                                if (type === 'switch') {
-                                                    return (
-                                                        <Col md={col} key={name}>
-                                                            <Form.Group controlId={name}>
-                                                                <Form.Label className="fw-semibold d-block mb-2">{label}</Form.Label>
-                                                                <div className="segmented-control">
-                                                                    <button
-                                                                        type="button"
-                                                                        className={`segmented-btn ${value ? 'active-yes' : ''}`}
-                                                                        onClick={() => handleInputChange({ target: { name, checked: true } }, field)}
+                                                    if (type === 'select') {
+                                                        return (
+                                                            <Col md={col} key={name}>
+                                                                <Form.Group controlId={name}>
+                                                                    <Form.Label className="fw-semibold">{label}</Form.Label>
+                                                                    <Form.Select
+                                                                        name={name}
+                                                                        value={value}
+                                                                        onChange={(e) => handleInputChange(e, field)}
+                                                                        required
                                                                         disabled={saving}
+                                                                        style={inputBorderStyle}
                                                                     >
-                                                                        Yes
-                                                                    </button>
-                                                                    <button
-                                                                        type="button"
-                                                                        className={`segmented-btn ${!value ? 'active-no' : ''}`}
-                                                                        onClick={() => handleInputChange({ target: { name, checked: false } }, field)}
+                                                                        <option value="">Select {label}</option>
+                                                                        {options?.map(opt => (
+                                                                            <option key={opt} value={opt}>{opt}</option>
+                                                                        ))}
+                                                                    </Form.Select>
+                                                                </Form.Group>
+                                                            </Col>
+                                                        );
+                                                    }
+
+                                                    if (type === 'switch') {
+                                                        return (
+                                                            <Col md={col} key={name}>
+                                                                <Form.Group controlId={name}>
+                                                                    <Form.Label className="fw-semibold d-block mb-2">{label}</Form.Label>
+                                                                    <div className="segmented-control">
+                                                                        <button
+                                                                            type="button"
+                                                                            className={`segmented-btn ${value ? 'active-yes' : ''}`}
+                                                                            onClick={() => handleInputChange({ target: { name, checked: true } }, field)}
+                                                                            disabled={saving}
+                                                                        >
+                                                                            Yes
+                                                                        </button>
+                                                                        <button
+                                                                            type="button"
+                                                                            className={`segmented-btn ${!value ? 'active-no' : ''}`}
+                                                                            onClick={() => handleInputChange({ target: { name, checked: false } }, field)}
+                                                                            disabled={saving}
+                                                                        >
+                                                                            No
+                                                                        </button>
+                                                                    </div>
+                                                                </Form.Group>
+                                                            </Col>
+                                                        );
+                                                    }
+                                                    if (type === 'textarea') {
+                                                        return (
+                                                            <Col md={col} key={name}>
+                                                                <Form.Group controlId={name}>
+                                                                    <Form.Label className="fw-semibold">{label}</Form.Label>
+                                                                    <Form.Control
+                                                                        as="textarea"
+                                                                        rows={3}
+                                                                        name={name}
+                                                                        value={value}
+                                                                        onChange={(e) => handleInputChange(e, field)}
+                                                                        required={name === 'guardianDemandForPublic' ? false : false}
                                                                         disabled={saving}
-                                                                    >
-                                                                        No
-                                                                    </button>
-                                                                </div>
-                                                            </Form.Group>
-                                                        </Col>
-                                                    );
-                                                }
-                                                if (type === 'textarea') {
+                                                                        style={inputBorderStyle}
+                                                                    />
+                                                                </Form.Group>
+                                                            </Col>
+                                                        );
+                                                    }
+
+                                                    const isCancelReasonPublic = name === 'tuitionCancelReasonPublic' && (formData.status?.toLowerCase() === 'cancel' || formData.status?.toLowerCase() === 'suspended');
+
+                                                    const customStyle = isCancelReasonPublic
+                                                        ? { ...inputBorderStyle, border: '2px solid #dc3545', backgroundColor: '#fff8f8' }
+                                                        : inputBorderStyle;
+
                                                     return (
                                                         <Col md={col} key={name}>
                                                             <Form.Group controlId={name}>
-                                                                <Form.Label className="fw-semibold">{label}</Form.Label>
+                                                                <Form.Label className="fw-semibold">
+                                                                    {label}
+                                                                    {isCancelReasonPublic && <span className="text-danger ms-1">* (বাধ্যতামূলক)</span>}
+                                                                    {name === 'guardianNumber' && !editingId && <span className="text-danger ms-1">* (বাধ্যতামূলক)</span>}
+                                                                </Form.Label>
                                                                 <Form.Control
-                                                                    as="textarea"
-                                                                    rows={3}
+                                                                    type={type}
                                                                     name={name}
                                                                     value={value}
                                                                     onChange={(e) => handleInputChange(e, field)}
+                                                                    required={isCancelReasonPublic || (!editingId && name === 'guardianNumber') ? true : false}
                                                                     disabled={saving}
-                                                                    style={inputBorderStyle}
+                                                                    style={customStyle}
+                                                                    placeholder={isCancelReasonPublic ? 'Please state the reason for cancel/suspended' : (name === 'guardianNumber' && !editingId) ? 'Enter Guardian Number (Required)' : ''}
                                                                 />
                                                             </Form.Group>
                                                         </Col>
                                                     );
-                                                }
-
-                                                const isCancelReasonPublic = name === 'tuitionCancelReasonPublic';
-                                                const customStyle = isCancelReasonPublic ? {
-                                                    ...inputBorderStyle,
-                                                    borderColor: '#dc3545',
-                                                    backgroundColor: '#fff5f5',
-                                                    borderWidth: '2px',
-                                                    boxShadow: '0 0 6px rgba(220, 53, 69, 0.2)'
-                                                } : inputBorderStyle;
-
-                                                return (
-                                                    <Col md={col} key={name}>
-                                                        <Form.Group controlId={name}>
-                                                            <Form.Label className="fw-semibold">
-                                                                {label}
-                                                                {isCancelReasonPublic && <span className="text-danger ms-1">*</span>}
-                                                                {!editingId && name === 'guardianNumber' && <span className="text-danger ms-1">*</span>}
-                                                            </Form.Label>
-                                                            <Form.Control
-                                                                type={type}
-                                                                name={name}
-                                                                value={value}
-                                                                onChange={(e) => handleInputChange(e, field)}
-                                                                required={isCancelReasonPublic || (!editingId && name === 'guardianNumber') ? true : false}
-                                                                disabled={saving}
-                                                                style={customStyle}
-                                                                placeholder={isCancelReasonPublic ? 'Please state the reason for cancel/suspended' : (name === 'guardianNumber' && !editingId) ? 'Enter Guardian Number (Required)' : ''}
-                                                            />
-                                                        </Form.Group>
-                                                    </Col>
-                                                );
-                                            })}
-                                        </Row>
-                                    </div>
-                                );
-                            })}
-                        </Form>
+                                                })}
+                                            </Row>
+                                        </div>
+                                    );
+                                })}
+                            </Form>
+                        )}
                     </div>
                 </Modal.Body>
 
@@ -833,7 +867,7 @@ export default function TuitionModal({ show, onHide, editingData = null, editing
                     <Button variant="secondary" onClick={onHide} disabled={saving}>
                         Close
                     </Button>
-                    <Button variant="primary" onClick={handleSaveTuition} disabled={saving}>
+                    <Button variant="primary" onClick={handleSaveTuition} disabled={saving || loadingDetails}>
                         {saving ? (
                             <>
                                 <Spinner animation="grow" size="sm" role="status" aria-hidden="true" className="me-2" />

@@ -1,6 +1,7 @@
-import React from 'react';
-import { Modal, Button, Row, Col, Badge } from 'react-bootstrap';
+import React, { useState, useEffect } from 'react';
+import { Modal, Button, Row, Col, Badge, Spinner } from 'react-bootstrap';
 import { FaCopy } from 'react-icons/fa';
+import { axiosWithFallback as axios } from '../../services/fetchWithFallback';
 
 const fieldConfig = [
     { name: 'tuitionCode', label: 'Tuition Code', group: 'details', col: 4, type: 'text' },
@@ -77,6 +78,38 @@ const formatDateTimeDisplay = (isoString) => {
 };
 
 export default function TuitionDetailsModal({ show, onHide, detailsData, onCopy }) {
+    const [fullData, setFullData] = useState(null);
+    const [loadingDetails, setLoadingDetails] = useState(false);
+
+    useEffect(() => {
+        if (!show) {
+            setFullData(null);
+            setLoadingDetails(false);
+            return;
+        }
+
+        const targetId = detailsData?._id;
+        if (targetId) {
+            setLoadingDetails(true);
+            axios.get(`https://tuition-seba-backend-1.onrender.com/api/tuition/${targetId}`)
+                .then(res => {
+                    setFullData(res.data);
+                })
+                .catch(err => {
+                    console.error('Error fetching tuition details by ID:', err);
+                    setFullData(detailsData);
+                })
+                .finally(() => {
+                    setLoadingDetails(false);
+                });
+        } else {
+            setFullData(detailsData);
+            setLoadingDetails(false);
+        }
+    }, [detailsData, show]);
+
+    const activeData = fullData || detailsData;
+
     const groups = fieldConfig.reduce((acc, field) => {
         acc[field.group] = acc[field.group] || [];
         acc[field.group].push(field);
@@ -84,7 +117,7 @@ export default function TuitionDetailsModal({ show, onHide, detailsData, onCopy 
     }, {});
 
     const displayValue = (field) => {
-        const val = detailsData?.[field.name];
+        const val = activeData?.[field.name];
 
         if (field.type === 'switch') {
             return val ? 'Yes' : 'No';
@@ -126,7 +159,7 @@ export default function TuitionDetailsModal({ show, onHide, detailsData, onCopy 
             >
                 <Modal.Title className="fw-bold d-flex align-items-center gap-2">
                     Tuition Details
-                    {detailsData?.assignedTo ? (
+                    {activeData?.assignedTo ? (
                         <span
                             style={{
                                 fontSize: '0.75rem',
@@ -139,7 +172,7 @@ export default function TuitionDetailsModal({ show, onHide, detailsData, onCopy 
                                 whiteSpace: 'nowrap',
                             }}
                         >
-                            👤 {detailsData.assignedTo}
+                            👤 {activeData.assignedTo}
                         </span>
                     ) : (
                         <span
@@ -160,7 +193,7 @@ export default function TuitionDetailsModal({ show, onHide, detailsData, onCopy 
                     {onCopy && (
                         <Button
                             size="sm"
-                            onClick={() => onCopy(detailsData)}
+                            onClick={() => onCopy(activeData)}
                             style={{
                                 fontSize: '0.78rem',
                                 fontWeight: 700,
@@ -202,141 +235,150 @@ export default function TuitionDetailsModal({ show, onHide, detailsData, onCopy 
                     padding: '1rem 1.5rem',
                 }}
             >
-                {Object.entries(groups).map(([groupName, fields]) => {
-                    const getGroupTitle = (name) => {
-                        switch (name) {
-                            case 'details': return 'Tuition Details';
-                            case 'admin': return 'Admin Info';
-                            case 'update': return 'Update Section';
-                            case 'others': return 'Others Section';
-                            default: return name;
-                        }
-                    };
-                    const getGroupBg = (name) => {
-                        switch (name) {
-                            case 'details': return '#fefefe';
-                            case 'admin': return '#e9f0ff';
-                            case 'update': return '#f0fbf4';
-                            case 'others': return '#fafafa';
-                            default: return '#ffffff';
-                        }
-                    };
-                    return (
-                        <div
-                            key={groupName}
-                            className="mb-5 p-3 rounded"
-                            style={{
-                                backgroundColor: getGroupBg(groupName),
-                                border: '1px solid rgba(13,110,253,0.2)',
-                                boxShadow: '0 0 10px rgba(13, 110, 253, 0.05)',
-                            }}
-                        >
-                            <h5
-                                className="mb-4 text-capitalize fw-semibold"
-                                style={{ borderBottom: '2px solid rgba(13, 110, 253, 0.5)', paddingBottom: '0.5rem' }}
-                            >
-                                {getGroupTitle(groupName)}
-                            </h5>
+                {loadingDetails ? (
+                    <div className="d-flex flex-column justify-content-center align-items-center py-5">
+                        <Spinner animation="border" variant="primary" style={{ width: '3rem', height: '3rem' }} />
+                        <span className="mt-3 text-muted fw-bold">Loading tuition details...</span>
+                    </div>
+                ) : (
+                    <>
+                        {Object.entries(groups).map(([groupName, fields]) => {
+                            const getGroupTitle = (name) => {
+                                switch (name) {
+                                    case 'details': return 'Tuition Details';
+                                    case 'admin': return 'Admin Info';
+                                    case 'update': return 'Update Section';
+                                    case 'others': return 'Others Section';
+                                    default: return name;
+                                }
+                            };
+                            const getGroupBg = (name) => {
+                                switch (name) {
+                                    case 'details': return '#fefefe';
+                                    case 'admin': return '#e9f0ff';
+                                    case 'update': return '#f0fbf4';
+                                    case 'others': return '#fafafa';
+                                    default: return '#ffffff';
+                                }
+                            };
+                            return (
+                                <div
+                                    key={groupName}
+                                    className="mb-5 p-3 rounded"
+                                    style={{
+                                        backgroundColor: getGroupBg(groupName),
+                                        border: '1px solid rgba(13,110,253,0.2)',
+                                        boxShadow: '0 0 10px rgba(13, 110, 253, 0.05)',
+                                    }}
+                                >
+                                    <h5
+                                        className="mb-4 text-capitalize fw-semibold"
+                                        style={{ borderBottom: '2px solid rgba(13, 110, 253, 0.5)', paddingBottom: '0.5rem' }}
+                                    >
+                                        {getGroupTitle(groupName)}
+                                    </h5>
 
-                            <Row className="gy-3">
-                                {fields.map(field => (
-                                    <Col md={field.col || 6} key={field.name}>
-                                        <div>
-                                            <label className="fw-semibold">{field.label}</label>
-                                            {field.type === 'switch' ? (
-                                                <div className="d-flex align-items-center" style={{ minHeight: '38px' }}>
-                                                    <Badge
-                                                        bg={detailsData?.[field.name] ? 'success' : 'danger'}
-                                                        style={{
-                                                            fontSize: '0.85rem',
-                                                            padding: '6px 14px',
-                                                            borderRadius: '20px',
-                                                            fontWeight: '700',
-                                                            display: 'inline-flex',
-                                                            alignItems: 'center',
-                                                            gap: '4px',
-                                                        }}
-                                                    >
-                                                        {detailsData?.[field.name] ? 'Yes' : 'No'}
-                                                    </Badge>
+                                    <Row className="gy-3">
+                                        {fields.map(field => (
+                                            <Col md={field.col || 6} key={field.name}>
+                                                <div>
+                                                    <label className="fw-semibold">{field.label}</label>
+                                                    {field.type === 'switch' ? (
+                                                        <div className="d-flex align-items-center" style={{ minHeight: '38px' }}>
+                                                            <Badge
+                                                                bg={activeData?.[field.name] ? 'success' : 'danger'}
+                                                                style={{
+                                                                    fontSize: '0.85rem',
+                                                                    padding: '6px 14px',
+                                                                    borderRadius: '20px',
+                                                                    fontWeight: '700',
+                                                                    display: 'inline-flex',
+                                                                    alignItems: 'center',
+                                                                    gap: '4px',
+                                                                }}
+                                                            >
+                                                                {activeData?.[field.name] ? 'Yes' : 'No'}
+                                                            </Badge>
+                                                        </div>
+                                                    ) : (
+                                                        <div
+                                                            style={{
+                                                                minHeight: '38px',
+                                                                padding: '6px 12px',
+                                                                backgroundColor: 'white',
+                                                                borderRadius: '0.375rem',
+                                                                border: '1.5px solid rgba(13,110,253,0.3)',
+                                                                boxShadow: '0 0 6px rgba(13,110,253,0.12)',
+                                                                color: '#212529',
+                                                                userSelect: 'text',
+                                                                whiteSpace: 'pre-wrap',
+                                                            }}
+                                                        >
+                                                            {displayValue(field)}
+                                                        </div>
+                                                    )}
                                                 </div>
-                                            ) : (
-                                                <div
-                                                    style={{
-                                                        minHeight: '38px',
-                                                        padding: '6px 12px',
-                                                        backgroundColor: 'white',
-                                                        borderRadius: '0.375rem',
-                                                        border: '1.5px solid rgba(13,110,253,0.3)',
-                                                        boxShadow: '0 0 6px rgba(13,110,253,0.12)',
-                                                        color: '#212529',
-                                                        userSelect: 'text',
-                                                        whiteSpace: 'pre-wrap',
-                                                    }}
-                                                >
-                                                    {displayValue(field)}
-                                                </div>
-                                            )}
-                                        </div>
-                                    </Col>
-                                ))}
-                            </Row>
-                        </div>
-                    );
-                })}
-                {/* Confirmation Follow-up History */}
-                {(detailsData?.status === 'confirm' || (detailsData?.confirmationFollowUps && detailsData.confirmationFollowUps.length > 0)) && (
-                    <div
-                        className="mb-5 p-3 rounded"
-                        style={{
-                            backgroundColor: '#fff3cd',
-                            border: '1px solid rgba(255, 193, 7, 0.4)',
-                            boxShadow: '0 0 10px rgba(255, 193, 7, 0.05)',
-                        }}
-                    >
-                        <h5
-                            className="mb-4 text-capitalize fw-semibold"
-                            style={{ borderBottom: '2px solid rgba(255, 193, 7, 0.8)', paddingBottom: '0.5rem', color: '#856404' }}
-                        >
-                            Confirmation Follow-up History
-                        </h5>
-                        {(!detailsData.confirmationFollowUps || detailsData.confirmationFollowUps.length === 0) ? (
-                            <div className="text-muted text-center py-3">No confirmation follow-ups logged yet.</div>
-                        ) : (
-                            <div className="table-responsive">
-                                <table className="table table-striped table-bordered table-hover mb-0 bg-white">
-                                    <thead className="table-dark">
-                                        <tr>
-                                            <th>SL</th>
-                                            <th>Last Follow-up Date</th>
-                                            <th>Last Follow-up Comment</th>
-                                            <th>Next Follow-up Date</th>
-                                            <th>Next Follow-up Comment</th>
-                                            <th>Guardian Feedback</th>
-                                            <th>Created By</th>
-                                            <th>Created At</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {detailsData.confirmationFollowUps.map((followUp, idx) => (
-                                            <tr key={followUp._id || idx}>
-                                                <td>{idx + 1}</td>
-                                                <td>{formatDateTimeDisplay(followUp.lastFollowUpDate)}</td>
-                                                <td>{followUp.lastFollowUpComment || '-'}</td>
-                                                <td>{formatDateTimeDisplay(followUp.nextFollowUpDate)}</td>
-                                                <td>{followUp.nextFollowUpComment || '-'}</td>
-                                                <td>{followUp.guardianFeedback || '-'}</td>
-                                                <td>
-                                                    <span className="badge bg-secondary">{followUp.createdBy || '-'}</span>
-                                                </td>
-                                                <td>{formatDateTimeDisplay(followUp.createdAt)}</td>
-                                            </tr>
+                                            </Col>
                                         ))}
-                                    </tbody>
-                                </table>
+                                    </Row>
+                                </div>
+                            );
+                        })}
+                        {/* Confirmation Follow-up History */}
+                        {(activeData?.status === 'confirm' || (activeData?.confirmationFollowUps && activeData.confirmationFollowUps.length > 0)) && (
+                            <div
+                                className="mb-5 p-3 rounded"
+                                style={{
+                                    backgroundColor: '#fff3cd',
+                                    border: '1px solid rgba(255, 193, 7, 0.4)',
+                                    boxShadow: '0 0 10px rgba(255, 193, 7, 0.05)',
+                                }}
+                            >
+                                <h5
+                                    className="mb-4 text-capitalize fw-semibold"
+                                    style={{ borderBottom: '2px solid rgba(255, 193, 7, 0.8)', paddingBottom: '0.5rem', color: '#856404' }}
+                                >
+                                    Confirmation Follow-up History
+                                </h5>
+                                {(!activeData.confirmationFollowUps || activeData.confirmationFollowUps.length === 0) ? (
+                                    <div className="text-muted text-center py-3">No confirmation follow-ups logged yet.</div>
+                                ) : (
+                                    <div className="table-responsive">
+                                        <table className="table table-striped table-bordered table-hover mb-0 bg-white">
+                                            <thead className="table-dark">
+                                                <tr>
+                                                    <th>SL</th>
+                                                    <th>Last Follow-up Date</th>
+                                                    <th>Last Follow-up Comment</th>
+                                                    <th>Next Follow-up Date</th>
+                                                    <th>Next Follow-up Comment</th>
+                                                    <th>Guardian Feedback</th>
+                                                    <th>Created By</th>
+                                                    <th>Created At</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {activeData.confirmationFollowUps.map((followUp, idx) => (
+                                                    <tr key={followUp._id || idx}>
+                                                        <td>{idx + 1}</td>
+                                                        <td>{formatDateTimeDisplay(followUp.lastFollowUpDate)}</td>
+                                                        <td>{followUp.lastFollowUpComment || '-'}</td>
+                                                        <td>{formatDateTimeDisplay(followUp.nextFollowUpDate)}</td>
+                                                        <td>{followUp.nextFollowUpComment || '-'}</td>
+                                                        <td>{followUp.guardianFeedback || '-'}</td>
+                                                        <td>
+                                                            <span className="badge bg-secondary">{followUp.createdBy || '-'}</span>
+                                                        </td>
+                                                        <td>{formatDateTimeDisplay(followUp.createdAt)}</td>
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                )}
                             </div>
                         )}
-                    </div>
+                    </>
                 )}
             </Modal.Body>
 

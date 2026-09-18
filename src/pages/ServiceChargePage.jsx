@@ -704,7 +704,7 @@ const ServiceChargePage = () => {
                 <WhatsAppServiceChargeModal
                     show={showWhatsAppScModal}
                     onHide={() => setShowWhatsAppScModal(false)}
-                    sc={whatsAppSc}
+                    scData={whatsAppSc}
                 />
 
                 {/* Auto Migrate Modal */}

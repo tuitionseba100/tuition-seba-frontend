@@ -77,24 +77,34 @@ Payment Department
 Tuition Seba Forum`;
 };
 
-const WhatsAppServiceChargeModal = ({ show, onHide, scData }) => {
+const WhatsAppServiceChargeModal = ({ show, onHide, scData, sc }) => {
+    const data = scData || sc;
     const [phone, setPhone] = useState('');
     const [message, setMessage] = useState('');
 
     useEffect(() => {
-        if (scData && show) {
-            setPhone(scData.personalPhone || '');
-            setMessage(getServiceChargeWhatsAppMessage(scData));
+        if (data && show) {
+            let rawPhone = data.personalPhone || data.paymentNumber || '';
+            let formatted = rawPhone.trim();
+            if (formatted.startsWith('0')) {
+                formatted = '+88' + formatted;
+            } else if (formatted.startsWith('880')) {
+                formatted = '+' + formatted;
+            } else if (formatted && !formatted.startsWith('+880')) {
+                formatted = '+880' + formatted;
+            }
+            setPhone(formatted);
+            setMessage(getServiceChargeWhatsAppMessage(data));
         }
-    }, [scData, show]);
+    }, [data, show]);
 
     const handleSend = () => {
         if (!phone) {
             toast.error('Please enter a phone number.');
             return;
         }
-        const formattedPhone = phone.startsWith('+') ? phone : `+88${phone}`;
-        const url = `https://wa.me/${formattedPhone.replace(/[^\d+]/g, '')}?text=${encodeURIComponent(message)}`;
+        const cleanDigits = phone.replace(/[^\d]/g, '');
+        const url = `https://wa.me/${cleanDigits}?text=${encodeURIComponent(message)}`;
         window.open(url, '_blank');
         onHide();
     };

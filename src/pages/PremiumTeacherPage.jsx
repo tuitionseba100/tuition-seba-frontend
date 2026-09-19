@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Button, Table, Modal, Form, Row, Col, Card, Nav, Tab, Badge, Pagination } from 'react-bootstrap';
-import { FaEdit, FaInfoCircle, FaTrashAlt, FaWhatsapp, FaChevronLeft, FaChevronRight, FaSearch, FaTimes, FaGlobe, FaGooglePlay, FaUserPlus, FaCamera, FaTrash, FaUserCircle, FaExternalLinkAlt, FaCheckCircle, FaIdCard, FaImages, FaFileAlt, FaGraduationCap, FaExpandAlt, FaShieldAlt, FaPhoneAlt, FaTimesCircle } from 'react-icons/fa'; // React Icons
+import { FaEdit, FaInfoCircle, FaTrashAlt, FaWhatsapp, FaChevronLeft, FaChevronRight, FaSearch, FaTimes, FaGlobe, FaGooglePlay, FaUserPlus, FaCamera, FaTrash, FaUserCircle, FaExternalLinkAlt, FaCheckCircle, FaIdCard, FaImages, FaFileAlt, FaGraduationCap, FaExpandAlt, FaShieldAlt, FaPhoneAlt, FaTimesCircle, FaAward } from 'react-icons/fa'; // React Icons
 import { axiosWithFallback as axios } from '../services/fetchWithFallback';
 import NavBarPage from './NavbarPage';
 import styled from 'styled-components';
@@ -43,30 +43,60 @@ const PremiumTeacherPage = () => {
     const [smsMessage, setSmsMessage] = useState('');
     const [smsRecipient, setSmsRecipient] = useState('');
     const [saving, setSaving] = useState(false);
+
+    // Profile Photo State
     const [uploadingPhoto, setUploadingPhoto] = useState(false);
     const [photoSizeKB, setPhotoSizeKB] = useState(null);
     const [pendingPhotoFile, setPendingPhotoFile] = useState(null);
     const [pendingPhotoPreview, setPendingPhotoPreview] = useState(null);
 
-    const [uploadingNid, setUploadingNid] = useState(false);
-    const [nidSizeKB, setNidSizeKB] = useState(null);
-    const [pendingNidFile, setPendingNidFile] = useState(null);
-    const [pendingNidPreview, setPendingNidPreview] = useState(null);
+    // NID Front State
+    const [uploadingNidFront, setUploadingNidFront] = useState(false);
+    const [nidFrontSizeKB, setNidFrontSizeKB] = useState(null);
+    const [pendingNidFrontFile, setPendingNidFrontFile] = useState(null);
+    const [pendingNidFrontPreview, setPendingNidFrontPreview] = useState(null);
 
+    // NID Back State
+    const [uploadingNidBack, setUploadingNidBack] = useState(false);
+    const [nidBackSizeKB, setNidBackSizeKB] = useState(null);
+    const [pendingNidBackFile, setPendingNidBackFile] = useState(null);
+    const [pendingNidBackPreview, setPendingNidBackPreview] = useState(null);
+
+    // SSC Marksheet State
     const [uploadingSsc, setUploadingSsc] = useState(false);
     const [sscSizeKB, setSscSizeKB] = useState(null);
     const [pendingSscFile, setPendingSscFile] = useState(null);
     const [pendingSscPreview, setPendingSscPreview] = useState(null);
 
+    // HSC Marksheet State
     const [uploadingHsc, setUploadingHsc] = useState(false);
     const [hscSizeKB, setHscSizeKB] = useState(null);
     const [pendingHscFile, setPendingHscFile] = useState(null);
     const [pendingHscPreview, setPendingHscPreview] = useState(null);
 
+    // University ID / Slip State
     const [uploadingUniId, setUploadingUniId] = useState(false);
     const [uniIdSizeKB, setUniIdSizeKB] = useState(null);
     const [pendingUniIdFile, setPendingUniIdFile] = useState(null);
     const [pendingUniIdPreview, setPendingUniIdPreview] = useState(null);
+
+    // Other Certificate 1 State
+    const [uploadingOther1, setUploadingOther1] = useState(false);
+    const [other1SizeKB, setOther1SizeKB] = useState(null);
+    const [pendingOther1File, setPendingOther1File] = useState(null);
+    const [pendingOther1Preview, setPendingOther1Preview] = useState(null);
+
+    // Other Certificate 2 State
+    const [uploadingOther2, setUploadingOther2] = useState(false);
+    const [other2SizeKB, setOther2SizeKB] = useState(null);
+    const [pendingOther2File, setPendingOther2File] = useState(null);
+    const [pendingOther2Preview, setPendingOther2Preview] = useState(null);
+
+    // Other Certificate 3 State
+    const [uploadingOther3, setUploadingOther3] = useState(false);
+    const [other3SizeKB, setOther3SizeKB] = useState(null);
+    const [pendingOther3File, setPendingOther3File] = useState(null);
+    const [pendingOther3Preview, setPendingOther3Preview] = useState(null);
 
     // Fullscreen Image Lightbox State
     const [enlargedImage, setEnlargedImage] = useState(null);
@@ -91,8 +121,13 @@ const PremiumTeacherPage = () => {
             if (prev) URL.revokeObjectURL(prev);
             return null;
         });
-        setPendingNidFile(null);
-        setPendingNidPreview(prev => {
+        setPendingNidFrontFile(null);
+        setPendingNidFrontPreview(prev => {
+            if (prev) URL.revokeObjectURL(prev);
+            return null;
+        });
+        setPendingNidBackFile(null);
+        setPendingNidBackPreview(prev => {
             if (prev) URL.revokeObjectURL(prev);
             return null;
         });
@@ -111,11 +146,30 @@ const PremiumTeacherPage = () => {
             if (prev) URL.revokeObjectURL(prev);
             return null;
         });
+        setPendingOther1File(null);
+        setPendingOther1Preview(prev => {
+            if (prev) URL.revokeObjectURL(prev);
+            return null;
+        });
+        setPendingOther2File(null);
+        setPendingOther2Preview(prev => {
+            if (prev) URL.revokeObjectURL(prev);
+            return null;
+        });
+        setPendingOther3File(null);
+        setPendingOther3Preview(prev => {
+            if (prev) URL.revokeObjectURL(prev);
+            return null;
+        });
         setPhotoSizeKB(null);
-        setNidSizeKB(null);
+        setNidFrontSizeKB(null);
+        setNidBackSizeKB(null);
         setSscSizeKB(null);
         setHscSizeKB(null);
         setUniIdSizeKB(null);
+        setOther1SizeKB(null);
+        setOther2SizeKB(null);
+        setOther3SizeKB(null);
     };
 
     const handleCloseModal = () => {
@@ -351,9 +405,14 @@ const PremiumTeacherPage = () => {
         }, {}),
         photo: '',
         nidPhoto: '',
+        nidFront: '',
+        nidBack: '',
         sscMarksheet: '',
         hscMarksheet: '',
-        universityIdCard: ''
+        universityIdCard: '',
+        otherDoc1: '',
+        otherDoc2: '',
+        otherDoc3: ''
     };
     const [formData, setFormData] = useState(initialData);
 
@@ -630,11 +689,23 @@ const PremiumTeacherPage = () => {
                 updatingData.photo = photoRes.url;
             }
 
-            // Upload pending NID on Save
-            if (pendingNidFile) {
-                setUploadingNid(true);
-                const nidRes = await uploadMediaWithFallback(pendingNidFile, 'teacher-nid');
-                updatingData.nidPhoto = nidRes.url;
+            // Upload pending NID Front on Save
+            if (pendingNidFrontFile) {
+                setUploadingNidFront(true);
+                const nidFrontRes = await uploadMediaWithFallback(pendingNidFrontFile, 'teacher-nid');
+                updatingData.nidPhoto = nidFrontRes.url;
+                updatingData.nidFront = nidFrontRes.url;
+            } else if (updatingData.nidFront || updatingData.nidPhoto) {
+                const existingNid = updatingData.nidFront || updatingData.nidPhoto;
+                updatingData.nidPhoto = existingNid;
+                updatingData.nidFront = existingNid;
+            }
+
+            // Upload pending NID Back on Save
+            if (pendingNidBackFile) {
+                setUploadingNidBack(true);
+                const nidBackRes = await uploadMediaWithFallback(pendingNidBackFile, 'teacher-nid-back');
+                updatingData.nidBack = nidBackRes.url;
             }
 
             // Upload pending SSC Marksheet on Save
@@ -656,6 +727,27 @@ const PremiumTeacherPage = () => {
                 setUploadingUniId(true);
                 const uniIdRes = await uploadMediaWithFallback(pendingUniIdFile, 'teacher-uni-id');
                 updatingData.universityIdCard = uniIdRes.url;
+            }
+
+            // Upload pending Other Doc 1 on Save
+            if (pendingOther1File) {
+                setUploadingOther1(true);
+                const other1Res = await uploadMediaWithFallback(pendingOther1File, 'teacher-other-1');
+                updatingData.otherDoc1 = other1Res.url;
+            }
+
+            // Upload pending Other Doc 2 on Save
+            if (pendingOther2File) {
+                setUploadingOther2(true);
+                const other2Res = await uploadMediaWithFallback(pendingOther2File, 'teacher-other-2');
+                updatingData.otherDoc2 = other2Res.url;
+            }
+
+            // Upload pending Other Doc 3 on Save
+            if (pendingOther3File) {
+                setUploadingOther3(true);
+                const other3Res = await uploadMediaWithFallback(pendingOther3File, 'teacher-other-3');
+                updatingData.otherDoc3 = other3Res.url;
             }
 
             if (editingId) {
@@ -692,10 +784,14 @@ const PremiumTeacherPage = () => {
         } finally {
             setSaving(false);
             setUploadingPhoto(false);
-            setUploadingNid(false);
+            setUploadingNidFront(false);
+            setUploadingNidBack(false);
             setUploadingSsc(false);
             setUploadingHsc(false);
             setUploadingUniId(false);
+            setUploadingOther1(false);
+            setUploadingOther2(false);
+            setUploadingOther3(false);
         }
     };
 
@@ -726,11 +822,23 @@ const PremiumTeacherPage = () => {
                 updatedData.photo = photoRes.url;
             }
 
-            // Upload pending NID on Save
-            if (pendingNidFile) {
-                setUploadingNid(true);
-                const nidRes = await uploadMediaWithFallback(pendingNidFile, 'teacher-nid');
-                updatedData.nidPhoto = nidRes.url;
+            // Upload pending NID Front on Save
+            if (pendingNidFrontFile) {
+                setUploadingNidFront(true);
+                const nidFrontRes = await uploadMediaWithFallback(pendingNidFrontFile, 'teacher-nid');
+                updatedData.nidPhoto = nidFrontRes.url;
+                updatedData.nidFront = nidFrontRes.url;
+            } else if (updatedData.nidFront || updatedData.nidPhoto) {
+                const existingNid = updatedData.nidFront || updatedData.nidPhoto;
+                updatedData.nidPhoto = existingNid;
+                updatedData.nidFront = existingNid;
+            }
+
+            // Upload pending NID Back on Save
+            if (pendingNidBackFile) {
+                setUploadingNidBack(true);
+                const nidBackRes = await uploadMediaWithFallback(pendingNidBackFile, 'teacher-nid-back');
+                updatedData.nidBack = nidBackRes.url;
             }
 
             // Upload pending SSC Marksheet on Save
@@ -752,6 +860,27 @@ const PremiumTeacherPage = () => {
                 setUploadingUniId(true);
                 const uniIdRes = await uploadMediaWithFallback(pendingUniIdFile, 'teacher-uni-id');
                 updatedData.universityIdCard = uniIdRes.url;
+            }
+
+            // Upload pending Other Doc 1 on Save
+            if (pendingOther1File) {
+                setUploadingOther1(true);
+                const other1Res = await uploadMediaWithFallback(pendingOther1File, 'teacher-other-1');
+                updatedData.otherDoc1 = other1Res.url;
+            }
+
+            // Upload pending Other Doc 2 on Save
+            if (pendingOther2File) {
+                setUploadingOther2(true);
+                const other2Res = await uploadMediaWithFallback(pendingOther2File, 'teacher-other-2');
+                updatedData.otherDoc2 = other2Res.url;
+            }
+
+            // Upload pending Other Doc 3 on Save
+            if (pendingOther3File) {
+                setUploadingOther3(true);
+                const other3Res = await uploadMediaWithFallback(pendingOther3File, 'teacher-other-3');
+                updatedData.otherDoc3 = other3Res.url;
             }
 
             await axios.put(
@@ -802,10 +931,14 @@ const PremiumTeacherPage = () => {
         } finally {
             setSaving(false);
             setUploadingPhoto(false);
-            setUploadingNid(false);
+            setUploadingNidFront(false);
+            setUploadingNidBack(false);
             setUploadingSsc(false);
             setUploadingHsc(false);
             setUploadingUniId(false);
+            setUploadingOther1(false);
+            setUploadingOther2(false);
+            setUploadingOther3(false);
         }
     };
 
@@ -828,11 +961,23 @@ const PremiumTeacherPage = () => {
                 updatedData.photo = photoRes.url;
             }
 
-            // Upload pending NID on Save
-            if (pendingNidFile) {
-                setUploadingNid(true);
-                const nidRes = await uploadMediaWithFallback(pendingNidFile, 'teacher-nid');
-                updatedData.nidPhoto = nidRes.url;
+            // Upload pending NID Front on Save
+            if (pendingNidFrontFile) {
+                setUploadingNidFront(true);
+                const nidFrontRes = await uploadMediaWithFallback(pendingNidFrontFile, 'teacher-nid');
+                updatedData.nidPhoto = nidFrontRes.url;
+                updatedData.nidFront = nidFrontRes.url;
+            } else if (updatedData.nidFront || updatedData.nidPhoto) {
+                const existingNid = updatedData.nidFront || updatedData.nidPhoto;
+                updatedData.nidPhoto = existingNid;
+                updatedData.nidFront = existingNid;
+            }
+
+            // Upload pending NID Back on Save
+            if (pendingNidBackFile) {
+                setUploadingNidBack(true);
+                const nidBackRes = await uploadMediaWithFallback(pendingNidBackFile, 'teacher-nid-back');
+                updatedData.nidBack = nidBackRes.url;
             }
 
             // Upload pending SSC Marksheet on Save
@@ -854,6 +999,27 @@ const PremiumTeacherPage = () => {
                 setUploadingUniId(true);
                 const uniIdRes = await uploadMediaWithFallback(pendingUniIdFile, 'teacher-uni-id');
                 updatedData.universityIdCard = uniIdRes.url;
+            }
+
+            // Upload pending Other Doc 1 on Save
+            if (pendingOther1File) {
+                setUploadingOther1(true);
+                const other1Res = await uploadMediaWithFallback(pendingOther1File, 'teacher-other-1');
+                updatedData.otherDoc1 = other1Res.url;
+            }
+
+            // Upload pending Other Doc 2 on Save
+            if (pendingOther2File) {
+                setUploadingOther2(true);
+                const other2Res = await uploadMediaWithFallback(pendingOther2File, 'teacher-other-2');
+                updatedData.otherDoc2 = other2Res.url;
+            }
+
+            // Upload pending Other Doc 3 on Save
+            if (pendingOther3File) {
+                setUploadingOther3(true);
+                const other3Res = await uploadMediaWithFallback(pendingOther3File, 'teacher-other-3');
+                updatedData.otherDoc3 = other3Res.url;
             }
 
             await axios.put(
@@ -878,10 +1044,14 @@ const PremiumTeacherPage = () => {
         } finally {
             setSaving(false);
             setUploadingPhoto(false);
-            setUploadingNid(false);
+            setUploadingNidFront(false);
+            setUploadingNidBack(false);
             setUploadingSsc(false);
             setUploadingHsc(false);
             setUploadingUniId(false);
+            setUploadingOther1(false);
+            setUploadingOther2(false);
+            setUploadingOther3(false);
         }
     };
 
@@ -965,40 +1135,74 @@ const PremiumTeacherPage = () => {
         toast.info('Photo removed from form. Click "Save" below to apply changes.');
     };
 
-    const handleNidUpload = async (e) => {
+    const handleNidFrontUpload = async (e) => {
         const file = e.target.files?.[0];
         if (!file) return;
 
         try {
-            // Compress on client side under 100KB (max 1200px dimension for document text)
             const { file: compressedFile, sizeKB } = await compressImageUnderMaxKB(file, 95, 1200);
-            setNidSizeKB(sizeKB);
+            setNidFrontSizeKB(sizeKB);
 
-            if (pendingNidPreview) {
-                URL.revokeObjectURL(pendingNidPreview);
+            if (pendingNidFrontPreview) {
+                URL.revokeObjectURL(pendingNidFrontPreview);
             }
             const previewUrl = URL.createObjectURL(compressedFile);
-            setPendingNidFile(compressedFile);
-            setPendingNidPreview(previewUrl);
+            setPendingNidFrontFile(compressedFile);
+            setPendingNidFrontPreview(previewUrl);
 
-            toast.info(`NID document selected (${sizeKB} KB). Click "Save" below to upload and save.`);
+            toast.info(`NID (Front) selected (${sizeKB} KB). Click "Save" below to upload and save.`);
         } catch (err) {
-            console.error('NID processing error:', err);
-            toast.error(err.message || 'Failed to process NID document');
+            console.error('NID (Front) processing error:', err);
+            toast.error(err.message || 'Failed to process NID (Front) document');
         } finally {
             if (e.target) e.target.value = '';
         }
     };
 
-    const handleRemoveNid = () => {
-        if (pendingNidPreview) {
-            URL.revokeObjectURL(pendingNidPreview);
+    const handleRemoveNidFront = () => {
+        if (pendingNidFrontPreview) {
+            URL.revokeObjectURL(pendingNidFrontPreview);
         }
-        setPendingNidFile(null);
-        setPendingNidPreview(null);
-        setFormData(prev => ({ ...prev, nidPhoto: '' }));
-        setNidSizeKB(null);
-        toast.info('NID document removed from form. Click "Save" below to apply changes.');
+        setPendingNidFrontFile(null);
+        setPendingNidFrontPreview(null);
+        setFormData(prev => ({ ...prev, nidFront: '' }));
+        setNidFrontSizeKB(null);
+        toast.info('NID (Front) document removed from form. Click "Save" below to apply changes.');
+    };
+
+    const handleNidBackUpload = async (e) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        try {
+            const { file: compressedFile, sizeKB } = await compressImageUnderMaxKB(file, 95, 1200);
+            setNidBackSizeKB(sizeKB);
+
+            if (pendingNidBackPreview) {
+                URL.revokeObjectURL(pendingNidBackPreview);
+            }
+            const previewUrl = URL.createObjectURL(compressedFile);
+            setPendingNidBackFile(compressedFile);
+            setPendingNidBackPreview(previewUrl);
+
+            toast.info(`NID (Back) selected (${sizeKB} KB). Click "Save" below to upload and save.`);
+        } catch (err) {
+            console.error('NID (Back) processing error:', err);
+            toast.error(err.message || 'Failed to process NID (Back) document');
+        } finally {
+            if (e.target) e.target.value = '';
+        }
+    };
+
+    const handleRemoveNidBack = () => {
+        if (pendingNidBackPreview) {
+            URL.revokeObjectURL(pendingNidBackPreview);
+        }
+        setPendingNidBackFile(null);
+        setPendingNidBackPreview(null);
+        setFormData(prev => ({ ...prev, nidBack: '' }));
+        setNidBackSizeKB(null);
+        toast.info('NID (Back) document removed from form. Click "Save" below to apply changes.');
     };
 
     const handleSscUpload = async (e) => {
@@ -1106,6 +1310,111 @@ const PremiumTeacherPage = () => {
         toast.info('University ID / Admission Slip removed from form. Click "Save" below to apply changes.');
     };
 
+    const handleOther1Upload = async (e) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        try {
+            const { file: compressedFile, sizeKB } = await compressImageUnderMaxKB(file, 95, 1200);
+            setOther1SizeKB(sizeKB);
+
+            if (pendingOther1Preview) {
+                URL.revokeObjectURL(pendingOther1Preview);
+            }
+            const previewUrl = URL.createObjectURL(compressedFile);
+            setPendingOther1File(compressedFile);
+            setPendingOther1Preview(previewUrl);
+
+            toast.info(`Certificate 1 selected (${sizeKB} KB). Click "Save" below to upload and save.`);
+        } catch (err) {
+            console.error('Certificate 1 processing error:', err);
+            toast.error(err.message || 'Failed to process Certificate 1');
+        } finally {
+            if (e.target) e.target.value = '';
+        }
+    };
+
+    const handleRemoveOther1 = () => {
+        if (pendingOther1Preview) {
+            URL.revokeObjectURL(pendingOther1Preview);
+        }
+        setPendingOther1File(null);
+        setPendingOther1Preview(null);
+        setFormData(prev => ({ ...prev, otherDoc1: '' }));
+        setOther1SizeKB(null);
+        toast.info('Certificate 1 removed from form. Click "Save" below to apply changes.');
+    };
+
+    const handleOther2Upload = async (e) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        try {
+            const { file: compressedFile, sizeKB } = await compressImageUnderMaxKB(file, 95, 1200);
+            setOther2SizeKB(sizeKB);
+
+            if (pendingOther2Preview) {
+                URL.revokeObjectURL(pendingOther2Preview);
+            }
+            const previewUrl = URL.createObjectURL(compressedFile);
+            setPendingOther2File(compressedFile);
+            setPendingOther2Preview(previewUrl);
+
+            toast.info(`Certificate 2 selected (${sizeKB} KB). Click "Save" below to upload and save.`);
+        } catch (err) {
+            console.error('Certificate 2 processing error:', err);
+            toast.error(err.message || 'Failed to process Certificate 2');
+        } finally {
+            if (e.target) e.target.value = '';
+        }
+    };
+
+    const handleRemoveOther2 = () => {
+        if (pendingOther2Preview) {
+            URL.revokeObjectURL(pendingOther2Preview);
+        }
+        setPendingOther2File(null);
+        setPendingOther2Preview(null);
+        setFormData(prev => ({ ...prev, otherDoc2: '' }));
+        setOther2SizeKB(null);
+        toast.info('Certificate 2 removed from form. Click "Save" below to apply changes.');
+    };
+
+    const handleOther3Upload = async (e) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        try {
+            const { file: compressedFile, sizeKB } = await compressImageUnderMaxKB(file, 95, 1200);
+            setOther3SizeKB(sizeKB);
+
+            if (pendingOther3Preview) {
+                URL.revokeObjectURL(pendingOther3Preview);
+            }
+            const previewUrl = URL.createObjectURL(compressedFile);
+            setPendingOther3File(compressedFile);
+            setPendingOther3Preview(previewUrl);
+
+            toast.info(`Certificate 3 selected (${sizeKB} KB). Click "Save" below to upload and save.`);
+        } catch (err) {
+            console.error('Certificate 3 processing error:', err);
+            toast.error(err.message || 'Failed to process Certificate 3');
+        } finally {
+            if (e.target) e.target.value = '';
+        }
+    };
+
+    const handleRemoveOther3 = () => {
+        if (pendingOther3Preview) {
+            URL.revokeObjectURL(pendingOther3Preview);
+        }
+        setPendingOther3File(null);
+        setPendingOther3Preview(null);
+        setFormData(prev => ({ ...prev, otherDoc3: '' }));
+        setOther3SizeKB(null);
+        toast.info('Certificate 3 removed from form. Click "Save" below to apply changes.');
+    };
+
     const handleDeleteTeacher = async (id) => {
         const confirmDelete = window.confirm("Are you sure you want to delete this record?");
 
@@ -1139,9 +1448,14 @@ const PremiumTeacherPage = () => {
         }, {});
         data.photo = '';
         data.nidPhoto = '';
+        data.nidFront = '';
+        data.nidBack = '';
         data.sscMarksheet = '';
         data.hscMarksheet = '';
         data.universityIdCard = '';
+        data.otherDoc1 = '';
+        data.otherDoc2 = '';
+        data.otherDoc3 = '';
         return data;
     };
 
@@ -1911,20 +2225,24 @@ const PremiumTeacherPage = () => {
                                                 <FaIdCard className="text-primary" /> Verification & Academic Documents
                                             </span>
                                             <span className="badge bg-light text-secondary border" style={{ fontSize: '0.72rem' }}>
-                                                {[selectedTeacher.nidPhoto, selectedTeacher.sscMarksheet, selectedTeacher.hscMarksheet, selectedTeacher.universityIdCard].filter(Boolean).length} of 4 Attached
+                                                {[selectedTeacher.nidPhoto || selectedTeacher.nidFront, selectedTeacher.nidBack, selectedTeacher.sscMarksheet, selectedTeacher.hscMarksheet, selectedTeacher.universityIdCard, selectedTeacher.otherDoc1, selectedTeacher.otherDoc2, selectedTeacher.otherDoc3].filter(Boolean).length} of 8 Attached
                                             </span>
                                         </div>
 
                                         <Row className="g-2">
                                             {[
-                                                { label: 'NID / Birth Certificate', key: 'nidPhoto', icon: <FaIdCard style={{ fontSize: '1.4rem' }} className="text-secondary opacity-50" /> },
+                                                { label: 'NID Front / Birth Reg', key: 'nidPhoto', fallbackKey: 'nidFront', icon: <FaIdCard style={{ fontSize: '1.4rem' }} className="text-secondary opacity-50" /> },
+                                                { label: 'NID Back Part', key: 'nidBack', icon: <FaIdCard style={{ fontSize: '1.4rem' }} className="text-secondary opacity-50" /> },
                                                 { label: 'SSC Marksheet', key: 'sscMarksheet', icon: <FaFileAlt style={{ fontSize: '1.4rem' }} className="text-secondary opacity-50" /> },
                                                 { label: 'HSC Marksheet', key: 'hscMarksheet', icon: <FaFileAlt style={{ fontSize: '1.4rem' }} className="text-secondary opacity-50" /> },
-                                                { label: 'University ID / Admission Slip', key: 'universityIdCard', icon: <FaGraduationCap style={{ fontSize: '1.4rem' }} className="text-secondary opacity-50" /> },
+                                                { label: 'University ID / Slip', key: 'universityIdCard', icon: <FaGraduationCap style={{ fontSize: '1.4rem' }} className="text-secondary opacity-50" /> },
+                                                { label: 'Other Certificate 1', key: 'otherDoc1', icon: <FaAward style={{ fontSize: '1.4rem' }} className="text-secondary opacity-50" /> },
+                                                { label: 'Other Certificate 2', key: 'otherDoc2', icon: <FaAward style={{ fontSize: '1.4rem' }} className="text-secondary opacity-50" /> },
+                                                { label: 'Other Certificate 3', key: 'otherDoc3', icon: <FaAward style={{ fontSize: '1.4rem' }} className="text-secondary opacity-50" /> },
                                             ].map(doc => {
-                                                const docUrl = selectedTeacher[doc.key];
+                                                const docUrl = selectedTeacher[doc.key] || (doc.fallbackKey ? selectedTeacher[doc.fallbackKey] : null);
                                                 return (
-                                                    <Col xs={6} md={3} key={doc.key}>
+                                                    <Col xs={6} sm={4} md={3} lg={3} key={doc.key}>
                                                         <div
                                                             className="h-100 p-2 rounded d-flex flex-column justify-content-between"
                                                             style={{
@@ -2132,661 +2450,1191 @@ const PremiumTeacherPage = () => {
                     </Modal.Header>
 
                     <Modal.Body>
-                        {/* Profile Photo & NID/Birth Registration Uploader Row */}
-                        <Row className="g-3 mb-4">
-                            {/* Profile Photo Uploader */}
-                            <Col md={6}>
-                                <div className="p-3 rounded border bg-light shadow-sm h-100 d-flex flex-column">
-                                    <div className="d-flex align-items-center gap-3 mb-2">
-                                        <div style={{ position: 'relative' }}>
-                                            {(pendingPhotoPreview || formData.photo) ? (
-                                                <img
-                                                    src={pendingPhotoPreview || formData.photo}
-                                                    alt="Teacher Profile"
-                                                    style={{
-                                                        width: '80px',
-                                                        height: '90px',
-                                                        borderRadius: '8px',
-                                                        objectFit: 'contain',
-                                                        backgroundColor: '#f1f3f5',
-                                                        border: pendingPhotoFile ? '2px solid #ffc107' : '2px solid #0d6efd',
-                                                        boxShadow: '0 2px 6px rgba(0,0,0,0.15)',
-                                                        cursor: 'pointer'
-                                                    }}
-                                                    onClick={() => setEnlargedImage({ url: pendingPhotoPreview || formData.photo, title: `${formData.name || 'Teacher'} - Profile Photo Preview` })}
-                                                    title="Click to view enlarged image"
-                                                />
-                                            ) : (
-                                                <div
-                                                    style={{
-                                                        width: '80px',
-                                                        height: '90px',
-                                                        borderRadius: '8px',
-                                                        backgroundColor: '#dee2e6',
-                                                        color: '#6c757d',
-                                                        display: 'flex',
-                                                        flexDirection: 'column',
-                                                        alignItems: 'center',
-                                                        justifyContent: 'center',
-                                                        fontSize: '1.8rem',
-                                                        border: '2px dashed #adb5bd'
-                                                    }}
-                                                >
-                                                    <FaCamera />
-                                                    <span style={{ fontSize: '0.6rem' }} className="mt-1">No Photo</span>
-                                                </div>
-                                            )}
-                                            {uploadingPhoto && (
-                                                <div
-                                                    style={{
-                                                        position: 'absolute',
-                                                        top: 0,
-                                                        left: 0,
-                                                        width: '100%',
-                                                        height: '100%',
-                                                        borderRadius: '8px',
-                                                        backgroundColor: 'rgba(255,255,255,0.85)',
-                                                        display: 'flex',
-                                                        alignItems: 'center',
-                                                        justifyContent: 'center'
-                                                    }}
-                                                >
-                                                    <Spinner animation="border" size="sm" variant="primary" />
-                                                </div>
-                                            )}
-                                        </div>
+                        {/* Document Uploads Section - 3 Rows x 3 Columns (9 Total Documents) */}
+                        <div className="mb-4">
+                            <h6 className="fw-bold text-primary mb-3 d-flex align-items-center gap-2">
+                                <FaIdCard /> Teacher Photos & Documents (Auto-compressed &lt; 100 KB)
+                            </h6>
 
-                                        <div className="flex-grow-1">
-                                            <h6 className="fw-bold mb-0">Profile Photo</h6>
-                                            <small className="text-muted d-block mb-1">
-                                                Max 100 KB
-                                                {photoSizeKB && (
-                                                    <span className={`ms-2 badge ${pendingPhotoFile ? 'bg-warning text-dark' : 'bg-success'}`}>
-                                                        {pendingPhotoFile ? `Pending: ${photoSizeKB} KB` : `${photoSizeKB} KB`}
-                                                    </span>
-                                                )}
-                                            </small>
-
-                                            <div className="d-flex flex-wrap gap-1 align-items-center">
-                                                <label className={`btn btn-sm btn-primary d-inline-flex align-items-center gap-1 mb-0 ${uploadingPhoto ? 'disabled' : ''}`} style={{ cursor: uploadingPhoto ? 'not-allowed' : 'pointer', fontSize: '0.78rem' }}>
-                                                    <FaCamera />
-                                                    {uploadingPhoto ? 'Uploading...' : ((pendingPhotoPreview || formData.photo) ? 'Change' : 'Select Photo')}
-                                                    <input
-                                                        type="file"
-                                                        accept="image/*"
-                                                        onChange={handlePhotoUpload}
-                                                        style={{ display: 'none' }}
-                                                        disabled={uploadingPhoto || saving}
+                            {/* Row 1: Profile Photo, NID Front, NID Back */}
+                            <Row className="g-3 mb-3">
+                                {/* 1. Profile Photo */}
+                                <Col xs={12} sm={6} md={4}>
+                                    <div className="p-3 rounded border bg-light shadow-sm h-100 d-flex flex-column">
+                                        <div className="d-flex align-items-center gap-2 mb-2">
+                                            <div style={{ position: 'relative', flexShrink: 0 }}>
+                                                {(pendingPhotoPreview || formData.photo) ? (
+                                                    <img
+                                                        src={pendingPhotoPreview || formData.photo}
+                                                        alt="Teacher Profile"
+                                                        style={{
+                                                            width: '75px',
+                                                            height: '80px',
+                                                            borderRadius: '6px',
+                                                            objectFit: 'cover',
+                                                            backgroundColor: '#f1f3f5',
+                                                            border: pendingPhotoFile ? '2px solid #ffc107' : '2px solid #0d6efd',
+                                                            boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+                                                            cursor: 'pointer'
+                                                        }}
+                                                        onClick={() => setEnlargedImage({ url: pendingPhotoPreview || formData.photo, title: `${formData.name || 'Teacher'} - Profile Photo` })}
+                                                        title="Click to view enlarged image"
                                                     />
-                                                </label>
-
-                                                {(pendingPhotoPreview || formData.photo) && (
-                                                    <Button
-                                                        variant="outline-danger"
-                                                        size="sm"
-                                                        onClick={handleRemovePhoto}
-                                                        disabled={uploadingPhoto || saving}
-                                                        style={{ fontSize: '0.78rem' }}
-                                                        className="d-inline-flex align-items-center gap-1"
+                                                ) : (
+                                                    <div
+                                                        style={{
+                                                            width: '75px',
+                                                            height: '80px',
+                                                            borderRadius: '6px',
+                                                            backgroundColor: '#dee2e6',
+                                                            color: '#6c757d',
+                                                            display: 'flex',
+                                                            flexDirection: 'column',
+                                                            alignItems: 'center',
+                                                            justifyContent: 'center',
+                                                            fontSize: '1.5rem',
+                                                            border: '2px dashed #adb5bd'
+                                                        }}
                                                     >
-                                                        <FaTrash /> Remove
-                                                    </Button>
+                                                        <FaCamera />
+                                                        <span style={{ fontSize: '0.55rem' }} className="mt-1">No Photo</span>
+                                                    </div>
                                                 )}
-
-                                                {formData.photo && !pendingPhotoPreview && (
-                                                    <a
-                                                        href={formData.photo}
-                                                        target="_blank"
-                                                        rel="noreferrer"
-                                                        style={{ fontSize: '0.78rem' }}
-                                                        className="btn btn-sm btn-outline-secondary d-inline-flex align-items-center gap-1"
+                                                {uploadingPhoto && (
+                                                    <div
+                                                        style={{
+                                                            position: 'absolute',
+                                                            top: 0,
+                                                            left: 0,
+                                                            width: '100%',
+                                                            height: '100%',
+                                                            borderRadius: '6px',
+                                                            backgroundColor: 'rgba(255,255,255,0.85)',
+                                                            display: 'flex',
+                                                            alignItems: 'center',
+                                                            justifyContent: 'center'
+                                                        }}
                                                     >
-                                                        <FaExternalLinkAlt /> View
-                                                    </a>
+                                                        <Spinner animation="border" size="sm" variant="primary" />
+                                                    </div>
                                                 )}
                                             </div>
-                                        </div>
-                                    </div>
 
-                                    <div className="mt-auto">
-                                        {pendingPhotoFile ? (
-                                            <small className="text-warning fw-semibold d-flex align-items-center gap-1">
-                                                <FaInfoCircle /> Selected &mdash; will upload when you click Save
-                                            </small>
-                                        ) : formData.photo ? (
-                                            <small className="text-success d-flex align-items-center gap-1">
-                                                <FaCheckCircle /> Saved profile photo
-                                            </small>
-                                        ) : (
-                                            <small className="text-muted">No photo selected</small>
-                                        )}
-                                    </div>
-                                </div>
-                            </Col>
+                                            <div className="flex-grow-1 overflow-hidden">
+                                                <h6 className="fw-bold mb-0 text-truncate" style={{ fontSize: '0.85rem' }} title="Profile Photo">Profile Photo</h6>
+                                                <small className="text-muted d-block mb-1" style={{ fontSize: '0.72rem' }}>
+                                                    Max 100 KB
+                                                    {photoSizeKB && (
+                                                        <span className={`ms-1 badge ${pendingPhotoFile ? 'bg-warning text-dark' : 'bg-success'}`} style={{ fontSize: '0.65rem' }}>
+                                                            {pendingPhotoFile ? `${photoSizeKB} KB*` : `${photoSizeKB} KB`}
+                                                        </span>
+                                                    )}
+                                                </small>
 
-                            {/* NID / Birth Registration Photo Uploader */}
-                            <Col md={6}>
-                                <div className="p-3 rounded border bg-light shadow-sm h-100 d-flex flex-column">
-                                    <div className="d-flex align-items-center gap-3 mb-2">
-                                        <div style={{ position: 'relative' }}>
-                                            {(pendingNidPreview || formData.nidPhoto) ? (
-                                                <img
-                                                    src={pendingNidPreview || formData.nidPhoto}
-                                                    alt="NID Document"
-                                                    style={{
-                                                        width: '100px',
-                                                        height: '65px',
-                                                        borderRadius: '6px',
-                                                        objectFit: 'contain',
-                                                        backgroundColor: '#f1f3f5',
-                                                        border: pendingNidFile ? '2px solid #ffc107' : '2px solid #198754',
-                                                        boxShadow: '0 2px 6px rgba(0,0,0,0.15)',
-                                                        cursor: 'pointer'
-                                                    }}
-                                                    onClick={() => setEnlargedImage({ url: pendingNidPreview || formData.nidPhoto, title: `${formData.name || 'Teacher'} - NID Document Preview` })}
-                                                    title="Click to view enlarged image"
-                                                />
-                                            ) : (
-                                                <div
-                                                    style={{
-                                                        width: '100px',
-                                                        height: '65px',
-                                                        borderRadius: '6px',
-                                                        backgroundColor: '#dee2e6',
-                                                        color: '#6c757d',
-                                                        display: 'flex',
-                                                        flexDirection: 'column',
-                                                        alignItems: 'center',
-                                                        justifyContent: 'center',
-                                                        fontSize: '1.6rem',
-                                                        border: '2px dashed #adb5bd'
-                                                    }}
-                                                >
-                                                    <FaIdCard />
-                                                    <span style={{ fontSize: '0.6rem' }}>No NID</span>
+                                                <div className="d-flex flex-wrap gap-1 align-items-center">
+                                                    <label className={`btn btn-sm btn-primary d-inline-flex align-items-center gap-1 mb-0 py-1 px-2 ${uploadingPhoto ? 'disabled' : ''}`} style={{ cursor: uploadingPhoto ? 'not-allowed' : 'pointer', fontSize: '0.72rem' }}>
+                                                        <FaCamera size={10} />
+                                                        {uploadingPhoto ? '...' : ((pendingPhotoPreview || formData.photo) ? 'Change' : 'Select')}
+                                                        <input
+                                                            type="file"
+                                                            accept="image/*"
+                                                            onChange={handlePhotoUpload}
+                                                            style={{ display: 'none' }}
+                                                            disabled={uploadingPhoto || saving}
+                                                        />
+                                                    </label>
+
+                                                    {(pendingPhotoPreview || formData.photo) && (
+                                                        <Button
+                                                            variant="outline-danger"
+                                                            size="sm"
+                                                            onClick={handleRemovePhoto}
+                                                            disabled={uploadingPhoto || saving}
+                                                            style={{ fontSize: '0.72rem' }}
+                                                            className="d-inline-flex align-items-center gap-1 py-1 px-2"
+                                                        >
+                                                            <FaTrash size={10} />
+                                                        </Button>
+                                                    )}
+
+                                                    {formData.photo && !pendingPhotoPreview && (
+                                                        <a
+                                                            href={formData.photo}
+                                                            target="_blank"
+                                                            rel="noreferrer"
+                                                            style={{ fontSize: '0.72rem' }}
+                                                            className="btn btn-sm btn-outline-secondary d-inline-flex align-items-center gap-1 py-1 px-2"
+                                                        >
+                                                            <FaExternalLinkAlt size={9} />
+                                                        </a>
+                                                    )}
                                                 </div>
-                                            )}
-                                            {uploadingNid && (
-                                                <div
-                                                    style={{
-                                                        position: 'absolute',
-                                                        top: 0,
-                                                        left: 0,
-                                                        width: '100%',
-                                                        height: '100%',
-                                                        borderRadius: '6px',
-                                                        backgroundColor: 'rgba(255,255,255,0.85)',
-                                                        display: 'flex',
-                                                        alignItems: 'center',
-                                                        justifyContent: 'center'
-                                                    }}
-                                                >
-                                                    <Spinner animation="border" size="sm" variant="success" />
-                                                </div>
-                                            )}
-                                        </div>
-
-                                        <div className="flex-grow-1">
-                                            <h6 className="fw-bold mb-0">NID / Birth Certificate</h6>
-                                            <small className="text-muted d-block mb-1">
-                                                Max 100 KB
-                                                {nidSizeKB && (
-                                                    <span className={`ms-2 badge ${pendingNidFile ? 'bg-warning text-dark' : 'bg-success'}`}>
-                                                        {pendingNidFile ? `Pending: ${nidSizeKB} KB` : `${nidSizeKB} KB`}
-                                                    </span>
-                                                )}
-                                            </small>
-
-                                            <div className="d-flex flex-wrap gap-1 align-items-center">
-                                                <label className={`btn btn-sm btn-success d-inline-flex align-items-center gap-1 mb-0 ${uploadingNid ? 'disabled' : ''}`} style={{ cursor: uploadingNid ? 'not-allowed' : 'pointer', fontSize: '0.78rem' }}>
-                                                    <FaIdCard />
-                                                    {uploadingNid ? 'Uploading...' : ((pendingNidPreview || formData.nidPhoto) ? 'Change NID' : 'Select NID')}
-                                                    <input
-                                                        type="file"
-                                                        accept="image/*"
-                                                        onChange={handleNidUpload}
-                                                        style={{ display: 'none' }}
-                                                        disabled={uploadingNid || saving}
-                                                    />
-                                                </label>
-
-                                                {(pendingNidPreview || formData.nidPhoto) && (
-                                                    <Button
-                                                        variant="outline-danger"
-                                                        size="sm"
-                                                        onClick={handleRemoveNid}
-                                                        disabled={uploadingNid || saving}
-                                                        style={{ fontSize: '0.78rem' }}
-                                                        className="d-inline-flex align-items-center gap-1"
-                                                    >
-                                                        <FaTrash /> Remove
-                                                    </Button>
-                                                )}
-
-                                                {formData.nidPhoto && !pendingNidPreview && (
-                                                    <a
-                                                        href={formData.nidPhoto}
-                                                        target="_blank"
-                                                        rel="noreferrer"
-                                                        style={{ fontSize: '0.78rem' }}
-                                                        className="btn btn-sm btn-outline-secondary d-inline-flex align-items-center gap-1"
-                                                    >
-                                                        <FaExternalLinkAlt /> View
-                                                    </a>
-                                                )}
                                             </div>
                                         </div>
-                                    </div>
 
-                                    <div className="mt-auto">
-                                        {pendingNidFile ? (
-                                            <small className="text-warning fw-semibold d-flex align-items-center gap-1">
-                                                <FaInfoCircle /> Selected &mdash; will upload when you click Save
-                                            </small>
-                                        ) : formData.nidPhoto ? (
-                                            <small className="text-success d-flex align-items-center gap-1">
-                                                <FaCheckCircle /> Saved NID document
-                                            </small>
-                                        ) : (
-                                            <small className="text-muted">No document uploaded</small>
-                                        )}
-                                    </div>
-                                </div>
-                            </Col>
-                        </Row>
-
-                        {/* Academic & Verification Documents Upload Row */}
-                        <Row className="g-3 mb-4">
-                            {/* SSC Marksheet */}
-                            <Col md={4}>
-                                <div className="p-3 rounded border bg-light shadow-sm h-100 d-flex flex-column">
-                                    <div className="d-flex align-items-center gap-3 mb-2">
-                                        <div style={{ position: 'relative' }}>
-                                            {(pendingSscPreview || formData.sscMarksheet) ? (
-                                                <img
-                                                    src={pendingSscPreview || formData.sscMarksheet}
-                                                    alt="SSC Marksheet"
-                                                    style={{
-                                                        width: '85px',
-                                                        height: '65px',
-                                                        borderRadius: '6px',
-                                                        objectFit: 'contain',
-                                                        backgroundColor: '#f1f3f5',
-                                                        border: pendingSscFile ? '2px solid #ffc107' : '2px solid #0d6efd',
-                                                        boxShadow: '0 2px 6px rgba(0,0,0,0.15)',
-                                                        cursor: 'pointer'
-                                                    }}
-                                                    onClick={() => setEnlargedImage({ url: pendingSscPreview || formData.sscMarksheet, title: `${formData.name || 'Teacher'} - SSC Marksheet Preview` })}
-                                                    title="Click to view enlarged image"
-                                                />
+                                        <div className="mt-auto">
+                                            {pendingPhotoFile ? (
+                                                <small className="text-warning fw-semibold d-flex align-items-center gap-1" style={{ fontSize: '0.7rem' }}>
+                                                    <FaInfoCircle size={10} /> Uploads on Save
+                                                </small>
+                                            ) : formData.photo ? (
+                                                <small className="text-success d-flex align-items-center gap-1" style={{ fontSize: '0.7rem' }}>
+                                                    <FaCheckCircle size={10} /> Saved
+                                                </small>
                                             ) : (
-                                                <div
-                                                    style={{
-                                                        width: '85px',
-                                                        height: '65px',
-                                                        borderRadius: '6px',
-                                                        backgroundColor: '#dee2e6',
-                                                        color: '#6c757d',
-                                                        display: 'flex',
-                                                        flexDirection: 'column',
-                                                        alignItems: 'center',
-                                                        justifyContent: 'center',
-                                                        fontSize: '1.4rem',
-                                                        border: '2px dashed #adb5bd'
-                                                    }}
-                                                >
-                                                    <FaFileAlt />
-                                                    <span style={{ fontSize: '0.6rem' }}>No SSC</span>
-                                                </div>
-                                            )}
-                                            {uploadingSsc && (
-                                                <div
-                                                    style={{
-                                                        position: 'absolute',
-                                                        top: 0,
-                                                        left: 0,
-                                                        width: '100%',
-                                                        height: '100%',
-                                                        borderRadius: '6px',
-                                                        backgroundColor: 'rgba(255,255,255,0.85)',
-                                                        display: 'flex',
-                                                        alignItems: 'center',
-                                                        justifyContent: 'center'
-                                                    }}
-                                                >
-                                                    <Spinner animation="border" size="sm" variant="primary" />
-                                                </div>
+                                                <small className="text-muted" style={{ fontSize: '0.7rem' }}>No photo</small>
                                             )}
                                         </div>
+                                    </div>
+                                </Col>
 
-                                        <div className="flex-grow-1 overflow-hidden">
-                                            <h6 className="fw-bold mb-0 text-truncate" title="SSC Marksheet">SSC Marksheet</h6>
-                                            <small className="text-muted d-block mb-1">
-                                                Max 100 KB
-                                                {sscSizeKB && (
-                                                    <span className={`ms-2 badge ${pendingSscFile ? 'bg-warning text-dark' : 'bg-success'}`}>
-                                                        {pendingSscFile ? `Pending: ${sscSizeKB} KB` : `${sscSizeKB} KB`}
-                                                    </span>
-                                                )}
-                                            </small>
-
-                                            <div className="d-flex flex-wrap gap-1 align-items-center">
-                                                <label className={`btn btn-sm btn-outline-primary d-inline-flex align-items-center gap-1 mb-0 ${uploadingSsc ? 'disabled' : ''}`} style={{ cursor: uploadingSsc ? 'not-allowed' : 'pointer', fontSize: '0.75rem' }}>
-                                                    <FaFileAlt />
-                                                    {uploadingSsc ? 'Uploading...' : ((pendingSscPreview || formData.sscMarksheet) ? 'Change' : 'Select')}
-                                                    <input
-                                                        type="file"
-                                                        accept="image/*"
-                                                        onChange={handleSscUpload}
-                                                        style={{ display: 'none' }}
-                                                        disabled={uploadingSsc || saving}
+                                {/* 2. NID Front */}
+                                <Col xs={12} sm={6} md={4}>
+                                    <div className="p-3 rounded border bg-light shadow-sm h-100 d-flex flex-column">
+                                        <div className="d-flex align-items-center gap-2 mb-2">
+                                            <div style={{ position: 'relative', flexShrink: 0 }}>
+                                                {(pendingNidFrontPreview || formData.nidPhoto || formData.nidFront) ? (
+                                                    <img
+                                                        src={pendingNidFrontPreview || formData.nidPhoto || formData.nidFront}
+                                                        alt="NID Front"
+                                                        style={{
+                                                            width: '80px',
+                                                            height: '60px',
+                                                            borderRadius: '6px',
+                                                            objectFit: 'cover',
+                                                            backgroundColor: '#f1f3f5',
+                                                            border: pendingNidFrontFile ? '2px solid #ffc107' : '2px solid #198754',
+                                                            boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+                                                            cursor: 'pointer'
+                                                        }}
+                                                        onClick={() => setEnlargedImage({ url: pendingNidFrontPreview || formData.nidPhoto || formData.nidFront, title: `${formData.name || 'Teacher'} - NID Front / Birth Certificate` })}
+                                                        title="Click to view enlarged image"
                                                     />
-                                                </label>
-
-                                                {(pendingSscPreview || formData.sscMarksheet) && (
-                                                    <Button
-                                                        variant="outline-danger"
-                                                        size="sm"
-                                                        onClick={handleRemoveSsc}
-                                                        disabled={uploadingSsc || saving}
-                                                        style={{ fontSize: '0.75rem' }}
-                                                        className="d-inline-flex align-items-center gap-1 px-2"
+                                                ) : (
+                                                    <div
+                                                        style={{
+                                                            width: '80px',
+                                                            height: '60px',
+                                                            borderRadius: '6px',
+                                                            backgroundColor: '#dee2e6',
+                                                            color: '#6c757d',
+                                                            display: 'flex',
+                                                            flexDirection: 'column',
+                                                            alignItems: 'center',
+                                                            justifyContent: 'center',
+                                                            fontSize: '1.4rem',
+                                                            border: '2px dashed #adb5bd'
+                                                        }}
                                                     >
-                                                        <FaTrash />
-                                                    </Button>
+                                                        <FaIdCard />
+                                                        <span style={{ fontSize: '0.55rem' }}>No NID (F)</span>
+                                                    </div>
                                                 )}
-
-                                                {formData.sscMarksheet && !pendingSscPreview && (
-                                                    <a
-                                                        href={formData.sscMarksheet}
-                                                        target="_blank"
-                                                        rel="noreferrer"
-                                                        style={{ fontSize: '0.75rem' }}
-                                                        className="btn btn-sm btn-outline-secondary d-inline-flex align-items-center gap-1 px-2"
+                                                {uploadingNidFront && (
+                                                    <div
+                                                        style={{
+                                                            position: 'absolute',
+                                                            top: 0,
+                                                            left: 0,
+                                                            width: '100%',
+                                                            height: '100%',
+                                                            borderRadius: '6px',
+                                                            backgroundColor: 'rgba(255,255,255,0.85)',
+                                                            display: 'flex',
+                                                            alignItems: 'center',
+                                                            justifyContent: 'center'
+                                                        }}
                                                     >
-                                                        <FaExternalLinkAlt /> View
-                                                    </a>
+                                                        <Spinner animation="border" size="sm" variant="success" />
+                                                    </div>
                                                 )}
                                             </div>
-                                        </div>
-                                    </div>
 
-                                    <div className="mt-auto">
-                                        {pendingSscFile ? (
-                                            <small className="text-warning fw-semibold d-flex align-items-center gap-1">
-                                                <FaInfoCircle /> Selected &mdash; uploads on Save
-                                            </small>
-                                        ) : formData.sscMarksheet ? (
-                                            <small className="text-success d-flex align-items-center gap-1">
-                                                <FaCheckCircle /> Saved SSC Marksheet
-                                            </small>
-                                        ) : (
-                                            <small className="text-muted">No document uploaded</small>
-                                        )}
-                                    </div>
-                                </div>
-                            </Col>
+                                            <div className="flex-grow-1 overflow-hidden">
+                                                <h6 className="fw-bold mb-0 text-truncate" style={{ fontSize: '0.85rem' }} title="NID Front / Birth Certificate (Provide Birth Certificate if no NID)">NID Front / Birth Reg</h6>
+                                                <small className="text-muted d-block mb-1" style={{ fontSize: '0.72rem' }}>
+                                                    Max 100 KB
+                                                    {nidFrontSizeKB && (
+                                                        <span className={`ms-1 badge ${pendingNidFrontFile ? 'bg-warning text-dark' : 'bg-success'}`} style={{ fontSize: '0.65rem' }}>
+                                                            {pendingNidFrontFile ? `${nidFrontSizeKB} KB*` : `${nidFrontSizeKB} KB`}
+                                                        </span>
+                                                    )}
+                                                </small>
 
-                            {/* HSC Marksheet */}
-                            <Col md={4}>
-                                <div className="p-3 rounded border bg-light shadow-sm h-100 d-flex flex-column">
-                                    <div className="d-flex align-items-center gap-3 mb-2">
-                                        <div style={{ position: 'relative' }}>
-                                            {(pendingHscPreview || formData.hscMarksheet) ? (
-                                                <img
-                                                    src={pendingHscPreview || formData.hscMarksheet}
-                                                    alt="HSC Marksheet"
-                                                    style={{
-                                                        width: '85px',
-                                                        height: '65px',
-                                                        borderRadius: '6px',
-                                                        objectFit: 'contain',
-                                                        backgroundColor: '#f1f3f5',
-                                                        border: pendingHscFile ? '2px solid #ffc107' : '2px solid #0d6efd',
-                                                        boxShadow: '0 2px 6px rgba(0,0,0,0.15)',
-                                                        cursor: 'pointer'
-                                                    }}
-                                                    onClick={() => setEnlargedImage({ url: pendingHscPreview || formData.hscMarksheet, title: `${formData.name || 'Teacher'} - HSC Marksheet Preview` })}
-                                                    title="Click to view enlarged image"
-                                                />
-                                            ) : (
-                                                <div
-                                                    style={{
-                                                        width: '85px',
-                                                        height: '65px',
-                                                        borderRadius: '6px',
-                                                        backgroundColor: '#dee2e6',
-                                                        color: '#6c757d',
-                                                        display: 'flex',
-                                                        flexDirection: 'column',
-                                                        alignItems: 'center',
-                                                        justifyContent: 'center',
-                                                        fontSize: '1.4rem',
-                                                        border: '2px dashed #adb5bd'
-                                                    }}
-                                                >
-                                                    <FaFileAlt />
-                                                    <span style={{ fontSize: '0.6rem' }}>No HSC</span>
+                                                <div className="d-flex flex-wrap gap-1 align-items-center">
+                                                    <label className={`btn btn-sm btn-success d-inline-flex align-items-center gap-1 mb-0 py-1 px-2 ${uploadingNidFront ? 'disabled' : ''}`} style={{ cursor: uploadingNidFront ? 'not-allowed' : 'pointer', fontSize: '0.72rem' }} title="If teacher has no NID, upload Birth Certificate">
+                                                        <FaIdCard size={10} />
+                                                        {uploadingNidFront ? '...' : ((pendingNidFrontPreview || formData.nidPhoto || formData.nidFront) ? 'Change' : 'Select')}
+                                                        <input
+                                                            type="file"
+                                                            accept="image/*"
+                                                            onChange={handleNidFrontUpload}
+                                                            style={{ display: 'none' }}
+                                                            disabled={uploadingNidFront || saving}
+                                                        />
+                                                    </label>
+
+                                                    {(pendingNidFrontPreview || formData.nidPhoto || formData.nidFront) && (
+                                                        <Button
+                                                            variant="outline-danger"
+                                                            size="sm"
+                                                            onClick={handleRemoveNidFront}
+                                                            disabled={uploadingNidFront || saving}
+                                                            style={{ fontSize: '0.72rem' }}
+                                                            className="d-inline-flex align-items-center gap-1 py-1 px-2"
+                                                        >
+                                                            <FaTrash size={10} />
+                                                        </Button>
+                                                    )}
+
+                                                    {(formData.nidPhoto || formData.nidFront) && !pendingNidFrontPreview && (
+                                                        <a
+                                                            href={formData.nidPhoto || formData.nidFront}
+                                                            target="_blank"
+                                                            rel="noreferrer"
+                                                            style={{ fontSize: '0.72rem' }}
+                                                            className="btn btn-sm btn-outline-secondary d-inline-flex align-items-center gap-1 py-1 px-2"
+                                                        >
+                                                            <FaExternalLinkAlt size={9} />
+                                                        </a>
+                                                    )}
                                                 </div>
-                                            )}
-                                            {uploadingHsc && (
-                                                <div
-                                                    style={{
-                                                        position: 'absolute',
-                                                        top: 0,
-                                                        left: 0,
-                                                        width: '100%',
-                                                        height: '100%',
-                                                        borderRadius: '6px',
-                                                        backgroundColor: 'rgba(255,255,255,0.85)',
-                                                        display: 'flex',
-                                                        alignItems: 'center',
-                                                        justifyContent: 'center'
-                                                    }}
-                                                >
-                                                    <Spinner animation="border" size="sm" variant="primary" />
-                                                </div>
-                                            )}
-                                        </div>
-
-                                        <div className="flex-grow-1 overflow-hidden">
-                                            <h6 className="fw-bold mb-0 text-truncate" title="HSC Marksheet">HSC Marksheet</h6>
-                                            <small className="text-muted d-block mb-1">
-                                                Max 100 KB
-                                                {hscSizeKB && (
-                                                    <span className={`ms-2 badge ${pendingHscFile ? 'bg-warning text-dark' : 'bg-success'}`}>
-                                                        {pendingHscFile ? `Pending: ${hscSizeKB} KB` : `${hscSizeKB} KB`}
-                                                    </span>
-                                                )}
-                                            </small>
-
-                                            <div className="d-flex flex-wrap gap-1 align-items-center">
-                                                <label className={`btn btn-sm btn-outline-primary d-inline-flex align-items-center gap-1 mb-0 ${uploadingHsc ? 'disabled' : ''}`} style={{ cursor: uploadingHsc ? 'not-allowed' : 'pointer', fontSize: '0.75rem' }}>
-                                                    <FaFileAlt />
-                                                    {uploadingHsc ? 'Uploading...' : ((pendingHscPreview || formData.hscMarksheet) ? 'Change' : 'Select')}
-                                                    <input
-                                                        type="file"
-                                                        accept="image/*"
-                                                        onChange={handleHscUpload}
-                                                        style={{ display: 'none' }}
-                                                        disabled={uploadingHsc || saving}
-                                                    />
-                                                </label>
-
-                                                {(pendingHscPreview || formData.hscMarksheet) && (
-                                                    <Button
-                                                        variant="outline-danger"
-                                                        size="sm"
-                                                        onClick={handleRemoveHsc}
-                                                        disabled={uploadingHsc || saving}
-                                                        style={{ fontSize: '0.75rem' }}
-                                                        className="d-inline-flex align-items-center gap-1 px-2"
-                                                    >
-                                                        <FaTrash />
-                                                    </Button>
-                                                )}
-
-                                                {formData.hscMarksheet && !pendingHscPreview && (
-                                                    <a
-                                                        href={formData.hscMarksheet}
-                                                        target="_blank"
-                                                        rel="noreferrer"
-                                                        style={{ fontSize: '0.75rem' }}
-                                                        className="btn btn-sm btn-outline-secondary d-inline-flex align-items-center gap-1 px-2"
-                                                    >
-                                                        <FaExternalLinkAlt /> View
-                                                    </a>
-                                                )}
                                             </div>
                                         </div>
-                                    </div>
 
-                                    <div className="mt-auto">
-                                        {pendingHscFile ? (
-                                            <small className="text-warning fw-semibold d-flex align-items-center gap-1">
-                                                <FaInfoCircle /> Selected &mdash; uploads on Save
-                                            </small>
-                                        ) : formData.hscMarksheet ? (
-                                            <small className="text-success d-flex align-items-center gap-1">
-                                                <FaCheckCircle /> Saved HSC Marksheet
-                                            </small>
-                                        ) : (
-                                            <small className="text-muted">No document uploaded</small>
-                                        )}
-                                    </div>
-                                </div>
-                            </Col>
-
-                            {/* University ID / Admission Slip */}
-                            <Col md={4}>
-                                <div className="p-3 rounded border bg-light shadow-sm h-100 d-flex flex-column">
-                                    <div className="d-flex align-items-center gap-3 mb-2">
-                                        <div style={{ position: 'relative' }}>
-                                            {(pendingUniIdPreview || formData.universityIdCard) ? (
-                                                <img
-                                                    src={pendingUniIdPreview || formData.universityIdCard}
-                                                    alt="University ID / Admission Slip"
-                                                    style={{
-                                                        width: '85px',
-                                                        height: '65px',
-                                                        borderRadius: '6px',
-                                                        objectFit: 'contain',
-                                                        backgroundColor: '#f1f3f5',
-                                                        border: pendingUniIdFile ? '2px solid #ffc107' : '2px solid #0d6efd',
-                                                        boxShadow: '0 2px 6px rgba(0,0,0,0.15)',
-                                                        cursor: 'pointer'
-                                                    }}
-                                                    onClick={() => setEnlargedImage({ url: pendingUniIdPreview || formData.universityIdCard, title: `${formData.name || 'Teacher'} - University ID Preview` })}
-                                                    title="Click to view enlarged image"
-                                                />
+                                        <div className="mt-auto">
+                                            {pendingNidFrontFile ? (
+                                                <small className="text-warning fw-semibold d-flex align-items-center gap-1" style={{ fontSize: '0.7rem' }}>
+                                                    <FaInfoCircle size={10} /> Uploads on Save
+                                                </small>
+                                            ) : (formData.nidPhoto || formData.nidFront) ? (
+                                                <small className="text-success d-flex align-items-center gap-1" style={{ fontSize: '0.7rem' }}>
+                                                    <FaCheckCircle size={10} /> Saved
+                                                </small>
                                             ) : (
-                                                <div
-                                                    style={{
-                                                        width: '85px',
-                                                        height: '65px',
-                                                        borderRadius: '6px',
-                                                        backgroundColor: '#dee2e6',
-                                                        color: '#6c757d',
-                                                        display: 'flex',
-                                                        flexDirection: 'column',
-                                                        alignItems: 'center',
-                                                        justifyContent: 'center',
-                                                        fontSize: '1.4rem',
-                                                        border: '2px dashed #adb5bd'
-                                                    }}
-                                                >
-                                                    <FaGraduationCap />
-                                                    <span style={{ fontSize: '0.55rem' }}>No Uni ID</span>
-                                                </div>
-                                            )}
-                                            {uploadingUniId && (
-                                                <div
-                                                    style={{
-                                                        position: 'absolute',
-                                                        top: 0,
-                                                        left: 0,
-                                                        width: '100%',
-                                                        height: '100%',
-                                                        borderRadius: '6px',
-                                                        backgroundColor: 'rgba(255,255,255,0.85)',
-                                                        display: 'flex',
-                                                        alignItems: 'center',
-                                                        justifyContent: 'center'
-                                                    }}
-                                                >
-                                                    <Spinner animation="border" size="sm" variant="primary" />
-                                                </div>
+                                                <small className="text-muted" style={{ fontSize: '0.7rem' }}>No NID / Birth Cert</small>
                                             )}
                                         </div>
+                                    </div>
+                                </Col>
 
-                                        <div className="flex-grow-1 overflow-hidden">
-                                            <h6 className="fw-bold mb-0 text-truncate" title="University ID / Admission Slip">Uni ID / Slip</h6>
-                                            <small className="text-muted d-block mb-1">
-                                                Max 100 KB
-                                                {uniIdSizeKB && (
-                                                    <span className={`ms-2 badge ${pendingUniIdFile ? 'bg-warning text-dark' : 'bg-success'}`}>
-                                                        {pendingUniIdFile ? `Pending: ${uniIdSizeKB} KB` : `${uniIdSizeKB} KB`}
-                                                    </span>
-                                                )}
-                                            </small>
-
-                                            <div className="d-flex flex-wrap gap-1 align-items-center">
-                                                <label className={`btn btn-sm btn-outline-primary d-inline-flex align-items-center gap-1 mb-0 ${uploadingUniId ? 'disabled' : ''}`} style={{ cursor: uploadingUniId ? 'not-allowed' : 'pointer', fontSize: '0.75rem' }}>
-                                                    <FaGraduationCap />
-                                                    {uploadingUniId ? 'Uploading...' : ((pendingUniIdPreview || formData.universityIdCard) ? 'Change' : 'Select')}
-                                                    <input
-                                                        type="file"
-                                                        accept="image/*"
-                                                        onChange={handleUniIdUpload}
-                                                        style={{ display: 'none' }}
-                                                        disabled={uploadingUniId || saving}
+                                {/* 3. NID Back */}
+                                <Col xs={12} sm={6} md={4}>
+                                    <div className="p-3 rounded border bg-light shadow-sm h-100 d-flex flex-column">
+                                        <div className="d-flex align-items-center gap-2 mb-2">
+                                            <div style={{ position: 'relative', flexShrink: 0 }}>
+                                                {(pendingNidBackPreview || formData.nidBack) ? (
+                                                    <img
+                                                        src={pendingNidBackPreview || formData.nidBack}
+                                                        alt="NID Back"
+                                                        style={{
+                                                            width: '80px',
+                                                            height: '60px',
+                                                            borderRadius: '6px',
+                                                            objectFit: 'cover',
+                                                            backgroundColor: '#f1f3f5',
+                                                            border: pendingNidBackFile ? '2px solid #ffc107' : '2px solid #198754',
+                                                            boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+                                                            cursor: 'pointer'
+                                                        }}
+                                                        onClick={() => setEnlargedImage({ url: pendingNidBackPreview || formData.nidBack, title: `${formData.name || 'Teacher'} - NID Back` })}
+                                                        title="Click to view enlarged image"
                                                     />
-                                                </label>
-
-                                                {(pendingUniIdPreview || formData.universityIdCard) && (
-                                                    <Button
-                                                        variant="outline-danger"
-                                                        size="sm"
-                                                        onClick={handleRemoveUniId}
-                                                        disabled={uploadingUniId || saving}
-                                                        style={{ fontSize: '0.75rem' }}
-                                                        className="d-inline-flex align-items-center gap-1 px-2"
+                                                ) : (
+                                                    <div
+                                                        style={{
+                                                            width: '80px',
+                                                            height: '60px',
+                                                            borderRadius: '6px',
+                                                            backgroundColor: '#dee2e6',
+                                                            color: '#6c757d',
+                                                            display: 'flex',
+                                                            flexDirection: 'column',
+                                                            alignItems: 'center',
+                                                            justifyContent: 'center',
+                                                            fontSize: '1.4rem',
+                                                            border: '2px dashed #adb5bd'
+                                                        }}
                                                     >
-                                                        <FaTrash />
-                                                    </Button>
+                                                        <FaIdCard />
+                                                        <span style={{ fontSize: '0.55rem' }}>No NID (B)</span>
+                                                    </div>
                                                 )}
-
-                                                {formData.universityIdCard && !pendingUniIdPreview && (
-                                                    <a
-                                                        href={formData.universityIdCard}
-                                                        target="_blank"
-                                                        rel="noreferrer"
-                                                        style={{ fontSize: '0.75rem' }}
-                                                        className="btn btn-sm btn-outline-secondary d-inline-flex align-items-center gap-1 px-2"
+                                                {uploadingNidBack && (
+                                                    <div
+                                                        style={{
+                                                            position: 'absolute',
+                                                            top: 0,
+                                                            left: 0,
+                                                            width: '100%',
+                                                            height: '100%',
+                                                            borderRadius: '6px',
+                                                            backgroundColor: 'rgba(255,255,255,0.85)',
+                                                            display: 'flex',
+                                                            alignItems: 'center',
+                                                            justifyContent: 'center'
+                                                        }}
                                                     >
-                                                        <FaExternalLinkAlt /> View
-                                                    </a>
+                                                        <Spinner animation="border" size="sm" variant="success" />
+                                                    </div>
                                                 )}
                                             </div>
+
+                                            <div className="flex-grow-1 overflow-hidden">
+                                                <h6 className="fw-bold mb-0 text-truncate" style={{ fontSize: '0.85rem' }} title="NID Back Part">NID Back Part</h6>
+                                                <small className="text-muted d-block mb-1" style={{ fontSize: '0.72rem' }}>
+                                                    Max 100 KB
+                                                    {nidBackSizeKB && (
+                                                        <span className={`ms-1 badge ${pendingNidBackFile ? 'bg-warning text-dark' : 'bg-success'}`} style={{ fontSize: '0.65rem' }}>
+                                                            {pendingNidBackFile ? `${nidBackSizeKB} KB*` : `${nidBackSizeKB} KB`}
+                                                        </span>
+                                                    )}
+                                                </small>
+
+                                                <div className="d-flex flex-wrap gap-1 align-items-center">
+                                                    <label className={`btn btn-sm btn-outline-success d-inline-flex align-items-center gap-1 mb-0 py-1 px-2 ${uploadingNidBack ? 'disabled' : ''}`} style={{ cursor: uploadingNidBack ? 'not-allowed' : 'pointer', fontSize: '0.72rem' }}>
+                                                        <FaIdCard size={10} />
+                                                        {uploadingNidBack ? '...' : ((pendingNidBackPreview || formData.nidBack) ? 'Change' : 'Select')}
+                                                        <input
+                                                            type="file"
+                                                            accept="image/*"
+                                                            onChange={handleNidBackUpload}
+                                                            style={{ display: 'none' }}
+                                                            disabled={uploadingNidBack || saving}
+                                                        />
+                                                    </label>
+
+                                                    {(pendingNidBackPreview || formData.nidBack) && (
+                                                        <Button
+                                                            variant="outline-danger"
+                                                            size="sm"
+                                                            onClick={handleRemoveNidBack}
+                                                            disabled={uploadingNidBack || saving}
+                                                            style={{ fontSize: '0.72rem' }}
+                                                            className="d-inline-flex align-items-center gap-1 py-1 px-2"
+                                                        >
+                                                            <FaTrash size={10} />
+                                                        </Button>
+                                                    )}
+
+                                                    {formData.nidBack && !pendingNidBackPreview && (
+                                                        <a
+                                                            href={formData.nidBack}
+                                                            target="_blank"
+                                                            rel="noreferrer"
+                                                            style={{ fontSize: '0.72rem' }}
+                                                            className="btn btn-sm btn-outline-secondary d-inline-flex align-items-center gap-1 py-1 px-2"
+                                                        >
+                                                            <FaExternalLinkAlt size={9} />
+                                                        </a>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div className="mt-auto">
+                                            {pendingNidBackFile ? (
+                                                <small className="text-warning fw-semibold d-flex align-items-center gap-1" style={{ fontSize: '0.7rem' }}>
+                                                    <FaInfoCircle size={10} /> Uploads on Save
+                                                </small>
+                                            ) : formData.nidBack ? (
+                                                <small className="text-success d-flex align-items-center gap-1" style={{ fontSize: '0.7rem' }}>
+                                                    <FaCheckCircle size={10} /> Saved
+                                                </small>
+                                            ) : (
+                                                <small className="text-muted" style={{ fontSize: '0.7rem' }}>No document</small>
+                                            )}
                                         </div>
                                     </div>
+                                </Col>
+                            </Row>
 
-                                    <div className="mt-auto">
-                                        {pendingUniIdFile ? (
-                                            <small className="text-warning fw-semibold d-flex align-items-center gap-1">
-                                                <FaInfoCircle /> Selected &mdash; uploads on Save
-                                            </small>
-                                        ) : formData.universityIdCard ? (
-                                            <small className="text-success d-flex align-items-center gap-1">
-                                                <FaCheckCircle /> Saved Uni ID / Slip
-                                            </small>
-                                        ) : (
-                                            <small className="text-muted">No document uploaded</small>
-                                        )}
+                            {/* Row 2: SSC Marksheet, HSC Marksheet, University ID / Admission Slip */}
+                            <Row className="g-3 mb-3">
+                                {/* 4. SSC Marksheet */}
+                                <Col xs={12} sm={6} md={4}>
+                                    <div className="p-3 rounded border bg-light shadow-sm h-100 d-flex flex-column">
+                                        <div className="d-flex align-items-center gap-2 mb-2">
+                                            <div style={{ position: 'relative', flexShrink: 0 }}>
+                                                {(pendingSscPreview || formData.sscMarksheet) ? (
+                                                    <img
+                                                        src={pendingSscPreview || formData.sscMarksheet}
+                                                        alt="SSC Marksheet"
+                                                        style={{
+                                                            width: '80px',
+                                                            height: '60px',
+                                                            borderRadius: '6px',
+                                                            objectFit: 'cover',
+                                                            backgroundColor: '#f1f3f5',
+                                                            border: pendingSscFile ? '2px solid #ffc107' : '2px solid #0d6efd',
+                                                            boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+                                                            cursor: 'pointer'
+                                                        }}
+                                                        onClick={() => setEnlargedImage({ url: pendingSscPreview || formData.sscMarksheet, title: `${formData.name || 'Teacher'} - SSC Marksheet` })}
+                                                        title="Click to view enlarged image"
+                                                    />
+                                                ) : (
+                                                    <div
+                                                        style={{
+                                                            width: '80px',
+                                                            height: '60px',
+                                                            borderRadius: '6px',
+                                                            backgroundColor: '#dee2e6',
+                                                            color: '#6c757d',
+                                                            display: 'flex',
+                                                            flexDirection: 'column',
+                                                            alignItems: 'center',
+                                                            justifyContent: 'center',
+                                                            fontSize: '1.4rem',
+                                                            border: '2px dashed #adb5bd'
+                                                        }}
+                                                    >
+                                                        <FaFileAlt />
+                                                        <span style={{ fontSize: '0.55rem' }}>No SSC</span>
+                                                    </div>
+                                                )}
+                                                {uploadingSsc && (
+                                                    <div
+                                                        style={{
+                                                            position: 'absolute',
+                                                            top: 0,
+                                                            left: 0,
+                                                            width: '100%',
+                                                            height: '100%',
+                                                            borderRadius: '6px',
+                                                            backgroundColor: 'rgba(255,255,255,0.85)',
+                                                            display: 'flex',
+                                                            alignItems: 'center',
+                                                            justifyContent: 'center'
+                                                        }}
+                                                    >
+                                                        <Spinner animation="border" size="sm" variant="primary" />
+                                                    </div>
+                                                )}
+                                            </div>
+
+                                            <div className="flex-grow-1 overflow-hidden">
+                                                <h6 className="fw-bold mb-0 text-truncate" style={{ fontSize: '0.85rem' }} title="SSC Marksheet">SSC Marksheet</h6>
+                                                <small className="text-muted d-block mb-1" style={{ fontSize: '0.72rem' }}>
+                                                    Max 100 KB
+                                                    {sscSizeKB && (
+                                                        <span className={`ms-1 badge ${pendingSscFile ? 'bg-warning text-dark' : 'bg-success'}`} style={{ fontSize: '0.65rem' }}>
+                                                            {pendingSscFile ? `${sscSizeKB} KB*` : `${sscSizeKB} KB`}
+                                                        </span>
+                                                    )}
+                                                </small>
+
+                                                <div className="d-flex flex-wrap gap-1 align-items-center">
+                                                    <label className={`btn btn-sm btn-outline-primary d-inline-flex align-items-center gap-1 mb-0 py-1 px-2 ${uploadingSsc ? 'disabled' : ''}`} style={{ cursor: uploadingSsc ? 'not-allowed' : 'pointer', fontSize: '0.72rem' }}>
+                                                        <FaFileAlt size={10} />
+                                                        {uploadingSsc ? '...' : ((pendingSscPreview || formData.sscMarksheet) ? 'Change' : 'Select')}
+                                                        <input
+                                                            type="file"
+                                                            accept="image/*"
+                                                            onChange={handleSscUpload}
+                                                            style={{ display: 'none' }}
+                                                            disabled={uploadingSsc || saving}
+                                                        />
+                                                    </label>
+
+                                                    {(pendingSscPreview || formData.sscMarksheet) && (
+                                                        <Button
+                                                            variant="outline-danger"
+                                                            size="sm"
+                                                            onClick={handleRemoveSsc}
+                                                            disabled={uploadingSsc || saving}
+                                                            style={{ fontSize: '0.72rem' }}
+                                                            className="d-inline-flex align-items-center gap-1 py-1 px-2"
+                                                        >
+                                                            <FaTrash size={10} />
+                                                        </Button>
+                                                    )}
+
+                                                    {formData.sscMarksheet && !pendingSscPreview && (
+                                                        <a
+                                                            href={formData.sscMarksheet}
+                                                            target="_blank"
+                                                            rel="noreferrer"
+                                                            style={{ fontSize: '0.72rem' }}
+                                                            className="btn btn-sm btn-outline-secondary d-inline-flex align-items-center gap-1 py-1 px-2"
+                                                        >
+                                                            <FaExternalLinkAlt size={9} />
+                                                        </a>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div className="mt-auto">
+                                            {pendingSscFile ? (
+                                                <small className="text-warning fw-semibold d-flex align-items-center gap-1" style={{ fontSize: '0.7rem' }}>
+                                                    <FaInfoCircle size={10} /> Uploads on Save
+                                                </small>
+                                            ) : formData.sscMarksheet ? (
+                                                <small className="text-success d-flex align-items-center gap-1" style={{ fontSize: '0.7rem' }}>
+                                                    <FaCheckCircle size={10} /> Saved
+                                                </small>
+                                            ) : (
+                                                <small className="text-muted" style={{ fontSize: '0.7rem' }}>No document</small>
+                                            )}
+                                        </div>
                                     </div>
-                                </div>
-                            </Col>
-                        </Row>
+                                </Col>
+
+                                {/* 5. HSC Marksheet */}
+                                <Col xs={12} sm={6} md={4}>
+                                    <div className="p-3 rounded border bg-light shadow-sm h-100 d-flex flex-column">
+                                        <div className="d-flex align-items-center gap-2 mb-2">
+                                            <div style={{ position: 'relative', flexShrink: 0 }}>
+                                                {(pendingHscPreview || formData.hscMarksheet) ? (
+                                                    <img
+                                                        src={pendingHscPreview || formData.hscMarksheet}
+                                                        alt="HSC Marksheet"
+                                                        style={{
+                                                            width: '80px',
+                                                            height: '60px',
+                                                            borderRadius: '6px',
+                                                            objectFit: 'cover',
+                                                            backgroundColor: '#f1f3f5',
+                                                            border: pendingHscFile ? '2px solid #ffc107' : '2px solid #0d6efd',
+                                                            boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+                                                            cursor: 'pointer'
+                                                        }}
+                                                        onClick={() => setEnlargedImage({ url: pendingHscPreview || formData.hscMarksheet, title: `${formData.name || 'Teacher'} - HSC Marksheet` })}
+                                                        title="Click to view enlarged image"
+                                                    />
+                                                ) : (
+                                                    <div
+                                                        style={{
+                                                            width: '80px',
+                                                            height: '60px',
+                                                            borderRadius: '6px',
+                                                            backgroundColor: '#dee2e6',
+                                                            color: '#6c757d',
+                                                            display: 'flex',
+                                                            flexDirection: 'column',
+                                                            alignItems: 'center',
+                                                            justifyContent: 'center',
+                                                            fontSize: '1.4rem',
+                                                            border: '2px dashed #adb5bd'
+                                                        }}
+                                                    >
+                                                        <FaFileAlt />
+                                                        <span style={{ fontSize: '0.55rem' }}>No HSC</span>
+                                                    </div>
+                                                )}
+                                                {uploadingHsc && (
+                                                    <div
+                                                        style={{
+                                                            position: 'absolute',
+                                                            top: 0,
+                                                            left: 0,
+                                                            width: '100%',
+                                                            height: '100%',
+                                                            borderRadius: '6px',
+                                                            backgroundColor: 'rgba(255,255,255,0.85)',
+                                                            display: 'flex',
+                                                            alignItems: 'center',
+                                                            justifyContent: 'center'
+                                                        }}
+                                                    >
+                                                        <Spinner animation="border" size="sm" variant="primary" />
+                                                    </div>
+                                                )}
+                                            </div>
+
+                                            <div className="flex-grow-1 overflow-hidden">
+                                                <h6 className="fw-bold mb-0 text-truncate" style={{ fontSize: '0.85rem' }} title="HSC Marksheet">HSC Marksheet</h6>
+                                                <small className="text-muted d-block mb-1" style={{ fontSize: '0.72rem' }}>
+                                                    Max 100 KB
+                                                    {hscSizeKB && (
+                                                        <span className={`ms-1 badge ${pendingHscFile ? 'bg-warning text-dark' : 'bg-success'}`} style={{ fontSize: '0.65rem' }}>
+                                                            {pendingHscFile ? `${hscSizeKB} KB*` : `${hscSizeKB} KB`}
+                                                        </span>
+                                                    )}
+                                                </small>
+
+                                                <div className="d-flex flex-wrap gap-1 align-items-center">
+                                                    <label className={`btn btn-sm btn-outline-primary d-inline-flex align-items-center gap-1 mb-0 py-1 px-2 ${uploadingHsc ? 'disabled' : ''}`} style={{ cursor: uploadingHsc ? 'not-allowed' : 'pointer', fontSize: '0.72rem' }}>
+                                                        <FaFileAlt size={10} />
+                                                        {uploadingHsc ? '...' : ((pendingHscPreview || formData.hscMarksheet) ? 'Change' : 'Select')}
+                                                        <input
+                                                            type="file"
+                                                            accept="image/*"
+                                                            onChange={handleHscUpload}
+                                                            style={{ display: 'none' }}
+                                                            disabled={uploadingHsc || saving}
+                                                        />
+                                                    </label>
+
+                                                    {(pendingHscPreview || formData.hscMarksheet) && (
+                                                        <Button
+                                                            variant="outline-danger"
+                                                            size="sm"
+                                                            onClick={handleRemoveHsc}
+                                                            disabled={uploadingHsc || saving}
+                                                            style={{ fontSize: '0.72rem' }}
+                                                            className="d-inline-flex align-items-center gap-1 py-1 px-2"
+                                                        >
+                                                            <FaTrash size={10} />
+                                                        </Button>
+                                                    )}
+
+                                                    {formData.hscMarksheet && !pendingHscPreview && (
+                                                        <a
+                                                            href={formData.hscMarksheet}
+                                                            target="_blank"
+                                                            rel="noreferrer"
+                                                            style={{ fontSize: '0.72rem' }}
+                                                            className="btn btn-sm btn-outline-secondary d-inline-flex align-items-center gap-1 py-1 px-2"
+                                                        >
+                                                            <FaExternalLinkAlt size={9} />
+                                                        </a>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div className="mt-auto">
+                                            {pendingHscFile ? (
+                                                <small className="text-warning fw-semibold d-flex align-items-center gap-1" style={{ fontSize: '0.7rem' }}>
+                                                    <FaInfoCircle size={10} /> Uploads on Save
+                                                </small>
+                                            ) : formData.hscMarksheet ? (
+                                                <small className="text-success d-flex align-items-center gap-1" style={{ fontSize: '0.7rem' }}>
+                                                    <FaCheckCircle size={10} /> Saved
+                                                </small>
+                                            ) : (
+                                                <small className="text-muted" style={{ fontSize: '0.7rem' }}>No document</small>
+                                            )}
+                                        </div>
+                                    </div>
+                                </Col>
+
+                                {/* 6. University ID / Admission Slip */}
+                                <Col xs={12} sm={6} md={4}>
+                                    <div className="p-3 rounded border bg-light shadow-sm h-100 d-flex flex-column">
+                                        <div className="d-flex align-items-center gap-2 mb-2">
+                                            <div style={{ position: 'relative', flexShrink: 0 }}>
+                                                {(pendingUniIdPreview || formData.universityIdCard) ? (
+                                                    <img
+                                                        src={pendingUniIdPreview || formData.universityIdCard}
+                                                        alt="University ID / Slip"
+                                                        style={{
+                                                            width: '80px',
+                                                            height: '60px',
+                                                            borderRadius: '6px',
+                                                            objectFit: 'cover',
+                                                            backgroundColor: '#f1f3f5',
+                                                            border: pendingUniIdFile ? '2px solid #ffc107' : '2px solid #0d6efd',
+                                                            boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+                                                            cursor: 'pointer'
+                                                        }}
+                                                        onClick={() => setEnlargedImage({ url: pendingUniIdPreview || formData.universityIdCard, title: `${formData.name || 'Teacher'} - University ID` })}
+                                                        title="Click to view enlarged image"
+                                                    />
+                                                ) : (
+                                                    <div
+                                                        style={{
+                                                            width: '80px',
+                                                            height: '60px',
+                                                            borderRadius: '6px',
+                                                            backgroundColor: '#dee2e6',
+                                                            color: '#6c757d',
+                                                            display: 'flex',
+                                                            flexDirection: 'column',
+                                                            alignItems: 'center',
+                                                            justifyContent: 'center',
+                                                            fontSize: '1.4rem',
+                                                            border: '2px dashed #adb5bd'
+                                                        }}
+                                                    >
+                                                        <FaGraduationCap />
+                                                        <span style={{ fontSize: '0.55rem' }}>No Uni ID</span>
+                                                    </div>
+                                                )}
+                                                {uploadingUniId && (
+                                                    <div
+                                                        style={{
+                                                            position: 'absolute',
+                                                            top: 0,
+                                                            left: 0,
+                                                            width: '100%',
+                                                            height: '100%',
+                                                            borderRadius: '6px',
+                                                            backgroundColor: 'rgba(255,255,255,0.85)',
+                                                            display: 'flex',
+                                                            alignItems: 'center',
+                                                            justifyContent: 'center'
+                                                        }}
+                                                    >
+                                                        <Spinner animation="border" size="sm" variant="primary" />
+                                                    </div>
+                                                )}
+                                            </div>
+
+                                            <div className="flex-grow-1 overflow-hidden">
+                                                <h6 className="fw-bold mb-0 text-truncate" style={{ fontSize: '0.85rem' }} title="University ID / Slip">Uni ID / Slip</h6>
+                                                <small className="text-muted d-block mb-1" style={{ fontSize: '0.72rem' }}>
+                                                    Max 100 KB
+                                                    {uniIdSizeKB && (
+                                                        <span className={`ms-1 badge ${pendingUniIdFile ? 'bg-warning text-dark' : 'bg-success'}`} style={{ fontSize: '0.65rem' }}>
+                                                            {pendingUniIdFile ? `${uniIdSizeKB} KB*` : `${uniIdSizeKB} KB`}
+                                                        </span>
+                                                    )}
+                                                </small>
+
+                                                <div className="d-flex flex-wrap gap-1 align-items-center">
+                                                    <label className={`btn btn-sm btn-outline-primary d-inline-flex align-items-center gap-1 mb-0 py-1 px-2 ${uploadingUniId ? 'disabled' : ''}`} style={{ cursor: uploadingUniId ? 'not-allowed' : 'pointer', fontSize: '0.72rem' }}>
+                                                        <FaGraduationCap size={10} />
+                                                        {uploadingUniId ? '...' : ((pendingUniIdPreview || formData.universityIdCard) ? 'Change' : 'Select')}
+                                                        <input
+                                                            type="file"
+                                                            accept="image/*"
+                                                            onChange={handleUniIdUpload}
+                                                            style={{ display: 'none' }}
+                                                            disabled={uploadingUniId || saving}
+                                                        />
+                                                    </label>
+
+                                                    {(pendingUniIdPreview || formData.universityIdCard) && (
+                                                        <Button
+                                                            variant="outline-danger"
+                                                            size="sm"
+                                                            onClick={handleRemoveUniId}
+                                                            disabled={uploadingUniId || saving}
+                                                            style={{ fontSize: '0.72rem' }}
+                                                            className="d-inline-flex align-items-center gap-1 py-1 px-2"
+                                                        >
+                                                            <FaTrash size={10} />
+                                                        </Button>
+                                                    )}
+
+                                                    {formData.universityIdCard && !pendingUniIdPreview && (
+                                                        <a
+                                                            href={formData.universityIdCard}
+                                                            target="_blank"
+                                                            rel="noreferrer"
+                                                            style={{ fontSize: '0.72rem' }}
+                                                            className="btn btn-sm btn-outline-secondary d-inline-flex align-items-center gap-1 py-1 px-2"
+                                                        >
+                                                            <FaExternalLinkAlt size={9} />
+                                                        </a>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div className="mt-auto">
+                                            {pendingUniIdFile ? (
+                                                <small className="text-warning fw-semibold d-flex align-items-center gap-1" style={{ fontSize: '0.7rem' }}>
+                                                    <FaInfoCircle size={10} /> Uploads on Save
+                                                </small>
+                                            ) : formData.universityIdCard ? (
+                                                <small className="text-success d-flex align-items-center gap-1" style={{ fontSize: '0.7rem' }}>
+                                                    <FaCheckCircle size={10} /> Saved
+                                                </small>
+                                            ) : (
+                                                <small className="text-muted" style={{ fontSize: '0.7rem' }}>No document</small>
+                                            )}
+                                        </div>
+                                    </div>
+                                </Col>
+                            </Row>
+
+                            {/* Row 3: Other Certificate 1, Other Certificate 2, Other Certificate 3 */}
+                            <Row className="g-3">
+                                {/* 7. Other Certificate 1 */}
+                                <Col xs={12} sm={6} md={4}>
+                                    <div className="p-3 rounded border bg-light shadow-sm h-100 d-flex flex-column">
+                                        <div className="d-flex align-items-center gap-2 mb-2">
+                                            <div style={{ position: 'relative', flexShrink: 0 }}>
+                                                {(pendingOther1Preview || formData.otherDoc1) ? (
+                                                    <img
+                                                        src={pendingOther1Preview || formData.otherDoc1}
+                                                        alt="Certificate 1"
+                                                        style={{
+                                                            width: '80px',
+                                                            height: '60px',
+                                                            borderRadius: '6px',
+                                                            objectFit: 'cover',
+                                                            backgroundColor: '#f1f3f5',
+                                                            border: pendingOther1File ? '2px solid #ffc107' : '2px solid #0d6efd',
+                                                            boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+                                                            cursor: 'pointer'
+                                                        }}
+                                                        onClick={() => setEnlargedImage({ url: pendingOther1Preview || formData.otherDoc1, title: `${formData.name || 'Teacher'} - Certificate 1` })}
+                                                        title="Click to view enlarged image"
+                                                    />
+                                                ) : (
+                                                    <div
+                                                        style={{
+                                                            width: '80px',
+                                                            height: '60px',
+                                                            borderRadius: '6px',
+                                                            backgroundColor: '#dee2e6',
+                                                            color: '#6c757d',
+                                                            display: 'flex',
+                                                            flexDirection: 'column',
+                                                            alignItems: 'center',
+                                                            justifyContent: 'center',
+                                                            fontSize: '1.4rem',
+                                                            border: '2px dashed #adb5bd'
+                                                        }}
+                                                    >
+                                                        <FaAward />
+                                                        <span style={{ fontSize: '0.55rem' }}>No Cert 1</span>
+                                                    </div>
+                                                )}
+                                                {uploadingOther1 && (
+                                                    <div
+                                                        style={{
+                                                            position: 'absolute',
+                                                            top: 0,
+                                                            left: 0,
+                                                            width: '100%',
+                                                            height: '100%',
+                                                            borderRadius: '6px',
+                                                            backgroundColor: 'rgba(255,255,255,0.85)',
+                                                            display: 'flex',
+                                                            alignItems: 'center',
+                                                            justifyContent: 'center'
+                                                        }}
+                                                    >
+                                                        <Spinner animation="border" size="sm" variant="primary" />
+                                                    </div>
+                                                )}
+                                            </div>
+
+                                            <div className="flex-grow-1 overflow-hidden">
+                                                <h6 className="fw-bold mb-0 text-truncate" style={{ fontSize: '0.85rem' }} title="Other Certificate 1">Other Certificate 1</h6>
+                                                <small className="text-muted d-block mb-1" style={{ fontSize: '0.72rem' }}>
+                                                    Max 100 KB
+                                                    {other1SizeKB && (
+                                                        <span className={`ms-1 badge ${pendingOther1File ? 'bg-warning text-dark' : 'bg-success'}`} style={{ fontSize: '0.65rem' }}>
+                                                            {pendingOther1File ? `${other1SizeKB} KB*` : `${other1SizeKB} KB`}
+                                                        </span>
+                                                    )}
+                                                </small>
+
+                                                <div className="d-flex flex-wrap gap-1 align-items-center">
+                                                    <label className={`btn btn-sm btn-outline-secondary d-inline-flex align-items-center gap-1 mb-0 py-1 px-2 ${uploadingOther1 ? 'disabled' : ''}`} style={{ cursor: uploadingOther1 ? 'not-allowed' : 'pointer', fontSize: '0.72rem' }}>
+                                                        <FaAward size={10} />
+                                                        {uploadingOther1 ? '...' : ((pendingOther1Preview || formData.otherDoc1) ? 'Change' : 'Select')}
+                                                        <input
+                                                            type="file"
+                                                            accept="image/*"
+                                                            onChange={handleOther1Upload}
+                                                            style={{ display: 'none' }}
+                                                            disabled={uploadingOther1 || saving}
+                                                        />
+                                                    </label>
+
+                                                    {(pendingOther1Preview || formData.otherDoc1) && (
+                                                        <Button
+                                                            variant="outline-danger"
+                                                            size="sm"
+                                                            onClick={handleRemoveOther1}
+                                                            disabled={uploadingOther1 || saving}
+                                                            style={{ fontSize: '0.72rem' }}
+                                                            className="d-inline-flex align-items-center gap-1 py-1 px-2"
+                                                        >
+                                                            <FaTrash size={10} />
+                                                        </Button>
+                                                    )}
+
+                                                    {formData.otherDoc1 && !pendingOther1Preview && (
+                                                        <a
+                                                            href={formData.otherDoc1}
+                                                            target="_blank"
+                                                            rel="noreferrer"
+                                                            style={{ fontSize: '0.72rem' }}
+                                                            className="btn btn-sm btn-outline-secondary d-inline-flex align-items-center gap-1 py-1 px-2"
+                                                        >
+                                                            <FaExternalLinkAlt size={9} />
+                                                        </a>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div className="mt-auto">
+                                            {pendingOther1File ? (
+                                                <small className="text-warning fw-semibold d-flex align-items-center gap-1" style={{ fontSize: '0.7rem' }}>
+                                                    <FaInfoCircle size={10} /> Uploads on Save
+                                                </small>
+                                            ) : formData.otherDoc1 ? (
+                                                <small className="text-success d-flex align-items-center gap-1" style={{ fontSize: '0.7rem' }}>
+                                                    <FaCheckCircle size={10} /> Saved
+                                                </small>
+                                            ) : (
+                                                <small className="text-muted" style={{ fontSize: '0.7rem' }}>No document</small>
+                                            )}
+                                        </div>
+                                    </div>
+                                </Col>
+
+                                {/* 8. Other Certificate 2 */}
+                                <Col xs={12} sm={6} md={4}>
+                                    <div className="p-3 rounded border bg-light shadow-sm h-100 d-flex flex-column">
+                                        <div className="d-flex align-items-center gap-2 mb-2">
+                                            <div style={{ position: 'relative', flexShrink: 0 }}>
+                                                {(pendingOther2Preview || formData.otherDoc2) ? (
+                                                    <img
+                                                        src={pendingOther2Preview || formData.otherDoc2}
+                                                        alt="Certificate 2"
+                                                        style={{
+                                                            width: '80px',
+                                                            height: '60px',
+                                                            borderRadius: '6px',
+                                                            objectFit: 'cover',
+                                                            backgroundColor: '#f1f3f5',
+                                                            border: pendingOther2File ? '2px solid #ffc107' : '2px solid #0d6efd',
+                                                            boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+                                                            cursor: 'pointer'
+                                                        }}
+                                                        onClick={() => setEnlargedImage({ url: pendingOther2Preview || formData.otherDoc2, title: `${formData.name || 'Teacher'} - Certificate 2` })}
+                                                        title="Click to view enlarged image"
+                                                    />
+                                                ) : (
+                                                    <div
+                                                        style={{
+                                                            width: '80px',
+                                                            height: '60px',
+                                                            borderRadius: '6px',
+                                                            backgroundColor: '#dee2e6',
+                                                            color: '#6c757d',
+                                                            display: 'flex',
+                                                            flexDirection: 'column',
+                                                            alignItems: 'center',
+                                                            justifyContent: 'center',
+                                                            fontSize: '1.4rem',
+                                                            border: '2px dashed #adb5bd'
+                                                        }}
+                                                    >
+                                                        <FaAward />
+                                                        <span style={{ fontSize: '0.55rem' }}>No Cert 2</span>
+                                                    </div>
+                                                )}
+                                                {uploadingOther2 && (
+                                                    <div
+                                                        style={{
+                                                            position: 'absolute',
+                                                            top: 0,
+                                                            left: 0,
+                                                            width: '100%',
+                                                            height: '100%',
+                                                            borderRadius: '6px',
+                                                            backgroundColor: 'rgba(255,255,255,0.85)',
+                                                            display: 'flex',
+                                                            alignItems: 'center',
+                                                            justifyContent: 'center'
+                                                        }}
+                                                    >
+                                                        <Spinner animation="border" size="sm" variant="primary" />
+                                                    </div>
+                                                )}
+                                            </div>
+
+                                            <div className="flex-grow-1 overflow-hidden">
+                                                <h6 className="fw-bold mb-0 text-truncate" style={{ fontSize: '0.85rem' }} title="Other Certificate 2">Other Certificate 2</h6>
+                                                <small className="text-muted d-block mb-1" style={{ fontSize: '0.72rem' }}>
+                                                    Max 100 KB
+                                                    {other2SizeKB && (
+                                                        <span className={`ms-1 badge ${pendingOther2File ? 'bg-warning text-dark' : 'bg-success'}`} style={{ fontSize: '0.65rem' }}>
+                                                            {pendingOther2File ? `${other2SizeKB} KB*` : `${other2SizeKB} KB`}
+                                                        </span>
+                                                    )}
+                                                </small>
+
+                                                <div className="d-flex flex-wrap gap-1 align-items-center">
+                                                    <label className={`btn btn-sm btn-outline-secondary d-inline-flex align-items-center gap-1 mb-0 py-1 px-2 ${uploadingOther2 ? 'disabled' : ''}`} style={{ cursor: uploadingOther2 ? 'not-allowed' : 'pointer', fontSize: '0.72rem' }}>
+                                                        <FaAward size={10} />
+                                                        {uploadingOther2 ? '...' : ((pendingOther2Preview || formData.otherDoc2) ? 'Change' : 'Select')}
+                                                        <input
+                                                            type="file"
+                                                            accept="image/*"
+                                                            onChange={handleOther2Upload}
+                                                            style={{ display: 'none' }}
+                                                            disabled={uploadingOther2 || saving}
+                                                        />
+                                                    </label>
+
+                                                    {(pendingOther2Preview || formData.otherDoc2) && (
+                                                        <Button
+                                                            variant="outline-danger"
+                                                            size="sm"
+                                                            onClick={handleRemoveOther2}
+                                                            disabled={uploadingOther2 || saving}
+                                                            style={{ fontSize: '0.72rem' }}
+                                                            className="d-inline-flex align-items-center gap-1 py-1 px-2"
+                                                        >
+                                                            <FaTrash size={10} />
+                                                        </Button>
+                                                    )}
+
+                                                    {formData.otherDoc2 && !pendingOther2Preview && (
+                                                        <a
+                                                            href={formData.otherDoc2}
+                                                            target="_blank"
+                                                            rel="noreferrer"
+                                                            style={{ fontSize: '0.72rem' }}
+                                                            className="btn btn-sm btn-outline-secondary d-inline-flex align-items-center gap-1 py-1 px-2"
+                                                        >
+                                                            <FaExternalLinkAlt size={9} />
+                                                        </a>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div className="mt-auto">
+                                            {pendingOther2File ? (
+                                                <small className="text-warning fw-semibold d-flex align-items-center gap-1" style={{ fontSize: '0.7rem' }}>
+                                                    <FaInfoCircle size={10} /> Uploads on Save
+                                                </small>
+                                            ) : formData.otherDoc2 ? (
+                                                <small className="text-success d-flex align-items-center gap-1" style={{ fontSize: '0.7rem' }}>
+                                                    <FaCheckCircle size={10} /> Saved
+                                                </small>
+                                            ) : (
+                                                <small className="text-muted" style={{ fontSize: '0.7rem' }}>No document</small>
+                                            )}
+                                        </div>
+                                    </div>
+                                </Col>
+
+                                {/* 9. Other Certificate 3 */}
+                                <Col xs={12} sm={6} md={4}>
+                                    <div className="p-3 rounded border bg-light shadow-sm h-100 d-flex flex-column">
+                                        <div className="d-flex align-items-center gap-2 mb-2">
+                                            <div style={{ position: 'relative', flexShrink: 0 }}>
+                                                {(pendingOther3Preview || formData.otherDoc3) ? (
+                                                    <img
+                                                        src={pendingOther3Preview || formData.otherDoc3}
+                                                        alt="Certificate 3"
+                                                        style={{
+                                                            width: '80px',
+                                                            height: '60px',
+                                                            borderRadius: '6px',
+                                                            objectFit: 'cover',
+                                                            backgroundColor: '#f1f3f5',
+                                                            border: pendingOther3File ? '2px solid #ffc107' : '2px solid #0d6efd',
+                                                            boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+                                                            cursor: 'pointer'
+                                                        }}
+                                                        onClick={() => setEnlargedImage({ url: pendingOther3Preview || formData.otherDoc3, title: `${formData.name || 'Teacher'} - Certificate 3` })}
+                                                        title="Click to view enlarged image"
+                                                    />
+                                                ) : (
+                                                    <div
+                                                        style={{
+                                                            width: '80px',
+                                                            height: '60px',
+                                                            borderRadius: '6px',
+                                                            backgroundColor: '#dee2e6',
+                                                            color: '#6c757d',
+                                                            display: 'flex',
+                                                            flexDirection: 'column',
+                                                            alignItems: 'center',
+                                                            justifyContent: 'center',
+                                                            fontSize: '1.4rem',
+                                                            border: '2px dashed #adb5bd'
+                                                        }}
+                                                    >
+                                                        <FaAward />
+                                                        <span style={{ fontSize: '0.55rem' }}>No Cert 3</span>
+                                                    </div>
+                                                )}
+                                                {uploadingOther3 && (
+                                                    <div
+                                                        style={{
+                                                            position: 'absolute',
+                                                            top: 0,
+                                                            left: 0,
+                                                            width: '100%',
+                                                            height: '100%',
+                                                            borderRadius: '6px',
+                                                            backgroundColor: 'rgba(255,255,255,0.85)',
+                                                            display: 'flex',
+                                                            alignItems: 'center',
+                                                            justifyContent: 'center'
+                                                        }}
+                                                    >
+                                                        <Spinner animation="border" size="sm" variant="primary" />
+                                                    </div>
+                                                )}
+                                            </div>
+
+                                            <div className="flex-grow-1 overflow-hidden">
+                                                <h6 className="fw-bold mb-0 text-truncate" style={{ fontSize: '0.85rem' }} title="Other Certificate 3">Other Certificate 3</h6>
+                                                <small className="text-muted d-block mb-1" style={{ fontSize: '0.72rem' }}>
+                                                    Max 100 KB
+                                                    {other3SizeKB && (
+                                                        <span className={`ms-1 badge ${pendingOther3File ? 'bg-warning text-dark' : 'bg-success'}`} style={{ fontSize: '0.65rem' }}>
+                                                            {pendingOther3File ? `${other3SizeKB} KB*` : `${other3SizeKB} KB`}
+                                                        </span>
+                                                    )}
+                                                </small>
+
+                                                <div className="d-flex flex-wrap gap-1 align-items-center">
+                                                    <label className={`btn btn-sm btn-outline-secondary d-inline-flex align-items-center gap-1 mb-0 py-1 px-2 ${uploadingOther3 ? 'disabled' : ''}`} style={{ cursor: uploadingOther3 ? 'not-allowed' : 'pointer', fontSize: '0.72rem' }}>
+                                                        <FaAward size={10} />
+                                                        {uploadingOther3 ? '...' : ((pendingOther3Preview || formData.otherDoc3) ? 'Change' : 'Select')}
+                                                        <input
+                                                            type="file"
+                                                            accept="image/*"
+                                                            onChange={handleOther3Upload}
+                                                            style={{ display: 'none' }}
+                                                            disabled={uploadingOther3 || saving}
+                                                        />
+                                                    </label>
+
+                                                    {(pendingOther3Preview || formData.otherDoc3) && (
+                                                        <Button
+                                                            variant="outline-danger"
+                                                            size="sm"
+                                                            onClick={handleRemoveOther3}
+                                                            disabled={uploadingOther3 || saving}
+                                                            style={{ fontSize: '0.72rem' }}
+                                                            className="d-inline-flex align-items-center gap-1 py-1 px-2"
+                                                        >
+                                                            <FaTrash size={10} />
+                                                        </Button>
+                                                    )}
+
+                                                    {formData.otherDoc3 && !pendingOther3Preview && (
+                                                        <a
+                                                            href={formData.otherDoc3}
+                                                            target="_blank"
+                                                            rel="noreferrer"
+                                                            style={{ fontSize: '0.72rem' }}
+                                                            className="btn btn-sm btn-outline-secondary d-inline-flex align-items-center gap-1 py-1 px-2"
+                                                        >
+                                                            <FaExternalLinkAlt size={9} />
+                                                        </a>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div className="mt-auto">
+                                            {pendingOther3File ? (
+                                                <small className="text-warning fw-semibold d-flex align-items-center gap-1" style={{ fontSize: '0.7rem' }}>
+                                                    <FaInfoCircle size={10} /> Uploads on Save
+                                                </small>
+                                            ) : formData.otherDoc3 ? (
+                                                <small className="text-success d-flex align-items-center gap-1" style={{ fontSize: '0.7rem' }}>
+                                                    <FaCheckCircle size={10} /> Saved
+                                                </small>
+                                            ) : (
+                                                <small className="text-muted" style={{ fontSize: '0.7rem' }}>No document</small>
+                                            )}
+                                        </div>
+                                    </div>
+                                </Col>
+                            </Row>
+                        </div>
 
                         <Form>
                             {Object.entries(
@@ -2953,7 +3801,7 @@ const PremiumTeacherPage = () => {
                             {saving ? (
                                 <>
                                     <Spinner animation="border" size="sm" className="me-2" />
-                                    {uploadingPhoto || uploadingNid ? 'Uploading images...' : 'Saving...'}
+                                    {uploadingPhoto || uploadingNidFront || uploadingNidBack || uploadingSsc || uploadingHsc || uploadingUniId || uploadingOther1 || uploadingOther2 || uploadingOther3 ? 'Uploading images...' : 'Saving...'}
                                 </>
                             ) : (
                                 editingId ? 'Update Teacher' : 'Save Teacher'

@@ -67,10 +67,18 @@ const documentConfigs = [
     },
     {
         key: 'nidPhoto',
-        label: 'NID / জন্ম নিবন্ধন',
-        sublabel: 'NID or Birth Certificate',
+        label: 'NID / জন্ম নিবন্ধন (সামনের অংশ)',
+        sublabel: 'NID Front / Birth Reg (না থাকলে জন্ম সনদ দিন)',
         endpoint: 'teacher-nid',
         field: 'nidPhoto',
+        icon: <FaIdCard />,
+    },
+    {
+        key: 'nidBack',
+        label: 'NID (পেছনের অংশ)',
+        sublabel: 'NID Back Part',
+        endpoint: 'teacher-nid-back',
+        field: 'nidBack',
         icon: <FaIdCard />,
     },
     {
@@ -96,6 +104,30 @@ const documentConfigs = [
         endpoint: 'teacher-uni-id',
         field: 'universityIdCard',
         icon: <FaGraduationCap />,
+    },
+    {
+        key: 'otherDoc1',
+        label: 'অন্যান্য সার্টিফিকেট ১',
+        sublabel: 'Certificate / Other 1',
+        endpoint: 'teacher-other-1',
+        field: 'otherDoc1',
+        icon: <FaAward />,
+    },
+    {
+        key: 'otherDoc2',
+        label: 'অন্যান্য সার্টিফিকেট ২',
+        sublabel: 'Certificate / Other 2',
+        endpoint: 'teacher-other-2',
+        field: 'otherDoc2',
+        icon: <FaAward />,
+    },
+    {
+        key: 'otherDoc3',
+        label: 'অন্যান্য সার্টিফিকেট ৩',
+        sublabel: 'Certificate / Other 3',
+        endpoint: 'teacher-other-3',
+        field: 'otherDoc3',
+        icon: <FaAward />,
     }
 ];
 const getPhoneErrorMessage = (label, value) => {
@@ -294,9 +326,14 @@ const TeacherRegistrationForm = () => {
     });
     initialValues.photo = '';
     initialValues.nidPhoto = '';
+    initialValues.nidFront = '';
+    initialValues.nidBack = '';
     initialValues.sscMarksheet = '';
     initialValues.hscMarksheet = '';
     initialValues.universityIdCard = '';
+    initialValues.otherDoc1 = '';
+    initialValues.otherDoc2 = '';
+    initialValues.otherDoc3 = '';
 
     const validationSchemaFields = {};
     fieldConfig.forEach(({ name, label }) => {
@@ -805,7 +842,10 @@ const TeacherRegistrationForm = () => {
                                                     </div>
                                                     <ul className="mb-0 ps-3 text-secondary" style={{ fontSize: '0.8rem', paddingLeft: '1rem' }}>
                                                         <li>
-                                                            <strong>সম্পূর্ণ ঐচ্ছিক:</strong> ডকুমেন্টস ছাড়াও আবেদন করা যাবে (তবে মার্কশীট দিলে যোগ্যতা নিশ্চিত হওয়ায় দ্রুত টিউশন পাওয়ার সুযোগ বাড়ে)।
+                                                            <strong>সম্পূর্ণ ঐচ্ছিক:</strong> ডকুমেন্টস ছাড়াও আবেদন করা যাবে (তবে মার্কশীট ও ডকুমেন্টস দিলে যোগ্যতা নিশ্চিত হওয়ায় দ্রুত টিউশন পাওয়ার সুযোগ বাড়ে)।
+                                                        </li>
+                                                        <li>
+                                                            <strong>NID / জন্ম নিবন্ধন:</strong> NID না থাকলে আপনি জন্ম নিবন্ধন সনদপত্র আপলোড করতে পারবেন।
                                                         </li>
                                                         <li>
                                                             <strong>প্রোফাইল ছবি:</strong> ছবি দেওয়া বাধ্যতামূলক নয় (নারী টিউটরগণ চাইলে বাদ দিতে পারেন)।
@@ -858,7 +898,7 @@ const TeacherRegistrationForm = () => {
                                                         const isCompressing = compressingDoc === doc.key;
 
                                                         return (
-                                                            <Col xs={6} sm={4} md={4} className="col-lg" key={doc.key}>
+                                                             <Col xs={6} sm={4} md={4} lg={3} xl={3} key={doc.key}>
                                                                 <div
                                                                     className="p-2 rounded h-100 d-flex flex-column justify-content-between text-center"
                                                                     style={{

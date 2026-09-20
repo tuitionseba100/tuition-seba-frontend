@@ -20,7 +20,7 @@ const spinnerStyle = {
     marginRight: 8,
 };
 
-const ApplyModal = ({ show, onClose, tuitionCode, tuitionId, tuition = {}, isChatApply = false }) => {
+const ApplyModal = ({ show, onClose, tuitionCode, tuitionId, tuition = {}, isChatApply = false, isWhatsAppApply = false }) => {
     const modalBodyRef = useRef(null);
     const [showSuccess, setShowSuccess] = useState(false);
     const [errorMessage, setErrorMessage] = useState('');
@@ -35,6 +35,37 @@ const ApplyModal = ({ show, onClose, tuitionCode, tuitionId, tuition = {}, isCha
     const [showAutofillMessage, setShowAutofillMessage] = useState(false);
     const [savedPremiumCode, setSavedPremiumCode] = useState('');
     const [savedPhone, setSavedPhone] = useState('');
+
+    const redirectToWhatsApp = (tuitionDetails, teacherInfo = {}, userComment = '') => {
+        const phoneNumber = '+8801633920928';
+        const area = tuitionDetails.area ? `, ${tuitionDetails.area}` : '';
+
+        let teacherSection = '';
+        if (teacherInfo.name || teacherInfo.premiumCode || teacherInfo.phone) {
+            teacherSection = `\n\n--- আবেদনকারীর তথ্য ---\nনাম: ${teacherInfo.name || ''}\nকোড: ${teacherInfo.premiumCode || ''}\nফোন: ${teacherInfo.phone || ''}${teacherInfo.institute ? `\nপ্রতিষ্ঠান: ${teacherInfo.institute}` : ''}${teacherInfo.department ? `\nবিভাগ: ${teacherInfo.department}` : ''}`;
+        }
+        if (userComment) {
+            teacherSection += `\nমন্তব্য: ${userComment}`;
+        }
+
+        const message = `
+Tuition Code: ${tuitionDetails.tuitionCode || ''}
+Wanted Teacher: ${tuitionDetails.wantedTeacher || ''}
+Number of Students: ${tuitionDetails.student || ''}
+Class: ${tuitionDetails.class || ''}
+Medium: ${tuitionDetails.medium || ''}
+Subject: ${tuitionDetails.subject || ''}
+Day: ${tuitionDetails.day || ''}
+Time: ${tuitionDetails.time || ''}
+Salary: ${tuitionDetails.salary && /taka|tk/i.test(tuitionDetails.salary.toString()) ? tuitionDetails.salary : (tuitionDetails.salary ? tuitionDetails.salary.toString().trim() + ' taka' : '')}${tuitionDetails.mediaFee && tuitionDetails.mediaFee.trim() !== '' ? `\nMedia Fee: ${tuitionDetails.mediaFee}` : ''}
+Location: ${tuitionDetails.location || ''}${area}
+Joining: ${tuitionDetails.joining || ''}${teacherSection}
+
+এই টিউশনটা (${tuitionDetails.tuitionCode || ''}) কি এখনো আছে?`.trim();
+
+        const url = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
+        window.open(url, '_blank');
+    };
 
     useEffect(() => {
         if (show) {
@@ -86,10 +117,15 @@ const ApplyModal = ({ show, onClose, tuitionCode, tuitionId, tuition = {}, isCha
         setIsFinalSubmitting(true);
         try {
             const isChat = Boolean(isChatApply || tuition.applyType === 'Chat');
+            const isWhatsApp = Boolean(isWhatsAppApply || tuition.applyType === 'WhatsApp');
             const payload = {
                 ...pendingValues,
                 comment: modalComment !== undefined ? modalComment : (pendingValues.comment || ''),
-                agentComment: isChat ? (modalComment ? `Chat Apply (${modalComment})` : 'Chat Apply') : (pendingValues.agentComment || undefined),
+                agentComment: isChat
+                    ? (modalComment ? `Chat Apply (${modalComment})` : 'Chat Apply')
+                    : isWhatsApp
+                    ? (modalComment ? `WhatsApp Apply (${modalComment})` : 'WhatsApp Apply')
+                    : (pendingValues.agentComment || undefined),
             };
             const res = await fetchWithFallback('https://tuition-seba-backend-1.onrender.com/api/tuitionApply/add-web',
                 {
@@ -118,6 +154,15 @@ const ApplyModal = ({ show, onClose, tuitionCode, tuitionId, tuition = {}, isCha
                         }
                     });
                     window.dispatchEvent(event);
+                } else if (isWhatsApp) {
+                    onClose();
+                    redirectToWhatsApp(tuition, {
+                        name: payload.name || 'Premium Member',
+                        phone: payload.phone,
+                        premiumCode: payload.premiumCode,
+                        institute: payload.institute,
+                        department: payload.department,
+                    }, modalComment);
                 } else {
                     setShowSuccess(true);
                 }

@@ -22,35 +22,7 @@ const TuitionCard = ({ tuition }) => {
     };
 
     const handleApplyClick = () => {
-        const type = tuition.applyType || 'Server';
-        if (type === 'WhatsApp') {
-            redirectToWhatsApp(tuition);
-        } else {
-            setShowModal(true);
-        }
-    };
-
-    const redirectToWhatsApp = (tuitionDetails) => {
-        const phoneNumber = '+8801633920928';
-        const area = tuitionDetails.area ? `, ${tuitionDetails.area}` : '';
-
-        const message = `
-Tuition Code: ${tuitionDetails.tuitionCode}
-Wanted Teacher: ${tuitionDetails.wantedTeacher}
-Number of Students: ${tuitionDetails.student}
-Class: ${tuitionDetails.class}
-Medium: ${tuitionDetails.medium}
-Subject: ${tuitionDetails.subject}
-Day: ${tuitionDetails.day}
-Time: ${tuitionDetails.time}
-Salary: ${tuitionDetails.salary && /taka|tk/i.test(tuitionDetails.salary.toString()) ? tuitionDetails.salary : (tuitionDetails.salary ? tuitionDetails.salary.toString().trim() + ' taka' : '')}${tuitionDetails.mediaFee && tuitionDetails.mediaFee.trim() !== '' ? `\nMedia Fee: ${tuitionDetails.mediaFee}` : ''}
-Location: ${tuitionDetails.location}${area}
-Joining: ${tuitionDetails.joining}
-
-এই টিউশনটা (${tuitionDetails.tuitionCode}) কি এখনো আছে?`.trim();
-
-        const url = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
-        window.open(url, '_blank');
+        setShowModal(true);
     };
 
     const infoRow = (icon, label, value) => (
@@ -205,16 +177,15 @@ Joining: ${tuitionDetails.joining}
                 </Card.Footer>
             </Card>
 
-            {(tuition.applyType || 'Server') !== 'WhatsApp' && (
-                <ApplyModal
-                    show={showModal}
-                    onClose={() => setShowModal(false)}
-                    tuitionCode={tuition.tuitionCode}
-                    tuitionId={tuition._id}
-                    tuition={tuition}
-                    isChatApply={tuition.applyType === 'Chat'}
-                />
-            )}
+            <ApplyModal
+                show={showModal}
+                onClose={() => setShowModal(false)}
+                tuitionCode={tuition.tuitionCode}
+                tuitionId={tuition._id}
+                tuition={tuition}
+                isChatApply={tuition.applyType === 'Chat'}
+                isWhatsAppApply={tuition.applyType === 'WhatsApp'}
+            />
         </>
     );
 };

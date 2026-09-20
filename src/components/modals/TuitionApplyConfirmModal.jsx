@@ -15,7 +15,8 @@ import {
     FaMoneyBillWave,
     FaMapMarkerAlt,
     FaCalendarCheck,
-    FaInfoCircle
+    FaInfoCircle,
+    FaWhatsapp
 } from 'react-icons/fa';
 
 const TuitionApplyConfirmModal = ({
@@ -274,10 +275,16 @@ const TuitionApplyConfirmModal = ({
                         disabled={isLoading}
                         className="px-4 py-1.5 fw-bold"
                         style={{
-                            background: 'linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)',
+                            background: tuition.applyType === 'WhatsApp'
+                                ? 'linear-gradient(135deg, #10b981 0%, #059669 100%)'
+                                : tuition.applyType === 'Chat'
+                                ? 'linear-gradient(135deg, #0284c7 0%, #0369a1 100%)'
+                                : 'linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)',
                             border: 'none',
                             borderRadius: '8px',
-                            boxShadow: '0 2px 6px rgba(37, 99, 235, 0.25)',
+                            boxShadow: tuition.applyType === 'WhatsApp'
+                                ? '0 2px 6px rgba(16, 185, 129, 0.3)'
+                                : '0 2px 6px rgba(37, 99, 235, 0.25)',
                             fontSize: '0.86rem'
                         }}
                     >
@@ -285,6 +292,14 @@ const TuitionApplyConfirmModal = ({
                             <>
                                 <span className="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true" />
                                 প্রসেসিং...
+                            </>
+                        ) : tuition.applyType === 'WhatsApp' ? (
+                            <>
+                                <FaWhatsapp className="me-1" /> হ্যাঁ, হোয়াটসঅ্যাপে নিশ্চিত করুন
+                            </>
+                        ) : tuition.applyType === 'Chat' ? (
+                            <>
+                                <FaCheckCircle className="me-1" /> হ্যাঁ, চ্যাটে নিশ্চিত আবেদন করুন
                             </>
                         ) : (
                             <>

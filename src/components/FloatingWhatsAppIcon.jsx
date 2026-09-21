@@ -1,9 +1,10 @@
 import React from 'react';
 import { BsWhatsapp } from 'react-icons/bs';
 import { motion } from 'framer-motion';
+import { usePublicSettings } from '../context/PublicSettingsContext';
 
 const FloatingWhatsAppIcon = () => {
-  const whatsappLink = 'whatsapp://send?phone=+8801633920928';
+  const { whatsappSchemeUrl } = usePublicSettings();
 
   return (
     <div

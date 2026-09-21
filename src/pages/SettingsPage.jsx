@@ -52,6 +52,7 @@ const SettingsPage = () => {
     const [deleteCityInput, setDeleteCityInput] = useState('');
 
     const [isSaving, setIsSaving] = useState(false);
+    const [whatsappNumberInput, setWhatsappNumberInput] = useState('+8801633920928');
     const [selectedAssignments, setSelectedAssignments] = useState({
         payment_auto_assign_user: [],
         tuition_auto_assign_user: [],
@@ -149,6 +150,12 @@ const SettingsPage = () => {
                     "Word of Mouth",
                     "Others"
                 ]);
+            }
+
+            // Extract official whatsapp number
+            const wpSetting = settingsData.find(s => s.key === 'whatsapp_number');
+            if (wpSetting && wpSetting.value) {
+                setWhatsappNumberInput(String(wpSetting.value));
             }
 
             setSettings(settingsObj);
@@ -533,6 +540,37 @@ const SettingsPage = () => {
         setDeletingMediumIdx(null);
     };
 
+    const handleSaveWhatsAppNumber = async () => {
+        if (!whatsappNumberInput || !whatsappNumberInput.trim()) {
+            toast.warning('Please enter a valid WhatsApp phone number');
+            return;
+        }
+        try {
+            setIsSaving(true);
+            const token = localStorage.getItem('token');
+            const cleanValue = whatsappNumberInput.trim();
+            await axios.post(`${API_BASE_URL}/api/settings`, {
+                key: 'whatsapp_number',
+                value: cleanValue,
+                submodule: 'general',
+                mode: 'replace'
+            }, {
+                headers: { Authorization: token }
+            });
+            toast.success('WhatsApp number saved successfully');
+
+            // Update local storage and notify listeners
+            localStorage.setItem('@public_settings', JSON.stringify({ whatsapp_number: cleanValue }));
+            localStorage.setItem('@public_settings_time', String(Date.now()));
+            window.dispatchEvent(new Event('publicSettingsUpdated'));
+        } catch (error) {
+            console.error('Error saving WhatsApp number:', error);
+            toast.error('Failed to save WhatsApp number');
+        } finally {
+            setIsSaving(false);
+        }
+    };
+
     // Prepare all areas from JSON
     const allAvailableAreas = Object.values(locationData.areaOptions).flat().filter(a => a !== 'Coming Soon').map(a => ({ value: a, label: a }));
 
@@ -672,6 +710,14 @@ const SettingsPage = () => {
                                     >
                                         <i className={`fas fa-bullhorn mt-1 me-2 ${activeTab === 'mediums' ? 'text-white' : 'text-primary'}`} style={{ fontSize: '0.8rem' }}></i>
                                         <span className="fw-bold" style={{ fontSize: '0.7rem', lineHeight: '1.2' }}>Marketing Mediums</span>
+                                    </button>
+
+                                    <button
+                                        onClick={() => { setActiveTab('contact'); setIsSidebarOpen(false); }}
+                                        className={`btn w-100 text-start d-flex align-items-start p-2 px-3 rounded-3 transition-all border-0 ${activeTab === 'contact' ? 'bg-primary text-white shadow-sm' : 'bg-transparent text-secondary hover-bg-white'}`}
+                                    >
+                                        <i className={`fab fa-whatsapp mt-1 me-2 ${activeTab === 'contact' ? 'text-white' : 'text-success'}`} style={{ fontSize: '0.8rem' }}></i>
+                                        <span className="fw-bold" style={{ fontSize: '0.7rem', lineHeight: '1.2' }}>WhatsApp Number</span>
                                     </button>
 
                                     {role === 'superadmin' && (
@@ -1787,6 +1833,80 @@ const SettingsPage = () => {
                                                 )}
                                             </tbody>
                                         </table>
+                                    </div>
+                                </div>
+                            </div>
+                        ) : activeTab === 'contact' ? (
+                            <div className="card border-0 shadow-lg mb-4 overflow-hidden" style={{ borderRadius: '20px' }}>
+                                <div className="card-header py-3 px-4 border-0" style={{ background: 'linear-gradient(135deg, #16a34a 0%, #15803d 100%)', color: 'white' }}>
+                                    <h2 className="mb-0 fw-bold d-flex align-items-center fs-4">
+                                        <i className="fab fa-whatsapp me-3"></i>
+                                        Official WhatsApp & Contact Settings
+                                    </h2>
+                                    <p className="mb-0 opacity-80 extra-small">Configure the single official WhatsApp number used across all public website pages, buttons, and apply redirects.</p>
+                                </div>
+                                <div className="card-body p-4 bg-white">
+                                    <div className="row justify-content-center">
+                                        <div className="col-12 col-md-8 col-lg-6">
+                                            <div className="bg-light p-4 rounded-4 border">
+                                                <div className="d-flex align-items-center mb-4">
+                                                    <div className="bg-success-subtle text-success p-3 rounded-circle me-3">
+                                                        <i className="fab fa-whatsapp fs-3"></i>
+                                                    </div>
+                                                    <div>
+                                                        <h5 className="fw-bold mb-1">Official WhatsApp Phone Number</h5>
+                                                        <p className="text-muted small mb-0">Shown on public navbar, footer, floating widget, rules, and tuition apply messages.</p>
+                                                    </div>
+                                                </div>
+
+                                                <div className="mb-4">
+                                                    <label className="form-label fw-bold text-dark">
+                                                        Phone / WhatsApp Number
+                                                        <span className="text-danger ms-1">*</span>
+                                                    </label>
+                                                    <input
+                                                        type="text"
+                                                        className="form-control form-control-lg rounded-3 shadow-sm font-sans"
+                                                        placeholder="+8801633920928 or 01633920928"
+                                                        value={whatsappNumberInput}
+                                                        onChange={(e) => setWhatsappNumberInput(e.target.value)}
+                                                        disabled={isSaving}
+                                                        style={{ border: '2px solid #e2e8f0' }}
+                                                    />
+                                                    <div className="form-text mt-2">
+                                                        <i className="fas fa-info-circle me-1 text-primary"></i>
+                                                        Example: <code>+8801633920928</code> or <code>01633920928</code>
+                                                    </div>
+                                                </div>
+
+                                                <div className="p-3 mb-4 rounded-3 border" style={{ backgroundColor: '#f0fdf4', borderColor: '#bbf7d0' }}>
+                                                    <div className="fw-bold text-success small mb-1">
+                                                        <i className="fas fa-link me-1"></i> Live WhatsApp Link Preview:
+                                                    </div>
+                                                    <code className="text-dark small text-break">
+                                                        https://wa.me/{whatsappNumberInput.replace(/[^\d+]/g, '').replace(/^\+/, '') || '8801633920928'}
+                                                    </code>
+                                                </div>
+
+                                                <button
+                                                    className="btn btn-success w-100 py-2 fw-bold rounded-3 shadow-sm d-flex align-items-center justify-content-center gap-2"
+                                                    onClick={handleSaveWhatsAppNumber}
+                                                    disabled={isSaving}
+                                                >
+                                                    {isSaving ? (
+                                                        <>
+                                                            <span className="spinner-border spinner-border-sm"></span>
+                                                            Saving...
+                                                        </>
+                                                    ) : (
+                                                        <>
+                                                            <i className="fas fa-save"></i>
+                                                            Save WhatsApp Number
+                                                        </>
+                                                    )}
+                                                </button>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>

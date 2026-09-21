@@ -3,8 +3,10 @@ import { Container, Row, Col, Card } from 'react-bootstrap';
 import { FaShieldAlt, FaUserTie, FaMoneyCheckAlt, FaUndoAlt, FaLock, FaPhoneAlt, FaWhatsapp } from 'react-icons/fa';
 import NavBar from '../../components/NavBar';
 import Footer from '../../components/Footer';
+import { usePublicSettings } from '../../context/PublicSettingsContext';
 
 const Rules = () => {
+    const { getWhatsAppUrl } = usePublicSettings();
     useEffect(() => {
         window.scrollTo(0, 0);
     }, []);
@@ -625,7 +627,7 @@ const Rules = () => {
                             <a href="tel:01633920928" className="btn-support btn-call">
                                 <FaPhoneAlt /> কল করুন: 01633920928
                             </a>
-                            <a href="https://wa.me/8801633920928" target="_blank" rel="noopener noreferrer" className="btn-support btn-ws">
+                            <a href={getWhatsAppUrl()} target="_blank" rel="noopener noreferrer" className="btn-support btn-ws">
                                 <FaWhatsapp /> হোয়াটসঅ্যাপ
                             </a>
                         </div>

@@ -1,9 +1,10 @@
 import React from "react";
 import { Container, Row, Col, Button, Image, Card } from "react-bootstrap";
 import { FaWhatsapp, FaFacebookF, FaPhoneAlt, FaMapMarkerAlt, FaClock } from "react-icons/fa";
-
+import { usePublicSettings } from "../context/PublicSettingsContext";
 
 const AboutUs = () => {
+    const { getWhatsAppUrl, whatsappNumber } = usePublicSettings();
     return (
         <section id="about-us" style={{ backgroundColor: "#f4f7fa", padding: "60px 0" }}>
             <Container>
@@ -27,7 +28,7 @@ const AboutUs = () => {
                             <div>
                                 <Button
                                     variant="success"
-                                    href="https://wa.me/8801633920928"
+                                    href={getWhatsAppUrl()}
                                     target="_blank"
                                     className="me-2 px-3"
                                 >

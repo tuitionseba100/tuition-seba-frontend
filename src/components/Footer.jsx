@@ -3,8 +3,10 @@ import { Container, Row, Col } from "react-bootstrap";
 import { FaFacebookF, FaWhatsapp, FaPhoneAlt, FaEnvelope, FaMapMarkerAlt, FaGlobe, FaGooglePlay } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
+import { usePublicSettings } from "../context/PublicSettingsContext";
 
 const Footer = () => {
+    const { getWhatsAppUrl } = usePublicSettings();
     return (
         <div style={{ position: 'relative', marginTop: 'auto', overflow: 'visible' }}>
             {/* Wave Animation Styles */}
@@ -170,7 +172,7 @@ const Footer = () => {
                                     </motion.a>
 
                                     <motion.a
-                                        href="https://wa.me/+8801633920928"
+                                        href={getWhatsAppUrl()}
                                         target="_blank"
                                         rel="noopener noreferrer"
                                         whileHover={{

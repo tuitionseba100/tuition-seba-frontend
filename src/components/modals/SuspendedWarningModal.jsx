@@ -1,22 +1,21 @@
 import React, { useState } from 'react';
 import { FaPhoneAlt, FaWhatsapp, FaCopy } from 'react-icons/fa';
-
-const OFFICE_PHONE = '+8801633920928';
-const WHATSAPP_NUMBER = '8801633920928';
+import { usePublicSettings } from '../../context/PublicSettingsContext';
 
 const SuspendedWarningModal = ({ show, onClose }) => {
+    const { whatsappNumber, getWhatsAppUrl } = usePublicSettings();
     const [copied, setCopied] = useState(false);
 
     if (!show) return null;
 
     const copyPhone = () => {
-        navigator.clipboard.writeText(OFFICE_PHONE);
+        navigator.clipboard.writeText(whatsappNumber);
         setCopied(true);
         setTimeout(() => setCopied(false), 2500);
     };
 
     const openWhatsApp = () => {
-        window.open(`https://wa.me/${WHATSAPP_NUMBER}`, '_blank');
+        window.open(getWhatsAppUrl(), '_blank');
     };
 
     return (

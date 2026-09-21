@@ -110,6 +110,7 @@ import LiveChatPage from './pages/public/LiveChatPage';
 import SmsLogPage from './pages/SmsLogPage';
 import InternalChatPage from './pages/InternalChatPage';
 import ServiceChargePage from './pages/ServiceChargePage';
+import { PublicSettingsProvider } from './context/PublicSettingsContext';
 
 const AppRedirect = () => {
   React.useEffect(() => {
@@ -120,61 +121,63 @@ const AppRedirect = () => {
 
 const App = () => {
   return (
-    <Router>
-      <Routes>
-        <Route path="/" element={<LandingPage />} />
-        <Route path="/index" element={<LandingPage />} />
-        <Route path="/tuitions" element={<AvailableTuitions />} />
-        <Route path="/payment" element={<PaymentRefundPage />} />
-        <Route path="/findTutor" element={<FindTutorPage />} />
-        <Route path="/teacherRegistration" element={<TeacherRegistration />} />
-        <Route path="/OurTeachers" element={<OurTeacher />} />
-        <Route path="/privacy" element={<PrivacyPolicyPage />} />
-        <Route path="/rules" element={<Rules />} />
-        <Route path="/refer" element={<ReferPage />} />
-        <Route path="/apply-updates" element={<ApplyUpdates />} />
-        <Route path="/complaint-suggestion" element={<ComplaintSuggestionPage />} />
-        <Route path="/livechat" element={<LiveChatPage />} />
-        <Route path="/admin/login" element={<Loginpage />} />
-        <Route path="/app" element={<AppRedirect />} />
+    <PublicSettingsProvider>
+      <Router>
+        <Routes>
+          <Route path="/" element={<LandingPage />} />
+          <Route path="/index" element={<LandingPage />} />
+          <Route path="/tuitions" element={<AvailableTuitions />} />
+          <Route path="/payment" element={<PaymentRefundPage />} />
+          <Route path="/findTutor" element={<FindTutorPage />} />
+          <Route path="/teacherRegistration" element={<TeacherRegistration />} />
+          <Route path="/OurTeachers" element={<OurTeacher />} />
+          <Route path="/privacy" element={<PrivacyPolicyPage />} />
+          <Route path="/rules" element={<Rules />} />
+          <Route path="/refer" element={<ReferPage />} />
+          <Route path="/apply-updates" element={<ApplyUpdates />} />
+          <Route path="/complaint-suggestion" element={<ComplaintSuggestionPage />} />
+          <Route path="/livechat" element={<LiveChatPage />} />
+          <Route path="/admin/login" element={<Loginpage />} />
+          <Route path="/app" element={<AppRedirect />} />
 
-        <Route path="/admin" element={<PrivateRoute />}>
-          <Route index element={<Navigate to="/admin/dashboard" replace />} />
-          <Route path="attendance" element={<AttendancePage />} />
+          <Route path="/admin" element={<PrivateRoute />}>
+            <Route index element={<Navigate to="/admin/dashboard" replace />} />
+            <Route path="attendance" element={<AttendancePage />} />
 
-          <Route element={<DayStartedRoute />}>
-            <Route path="dashboard" element={<Dashboard />} />
-            <Route path="tuition" element={<Tuitionmenu />} />
-            <Route path="payment" element={<PaymentPage />} />
-            <Route path="teacherPayment" element={<TeacherPaymentPage />} />
-            <Route path="refund" element={<RefundPage />} />
-            <Route path="service-charge" element={<ServiceChargePage />} />
-            <Route path="serviceCharge" element={<ServiceChargePage />} />
-            <Route path="guardianApply" element={<GuardianApplyPage />} />
-            <Route path="task" element={<TaskPage />} />
-            <Route path="tuitionApply" element={<TuitionApply />} />
-            <Route path="premiumTeacher" element={<PremiumTeacherPage />} />
-            <Route path="spamBest" element={<SpamBestPage />} />
-            <Route path="lead" element={<LeadPage />} />
-            <Route path="general" element={<GeneralPage />} />
-            <Route path="complaints" element={<ComplaintSuggestionAdminPage />} />
-            <Route path="chat" element={<AdminChatConsole />} />
-            <Route path="sms-logs" element={<SmsLogPage />} />
-            <Route path="internal-chat" element={<InternalChatPage />} />
-            <Route path="settings" element={<SettingsPage />} />
+            <Route element={<DayStartedRoute />}>
+              <Route path="dashboard" element={<Dashboard />} />
+              <Route path="tuition" element={<Tuitionmenu />} />
+              <Route path="payment" element={<PaymentPage />} />
+              <Route path="teacherPayment" element={<TeacherPaymentPage />} />
+              <Route path="refund" element={<RefundPage />} />
+              <Route path="service-charge" element={<ServiceChargePage />} />
+              <Route path="serviceCharge" element={<ServiceChargePage />} />
+              <Route path="guardianApply" element={<GuardianApplyPage />} />
+              <Route path="task" element={<TaskPage />} />
+              <Route path="tuitionApply" element={<TuitionApply />} />
+              <Route path="premiumTeacher" element={<PremiumTeacherPage />} />
+              <Route path="spamBest" element={<SpamBestPage />} />
+              <Route path="lead" element={<LeadPage />} />
+              <Route path="general" element={<GeneralPage />} />
+              <Route path="complaints" element={<ComplaintSuggestionAdminPage />} />
+              <Route path="chat" element={<AdminChatConsole />} />
+              <Route path="sms-logs" element={<SmsLogPage />} />
+              <Route path="internal-chat" element={<InternalChatPage />} />
+              <Route path="settings" element={<SettingsPage />} />
+            </Route>
+
+            <Route element={<PrivateRoute role="superadmin" />}>
+              <Route path="user" element={<UserPage />} />
+              <Route path="finance" element={<ExpensePage />} />
+              <Route path="activity-log" element={<ActivityLogPage />} />
+              <Route path="reports" element={<StatusHistoryReportPage />} />
+            </Route>
           </Route>
 
-          <Route element={<PrivateRoute role="superadmin" />}>
-            <Route path="user" element={<UserPage />} />
-            <Route path="finance" element={<ExpensePage />} />
-            <Route path="activity-log" element={<ActivityLogPage />} />
-            <Route path="reports" element={<StatusHistoryReportPage />} />
-          </Route>
-        </Route>
-
-        <Route path="*" element={<NotFoundPage />} />
-      </Routes>
-    </Router>
+          <Route path="*" element={<NotFoundPage />} />
+        </Routes>
+      </Router>
+    </PublicSettingsProvider>
   );
 };
 

@@ -4,10 +4,12 @@ import { FaFacebookF, FaWhatsapp } from 'react-icons/fa';
 import { FiSettings, FiBell, FiMessageSquare } from 'react-icons/fi';
 import { NavLink, useNavigate, useLocation } from 'react-router-dom';
 import SettingsModal from './modals/SettingsModal';
+import { usePublicSettings } from '../context/PublicSettingsContext';
 
 const NavbarComponent = () => {
     const navigate = useNavigate();
     const location = useLocation();
+    const { getWhatsAppUrl } = usePublicSettings();
 
     const [hovered, setHovered] = useState(null);
     const [showSettings, setShowSettings] = useState(false);
@@ -110,7 +112,7 @@ const NavbarComponent = () => {
             key: 'facebook',
         },
         {
-            href: 'https://wa.me/+8801633920928',
+            href: getWhatsAppUrl(),
             icon: <FaWhatsapp />,
             key: 'whatsapp',
         },

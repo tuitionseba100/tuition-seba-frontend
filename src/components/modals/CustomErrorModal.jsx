@@ -1,21 +1,21 @@
 import React, { useState } from 'react';
 import { FaWhatsapp, FaCopy, FaStar } from 'react-icons/fa';
+import { usePublicSettings } from '../../context/PublicSettingsContext';
 
 const CustomErrorModal = ({ show, message, onClose }) => {
+    const { whatsappNumber, getWhatsAppUrl } = usePublicSettings();
     const [copied, setCopied] = useState(false);
 
     if (!show) return null;
 
-    const phoneNumber = '+8801633920928';
-
     const copyToClipboard = () => {
-        navigator.clipboard.writeText(phoneNumber);
+        navigator.clipboard.writeText(whatsappNumber);
         setCopied(true);
         setTimeout(() => setCopied(false), 2000);
     };
 
     const openWhatsApp = () => {
-        window.open(`https://wa.me/${phoneNumber.replace(/\D/g, '')}`, '_blank');
+        window.open(getWhatsAppUrl(), '_blank');
     };
 
     const goToPremiumPage = () => {
@@ -76,7 +76,7 @@ const CustomErrorModal = ({ show, message, onClose }) => {
                         }}
                         onClick={copyToClipboard}
                     >
-                        {copied ? '✅ কপি হয়েছে' : '+880 1633-920928'}
+                        {copied ? '✅ কপি হয়েছে' : whatsappNumber}
                         <FaWhatsapp
                             size={18}
                             color="#25D366"

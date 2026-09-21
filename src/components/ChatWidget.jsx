@@ -3,6 +3,7 @@ import { io } from 'socket.io-client';
 import { BsChatDotsFill, BsX, BsArrowRightShort, BsTelephone, BsKey, BsSendFill, BsRobot, BsCircleFill, BsWhatsapp, BsArrowDownShort, BsLightbulb, BsFileEarmarkPerson, BsBoxArrowUpRight } from 'react-icons/bs';
 import { fetchWithFallback } from '../services/fetchWithFallback';
 import TuitionApplyConfirmModal from './modals/TuitionApplyConfirmModal';
+import { usePublicSettings } from '../context/PublicSettingsContext';
 import './ChatWidget.css';
 
 const BASE_URL = 'https://tuition-seba-backend-1.onrender.com';
@@ -10,6 +11,7 @@ const BASE_URL = 'https://tuition-seba-backend-1.onrender.com';
 
 
 export default function ChatWidget() {
+  const { whatsappSchemeUrl } = usePublicSettings();
   const [isOpen, setIsOpen] = useState(false);
   const [phone, setPhone] = useState('');
   const [premiumCode, setPremiumCode] = useState('');
@@ -745,7 +747,7 @@ Joining: ${details.joining || ''}
       {!isOpen && (
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <a
-            href="whatsapp://send?phone=+8801633920928"
+            href={whatsappSchemeUrl}
             target="_blank"
             rel="noopener noreferrer"
             aria-label="Chat with us on WhatsApp"

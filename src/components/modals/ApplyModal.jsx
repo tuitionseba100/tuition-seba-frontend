@@ -8,6 +8,7 @@ import CustomErrorModal from '../../components/modals/CustomErrorModal';
 import ProcessingModal from '../../components/modals/ProcessingModal';
 import SuspendedWarningModal from '../../components/modals/SuspendedWarningModal';
 import TuitionApplyConfirmModal from '../../components/modals/TuitionApplyConfirmModal';
+import { usePublicSettings } from '../../context/PublicSettingsContext';
 
 import { fetchWithFallback } from '../../services/fetchWithFallback';
 const spinnerStyle = {
@@ -21,6 +22,7 @@ const spinnerStyle = {
 };
 
 const ApplyModal = ({ show, onClose, tuitionCode, tuitionId, tuition = {}, isChatApply = false, isWhatsAppApply = false }) => {
+    const { getWhatsAppUrl } = usePublicSettings();
     const modalBodyRef = useRef(null);
     const [showSuccess, setShowSuccess] = useState(false);
     const [errorMessage, setErrorMessage] = useState('');
@@ -37,7 +39,6 @@ const ApplyModal = ({ show, onClose, tuitionCode, tuitionId, tuition = {}, isCha
     const [savedPhone, setSavedPhone] = useState('');
 
     const redirectToWhatsApp = (tuitionDetails, teacherInfo = {}, userComment = '') => {
-        const phoneNumber = '+8801633920928';
         const area = tuitionDetails.area ? `, ${tuitionDetails.area}` : '';
 
         let teacherSection = '';
@@ -63,7 +64,7 @@ Joining: ${tuitionDetails.joining || ''}${teacherSection}
 
 এই টিউশনটা (${tuitionDetails.tuitionCode || ''}) কি এখনো আছে?`.trim();
 
-        const url = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
+        const url = getWhatsAppUrl(message);
         window.open(url, '_blank');
     };
 

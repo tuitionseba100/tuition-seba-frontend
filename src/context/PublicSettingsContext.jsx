@@ -44,8 +44,15 @@ export const PublicSettingsProvider = ({ children }) => {
 
     const fetchSettings = useCallback(async (force = false) => {
         try {
-            // Append timestamp cache-buster to bypass any browser/proxy cache on fresh page load or deploy
-            const url = `https://tuition-seba-backend-1.onrender.com/api/settings/public?_t=${Date.now()}`;
+            const now = Date.now();
+            const lastFetched = parseInt(localStorage.getItem(CACHE_TIME_KEY) || '0', 10);
+
+            // Skip network request if cache is fresh (< 15 mins) and not forced
+            if (!force && lastFetched && (now - lastFetched < CACHE_TTL_MS)) {
+                return;
+            }
+
+            const url = `https://tuition-seba-backend-1.onrender.com/api/settings/public`;
             const res = await fetchWithFallback(url);
             if (res.ok) {
                 const data = await res.json();
@@ -66,17 +73,24 @@ export const PublicSettingsProvider = ({ children }) => {
     }, []);
 
     useEffect(() => {
-        // Always trigger background fetch on mount (stale-while-revalidate)
-        fetchSettings(true);
+        // Fetch only if cache is stale
+        fetchSettings(false);
 
-        // Listen for internal admin updates or cross-tab updates
+        // Listen for internal admin updates in the current window
         const handleSettingsUpdated = () => fetchSettings(true);
         window.addEventListener('publicSettingsUpdated', handleSettingsUpdated);
-        window.addEventListener('storage', handleSettingsUpdated);
+
+        // Listen for admin updates from other open tabs (triggers ONLY on explicit admin event, preventing loops)
+        const handleStorageChange = (e) => {
+            if (e.key === '@admin_settings_updated') {
+                fetchSettings(true);
+            }
+        };
+        window.addEventListener('storage', handleStorageChange);
 
         return () => {
             window.removeEventListener('publicSettingsUpdated', handleSettingsUpdated);
-            window.removeEventListener('storage', handleSettingsUpdated);
+            window.removeEventListener('storage', handleStorageChange);
         };
     }, [fetchSettings]);
 

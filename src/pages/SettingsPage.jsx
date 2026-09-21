@@ -562,6 +562,7 @@ const SettingsPage = () => {
             // Update local storage and notify listeners
             localStorage.setItem('@public_settings', JSON.stringify({ whatsapp_number: cleanValue }));
             localStorage.setItem('@public_settings_time', String(Date.now()));
+            localStorage.setItem('@admin_settings_updated', String(Date.now()));
             window.dispatchEvent(new Event('publicSettingsUpdated'));
         } catch (error) {
             console.error('Error saving WhatsApp number:', error);

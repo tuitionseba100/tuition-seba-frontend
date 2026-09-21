@@ -6,7 +6,7 @@ import Footer from '../../components/Footer';
 import { usePublicSettings } from '../../context/PublicSettingsContext';
 
 const Rules = () => {
-    const { getWhatsAppUrl } = usePublicSettings();
+    const { getWhatsAppUrl, whatsappNumber } = usePublicSettings();
     useEffect(() => {
         window.scrollTo(0, 0);
     }, []);
@@ -624,8 +624,8 @@ const Rules = () => {
                         <h2 className="fw-bold mb-3">সহায়তা প্রয়োজন?</h2>
                         <p className="opacity-75">আমাদের নীতিমালা নিয়ে কোনো প্রশ্ন থাকলে সরাসরি যোগাযোগ করুন</p>
                         <div className="support-btn-group">
-                            <a href="tel:01633920928" className="btn-support btn-call">
-                                <FaPhoneAlt /> কল করুন: 01633920928
+                            <a href={`tel:${whatsappNumber || '01633920928'}`} className="btn-support btn-call">
+                                <FaPhoneAlt /> কল করুন: {whatsappNumber || '01633920928'}
                             </a>
                             <a href={getWhatsAppUrl()} target="_blank" rel="noopener noreferrer" className="btn-support btn-ws">
                                 <FaWhatsapp /> হোয়াটসঅ্যাপ
@@ -709,7 +709,7 @@ const Rules = () => {
                                 <div className="bg-light p-4 rounded-4" style={{ fontSize: '1rem' }}>
                                     <p className="mb-1"><strong>Tuition Seba Forum</strong></p>
                                     <p className="mb-1">No 2 Gate, Biplob Udyan, Chattogram</p>
-                                    <p className="mb-1">Phone: 01633920928</p>
+                                    <p className="mb-1">Phone: {whatsappNumber || '01633920928'}</p>
                                     <p className="mb-1">Email: tuitionsebaforum@gmail.com</p>
                                     <p className="mb-0"><strong>Trade License No:</strong> TRAD/CHTG/008405/2025</p>
                                 </div>

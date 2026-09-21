@@ -3,8 +3,10 @@ import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Container, Row, Col, Modal, Button } from 'react-bootstrap';
 import { FaGooglePlay, FaInfoCircle, FaGift, FaCheckCircle, FaExclamationTriangle, FaRocket, FaUsers } from 'react-icons/fa';
+import { usePublicSettings } from '../context/PublicSettingsContext';
 
 const TutorSection = () => {
+    const { whatsappNumber } = usePublicSettings();
     const navigate = useNavigate();
     const [showReferModal, setShowReferModal] = useState(false);
     const [showTooltip, setShowTooltip] = useState(false);
@@ -744,7 +746,7 @@ const TutorSection = () => {
                                                     <ul style={{ listStyleType: 'none', paddingLeft: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '8px' }}>
                                                         {[
                                                             'অভিভাবকের প্রয়োজনীয় তথ্য সংগ্রহ করুন',
-                                                            'Website-এ Find Tutor option ব্যবহার করুন / আমাদের অফিসিয়াল নম্বরে তথ্য পাঠান: 01633920928 / 01891644064',
+                                                            `Website-এ Find Tutor option ব্যবহার করুন / আমাদের অফিসিয়াল নম্বরে তথ্য পাঠান: ${whatsappNumber || '01633920928'} / 01891644064`,
                                                             'Referral হিসেবে নিজের নাম ও মোবাইল নম্বর উল্লেখ করুন',
                                                             'Tuition successfully continue হলে কমিশন গ্রহণ করুন'
                                                         ].map((t, i) => (

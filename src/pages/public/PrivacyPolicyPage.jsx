@@ -2,8 +2,10 @@ import React, { useEffect } from 'react';
 import { Container, Card } from 'react-bootstrap';
 import NavBar from '../../components/NavBar';
 import Footer from '../../components/Footer';
+import { usePublicSettings } from '../../context/PublicSettingsContext';
 
 const PrivacyPolicyPage = () => {
+    const { whatsappNumber } = usePublicSettings();
     useEffect(() => {
         window.scrollTo(0, 0);
     }, []);
@@ -83,7 +85,7 @@ const PrivacyPolicyPage = () => {
                                 <p>
                                     <strong>Tuition Seba Forum</strong><br />
                                     No 2 Gate, Biplob Udyan, Chattogram<br />
-                                    Phone: 01633920928<br />
+                                    Phone: {whatsappNumber || '01633920928'}<br />
                                     Email: tuitionsebaforum@gmail.com<br />
                                     <strong>Trade License No:</strong> TRAD/CHTG/008405/2025
                                 </p>

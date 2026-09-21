@@ -5,6 +5,7 @@ import { Container, Row, Col, Card, Button, Form, Badge, Modal } from 'react-boo
 import { BsChatSquareDots, BsSendFill, BsPeopleFill, BsCheckCircleFill, BsLock, BsArrowDownShort, BsTrash, BsInfoCircle, BsWhatsapp, BsClipboard } from 'react-icons/bs';
 import { axiosWithFallback as axios } from '../services/fetchWithFallback';
 import { toast, ToastContainer } from 'react-toastify';
+import { usePublicSettings } from '../context/PublicSettingsContext';
 import styled from 'styled-components';
 
 const BASE_URL = 'https://tuition-seba-backend-1.onrender.com';
@@ -12,6 +13,7 @@ const BASE_URL = 'https://tuition-seba-backend-1.onrender.com';
 
 
 export default function AdminChatConsole() {
+  const { whatsappNumber } = usePublicSettings();
   const [sessions, setSessions] = useState([]);
   const [activePhone, setActivePhone] = useState(null);
   const [activeName, setActiveName] = useState('');
@@ -65,7 +67,7 @@ export default function AdminChatConsole() {
 
     const lines = [
       `টিউশন সেবা ফোরাম (আস্থা ও বিশ্বস্ততায় একধাপ এগিয়ে)`,
-      `যোগাযোগ: 01633920928`,
+      `যোগাযোগ: ${whatsappNumber || '01633920928'}`,
       `ওয়েবসাইট: www.tuitionsebaforum.com`,
       ``,
       `*Verified Premium Tutor*`,

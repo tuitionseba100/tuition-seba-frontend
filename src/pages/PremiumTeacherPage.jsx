@@ -11,8 +11,10 @@ import Select from 'react-select';
 import locationsBd from '../data/DivisonWiseLocation.json';
 import CreatableSelect from 'react-select/creatable';
 import { compressImageUnderMaxKB } from '../utilities/imageCompressor';
+import { usePublicSettings } from '../context/PublicSettingsContext';
 
 const PremiumTeacherPage = () => {
+    const { whatsappNumber } = usePublicSettings();
     const [reacrodsList, setReacrodsList] = useState([]);
     const [exportList, setExportList] = useState([]);
     const [filteredTeacherList, setFilteredTeacherList] = useState([]);
@@ -1464,7 +1466,7 @@ const PremiumTeacherPage = () => {
 
         const lines = [
             `টিউশন সেবা ফোরাম (আস্থা ও বিশ্বস্ততায় একধাপ এগিয়ে)`,
-            `যোগাযোগ: 01633920928`,
+            `যোগাযোগ: ${whatsappNumber || '01633920928'}`,
             `ওয়েবসাইট: www.tuitionsebaforum.com`,
             ``,
             `*Verified Premium Tutor*`,

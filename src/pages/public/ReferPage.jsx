@@ -3,8 +3,10 @@ import { Container, Row, Col, Card, Nav, Tab } from 'react-bootstrap';
 import { FaGift, FaUserCheck, FaBriefcase, FaEnvelopeOpenText } from 'react-icons/fa';
 import NavBar from '../../components/NavBar';
 import Footer from '../../components/Footer';
+import { usePublicSettings } from '../../context/PublicSettingsContext';
 
 export default function ReferPage() {
+    const { whatsappNumber } = usePublicSettings();
     const [activeTab, setActiveTab] = useState('teacher');
 
     return (
@@ -264,7 +266,7 @@ export default function ReferPage() {
                                                             <ul style={{ listStyleType: 'none', paddingLeft: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '10px' }}>
                                                                 {[
                                                                     'অভিভাবকের প্রয়োজনীয় তথ্য সংগ্রহ করুন',
-                                                                    'Website-এ Find Tutor option ব্যবহার করুন / আমাদের অফিসিয়াল নম্বরে তথ্য পাঠান: 01633920928 / 01891644064',
+                                                                    `Website-এ Find Tutor option ব্যবহার করুন / আমাদের অফিসিয়াল নম্বরে তথ্য পাঠান: ${whatsappNumber || '01633920928'} / 01891644064`,
                                                                     'Referral হিসেবে নিজের নাম ও মোবাইল নম্বর উল্লেখ করুন',
                                                                     'Tuition successfully continue হলে কমিশন গ্রহণ করুন'
                                                                 ].map((t, i) => (

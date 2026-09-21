@@ -9,8 +9,10 @@ import RefundTermsModal from '../../components/modals/RefundTermsModal';
 import SmallPaymentOptions from '../../components/SmallPaymentOptions';
 import NavBar from '../../components/NavBar';
 import Footer from '../../components/Footer';
+import { usePublicSettings } from '../../context/PublicSettingsContext';
 
 const PaymentRefundPage = () => {
+    const { whatsappNumber } = usePublicSettings();
     const [showPaymentModal, setShowPaymentModal] = useState(false);
     const [showRefundModal, setShowRefundModal] = useState(false);
     const [showPaymentTerms, setShowPaymentTerms] = useState(false);
@@ -27,7 +29,7 @@ const PaymentRefundPage = () => {
                         <Card className="shadow-sm rounded-4 p-4 border-0">
                             <p className="text-center mb-4">
                                 টিউশন সেবা ফোরাম-এ পেমেন্ট করতে নিচের ফর্মটি পূরণ করুন। অথবা আমাদের কল করুন:{" "}
-                                <span className="fw-bold text-success">01633920928</span>
+                                <span className="fw-bold text-success">{whatsappNumber || '01633920928'}</span>
                             </p>
 
                             <div className="mb-4">

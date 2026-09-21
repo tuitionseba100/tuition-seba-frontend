@@ -1,8 +1,11 @@
 import React from 'react';
 import { Modal, Button } from 'react-bootstrap';
 import { BsExclamationTriangle, BsXCircleFill, BsTelephoneFill, BsXCircle } from 'react-icons/bs';
+import { usePublicSettings } from '../../context/PublicSettingsContext';
 
 const ErrorModal = ({ show, handleClose, message }) => {
+    const { whatsappNumber } = usePublicSettings();
+    const contactPhone = whatsappNumber || '01633920928';
     return (
         <Modal show={show} onHide={handleClose} centered className="premium-modal">
             <Modal.Header
@@ -32,10 +35,10 @@ const ErrorModal = ({ show, handleClose, message }) => {
                     <div className="d-flex align-items-center justify-content-center">
                         <span className="text-muted me-2">সহযোগিতার জন্য:</span>
                         <a
-                            href="tel:+8801633920928"
+                            href={`tel:${contactPhone}`}
                             className="text-decoration-none fw-bold text-danger d-flex align-items-center"
                         >
-                            <BsTelephoneFill className="me-2" /> 01540-376020
+                            <BsTelephoneFill className="me-2" /> {contactPhone}
                         </a>
                     </div>
                 </div>

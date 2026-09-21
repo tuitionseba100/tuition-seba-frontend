@@ -79,7 +79,7 @@ const AboutUs = () => {
                                 Contact
                             </h5>
                             <p style={{ fontSize: "15px", color: "#555" }}>
-                                <strong>Phone:</strong> 01633920928<br />
+                                <strong>Phone:</strong> {whatsappNumber || '01633920928'}<br />
                                 <FaClock className="me-2 mt-2 text-warning" />
                                 <strong>Office Time:</strong> প্রতিদিন সকাল ১০টা থেকে রাত ১০টা পর্যন্ত<br />
                                 <span style={{ color: "#dc3545" }}>★ শুক্রবার বন্ধ</span>

@@ -43,6 +43,7 @@ import {
 
 import { Formik } from 'formik';
 import * as Yup from 'yup';
+import { usePublicSettings } from '../../context/PublicSettingsContext';
 
 import InfoModal from '../../components/modals/TeacherBenefitInfoModal';
 import SuccessModal from '../../components/modals/TeacherRegistrationSuccessModal';
@@ -201,6 +202,7 @@ const PhoneRequiredModal = ({ show, handleClose, validationErrors = [] }) => (
 );
 
 const TeacherRegistrationForm = () => {
+    const { whatsappNumber } = usePublicSettings();
     const [progress, setProgress] = useState(0);
     const [showInfoModal, setShowInfoModal] = useState(false);
     const [showSuccessModal, setShowSuccessModal] = useState(false);
@@ -391,7 +393,7 @@ const TeacherRegistrationForm = () => {
                                 <div className="d-flex flex-wrap gap-3 mb-4">
                                     <div className="d-flex align-items-center">
                                         <FaPhoneAlt className="me-2" />
-                                        <span className="fw-semibold">Call Us: 01633920928</span>
+                                        <span className="fw-semibold">Call Us: {whatsappNumber || '01633920928'}</span>
                                     </div>
                                     <Button
                                         variant="light"

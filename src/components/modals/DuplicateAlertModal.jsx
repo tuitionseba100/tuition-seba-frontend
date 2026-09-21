@@ -1,8 +1,11 @@
 import React from 'react';
 import { Modal, Button } from 'react-bootstrap';
 import { FaExclamationTriangle } from 'react-icons/fa';
+import { usePublicSettings } from '../../context/PublicSettingsContext';
 
 const DuplicateAlertModal = ({ show, handleClose, message }) => {
+    const { whatsappNumber } = usePublicSettings();
+    const contactPhone = whatsappNumber || '01633920928';
     return (
         <Modal show={show} onHide={handleClose} centered>
             <Modal.Header
@@ -46,10 +49,10 @@ const DuplicateAlertModal = ({ show, handleClose, message }) => {
                     <span>
                         Need help? Feel free to <strong>contact us</strong> for any assistance —{' '}
                         <a
-                            href="tel:01633920928"
+                            href={`tel:${contactPhone}`}
                             style={{ color: '#c62828', fontWeight: 700, textDecoration: 'none' }}
                         >
-                            01633920928
+                            {contactPhone}
                         </a>{' '}
                         (Call / WhatsApp)
                     </span>

@@ -252,6 +252,8 @@ export default function TuitionModal({ show, onHide, editingData = null, editing
                     initData[name] = defaultValue || false;
                 } else if (name === 'mediaFee') {
                     initData[name] = '60%';
+                } else if (name === 'tuitionCode') {
+                    initData[name] = 'Auto-Assigned on Save';
                 } else {
                     initData[name] = '';
                 }
@@ -411,8 +413,9 @@ export default function TuitionModal({ show, onHide, editingData = null, editing
                 toast.success('Tuition record updated successfully!');
             } else {
                 updatedTuitionData.createdBy = username;
-                await axios.post('https://tuition-seba-backend-1.onrender.com/api/tuition/add', updatedTuitionData);
-                toast.success('Tuition record created successfully!');
+                const addRes = await axios.post('https://tuition-seba-backend-1.onrender.com/api/tuition/add', updatedTuitionData);
+                const savedCode = addRes.data?.tuitionCode || updatedTuitionData.tuitionCode;
+                toast.success(`Tuition record created successfully! (Code: ${savedCode})`);
             }
             onHide();
             fetchTuitionRecords();
@@ -447,11 +450,13 @@ export default function TuitionModal({ show, onHide, editingData = null, editing
                 updatedBy: username,
             };
 
+            let savedCode = updatedTuitionData.tuitionCode;
             if (editingId) {
                 await axios.put(`https://tuition-seba-backend-1.onrender.com/api/tuition/edit/${editingId}`, updatedTuitionData);
             } else {
                 updatedTuitionData.createdBy = username;
-                await axios.post('https://tuition-seba-backend-1.onrender.com/api/tuition/add', updatedTuitionData);
+                const addRes = await axios.post('https://tuition-seba-backend-1.onrender.com/api/tuition/add', updatedTuitionData);
+                if (addRes.data?.tuitionCode) savedCode = addRes.data.tuitionCode;
             }
 
             const smsCategory = isNoResponse ? 'Guardian No Response' : 'Guardian Publish Notification';
@@ -461,7 +466,7 @@ export default function TuitionModal({ show, onHide, editingData = null, editing
                 {
                     phone: smsRecipient,
                     message: smsMessage,
-                    tuitionCode: formData.tuitionCode || '',
+                    tuitionCode: savedCode || formData.tuitionCode || '',
                     category: smsCategory
                 },
                 {
@@ -474,9 +479,9 @@ export default function TuitionModal({ show, onHide, editingData = null, editing
 
             if (smsRes.data && !smsRes.data.success) {
                 console.error("Guardian SMS sending failed:", smsRes.data);
-                toast.warning(`Tuition record saved, but SMS failed: ${smsRes.data.statusMessage || 'Unknown API status error'}`);
+                toast.warning(`Tuition record saved (${savedCode}), but SMS failed: ${smsRes.data.statusMessage || 'Unknown API status error'}`);
             } else {
-                toast.success('Tuition record saved and SMS sent successfully!');
+                toast.success(`Tuition record saved (${savedCode}) and SMS sent successfully!`);
             }
 
             setShowSmsModal(false);
@@ -513,14 +518,16 @@ export default function TuitionModal({ show, onHide, editingData = null, editing
                 updatedBy: username,
             };
 
+            let savedCode = updatedTuitionData.tuitionCode;
             if (editingId) {
                 await axios.put(`https://tuition-seba-backend-1.onrender.com/api/tuition/edit/${editingId}`, updatedTuitionData);
+                toast.success('Tuition record updated successfully!');
             } else {
                 updatedTuitionData.createdBy = username;
-                await axios.post('https://tuition-seba-backend-1.onrender.com/api/tuition/add', updatedTuitionData);
+                const addRes = await axios.post('https://tuition-seba-backend-1.onrender.com/api/tuition/add', updatedTuitionData);
+                if (addRes.data?.tuitionCode) savedCode = addRes.data.tuitionCode;
+                toast.success(`Tuition record created successfully! (Code: ${savedCode})`);
             }
-
-            toast.success('Tuition record saved successfully (SMS bypassed)!');
             setShowSmsModal(false);
             onHide();
             fetchTuitionRecords();
@@ -817,10 +824,13 @@ export default function TuitionModal({ show, onHide, editingData = null, editing
                                                         );
                                                     }
 
+                                                    const isTuitionCode = name === 'tuitionCode';
                                                     const isCancelReasonPublic = name === 'tuitionCancelReasonPublic' && (formData.status?.toLowerCase() === 'cancel' || formData.status?.toLowerCase() === 'suspended');
 
                                                     const customStyle = isCancelReasonPublic
                                                         ? { ...inputBorderStyle, border: '2px solid #dc3545', backgroundColor: '#fff8f8' }
+                                                        : isTuitionCode
+                                                        ? { ...inputBorderStyle, backgroundColor: '#e9ecef', color: '#0d6efd', fontWeight: '700', cursor: 'not-allowed' }
                                                         : inputBorderStyle;
 
                                                     return (
@@ -828,6 +838,7 @@ export default function TuitionModal({ show, onHide, editingData = null, editing
                                                             <Form.Group controlId={name}>
                                                                 <Form.Label className="fw-semibold">
                                                                     {label}
+                                                                    {isTuitionCode && <span className="badge bg-secondary ms-2" style={{ fontSize: '0.7rem' }}>Auto</span>}
                                                                     {isCancelReasonPublic && <span className="text-danger ms-1">* (বাধ্যতামূলক)</span>}
                                                                     {name === 'guardianNumber' && !editingId && <span className="text-danger ms-1">* (বাধ্যতামূলক)</span>}
                                                                 </Form.Label>
@@ -835,11 +846,13 @@ export default function TuitionModal({ show, onHide, editingData = null, editing
                                                                     type={type}
                                                                     name={name}
                                                                     value={value}
-                                                                    onChange={(e) => handleInputChange(e, field)}
+                                                                    onChange={isTuitionCode ? undefined : ((e) => handleInputChange(e, field))}
+                                                                    readOnly={isTuitionCode}
+                                                                    tabIndex={isTuitionCode ? -1 : undefined}
                                                                     required={isCancelReasonPublic || (!editingId && name === 'guardianNumber') ? true : false}
                                                                     disabled={saving}
                                                                     style={customStyle}
-                                                                    placeholder={isCancelReasonPublic ? 'Please state the reason for cancel/suspended' : (name === 'guardianNumber' && !editingId) ? 'Enter Guardian Number (Required)' : ''}
+                                                                    placeholder={isTuitionCode ? 'Auto-generated code' : isCancelReasonPublic ? 'Please state the reason for cancel/suspended' : (name === 'guardianNumber' && !editingId) ? 'Enter Guardian Number (Required)' : ''}
                                                                 />
                                                             </Form.Group>
                                                         </Col>

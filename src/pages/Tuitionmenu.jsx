@@ -223,13 +223,17 @@ const TuitionPage = () => {
         copiedData.previousAssignedTo = '';
         copiedData.lastPublishedDate = '';
 
-        // Close details modal, open create modal with copied data
+        // Mark as a copy of the base tuition (suffix auto-assigned by server on save)
+        copiedData.copyFromCode = tuition.tuitionCode;
+        copiedData.tuitionCode = `Copy of ${tuition.tuitionCode} (Auto Suffix)`;
+
+        // Close details modal, open create modal with copied data immediately
         setShowDetailsModal(false);
         setDetailsData(null);
         setSelectedTuition(copiedData);
         setEditingId(null); // null editingId = create mode
         setShowModal(true);
-        toast.info('Tuition data copied! Please enter a new Tuition Code and save.');
+        toast.info(`Tuition copied from ${tuition.tuitionCode}! Suffix will be auto-assigned on save.`);
     }, []);
 
     const handleOpenAssignModal = React.useCallback((tuition) => {

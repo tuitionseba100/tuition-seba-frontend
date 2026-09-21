@@ -1,45 +1,49 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Modal, Button, Form, Row, Col, Tabs, Tab, Badge, Spinner } from 'react-bootstrap';
 import { axiosWithFallback as axios } from '../../services/fetchWithFallback';
 import { toast } from 'react-toastify';
 import { FaTrash, FaPlus } from 'react-icons/fa';
+import { usePublicSettings } from '../../context/PublicSettingsContext';
 
 const BASE_URL = 'https://tuition-seba-backend-1.onrender.com';
 
-const smsTemplates = [
-    {
-        name: 'Teacher Verify',
-        category: 'Verification',
-        text: 'Dear teacher, your profile has been verified. Code: [Code] (keep it secret). You can now apply for tuitions. -Tuition Seba Forum'
-    },
-    {
-        name: 'Tuition Alert (Proposal)',
-        category: 'Proposal',
-        text: '[Tuition Alert]\\nCode: [Code]\\nClass: [Class] ([Subject])\\nArea: [Area]\\nSalary: [Salary]\\nApply: tuitionsebaforum.com\\nWhatsApp: 01633920928'
-    },
-    {
-        name: 'Guardian Publish (BN)',
-        category: 'Guardian Publish Notification',
-        text: 'সম্মানিত অভিভাবক, দক্ষ, অভিজ্ঞ ও মানসম্মত শিক্ষক খুঁজতে আমাদের ২৪ ঘণ্টা সময় দিন।\\nContact: 01891-644064 | Tuition Seba Forum'
-    },
-    {
-        name: 'Guardian Publish (EN)',
-        category: 'Guardian Publish Notification',
-        text: 'Dear Guardian,\\nYour tutor request is active. Please wait 24h to find the best tutor. Avoid confirming via other tuition media.\\nContact: 01891-644064 | TSF'
-    },
-    {
-        name: 'Guardian No Response (BN)',
-        category: 'Guardian No Response',
-        text: 'শিক্ষকের জন্য যোগাযোগ করেছিলেন, কিন্তু উত্তর পাইনি। এখনো দরকার হলে যোগাযোগ করুন।\\nContact: 01891-644064 | TSF'
-    },
-    {
-        name: 'Guardian No Response (EN)',
-        category: 'Guardian No Response',
-        text: 'Dear Guardian,\\nWe tried reaching you about your tutor request but got no response. If still needed, please contact us soon.\\nContact: 01891-644064 | TSF'
-    }
-];
-
 const CreateSmsModal = ({ show, onHide, onSuccess }) => {
+    const { whatsappNumber } = usePublicSettings();
+    const dynamicWhatsApp = whatsappNumber || '01633920928';
+
+    const smsTemplates = useMemo(() => [
+        {
+            name: 'Teacher Verify',
+            category: 'Verification',
+            text: 'Dear teacher, your profile has been verified. Code: [Code] (keep it secret). You can now apply for tuitions. -Tuition Seba Forum'
+        },
+        {
+            name: 'Tuition Alert (Proposal)',
+            category: 'Proposal',
+            text: `[Tuition Alert]\nCode: [Code]\nClass: [Class] ([Subject])\nArea: [Area]\nSalary: [Salary]\nApply: tuitionsebaforum.com\nWhatsApp: ${dynamicWhatsApp}`
+        },
+        {
+            name: 'Guardian Publish (BN)',
+            category: 'Guardian Publish Notification',
+            text: 'সম্মানিত অভিভাবক, দক্ষ, অভিজ্ঞ ও মানসম্মত শিক্ষক খুঁজতে আমাদের ২৪ ঘণ্টা সময় দিন。\nContact: 01891-644064 | Tuition Seba Forum'
+        },
+        {
+            name: 'Guardian Publish (EN)',
+            category: 'Guardian Publish Notification',
+            text: 'Dear Guardian,\nYour tutor request is active. Please wait 24h to find the best tutor. Avoid confirming via other tuition media.\nContact: 01891-644064 | TSF'
+        },
+        {
+            name: 'Guardian No Response (BN)',
+            category: 'Guardian No Response',
+            text: 'শিক্ষকের জন্য যোগাযোগ করেছিলেন, কিন্তু উত্তর পাইনি। এখনো দরকার হলে যোগাযোগ করুন।\nContact: 01891-644064 | TSF'
+        },
+        {
+            name: 'Guardian No Response (EN)',
+            category: 'Guardian No Response',
+            text: 'Dear Guardian,\nWe tried reaching you about your tutor request but got no response. If still needed, please contact us soon.\nContact: 01891-644064 | TSF'
+        }
+    ], [dynamicWhatsApp]);
+
     const [activeTab, setActiveTab] = useState('single');
     const [loading, setLoading] = useState(false);
     const [showConfirmModal, setShowConfirmModal] = useState(false);

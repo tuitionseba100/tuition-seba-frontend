@@ -4,7 +4,8 @@ import { motion } from 'framer-motion';
 import { usePublicSettings } from '../context/PublicSettingsContext';
 
 const FloatingWhatsAppIcon = () => {
-  const { whatsappSchemeUrl } = usePublicSettings();
+  const { getWhatsAppUrl } = usePublicSettings();
+  const whatsappLink = getWhatsAppUrl();
 
   return (
     <div

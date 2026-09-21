@@ -17,9 +17,11 @@ import SocialPostModal from '../components/modals/SocialPostModal';
 import TuitionPosterModal from '../components/modals/TuitionPosterModal';
 import ConfirmationFollowUpModal from '../components/modals/ConfirmationFollowUpModal';
 import TuitionProposalModal from '../components/modals/TuitionProposalModal';
+import { usePublicSettings } from '../context/PublicSettingsContext';
 import locationData from '../data/locations.json';
 
 const TuitionPage = () => {
+    const { whatsappNumber } = usePublicSettings();
     const getFilterStyle = (val) => {
         if (val && String(val).trim() !== '') {
             return {
@@ -682,7 +684,7 @@ const TuitionPage = () => {
     };
 
     const handleShare = React.useCallback((tuitionDetails) => {
-        const phoneNumber = '01633920928';
+        const phoneNumber = whatsappNumber || '01633920928';
         const area = tuitionDetails.area ? tuitionDetails.area : '';
         const message = `Tuition Code: ${tuitionDetails.tuitionCode}\n` +
             `Wanted Teacher: ${tuitionDetails.wantedTeacher}\n` +
@@ -701,7 +703,7 @@ const TuitionPage = () => {
 
         const url = `https://api.whatsapp.com/send?text=${encodeURIComponent(message)}`;
         window.open(url, '_blank');
-    }, []);
+    }, [whatsappNumber]);
 
     const formatDateTimeDisplay = (isoString) => {
         if (!isoString) return '-';

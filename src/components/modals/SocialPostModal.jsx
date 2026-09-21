@@ -6,6 +6,7 @@ import { axiosWithFallback as axios } from '../../services/fetchWithFallback';
 import { toast } from 'react-toastify';
 import { FaCopy, FaWhatsapp, FaSearch, FaFilter, FaListUl, FaEye, FaCheckSquare, FaSquare, FaTimes } from 'react-icons/fa';
 import locationData from '../../data/locations.json';
+import { usePublicSettings } from '../../context/PublicSettingsContext';
 import styled from 'styled-components';
 
 // Custom styles for react-select to match the UI
@@ -236,6 +237,7 @@ const AreaGroupChip = styled.span`
 `;
 
 const SocialPostModal = ({ show, onHide }) => {
+    const { whatsappNumber } = usePublicSettings();
     const [loading, setLoading] = useState(false);
     const [tuitions, setTuitions] = useState([]);
     const [selectedIds, setSelectedIds] = useState([]);
@@ -432,7 +434,7 @@ const SocialPostModal = ({ show, onHide }) => {
                 if (fieldConfig.location) text += `${b}Location:${b} ${t.location || ''} ${t.area ? '(' + t.area + ')' : ''}\n`;
                 if (fieldConfig.joining) text += `${b}Joining:${b} ${t.joining || 'As soon as'}\n`;
 
-                text += `📲 ${b}Whatsapp:${b} 01633920928\n`;
+                text += `📲 ${b}Whatsapp:${b} ${whatsappNumber || '01633920928'}\n`;
                 text += `📌 ${b}Interested teachers—apply fast. Visit our Website/ Apps [Tuition Seba Forum]${b}\n`;
 
                 if (index < groupedByArea[area].length - 1) {

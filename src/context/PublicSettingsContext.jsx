@@ -44,19 +44,18 @@ export const PublicSettingsProvider = ({ children }) => {
 
     const fetchSettings = useCallback(async (force = false) => {
         try {
-            const cachedTime = localStorage.getItem(CACHE_TIME_KEY);
-            const isFresh = cachedTime && (Date.now() - Number(cachedTime) < CACHE_TTL_MS);
-
-            // If cache is still fresh and not forced, skip network request entirely
-            if (isFresh && !force) {
-                return;
-            }
-
-            const res = await fetchWithFallback('https://tuition-seba-backend-1.onrender.com/api/settings/public');
+            // Append timestamp cache-buster to bypass any browser/proxy cache on fresh page load or deploy
+            const url = `https://tuition-seba-backend-1.onrender.com/api/settings/public?_t=${Date.now()}`;
+            const res = await fetchWithFallback(url);
             if (res.ok) {
                 const data = await res.json();
                 if (data && data.whatsapp_number) {
-                    setSettings(data);
+                    setSettings(prev => {
+                        if (!prev || prev.whatsapp_number !== data.whatsapp_number) {
+                            return data;
+                        }
+                        return prev;
+                    });
                     localStorage.setItem(CACHE_KEY, JSON.stringify(data));
                     localStorage.setItem(CACHE_TIME_KEY, String(Date.now()));
                 }
@@ -67,8 +66,8 @@ export const PublicSettingsProvider = ({ children }) => {
     }, []);
 
     useEffect(() => {
-        // Background fetch on mount (non-blocking)
-        fetchSettings();
+        // Always trigger background fetch on mount (stale-while-revalidate)
+        fetchSettings(true);
 
         // Listen for internal admin updates or cross-tab updates
         const handleSettingsUpdated = () => fetchSettings(true);

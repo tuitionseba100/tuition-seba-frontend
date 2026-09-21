@@ -2,8 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { Modal, Button, Form } from 'react-bootstrap';
 import { FaWhatsapp } from 'react-icons/fa';
 import { toast } from 'react-toastify';
+import { usePublicSettings } from '../../context/PublicSettingsContext';
 
-const getServiceChargeWhatsAppMessage = (sc) => {
+const getServiceChargeWhatsAppMessage = (sc, contactNumber = '01633920928') => {
     const tuitionCode = sc.tuitionCode || '';
     const amount = sc.amount || '0';
     const status = (sc.status || 'completed').toLowerCase();
@@ -31,7 +32,7 @@ Payment Date: ${paymentDate}
 
 Thank you for your cooperation and timely payment. Your support helps us continue providing quality service and verified tuition opportunities.
 
-For any questions or assistance, please contact us or call directly at 01633920928.
+For any questions or assistance, please contact us or call directly at ${contactNumber}.
 
 Regards,
 Payment Department
@@ -47,7 +48,7 @@ This is to inform you that the Service Charge notice for Tuition Code: ${tuition
 Payment Status: Cancelled
 Amount: ${amount} BDT
 
-If you have any questions or need further clarification, please feel free to contact us or call directly at 01633920928.
+If you have any questions or need further clarification, please feel free to contact us or call directly at ${contactNumber}.
 
 Regards,
 Payment Department
@@ -70,7 +71,7 @@ Your service charge helps us continue providing verified tuition opportunities, 
 
 Thank you for your cooperation and continued support.
 
-For any questions or assistance, please contact us or call directly at 01633920928.
+For any questions or assistance, please contact us or call directly at ${contactNumber}.
 
 Regards,
 Payment Department
@@ -78,6 +79,7 @@ Tuition Seba Forum`;
 };
 
 const WhatsAppServiceChargeModal = ({ show, onHide, scData, sc }) => {
+    const { whatsappNumber } = usePublicSettings();
     const data = scData || sc;
     const [phone, setPhone] = useState('');
     const [message, setMessage] = useState('');
@@ -94,9 +96,9 @@ const WhatsAppServiceChargeModal = ({ show, onHide, scData, sc }) => {
                 formatted = '+880' + formatted;
             }
             setPhone(formatted);
-            setMessage(getServiceChargeWhatsAppMessage(data));
+            setMessage(getServiceChargeWhatsAppMessage(data, whatsappNumber || '01633920928'));
         }
-    }, [data, show]);
+    }, [data, show, whatsappNumber]);
 
     const handleSend = () => {
         if (!phone) {

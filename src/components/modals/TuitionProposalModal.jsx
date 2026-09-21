@@ -4,6 +4,7 @@ import { axiosWithFallback as axios } from '../../services/fetchWithFallback';
 import { toast } from 'react-toastify';
 import Select from 'react-select';
 import locationData from '../../data/locations.json';
+import { usePublicSettings } from '../../context/PublicSettingsContext';
 
 const modalStyles = `
     .custom-proposal-modal {
@@ -33,6 +34,7 @@ const modalStyles = `
 `;
 
 export default function TuitionProposalModal({ show, onHide, tuition }) {
+    const { whatsappNumber } = usePublicSettings();
     const [activeTab, setActiveTab] = useState('send');
     const [loading, setLoading] = useState(false);
     const [historyLoading, setHistoryLoading] = useState(false);
@@ -108,7 +110,7 @@ export default function TuitionProposalModal({ show, onHide, tuition }) {
             const area = tuition.area || '';
             const salary = tuition.salary || '';
 
-            const defaultTemplate = `[Tuition Alert]\nCode: ${code}\nClass: ${cls} (${subj})\nArea: ${area}\nSalary: ${salary}\nApply: tuitionsebaforum.com\nWhatsApp: 01633920928`;
+            const defaultTemplate = `[Tuition Alert]\nCode: ${code}\nClass: ${cls} (${subj})\nArea: ${area}\nSalary: ${salary}\nApply: tuitionsebaforum.com\nWhatsApp: ${whatsappNumber || '01633920928'}`;
             setTemplate(defaultTemplate);
 
             const initialAreas = tuition.area ? tuition.area.split(',').map(a => a.trim()).filter(Boolean) : [];
@@ -119,7 +121,7 @@ export default function TuitionProposalModal({ show, onHide, tuition }) {
             // Fetch SMS history
             fetchSmsHistory();
         }
-    }, [tuition]);
+    }, [tuition, whatsappNumber]);
 
     const handleAreaGroupClick = (group) => {
         const groupAreas = group.areas || [];

@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Modal, Button, Form } from 'react-bootstrap';
 import { FaWhatsapp } from 'react-icons/fa';
+import { usePublicSettings } from '../../context/PublicSettingsContext';
 
 const WhatsAppPaymentMessageModal = ({ show, onHide, paymentData, formatDate }) => {
+    const { whatsappNumber } = usePublicSettings();
     const [phoneNumber, setPhoneNumber] = useState('');
     const [message, setMessage] = useState('');
 
@@ -25,6 +27,7 @@ const WhatsAppPaymentMessageModal = ({ show, onHide, paymentData, formatDate }) 
             let numDue = parseInt(paymentData.duePayment) || 0;
 
             let discountLine = numDiscount > 0 ? `\nDiscount: ${numDiscount} BDT` : '';
+            const contactPhone = whatsappNumber || '01633920928';
 
             let msg = '';
             if (isDue) {
@@ -43,7 +46,7 @@ Remaining Due Amount: ${numDue} BDT
 Due Payment Date: ${formatDate ? formatDate(paymentData.duePayDate).split(',')[0] : (paymentData.duePayDate || '')}
 
 Kindly complete the remaining payment within the mentioned date.
-If you face any issues or need assistance, please contact us or call directly at 01633920928
+If you face any issues or need assistance, please contact us or call directly at ${contactPhone}
 
 Regards,
 Payment Department
@@ -72,7 +75,7 @@ Tuition Seba Forum`;
 
             setMessage(msg);
         }
-    }, [paymentData, show, formatDate]);
+    }, [paymentData, show, formatDate, whatsappNumber]);
 
     const handleSend = () => {
         if (!phoneNumber) return;

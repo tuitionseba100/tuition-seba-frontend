@@ -294,13 +294,17 @@ function AppliedListModal({ tuitionId, tuitionCode, show, onHide }) {
                                                                 <tbody>
                                                                     {app.hasDue && (
                                                                         <tr>
-                                                                            <td className="py-0 px-1 fw-bold text-dark text-center" title="Tuition Charge Due">TC</td>
+                                                                            <td className="py-0 px-1 fw-bold text-dark text-center" title="Tuition Charge Due">
+                                                                                TC{app.dueCount ? ` (${app.dueCount})` : ''}
+                                                                            </td>
                                                                             <td className="py-0 px-1 text-end fw-bold text-danger">৳{Number(app.dueAmount).toLocaleString()}</td>
                                                                         </tr>
                                                                     )}
                                                                     {app.hasScDue && (
                                                                         <tr>
-                                                                            <td className="py-0 px-1 fw-bold text-dark text-center" title="Service Charge Due">SC</td>
+                                                                            <td className="py-0 px-1 fw-bold text-dark text-center" title="Service Charge Due">
+                                                                                SC{app.scDueCount ? ` (${app.scDueCount})` : ''}
+                                                                            </td>
                                                                             <td className="py-0 px-1 text-end fw-bold text-danger">৳{Number(app.scDueAmount).toLocaleString()}</td>
                                                                         </tr>
                                                                     )}

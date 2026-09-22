@@ -625,13 +625,17 @@ const TuitionPage = () => {
                                                                 <tbody>
                                                                     {tuition.hasDue && (
                                                                         <tr>
-                                                                            <td className="py-0 px-1 fw-bold text-dark text-center" title="Tuition Charge Due">TC</td>
+                                                                            <td className="py-0 px-1 fw-bold text-dark text-center" title="Tuition Charge Due">
+                                                                                TC{tuition.dueCount ? ` (${tuition.dueCount})` : ''}
+                                                                            </td>
                                                                             <td className="py-0 px-1 text-end fw-bold text-danger">৳{Number(tuition.dueAmount).toLocaleString()}</td>
                                                                         </tr>
                                                                     )}
                                                                     {tuition.hasScDue && (
                                                                         <tr>
-                                                                            <td className="py-0 px-1 fw-bold text-dark text-center" title="Service Charge Due">SC</td>
+                                                                            <td className="py-0 px-1 fw-bold text-dark text-center" title="Service Charge Due">
+                                                                                SC{tuition.scDueCount ? ` (${tuition.scDueCount})` : ''}
+                                                                            </td>
                                                                             <td className="py-0 px-1 text-end fw-bold text-danger">৳{Number(tuition.scDueAmount).toLocaleString()}</td>
                                                                         </tr>
                                                                     )}

@@ -68,13 +68,6 @@ const CustomTable = styled(Table)`
         font-weight: 600;
     }
 
-    /* Target the Due Tk column (4th column) */
-    tbody td:nth-child(4) {
-        color: #dc3545 !important;
-        font-weight: 900; /* Maximum boldness */
-        font-size: 1.05rem; /* Even larger for emphasis */
-    }
-
     tbody tr {
         transition: background-color 0.15s ease;
         &:hover {
@@ -145,6 +138,7 @@ const PaymentPage = () => {
 
     const [searchInputs, setSearchInputs] = useState({
         tuitionCode: '',
+        premiumCode: '',
         tutorNumber: '',
         paymentNumber: '',
         paymentStatus: '',
@@ -155,6 +149,7 @@ const PaymentPage = () => {
 
     const [appliedFilters, setAppliedFilters] = useState({
         tuitionCode: '',
+        premiumCode: '',
         tutorNumber: '',
         paymentNumber: '',
         paymentStatus: '',
@@ -293,6 +288,7 @@ const PaymentPage = () => {
     const handleResetFilters = () => {
         const resetFilters = {
             tuitionCode: '',
+            premiumCode: '',
             tutorNumber: '',
             paymentNumber: '',
             paymentStatus: '',
@@ -345,6 +341,7 @@ const PaymentPage = () => {
                 params: {
                     page: currentPage,
                     tuitionCode: appliedFilters.tuitionCode,
+                    premiumCode: appliedFilters.premiumCode,
                     tutorNumber: appliedFilters.tutorNumber,
                     paymentNumber: appliedFilters.paymentNumber,
                     paymentStatus: appliedFilters.paymentStatus,
@@ -373,6 +370,7 @@ const PaymentPage = () => {
             const res = await axios.get('https://tuition-seba-backend-1.onrender.com/api/payment/summary', {
                 params: {
                     tuitionCode: appliedFilters.tuitionCode,
+                    premiumCode: appliedFilters.premiumCode,
                     tutorNumber: appliedFilters.tutorNumber,
                     paymentNumber: appliedFilters.paymentNumber,
                     paymentStatus: appliedFilters.paymentStatus,
@@ -722,9 +720,9 @@ const PaymentPage = () => {
                 )}
 
                 {/* Search bar */}
-                <Row className="mt-2 mb-3">
-                    <Col md={2}>
-                        <Form.Label className="fw-bold">Payment Status</Form.Label>
+                <Row className="mt-2 mb-3 g-2 align-items-end">
+                    <Col>
+                        <Form.Label className="fw-bold small mb-1" style={{ whiteSpace: 'nowrap' }}>Payment Status</Form.Label>
                         <Form.Select
                             value={searchInputs.paymentStatus}
                             onChange={(e) => handleSearchInputChange('paymentStatus', e.target.value)}
@@ -737,33 +735,44 @@ const PaymentPage = () => {
                         </Form.Select>
                     </Col>
 
-                    <Col md={2}>
-                        <Form.Label className="fw-bold">Search (Tuition Code)</Form.Label>
+                    <Col>
+                        <Form.Label className="fw-bold small mb-1" style={{ whiteSpace: 'nowrap' }}>Tuition Code</Form.Label>
                         <Form.Control
                             type="text"
-                            placeholder="Search by Tuition Code"
+                            placeholder="Tuition Code"
                             value={searchInputs.tuitionCode}
                             onChange={(e) => handleSearchInputChange('tuitionCode', e.target.value)}
                             onKeyPress={handleKeyPress}
                         />
                     </Col>
 
-                    <Col md={2}>
-                        <Form.Label className="fw-bold">Search (Teacher Number)</Form.Label>
+                    <Col>
+                        <Form.Label className="fw-bold small mb-1" style={{ whiteSpace: 'nowrap' }}>Teacher Code</Form.Label>
                         <Form.Control
                             type="text"
-                            placeholder="Search by Teacher Number"
+                            placeholder="Teacher Code"
+                            value={searchInputs.premiumCode}
+                            onChange={(e) => handleSearchInputChange('premiumCode', e.target.value)}
+                            onKeyPress={handleKeyPress}
+                        />
+                    </Col>
+
+                    <Col>
+                        <Form.Label className="fw-bold small mb-1" style={{ whiteSpace: 'nowrap' }}>Teacher Number</Form.Label>
+                        <Form.Control
+                            type="text"
+                            placeholder="Teacher Number"
                             value={searchInputs.tutorNumber}
                             onChange={(e) => handleSearchInputChange('tutorNumber', e.target.value)}
                             onKeyPress={handleKeyPress}
                         />
                     </Col>
 
-                    <Col md={2}>
-                        <Form.Label className="fw-bold">Search (Payment Number)</Form.Label>
+                    <Col>
+                        <Form.Label className="fw-bold small mb-1" style={{ whiteSpace: 'nowrap' }}>Payment Number</Form.Label>
                         <Form.Control
                             type="text"
-                            placeholder="Search by Payment Number"
+                            placeholder="Payment Number"
                             value={searchInputs.paymentNumber}
                             onChange={(e) => handleSearchInputChange('paymentNumber', e.target.value)}
                             onKeyPress={handleKeyPress}
@@ -771,8 +780,8 @@ const PaymentPage = () => {
                     </Col>
 
                     {(role === 'superadmin' || role === 'admin' || role === 'manager') && (
-                        <Col md={2}>
-                            <Form.Label className="fw-bold">Assigned To</Form.Label>
+                        <Col>
+                            <Form.Label className="fw-bold small mb-1" style={{ whiteSpace: 'nowrap' }}>Assigned To</Form.Label>
                             <Select
                                 options={userOptions}
                                 value={userOptions.find(u => u.value === searchInputs.assignedTo) || null}
@@ -792,26 +801,23 @@ const PaymentPage = () => {
                         </Col>
                     )}
 
-                    <Col md={1} className="d-flex align-items-end">
+                    <Col xs="auto" className="d-flex align-items-end gap-1">
                         <Button
                             variant="success"
                             onClick={handleSearch}
-                            className="w-100 d-flex align-items-center justify-content-center"
+                            className="d-flex align-items-center justify-content-center"
                             disabled={loading}
                             title="Search"
-                            style={{ height: '38px' }}
+                            style={{ height: '38px', width: '38px', minWidth: '38px' }}
                         >
                             <FaSearch />
                         </Button>
-                    </Col>
-
-                    <Col md={1} className="d-flex align-items-end">
                         <Button
                             variant="danger"
                             onClick={handleResetFilters}
-                            className="w-100 d-flex align-items-center justify-content-center"
+                            className="d-flex align-items-center justify-content-center"
                             title="Reset"
-                            style={{ height: '38px' }}
+                            style={{ height: '38px', width: '38px', minWidth: '38px' }}
                         >
                             <FaUndo />
                         </Button>
@@ -864,6 +870,7 @@ const PaymentPage = () => {
                                         <th>SL</th>
                                         <th>Created At</th>
                                         <th>Tuition Code</th>
+                                        <th>Teacher Code</th>
                                         <th>Created By</th>
                                         <th>Updated By</th>
                                         <th>Payment Status</th>
@@ -914,6 +921,11 @@ const PaymentPage = () => {
                                                             </Button>
                                                         )}
                                                     </div>
+                                                </td>
+                                                <td>
+                                                    <span className="fw-bold font-monospace text-primary">
+                                                        {payment.premiumCode || '-'}
+                                                    </span>
                                                 </td>
                                                 <td>{payment.createdBy}</td>
                                                 <td>{payment.updatedBy}</td>
@@ -1087,6 +1099,7 @@ const PaymentPage = () => {
                                             <th>SL</th>
                                             <th>Payment Received Date</th>
                                             <th>Tuition Code</th>
+                                            <th>Teacher Code</th>
                                             <th>Due Tk</th>
                                             <th>Teacher Name</th>
                                             <th>Teacher Number</th>
@@ -1123,6 +1136,11 @@ const PaymentPage = () => {
                                                             </Button>
                                                         )}
                                                     </div>
+                                                </td>
+                                                <td>
+                                                    <span className="fw-bold font-monospace text-primary">
+                                                        {payment.premiumCode || '-'}
+                                                    </span>
                                                 </td>
                                                 <td className="fw-bold text-danger">{payment.duePayment}</td>
                                                 <td>{payment.tutorName}</td>

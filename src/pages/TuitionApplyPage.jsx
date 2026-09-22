@@ -108,6 +108,7 @@ const TuitionPage = () => {
 
     const [searchInputs, setSearchInputs] = useState({
         tuitionCode: '',
+        premiumCode: '',
         phone: '',
         statusFilter: ''
     });
@@ -117,6 +118,7 @@ const TuitionPage = () => {
 
     const [appliedFilters, setAppliedFilters] = useState({
         tuitionCode: '',
+        premiumCode: '',
         phone: '',
         statusFilter: ''
     });
@@ -124,7 +126,7 @@ const TuitionPage = () => {
     const getRowStyle = (tuition) => {
         if (tuition.isBanned) return bannedStyle;
         if (tuition.isSpam) return spamStyle;
-        if (tuition.hasDue) return dueStyle;
+        if (tuition.hasDue || tuition.hasScDue) return dueStyle;
         if (tuition.isBest) return bestStyle;
         if (tuition.isExpress) return manualExpressStyle;
         return {};
@@ -170,6 +172,7 @@ const TuitionPage = () => {
                 params: {
                     page: currentPage,
                     tuitionCode: appliedFilters.tuitionCode,
+                    premiumCode: appliedFilters.premiumCode,
                     phone: appliedFilters.phone,
                     status: appliedFilters.statusFilter
                 }
@@ -190,6 +193,7 @@ const TuitionPage = () => {
     const handleResetFilters = () => {
         const resetFilters = {
             tuitionCode: '',
+            premiumCode: '',
             phone: '',
             statusFilter: ''
         };
@@ -202,6 +206,7 @@ const TuitionPage = () => {
         axios.get('https://tuition-seba-backend-1.onrender.com/api/tuitionApply/summary', {
             params: {
                 tuitionCode: appliedFilters.tuitionCode,
+                premiumCode: appliedFilters.premiumCode,
                 phone: appliedFilters.phone,
                 status: appliedFilters.statusFilter
             }
@@ -397,9 +402,9 @@ const TuitionPage = () => {
                 </Card>
 
                 {/* Search bar */}
-                <Row className="mt-2 mb-3">
-                    <Col md={3}>
-                        <Form.Label className="fw-bold">Search by Tuition Code</Form.Label>
+                <Row className="mt-2 mb-3 g-2 align-items-end">
+                    <Col>
+                        <Form.Label className="fw-bold small mb-1" style={{ whiteSpace: 'nowrap' }}>Tuition Code</Form.Label>
                         <Form.Control
                             type="text"
                             placeholder="e.g. TSF-1001"
@@ -409,8 +414,19 @@ const TuitionPage = () => {
                         />
                     </Col>
 
-                    <Col md={3}>
-                        <Form.Label className="fw-bold">Search by Phone</Form.Label>
+                    <Col>
+                        <Form.Label className="fw-bold small mb-1" style={{ whiteSpace: 'nowrap' }}>Teacher Code</Form.Label>
+                        <Form.Control
+                            type="text"
+                            placeholder="Search Teacher Code"
+                            value={searchInputs.premiumCode}
+                            onChange={(e) => handleSearchInputChange('premiumCode', e.target.value)}
+                            onKeyPress={handleKeyPress}
+                        />
+                    </Col>
+
+                    <Col>
+                        <Form.Label className="fw-bold small mb-1" style={{ whiteSpace: 'nowrap' }}>Phone</Form.Label>
                         <Form.Control
                             type="text"
                             placeholder="e.g. 017xxxxxxxx"
@@ -420,8 +436,8 @@ const TuitionPage = () => {
                         />
                     </Col>
 
-                    <Col md={3}>
-                        <Form.Label className="fw-bold">Status Filter</Form.Label>
+                    <Col>
+                        <Form.Label className="fw-bold small mb-1" style={{ whiteSpace: 'nowrap' }}>Status Filter</Form.Label>
                         <Form.Select
                             value={searchInputs.statusFilter}
                             onChange={(e) => handleSearchInputChange('statusFilter', e.target.value)}
@@ -443,24 +459,25 @@ const TuitionPage = () => {
                         </Form.Select>
                     </Col>
 
-                    <Col md={1} className="d-flex align-items-end">
+                    <Col xs="auto" className="d-flex align-items-end gap-1">
                         <Button
                             variant="success"
                             onClick={handleSearch}
-                            className="d-flex align-items-center justify-content-center gap-1 w-100"
+                            className="d-flex align-items-center justify-content-center"
                             disabled={loading}
+                            title="Search"
+                            style={{ height: '38px', width: '38px', minWidth: '38px' }}
                         >
                             {loading ? <Spinner animation="border" size="sm" /> : <FaSearch />}
-                            Search
                         </Button>
-                    </Col>
-                    <Col md={1} className="d-flex align-items-end">
                         <Button
                             variant="danger"
                             onClick={handleResetFilters}
-                            className="d-flex align-items-center justify-content-center w-100"
+                            className="d-flex align-items-center justify-content-center"
+                            title="Reset"
+                            style={{ height: '38px', width: '38px', minWidth: '38px' }}
                         >
-                            Reset
+                            <FaUndo />
                         </Button>
                     </Col>
                 </Row>
@@ -569,10 +586,32 @@ const TuitionPage = () => {
                                                                 }`}>
                                                             {tuition.status}
                                                         </span>
-                                                        {tuition.hasDue && (
-                                                            <span className="badge bg-warning text-dark fw-bold">
-                                                                {tuition.dueAmount ? `ডিউ: ৳${Number(tuition.dueAmount).toLocaleString()}${tuition.dueCount > 1 ? ` (${tuition.dueCount}টি)` : ''}` : 'ডিউ আছে'}
-                                                            </span>
+                                                        {(tuition.hasDue || tuition.hasScDue) && (
+                                                            <table 
+                                                                className="table table-sm table-bordered mb-0 mt-1 shadow-sm" 
+                                                                style={{ fontSize: '0.72rem', minWidth: '105px', backgroundColor: '#fff8db', borderColor: '#ffeeba' }}
+                                                            >
+                                                                <thead>
+                                                                    <tr style={{ backgroundColor: '#ffdf7e', fontSize: '0.68rem' }} className="text-center">
+                                                                        <th className="py-0 px-1 text-dark">Due</th>
+                                                                        <th className="py-0 px-1 text-dark">Amount</th>
+                                                                    </tr>
+                                                                </thead>
+                                                                <tbody>
+                                                                    {tuition.hasDue && (
+                                                                        <tr>
+                                                                            <td className="py-0 px-1 fw-bold text-dark text-center" title="Tuition Charge Due">TC</td>
+                                                                            <td className="py-0 px-1 text-end fw-bold text-danger">৳{Number(tuition.dueAmount).toLocaleString()}</td>
+                                                                        </tr>
+                                                                    )}
+                                                                    {tuition.hasScDue && (
+                                                                        <tr>
+                                                                            <td className="py-0 px-1 fw-bold text-dark text-center" title="Service Charge Due">SC</td>
+                                                                            <td className="py-0 px-1 text-end fw-bold text-danger">৳{Number(tuition.scDueAmount).toLocaleString()}</td>
+                                                                        </tr>
+                                                                    )}
+                                                                </tbody>
+                                                            </table>
                                                         )}
                                                     </div>
                                                 </td>

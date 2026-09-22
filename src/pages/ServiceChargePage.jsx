@@ -1,5 +1,6 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Table, Button, Form, Row, Col, Spinner, Badge, Modal, Card, Pagination } from 'react-bootstrap';
+import AsyncSelect from 'react-select/async';
 import { 
     FaSearch, 
     FaUndo, 
@@ -40,6 +41,7 @@ const ServiceChargePage = () => {
     // Search & Filter state
     const [scSearch, setScSearch] = useState({
         tuitionCode: '',
+        teacherCode: '',
         phone: '',
         status: '',
         toBePaidToday: false
@@ -50,6 +52,7 @@ const ServiceChargePage = () => {
     const [scEditingId, setScEditingId] = useState(null);
     const [scFormData, setScFormData] = useState({
         tuitionCode: '',
+        teacherCode: '',
         name: '',
         paymentNumber: '',
         personalPhone: '',
@@ -61,6 +64,10 @@ const ServiceChargePage = () => {
         status: ''
     });
 
+    const [selectedTeacherOption, setSelectedTeacherOption] = useState(null);
+    const [isTeacherSearching, setIsTeacherSearching] = useState(false);
+    const searchTimeoutRef = useRef(null);
+
     // WhatsApp share modal state
     const [showWhatsAppScModal, setShowWhatsAppScModal] = useState(false);
     const [whatsAppSc, setWhatsAppSc] = useState(null);
@@ -71,6 +78,128 @@ const ServiceChargePage = () => {
     const [isMigrating, setIsMigrating] = useState(false);
     const [showMigrateModal, setShowMigrateModal] = useState(false);
     const [selectedMigrationIds, setSelectedMigrationIds] = useState([]);
+
+    const formatTeacherPhones = (t) => {
+        if (!t) return 'No Phone';
+        const phones = [t.phone, t.whatsapp, t.alternativePhone].filter(Boolean);
+        const uniquePhones = [...new Set(phones)];
+        return uniquePhones.length > 0 ? uniquePhones.join(' | ') : 'No Phone';
+    };
+
+    const loadTeacherOptions = async (inputValue) => {
+        try {
+            const token = localStorage.getItem('token');
+            const response = await axios.get(`https://tuition-seba-backend-1.onrender.com/api/regTeacher/search-teachers?q=${encodeURIComponent(inputValue || '')}`, {
+                headers: token ? { Authorization: token } : {}
+            });
+            const teachers = response.data || [];
+            return teachers.map(t => ({
+                value: t.premiumCode,
+                label: `${t.premiumCode} - ${t.name || 'Unnamed'} (${formatTeacherPhones(t)})`,
+                teacher: t
+            }));
+        } catch (err) {
+            console.error('Error searching teachers:', err);
+            return [];
+        }
+    };
+
+    const normalizeBDPhone10 = (val) => {
+        if (!val) return '';
+        let digits = val.toString().replace(/\D/g, '');
+        if (digits.startsWith('880') && digits.length === 13) {
+            digits = digits.slice(3);
+        }
+        if (digits.startsWith('0') && digits.length === 11) {
+            digits = digits.slice(1);
+        }
+        if (digits.length === 10 && digits.startsWith('1')) {
+            return digits;
+        }
+        return '';
+    };
+
+    const searchTeacherByPhone = async (phoneValue) => {
+        const phone10 = normalizeBDPhone10(phoneValue);
+        if (!phone10) {
+            setSelectedTeacherOption(null);
+            setScFormData(prev => ({
+                ...prev,
+                teacherCode: ''
+            }));
+            return;
+        }
+
+        try {
+            setIsTeacherSearching(true);
+            const token = localStorage.getItem('token');
+            const response = await axios.get(`https://tuition-seba-backend-1.onrender.com/api/regTeacher/search-teachers?q=${encodeURIComponent(phone10)}`, {
+                headers: token ? { Authorization: token } : {}
+            });
+            const teachers = response.data || [];
+            
+            const matchedTeacher = teachers.length > 0
+                ? teachers.find(t => {
+                    const tPhones = [t.phone, t.whatsapp, t.alternativePhone];
+                    return tPhones.some(num => normalizeBDPhone10(num) === phone10);
+                })
+                : null;
+
+            if (matchedTeacher) {
+                const opt = {
+                    value: matchedTeacher.premiumCode,
+                    label: `${matchedTeacher.premiumCode} - ${matchedTeacher.name || 'Unnamed'} (${formatTeacherPhones(matchedTeacher)})`,
+                    teacher: matchedTeacher
+                };
+                setSelectedTeacherOption(opt);
+                setScFormData(prev => ({
+                    ...prev,
+                    teacherCode: matchedTeacher.premiumCode,
+                    name: prev.name ? prev.name : (matchedTeacher.name || prev.name)
+                }));
+            } else {
+                setSelectedTeacherOption(null);
+                setScFormData(prev => ({
+                    ...prev,
+                    teacherCode: ''
+                }));
+            }
+        } catch (err) {
+            console.error('Error auto-matching teacher by phone:', err);
+        } finally {
+            setIsTeacherSearching(false);
+        }
+    };
+
+    const handleTeacherCodeSelect = (option) => {
+        setSelectedTeacherOption(option);
+        if (!option) {
+            setScFormData(prev => ({
+                ...prev,
+                teacherCode: ''
+            }));
+            return;
+        }
+
+        const teacher = option.teacher;
+        setScFormData(prev => ({
+            ...prev,
+            teacherCode: option.value,
+            personalPhone: (teacher && (teacher.phone || teacher.whatsapp || teacher.alternativePhone)) || prev.personalPhone,
+            name: (teacher && teacher.name) || prev.name
+        }));
+    };
+
+    const handlePersonalPhoneChange = (e) => {
+        const val = e.target.value;
+        setScFormData(prev => ({ ...prev, personalPhone: val }));
+        if (searchTimeoutRef.current) {
+            clearTimeout(searchTimeoutRef.current);
+        }
+        searchTimeoutRef.current = setTimeout(() => {
+            searchTeacherByPhone(val);
+        }, 400);
+    };
 
     const handleOpenWhatsAppSc = (sc) => {
         setWhatsAppSc(sc);
@@ -87,6 +216,7 @@ const ServiceChargePage = () => {
                     page,
                     limit,
                     tuitionCode: filters.tuitionCode,
+                    teacherCode: filters.teacherCode,
                     phone: filters.phone,
                     status: filters.status,
                     toBePaidToday: filters.toBePaidToday
@@ -209,8 +339,10 @@ const ServiceChargePage = () => {
     // Open Add Standalone modal
     const handleOpenCreateSc = () => {
         setScEditingId(null);
+        setSelectedTeacherOption(null);
         setScFormData({
             tuitionCode: '',
+            teacherCode: '',
             name: '',
             paymentNumber: '',
             personalPhone: '',
@@ -229,6 +361,7 @@ const ServiceChargePage = () => {
         setScEditingId(sc._id);
         setScFormData({
             tuitionCode: sc.tuitionCode || '',
+            teacherCode: sc.teacherCode || '',
             name: sc.name || '',
             paymentNumber: sc.paymentNumber || '',
             personalPhone: sc.personalPhone || '',
@@ -239,12 +372,27 @@ const ServiceChargePage = () => {
             nextPaymentDate: sc.nextPaymentDate ? sc.nextPaymentDate.split('T')[0] : '',
             status: sc.status || ''
         });
+        if (sc.teacherCode) {
+            setSelectedTeacherOption({
+                value: sc.teacherCode,
+                label: `${sc.teacherCode}${sc.name ? ' - ' + sc.name : ''}${sc.personalPhone ? ' (' + sc.personalPhone + ')' : ''}`
+            });
+        } else if (sc.personalPhone) {
+            setSelectedTeacherOption(null);
+            searchTeacherByPhone(sc.personalPhone);
+        } else {
+            setSelectedTeacherOption(null);
+        }
         setScFormOpen(true);
     };
 
     // Save Create / Edit
     const handleSaveStandaloneSc = async (e) => {
         e.preventDefault();
+        if (!scFormData.teacherCode || !scFormData.teacherCode.trim()) {
+            toast.error("Teacher Code is required. Please select or enter a Teacher Code.");
+            return;
+        }
         if (!scFormData.status) {
             toast.error("Please select a status (Completed, Pending, or Cancelled).");
             return;
@@ -375,6 +523,15 @@ const ServiceChargePage = () => {
                                     onKeyDown={(e) => e.key === 'Enter' && fetchServiceCharges(1)}
                                 />
                             </Col>
+                            <Col md={2}>
+                                <Form.Label className="fw-bold small">Teacher Code</Form.Label>
+                                <Form.Control
+                                    placeholder="Search Teacher Code"
+                                    value={scSearch.teacherCode}
+                                    onChange={(e) => setScSearch(prev => ({ ...prev, teacherCode: e.target.value }))}
+                                    onKeyDown={(e) => e.key === 'Enter' && fetchServiceCharges(1)}
+                                />
+                            </Col>
                             <Col md={3}>
                                 <Form.Label className="fw-bold small">Phone Number</Form.Label>
                                 <Form.Control
@@ -384,7 +541,7 @@ const ServiceChargePage = () => {
                                     onKeyDown={(e) => e.key === 'Enter' && fetchServiceCharges(1)}
                                 />
                             </Col>
-                            <Col md={3}>
+                            <Col md={2}>
                                 <Form.Label className="fw-bold small">Status</Form.Label>
                                 <Form.Select
                                     value={scSearch.status}
@@ -401,12 +558,12 @@ const ServiceChargePage = () => {
                                     <option value="cancelled">Cancelled</option>
                                 </Form.Select>
                             </Col>
-                            <Col md={3} className="d-flex gap-2">
+                            <Col md={2} className="d-flex gap-2">
                                 <Button variant="primary" onClick={() => fetchServiceCharges(1)} className="flex-grow-1">
                                     <FaSearch className="me-1" /> Search
                                 </Button>
                                 <Button variant="outline-secondary" onClick={() => {
-                                    const reset = { tuitionCode: '', phone: '', status: '', toBePaidToday: false };
+                                    const reset = { tuitionCode: '', teacherCode: '', phone: '', status: '', toBePaidToday: false };
                                     setScSearch(reset);
                                     fetchServiceCharges(1, reset);
                                 }}>
@@ -445,6 +602,7 @@ const ServiceChargePage = () => {
                                         <th>Date</th>
                                         <th>Next Payment Date</th>
                                         <th>Tuition Code</th>
+                                        <th>Teacher Code</th>
                                         <th>Name</th>
                                         <th>Phone</th>
                                         <th>Amount</th>
@@ -459,13 +617,13 @@ const ServiceChargePage = () => {
                                 <tbody>
                                     {scLoading ? (
                                         <tr>
-                                            <td colSpan="13" className="text-center py-5">
+                                            <td colSpan="14" className="text-center py-5">
                                                 <Spinner animation="border" variant="primary" />
                                             </td>
                                         </tr>
                                     ) : scList.length === 0 ? (
                                         <tr>
-                                            <td colSpan="13" className="text-center py-4">No records found.</td>
+                                            <td colSpan="14" className="text-center py-4">No records found.</td>
                                         </tr>
                                     ) : (
                                         scList.map((sc, index) => (
@@ -476,6 +634,7 @@ const ServiceChargePage = () => {
                                                     {formatDateOnly(sc.nextPaymentDate)}
                                                 </td>
                                                 <td><span className="fw-bold text-primary">{sc.tuitionCode || '-'}</span></td>
+                                                <td><span className="fw-bold font-monospace text-primary">{sc.teacherCode || '-'}</span></td>
                                                 <td>{sc.name || '-'}</td>
                                                 <td>{sc.personalPhone || sc.paymentNumber || '-'}</td>
                                                 <td className="fw-bold text-dark">৳{sc.amount}</td>
@@ -582,6 +741,41 @@ const ServiceChargePage = () => {
                                 </Col>
                                 <Col md={6}>
                                     <Form.Group>
+                                        <Form.Label className="fw-bold small d-flex align-items-center justify-content-between">
+                                            <span>Teacher Code <span className="text-danger">*</span></span>
+                                            {isTeacherSearching && (
+                                                <span className="text-primary small fw-normal d-flex align-items-center">
+                                                    <Spinner animation="border" size="sm" className="me-1" style={{ width: '12px', height: '12px' }} />
+                                                    <span style={{ fontSize: '0.72rem' }}>Loading...</span>
+                                                </span>
+                                            )}
+                                        </Form.Label>
+                                        <AsyncSelect
+                                            cacheOptions
+                                            defaultOptions
+                                            loadOptions={loadTeacherOptions}
+                                            value={selectedTeacherOption || (scFormData.teacherCode ? { value: scFormData.teacherCode, label: scFormData.teacherCode } : null)}
+                                            onChange={handleTeacherCodeSelect}
+                                            isClearable
+                                            isLoading={isTeacherSearching}
+                                            loadingMessage={() => "Loading teachers..."}
+                                            noOptionsMessage={({ inputValue }) => inputValue ? "No teachers found" : "Type to search..."}
+                                            placeholder="Search Code, Name or Phone..."
+                                            menuPortalTarget={document.body}
+                                            styles={{
+                                                control: (base) => ({
+                                                    ...base,
+                                                    minHeight: '38px',
+                                                    borderRadius: '0.375rem',
+                                                    borderColor: '#dee2e6'
+                                                }),
+                                                menuPortal: base => ({ ...base, zIndex: 9999 })
+                                            }}
+                                        />
+                                    </Form.Group>
+                                </Col>
+                                <Col md={6}>
+                                    <Form.Group>
                                         <Form.Label className="fw-bold small">Teacher Name *</Form.Label>
                                         <Form.Control
                                             type="text"
@@ -594,13 +788,21 @@ const ServiceChargePage = () => {
                                 </Col>
                                 <Col md={6}>
                                     <Form.Group>
-                                        <Form.Label className="fw-bold small">Personal Phone Number *</Form.Label>
+                                        <Form.Label className="fw-bold small d-flex align-items-center justify-content-between">
+                                            <span>Personal Phone Number *</span>
+                                            {isTeacherSearching && (
+                                                <span className="text-primary small fw-normal d-flex align-items-center">
+                                                    <Spinner animation="border" size="sm" className="me-1" style={{ width: '12px', height: '12px' }} />
+                                                    <span style={{ fontSize: '0.72rem' }}>Matching...</span>
+                                                </span>
+                                            )}
+                                        </Form.Label>
                                         <Form.Control
                                             type="text"
                                             required
                                             placeholder="01XXXXXXXXX"
                                             value={scFormData.personalPhone}
-                                            onChange={(e) => setScFormData({ ...scFormData, personalPhone: e.target.value })}
+                                            onChange={handlePersonalPhoneChange}
                                         />
                                     </Form.Group>
                                 </Col>

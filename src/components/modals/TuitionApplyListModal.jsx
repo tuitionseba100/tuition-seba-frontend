@@ -141,7 +141,7 @@ function AppliedListModal({ tuitionId, tuitionCode, show, onHide }) {
     const getRowStyle = (tuition) => {
         if (tuition.isBanned) return bannedStyle;
         if (tuition.isSpam) return spamStyle;
-        if (tuition.hasDue) return dueStyle;
+        if (tuition.hasDue || tuition.hasScDue) return dueStyle;
         if (tuition.isBest) return bestStyle;
         if (tuition.isExpress) return manualExpressStyle;
         return {};
@@ -280,10 +280,32 @@ function AppliedListModal({ tuitionId, tuitionCode, show, onHide }) {
                                                             }`}>
                                                             {app.status}
                                                         </span>
-                                                        {app.hasDue && (
-                                                            <span className="badge bg-warning text-dark fw-bold">
-                                                                {app.dueAmount ? `ডিউ: ৳${Number(app.dueAmount).toLocaleString()}${app.dueCount > 1 ? ` (${app.dueCount}টি)` : ''}` : 'ডিউ আছে'}
-                                                            </span>
+                                                        {(app.hasDue || app.hasScDue) && (
+                                                            <table 
+                                                                className="table table-sm table-bordered mb-0 mt-1 shadow-sm" 
+                                                                style={{ fontSize: '0.72rem', minWidth: '105px', backgroundColor: '#fff8db', borderColor: '#ffeeba' }}
+                                                            >
+                                                                <thead>
+                                                                    <tr style={{ backgroundColor: '#ffdf7e', fontSize: '0.68rem' }} className="text-center">
+                                                                        <th className="py-0 px-1 text-dark">Due</th>
+                                                                        <th className="py-0 px-1 text-dark">Amount</th>
+                                                                    </tr>
+                                                                </thead>
+                                                                <tbody>
+                                                                    {app.hasDue && (
+                                                                        <tr>
+                                                                            <td className="py-0 px-1 fw-bold text-dark text-center" title="Tuition Charge Due">TC</td>
+                                                                            <td className="py-0 px-1 text-end fw-bold text-danger">৳{Number(app.dueAmount).toLocaleString()}</td>
+                                                                        </tr>
+                                                                    )}
+                                                                    {app.hasScDue && (
+                                                                        <tr>
+                                                                            <td className="py-0 px-1 fw-bold text-dark text-center" title="Service Charge Due">SC</td>
+                                                                            <td className="py-0 px-1 text-end fw-bold text-danger">৳{Number(app.scDueAmount).toLocaleString()}</td>
+                                                                        </tr>
+                                                                    )}
+                                                                </tbody>
+                                                            </table>
                                                         )}
                                                     </div>
                                                 </td>

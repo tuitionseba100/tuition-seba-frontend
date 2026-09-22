@@ -67,6 +67,13 @@ const GeneralPaymentRecordModal = ({ show, onHide, editingId, initialData, onSav
         fetchUsers();
     }, []);
 
+    const formatTeacherPhones = (t) => {
+        if (!t) return 'No Phone';
+        const phones = [t.phone, t.whatsapp, t.alternativePhone].filter(Boolean);
+        const uniquePhones = [...new Set(phones)];
+        return uniquePhones.length > 0 ? uniquePhones.join(' | ') : 'No Phone';
+    };
+
     const loadTeacherOptions = async (inputValue) => {
         try {
             const token = localStorage.getItem('token');
@@ -76,7 +83,7 @@ const GeneralPaymentRecordModal = ({ show, onHide, editingId, initialData, onSav
             const teachers = response.data || [];
             return teachers.map(t => ({
                 value: t.premiumCode,
-                label: `${t.premiumCode} - ${t.name || 'Unnamed'} (${t.phone || t.whatsapp || t.alternativePhone || 'No Phone'})`,
+                label: `${t.premiumCode} - ${t.name || 'Unnamed'} (${formatTeacherPhones(t)})`,
                 teacher: t
             }));
         } catch (err) {
@@ -110,7 +117,7 @@ const GeneralPaymentRecordModal = ({ show, onHide, editingId, initialData, onSav
                 if (matchedTeacher) {
                     const opt = {
                         value: matchedTeacher.premiumCode,
-                        label: `${matchedTeacher.premiumCode} - ${matchedTeacher.name || 'Unnamed'} (${matchedTeacher.phone || matchedTeacher.whatsapp || matchedTeacher.alternativePhone || 'No Phone'})`,
+                        label: `${matchedTeacher.premiumCode} - ${matchedTeacher.name || 'Unnamed'} (${formatTeacherPhones(matchedTeacher)})`,
                         teacher: matchedTeacher
                     };
                     setSelectedTeacherOption(opt);

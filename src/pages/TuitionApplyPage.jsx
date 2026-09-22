@@ -639,6 +639,16 @@ const TuitionPage = () => {
                                                                             <td className="py-0 px-1 text-end fw-bold text-danger">৳{Number(tuition.scDueAmount).toLocaleString()}</td>
                                                                         </tr>
                                                                     )}
+                                                                    {tuition.hasDue && tuition.hasScDue && (
+                                                                        <tr style={{ backgroundColor: '#ffe8a1', borderTop: '1.5px solid #deb887' }}>
+                                                                            <td className="py-0 px-1 fw-bold text-dark text-center" title="Total Due Count">
+                                                                                ({(tuition.dueCount || 0) + (tuition.scDueCount || 0)})
+                                                                            </td>
+                                                                            <td className="py-0 px-1 text-end fw-bold text-danger">
+                                                                                ৳{Number((tuition.dueAmount || 0) + (tuition.scDueAmount || 0)).toLocaleString()}
+                                                                            </td>
+                                                                        </tr>
+                                                                    )}
                                                                 </tbody>
                                                             </table>
                                                         )}

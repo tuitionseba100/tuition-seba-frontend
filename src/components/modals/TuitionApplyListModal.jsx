@@ -308,6 +308,16 @@ function AppliedListModal({ tuitionId, tuitionCode, show, onHide }) {
                                                                             <td className="py-0 px-1 text-end fw-bold text-danger">৳{Number(app.scDueAmount).toLocaleString()}</td>
                                                                         </tr>
                                                                     )}
+                                                                    {app.hasDue && app.hasScDue && (
+                                                                        <tr style={{ backgroundColor: '#ffe8a1', borderTop: '1.5px solid #deb887' }}>
+                                                                            <td className="py-0 px-1 fw-bold text-dark text-center" title="Total Due Count">
+                                                                                ({(app.dueCount || 0) + (app.scDueCount || 0)})
+                                                                            </td>
+                                                                            <td className="py-0 px-1 text-end fw-bold text-danger">
+                                                                                ৳{Number((app.dueAmount || 0) + (app.scDueAmount || 0)).toLocaleString()}
+                                                                            </td>
+                                                                        </tr>
+                                                                    )}
                                                                 </tbody>
                                                             </table>
                                                         )}

@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Modal, Button, Form, Row, Col, Spinner, Table } from 'react-bootstrap';
 import { axiosWithFallback as axios } from '../../services/fetchWithFallback';
 import Select from 'react-select';
+import AsyncSelect from 'react-select/async';
 import moment from 'moment';
 import { toast } from 'react-toastify';
 
@@ -9,6 +10,7 @@ const GeneralPaymentRecordModal = ({ show, onHide, editingId, initialData, onSav
     const [paymentData, setPaymentData] = useState({
         tuitionCode: '',
         tuitionId: '',
+        premiumCode: '',
         paymentReceivedDate: '',
         paymentReceivedDate2: '',
         paymentReceivedDate3: '',
@@ -48,6 +50,9 @@ const GeneralPaymentRecordModal = ({ show, onHide, editingId, initialData, onSav
         installmentComment4: '',
     });
     const [userOptions, setUserOptions] = useState([]);
+    const [selectedTeacherOption, setSelectedTeacherOption] = useState(null);
+    const [isTeacherSearching, setIsTeacherSearching] = useState(false);
+    const searchTimeoutRef = useRef(null);
     const role = localStorage.getItem('role');
     const [serverData, setServerData] = useState(null);
     const [visibleInstallments, setVisibleInstallments] = useState(2);
@@ -61,6 +66,67 @@ const GeneralPaymentRecordModal = ({ show, onHide, editingId, initialData, onSav
     useEffect(() => {
         fetchUsers();
     }, []);
+
+    const loadTeacherOptions = async (inputValue) => {
+        try {
+            const token = localStorage.getItem('token');
+            const response = await axios.get(`https://tuition-seba-backend-1.onrender.com/api/regTeacher/search-teachers?q=${encodeURIComponent(inputValue || '')}`, {
+                headers: { Authorization: token }
+            });
+            const teachers = response.data || [];
+            return teachers.map(t => ({
+                value: t.premiumCode,
+                label: `${t.premiumCode} - ${t.name || 'Unnamed'} (${t.phone || t.whatsapp || t.alternativePhone || 'No Phone'})`,
+                teacher: t
+            }));
+        } catch (err) {
+            console.error('Error searching teachers:', err);
+            return [];
+        }
+    };
+
+    const searchTeacherByPhone = async (phoneValue) => {
+        const digits = (phoneValue || '').replace(/\D/g, '');
+        if (digits.length < 10) return;
+        const searchParam = digits.slice(-10);
+
+        try {
+            setIsTeacherSearching(true);
+            const token = localStorage.getItem('token');
+            const response = await axios.get(`https://tuition-seba-backend-1.onrender.com/api/regTeacher/search-teachers?q=${encodeURIComponent(searchParam)}`, {
+                headers: { Authorization: token }
+            });
+            const teachers = response.data || [];
+            if (teachers.length > 0) {
+                const matchedTeacher = teachers.find(t => {
+                    const tPhones = [t.phone, t.whatsapp, t.alternativePhone];
+                    return tPhones.some(num => {
+                        if (!num) return false;
+                        const d = num.toString().replace(/\D/g, '');
+                        return d.length >= 10 && d.slice(-10) === searchParam;
+                    });
+                }) || teachers[0];
+
+                if (matchedTeacher) {
+                    const opt = {
+                        value: matchedTeacher.premiumCode,
+                        label: `${matchedTeacher.premiumCode} - ${matchedTeacher.name || 'Unnamed'} (${matchedTeacher.phone || matchedTeacher.whatsapp || matchedTeacher.alternativePhone || 'No Phone'})`,
+                        teacher: matchedTeacher
+                    };
+                    setSelectedTeacherOption(opt);
+                    setPaymentData(prev => ({
+                        ...prev,
+                        premiumCode: matchedTeacher.premiumCode || prev.premiumCode,
+                        tutorName: prev.tutorName ? prev.tutorName : (matchedTeacher.name || prev.tutorName)
+                    }));
+                }
+            }
+        } catch (err) {
+            console.error('Error auto-matching teacher by phone:', err);
+        } finally {
+            setIsTeacherSearching(false);
+        }
+    };
 
     const fetchUsers = async () => {
         if (role === 'superadmin' || role === 'admin' || role === 'manager') {
@@ -93,6 +159,15 @@ const GeneralPaymentRecordModal = ({ show, onHide, editingId, initialData, onSav
                 setPaymentData(normalizedData);
                 setServerData(normalizedData);
 
+                if (initialData.premiumCode) {
+                    setSelectedTeacherOption({
+                        value: initialData.premiumCode,
+                        label: `${initialData.premiumCode}${initialData.tutorName ? ' - ' + initialData.tutorName : ''}${initialData.tutorNumber ? ' (' + initialData.tutorNumber + ')' : ''}`
+                    });
+                } else {
+                    setSelectedTeacherOption(null);
+                }
+
                 // Determine how many installments to show based on data
                 let count = 2;
                 if (initialData.receivedTk4 || initialData.paymentReceivedDate4 || initialData.paymentNumber4) count = 4;
@@ -105,6 +180,7 @@ const GeneralPaymentRecordModal = ({ show, onHide, editingId, initialData, onSav
                 const defaultValues = {
                     tuitionCode: '',
                     tuitionId: '',
+                    premiumCode: '',
                     paymentReceivedDate: '',
                     paymentReceivedDate2: '',
                     paymentReceivedDate3: '',
@@ -144,6 +220,7 @@ const GeneralPaymentRecordModal = ({ show, onHide, editingId, initialData, onSav
                     installmentComment4: '',
                 };
                 setPaymentData(defaultValues);
+                setSelectedTeacherOption(null);
                 setServerData(null);
                 setVisibleInstallments(2);
                 setAutoCalc(true); // Default to checked for new records
@@ -154,6 +231,7 @@ const GeneralPaymentRecordModal = ({ show, onHide, editingId, initialData, onSav
             const defaultValues = {
                 tuitionCode: '',
                 tuitionId: '',
+                premiumCode: '',
                 paymentReceivedDate: '',
                 paymentReceivedDate2: '',
                 paymentReceivedDate3: '',
@@ -193,6 +271,9 @@ const GeneralPaymentRecordModal = ({ show, onHide, editingId, initialData, onSav
                 installmentComment4: '',
             };
             setPaymentData(defaultValues);
+            setSelectedTeacherOption(null);
+            setIsTeacherSearching(false);
+            if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current);
             setServerData(null);
             setVisibleInstallments(2);
             setIsSaving(false);
@@ -208,6 +289,16 @@ const GeneralPaymentRecordModal = ({ show, onHide, editingId, initialData, onSav
         const { id, value } = e.target;
         setPaymentData(prev => {
             const newData = { ...prev, [id]: value };
+
+            // Auto-match Teacher Code and Tutor Name when typing Tutor Phone Number (Debounced)
+            if (id === 'tutorNumber') {
+                if (searchTimeoutRef.current) {
+                    clearTimeout(searchTimeoutRef.current);
+                }
+                searchTimeoutRef.current = setTimeout(() => {
+                    searchTeacherByPhone(value);
+                }, 400);
+            }
 
             const isNumeric = (val) => val !== null && val !== undefined && val !== '' && !isNaN(parseFloat(val)) && isFinite(val);
             const getNum = (val) => (isNumeric(val) ? parseFloat(val) : 0);
@@ -268,6 +359,25 @@ const GeneralPaymentRecordModal = ({ show, onHide, editingId, initialData, onSav
         });
     };
 
+    const handleTeacherCodeSelect = (option) => {
+        setSelectedTeacherOption(option);
+        if (!option) {
+            setPaymentData(prev => ({
+                ...prev,
+                premiumCode: ''
+            }));
+            return;
+        }
+
+        const teacher = option.teacher;
+        setPaymentData(prev => ({
+            ...prev,
+            premiumCode: option.value,
+            tutorNumber: (teacher && (teacher.phone || teacher.whatsapp || teacher.alternativePhone)) || prev.tutorNumber,
+            tutorName: (teacher && teacher.name) || prev.tutorName
+        }));
+    };
+
     const handleCalculateTotal = () => {
         const isNumeric = (val) => val !== null && val !== undefined && val !== '' && !isNaN(parseFloat(val)) && isFinite(val);
         const getNum = (val) => (isNumeric(val) ? parseFloat(val) : 0);
@@ -309,6 +419,7 @@ const GeneralPaymentRecordModal = ({ show, onHide, editingId, initialData, onSav
     const getFieldLabel = (key) => {
         const labels = {
             tuitionCode: 'Tuition Code',
+            premiumCode: 'Teacher Code',
             tuitionSalary: 'Salary',
             totalPaymentTk: 'Total Payment',
             discount: 'Discount',
@@ -347,6 +458,11 @@ const GeneralPaymentRecordModal = ({ show, onHide, editingId, initialData, onSav
     };
 
     const handleLocalSave = async () => {
+        if (!paymentData.premiumCode || !paymentData.premiumCode.toString().trim()) {
+            toast.error('Teacher Code (Premium Code) বাধ্যতামূলক!');
+            return;
+        }
+
         const installments = [
             { label: '১ম কিস্তির', date: paymentData.paymentReceivedDate, type: paymentData.paymentType, tk: paymentData.receivedTk },
             { label: '২য় কিস্তির', date: paymentData.paymentReceivedDate2, type: paymentData.paymentType2, tk: paymentData.receivedTk2 },
@@ -481,7 +597,7 @@ const GeneralPaymentRecordModal = ({ show, onHide, editingId, initialData, onSav
                     <div className="bg-white p-3 rounded shadow-sm mb-4 border-start border-primary border-4">
                         <h5 className="text-primary mb-3 fw-bold border-bottom pb-2">📋 Basic Information</h5>
                         <Row>
-                            <Col md={4}>
+                            <Col md={3}>
                                 <Form.Group className="mb-3" controlId="tuitionId">
                                     <Form.Label className="fw-bold">Tuition Code</Form.Label>
                                     <Form.Control
@@ -491,9 +607,46 @@ const GeneralPaymentRecordModal = ({ show, onHide, editingId, initialData, onSav
                                         placeholder="Enter Tuition Code"
                                         required
                                     />
+                                    {renderOldValue('tuitionId')}
                                 </Form.Group>
                             </Col>
-                            <Col md={4}>
+                            <Col md={3}>
+                                <Form.Group className="mb-3">
+                                    <Form.Label className="fw-bold d-flex align-items-center justify-content-between">
+                                        <span>Teacher Code <span className="text-danger">*</span></span>
+                                        {isTeacherSearching && (
+                                            <span className="text-primary small fw-normal d-flex align-items-center">
+                                                <Spinner animation="border" size="sm" className="me-1" style={{ width: '12px', height: '12px' }} />
+                                                <span style={{ fontSize: '0.72rem' }}>Loading...</span>
+                                            </span>
+                                        )}
+                                    </Form.Label>
+                                    <AsyncSelect
+                                        cacheOptions
+                                        defaultOptions
+                                        loadOptions={loadTeacherOptions}
+                                        value={selectedTeacherOption || (paymentData.premiumCode ? { value: paymentData.premiumCode, label: paymentData.premiumCode } : null)}
+                                        onChange={handleTeacherCodeSelect}
+                                        isClearable
+                                        isLoading={isTeacherSearching}
+                                        loadingMessage={() => "Loading teachers..."}
+                                        noOptionsMessage={({ inputValue }) => inputValue ? "No teachers found" : "Type to search..."}
+                                        placeholder="Search Code, Name or Phone..."
+                                        menuPortalTarget={document.body}
+                                        styles={{
+                                            control: (base) => ({
+                                                ...base,
+                                                minHeight: '38px',
+                                                borderRadius: '0.375rem',
+                                                borderColor: '#dee2e6'
+                                            }),
+                                            menuPortal: base => ({ ...base, zIndex: 9999 })
+                                        }}
+                                    />
+                                    {renderOldValue('premiumCode')}
+                                </Form.Group>
+                            </Col>
+                            <Col md={3}>
                                 <Form.Group className="mb-3" controlId="tutorName">
                                     <Form.Label className="fw-bold">Tutor Name</Form.Label>
                                     <Form.Control
@@ -503,11 +656,20 @@ const GeneralPaymentRecordModal = ({ show, onHide, editingId, initialData, onSav
                                         placeholder="Enter Tutor Name"
                                         required
                                     />
+                                    {renderOldValue('tutorName')}
                                 </Form.Group>
                             </Col>
-                            <Col md={4}>
+                            <Col md={3}>
                                 <Form.Group className="mb-3" controlId="tutorNumber">
-                                    <Form.Label className="fw-bold">Tutor Number</Form.Label>
+                                    <Form.Label className="fw-bold d-flex align-items-center justify-content-between">
+                                        <span>Tutor Number</span>
+                                        {isTeacherSearching && (
+                                            <span className="text-primary small fw-normal d-flex align-items-center">
+                                                <Spinner animation="border" size="sm" className="me-1" style={{ width: '12px', height: '12px' }} />
+                                                <span style={{ fontSize: '0.72rem' }}>Matching...</span>
+                                            </span>
+                                        )}
+                                    </Form.Label>
                                     <Form.Control
                                         type="text"
                                         value={paymentData.tutorNumber}
@@ -515,6 +677,7 @@ const GeneralPaymentRecordModal = ({ show, onHide, editingId, initialData, onSav
                                         placeholder="Enter Tutor Phone"
                                         required
                                     />
+                                    {renderOldValue('tutorNumber')}
                                 </Form.Group>
                             </Col>
                         </Row>

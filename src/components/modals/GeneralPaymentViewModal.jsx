@@ -16,6 +16,7 @@ const GeneralPaymentViewModal = ({ show, onHide, detailsData, formatDate, onEdit
                                 <h6 className="text-muted text-uppercase small fw-bold">Tuition Information</h6>
                                 <div className="bg-light p-3 rounded">
                                     <p className="mb-1"><strong>Tuition Code:</strong> {detailsData.tuitionCode}</p>
+                                    <p className="mb-1"><strong>Teacher Code:</strong> {detailsData.premiumCode || '-'}</p>
                                     <p className="mb-1"><strong>Salary:</strong> TK. {detailsData.tuitionSalary || 0}</p>
                                     <p className="mb-1"><strong>Total Payment:</strong> TK. {detailsData.totalPaymentTk || 0}</p>
                                     <p className="mb-1"><strong>Tutor Name:</strong> {detailsData.tutorName}</p>

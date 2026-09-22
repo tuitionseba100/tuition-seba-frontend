@@ -92,27 +92,41 @@ const GeneralPaymentRecordModal = ({ show, onHide, editingId, initialData, onSav
         }
     };
 
+    const normalizeBDPhone10 = (val) => {
+        if (!val) return '';
+        let digits = val.toString().replace(/\D/g, '');
+        // 8801XXXXXXXXX (13 digits) -> 1XXXXXXXXX (10 digits)
+        if (digits.startsWith('880') && digits.length === 13) {
+            digits = digits.slice(3);
+        }
+        // 01XXXXXXXXX (11 digits) -> 1XXXXXXXXX (10 digits)
+        if (digits.startsWith('0') && digits.length === 11) {
+            digits = digits.slice(1);
+        }
+        // Valid BD mobile significant 10 digits starting with 1 (e.g. 13...19)
+        if (digits.length === 10 && digits.startsWith('1')) {
+            return digits;
+        }
+        return '';
+    };
+
     const searchTeacherByPhone = async (phoneValue) => {
-        const digits = (phoneValue || '').replace(/\D/g, '');
-        if (digits.length < 10) return;
-        const searchParam = digits.slice(-10);
+        const phone10 = normalizeBDPhone10(phoneValue);
+        if (!phone10) return;
 
         try {
             setIsTeacherSearching(true);
             const token = localStorage.getItem('token');
-            const response = await axios.get(`https://tuition-seba-backend-1.onrender.com/api/regTeacher/search-teachers?q=${encodeURIComponent(searchParam)}`, {
+            const response = await axios.get(`https://tuition-seba-backend-1.onrender.com/api/regTeacher/search-teachers?q=${encodeURIComponent(phone10)}`, {
                 headers: { Authorization: token }
             });
             const teachers = response.data || [];
             if (teachers.length > 0) {
+                // Strictly match the 10-digit phone across phone, whatsapp, and alternativePhone
                 const matchedTeacher = teachers.find(t => {
                     const tPhones = [t.phone, t.whatsapp, t.alternativePhone];
-                    return tPhones.some(num => {
-                        if (!num) return false;
-                        const d = num.toString().replace(/\D/g, '');
-                        return d.length >= 10 && d.slice(-10) === searchParam;
-                    });
-                }) || teachers[0];
+                    return tPhones.some(num => normalizeBDPhone10(num) === phone10);
+                });
 
                 if (matchedTeacher) {
                     const opt = {

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Modal, Button, Form, Row, Col, Spinner } from 'react-bootstrap';
 import Select from 'react-select';
 import { axiosWithFallback as axios } from '../../services/fetchWithFallback';
@@ -138,6 +138,7 @@ export default function TuitionModal({ show, onHide, editingData = null, editing
     const [userOptions, setUserOptions] = useState([]);
     const [marketingMediums, setMarketingMediums] = useState([]);
     const [saving, setSaving] = useState(false);
+    const isSavingRef = useRef(false);
     const [showSmsModal, setShowSmsModal] = useState(false);
     const [smsMessage, setSmsMessage] = useState('');
     const [smsRecipient, setSmsRecipient] = useState('');
@@ -223,6 +224,7 @@ export default function TuitionModal({ show, onHide, editingData = null, editing
     useEffect(() => {
         if (!show) {
             setLoadingDetails(false);
+            isSavingRef.current = false;
             return;
         }
 
@@ -316,6 +318,8 @@ export default function TuitionModal({ show, onHide, editingData = null, editing
     };
 
     const handleSaveTuition = async () => {
+        if (isSavingRef.current) return;
+        isSavingRef.current = true;
         setSaving(true);
 
         const username = localStorage.getItem('username');
@@ -325,12 +329,14 @@ export default function TuitionModal({ show, onHide, editingData = null, editing
         if (!editingId && !guardianNumber) {
             toast.error('Guardian number is required');
             setSaving(false);
+            isSavingRef.current = false;
             return;
         }
 
         if (guardianNumber && guardianNumber.length < 11) {
             toast.error('Guardian number must be at least 11 digits long');
             setSaving(false);
+            isSavingRef.current = false;
             return;
         }
 
@@ -339,6 +345,7 @@ export default function TuitionModal({ show, onHide, editingData = null, editing
             if (!currentSourceMedium) {
                 toast.error('নতুন টিউশন যুক্ত করার সময় "গার্জিয়ান কিভাবে আমাদের সম্পর্কে জানলো" নির্বাচন করা বাধ্যতামূলক।');
                 setSaving(false);
+                isSavingRef.current = false;
                 return;
             }
         } else {
@@ -346,6 +353,7 @@ export default function TuitionModal({ show, onHide, editingData = null, editing
             if (previousSourceMedium && !currentSourceMedium) {
                 toast.error('যেহেতু আগে "গার্জিয়ান কিভাবে আমাদের সম্পর্কে জানলো" নির্বাচন করা ছিল, তাই এখন এটি ফাঁকা রাখা যাবে না।');
                 setSaving(false);
+                isSavingRef.current = false;
                 return;
             }
         }
@@ -356,6 +364,7 @@ export default function TuitionModal({ show, onHide, editingData = null, editing
             if (!formData.tuitionCancelReasonPublic || !formData.tuitionCancelReasonPublic.trim()) {
                 toast.error('টিউশন বাতিল বা স্থগিত হলে অবশ্যই বাতিলের কারণ (Public) উল্লেখ করতে হবে।');
                 setSaving(false);
+                isSavingRef.current = false;
                 return;
             }
         } else {
@@ -378,6 +387,7 @@ export default function TuitionModal({ show, onHide, editingData = null, editing
             setSmsMessage(defaultMsg);
             setShowSmsModal(true);
             setSaving(false);
+            isSavingRef.current = false;
             return;
         }
 
@@ -398,6 +408,7 @@ export default function TuitionModal({ show, onHide, editingData = null, editing
             setSmsMessage(defaultMsg);
             setShowSmsModal(true);
             setSaving(false);
+            isSavingRef.current = false;
             return;
         }
 
@@ -425,11 +436,15 @@ export default function TuitionModal({ show, onHide, editingData = null, editing
             console.error('Error saving tuition record:', err);
             const errorMessage = err.response?.data?.message || 'Error saving tuition record.';
             toast.error(errorMessage);
+        } finally {
+            setSaving(false);
+            isSavingRef.current = false;
         }
-        setSaving(false);
     };
 
     const handleSendSmsAndSave = async () => {
+        if (isSavingRef.current) return;
+        isSavingRef.current = true;
         setSaving(true);
         const username = localStorage.getItem('username');
         const token = localStorage.getItem('token');
@@ -495,10 +510,13 @@ export default function TuitionModal({ show, onHide, editingData = null, editing
             toast.error(errorMessage);
         } finally {
             setSaving(false);
+            isSavingRef.current = false;
         }
     };
 
     const handleSaveWithoutSms = async () => {
+        if (isSavingRef.current) return;
+        isSavingRef.current = true;
         setSaving(true);
         const username = localStorage.getItem('username');
         const currentStatus = formData.status ? formData.status.toLowerCase() : 'available';
@@ -539,6 +557,7 @@ export default function TuitionModal({ show, onHide, editingData = null, editing
             toast.error(errorMessage);
         } finally {
             setSaving(false);
+            isSavingRef.current = false;
         }
     };
 
@@ -602,7 +621,7 @@ export default function TuitionModal({ show, onHide, editingData = null, editing
                                 <span className="mt-3 text-muted fw-bold">Loading tuition data...</span>
                             </div>
                         ) : (
-                            <Form>
+                            <Form onSubmit={(e) => { e.preventDefault(); }}>
                                 {Object.entries(groups).map(([groupName, fields]) => {
                                     const getGroupTitle = (name) => {
                                         switch (name) {

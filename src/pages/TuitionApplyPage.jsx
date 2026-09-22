@@ -140,12 +140,8 @@ const TuitionPage = () => {
     };
 
     useEffect(() => {
-        fetchTuitionApplyRecords();
+        fetchTuitionApplyRecords(1, appliedFilters);
     }, []);
-
-    useEffect(() => {
-        fetchTuitionApplyRecords();
-    }, [appliedFilters, currentPage]);
 
     const handleSearchInputChange = (field, value) => {
         setSearchInputs(prev => ({
@@ -157,37 +153,49 @@ const TuitionPage = () => {
     const handleSearch = () => {
         setAppliedFilters(searchInputs);
         setCurrentPage(1);
+        fetchTuitionApplyRecords(1, searchInputs);
     };
 
-    const handleKeyPress = (e) => {
+    const handleKeyDown = (e) => {
         if (e.key === 'Enter') {
+            e.preventDefault();
             handleSearch();
         }
     };
 
-    const fetchTuitionApplyRecords = async (page = 1) => {
+    const handlePageChange = (newPage) => {
+        if (newPage >= 1 && newPage <= totalPages && newPage !== currentPage) {
+            setCurrentPage(newPage);
+            fetchTuitionApplyRecords(newPage, appliedFilters);
+        }
+    };
+
+    const fetchTuitionApplyRecords = async (page = 1, filtersOverride = null) => {
+        const filters = filtersOverride || appliedFilters;
         setLoading(true);
         try {
             const response = await axios.get('https://tuition-seba-backend-1.onrender.com/api/tuitionApply/getTableData', {
                 params: {
-                    page: currentPage,
-                    tuitionCode: appliedFilters.tuitionCode,
-                    premiumCode: appliedFilters.premiumCode,
-                    phone: appliedFilters.phone,
-                    status: appliedFilters.statusFilter
+                    page: page,
+                    tuitionCode: (filters.tuitionCode || '').trim(),
+                    premiumCode: (filters.premiumCode || '').trim(),
+                    phone: (filters.phone || '').trim(),
+                    status: filters.statusFilter || ''
                 }
             });
 
-            setTuitionApplyList(response.data.data);
-            setFilteredTuitionApplyList(response.data.data);
-            setCurrentPage(response.data.currentPage);
-            setTotalPages(response.data.totalPages);
-            fetchCardSummary();
+            const data = Array.isArray(response.data?.data) ? response.data.data : [];
+            setTuitionApplyList(data);
+            setFilteredTuitionApplyList(data);
+            setCurrentPage(response.data?.currentPage || page);
+            setTotalPages(Math.max(1, response.data?.totalPages || 1));
+            fetchCardSummary(filters);
         } catch (err) {
             console.error('Error fetching tuition records:', err);
             toast.error("Failed to load tuition apply records.");
+        } finally {
+            setLoading(false);
         }
-        setLoading(false);
     };
 
     const handleResetFilters = () => {
@@ -200,27 +208,31 @@ const TuitionPage = () => {
         setSearchInputs(resetFilters);
         setAppliedFilters(resetFilters);
         setCurrentPage(1);
+        fetchTuitionApplyRecords(1, resetFilters);
     };
 
-    const fetchCardSummary = () => {
+    const fetchCardSummary = (filtersOverride = null) => {
+        const filters = filtersOverride || appliedFilters;
         axios.get('https://tuition-seba-backend-1.onrender.com/api/tuitionApply/summary', {
             params: {
-                tuitionCode: appliedFilters.tuitionCode,
-                premiumCode: appliedFilters.premiumCode,
-                phone: appliedFilters.phone,
-                status: appliedFilters.statusFilter
+                tuitionCode: (filters.tuitionCode || '').trim(),
+                premiumCode: (filters.premiumCode || '').trim(),
+                phone: (filters.phone || '').trim(),
+                status: filters.statusFilter || ''
             }
         })
             .then(response => {
-                setStatusCounts({
-                    pending: response.data.pending,
-                    calledInterested: response.data.calledInterested,
-                    calledNoResponse: response.data.calledNoResponse,
-                    selected: response.data.selected,
-                    shortlisted: response.data.shortlisted,
-                    requestedForPayment: response.data.requestedForPayment,
-                    total: response.data.total
-                });
+                if (response.data) {
+                    setStatusCounts({
+                        pending: response.data.pending || 0,
+                        calledInterested: response.data.calledInterested || 0,
+                        calledNoResponse: response.data.calledNoResponse || 0,
+                        selected: response.data.selected || 0,
+                        shortlisted: response.data.shortlisted || 0,
+                        requestedForPayment: response.data.requestedForPayment || 0,
+                        total: response.data.total || 0
+                    });
+                }
             })
             .catch(error => {
                 console.error('Error fetching card summary:', error);
@@ -280,7 +292,7 @@ const TuitionPage = () => {
                 toast.success("Tuition apply record created successfully!");
             }
             setShowModal(false);
-            fetchTuitionApplyRecords();
+            fetchTuitionApplyRecords(currentPage, appliedFilters);
         } catch (err) {
             console.error('Error saving tuition apply record:', err);
             // Handle duplicate or specific error messages from backend
@@ -321,7 +333,7 @@ const TuitionPage = () => {
             try {
                 await axios.delete(`https://tuition-seba-backend-1.onrender.com/api/tuitionApply/delete/${id}`);
                 toast.success("Tuition record deleted successfully!");
-                fetchTuitionApplyRecords();
+                fetchTuitionApplyRecords(currentPage, appliedFilters);
             } catch (err) {
                 console.error('Error deleting tuition apply record:', err);
                 toast.error("Error deleting tuition apply record.");
@@ -410,7 +422,7 @@ const TuitionPage = () => {
                             placeholder="e.g. TSF-1001"
                             value={searchInputs.tuitionCode}
                             onChange={(e) => handleSearchInputChange('tuitionCode', e.target.value)}
-                            onKeyPress={handleKeyPress}
+                            onKeyDown={handleKeyDown}
                         />
                     </Col>
 
@@ -421,7 +433,7 @@ const TuitionPage = () => {
                             placeholder="Search Teacher Code"
                             value={searchInputs.premiumCode}
                             onChange={(e) => handleSearchInputChange('premiumCode', e.target.value)}
-                            onKeyPress={handleKeyPress}
+                            onKeyDown={handleKeyDown}
                         />
                     </Col>
 
@@ -432,7 +444,7 @@ const TuitionPage = () => {
                             placeholder="e.g. 017xxxxxxxx"
                             value={searchInputs.phone}
                             onChange={(e) => handleSearchInputChange('phone', e.target.value)}
-                            onKeyPress={handleKeyPress}
+                            onKeyDown={handleKeyDown}
                         />
                     </Col>
 
@@ -440,7 +452,14 @@ const TuitionPage = () => {
                         <Form.Label className="fw-bold small mb-1" style={{ whiteSpace: 'nowrap' }}>Status Filter</Form.Label>
                         <Form.Select
                             value={searchInputs.statusFilter}
-                            onChange={(e) => handleSearchInputChange('statusFilter', e.target.value)}
+                            onChange={(e) => {
+                                const newStatus = e.target.value;
+                                const updated = { ...searchInputs, statusFilter: newStatus };
+                                setSearchInputs(updated);
+                                setAppliedFilters(updated);
+                                setCurrentPage(1);
+                                fetchTuitionApplyRecords(1, updated);
+                            }}
                         >
                             <option value="">All</option>
                             <option value="pending">Pending</option>
@@ -526,6 +545,12 @@ const TuitionPage = () => {
                                                 <div className="d-flex justify-content-center align-items-center" style={{ position: 'absolute', top: '90%', left: '50%', transform: 'translate(-50%, -50%)', width: '100vw', height: '100vh' }}>
                                                     <Spinner animation="border" variant="primary" size="lg" />
                                                 </div>
+                                            </td>
+                                        </tr>
+                                    ) : filteredTuitionList.length === 0 ? (
+                                        <tr>
+                                            <td colSpan="20" className="text-center py-4 text-muted fw-bold">
+                                                No tuition applications found.
                                             </td>
                                         </tr>
                                     ) : (
@@ -704,8 +729,8 @@ const TuitionPage = () => {
                             <Button
                                 variant="outline-primary"
                                 className="d-flex align-items-center gap-2 px-3 py-2 rounded-pill"
-                                disabled={currentPage === 1}
-                                onClick={() => setCurrentPage(prev => prev - 1)}
+                                disabled={currentPage <= 1 || loading}
+                                onClick={() => handlePageChange(currentPage - 1)}
                             >
                                 <FaChevronLeft /> Previous
                             </Button>
@@ -717,8 +742,8 @@ const TuitionPage = () => {
                             <Button
                                 variant="outline-primary"
                                 className="d-flex align-items-center gap-2 px-3 py-2 rounded-pill"
-                                disabled={currentPage === totalPages}
-                                onClick={() => setCurrentPage(prev => prev + 1)}
+                                disabled={currentPage >= totalPages || loading}
+                                onClick={() => handlePageChange(currentPage + 1)}
                             >
                                 Next <FaChevronRight />
                             </Button>

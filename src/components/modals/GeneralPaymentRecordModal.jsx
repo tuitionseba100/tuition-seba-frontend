@@ -164,6 +164,10 @@ const GeneralPaymentRecordModal = ({ show, onHide, editingId, initialData, onSav
                         value: initialData.premiumCode,
                         label: `${initialData.premiumCode}${initialData.tutorName ? ' - ' + initialData.tutorName : ''}${initialData.tutorNumber ? ' (' + initialData.tutorNumber + ')' : ''}`
                     });
+                } else if (initialData.tutorNumber) {
+                    // Auto-match teacher code from existing tutor number if premiumCode is missing
+                    setSelectedTeacherOption(null);
+                    searchTeacherByPhone(initialData.tutorNumber);
                 } else {
                     setSelectedTeacherOption(null);
                 }

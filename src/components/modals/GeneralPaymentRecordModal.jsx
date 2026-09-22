@@ -112,7 +112,14 @@ const GeneralPaymentRecordModal = ({ show, onHide, editingId, initialData, onSav
 
     const searchTeacherByPhone = async (phoneValue) => {
         const phone10 = normalizeBDPhone10(phoneValue);
-        if (!phone10) return;
+        if (!phone10) {
+            setSelectedTeacherOption(null);
+            setPaymentData(prev => ({
+                ...prev,
+                premiumCode: ''
+            }));
+            return;
+        }
 
         try {
             setIsTeacherSearching(true);
@@ -121,26 +128,34 @@ const GeneralPaymentRecordModal = ({ show, onHide, editingId, initialData, onSav
                 headers: { Authorization: token }
             });
             const teachers = response.data || [];
-            if (teachers.length > 0) {
-                // Strictly match the 10-digit phone across phone, whatsapp, and alternativePhone
-                const matchedTeacher = teachers.find(t => {
+            
+            // Strictly match the 10-digit phone across phone, whatsapp, and alternativePhone
+            const matchedTeacher = teachers.length > 0
+                ? teachers.find(t => {
                     const tPhones = [t.phone, t.whatsapp, t.alternativePhone];
                     return tPhones.some(num => normalizeBDPhone10(num) === phone10);
-                });
+                })
+                : null;
 
-                if (matchedTeacher) {
-                    const opt = {
-                        value: matchedTeacher.premiumCode,
-                        label: `${matchedTeacher.premiumCode} - ${matchedTeacher.name || 'Unnamed'} (${formatTeacherPhones(matchedTeacher)})`,
-                        teacher: matchedTeacher
-                    };
-                    setSelectedTeacherOption(opt);
-                    setPaymentData(prev => ({
-                        ...prev,
-                        premiumCode: matchedTeacher.premiumCode || prev.premiumCode,
-                        tutorName: prev.tutorName ? prev.tutorName : (matchedTeacher.name || prev.tutorName)
-                    }));
-                }
+            if (matchedTeacher) {
+                const opt = {
+                    value: matchedTeacher.premiumCode,
+                    label: `${matchedTeacher.premiumCode} - ${matchedTeacher.name || 'Unnamed'} (${formatTeacherPhones(matchedTeacher)})`,
+                    teacher: matchedTeacher
+                };
+                setSelectedTeacherOption(opt);
+                setPaymentData(prev => ({
+                    ...prev,
+                    premiumCode: matchedTeacher.premiumCode,
+                    tutorName: prev.tutorName ? prev.tutorName : (matchedTeacher.name || prev.tutorName)
+                }));
+            } else {
+                // Phone number is not associated with any teacher profile -> clear Teacher Code
+                setSelectedTeacherOption(null);
+                setPaymentData(prev => ({
+                    ...prev,
+                    premiumCode: ''
+                }));
             }
         } catch (err) {
             console.error('Error auto-matching teacher by phone:', err);

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Button, Table, Modal, Form, Row, Col, Card } from 'react-bootstrap';
-import { FaEdit, FaTrashAlt, FaChevronLeft, FaChevronRight, FaSearch, FaUndo } from 'react-icons/fa';
+import { Button, Table, Modal, Form, Row, Col, Card, Badge, OverlayTrigger, Tooltip } from 'react-bootstrap';
+import { FaEdit, FaTrashAlt, FaChevronLeft, FaChevronRight, FaSearch, FaUndo, FaBell, FaInfoCircle } from 'react-icons/fa';
 import { axiosWithFallback as axios } from '../services/fetchWithFallback';
 import NavBarPage from './NavbarPage';
 import styled from 'styled-components';
@@ -24,7 +24,17 @@ const PhonePage = () => {
         isActive: false,
         isBestGuardian: false,
         isBanned: false,
+        lastFollowUpDate: '',
+        lastFollowUpComment: '',
+        nextFollowUpDate: '',
+        nextFollowUpComment: '',
     });
+    // Follow-up today
+    const [followUpTodayList, setFollowUpTodayList] = useState([]);
+    const [showFollowUpModal, setShowFollowUpModal] = useState(false);
+    const [filterFollowUpToday, setFilterFollowUpToday] = useState(false);
+    const [showDetailsModal, setShowDetailsModal] = useState(false);
+    const [detailsItem, setDetailsItem] = useState(null);
     const [searchInputs, setSearchInputs] = useState({
         phone: '',
         type: ''
@@ -50,6 +60,7 @@ const PhonePage = () => {
     useEffect(() => {
         fetchRecords();
         fetchSummaryCounts();
+        fetchFollowUpToday();
     }, [currentPage, appliedFilters]);
 
     const handleSearch = () => {
@@ -62,6 +73,7 @@ const PhonePage = () => {
         setSearchInputs(resetState);
         setAppliedFilters(resetState);
         setCurrentPage(1);
+        setFilterFollowUpToday(false);
     };
 
 
@@ -95,6 +107,15 @@ const PhonePage = () => {
         }
     };
 
+    const fetchFollowUpToday = async () => {
+        try {
+            const response = await axios.get(`${BASE_URL}/alert-today`);
+            setFollowUpTodayList(response.data || []);
+        } catch (err) {
+            console.error('Error fetching follow-up today:', err);
+        }
+    };
+
     const handleExportToExcel = async () => {
         try {
             setLoading(true);
@@ -123,7 +144,11 @@ const PhonePage = () => {
                 "IsBest Guardian",
                 "Is Banned",
                 "Created By",
-                "Updated By"
+                "Updated By",
+                "Last Follow Up Date",
+                "Last Follow Up Comment",
+                "Next Follow Up Date",
+                "Next Follow Up Comment",
             ];
 
             const tableData = exportData.map(item => [
@@ -138,6 +163,10 @@ const PhonePage = () => {
                 String(item.isBanned ?? ""),
                 String(item.createdBy ?? ""),
                 String(item.updatedBy ?? ""),
+                item.lastFollowUpDate ? formatDate(item.lastFollowUpDate) : "",
+                String(item.lastFollowUpComment ?? ""),
+                item.nextFollowUpDate ? formatDate(item.nextFollowUpDate) : "",
+                String(item.nextFollowUpComment ?? ""),
             ]);
 
             const worksheet = XLSX.utils.aoa_to_sheet([tableHeaders, ...tableData]);
@@ -207,7 +236,9 @@ const PhonePage = () => {
 
         const updatedData = {
             ...phoneData,
-            phone: inputNumbers.join('/')
+            phone: inputNumbers.join('/'),
+            lastFollowUpDate: phoneData.lastFollowUpDate || null,
+            nextFollowUpDate: phoneData.nextFollowUpDate || null,
         };
         try {
             if (editingId) {
@@ -222,6 +253,7 @@ const PhonePage = () => {
             setShowModal(false);
             fetchRecords();
             fetchSummaryCounts();
+            fetchFollowUpToday();
         } catch (err) {
             console.error('Error:', err);
             const errorMessage = err.response?.data?.message || err.response?.data || err.message || "Error saving record.";
@@ -230,15 +262,20 @@ const PhonePage = () => {
     };
 
     const formatDate = (dateString) => {
+        if (!dateString) return '-';
         const date = new Date(dateString);
-
         const optionsDate = { day: '2-digit', month: 'long', year: 'numeric', timeZone: 'UTC' };
         const optionsTime = { hour: '2-digit', minute: '2-digit', hour12: true, timeZone: 'UTC' };
-
         const formattedDate = new Intl.DateTimeFormat('en-GB', optionsDate).format(date);
         const formattedTime = new Intl.DateTimeFormat('en-GB', optionsTime).format(date);
-
         return `${formattedDate} || ${formattedTime}`;
+    };
+
+    const formatDateInput = (dateString) => {
+        if (!dateString) return '';
+        const d = new Date(dateString);
+        if (isNaN(d)) return '';
+        return d.toISOString().split('T')[0];
     };
 
     const handleEditRecord = (data) => {
@@ -251,6 +288,10 @@ const PhonePage = () => {
             isActive: !!data.isActive,
             isBestGuardian: !!data.isBestGuardian,
             isBanned: !!data.isBanned,
+            lastFollowUpDate: formatDateInput(data.lastFollowUpDate),
+            lastFollowUpComment: data.lastFollowUpComment ?? '',
+            nextFollowUpDate: formatDateInput(data.nextFollowUpDate),
+            nextFollowUpComment: data.nextFollowUpComment ?? '',
         });
         setEditingId(data._id);
         setShowModal(true);
@@ -265,6 +306,7 @@ const PhonePage = () => {
                 toast.success("Record deleted successfully!");
                 fetchRecords();
                 fetchSummaryCounts();
+                fetchFollowUpToday();
             } catch (err) {
                 console.error('Error deleting record:', err);
                 toast.error("Error deleting record.");
@@ -288,7 +330,7 @@ const PhonePage = () => {
                             onClick={() => {
                                 setShowModal(true);
                                 setEditingId(null);
-                                setPhoneData({ phone: '', note: '', isSpam: false, isBest: false, isExpress: false, isActive: false, isBestGuardian: false, isBanned: false });
+                                setPhoneData({ phone: '', note: '', isSpam: false, isBest: false, isExpress: false, isActive: false, isBestGuardian: false, isBanned: false, lastFollowUpDate: '', lastFollowUpComment: '', nextFollowUpDate: '', nextFollowUpComment: '' });
                             }}
                         >
                             Create Phone Record
@@ -466,6 +508,35 @@ const PhonePage = () => {
                     </Col>
                 </Row>
 
+                {/* Follow Up Today Banner */}
+                <div className="d-flex align-items-center justify-content-center flex-wrap gap-2 mb-3">
+                    <h5 className="me-3 d-flex align-items-center gap-2 mb-0">
+                        <FaBell className="text-primary" />
+                        <span>Phone Follow Up Today: {followUpTodayList.length}</span>
+                        <Button
+                            size="sm"
+                            variant={filterFollowUpToday ? "warning" : "outline-primary"}
+                            onClick={() => setFilterFollowUpToday(v => !v)}
+                            className="ms-1"
+                        >
+                            {filterFollowUpToday ? "Showing Today (Click to Reset)" : "Filter Today"}
+                        </Button>
+                        <OverlayTrigger
+                            placement="top"
+                            overlay={<Tooltip id="tooltip-phone-followup">Click to see follow-up list modal</Tooltip>}
+                        >
+                            <Button
+                                size="sm"
+                                variant="outline-secondary"
+                                onClick={() => setShowFollowUpModal(true)}
+                                className="ms-1"
+                            >
+                                View Modal
+                            </Button>
+                        </OverlayTrigger>
+                    </h5>
+                </div>
+
                 {role === "superadmin" && (
                     <Button
                         variant="success"
@@ -495,18 +566,22 @@ const PhonePage = () => {
                                         <th>Is Best Guardian</th>
                                         <th>Is Banned</th>
                                         <th>Is Active</th>
+                                        <th>Last Follow Up Date</th>
+                                        <th>Last Follow Up Comment</th>
+                                        <th>Next Follow Up Date</th>
+                                        <th>Next Follow Up Comment</th>
                                         <th>Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {loading ? (
                                         <tr>
-                                            <td colSpan="20" className="text-center">
+                                            <td colSpan="24" className="text-center">
                                                 <Spinner animation="border" variant="primary" />
                                             </td>
                                         </tr>
                                     ) : (
-                                        filteredPhoneList.map((item, index) => (
+                                        (filterFollowUpToday ? filteredPhoneList.filter(i => followUpTodayList.some(f => f._id === i._id)) : filteredPhoneList).map((item, index) => (
 
                                             <tr key={item._id}>
                                                 <td>{(currentPage - 1) * 20 + index + 1}</td>
@@ -568,7 +643,18 @@ const PhonePage = () => {
                                                         color: item.isBanned ? '#dc3545' : '#007bff'
                                                     }}>{item.isBanned ? 'Yes' : 'No'}</td>
                                                 <td>{item.isActive ? 'Yes' : 'No'}</td>
+                                                <td style={{ whiteSpace: 'nowrap' }}>
+                                                    {item.lastFollowUpDate ? <Badge bg="secondary">{formatDate(item.lastFollowUpDate)}</Badge> : '-'}
+                                                </td>
+                                                <td>{item.lastFollowUpComment || '-'}</td>
+                                                <td style={{ whiteSpace: 'nowrap' }}>
+                                                    {item.nextFollowUpDate ? <Badge bg="primary">{formatDate(item.nextFollowUpDate)}</Badge> : '-'}
+                                                </td>
+                                                <td>{item.nextFollowUpComment || '-'}</td>
                                                 <td style={{ display: 'flex', justifyContent: 'flex-start', gap: '8px' }}>
+                                                    <Button variant="info" onClick={() => { setDetailsItem(item); setShowDetailsModal(true); }} title="View Details">
+                                                        <FaInfoCircle />
+                                                    </Button>
                                                     <Button variant="warning" onClick={() => handleEditRecord(item)} className="mr-2">
                                                         <FaEdit />
                                                     </Button>
@@ -771,6 +857,59 @@ const PhonePage = () => {
                                     </Col>
                                 </Row>
                             </div>
+
+                            {/* Follow Up Section */}
+                            <div className="mt-4">
+                                <h6 className="text-muted fw-bold mb-3 border-bottom pb-2">Follow Up</h6>
+                                <Row className="g-3">
+                                    <Col md={6}>
+                                        <Form.Group controlId="lastFollowUpDate">
+                                            <Form.Label className="fw-bold">Last Follow Up Date</Form.Label>
+                                            <Form.Control
+                                                type="date"
+                                                value={phoneData.lastFollowUpDate ?? ''}
+                                                onChange={(e) => setPhoneData({ ...phoneData, lastFollowUpDate: e.target.value })}
+                                                className="shadow-sm"
+                                            />
+                                        </Form.Group>
+                                    </Col>
+                                    <Col md={6}>
+                                        <Form.Group controlId="lastFollowUpComment">
+                                            <Form.Label className="fw-bold">Last Follow Up Comment</Form.Label>
+                                            <Form.Control
+                                                type="text"
+                                                placeholder="What happened in last follow up..."
+                                                value={phoneData.lastFollowUpComment ?? ''}
+                                                onChange={(e) => setPhoneData({ ...phoneData, lastFollowUpComment: e.target.value })}
+                                                className="shadow-sm"
+                                            />
+                                        </Form.Group>
+                                    </Col>
+                                    <Col md={6}>
+                                        <Form.Group controlId="nextFollowUpDate">
+                                            <Form.Label className="fw-bold text-primary">Next Follow Up Date</Form.Label>
+                                            <Form.Control
+                                                type="date"
+                                                value={phoneData.nextFollowUpDate ?? ''}
+                                                onChange={(e) => setPhoneData({ ...phoneData, nextFollowUpDate: e.target.value })}
+                                                className="shadow-sm"
+                                            />
+                                        </Form.Group>
+                                    </Col>
+                                    <Col md={6}>
+                                        <Form.Group controlId="nextFollowUpComment">
+                                            <Form.Label className="fw-bold text-primary">Next Follow Up Comment</Form.Label>
+                                            <Form.Control
+                                                type="text"
+                                                placeholder="What to do in next follow up..."
+                                                value={phoneData.nextFollowUpComment ?? ''}
+                                                onChange={(e) => setPhoneData({ ...phoneData, nextFollowUpComment: e.target.value })}
+                                                className="shadow-sm"
+                                            />
+                                        </Form.Group>
+                                    </Col>
+                                </Row>
+                            </div>
                         </Form>
                     </Modal.Body>
 
@@ -782,6 +921,140 @@ const PhonePage = () => {
                     </Modal.Footer>
                 </Modal>
 
+                {/* Follow Up Today Modal */}
+                <Modal show={showFollowUpModal} onHide={() => setShowFollowUpModal(false)} size="xl">
+                    <Modal.Header closeButton className="bg-primary text-white">
+                        <Modal.Title className="flex-grow-1 text-center fw-bold">
+                            <FaBell className="text-warning" />
+                            <span className="ms-2">Phone Follow Up Today: {followUpTodayList.length}</span>
+                        </Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body className="p-0 bg-light">
+                        {followUpTodayList.length > 0 ? (
+                            <div className="table-responsive" style={{ maxHeight: 'calc(100vh - 200px)', overflowY: 'auto' }}>
+                                <table className="table table-striped table-bordered table-hover mb-0">
+                                    <thead className="bg-dark text-white text-center" style={{ position: 'sticky', top: 0 }}>
+                                        <tr>
+                                            <th>SL</th>
+                                            <th>Phone</th>
+                                            <th>Note</th>
+                                            <th>Type</th>
+                                            <th>Created By / Updated By</th>
+                                            <th>Last Follow Up Date</th>
+                                            <th>Last Follow Up Comment</th>
+                                            <th>Next Follow Up Date</th>
+                                            <th>Next Follow Up Comment</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {followUpTodayList.map((item, idx) => (
+                                            <tr key={item._id} className="align-middle text-center">
+                                                <td>{idx + 1}</td>
+                                                <td style={{ fontWeight: 'bold', color: item.isSpam ? '#dc3545' : '#007bff' }}>{item.phone}</td>
+                                                <td className="text-start">{item.note || '-'}</td>
+                                                <td className="fw-bold">
+                                                    {[item.isBest && 'Best Teacher', item.isBestGuardian && 'Best Guardian', item.isSpam && 'Spam', item.isExpress && 'Express', item.isBanned && 'Banned'].filter(Boolean).join(' & ')}
+                                                </td>
+                                                <td className="text-start">
+                                                    <div className="d-flex flex-column gap-1">
+                                                        <span className="badge rounded-pill fw-normal" style={{ backgroundColor: '#e8f5e9', color: '#2e7d32', border: '1px solid #c8e6c9' }}>CB: {item.createdBy || '-'}</span>
+                                                        <span className="badge rounded-pill fw-normal" style={{ backgroundColor: '#e3f2fd', color: '#1565c0', border: '1px solid #bbdefb' }}>UB: {item.updatedBy || '-'}</span>
+                                                    </div>
+                                                </td>
+                                                <td><Badge bg="secondary">{formatDate(item.lastFollowUpDate)}</Badge></td>
+                                                <td className="text-start">{item.lastFollowUpComment || '-'}</td>
+                                                <td><Badge bg="primary">{formatDate(item.nextFollowUpDate)}</Badge></td>
+                                                <td className="text-start">{item.nextFollowUpComment || '-'}</td>
+                                                <td>
+                                                    <Button variant="warning" size="sm" onClick={() => { setShowFollowUpModal(false); handleEditRecord(item); }}>
+                                                        <FaEdit />
+                                                    </Button>
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        ) : (
+                            <div className="text-center text-muted py-5">
+                                <h5>No phone follow-ups scheduled for today.</h5>
+                            </div>
+                        )}
+                    </Modal.Body>
+                    <Modal.Footer>
+                        <Button variant="secondary" onClick={() => setShowFollowUpModal(false)}>Close</Button>
+                    </Modal.Footer>
+                </Modal>
+
+                {/* Details Modal */}
+                <Modal show={showDetailsModal} onHide={() => setShowDetailsModal(false)} centered>
+                    <Modal.Header closeButton style={{ background: 'linear-gradient(135deg, #1565c0, #0d47a1)', color: '#fff', padding: '12px 20px' }}>
+                        <Modal.Title className="fw-bold d-flex align-items-center gap-2" style={{ fontSize: '1rem' }}>
+                            <FaInfoCircle className="text-warning" />
+                            {detailsItem?.phone || 'Phone Details'}
+                        </Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body className="p-0">
+                        {detailsItem && (
+                            <table className="table table-sm table-borderless mb-0" style={{ fontSize: '0.875rem' }}>
+                                <tbody>
+                                    <tr style={{ background: '#f0f4ff' }}>
+                                        <td className="fw-semibold text-muted ps-3 py-2" style={{ width: '40%' }}>Tags</td>
+                                        <td className="py-2 pe-3">
+                                            <div className="d-flex flex-wrap gap-1">
+                                                {detailsItem.isBest && <Badge bg="primary" style={{ fontSize: '0.75rem' }}>Best Teacher</Badge>}
+                                                {detailsItem.isBestGuardian && <Badge bg="info" style={{ fontSize: '0.75rem' }}>Best Guardian</Badge>}
+                                                {detailsItem.isSpam && <Badge bg="danger" style={{ fontSize: '0.75rem' }}>Spam</Badge>}
+                                                {detailsItem.isExpress && <Badge bg="success" style={{ fontSize: '0.75rem' }}>Express</Badge>}
+                                                {detailsItem.isBanned && <Badge bg="dark" style={{ fontSize: '0.75rem' }}>Banned</Badge>}
+                                                {detailsItem.isActive && <Badge bg="secondary" style={{ fontSize: '0.75rem' }}>Active</Badge>}
+                                                {!detailsItem.isBest && !detailsItem.isBestGuardian && !detailsItem.isSpam && !detailsItem.isExpress && !detailsItem.isBanned && <span className="text-muted">—</span>}
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td className="fw-semibold text-muted ps-3 py-2">Note</td>
+                                        <td className="py-2 pe-3">{detailsItem.note || '—'}</td>
+                                    </tr>
+                                    <tr style={{ background: '#f0f4ff' }}>
+                                        <td className="fw-semibold text-muted ps-3 py-2">Created By</td>
+                                        <td className="py-2 pe-3 fw-semibold" style={{ color: '#2e7d32' }}>{detailsItem.createdBy || '—'}</td>
+                                    </tr>
+                                    <tr>
+                                        <td className="fw-semibold text-muted ps-3 py-2">Updated By</td>
+                                        <td className="py-2 pe-3 fw-semibold" style={{ color: '#1565c0' }}>{detailsItem.updatedBy || '—'}</td>
+                                    </tr>
+                                    <tr style={{ background: '#f0f4ff' }}>
+                                        <td className="fw-semibold text-muted ps-3 py-2">Created At</td>
+                                        <td className="py-2 pe-3">{detailsItem.createdAt ? formatDate(detailsItem.createdAt) : '—'}</td>
+                                    </tr>
+                                    <tr className="table-active">
+                                        <td colSpan={2} className="fw-bold text-primary ps-3 py-1" style={{ fontSize: '0.78rem', letterSpacing: '0.05em', textTransform: 'uppercase' }}>Follow Up</td>
+                                    </tr>
+                                    <tr style={{ background: '#f0f4ff' }}>
+                                        <td className="fw-semibold text-muted ps-3 py-2">Last Follow Up</td>
+                                        <td className="py-2 pe-3">
+                                            {detailsItem.lastFollowUpDate ? <><Badge bg="secondary" style={{ fontSize: '0.75rem' }}>{formatDate(detailsItem.lastFollowUpDate)}</Badge><div className="text-muted small mt-1">{detailsItem.lastFollowUpComment || ''}</div></> : '—'}
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td className="fw-semibold text-muted ps-3 py-2">Next Follow Up</td>
+                                        <td className="py-2 pe-3">
+                                            {detailsItem.nextFollowUpDate ? <><Badge bg="primary" style={{ fontSize: '0.75rem' }}>{formatDate(detailsItem.nextFollowUpDate)}</Badge><div className="text-muted small mt-1">{detailsItem.nextFollowUpComment || ''}</div></> : '—'}
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        )}
+                    </Modal.Body>
+                    <Modal.Footer style={{ padding: '8px 16px', borderTop: '1px solid #e9ecef' }}>
+                        <Button size="sm" variant="warning" onClick={() => { setShowDetailsModal(false); handleEditRecord(detailsItem); }}>
+                            <FaEdit className="me-1" /> Edit
+                        </Button>
+                        <Button size="sm" variant="outline-secondary" onClick={() => setShowDetailsModal(false)}>Close</Button>
+                    </Modal.Footer>
+                </Modal>
 
                 <ToastContainer />
             </Container>

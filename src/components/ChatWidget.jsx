@@ -286,7 +286,8 @@ Joining: ${details.joining || ''}
                 currentUser = {
                   name: teacherFullData.name || 'Premium Member',
                   phone: data.data.phone,
-                  premiumCode: data.data.premiumCode
+                  premiumCode: data.data.premiumCode,
+                  chatToken: data.data.chatToken
                 };
 
                 // Save user settings to localStorage so they don't lose session
@@ -294,6 +295,7 @@ Joining: ${details.joining || ''}
                   userName: currentUser.name,
                   phone: currentUser.phone,
                   premiumCode: currentUser.premiumCode,
+                  chatToken: currentUser.chatToken,
                   areas: teacherFullData.currentArea ? [teacherFullData.currentArea] : []
                 };
                 localStorage.setItem('@user_settings', JSON.stringify(settingsData));
@@ -393,11 +395,12 @@ Joining: ${details.joining || ''}
                   const verifiedUser = {
                     name: teacherFullData.name || 'Premium Member',
                     phone: data.data.phone,
-                    premiumCode: data.data.premiumCode
+                    premiumCode: data.data.premiumCode,
+                    chatToken: data.data.chatToken
                   };
                   setUser(verifiedUser);
 
-                  const histRes = await fetchWithFallback(`${BASE_URL}/api/chat/history/${verifiedUser.phone}?limit=20`);
+                  const histRes = await fetchWithFallback(`${BASE_URL}/api/chat/history/${verifiedUser.phone}?limit=20&chatToken=${verifiedUser.chatToken}`);
                   const histData = await histRes.json();
                   if (histData.length === 0) {
                     setMessages([{ sender: 'bot', text: `Welcome, **${verifiedUser.name}**! 💬\n\nPlease type your message below a support representative will reply directly.` }]);
@@ -545,7 +548,8 @@ Joining: ${details.joining || ''}
         const verifiedUser = {
           name: teacherFullData.name || 'Premium Member',
           phone: data.data.phone,
-          premiumCode: data.data.premiumCode
+          premiumCode: data.data.premiumCode,
+          chatToken: data.data.chatToken
         };
 
         // Save user settings to localStorage so they don't lose session
@@ -553,6 +557,7 @@ Joining: ${details.joining || ''}
           userName: verifiedUser.name,
           phone: verifiedUser.phone,
           premiumCode: verifiedUser.premiumCode,
+          chatToken: verifiedUser.chatToken,
           areas: teacherFullData.currentArea ? [teacherFullData.currentArea] : []
         };
         localStorage.setItem('@user_settings', JSON.stringify(settingsData));
@@ -561,7 +566,7 @@ Joining: ${details.joining || ''}
         setUser(verifiedUser);
 
         // Load history (Initial load limit = 20)
-        const histRes = await fetchWithFallback(`${BASE_URL}/api/chat/history/${verifiedUser.phone}?limit=20`);
+        const histRes = await fetchWithFallback(`${BASE_URL}/api/chat/history/${verifiedUser.phone}?limit=20&chatToken=${verifiedUser.chatToken}`);
         const histData = await histRes.json();
 
         if (histData.length === 0) {
@@ -590,7 +595,7 @@ Joining: ${details.joining || ''}
     if (messages.length === 0 || !user) return;
     const firstMsgTimestamp = messages[0].createdAt;
     try {
-      const res = await fetchWithFallback(`${BASE_URL}/api/chat/history/${user.phone}?before=${firstMsgTimestamp}&limit=20`);
+      const res = await fetchWithFallback(`${BASE_URL}/api/chat/history/${user.phone}?before=${firstMsgTimestamp}&limit=20&chatToken=${user.chatToken}`);
       const data = await res.json();
       if (data.length > 0) {
         setMessages((prev) => [...data, ...prev]);

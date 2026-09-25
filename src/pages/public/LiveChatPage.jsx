@@ -148,7 +148,8 @@ export default function LiveChatPage() {
         const verifiedUser = {
           name: teacherFullData.name || 'Premium Member',
           phone: data.data.phone,
-          premiumCode: data.data.premiumCode
+          premiumCode: data.data.premiumCode,
+          chatToken: data.data.chatToken
         };
 
         // Save user settings to localStorage so they don't lose session
@@ -156,6 +157,7 @@ export default function LiveChatPage() {
           userName: verifiedUser.name,
           phone: verifiedUser.phone,
           premiumCode: verifiedUser.premiumCode,
+          chatToken: verifiedUser.chatToken,
           areas: teacherFullData.currentArea ? [teacherFullData.currentArea] : []
         };
         localStorage.setItem('@user_settings', JSON.stringify(settingsData));
@@ -164,7 +166,7 @@ export default function LiveChatPage() {
         setUser(verifiedUser);
 
         // Load history (Initial load limit = 20)
-        const histRes = await fetchWithFallback(`${BASE_URL}/api/chat/history/${verifiedUser.phone}?limit=20`);
+        const histRes = await fetchWithFallback(`${BASE_URL}/api/chat/history/${verifiedUser.phone}?limit=20&chatToken=${verifiedUser.chatToken}`);
         const histData = await histRes.json();
 
         if (histData.length === 0) {
@@ -196,7 +198,7 @@ export default function LiveChatPage() {
     const firstMsgTimestamp = messages[0].createdAt;
     setLoadingMore(true);
     try {
-      const res = await fetchWithFallback(`${BASE_URL}/api/chat/history/${user.phone}?before=${firstMsgTimestamp}&limit=20`);
+      const res = await fetchWithFallback(`${BASE_URL}/api/chat/history/${user.phone}?before=${firstMsgTimestamp}&limit=20&chatToken=${user.chatToken}`);
       const data = await res.json();
       if (data.length > 0) {
         setMessages((prev) => [...data, ...prev]);

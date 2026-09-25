@@ -273,7 +273,9 @@ const AttendancePage = () => {
 
     useEffect(() => {
         fetchAttendance();
-        fetchUsers();
+        if (userRole === 'superadmin') {
+            fetchUsers();
+        }
 
         // Check if day is started when component mounts
         const checkDayStatus = async () => {
@@ -290,14 +292,21 @@ const AttendancePage = () => {
                 headers: { Authorization: token },
             });
             setAttendance(response.data);
+
+            // Directly update day-started status if active session found
+            if (Array.isArray(response.data)) {
+                const currentUsername = localStorage.getItem('username');
+                const hasActive = response.data.some(entry => 
+                    !entry.endTime && (userRole !== 'superadmin' || entry.userName === currentUsername)
+                );
+                if (hasActive) {
+                    setIsDayStarted(true);
+                }
+            }
         } catch (error) {
             toast.error('Error fetching attendance');
         } finally {
             setIsLoadingData(false);
-
-            // Refresh day started status after fetching attendance
-            const dayStarted = await checkDayStarted();
-            setIsDayStarted(dayStarted);
         }
     };
 

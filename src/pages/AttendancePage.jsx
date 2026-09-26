@@ -255,6 +255,9 @@ const AttendancePage = () => {
     const [users, setUsers] = useState([]);
     const [userFilter, setUserFilter] = useState(null);
     const [showEditModal, setShowEditModal] = useState(false);
+    const [showSummaryModal, setShowSummaryModal] = useState(false);
+    const [summaryData, setSummaryData] = useState([]);
+    const [isSummaryLoading, setIsSummaryLoading] = useState(false);
     const [editingAttendance, setEditingAttendance] = useState(null);
     const [editStartTime, setEditStartTime] = useState(new Date());
     const [editEndTime, setEditEndTime] = useState(new Date());
@@ -272,41 +275,91 @@ const AttendancePage = () => {
     const userRole = localStorage.getItem('role');
 
     useEffect(() => {
-        fetchAttendance();
         if (userRole === 'superadmin') {
             fetchUsers();
         }
-
-        // Check if day is started when component mounts
-        const checkDayStatus = async () => {
-            const dayStarted = await checkDayStarted();
-            setIsDayStarted(dayStarted);
-        };
-        checkDayStatus();
     }, []);
 
-    const fetchAttendance = async () => {
+    useEffect(() => {
+        fetchAttendance(filter, userFilter);
+    }, [filter, userFilter]);
+
+    const fetchAttendance = async (currentFilter = filter, currentUserFilter = userFilter) => {
         setIsLoadingData(true);
         try {
+            const params = {
+                filter: currentFilter || 'today',
+            };
+            if (currentUserFilter?.value) {
+                params.userFilter = currentUserFilter.value;
+            }
+
             const response = await axios.get('https://tuition-seba-backend-1.onrender.com/api/attendance', {
+                params,
                 headers: { Authorization: token },
             });
-            setAttendance(response.data);
+            
+            const rawData = Array.isArray(response.data) ? response.data : [];
+            
+            // Pre-process & cache date properties ONCE for high-speed rendering
+            const currentUsername = localStorage.getItem('username');
+            let hasActive = false;
 
-            // Directly update day-started status if active session found
-            if (Array.isArray(response.data)) {
-                const currentUsername = localStorage.getItem('username');
-                const hasActive = response.data.some(entry => 
-                    !entry.endTime && (userRole !== 'superadmin' || entry.userName === currentUsername)
-                );
-                if (hasActive) {
-                    setIsDayStarted(true);
+            const processed = rawData.map(entry => {
+                const sDate = new Date(entry.startTime);
+                const sTimeMs = sDate.getTime();
+                const sDateStr = sDate.toDateString();
+                const eDate = entry.endTime ? new Date(entry.endTime) : null;
+                const eTimeMs = eDate ? eDate.getTime() : null;
+
+                if (!entry.endTime && (userRole !== 'superadmin' || entry.userName === currentUsername)) {
+                    hasActive = true;
                 }
-            }
+
+                return {
+                    ...entry,
+                    startTimeMs: sTimeMs,
+                    endTimeMs: eTimeMs,
+                    startDateStr: sDateStr,
+                    startYear: sDate.getFullYear(),
+                    startMonth: sDate.getMonth(),
+                    formattedStartTime: sDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                    formattedStartDate: sDate.toLocaleDateString('en-GB'),
+                    formattedEndTime: eDate ? eDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : null,
+                    formattedEndDate: eDate ? eDate.toLocaleDateString('en-GB') : null,
+                };
+            });
+
+            setAttendance(processed);
+            setIsDayStarted(hasActive);
         } catch (error) {
             toast.error('Error fetching attendance');
         } finally {
             setIsLoadingData(false);
+        }
+    };
+
+    const fetchSummary = async () => {
+        setIsSummaryLoading(true);
+        setShowSummaryModal(true);
+        try {
+            const params = {
+                filter: filter || 'today',
+            };
+            if (userFilter?.value) {
+                params.userFilter = userFilter.value;
+            }
+
+            const response = await axios.get('https://tuition-seba-backend-1.onrender.com/api/attendance/summary', {
+                params,
+                headers: { Authorization: token },
+            });
+            setSummaryData(Array.isArray(response.data) ? response.data : []);
+        } catch (error) {
+            toast.error('Error fetching employee summary');
+            setSummaryData([]);
+        } finally {
+            setIsSummaryLoading(false);
         }
     };
 
@@ -321,148 +374,61 @@ const AttendancePage = () => {
         }
     };
 
-    const refreshDayStatus = async () => {
-        const dayStarted = await checkDayStarted();
-        setIsDayStarted(dayStarted);
-    };
-
     const filteredAttendance = useMemo(() => {
-        const now = new Date();
-        let filtered = [...attendance];
+        if (!attendance.length) return [];
 
-        // Date Filter
-        if (filter === 'all') {
-            // No date filtering - show all records
-        } else if (filter === 'today') {
-            filtered = filtered.filter(entry => {
-                const startDate = new Date(entry.startTime);
-                return startDate.toDateString() === now.toDateString();
-            });
-        } else if (filter === 'last7days') {
-            const last7Days = new Date();
-            last7Days.setDate(now.getDate() - 7);
-            filtered = filtered.filter(entry => new Date(entry.startTime) >= last7Days);
-        } else if (filter === 'lastMonth') {
-            // Last month: from 1st of previous month to last day of previous month
-            const firstDayOfCurrentMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-            const lastDayOfLastMonth = new Date(firstDayOfCurrentMonth.getTime() - 1);
-            const firstDayOfLastMonth = new Date(lastDayOfLastMonth.getFullYear(), lastDayOfLastMonth.getMonth(), 1);
-
-            filtered = filtered.filter(entry => {
-                const entryDate = new Date(entry.startTime);
-                return entryDate >= firstDayOfLastMonth && entryDate <= lastDayOfLastMonth;
-            });
-        } else if (filter === 'runningMonth') {
-            // Current month: from 1st of current month to today
-            const firstDayOfCurrentMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-
-            filtered = filtered.filter(entry => {
-                const entryDate = new Date(entry.startTime);
-                return entryDate >= firstDayOfCurrentMonth && entryDate <= now;
-            });
-        } else {
-            // Specific month filter
-            const monthIndex = new Date(`${filter} 1, ${now.getFullYear()}`).getMonth();
-            const year = now.getFullYear();
-
-            const firstDayOfMonth = new Date(year, monthIndex, 1);
-            const lastDayOfMonth = new Date(year, monthIndex + 1, 0, 23, 59, 59, 999);
-
-            filtered = filtered.filter(entry => {
-                const entryDate = new Date(entry.startTime);
-                return entryDate >= firstDayOfMonth && entryDate <= lastDayOfMonth;
-            });
+        if (!searchTerm.trim()) {
+            return attendance;
         }
 
-        // User Filter
-        if (userFilter) {
-            filtered = filtered.filter(entry => entry.userId === userFilter.value);
-        }
+        const lowerSearch = searchTerm.toLowerCase();
+        return attendance.filter(entry =>
+            entry.userName?.toLowerCase().includes(lowerSearch) ||
+            entry.name?.toLowerCase().includes(lowerSearch)
+        );
+    }, [attendance, searchTerm]);
 
-        // Search Filter
-        if (searchTerm.trim()) {
-            const lowerSearch = searchTerm.toLowerCase();
-            filtered = filtered.filter(entry =>
-                entry.userName?.toLowerCase().includes(lowerSearch)
-            );
-        }
-
-        // Sort by startTime descending (newest first)
-        return filtered.sort((a, b) => new Date(b.startTime) - new Date(a.startTime));
-    }, [attendance, filter, userFilter, searchTerm]);
-
-    // Statistics Calculation
+    // Statistics Calculation (Single fast loop on loaded records)
     const stats = useMemo(() => {
-        const now = new Date();
-        const todayEntries = attendance.filter(entry => new Date(entry.startTime).toDateString() === now.toDateString());
-        const activeNow = todayEntries.filter(entry => !entry.endTime);
+        const todayStr = new Date().toDateString();
+        let totalPresentTodaySet = new Set();
+        let activeSessionsCount = 0;
+        let totalHoursFiltered = 0;
+        let completedSessionsCount = 0;
 
-        // Filtered stats
-        const completedSessionsFiltered = filteredAttendance.filter(e => e.endTime);
-        const totalHoursFiltered = completedSessionsFiltered.reduce((acc, curr) => {
-            const duration = (new Date(curr.endTime) - new Date(curr.startTime)) / (1000 * 60 * 60);
-            return acc + duration;
-        }, 0);
+        for (let i = 0; i < filteredAttendance.length; i++) {
+            const entry = filteredAttendance[i];
+            if (entry.startDateStr === todayStr) {
+                totalPresentTodaySet.add(entry.userId);
+            }
+            if (!entry.endTimeMs) {
+                activeSessionsCount++;
+            } else if (entry.startTimeMs) {
+                totalHoursFiltered += (entry.endTimeMs - entry.startTimeMs) / 3600000;
+                completedSessionsCount++;
+            }
+        }
 
-        const avgHours = completedSessionsFiltered.length > 0
-            ? (totalHoursFiltered / completedSessionsFiltered.length).toFixed(1)
+        const avgHours = completedSessionsCount > 0
+            ? (totalHoursFiltered / completedSessionsCount).toFixed(1)
             : '0.0';
 
         return {
-            totalPresentToday: new Set(todayEntries.map(e => e.userId)).size,
-            activeSessions: activeNow.length,
+            totalPresentToday: totalPresentTodaySet.size,
+            activeSessions: activeSessionsCount,
             filteredCount: filteredAttendance.length,
             avgHoursFiltered: avgHours
         };
-    }, [attendance, filteredAttendance]);
-
-    // User Log Summary (Grouped)
-    const userSummaries = useMemo(() => {
-        const summaryMap = {};
-
-        filteredAttendance.forEach(entry => {
-            if (!summaryMap[entry.userName]) {
-                summaryMap[entry.userName] = {
-                    name: entry.name,
-                    userName: entry.userName,
-                    totalSessions: 0,
-                    runningSessions: 0,
-                    totalHours: 0,
-                    presentDays: new Set()
-                };
-            }
-            summaryMap[entry.userName].totalSessions += 1;
-
-            // Count running sessions (those without endTime)
-            if (!entry.endTime) {
-                summaryMap[entry.userName].runningSessions += 1;
-            }
-
-            // Track unique present days
-            const sessionDate = new Date(entry.startTime).toDateString();
-            summaryMap[entry.userName].presentDays.add(sessionDate);
-
-            if (entry.endTime) {
-                const duration = (new Date(entry.endTime) - new Date(entry.startTime)) / (1000 * 60 * 60);
-                summaryMap[entry.userName].totalHours += duration;
-            }
-        });
-
-        return Object.values(summaryMap).map(s => ({
-            ...s,
-            totalDaysPresent: s.presentDays.size,
-            avgHours: s.totalSessions > 0 ? (s.totalHours / s.totalSessions).toFixed(1) : '0.0',
-            avgHoursPerDay: s.presentDays.size > 0 ? (s.totalHours / s.presentDays.size).toFixed(1) : '0.0',
-            totalHours: s.totalHours.toFixed(1)
-        }));
     }, [filteredAttendance]);
 
     // Pagination Logic
     const totalPages = Math.ceil(filteredAttendance.length / itemsPerPage);
-    const paginatedAttendance = filteredAttendance.slice(
-        (currentPage - 1) * itemsPerPage,
-        currentPage * itemsPerPage
-    );
+    const paginatedAttendance = useMemo(() => {
+        return filteredAttendance.slice(
+            (currentPage - 1) * itemsPerPage,
+            currentPage * itemsPerPage
+        );
+    }, [filteredAttendance, currentPage, itemsPerPage]);
 
     useEffect(() => {
         setCurrentPage(1);
@@ -592,6 +558,15 @@ const AttendancePage = () => {
                 <HeaderSection>
                     <h2><FaUserClock style={{ color: '#4caf50' }} /> Attendance Dashboard</h2>
                     <div>
+                        <Button
+                            variant="outline-primary"
+                            size="lg"
+                            className="me-3 shadow-sm fw-semibold"
+                            onClick={fetchSummary}
+                        >
+                            <FaChartBar className="me-2" />
+                            Employee Summary
+                        </Button>
                         <Button
                             variant={isDayStarted ? "secondary" : "success"}
                             size="lg"
@@ -743,10 +718,10 @@ const AttendancePage = () => {
                                         <td>
                                             <TimeDisplay>
                                                 <span className="time">
-                                                    {new Date(entry.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                                    {entry.formattedStartTime || (entry.startTime ? new Date(entry.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '-')}
                                                 </span>
                                                 <span className="date">
-                                                    {new Date(entry.startTime).toLocaleDateString('en-GB')}
+                                                    {entry.formattedStartDate || (entry.startTime ? new Date(entry.startTime).toLocaleDateString('en-GB') : '-')}
                                                 </span>
                                             </TimeDisplay>
                                         </td>
@@ -754,10 +729,10 @@ const AttendancePage = () => {
                                             {entry.endTime ? (
                                                 <TimeDisplay>
                                                     <span className="time">
-                                                        {new Date(entry.endTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                                        {entry.formattedEndTime || new Date(entry.endTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                                     </span>
                                                     <span className="date">
-                                                        {new Date(entry.endTime).toLocaleDateString('en-GB')}
+                                                        {entry.formattedEndDate || new Date(entry.endTime).toLocaleDateString('en-GB')}
                                                     </span>
                                                 </TimeDisplay>
                                             ) : (
@@ -798,15 +773,47 @@ const AttendancePage = () => {
                             >
                                 Previous
                             </Button>
-                            {[...Array(totalPages)].map((_, idx) => (
-                                <Button
-                                    key={idx + 1}
-                                    variant={currentPage === idx + 1 ? "primary" : "outline-primary"}
-                                    onClick={() => setCurrentPage(idx + 1)}
-                                >
-                                    {idx + 1}
-                                </Button>
-                            ))}
+                            {(() => {
+                                const pages = [];
+                                const maxButtons = 5;
+                                let start = Math.max(1, currentPage - 2);
+                                let end = Math.min(totalPages, start + maxButtons - 1);
+                                if (end - start < maxButtons - 1) {
+                                    start = Math.max(1, end - maxButtons + 1);
+                                }
+
+                                if (start > 1) {
+                                    pages.push(
+                                        <Button key={1} variant={currentPage === 1 ? "primary" : "outline-primary"} onClick={() => setCurrentPage(1)}>1</Button>
+                                    );
+                                    if (start > 2) {
+                                        pages.push(<span key="dots-start" className="px-2 py-1 text-muted align-self-center">...</span>);
+                                    }
+                                }
+
+                                for (let i = start; i <= end; i++) {
+                                    pages.push(
+                                        <Button
+                                            key={i}
+                                            variant={currentPage === i ? "primary" : "outline-primary"}
+                                            onClick={() => setCurrentPage(i)}
+                                        >
+                                            {i}
+                                        </Button>
+                                    );
+                                }
+
+                                if (end < totalPages) {
+                                    if (end < totalPages - 1) {
+                                        pages.push(<span key="dots-end" className="px-2 py-1 text-muted align-self-center">...</span>);
+                                    }
+                                    pages.push(
+                                        <Button key={totalPages} variant={currentPage === totalPages ? "primary" : "outline-primary"} onClick={() => setCurrentPage(totalPages)}>{totalPages}</Button>
+                                    );
+                                }
+
+                                return pages;
+                            })()}
                             <Button
                                 variant="outline-primary"
                                 disabled={currentPage === totalPages}
@@ -818,66 +825,91 @@ const AttendancePage = () => {
                     </PaginationContainer>
                 )}
 
-                {/* User Summary Table - Now below Detailed Log */}
-                {userSummaries.length > 0 && (
-                    <StyledTable>
-                        <h5><FaChartBar className="text-primary" /> User Summary (Filtered Data)</h5>
-                        <table className="table mb-0">
-                            <thead>
-                                <tr>
-                                    <th>SL</th>
-                                    <th>Name</th>
-                                    <th>Username</th>
-                                    <th>Total Sessions (Running)</th>
-                                    <th>Total Days Present</th>
-                                    <th>Total Hours</th>
-                                    <th>Avg Hours / Session</th>
-                                    <th>Avg Hours / Day</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {userSummaries.map((user, idx) => (
-                                    <tr key={idx}>
-                                        <td className="text-muted fw-bold">{idx + 1}</td>
-                                        <td className="fw-bold">{user.name}</td>
-                                        <td className="text-muted">{user.userName}</td>
-                                        <td>
-                                            <div className="d-flex align-items-center gap-2">
-                                                <span className="fw-bold fs-6">{user.totalSessions}</span>
-                                                {user.runningSessions > 0 && (
-                                                    <span className="badge bg-success bg-opacity-10 text-success border border-success px-2 py-1">
-                                                        <small>Running: {user.runningSessions}</small>
-                                                    </span>
-                                                )}
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <span className="badge bg-primary bg-opacity-10 text-primary border border-primary px-2 py-1 fw-bold">
-                                                {user.totalDaysPresent}
-                                            </span>
-                                        </td>
-                                        <td>
-                                            <span className="fw-bold text-dark">
-                                                {parseFloat(user.totalHours).toLocaleString('en-US', { maximumFractionDigits: 1 })} hrs
-                                            </span>
-                                        </td>
-                                        <td>
-                                            <span className={`badge ${parseFloat(user.avgHours) >= 8 ? 'bg-success' : parseFloat(user.avgHours) >= 5 ? 'bg-warning text-dark' : 'bg-danger'} bg-opacity-100 text-white px-2 py-1`}>
-                                                {parseFloat(user.avgHours).toFixed(1)} hrs
-                                            </span>
-                                        </td>
-                                        <td>
-                                            <span className={`badge ${parseFloat(user.avgHoursPerDay) >= 8 ? 'bg-success' : parseFloat(user.avgHoursPerDay) >= 5 ? 'bg-warning text-dark' : 'bg-danger'} bg-opacity-100 text-white px-2 py-1`}>
-                                                {parseFloat(user.avgHoursPerDay).toFixed(1)} hrs
-                                            </span>
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </StyledTable>
-                )}
+                {/* End of ContentWrapper */}
             </ContentWrapper>
+
+            {/* Employee Summary Modal */}
+            <Modal show={showSummaryModal} onHide={() => setShowSummaryModal(false)} size="xl" centered>
+                <Modal.Header closeButton className="bg-light border-0">
+                    <Modal.Title className="d-flex align-items-center gap-2 fw-bold text-primary">
+                        <FaChartBar /> Employee Summary ({summaryData.length} Employees)
+                    </Modal.Title>
+                </Modal.Header>
+                <Modal.Body className="p-0">
+                    {isSummaryLoading ? (
+                        <div className="text-center py-5">
+                            <FaSpinner className="spinner text-primary" style={{ fontSize: '2rem' }} />
+                            <p className="mt-2 text-muted">Calculating employee summary...</p>
+                        </div>
+                    ) : summaryData.length === 0 ? (
+                        <div className="text-center py-5 text-muted">
+                            <FaChartBar size={40} className="mb-3 opacity-25" />
+                            <h5>No employee summaries available for the selected filter</h5>
+                        </div>
+                    ) : (
+                        <div className="table-responsive">
+                            <table className="table table-hover align-middle mb-0">
+                                <thead className="table-light">
+                                    <tr>
+                                        <th className="ps-3">SL</th>
+                                        <th>Name</th>
+                                        <th>Username</th>
+                                        <th>Total Sessions</th>
+                                        <th>Days Present</th>
+                                        <th>Total Hours</th>
+                                        <th>Avg Hours / Session</th>
+                                        <th>Avg Hours / Day</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {summaryData.map((user, idx) => (
+                                        <tr key={idx}>
+                                            <td className="ps-3 text-muted fw-bold">{idx + 1}</td>
+                                            <td className="fw-bold text-dark">{user.name}</td>
+                                            <td className="text-muted">{user.userName}</td>
+                                            <td>
+                                                <div className="d-flex align-items-center gap-2">
+                                                    <span className="fw-bold fs-6">{user.totalSessions}</span>
+                                                    {user.runningSessions > 0 && (
+                                                        <span className="badge bg-success bg-opacity-10 text-success border border-success px-2 py-1">
+                                                            <small>Running: {user.runningSessions}</small>
+                                                        </span>
+                                                    )}
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <span className="badge bg-primary bg-opacity-10 text-primary border border-primary px-2 py-1 fw-bold">
+                                                    {user.totalDaysPresent}
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <span className="fw-bold text-dark">
+                                                    {parseFloat(user.totalHours).toLocaleString('en-US', { maximumFractionDigits: 1 })} hrs
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <span className={`badge ${parseFloat(user.avgHours) >= 8 ? 'bg-success' : parseFloat(user.avgHours) >= 5 ? 'bg-warning text-dark' : 'bg-danger'} bg-opacity-100 text-white px-2 py-1`}>
+                                                    {parseFloat(user.avgHours).toFixed(1)} hrs
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <span className={`badge ${parseFloat(user.avgHoursPerDay) >= 8 ? 'bg-success' : parseFloat(user.avgHoursPerDay) >= 5 ? 'bg-warning text-dark' : 'bg-danger'} bg-opacity-100 text-white px-2 py-1`}>
+                                                    {parseFloat(user.avgHoursPerDay).toFixed(1)} hrs
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    )}
+                </Modal.Body>
+                <Modal.Footer className="border-0 bg-light">
+                    <Button variant="secondary" onClick={() => setShowSummaryModal(false)}>
+                        Close
+                    </Button>
+                </Modal.Footer>
+            </Modal>
 
             {/* Edit Modal */}
             <Modal show={showEditModal} onHide={() => setShowEditModal(false)} centered>

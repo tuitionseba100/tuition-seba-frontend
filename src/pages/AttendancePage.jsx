@@ -342,15 +342,18 @@ const AttendancePage = () => {
         }
     };
 
-    const fetchSummary = async (sFilter = summaryFilter, sUserFilter = summaryUserFilter) => {
+    const fetchSummary = async (sFilter, sUserFilter) => {
+        const activeFilter = (typeof sFilter === 'string' ? sFilter : summaryFilter) || 'runningMonth';
+        const activeUserFilter = (sUserFilter && sUserFilter.value !== undefined) ? sUserFilter : (sUserFilter === null ? null : summaryUserFilter);
+        
         setIsSummaryLoading(true);
         setShowSummaryModal(true);
         try {
             const params = {
-                filter: sFilter || 'runningMonth',
+                filter: activeFilter,
             };
-            if (sUserFilter?.value) {
-                params.userFilter = sUserFilter.value;
+            if (activeUserFilter?.value) {
+                params.userFilter = activeUserFilter.value;
             }
 
             const response = await axios.get('https://tuition-seba-backend-1.onrender.com/api/attendance/summary', {
@@ -582,7 +585,7 @@ const AttendancePage = () => {
                             variant="outline-primary"
                             size="lg"
                             className="me-3 shadow-sm fw-semibold"
-                            onClick={fetchSummary}
+                            onClick={() => fetchSummary('runningMonth')}
                         >
                             <FaChartBar className="me-2" />
                             Employee Summary

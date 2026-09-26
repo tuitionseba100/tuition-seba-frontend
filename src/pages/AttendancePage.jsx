@@ -257,6 +257,9 @@ const AttendancePage = () => {
     const [showEditModal, setShowEditModal] = useState(false);
     const [showSummaryModal, setShowSummaryModal] = useState(false);
     const [summaryData, setSummaryData] = useState([]);
+    const [summaryFilter, setSummaryFilter] = useState('runningMonth');
+    const [summaryUserFilter, setSummaryUserFilter] = useState(null);
+    const [summarySearchTerm, setSummarySearchTerm] = useState('');
     const [isSummaryLoading, setIsSummaryLoading] = useState(false);
     const [editingAttendance, setEditingAttendance] = useState(null);
     const [editStartTime, setEditStartTime] = useState(new Date());
@@ -339,15 +342,15 @@ const AttendancePage = () => {
         }
     };
 
-    const fetchSummary = async () => {
+    const fetchSummary = async (sFilter = summaryFilter, sUserFilter = summaryUserFilter) => {
         setIsSummaryLoading(true);
         setShowSummaryModal(true);
         try {
             const params = {
-                filter: filter || 'today',
+                filter: sFilter || 'runningMonth',
             };
-            if (userFilter?.value) {
-                params.userFilter = userFilter.value;
+            if (sUserFilter?.value) {
+                params.userFilter = sUserFilter.value;
             }
 
             const response = await axios.get('https://tuition-seba-backend-1.onrender.com/api/attendance/summary', {
@@ -361,6 +364,23 @@ const AttendancePage = () => {
         } finally {
             setIsSummaryLoading(false);
         }
+    };
+
+    const filteredSummaryData = useMemo(() => {
+        if (!summaryData.length) return [];
+        if (!summarySearchTerm.trim()) return summaryData;
+        const lower = summarySearchTerm.toLowerCase();
+        return summaryData.filter(user =>
+            user.name?.toLowerCase().includes(lower) ||
+            user.userName?.toLowerCase().includes(lower)
+        );
+    }, [summaryData, summarySearchTerm]);
+
+    const resetSummaryFilters = () => {
+        setSummaryFilter('runningMonth');
+        setSummaryUserFilter(null);
+        setSummarySearchTerm('');
+        fetchSummary('runningMonth', null);
     };
 
     const fetchUsers = async () => {
@@ -832,16 +852,76 @@ const AttendancePage = () => {
             <Modal show={showSummaryModal} onHide={() => setShowSummaryModal(false)} size="xl" centered>
                 <Modal.Header closeButton className="bg-light border-0">
                     <Modal.Title className="d-flex align-items-center gap-2 fw-bold text-primary">
-                        <FaChartBar /> Employee Summary ({summaryData.length} Employees)
+                        <FaChartBar /> Employee Summary ({filteredSummaryData.length} Employees)
                     </Modal.Title>
                 </Modal.Header>
                 <Modal.Body className="p-0">
+                    {/* Modal Filter Controls */}
+                    <div className="p-3 bg-light border-bottom">
+                        <Row className="g-2 align-items-end">
+                            <Col md={userRole === 'superadmin' ? 3 : 4}>
+                                <Form.Label className="fw-bold text-muted small mb-1">PERIOD / DATE</Form.Label>
+                                <Select
+                                    value={filterOptions.find(option => option.value === summaryFilter)}
+                                    onChange={(selectedOption) => {
+                                        const newFilter = selectedOption.value;
+                                        setSummaryFilter(newFilter);
+                                        fetchSummary(newFilter, summaryUserFilter);
+                                    }}
+                                    options={filterOptions}
+                                    className="react-select-container"
+                                    classNamePrefix="react-select"
+                                />
+                            </Col>
+                            {userRole === 'superadmin' && (
+                                <Col md={3}>
+                                    <Form.Label className="fw-bold text-muted small mb-1">EMPLOYEE</Form.Label>
+                                    <Select
+                                        value={summaryUserFilter}
+                                        onChange={(selectedOption) => {
+                                            setSummaryUserFilter(selectedOption);
+                                            fetchSummary(summaryFilter, selectedOption);
+                                        }}
+                                        options={userOptions}
+                                        isClearable
+                                        placeholder="All Employees"
+                                        className="react-select-container"
+                                        classNamePrefix="react-select"
+                                    />
+                                </Col>
+                            )}
+                            <Col md={userRole === 'superadmin' ? 4 : 5}>
+                                <Form.Label className="fw-bold text-muted small mb-1">SEARCH</Form.Label>
+                                <div className="d-flex align-items-center bg-white rounded px-2 border" style={{ height: '38px' }}>
+                                    <FaSearch className="text-secondary me-2" />
+                                    <Form.Control
+                                        type="text"
+                                        placeholder="Search by name/username..."
+                                        value={summarySearchTerm}
+                                        onChange={(e) => setSummarySearchTerm(e.target.value)}
+                                        className="border-0 bg-transparent shadow-none p-0"
+                                    />
+                                </div>
+                            </Col>
+                            <Col md={userRole === 'superadmin' ? 2 : 3} className="d-flex justify-content-end">
+                                <Button
+                                    variant="outline-secondary"
+                                    className="w-100"
+                                    style={{ height: '38px' }}
+                                    onClick={resetSummaryFilters}
+                                >
+                                    Reset
+                                </Button>
+                            </Col>
+                        </Row>
+                    </div>
+
                     {isSummaryLoading ? (
                         <div className="text-center py-5">
                             <FaSpinner className="spinner text-primary" style={{ fontSize: '2rem' }} />
                             <p className="mt-2 text-muted">Calculating employee summary...</p>
                         </div>
-                    ) : summaryData.length === 0 ? (
+                    ) : filteredSummaryData.length === 0 ? (
                         <div className="text-center py-5 text-muted">
                             <FaChartBar size={40} className="mb-3 opacity-25" />
                             <h5>No employee summaries available for the selected filter</h5>
@@ -862,7 +942,7 @@ const AttendancePage = () => {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {summaryData.map((user, idx) => (
+                                    {filteredSummaryData.map((user, idx) => (
                                         <tr key={idx}>
                                             <td className="ps-3 text-muted fw-bold">{idx + 1}</td>
                                             <td className="fw-bold text-dark">{user.name}</td>

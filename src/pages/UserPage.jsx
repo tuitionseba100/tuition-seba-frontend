@@ -592,7 +592,7 @@ const UserPage = () => {
             setEditingUser(user);
             setNewUser({
                 username: user.username,
-                password: user.password,
+                password: '',
                 name: user.name,
                 role: user.role,
                 permissions: user.permissions || [],
@@ -651,8 +651,8 @@ const UserPage = () => {
             toast.error('Name is required');
             return;
         }
-        if (!newUser.password || !newUser.password.trim()) {
-            toast.error('Password is required');
+        if (!editingUser && (!newUser.password || !newUser.password.trim())) {
+            toast.error('Password is required for new accounts');
             return;
         }
         if (newUser.role !== 'superadmin' && (!newUser.permissions || newUser.permissions.length === 0)) {
@@ -924,10 +924,10 @@ const UserPage = () => {
                                 </div>
                                 <div className="col-md-6">
                                     <FormGroup controlId="formPassword">
-                                        <Form.Label>Access Password</Form.Label>
+                                        <Form.Label>{editingUser ? 'New Password (Optional)' : 'Access Password'}</Form.Label>
                                         <Form.Control
                                             type="text"
-                                            placeholder="Strong password"
+                                            placeholder={editingUser ? "Leave blank to keep existing password" : "Strong password"}
                                             name="password"
                                             value={newUser.password}
                                             onChange={handleInputChange}

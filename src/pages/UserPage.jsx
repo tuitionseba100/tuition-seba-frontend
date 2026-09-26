@@ -452,7 +452,7 @@ const UserPage = () => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const [showModal, setShowModal] = useState(false);
-    const [newUser, setNewUser] = useState({ username: '', password: '', name: '', role: 'admin', permissions: [], autoLock: false });
+    const [newUser, setNewUser] = useState({ username: '', password: '', name: '', role: 'admin', permissions: [], autoLock: false, salary: '' });
     const [editingUser, setEditingUser] = useState(null);
     const [showConfirmModal, setShowConfirmModal] = useState(false);
     const [userToDelete, setUserToDelete] = useState(null);
@@ -596,18 +596,19 @@ const UserPage = () => {
                 name: user.name,
                 role: user.role,
                 permissions: user.permissions || [],
-                autoLock: user.autoLock || false
+                autoLock: user.autoLock || false,
+                salary: user.salary !== undefined && user.salary !== null ? user.salary : ''
             });
         } else {
             setEditingUser(null);
-            setNewUser({ username: '', password: '', name: '', role: 'admin', permissions: [], autoLock: false });
+            setNewUser({ username: '', password: '', name: '', role: 'admin', permissions: [], autoLock: false, salary: '' });
         }
         setShowModal(true);
     };
 
     const handleCloseModal = () => {
         setShowModal(false);
-        setNewUser({ username: '', password: '', name: '', role: 'admin', permissions: [], autoLock: false });
+        setNewUser({ username: '', password: '', name: '', role: 'admin', permissions: [], autoLock: false, salary: '' });
         setEditingUser(null);
     };
 
@@ -945,6 +946,18 @@ const UserPage = () => {
                                             <option value="manager">Manager</option>
                                             <option value="superadmin">Super Admin</option>
                                         </Form.Select>
+                                    </FormGroup>
+                                </div>
+                                <div className="col-md-6">
+                                    <FormGroup controlId="formSalary">
+                                        <Form.Label>Salary (BDT)</Form.Label>
+                                        <Form.Control
+                                            type="number"
+                                            placeholder="e.g. 15000"
+                                            name="salary"
+                                            value={newUser.salary}
+                                            onChange={handleInputChange}
+                                        />
                                     </FormGroup>
                                 </div>
                             </div>

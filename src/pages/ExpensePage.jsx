@@ -73,9 +73,11 @@ const ExpensePage = () => {
     const [showModal, setShowModal] = useState(false);
     const [editMode, setEditMode] = useState(false);
     const [currentId, setCurrentId] = useState(null);
+    const [users, setUsers] = useState([]);
     const [formData, setFormData] = useState({
         amount: '',
         category: '',
+        salaryUser: '',
         note: '',
         date: moment().format('YYYY-MM-DD')
     });
@@ -91,7 +93,20 @@ const ExpensePage = () => {
 
     useEffect(() => {
         fetchData();
+        fetchUsers();
     }, [filter, customDates, selectedCategory, selectedMonth, currentPage]);
+
+    const fetchUsers = async () => {
+        try {
+            const token = localStorage.getItem('token');
+            const res = await axios.get('https://tuition-seba-backend-1.onrender.com/api/user/users', {
+                headers: { Authorization: token }
+            });
+            setUsers(Array.isArray(res.data) ? res.data : []);
+        } catch (err) {
+            console.error('Error fetching users:', err);
+        }
+    };
 
     const getRangeDates = () => {
         let start = '', end = moment().endOf('day').format('YYYY-MM-DD');
@@ -152,6 +167,7 @@ const ExpensePage = () => {
             setFormData({
                 amount: expense.amount,
                 category: expense.category,
+                salaryUser: expense.salaryUser || '',
                 note: expense.note || '',
                 date: moment(expense.date).format('YYYY-MM-DD')
             });
@@ -160,6 +176,7 @@ const ExpensePage = () => {
             setFormData({
                 amount: '',
                 category: '',
+                salaryUser: '',
                 note: '',
                 date: moment().toISOString()
             });
@@ -408,7 +425,16 @@ const ExpensePage = () => {
                                                 <div className="fw-bold">{moment(t.date).format('DD MMM YYYY')}</div>
                                                 <div className="text-muted small">{moment(t.date).format('hh:mm A')}</div>
                                             </td>
-                                            <td className="fw-semibold text-danger">{t.category}</td>
+                                            <td className="fw-semibold text-danger">
+                                                <div>{t.category}</div>
+                                                {t.category === 'Salary' && t.salaryUser && (
+                                                    <div className="mt-1">
+                                                        <span className="badge bg-primary bg-opacity-10 text-primary border border-primary px-2 py-0.5" style={{ fontSize: '0.75rem', fontWeight: '600' }}>
+                                                            👤 {t.salaryUser}
+                                                        </span>
+                                                    </div>
+                                                )}
+                                            </td>
                                             <td className="fw-bold text-danger">
                                                 ৳{t.amount.toLocaleString()}
                                             </td>
@@ -494,6 +520,23 @@ const ExpensePage = () => {
                                     ))}
                                 </Form.Select>
                             </Form.Group>
+                            {formData.category === 'Salary' && (
+                                <Form.Group className="mb-3">
+                                    <Form.Label className="small fw-bold">Employee / User (Optional)</Form.Label>
+                                    <Form.Select
+                                        value={formData.salaryUser || ''}
+                                        onChange={(e) => setFormData({ ...formData, salaryUser: e.target.value })}
+                                        className="rounded-3"
+                                    >
+                                        <option value="">Select Employee (Optional)</option>
+                                        {users.map(u => (
+                                            <option key={u._id} value={u.username}>
+                                                {u.name} ({u.username})
+                                            </option>
+                                        ))}
+                                    </Form.Select>
+                                </Form.Group>
+                            )}
                             <Form.Group className="mb-3">
                                 <Form.Label className="small fw-bold">Note (Optional)</Form.Label>
                                 <Form.Control

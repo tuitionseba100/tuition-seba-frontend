@@ -452,7 +452,7 @@ const UserPage = () => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const [showModal, setShowModal] = useState(false);
-    const [newUser, setNewUser] = useState({ username: '', password: '', name: '', role: 'admin', permissions: [], autoLock: false, salary: '' });
+    const [newUser, setNewUser] = useState({ username: '', password: '', name: '', role: 'admin', permissions: [], autoLock: false, perHourTk: '' });
     const [editingUser, setEditingUser] = useState(null);
     const [showConfirmModal, setShowConfirmModal] = useState(false);
     const [userToDelete, setUserToDelete] = useState(null);
@@ -465,8 +465,54 @@ const UserPage = () => {
     const [historyData, setHistoryData] = useState([]);
     const [showHistoryModal, setShowHistoryModal] = useState(false);
     const [historyUser, setHistoryUser] = useState(null);
+    const [showPasswordModal, setShowPasswordModal] = useState(false);
+    const [passwordTargetUser, setPasswordTargetUser] = useState(null);
+    const [newPasswordInput, setNewPasswordInput] = useState('');
+    const [showNewPassword, setShowNewPassword] = useState(false);
     const token = localStorage.getItem('token');
     const currentUserRole = localStorage.getItem('role');
+
+    const handleOpenPasswordModal = (user) => {
+        setPasswordTargetUser(user);
+        setNewPasswordInput('');
+        setShowNewPassword(false);
+        setShowPasswordModal(true);
+    };
+
+    const handleClosePasswordModal = () => {
+        setShowPasswordModal(false);
+        setPasswordTargetUser(null);
+        setNewPasswordInput('');
+    };
+
+    const handleSavePassword = async () => {
+        if (!newPasswordInput || !newPasswordInput.trim()) {
+            toast.error('Please enter a new password');
+            return;
+        }
+        if (newPasswordInput.trim().length < 4) {
+            toast.error('Password must be at least 4 characters long');
+            return;
+        }
+
+        setIsProcessing(true);
+        setProcessMessage('Updating password...');
+        try {
+            await axios.put(`https://tuition-seba-backend-1.onrender.com/api/user/change-password/${passwordTargetUser._id}`, {
+                newPassword: newPasswordInput.trim()
+            }, {
+                headers: { Authorization: token }
+            });
+            toast.success(`Password updated successfully for ${passwordTargetUser.name}`);
+            handleClosePasswordModal();
+        } catch (err) {
+            const msg = err.response?.data?.message || 'Error updating password';
+            toast.error(msg);
+        } finally {
+            setIsProcessing(false);
+            setProcessMessage('');
+        }
+    };
 
     const togglePasswordVisibility = (userId) => {
         setShowPasswords(prev => ({
@@ -597,18 +643,18 @@ const UserPage = () => {
                 role: user.role,
                 permissions: user.permissions || [],
                 autoLock: user.autoLock || false,
-                salary: user.salary !== undefined && user.salary !== null ? user.salary : ''
+                perHourTk: user.perHourTk !== undefined && user.perHourTk !== null ? user.perHourTk : (user.salary !== undefined ? user.salary : '')
             });
         } else {
             setEditingUser(null);
-            setNewUser({ username: '', password: '', name: '', role: 'admin', permissions: [], autoLock: false, salary: '' });
+            setNewUser({ username: '', password: '', name: '', role: 'admin', permissions: [], autoLock: false, perHourTk: '' });
         }
         setShowModal(true);
     };
 
     const handleCloseModal = () => {
         setShowModal(false);
-        setNewUser({ username: '', password: '', name: '', role: 'admin', permissions: [], autoLock: false, salary: '' });
+        setNewUser({ username: '', password: '', name: '', role: 'admin', permissions: [], autoLock: false, perHourTk: '' });
         setEditingUser(null);
     };
 
@@ -749,6 +795,11 @@ const UserPage = () => {
                                     <div>
                                         <div className={`fw-bold ${user.isLocked ? 'text-danger' : 'text-dark'}`}>{user.name}</div>
                                         <div className="text-muted small d-lg-none">{user.username}</div>
+                                        {user.perHourTk > 0 && (
+                                            <div className="text-muted" style={{ fontSize: '0.72rem', fontWeight: '600' }}>
+                                                ৳{user.perHourTk}/hr
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
 
@@ -778,33 +829,36 @@ const UserPage = () => {
                                 </div>
 
                                 <div>
-                                    <div className="d-flex align-items-center gap-2">
-                                        <div
-                                            className="d-flex align-items-center gap-2"
-                                            style={{
-                                                background: '#f8fafc',
-                                                padding: '4px 10px',
-                                                borderRadius: '8px',
-                                                border: '1px solid #f1f5f9',
-                                                cursor: 'pointer'
-                                            }}
-                                            onClick={() => togglePasswordVisibility(user._id)}
-                                        >
-                                            <FaKey size={12} style={{ color: '#94a3b8' }} />
-                                            <span style={{
-                                                fontFamily: 'monospace',
-                                                fontSize: '0.85rem',
-                                                fontWeight: '600',
-                                                color: '#334155',
-                                                minWidth: '70px'
-                                            }}>
-                                                {showPasswords[user._id] ? user.password : '••••••••'}
-                                            </span>
-                                            <div style={{ color: '#94a3b8', display: 'flex' }}>
-                                                {showPasswords[user._id] ? <FaEyeSlash size={12} /> : <FaEye size={12} />}
-                                            </div>
-                                        </div>
-                                    </div>
+                                    <button
+                                        type="button"
+                                        className="d-flex align-items-center gap-2 border-0"
+                                        style={{
+                                            background: '#f8fafc',
+                                            padding: '6px 12px',
+                                            borderRadius: '8px',
+                                            border: '1px solid #e2e8f0',
+                                            cursor: 'pointer',
+                                            transition: 'all 0.2s ease',
+                                            color: '#475569',
+                                            fontSize: '0.8rem',
+                                            fontWeight: '600'
+                                        }}
+                                        onMouseEnter={(e) => {
+                                            e.currentTarget.style.background = '#fef3c7';
+                                            e.currentTarget.style.borderColor = '#fde68a';
+                                            e.currentTarget.style.color = '#b45309';
+                                        }}
+                                        onMouseLeave={(e) => {
+                                            e.currentTarget.style.background = '#f8fafc';
+                                            e.currentTarget.style.borderColor = '#e2e8f0';
+                                            e.currentTarget.style.color = '#475569';
+                                        }}
+                                        onClick={() => handleOpenPasswordModal(user)}
+                                        title="Click to change password"
+                                    >
+                                        <FaKey size={11} style={{ color: '#d97706' }} />
+                                        <span>Change Password</span>
+                                    </button>
                                 </div>
 
                                 <div>
@@ -922,18 +976,20 @@ const UserPage = () => {
                                         />
                                     </FormGroup>
                                 </div>
-                                <div className="col-md-6">
-                                    <FormGroup controlId="formPassword">
-                                        <Form.Label>{editingUser ? 'New Password (Optional)' : 'Access Password'}</Form.Label>
-                                        <Form.Control
-                                            type="text"
-                                            placeholder={editingUser ? "Leave blank to keep existing password" : "Strong password"}
-                                            name="password"
-                                            value={newUser.password}
-                                            onChange={handleInputChange}
-                                        />
-                                    </FormGroup>
-                                </div>
+                                {!editingUser && (
+                                    <div className="col-md-6">
+                                        <FormGroup controlId="formPassword">
+                                            <Form.Label>Access Password</Form.Label>
+                                            <Form.Control
+                                                type="password"
+                                                placeholder="Strong password"
+                                                name="password"
+                                                value={newUser.password}
+                                                onChange={handleInputChange}
+                                            />
+                                        </FormGroup>
+                                    </div>
+                                )}
                                 <div className="col-md-6">
                                     <FormGroup controlId="formRole">
                                         <Form.Label>System Role</Form.Label>
@@ -949,13 +1005,13 @@ const UserPage = () => {
                                     </FormGroup>
                                 </div>
                                 <div className="col-md-6">
-                                    <FormGroup controlId="formSalary">
-                                        <Form.Label>Salary (BDT)</Form.Label>
+                                    <FormGroup controlId="formPerHourTk">
+                                        <Form.Label>Per Hour Rate (TK)</Form.Label>
                                         <Form.Control
                                             type="number"
-                                            placeholder="e.g. 15000"
-                                            name="salary"
-                                            value={newUser.salary}
+                                            placeholder="e.g. 100"
+                                            name="perHourTk"
+                                            value={newUser.perHourTk}
                                             onChange={handleInputChange}
                                         />
                                     </FormGroup>
@@ -1141,6 +1197,67 @@ const UserPage = () => {
                         <Button variant="secondary" onClick={() => setShowHistoryModal(false)} className="px-4 fw-semibold">
                             Close
                         </Button>
+                    </Modal.Footer>
+                </Modal>
+
+                <Modal
+                    show={showPasswordModal}
+                    onHide={handleClosePasswordModal}
+                    centered
+                    contentClassName="border-0 shadow-xl"
+                    style={{ borderRadius: '1rem' }}
+                >
+                    <ModalHeaderStyled closeButton className="py-3 px-4">
+                        <Modal.Title className="fs-5 d-flex align-items-center gap-2">
+                            <FaKey className="text-warning" />
+                            <span>Change Password: {passwordTargetUser?.name}</span>
+                        </Modal.Title>
+                    </ModalHeaderStyled>
+                    <Modal.Body className="p-4">
+                        <Form onSubmit={(e) => { e.preventDefault(); handleSavePassword(); }}>
+                            <FormGroup controlId="formChangeNewPassword">
+                                <Form.Label>New Password</Form.Label>
+                                <div className="position-relative">
+                                    <Form.Control
+                                        type={showNewPassword ? 'text' : 'password'}
+                                        placeholder="Enter new password (min 4 characters)"
+                                        value={newPasswordInput}
+                                        onChange={(e) => setNewPasswordInput(e.target.value)}
+                                        autoFocus
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowNewPassword(!showNewPassword)}
+                                        style={{
+                                            position: 'absolute',
+                                            right: '12px',
+                                            top: '50%',
+                                            transform: 'translateY(-50%)',
+                                            background: 'none',
+                                            border: 'none',
+                                            color: '#94a3b8',
+                                            cursor: 'pointer',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            padding: 0
+                                        }}
+                                    >
+                                        {showNewPassword ? <FaEyeSlash size={14} /> : <FaEye size={14} />}
+                                    </button>
+                                </div>
+                                <Form.Text className="text-muted" style={{ fontSize: '0.78rem' }}>
+                                    The new password will be securely hashed with bcrypt upon saving.
+                                </Form.Text>
+                            </FormGroup>
+                        </Form>
+                    </Modal.Body>
+                    <Modal.Footer className="bg-light border-0 p-3">
+                        <Button variant="link" onClick={handleClosePasswordModal} className="text-decoration-none text-muted fw-semibold">
+                            Cancel
+                        </Button>
+                        <AddButton variant="primary" onClick={handleSavePassword}>
+                            Update Password
+                        </AddButton>
                     </Modal.Footer>
                 </Modal>
 

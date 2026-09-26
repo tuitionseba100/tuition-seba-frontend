@@ -942,46 +942,69 @@ const AttendancePage = () => {
                                         <th>Total Hours</th>
                                         <th>Avg Hours / Session</th>
                                         <th>Avg Hours / Day</th>
+                                        <th className="text-end pe-3">Running Month Salary</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {filteredSummaryData.map((user, idx) => (
-                                        <tr key={idx}>
-                                            <td className="ps-3 text-muted fw-bold">{idx + 1}</td>
-                                            <td className="fw-bold text-dark">{user.name}</td>
-                                            <td className="text-muted">{user.userName}</td>
-                                            <td>
-                                                <div className="d-flex align-items-center gap-2">
-                                                    <span className="fw-bold fs-6">{user.totalSessions}</span>
-                                                    {user.runningSessions > 0 && (
-                                                        <span className="badge bg-success bg-opacity-10 text-success border border-success px-2 py-1">
-                                                            <small>Running: {user.runningSessions}</small>
-                                                        </span>
+                                    {filteredSummaryData.map((user, idx) => {
+                                        const calculatedSalary = (user.perHourTk && user.perHourTk > 0)
+                                            ? Math.round(user.perHourTk * parseFloat(user.totalHours || 0))
+                                            : (user.runningMonthSalary || null);
+
+                                        return (
+                                            <tr key={idx}>
+                                                <td className="ps-3 text-muted fw-bold">{idx + 1}</td>
+                                                <td className="fw-bold text-dark">{user.name}</td>
+                                                <td className="text-muted">{user.userName}</td>
+                                                <td>
+                                                    <div className="d-flex align-items-center gap-2">
+                                                        <span className="fw-bold fs-6">{user.totalSessions}</span>
+                                                        {user.runningSessions > 0 && (
+                                                            <span className="badge bg-success bg-opacity-10 text-success border border-success px-2 py-1">
+                                                                <small>Running: {user.runningSessions}</small>
+                                                            </span>
+                                                        )}
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <span className="badge bg-primary bg-opacity-10 text-primary border border-primary px-2 py-1 fw-bold">
+                                                        {user.totalDaysPresent}
+                                                    </span>
+                                                </td>
+                                                <td>
+                                                    <span className="fw-bold text-dark">
+                                                        {parseFloat(user.totalHours).toLocaleString('en-US', { maximumFractionDigits: 1 })} hrs
+                                                    </span>
+                                                </td>
+                                                <td>
+                                                    <span className={`badge ${parseFloat(user.avgHours) >= 8 ? 'bg-success' : parseFloat(user.avgHours) >= 5 ? 'bg-warning text-dark' : 'bg-danger'} bg-opacity-100 text-white px-2 py-1`}>
+                                                        {parseFloat(user.avgHours).toFixed(1)} hrs
+                                                    </span>
+                                                </td>
+                                                <td>
+                                                    <span className={`badge ${parseFloat(user.avgHoursPerDay) >= 8 ? 'bg-success' : parseFloat(user.avgHoursPerDay) >= 5 ? 'bg-warning text-dark' : 'bg-danger'} bg-opacity-100 text-white px-2 py-1`}>
+                                                        {parseFloat(user.avgHoursPerDay).toFixed(1)} hrs
+                                                    </span>
+                                                </td>
+                                                <td className="text-end pe-3">
+                                                    {calculatedSalary !== null && calculatedSalary !== undefined ? (
+                                                        <div>
+                                                            <span className="fw-bold text-success" style={{ fontSize: '0.95rem' }}>
+                                                                ৳ {calculatedSalary.toLocaleString()}
+                                                            </span>
+                                                            {user.perHourTk > 0 && (
+                                                                <div className="text-muted" style={{ fontSize: '0.72rem' }}>
+                                                                    (৳{user.perHourTk}/hr)
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                    ) : (
+                                                        <span className="text-muted">—</span>
                                                     )}
-                                                </div>
-                                            </td>
-                                            <td>
-                                                <span className="badge bg-primary bg-opacity-10 text-primary border border-primary px-2 py-1 fw-bold">
-                                                    {user.totalDaysPresent}
-                                                </span>
-                                            </td>
-                                            <td>
-                                                <span className="fw-bold text-dark">
-                                                    {parseFloat(user.totalHours).toLocaleString('en-US', { maximumFractionDigits: 1 })} hrs
-                                                </span>
-                                            </td>
-                                            <td>
-                                                <span className={`badge ${parseFloat(user.avgHours) >= 8 ? 'bg-success' : parseFloat(user.avgHours) >= 5 ? 'bg-warning text-dark' : 'bg-danger'} bg-opacity-100 text-white px-2 py-1`}>
-                                                    {parseFloat(user.avgHours).toFixed(1)} hrs
-                                                </span>
-                                            </td>
-                                            <td>
-                                                <span className={`badge ${parseFloat(user.avgHoursPerDay) >= 8 ? 'bg-success' : parseFloat(user.avgHoursPerDay) >= 5 ? 'bg-warning text-dark' : 'bg-danger'} bg-opacity-100 text-white px-2 py-1`}>
-                                                    {parseFloat(user.avgHoursPerDay).toFixed(1)} hrs
-                                                </span>
-                                            </td>
-                                        </tr>
-                                    ))}
+                                                </td>
+                                            </tr>
+                                        );
+                                    })}
                                 </tbody>
                             </table>
                         </div>

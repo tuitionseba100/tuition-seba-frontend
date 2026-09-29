@@ -306,7 +306,7 @@ const PremiumTeacherPage = () => {
         { key: 'department', label: 'Department', type: 'text', col: 2 },
         { key: 'uniCode', label: 'UniCode', type: 'select', options: ['CMC', 'CUET', 'CU Science', 'CU Arts', 'CU Commerce', 'CVASU', 'Private Science', 'Private Commerce', 'Private Arts', 'National Science', 'National Arts', 'National Commerce', 'Arabic', 'NC English', 'BC English', 'Special'], col: 2 },
         { key: 'currentArea', label: 'Area', type: 'text', col: 2 },
-        { key: 'status', label: 'Status', type: 'select', options: ['pending', 'under review', 'pending payment', 'Must Advance', 'After Confirmation', 'After Salary', '30% Advance', 'rejected', 'Free - Must Advance', 'verified', 'suspended', 'Not interested'], col: 2 },
+        { key: 'status', label: 'Status', type: 'select', options: ['pending', 'under review', 'pending payment', 'Must Advance', 'After Confirmation', 'After Salary', '30% Advance', 'rejected', 'Free - Must Advance', 'verified', 'suspended', 'Not interested', 'Premium', 'Elite'], col: 2 },
         { key: 'gender', label: 'Gender', type: 'select', options: ['male', 'female'], col: 2 },
         { key: 'referStatus', label: 'Refer Status', type: 'select', options: ['pending', 'in review', 'canceled', 'spam', 'paid'], col: 2 },
         { key: 'referPersonPhone', label: 'Referred Phone', type: 'text', col: 2 },
@@ -355,7 +355,7 @@ const PremiumTeacherPage = () => {
         // Subscription & Payment Details
         { name: 'premiumCode', label: 'Premium Code', col: 6, group: 'Subscription & Payment Details' },
         { name: 'password', label: 'Password', col: 6, group: 'Subscription & Payment Details' },
-        { name: 'status', label: 'Subscription Status', type: 'select', col: 6, options: ['pending', 'under review', 'pending payment', 'Must Advance', 'After Confirmation', 'After Salary', '30% Advance', 'rejected', 'Free - Must Advance', 'verified', 'suspended', 'Not interested'], group: 'Subscription & Payment Details' },
+        { name: 'status', label: 'Subscription Status', type: 'select', col: 6, options: ['pending', 'under review', 'pending payment', 'Must Advance', 'After Confirmation', 'After Salary', '30% Advance', 'rejected', 'Free - Must Advance', 'verified', 'suspended', 'Not interested', 'Premium', 'Elite'], group: 'Subscription & Payment Details' },
         { name: 'uniCode', label: 'Uni Code', type: 'select', col: 6, options: ['CMC', 'CUET', 'CU Science', 'CU Arts', 'CU Commerce', 'CVASU', 'Private Science', 'Private Commerce', 'Private Arts', 'National Science', 'National Arts', 'National Commerce', 'Arabic', 'NC English', 'BC English', 'Special'], group: 'Subscription & Payment Details' },
         { name: 'transactionId', label: 'Transaction ID', col: 6, group: 'Subscription & Payment Details' },
         { name: 'paymentType', label: 'Payment Method', col: 6, group: 'Subscription & Payment Details' },
@@ -398,6 +398,8 @@ const PremiumTeacherPage = () => {
         { key: 'pending_payment', label: 'Pending Payment', borderColor: 'primary', textColor: 'primary' },
         { key: 'rejected', label: 'Rejected', borderColor: 'danger', textColor: 'danger' },
         { key: 'verified', label: 'Verified', borderColor: 'success', textColor: 'success' },
+        { key: 'premium', label: 'Premium', borderColor: 'primary', textColor: 'primary' },
+        { key: 'elite', label: 'Elite', borderColor: 'info', textColor: 'info' },
     ];
 
     const initialData = {
@@ -669,8 +671,8 @@ const PremiumTeacherPage = () => {
         };
         const username = localStorage.getItem('username');
 
-        // Trigger SMS verification modal if status is verified/Must Advance/After Confirmation/After Salary/30% Advance/Free - Must Advance, we are editing, and SMS wasn't already sent
-        const smsTriggerStatuses = ['verified', 'Must Advance', 'After Confirmation', 'After Salary', '30% Advance', 'Free - Must Advance'];
+        // Trigger SMS verification modal if status is verified/Must Advance/After Confirmation/After Salary/30% Advance/Free - Must Advance/Premium/Elite, we are editing, and SMS wasn't already sent
+        const smsTriggerStatuses = ['verified', 'Must Advance', 'After Confirmation', 'After Salary', '30% Advance', 'Free - Must Advance', 'Premium', 'Elite'];
         if (smsTriggerStatuses.includes(updatingData.status) && editingId && !formData.isSmsSent) {
             const premCode = formData.premiumCode || '';
             const recipient = formData.phone || '';
@@ -1530,6 +1532,10 @@ const PremiumTeacherPage = () => {
         "rejected": { bg: "#F44336", color: "#fff" }, // red
         "suspended": { bg: "#424242", color: "#fff" }, // dark gray
         "Not interested": { bg: "#6c757d", color: "#fff" }, // gray
+        "Premium": { bg: "#0d6efd", color: "#fff" }, // royal blue
+        "premium": { bg: "#0d6efd", color: "#fff" },
+        "Elite": { bg: "#6f42c1", color: "#fff" }, // purple
+        "elite": { bg: "#6f42c1", color: "#fff" },
     };
 
     const defaultStatusStyle = { bg: "#BDBDBD", color: "#000" };
@@ -1557,7 +1563,7 @@ const PremiumTeacherPage = () => {
                     <Card.Body>
                         <div className="row text-center">
                             {summaryCardOptions.map(({ key, label, borderColor, textColor }) => (
-                                <div key={key} className="col-6 col-sm-4 col-md-2 mb-3">
+                                <div key={key} className="col-6 col-sm-4 col-md-3 mb-3">
                                     <div className={`card p-3 shadow border-${borderColor}`}>
                                         <div className="d-flex flex-column align-items-center">
                                             <span className={`text-${textColor}`} style={{ fontWeight: 'bolder' }}>

@@ -156,6 +156,8 @@ export default function TuitionProposalModal({ show, onHide, tuition }) {
         { value: 'rejected', label: 'Rejected' },
         { value: 'Free - Must Advance', label: 'Free - Must Advance' },
         { value: 'verified', label: 'Verified' },
+        { value: 'Premium', label: 'Premium' },
+        { value: 'Elite', label: 'Elite' },
         { value: 'suspended', label: 'Suspended' },
         { value: 'Not interested', label: 'Not interested' }
     ];

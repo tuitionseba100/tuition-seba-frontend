@@ -199,15 +199,15 @@ const NoticeBar = () => {
                 <div className="notice-continuous-marquee-track" style={{ flex: 1, overflow: 'hidden', position: 'relative' }}>
                     <div className="notice-marquee-group">
                         <div className="notice-marquee-item">{renderNoticeContent()}</div>
-                        <span style={{ opacity: 0.5, fontSize: '10px', margin: '0 1rem' }}>✦</span>
+                        <span style={{ opacity: 0.4, fontSize: '18px', margin: '0 1.5rem', lineHeight: 1 }}>•</span>
                         <div className="notice-marquee-item">{renderNoticeContent()}</div>
-                        <span style={{ opacity: 0.5, fontSize: '10px', margin: '0 1rem' }}>✦</span>
+                        <span style={{ opacity: 0.4, fontSize: '18px', margin: '0 1.5rem', lineHeight: 1 }}>•</span>
                     </div>
                     <div className="notice-marquee-group" aria-hidden="true">
                         <div className="notice-marquee-item">{renderNoticeContent()}</div>
-                        <span style={{ opacity: 0.5, fontSize: '10px', margin: '0 1rem' }}>✦</span>
+                        <span style={{ opacity: 0.4, fontSize: '18px', margin: '0 1.5rem', lineHeight: 1 }}>•</span>
                         <div className="notice-marquee-item">{renderNoticeContent()}</div>
-                        <span style={{ opacity: 0.5, fontSize: '10px', margin: '0 1rem' }}>✦</span>
+                        <span style={{ opacity: 0.4, fontSize: '18px', margin: '0 1.5rem', lineHeight: 1 }}>•</span>
                     </div>
                 </div>
 

@@ -2139,7 +2139,7 @@ const SettingsPage = () => {
                         align-items: center;
                         justify-content: space-around;
                         min-width: 100%;
-                        animation: scrollContinuousMarquee 24s linear infinite;
+                        animation: scrollContinuousMarquee 55s linear infinite;
                         will-change: transform;
                         transform: translate3d(0, 0, 0);
                         backface-visibility: hidden;

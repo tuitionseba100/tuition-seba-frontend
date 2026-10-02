@@ -1,12 +1,14 @@
-import React from 'react';
+import React, { Suspense, lazy } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
-
-import DayStartedRoute from './pages/DayStartedRoute';
 import { ToastContainer } from 'react-toastify';
 import axios from 'axios';
 import { axiosWithFallback } from './services/fetchWithFallback';
 import { isTokenExpired } from './utilities/authUtils';
+import { PublicSettingsProvider } from './context/PublicSettingsContext';
+import DayStartedRoute from './pages/DayStartedRoute';
+import LandingPage from './pages/public/LandingPage';
+import PrivateRoute from './pages/PrivateRoute';
 
 // Global Axios configuration
 axios.interceptors.request.use(
@@ -70,21 +72,6 @@ axiosWithFallback.interceptors.request.use(
   },
   (error) => Promise.reject(error)
 );
-
-import React, { Suspense, lazy } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import 'bootstrap/dist/css/bootstrap.min.css';
-
-import DayStartedRoute from './pages/DayStartedRoute';
-import { ToastContainer } from 'react-toastify';
-import axios from 'axios';
-import { axiosWithFallback } from './services/fetchWithFallback';
-import { isTokenExpired } from './utilities/authUtils';
-import { PublicSettingsProvider } from './context/PublicSettingsContext';
-
-// Eager landing page for instant 0ms first render
-import LandingPage from './pages/public/LandingPage';
-import PrivateRoute from './pages/PrivateRoute';
 
 // Lazy loaded public pages
 const AvailableTuitions = lazy(() => import('./pages/public/AvailableTuitions'));

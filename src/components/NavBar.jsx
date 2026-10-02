@@ -5,6 +5,7 @@ import { FiSettings, FiBell, FiMessageSquare } from 'react-icons/fi';
 import { NavLink, useNavigate, useLocation } from 'react-router-dom';
 import SettingsModal from './modals/SettingsModal';
 import { usePublicSettings } from '../context/PublicSettingsContext';
+import NoticeBar from './NoticeBar';
 
 const NavbarComponent = () => {
     const navigate = useNavigate();
@@ -131,8 +132,10 @@ const NavbarComponent = () => {
     });
 
     return (
-        <Navbar style={navbarStyle} expand="lg" variant="dark" sticky="top">
-            <Container fluid className="px-3 px-md-5">
+        <div className="sticky-top" style={{ zIndex: 1020 }}>
+            <NoticeBar />
+            <Navbar style={navbarStyle} expand="lg" variant="dark">
+                <Container fluid className="px-3 px-md-5">
                 <Navbar.Brand as={NavLink} to="/" className="d-flex align-items-center">
                     <img src="/img/TUITION SEBA FORUM TF.png" alt="Logo" style={logoStyle} />
                 </Navbar.Brand>
@@ -385,6 +388,7 @@ const NavbarComponent = () => {
             </Container>
             <SettingsModal show={showSettings} onClose={() => setShowSettings(false)} />
         </Navbar>
+        </div>
     );
 };
 

@@ -2,6 +2,15 @@ import React, { createContext, useContext, useState, useEffect, useCallback } fr
 import { fetchWithFallback } from '../services/fetchWithFallback';
 
 const DEFAULT_WHATSAPP = '+8801633920928';
+const DEFAULT_NOTICE = {
+    enabled: false,
+    text: '',
+    link: '',
+    bgColor: '#002B5B',
+    textColor: '#ffffff',
+    badgeText: 'বিজ্ঞপ্তি',
+    speed: 6
+};
 const CACHE_KEY = '@public_settings';
 const CACHE_TIME_KEY = '@public_settings_time';
 const CACHE_TTL_MS = 15 * 60 * 1000; // 15 minutes TTL
@@ -11,6 +20,7 @@ const PublicSettingsContext = createContext({
     cleanWhatsAppDigits: '8801633920928',
     whatsappSchemeUrl: `whatsapp://send?phone=${DEFAULT_WHATSAPP}`,
     getWhatsAppUrl: () => `https://wa.me/8801633920928`,
+    publicNotice: DEFAULT_NOTICE,
     refreshPublicSettings: () => {}
 });
 
@@ -32,38 +42,32 @@ export const PublicSettingsProvider = ({ children }) => {
             const cached = localStorage.getItem(CACHE_KEY);
             if (cached) {
                 const parsed = JSON.parse(cached);
-                if (parsed && parsed.whatsapp_number) {
-                    return parsed;
+                if (parsed) {
+                    return {
+                        whatsapp_number: parsed.whatsapp_number || DEFAULT_WHATSAPP,
+                        public_notice: parsed.public_notice || DEFAULT_NOTICE
+                    };
                 }
             }
         } catch (e) {
             console.error('Error loading public settings cache:', e);
         }
-        return { whatsapp_number: DEFAULT_WHATSAPP };
+        return { whatsapp_number: DEFAULT_WHATSAPP, public_notice: DEFAULT_NOTICE };
     });
 
     const fetchSettings = useCallback(async (force = false) => {
         try {
-            const now = Date.now();
-            const lastFetched = parseInt(localStorage.getItem(CACHE_TIME_KEY) || '0', 10);
-
-            // Skip network request if cache is fresh (< 15 mins) and not forced
-            if (!force && lastFetched && (now - lastFetched < CACHE_TTL_MS)) {
-                return;
-            }
-
-            const url = `https://tuition-seba-backend-1.onrender.com/api/settings/public`;
+            const url = `https://tuition-seba-backend-1.onrender.com/api/settings/public?_t=${Date.now()}`;
             const res = await fetchWithFallback(url);
             if (res.ok) {
                 const data = await res.json();
-                if (data && data.whatsapp_number) {
-                    setSettings(prev => {
-                        if (!prev || prev.whatsapp_number !== data.whatsapp_number) {
-                            return data;
-                        }
-                        return prev;
-                    });
-                    localStorage.setItem(CACHE_KEY, JSON.stringify(data));
+                if (data) {
+                    const normalizedData = {
+                        whatsapp_number: data.whatsapp_number || DEFAULT_WHATSAPP,
+                        public_notice: data.public_notice || DEFAULT_NOTICE
+                    };
+                    setSettings(normalizedData);
+                    localStorage.setItem(CACHE_KEY, JSON.stringify(normalizedData));
                     localStorage.setItem(CACHE_TIME_KEY, String(Date.now()));
                 }
             }
@@ -73,16 +77,16 @@ export const PublicSettingsProvider = ({ children }) => {
     }, []);
 
     useEffect(() => {
-        // Fetch only if cache is stale
-        fetchSettings(false);
+        // Fetch fresh settings on mount immediately
+        fetchSettings(true);
 
         // Listen for internal admin updates in the current window
         const handleSettingsUpdated = () => fetchSettings(true);
         window.addEventListener('publicSettingsUpdated', handleSettingsUpdated);
 
-        // Listen for admin updates from other open tabs (triggers ONLY on explicit admin event, preventing loops)
+        // Listen for admin updates from other open tabs
         const handleStorageChange = (e) => {
-            if (e.key === '@admin_settings_updated') {
+            if (e.key === '@admin_settings_updated' || e.key === CACHE_KEY) {
                 fetchSettings(true);
             }
         };
@@ -96,6 +100,7 @@ export const PublicSettingsProvider = ({ children }) => {
 
     const whatsappNumber = settings.whatsapp_number || DEFAULT_WHATSAPP;
     const digits = cleanDigits(whatsappNumber);
+    const publicNotice = settings.public_notice || DEFAULT_NOTICE;
 
     const getWhatsAppUrl = useCallback((message = '') => {
         if (message && message.trim()) {
@@ -111,6 +116,7 @@ export const PublicSettingsProvider = ({ children }) => {
         cleanWhatsAppDigits: digits,
         whatsappSchemeUrl,
         getWhatsAppUrl,
+        publicNotice,
         refreshPublicSettings: () => fetchSettings(true)
     };
 

@@ -53,6 +53,15 @@ const SettingsPage = () => {
 
     const [isSaving, setIsSaving] = useState(false);
     const [whatsappNumberInput, setWhatsappNumberInput] = useState('+8801633920928');
+    const [noticeSettings, setNoticeSettings] = useState({
+        enabled: false,
+        text: '',
+        link: '',
+        bgColor: '#002B5B',
+        textColor: '#ffffff',
+        badgeText: 'বিজ্ঞপ্তি',
+        speed: 6
+    });
     const [selectedAssignments, setSelectedAssignments] = useState({
         payment_auto_assign_user: [],
         tuition_auto_assign_user: [],
@@ -156,6 +165,24 @@ const SettingsPage = () => {
             const wpSetting = settingsData.find(s => s.key === 'whatsapp_number');
             if (wpSetting && wpSetting.value) {
                 setWhatsappNumberInput(String(wpSetting.value));
+            }
+
+            // Extract public notice setting
+            const noticeSetting = settingsData.find(s => s.key === 'public_notice');
+            if (noticeSetting && noticeSetting.value) {
+                if (typeof noticeSetting.value === 'object') {
+                    setNoticeSettings({
+                        enabled: !!noticeSetting.value.enabled,
+                        text: noticeSetting.value.text || '',
+                        link: noticeSetting.value.link || '',
+                        bgColor: noticeSetting.value.bgColor || '#002B5B',
+                        textColor: noticeSetting.value.textColor || '#ffffff',
+                        badgeText: noticeSetting.value.badgeText || 'বিজ্ঞপ্তি',
+                        speed: Number(noticeSetting.value.speed) || 6
+                    });
+                } else {
+                    setNoticeSettings(prev => ({ ...prev, text: String(noticeSetting.value) }));
+                }
             }
 
             setSettings(settingsObj);
@@ -572,6 +599,35 @@ const SettingsPage = () => {
         }
     };
 
+    const handleSaveNoticeSettings = async () => {
+        try {
+            setIsSaving(true);
+            const token = localStorage.getItem('token');
+            await axios.post(`${API_BASE_URL}/api/settings`, {
+                key: 'public_notice',
+                value: noticeSettings,
+                submodule: 'general',
+                mode: 'replace'
+            }, {
+                headers: { Authorization: token }
+            });
+            toast.success('Notice bar settings saved successfully');
+
+            // Update local storage and notify public context
+            const currentCache = JSON.parse(localStorage.getItem('@public_settings') || '{}');
+            const updatedCache = { ...currentCache, public_notice: noticeSettings };
+            localStorage.setItem('@public_settings', JSON.stringify(updatedCache));
+            localStorage.setItem('@public_settings_time', String(Date.now()));
+            localStorage.setItem('@admin_settings_updated', String(Date.now()));
+            window.dispatchEvent(new Event('publicSettingsUpdated'));
+        } catch (error) {
+            console.error('Error saving notice bar settings:', error);
+            toast.error('Failed to save notice bar settings');
+        } finally {
+            setIsSaving(false);
+        }
+    };
+
     // Prepare all areas from JSON
     const allAvailableAreas = Object.values(locationData.areaOptions).flat().filter(a => a !== 'Coming Soon').map(a => ({ value: a, label: a }));
 
@@ -719,6 +775,14 @@ const SettingsPage = () => {
                                     >
                                         <i className={`fab fa-whatsapp mt-1 me-2 ${activeTab === 'contact' ? 'text-white' : 'text-success'}`} style={{ fontSize: '0.8rem' }}></i>
                                         <span className="fw-bold" style={{ fontSize: '0.7rem', lineHeight: '1.2' }}>WhatsApp Number</span>
+                                    </button>
+
+                                    <button
+                                        onClick={() => { setActiveTab('notice'); setIsSidebarOpen(false); }}
+                                        className={`btn w-100 text-start d-flex align-items-start p-2 px-3 rounded-3 transition-all border-0 ${activeTab === 'notice' ? 'bg-primary text-white shadow-sm' : 'bg-transparent text-secondary hover-bg-white'}`}
+                                    >
+                                        <i className={`fas fa-scroll mt-1 me-2 ${activeTab === 'notice' ? 'text-white' : 'text-danger'}`} style={{ fontSize: '0.8rem' }}></i>
+                                        <span className="fw-bold" style={{ fontSize: '0.7rem', lineHeight: '1.2' }}>Notice Bar (Marquee)</span>
                                     </button>
 
                                     {role === 'superadmin' && (
@@ -1907,6 +1971,139 @@ const SettingsPage = () => {
                                                     )}
                                                 </button>
                                             </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        ) : activeTab === 'notice' ? (
+                            <div className="card border-0 shadow-lg mb-4 overflow-hidden" style={{ borderRadius: '20px' }}>
+                                <div className="card-header py-3 px-4 border-0" style={{ background: 'linear-gradient(135deg, #002B5B 0%, #0056b3 100%)', color: 'white' }}>
+                                    <h2 className="mb-0 fw-bold d-flex align-items-center fs-4">
+                                        <i className="fas fa-scroll me-3 text-warning"></i>
+                                        Public Notice Bar Settings
+                                    </h2>
+                                    <p className="mb-0 opacity-80 extra-small">Configure the scrolling marquee notice on top of the navbar on all public pages.</p>
+                                </div>
+                                <div className="card-body p-4 bg-white">
+                                    {/* Live Marquee Preview Box */}
+                                    <div className="mb-4">
+                                        <label className="form-label fw-bold text-dark d-flex align-items-center gap-2">
+                                            <i className="fas fa-eye text-primary"></i>
+                                            Live Marquee Preview:
+                                            <span className={`badge ${noticeSettings.enabled ? 'bg-success' : 'bg-secondary'} ms-auto`}>
+                                                {noticeSettings.enabled ? '● Active on Public Pages' : '○ Currently Disabled'}
+                                            </span>
+                                        </label>
+                                        <div
+                                            className="rounded-3 overflow-hidden shadow-sm border"
+                                            style={{
+                                                backgroundColor: '#002B5B',
+                                                color: '#ffffff',
+                                                padding: '8px 14px',
+                                                fontSize: '14px',
+                                                minHeight: '44px',
+                                                display: 'flex',
+                                                alignItems: 'center'
+                                            }}
+                                        >
+                                            <div
+                                                style={{
+                                                    display: 'inline-flex',
+                                                    alignItems: 'center',
+                                                    gap: '5px',
+                                                    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                                                    padding: '2px 10px',
+                                                    borderRadius: '20px',
+                                                    fontWeight: 700,
+                                                    fontSize: '12px',
+                                                    whiteSpace: 'nowrap',
+                                                    marginRight: '12px',
+                                                    border: '1px solid rgba(255, 255, 255, 0.3)'
+                                                }}
+                                            >
+                                                <i className="fas fa-bullhorn text-warning"></i>
+                                                <span>বিজ্ঞপ্তি</span>
+                                            </div>
+                                            <div style={{ flex: 1, overflow: 'hidden' }}>
+                                                {noticeSettings.text && noticeSettings.text.trim() ? (
+                                                    <marquee
+                                                        behavior="scroll"
+                                                        direction="left"
+                                                        scrollamount={6}
+                                                        style={{ display: 'block', width: '100%', margin: 0, padding: 0 }}
+                                                    >
+                                                        <span style={{ fontWeight: 500 }}>
+                                                            {noticeSettings.text}
+                                                        </span>
+                                                    </marquee>
+                                                ) : (
+                                                    <span className="opacity-50 fst-italic">নোটিশ টেক্সট লিখলে এখানে স্ক্রল করবে...</span>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="row g-4">
+                                        {/* Enable / Disable Switch */}
+                                        <div className="col-12">
+                                            <div className="p-3 rounded-3 border bg-light d-flex align-items-center justify-content-between">
+                                                <div>
+                                                    <h6 className="fw-bold mb-1 text-dark">Enable Notice Bar</h6>
+                                                    <p className="text-muted small mb-0">Turn on or off the marquee notice bar on all public pages.</p>
+                                                </div>
+                                                <div className="form-check form-switch fs-4 mb-0">
+                                                    <input
+                                                        className="form-check-input"
+                                                        type="checkbox"
+                                                        role="switch"
+                                                        checked={noticeSettings.enabled}
+                                                        onChange={(e) => setNoticeSettings(prev => ({ ...prev, enabled: e.target.checked }))}
+                                                        id="noticeEnabledSwitch"
+                                                        style={{ cursor: 'pointer' }}
+                                                    />
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        {/* Notice Text */}
+                                        <div className="col-12">
+                                            <label className="form-label fw-bold text-dark">
+                                                Notice Text (Marquee Message)
+                                                <span className="text-danger ms-1">*</span>
+                                            </label>
+                                            <textarea
+                                                className="form-control rounded-3 shadow-sm font-sans"
+                                                rows={4}
+                                                placeholder="যেমন: জরুরী বিজ্ঞপ্তি: টিউশন সেবা ফোরামে আপনাকে স্বাগতম! টিউশন পেতে নিয়মিত ওয়েবসাইট ভিজিট করুন।"
+                                                value={noticeSettings.text}
+                                                onChange={(e) => setNoticeSettings(prev => ({ ...prev, text: e.target.value }))}
+                                                disabled={isSaving}
+                                                style={{ border: '2px solid #e2e8f0', fontSize: '15px' }}
+                                            />
+                                            <div className="form-text mt-1">
+                                                এই টেক্সটটি পাবলিক পেজের নেভিগেশন বারের উপরে স্ক্রল করবে।
+                                            </div>
+                                        </div>
+
+                                        {/* Save Button */}
+                                        <div className="col-12 mt-3">
+                                            <button
+                                                className="btn btn-primary btn-lg w-100 py-2 fw-bold rounded-3 shadow-sm d-flex align-items-center justify-content-center gap-2"
+                                                onClick={handleSaveNoticeSettings}
+                                                disabled={isSaving}
+                                            >
+                                                {isSaving ? (
+                                                    <>
+                                                        <span className="spinner-border spinner-border-sm"></span>
+                                                        Saving Notice Settings...
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        <i className="fas fa-save"></i>
+                                                        Save Notice Settings
+                                                    </>
+                                                )}
+                                            </button>
                                         </div>
                                     </div>
                                 </div>

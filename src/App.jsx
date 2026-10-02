@@ -137,6 +137,7 @@ const App = () => {
           <Route path="/apply-updates" element={<ApplyUpdates />} />
           <Route path="/complaint-suggestion" element={<ComplaintSuggestionPage />} />
           <Route path="/livechat" element={<LiveChatPage />} />
+          <Route path="/profile-settings" element={<Navigate to="/#profile-settings" replace />} />
           <Route path="/admin/login" element={<Loginpage />} />
           <Route path="/app" element={<AppRedirect />} />
 

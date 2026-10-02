@@ -30,8 +30,21 @@ const NavbarComponent = () => {
         };
         checkSettings();
         window.addEventListener('userSettingsUpdated', checkSettings);
-        return () => window.removeEventListener('userSettingsUpdated', checkSettings);
-    }, []);
+
+        const handleOpenSettings = () => setShowSettings(true);
+        window.addEventListener('openProfileSettings', handleOpenSettings);
+        window.addEventListener('openUserSettings', handleOpenSettings);
+
+        if (location.hash === '#profile-settings' || location.search.includes('openSettings=true')) {
+            setShowSettings(true);
+        }
+
+        return () => {
+            window.removeEventListener('userSettingsUpdated', checkSettings);
+            window.removeEventListener('openProfileSettings', handleOpenSettings);
+            window.removeEventListener('openUserSettings', handleOpenSettings);
+        };
+    }, [location]);
 
     const handleAboutUsClick = (e) => {
         e.preventDefault();

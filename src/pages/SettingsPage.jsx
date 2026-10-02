@@ -1997,9 +1997,9 @@ const SettingsPage = () => {
                                         <div
                                             className="rounded-3 overflow-hidden shadow-sm border"
                                             style={{
-                                                backgroundColor: '#002B5B',
+                                                background: 'linear-gradient(90deg, #0b132b 0%, #1c2541 50%, #0b132b 100%)',
                                                 color: '#ffffff',
-                                                padding: '8px 14px',
+                                                padding: '7px 14px',
                                                 fontSize: '14px',
                                                 minHeight: '44px',
                                                 display: 'flex',
@@ -2010,34 +2010,40 @@ const SettingsPage = () => {
                                                 style={{
                                                     display: 'inline-flex',
                                                     alignItems: 'center',
-                                                    gap: '5px',
-                                                    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                                                    gap: '6px',
+                                                    background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
+                                                    color: '#0f172a',
                                                     padding: '2px 10px',
                                                     borderRadius: '20px',
                                                     fontWeight: 700,
-                                                    fontSize: '12px',
+                                                    fontSize: '11.5px',
                                                     whiteSpace: 'nowrap',
                                                     marginRight: '12px',
+                                                    boxShadow: '0 2px 6px rgba(245, 158, 11, 0.35)',
                                                     border: '1px solid rgba(255, 255, 255, 0.3)'
                                                 }}
                                             >
-                                                <i className="fas fa-bullhorn text-warning"></i>
+                                                <i className="fas fa-bullhorn text-dark"></i>
                                                 <span>বিজ্ঞপ্তি</span>
                                             </div>
-                                            <div style={{ flex: 1, overflow: 'hidden' }}>
+                                            <div style={{ flex: 1, overflow: 'hidden' }} className="notice-continuous-marquee-track">
                                                 {noticeSettings.text && noticeSettings.text.trim() ? (
-                                                    <marquee
-                                                        behavior="scroll"
-                                                        direction="left"
-                                                        scrollamount={6}
-                                                        style={{ display: 'block', width: '100%', margin: 0, padding: 0 }}
-                                                    >
-                                                        <span style={{ fontWeight: 500 }}>
-                                                            {noticeSettings.text}
-                                                        </span>
-                                                    </marquee>
+                                                    <>
+                                                        <div className="notice-marquee-group">
+                                                            <div className="notice-marquee-item"><span style={{ fontWeight: 500 }}>{noticeSettings.text}</span></div>
+                                                            <span style={{ opacity: 0.5, fontSize: '10px', margin: '0 1rem' }}>✦</span>
+                                                            <div className="notice-marquee-item"><span style={{ fontWeight: 500 }}>{noticeSettings.text}</span></div>
+                                                            <span style={{ opacity: 0.5, fontSize: '10px', margin: '0 1rem' }}>✦</span>
+                                                        </div>
+                                                        <div className="notice-marquee-group" aria-hidden="true">
+                                                            <div className="notice-marquee-item"><span style={{ fontWeight: 500 }}>{noticeSettings.text}</span></div>
+                                                            <span style={{ opacity: 0.5, fontSize: '10px', margin: '0 1rem' }}>✦</span>
+                                                            <div className="notice-marquee-item"><span style={{ fontWeight: 500 }}>{noticeSettings.text}</span></div>
+                                                            <span style={{ opacity: 0.5, fontSize: '10px', margin: '0 1rem' }}>✦</span>
+                                                        </div>
+                                                    </>
                                                 ) : (
-                                                    <span className="opacity-50 fst-italic">নোটিশ টেক্সট লিখলে এখানে স্ক্রল করবে...</span>
+                                                    <span className="opacity-50 fst-italic">নোটিশ টেক্সট লিখলে এখানে স্মুথলি স্ক্রল করবে...</span>
                                                 )}
                                             </div>
                                         </div>
@@ -2118,6 +2124,40 @@ const SettingsPage = () => {
                 <style>{`
                     @import url('https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&display=swap');
                     
+                    .notice-continuous-marquee-track {
+                        display: flex;
+                        overflow: hidden;
+                        user-select: none;
+                        width: 100%;
+                        cursor: default;
+                        mask-image: linear-gradient(to right, transparent 0%, black 1.5%, black 98.5%, transparent 100%);
+                        -webkit-mask-image: linear-gradient(to right, transparent 0%, black 1.5%, black 98.5%, transparent 100%);
+                    }
+                    .notice-marquee-group {
+                        flex-shrink: 0;
+                        display: flex;
+                        align-items: center;
+                        justify-content: space-around;
+                        min-width: 100%;
+                        animation: scrollContinuousMarquee 24s linear infinite;
+                        will-change: transform;
+                        transform: translate3d(0, 0, 0);
+                        backface-visibility: hidden;
+                        perspective: 1000px;
+                    }
+                    .notice-marquee-item {
+                        display: inline-flex;
+                        align-items: center;
+                        white-space: nowrap;
+                    }
+                    .notice-continuous-marquee-track:hover .notice-marquee-group {
+                        animation-play-state: paused;
+                    }
+                    @keyframes scrollContinuousMarquee {
+                        0% { transform: translate3d(0, 0, 0); }
+                        100% { transform: translate3d(-100%, 0, 0); }
+                    }
+
                     .bangla-font,
                     .bangla-font *:not(.fas) {
                         font-family: 'Hind Siliguri', sans-serif !important;

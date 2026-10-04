@@ -562,7 +562,6 @@ export default function LiveChatPage() {
                               `**নাম**: **${td.name || 'N/A'}**`,
                               `**লিঙ্গ**: ${td.gender || 'N/A'}`,
                               `**ফোন**: ${td.phone || 'N/A'}`,
-                              td.email ? `**ইমেইল**: ${td.email}` : null,
                               td.currentArea ? `**বর্তমান এলাকা**: ${td.currentArea}` : null,
                               td.district ? `**জেলা**: ${td.district}` : null,
                               td.thana ? `**থানা**: ${td.thana}` : null,

@@ -746,63 +746,41 @@ Joining: ${details.joining || ''}
   };
 
   return (
-    <div className="ts-chat-widget-container" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+    <div className="ts-chat-widget-container">
 
-      {/* WhatsApp Button and Label (Only visible when chat window is closed) */}
-      {!isOpen && (
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+      {/* Floating Action Buttons Group */}
+      <div className={`ts-floating-actions-group ${isOpen ? 'is-open' : ''}`}>
+        {/* WhatsApp Button (Only visible when chat window is closed) */}
+        {!isOpen && (
           <a
             href={getWhatsAppUrl() || whatsappSchemeUrl}
             target="_blank"
             rel="noopener noreferrer"
             aria-label="Chat with us on WhatsApp"
             title="Chat with us on WhatsApp"
-            style={{
-              width: '38px',
-              height: '38px',
-              backgroundColor: '#25D366',
-              borderRadius: '50%',
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center',
-              boxShadow: '0 2px 6px rgba(0,0,0,0.15)',
-              cursor: 'pointer',
-              color: 'white',
-              flexShrink: 0,
-              textDecoration: 'none',
-              transition: 'transform 0.2s ease, box-shadow 0.2s ease'
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.transform = 'scale(1.1)';
-              e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.25)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.transform = 'scale(1)';
-              e.currentTarget.style.boxShadow = '0 2px 6px rgba(0,0,0,0.15)';
-            }}
+            className="ts-whatsapp-float-btn"
           >
-            <BsWhatsapp size={20} />
+            <BsWhatsapp size={19} />
           </a>
-        </div>
-      )}
-
-      {/* Live Chat Button and Label */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', position: 'relative' }}>
-        {!isOpen && (
-          <span className="ts-chat-label" onClick={() => setIsOpen(true)}>
-            Live Chat
-          </span>
         )}
 
         {/* Floating Toggle Button */}
         <button
-          className="ts-chat-widget-toggle"
+          className={`ts-chat-widget-toggle ${isOpen ? 'is-open' : ''}`}
           onClick={() => setIsOpen(!isOpen)}
-          aria-label="Toggle Live Chat"
-          title="Live Support Chat"
+          aria-label={isOpen ? "Close Live Chat" : "Open Live Chat"}
+          title={isOpen ? "Close Live Chat" : "Live Support Chat"}
         >
-          {isOpen ? <BsX size={22} /> : <BsChatDotsFill size={18} />}
+          {isOpen ? (
+            <BsX size={22} />
+          ) : (
+            <>
+              <BsChatDotsFill size={15} />
+              <span className="ts-chat-toggle-label">Live Chat</span>
+            </>
+          )}
         </button>
+      </div>
 
         {/* Chat Window */}
         {isOpen && (
@@ -1060,7 +1038,6 @@ Joining: ${details.joining || ''}
             )}
           </div>
         )}
-      </div>
 
       <TuitionApplyConfirmModal
         show={!!confirmTuitionModal}

@@ -1253,6 +1253,7 @@ const AttendancePage = () => {
                                             <tr>
                                                 <th className="ps-3" style={{ width: '60px' }}>SL</th>
                                                 <th>Payment Date</th>
+                                                <th>Salary For Month</th>
                                                 <th className="text-end">Amount (BDT)</th>
                                                 <th>Note / Voucher Ref</th>
                                                 <th className="pe-3">Recorded By</th>
@@ -1264,6 +1265,15 @@ const AttendancePage = () => {
                                                     <td className="ps-3 text-muted fw-bold">{idx + 1}</td>
                                                     <td className="fw-semibold text-dark">
                                                         {item.date ? new Date(item.date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : '-'}
+                                                    </td>
+                                                    <td>
+                                                        {item.salaryMonth ? (
+                                                            <span className="badge bg-primary bg-opacity-10 text-primary border border-primary px-2 py-0.5 fw-bold" style={{ fontSize: '0.75rem' }}>
+                                                                📅 {new Date(item.salaryMonth + '-01').toLocaleDateString('en-GB', { month: 'short', year: 'numeric' })}
+                                                            </span>
+                                                        ) : (
+                                                            <span className="text-muted small">—</span>
+                                                        )}
                                                     </td>
                                                     <td className="text-end fw-bold text-success">
                                                         ৳{Number(item.amount || 0).toLocaleString()}

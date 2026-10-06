@@ -50,6 +50,7 @@ const ServiceChargePage = () => {
     // Standalone Create/Edit Form modal state
     const [scFormOpen, setScFormOpen] = useState(false);
     const [scEditingId, setScEditingId] = useState(null);
+    const [isSavingSc, setIsSavingSc] = useState(false);
     const [scFormData, setScFormData] = useState({
         tuitionCode: '',
         teacherCode: '',
@@ -388,7 +389,11 @@ const ServiceChargePage = () => {
 
     // Save Create / Edit
     const handleSaveStandaloneSc = async (e) => {
-        e.preventDefault();
+        if (e && e.preventDefault) {
+            e.preventDefault();
+        }
+        if (isSavingSc) return;
+
         if (!scFormData.teacherCode || !scFormData.teacherCode.trim()) {
             toast.error("Teacher Code is required. Please select or enter a Teacher Code.");
             return;
@@ -397,6 +402,8 @@ const ServiceChargePage = () => {
             toast.error("Please select a status (Completed, Pending, or Cancelled).");
             return;
         }
+
+        setIsSavingSc(true);
         try {
             const username = localStorage.getItem('username') || 'Admin';
             if (scEditingId) {
@@ -419,6 +426,8 @@ const ServiceChargePage = () => {
         } catch (err) {
             console.error('Save service charge error:', err);
             toast.error(err.response?.data?.message || "Failed to save service charge.");
+        } finally {
+            setIsSavingSc(false);
         }
     };
 
@@ -718,8 +727,15 @@ const ServiceChargePage = () => {
                 )}
 
                 {/* Create/Edit Service Charge Modal */}
-                <Modal show={scFormOpen} onHide={() => setScFormOpen(false)} centered size="xl">
-                    <Modal.Header closeButton className="border-0 pb-0">
+                <Modal 
+                    show={scFormOpen} 
+                    onHide={() => !isSavingSc && setScFormOpen(false)} 
+                    centered 
+                    size="xl"
+                    backdrop={isSavingSc ? 'static' : true}
+                    keyboard={!isSavingSc}
+                >
+                    <Modal.Header closeButton={!isSavingSc} className="border-0 pb-0">
                         <Modal.Title className="fw-bold ps-2">
                             {scEditingId ? "Edit Service Charge" : "Add Standalone Service Charge"}
                         </Modal.Title>
@@ -891,11 +907,18 @@ const ServiceChargePage = () => {
                                 </Col>
                             </Row>
                             <div className="d-flex justify-content-end gap-2 mt-4">
-                                <Button variant="secondary" onClick={() => setScFormOpen(false)}>
+                                <Button variant="secondary" onClick={() => setScFormOpen(false)} disabled={isSavingSc}>
                                     Cancel
                                 </Button>
-                                <Button variant="primary" type="submit">
-                                    {scEditingId ? "Save Changes" : "Create Service Charge"}
+                                <Button variant="primary" type="submit" disabled={isSavingSc}>
+                                    {isSavingSc ? (
+                                        <>
+                                            <Spinner animation="border" size="sm" className="me-2" />
+                                            {scEditingId ? "Saving..." : "Creating..."}
+                                        </>
+                                    ) : (
+                                        scEditingId ? "Save Changes" : "Create Service Charge"
+                                    )}
                                 </Button>
                             </div>
                         </Form>

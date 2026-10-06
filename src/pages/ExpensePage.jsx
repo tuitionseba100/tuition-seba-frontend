@@ -78,6 +78,7 @@ const ExpensePage = () => {
         amount: '',
         category: '',
         salaryUser: '',
+        salaryMonth: moment().format('YYYY-MM'),
         note: '',
         date: moment().format('YYYY-MM-DD')
     });
@@ -168,6 +169,7 @@ const ExpensePage = () => {
                 amount: expense.amount,
                 category: expense.category,
                 salaryUser: expense.salaryUser || '',
+                salaryMonth: expense.salaryMonth || (expense.date ? moment(expense.date).format('YYYY-MM') : moment().format('YYYY-MM')),
                 note: expense.note || '',
                 date: moment(expense.date).format('YYYY-MM-DD')
             });
@@ -177,6 +179,7 @@ const ExpensePage = () => {
                 amount: '',
                 category: '',
                 salaryUser: '',
+                salaryMonth: moment().format('YYYY-MM'),
                 note: '',
                 date: moment().toISOString()
             });
@@ -427,11 +430,18 @@ const ExpensePage = () => {
                                             </td>
                                             <td className="fw-semibold text-danger">
                                                 <div>{t.category}</div>
-                                                {t.category === 'Salary' && t.salaryUser && (
-                                                    <div className="mt-1">
-                                                        <span className="badge bg-primary bg-opacity-10 text-primary border border-primary px-2 py-0.5" style={{ fontSize: '0.75rem', fontWeight: '600' }}>
-                                                            👤 {t.salaryUser}
-                                                        </span>
+                                                {t.category === 'Salary' && (
+                                                    <div className="mt-1 d-flex flex-wrap gap-1">
+                                                        {t.salaryUser && (
+                                                            <span className="badge bg-primary bg-opacity-10 text-primary border border-primary px-2 py-0.5" style={{ fontSize: '0.75rem', fontWeight: '600' }}>
+                                                                👤 {t.salaryUser}
+                                                            </span>
+                                                        )}
+                                                        {t.salaryMonth && (
+                                                            <span className="badge bg-success bg-opacity-10 text-success border border-success px-2 py-0.5" style={{ fontSize: '0.75rem', fontWeight: '600' }}>
+                                                                📅 {moment(t.salaryMonth, 'YYYY-MM').format('MMM YYYY')}
+                                                            </span>
+                                                        )}
                                                     </div>
                                                 )}
                                             </td>
@@ -521,21 +531,36 @@ const ExpensePage = () => {
                                 </Form.Select>
                             </Form.Group>
                             {formData.category === 'Salary' && (
-                                <Form.Group className="mb-3">
-                                    <Form.Label className="small fw-bold">Employee / User (Optional)</Form.Label>
-                                    <Form.Select
-                                        value={formData.salaryUser || ''}
-                                        onChange={(e) => setFormData({ ...formData, salaryUser: e.target.value })}
-                                        className="rounded-3"
-                                    >
-                                        <option value="">Select Employee (Optional)</option>
-                                        {users.map(u => (
-                                            <option key={u._id} value={u.username}>
-                                                {u.name} ({u.username})
-                                            </option>
-                                        ))}
-                                    </Form.Select>
-                                </Form.Group>
+                                <Row>
+                                    <Col md={6}>
+                                        <Form.Group className="mb-3">
+                                            <Form.Label className="small fw-bold">Employee / User (Optional)</Form.Label>
+                                            <Form.Select
+                                                value={formData.salaryUser || ''}
+                                                onChange={(e) => setFormData({ ...formData, salaryUser: e.target.value })}
+                                                className="rounded-3"
+                                            >
+                                                <option value="">Select Employee (Optional)</option>
+                                                {users.map(u => (
+                                                    <option key={u._id} value={u.username}>
+                                                        {u.name} ({u.username})
+                                                    </option>
+                                                ))}
+                                            </Form.Select>
+                                        </Form.Group>
+                                    </Col>
+                                    <Col md={6}>
+                                        <Form.Group className="mb-3">
+                                            <Form.Label className="small fw-bold">Salary Month</Form.Label>
+                                            <Form.Control
+                                                type="month"
+                                                value={formData.salaryMonth || moment().format('YYYY-MM')}
+                                                onChange={(e) => setFormData({ ...formData, salaryMonth: e.target.value })}
+                                                className="rounded-3 shadow-sm"
+                                            />
+                                        </Form.Group>
+                                    </Col>
+                                </Row>
                             )}
                             <Form.Group className="mb-3">
                                 <Form.Label className="small fw-bold">Note (Optional)</Form.Label>

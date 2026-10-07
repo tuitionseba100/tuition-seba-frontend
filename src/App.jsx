@@ -112,6 +112,7 @@ const UserPage = lazy(() => import('./pages/UserPage'));
 const ExpensePage = lazy(() => import('./pages/ExpensePage'));
 const ActivityLogPage = lazy(() => import('./pages/ActivityLogPage'));
 const StatusHistoryReportPage = lazy(() => import('./pages/StatusHistoryReportPage'));
+const ExpenseReportPage = lazy(() => import('./pages/reports/ExpenseReportPage'));
 
 const PageLoader = () => (
   <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', minHeight: '60vh', color: '#004085' }}>
@@ -182,6 +183,8 @@ const App = () => {
                 <Route path="finance" element={<ExpensePage />} />
                 <Route path="activity-log" element={<ActivityLogPage />} />
                 <Route path="reports" element={<StatusHistoryReportPage />} />
+                <Route path="reports/status-history" element={<StatusHistoryReportPage />} />
+                <Route path="reports/expense" element={<ExpenseReportPage />} />
               </Route>
             </Route>
 

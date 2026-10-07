@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Container, Row, Col, Card, Table, Form, Button, Spinner, Badge, Tabs, Tab, Nav, Modal, Pagination, Dropdown } from 'react-bootstrap';
-import { FaCalendarAlt, FaFilter, FaSearch, FaHistory, FaUserCheck, FaBookOpen, FaUndo, FaTag, FaChartPie, FaWallet, FaMinus, FaBalanceScale, FaColumns, FaChartBar } from 'react-icons/fa';
+import { FaCalendarAlt, FaFilter, FaSearch, FaHistory, FaUserCheck, FaBookOpen, FaUndo, FaTag, FaChartPie, FaWallet, FaMinus, FaBalanceScale, FaColumns, FaChartBar, FaReceipt, FaEye, FaListAlt } from 'react-icons/fa';
 import { axiosWithFallback as axios } from '../services/fetchWithFallback';
 import NavBarPage from './NavbarPage';
 import styled from 'styled-components';
@@ -82,6 +82,27 @@ const StatusHistoryReportPage = () => {
     const [marketingFilters, setMarketingFilters] = useState({ startDate: initialTodayStr, endDate: initialTodayStr, medium: '' });
     const [appliedMarketingFilters, setAppliedMarketingFilters] = useState({ startDate: initialTodayStr, endDate: initialTodayStr, medium: '' });
     const [marketingMediums, setMarketingMediums] = useState([]);
+
+    // Expense Category Report States
+    const [expenseReportData, setExpenseReportData] = useState({
+        summary: [],
+        timeline: [],
+        totalExpense: 0,
+        totalCount: 0,
+        avgPerTransaction: 0,
+        topCategory: 'N/A',
+        distinctCategories: []
+    });
+    const [expenseLoading, setExpenseLoading] = useState(false);
+    const [expenseFilters, setExpenseFilters] = useState({ startDate: initialTodayStr, endDate: initialTodayStr, category: 'all' });
+    const [appliedExpenseFilters, setAppliedExpenseFilters] = useState({ startDate: initialTodayStr, endDate: initialTodayStr, category: 'all' });
+
+    // Category Items Modal State
+    const [showExpenseModal, setShowExpenseModal] = useState(false);
+    const [selectedExpenseCategory, setSelectedExpenseCategory] = useState('');
+    const [expenseModalData, setExpenseModalData] = useState({ items: [], totalCount: 0, totalAmount: 0, currentPage: 1, totalPages: 1 });
+    const [expenseModalLoading, setExpenseModalLoading] = useState(false);
+    const [expenseModalPage, setExpenseModalPage] = useState(1);
 
     // Overall Table Column Visibility State with LocalStorage
     const overallColumnsConfig = [
@@ -238,6 +259,66 @@ const StatusHistoryReportPage = () => {
             fetchMarketingReport();
         }
     }, [role, appliedMarketingFilters, activeTab]);
+
+    useEffect(() => {
+        if (role === 'superadmin' && activeTab === 'expense') {
+            fetchExpenseCategoryReport();
+        }
+    }, [role, appliedExpenseFilters, activeTab]);
+
+    const fetchExpenseCategoryReport = async () => {
+        setExpenseLoading(true);
+        try {
+            const params = { ...appliedExpenseFilters };
+            if (params.category === 'all') delete params.category;
+            const res = await axios.get('https://tuition-seba-backend-1.onrender.com/api/report/expense-by-category', {
+                params,
+                headers: { Authorization: token }
+            });
+            setExpenseReportData(res.data);
+        } catch (error) {
+            console.error('Error fetching expense category report:', error);
+            toast.error('Failed to load expense category report');
+        } finally {
+            setExpenseLoading(false);
+        }
+    };
+
+    const fetchExpenseCategoryItems = async (catName, pageNum = 1) => {
+        setExpenseModalLoading(true);
+        try {
+            const params = {
+                category: catName,
+                startDate: appliedExpenseFilters.startDate,
+                endDate: appliedExpenseFilters.endDate,
+                page: pageNum,
+                limit: 15
+            };
+            const res = await axios.get('https://tuition-seba-backend-1.onrender.com/api/report/expense-category-items', {
+                params,
+                headers: { Authorization: token }
+            });
+            setExpenseModalData(res.data);
+            setExpenseModalPage(pageNum);
+        } catch (error) {
+            console.error('Error fetching category items:', error);
+            toast.error('Failed to load category expense items');
+        } finally {
+            setExpenseModalLoading(false);
+        }
+    };
+
+    const handleOpenExpenseCategoryModal = (catName) => {
+        setSelectedExpenseCategory(catName);
+        setShowExpenseModal(true);
+        fetchExpenseCategoryItems(catName, 1);
+    };
+
+    const handleExpenseModalPageChange = (newPage) => {
+        if (newPage >= 1 && newPage <= expenseModalData.totalPages) {
+            fetchExpenseCategoryItems(selectedExpenseCategory, newPage);
+        }
+    };
 
     const fetchMarketingReport = async () => {
         setMarketingLoading(true);
@@ -636,6 +717,74 @@ const StatusHistoryReportPage = () => {
         setAppliedMarketingFilters(newFilters);
     };
 
+    const handleExpenseFilterChange = (field, value) => {
+        setExpenseFilters(prev => ({ ...prev, [field]: value }));
+    };
+
+    const handleApplyExpenseFilters = () => {
+        setAppliedExpenseFilters(expenseFilters);
+    };
+
+    const handleResetExpenseFilters = () => {
+        const reset = { startDate: initialTodayStr, endDate: initialTodayStr, category: 'all' };
+        setExpenseFilters(reset);
+        setAppliedExpenseFilters(reset);
+    };
+
+    const handleExpensePresetSelect = (preset) => {
+        const today = new Date();
+        let start = new Date();
+        let end = new Date();
+
+        switch (preset) {
+            case 'allTime':
+                setExpenseFilters(prev => ({ ...prev, startDate: '', endDate: '' }));
+                setAppliedExpenseFilters(prev => ({ ...prev, startDate: '', endDate: '' }));
+                return;
+            case 'today':
+                break;
+            case 'yesterday':
+                start.setDate(today.getDate() - 1);
+                end.setDate(today.getDate() - 1);
+                break;
+            case 'thisWeek': {
+                const day = today.getDay();
+                start.setDate(today.getDate() - day);
+                break;
+            }
+            case 'thisMonth':
+                start = new Date(today.getFullYear(), today.getMonth(), 1);
+                break;
+            case 'lastMonth':
+                start = new Date(today.getFullYear(), today.getMonth() - 1, 1);
+                end = new Date(today.getFullYear(), today.getMonth(), 0);
+                break;
+            case 'last7Days':
+                start.setDate(today.getDate() - 6);
+                break;
+            case 'last30Days':
+                start.setDate(today.getDate() - 29);
+                break;
+            default:
+                return;
+        }
+
+        const formatDate = (date) => {
+            const yyyy = date.getFullYear();
+            const mm = String(date.getMonth() + 1).padStart(2, '0');
+            const dd = String(date.getDate()).padStart(2, '0');
+            return `${yyyy}-${mm}-${dd}`;
+        };
+
+        const newFilters = {
+            ...expenseFilters,
+            startDate: formatDate(start),
+            endDate: formatDate(end)
+        };
+        setExpenseFilters(newFilters);
+        setAppliedExpenseFilters(newFilters);
+    };
+
     const handleOverallFilterChange = (field, value) => {
         setOverallFilters(prev => ({ ...prev, [field]: value }));
     };
@@ -762,6 +911,11 @@ const StatusHistoryReportPage = () => {
                                 <span className="d-flex align-items-center gap-2"><FaTag /> Marketing Report</span>
                             </Nav.Link>
                         </Nav.Item>
+                        <Nav.Item>
+                            <Nav.Link eventKey="expense">
+                                <span className="d-flex align-items-center gap-2"><FaReceipt /> Expense Report</span>
+                            </Nav.Link>
+                        </Nav.Item>
                     </Nav>
 
                     <div className="d-flex justify-content-between align-items-center mb-3 mt-0">
@@ -801,6 +955,18 @@ const StatusHistoryReportPage = () => {
                                         </span>
                                         <Badge bg="light" text="dark" className="border px-3 py-1 fw-medium shadow-sm rounded-pill ms-2">
                                             Total Tuitions: {marketingReportData?.summary?.reduce((acc, curr) => acc + curr.count, 0) || 0}
+                                        </Badge>
+                                    </div>
+                                </>
+                            ) : activeTab === 'expense' ? (
+                                <>
+                                    <h4 className="text-primary fw-extrabold d-flex align-items-center gap-2 mb-1" style={{ letterSpacing: '-0.5px' }}>
+                                        <FaReceipt /> Expense Report by Category
+                                    </h4>
+                                    <div className="d-flex align-items-center gap-2 flex-wrap">
+                                        <span className="text-muted small" style={{ fontSize: '12px' }}>Analyze company spending breakdown and metrics by category</span>
+                                        <Badge bg="light" text="dark" className="border px-3 py-1 fw-medium shadow-sm rounded-pill ms-2">
+                                            Total Categories: {expenseReportData?.summary?.length || 0}
                                         </Badge>
                                     </div>
                                 </>
@@ -858,6 +1024,17 @@ const StatusHistoryReportPage = () => {
                                     size="sm"
                                 >
                                     {marketingLoading ? <Spinner animation="border" size="sm" /> : "Refresh Report"}
+                                </Button>
+                            )}
+                            {activeTab === 'expense' && (
+                                <Button
+                                    variant="primary"
+                                    onClick={fetchExpenseCategoryReport}
+                                    disabled={expenseLoading}
+                                    className="px-3 py-1 rounded-pill shadow-sm"
+                                    size="sm"
+                                >
+                                    {expenseLoading ? <Spinner animation="border" size="sm" /> : "Refresh Report"}
                                 </Button>
                             )}
                         </div>
@@ -1443,149 +1620,164 @@ const StatusHistoryReportPage = () => {
                         </Tab.Pane>
 
                         <Tab.Pane eventKey="overall">
-                            <Row className="mb-3 g-3 mt-1 flex-nowrap" style={{ overflowX: 'auto' }}>
-                                <Col style={{ minWidth: '180px', flex: '1' }}>
-                                    <PremiumStatsCard className="shadow-sm bg-white border border-success p-2 px-3 rounded-4" style={{ borderWidth: '2px !important' }}>
+                            {/* Compact KPI Ribbon */}
+                            <Row className="mb-2 g-2 mt-1 flex-nowrap" style={{ overflowX: 'auto', paddingBottom: '3px' }}>
+                                <Col style={{ minWidth: '165px', flex: '1' }}>
+                                    <PremiumStatsCard className="shadow-sm bg-white border border-success p-2 px-2.5 rounded-3" style={{ borderWidth: '1.5px !important' }}>
                                         <Card.Body className="p-0">
-                                            <div className="d-flex align-items-center gap-3 mb-2">
-                                                <div className="icon-wrapper bg-success bg-opacity-10 text-success rounded-3 p-2 d-flex align-items-center justify-content-center">
-                                                    <FaChartPie size={24} />
-                                                </div>
-                                                <div>
-                                                    <span className="text-dark text-uppercase fw-bold tracking-wider" style={{ fontSize: '0.85rem' }}>Total Payments</span>
-                                                    <h2 className="fw-extrabold text-dark mb-0 mt-1" style={{ fontSize: '1.75rem' }}>৳ {overallReportData.totalPaymentAmount?.toLocaleString() || 0}</h2>
+                                            <div className="d-flex align-items-center justify-content-between mb-1">
+                                                <div className="d-flex align-items-center gap-2">
+                                                    <div className="icon-wrapper bg-success bg-opacity-10 text-success rounded-2 p-1 px-1.5 d-flex align-items-center justify-content-center flex-shrink-0">
+                                                        <FaChartPie size={14} />
+                                                    </div>
+                                                    <div>
+                                                        <div className="text-muted text-uppercase fw-bold" style={{ fontSize: '10px', letterSpacing: '0.4px' }}>Total Payments</div>
+                                                        <h5 className="fw-extrabold text-dark mb-0" style={{ fontSize: '1.25rem', lineHeight: '1.2' }}>৳ {overallReportData.totalPaymentAmount?.toLocaleString() || 0}</h5>
+                                                    </div>
                                                 </div>
                                             </div>
-                                            <div style={{ borderTop: '1px solid rgba(0, 0, 0, 0.1)', paddingTop: '6px', marginTop: '6px' }}>
+                                            <div style={{ borderTop: '1px solid rgba(0, 0, 0, 0.08)', paddingTop: '4px', marginTop: '4px' }}>
                                                 <div className="d-flex justify-content-between align-items-center">
-                                                    <div className="text-dark text-uppercase fw-bold" style={{ fontSize: '11px' }}>Total Transactions</div>
-                                                    <div className="fw-bold fs-6 text-success">{overallReportData.totalPaymentCount}</div>
+                                                    <span className="text-muted" style={{ fontSize: '10px' }}>Transactions:</span>
+                                                    <span className="fw-bold text-success" style={{ fontSize: '11px' }}>{overallReportData.totalPaymentCount}</span>
                                                 </div>
                                             </div>
                                         </Card.Body>
                                     </PremiumStatsCard>
                                 </Col>
-                                <Col style={{ minWidth: '200px', flex: '1' }}>
-                                    <PremiumStatsCard className="shadow-sm bg-white border border-info p-2 px-3 rounded-4" style={{ borderWidth: '2px !important' }}>
+                                <Col style={{ minWidth: '175px', flex: '1' }}>
+                                    <PremiumStatsCard className="shadow-sm bg-white border border-info p-2 px-2.5 rounded-3" style={{ borderWidth: '1.5px !important' }}>
                                         <Card.Body className="p-0">
-                                            <div className="d-flex align-items-center gap-3 mb-2">
-                                                <div className="icon-wrapper bg-info bg-opacity-10 text-info rounded-3 p-2 d-flex align-items-center justify-content-center">
-                                                    <FaWallet size={24} />
-                                                </div>
-                                                <div>
-                                                    <span className="text-dark text-uppercase fw-bold tracking-wider" style={{ fontSize: '0.85rem' }}>Premium Teacher Fee</span>
-                                                    <h2 className="fw-extrabold text-dark mb-0 mt-1" style={{ fontSize: '1.75rem' }}>৳ {overallReportData.totalPremiumFeeAmount?.toLocaleString() || 0}</h2>
+                                            <div className="d-flex align-items-center justify-content-between mb-1">
+                                                <div className="d-flex align-items-center gap-2">
+                                                    <div className="icon-wrapper bg-info bg-opacity-10 text-info rounded-2 p-1 px-1.5 d-flex align-items-center justify-content-center flex-shrink-0">
+                                                        <FaWallet size={14} />
+                                                    </div>
+                                                    <div>
+                                                        <div className="text-muted text-uppercase fw-bold" style={{ fontSize: '10px', letterSpacing: '0.4px' }}>Premium Teacher Fee</div>
+                                                        <h5 className="fw-extrabold text-dark mb-0" style={{ fontSize: '1.25rem', lineHeight: '1.2' }}>৳ {overallReportData.totalPremiumFeeAmount?.toLocaleString() || 0}</h5>
+                                                    </div>
                                                 </div>
                                             </div>
-                                            <div style={{ borderTop: '1px solid rgba(0, 0, 0, 0.1)', paddingTop: '6px', marginTop: '6px' }}>
+                                            <div style={{ borderTop: '1px solid rgba(0, 0, 0, 0.08)', paddingTop: '4px', marginTop: '4px' }}>
                                                 <div className="d-flex justify-content-between align-items-center">
-                                                    <div className="text-dark text-uppercase fw-bold" style={{ fontSize: '11px' }}>Total Records</div>
-                                                    <div className="fw-bold fs-6 text-info">{overallReportData.totalPremiumFeeCount || 0}</div>
+                                                    <span className="text-muted" style={{ fontSize: '10px' }}>Records:</span>
+                                                    <span className="fw-bold text-info" style={{ fontSize: '11px' }}>{overallReportData.totalPremiumFeeCount || 0}</span>
                                                 </div>
                                             </div>
                                         </Card.Body>
                                     </PremiumStatsCard>
                                 </Col>
-                                <Col style={{ minWidth: '200px', flex: '1' }}>
-                                    <PremiumStatsCard className="shadow-sm bg-white border border-info p-2 px-3 rounded-4" style={{ borderWidth: '2px !important' }}>
+                                <Col style={{ minWidth: '170px', flex: '1' }}>
+                                    <PremiumStatsCard className="shadow-sm bg-white border border-info p-2 px-2.5 rounded-3" style={{ borderWidth: '1.5px !important' }}>
                                         <Card.Body className="p-0">
-                                            <div className="d-flex align-items-center gap-3 mb-2">
-                                                <div className="icon-wrapper bg-info bg-opacity-10 text-info rounded-3 p-2 d-flex align-items-center justify-content-center">
-                                                    <FaWallet size={24} />
-                                                </div>
-                                                <div>
-                                                    <span className="text-dark text-uppercase fw-bold tracking-wider" style={{ fontSize: '0.85rem' }}>Service Charge</span>
-                                                    <h2 className="fw-extrabold text-dark mb-0 mt-1" style={{ fontSize: '1.75rem' }}>৳ {overallReportData.totalServiceChargeAmount?.toLocaleString() || 0}</h2>
+                                            <div className="d-flex align-items-center justify-content-between mb-1">
+                                                <div className="d-flex align-items-center gap-2">
+                                                    <div className="icon-wrapper bg-info bg-opacity-10 text-info rounded-2 p-1 px-1.5 d-flex align-items-center justify-content-center flex-shrink-0">
+                                                        <FaWallet size={14} />
+                                                    </div>
+                                                    <div>
+                                                        <div className="text-muted text-uppercase fw-bold" style={{ fontSize: '10px', letterSpacing: '0.4px' }}>Service Charge</div>
+                                                        <h5 className="fw-extrabold text-dark mb-0" style={{ fontSize: '1.25rem', lineHeight: '1.2' }}>৳ {overallReportData.totalServiceChargeAmount?.toLocaleString() || 0}</h5>
+                                                    </div>
                                                 </div>
                                             </div>
-                                            <div style={{ borderTop: '1px solid rgba(0, 0, 0, 0.1)', paddingTop: '6px', marginTop: '6px' }}>
+                                            <div style={{ borderTop: '1px solid rgba(0, 0, 0, 0.08)', paddingTop: '4px', marginTop: '4px' }}>
                                                 <div className="d-flex justify-content-between align-items-center">
-                                                    <div className="text-dark text-uppercase fw-bold" style={{ fontSize: '11px' }}>Total Records</div>
-                                                    <div className="fw-bold fs-6 text-info">{overallReportData.totalServiceChargeCount || 0}</div>
+                                                    <span className="text-muted" style={{ fontSize: '10px' }}>Records:</span>
+                                                    <span className="fw-bold text-info" style={{ fontSize: '11px' }}>{overallReportData.totalServiceChargeCount || 0}</span>
                                                 </div>
                                             </div>
                                         </Card.Body>
                                     </PremiumStatsCard>
                                 </Col>
-                                <Col style={{ minWidth: '200px', flex: '1' }}>
-                                    <PremiumStatsCard className="shadow-sm bg-white border border-success p-2 px-3 rounded-4" style={{ borderWidth: '2px !important', background: 'linear-gradient(135deg, #f0fdf4, #dcfce7)' }}>
+                                <Col style={{ minWidth: '175px', flex: '1' }}>
+                                    <PremiumStatsCard className="shadow-sm bg-white border border-success p-2 px-2.5 rounded-3" style={{ borderWidth: '1.5px !important', background: 'linear-gradient(135deg, #f0fdf4, #dcfce7)' }}>
                                         <Card.Body className="p-0">
-                                            <div className="d-flex align-items-center gap-3 mb-2">
-                                                <div className="icon-wrapper bg-success bg-opacity-15 text-success rounded-3 p-2 d-flex align-items-center justify-content-center">
-                                                    <FaChartPie size={24} />
-                                                </div>
-                                                <div>
-                                                    <span className="text-dark text-uppercase fw-bold tracking-wider" style={{ fontSize: '0.85rem' }}>Total Income</span>
-                                                    <h2 className="fw-extrabold text-success mb-0 mt-1" style={{ fontSize: '1.75rem' }}>৳ {((overallReportData.totalPaymentAmount || 0) + (overallReportData.totalPremiumFeeAmount || 0) + (overallReportData.totalServiceChargeAmount || 0)).toLocaleString()}</h2>
+                                            <div className="d-flex align-items-center justify-content-between mb-1">
+                                                <div className="d-flex align-items-center gap-2">
+                                                    <div className="icon-wrapper bg-success bg-opacity-15 text-success rounded-2 p-1 px-1.5 d-flex align-items-center justify-content-center flex-shrink-0">
+                                                        <FaChartPie size={14} />
+                                                    </div>
+                                                    <div>
+                                                        <div className="text-muted text-uppercase fw-bold" style={{ fontSize: '10px', letterSpacing: '0.4px' }}>Total Income</div>
+                                                        <h5 className="fw-extrabold text-success mb-0" style={{ fontSize: '1.25rem', lineHeight: '1.2' }}>৳ {((overallReportData.totalPaymentAmount || 0) + (overallReportData.totalPremiumFeeAmount || 0) + (overallReportData.totalServiceChargeAmount || 0)).toLocaleString()}</h5>
+                                                    </div>
                                                 </div>
                                             </div>
-                                            <div style={{ borderTop: '1px solid rgba(0, 0, 0, 0.1)', paddingTop: '6px', marginTop: '6px' }}>
+                                            <div style={{ borderTop: '1px solid rgba(0, 0, 0, 0.08)', paddingTop: '4px', marginTop: '4px' }}>
                                                 <div className="d-flex justify-content-between align-items-center">
-                                                    <div className="text-dark text-uppercase fw-bold" style={{ fontSize: '11px' }}>Payment + Teacher Fee + Service Charge</div>
-                                                    <div className="fw-bold fs-6 text-success">-</div>
+                                                    <span className="text-muted text-truncate" style={{ fontSize: '9.5px', maxWidth: '120px' }}>Payment+Fee+Charge</span>
+                                                    <span className="fw-bold text-success" style={{ fontSize: '11px' }}>Combined</span>
                                                 </div>
                                             </div>
                                         </Card.Body>
                                     </PremiumStatsCard>
                                 </Col>
-                                <Col style={{ minWidth: '180px', flex: '1' }}>
-                                    <PremiumStatsCard className="shadow-sm bg-white border border-danger p-2 px-3 rounded-4" style={{ borderWidth: '2px !important' }}>
+                                <Col style={{ minWidth: '165px', flex: '1' }}>
+                                    <PremiumStatsCard className="shadow-sm bg-white border border-danger p-2 px-2.5 rounded-3" style={{ borderWidth: '1.5px !important' }}>
                                         <Card.Body className="p-0">
-                                            <div className="d-flex align-items-center gap-3 mb-2">
-                                                <div className="icon-wrapper bg-danger bg-opacity-10 text-danger rounded-3 p-2 d-flex align-items-center justify-content-center">
-                                                    <FaUndo size={24} />
-                                                </div>
-                                                <div>
-                                                    <span className="text-dark text-uppercase fw-bold tracking-wider" style={{ fontSize: '0.85rem' }}>Total Refunds</span>
-                                                    <h2 className="fw-extrabold text-dark mb-0 mt-1" style={{ fontSize: '1.75rem' }}>৳ {overallReportData.totalRefundAmount?.toLocaleString() || 0}</h2>
+                                            <div className="d-flex align-items-center justify-content-between mb-1">
+                                                <div className="d-flex align-items-center gap-2">
+                                                    <div className="icon-wrapper bg-danger bg-opacity-10 text-danger rounded-2 p-1 px-1.5 d-flex align-items-center justify-content-center flex-shrink-0">
+                                                        <FaUndo size={14} />
+                                                    </div>
+                                                    <div>
+                                                        <div className="text-muted text-uppercase fw-bold" style={{ fontSize: '10px', letterSpacing: '0.4px' }}>Total Refunds</div>
+                                                        <h5 className="fw-extrabold text-dark mb-0" style={{ fontSize: '1.25rem', lineHeight: '1.2' }}>৳ {overallReportData.totalRefundAmount?.toLocaleString() || 0}</h5>
+                                                    </div>
                                                 </div>
                                             </div>
-                                            <div style={{ borderTop: '1px solid rgba(0, 0, 0, 0.1)', paddingTop: '6px', marginTop: '6px' }}>
+                                            <div style={{ borderTop: '1px solid rgba(0, 0, 0, 0.08)', paddingTop: '4px', marginTop: '4px' }}>
                                                 <div className="d-flex justify-content-between align-items-center">
-                                                    <div className="text-dark text-uppercase fw-bold" style={{ fontSize: '11px' }}>Total Transactions</div>
-                                                    <div className="fw-bold fs-6 text-danger">{overallReportData.totalRefundCount}</div>
+                                                    <span className="text-muted" style={{ fontSize: '10px' }}>Transactions:</span>
+                                                    <span className="fw-bold text-danger" style={{ fontSize: '11px' }}>{overallReportData.totalRefundCount}</span>
                                                 </div>
                                             </div>
                                         </Card.Body>
                                     </PremiumStatsCard>
                                 </Col>
-                                <Col style={{ minWidth: '180px', flex: '1' }}>
-                                    <PremiumStatsCard className="shadow-sm bg-white border border-warning p-2 px-3 rounded-4" style={{ borderWidth: '2px !important' }}>
+                                <Col style={{ minWidth: '165px', flex: '1' }}>
+                                    <PremiumStatsCard className="shadow-sm bg-white border border-warning p-2 px-2.5 rounded-3" style={{ borderWidth: '1.5px !important' }}>
                                         <Card.Body className="p-0">
-                                            <div className="d-flex align-items-center gap-3 mb-2">
-                                                <div className="icon-wrapper bg-warning bg-opacity-10 text-warning rounded-3 p-2 d-flex align-items-center justify-content-center">
-                                                    <FaMinus size={24} />
-                                                </div>
-                                                <div>
-                                                    <span className="text-dark text-uppercase fw-bold tracking-wider" style={{ fontSize: '0.85rem' }}>Total Expense</span>
-                                                    <h2 className="fw-extrabold text-dark mb-0 mt-1" style={{ fontSize: '1.75rem' }}>৳ {overallReportData.totalExpenseAmount?.toLocaleString() || 0}</h2>
+                                            <div className="d-flex align-items-center justify-content-between mb-1">
+                                                <div className="d-flex align-items-center gap-2">
+                                                    <div className="icon-wrapper bg-warning bg-opacity-10 text-warning rounded-2 p-1 px-1.5 d-flex align-items-center justify-content-center flex-shrink-0">
+                                                        <FaMinus size={14} />
+                                                    </div>
+                                                    <div>
+                                                        <div className="text-muted text-uppercase fw-bold" style={{ fontSize: '10px', letterSpacing: '0.4px' }}>Total Expense</div>
+                                                        <h5 className="fw-extrabold text-dark mb-0" style={{ fontSize: '1.25rem', lineHeight: '1.2' }}>৳ {overallReportData.totalExpenseAmount?.toLocaleString() || 0}</h5>
+                                                    </div>
                                                 </div>
                                             </div>
-                                            <div style={{ borderTop: '1px solid rgba(0, 0, 0, 0.1)', paddingTop: '6px', marginTop: '6px' }}>
+                                            <div style={{ borderTop: '1px solid rgba(0, 0, 0, 0.08)', paddingTop: '4px', marginTop: '4px' }}>
                                                 <div className="d-flex justify-content-between align-items-center">
-                                                    <div className="text-dark text-uppercase fw-bold" style={{ fontSize: '11px' }}>Total Transactions</div>
-                                                    <div className="fw-bold fs-6 text-warning">{overallReportData.totalExpenseCount || 0}</div>
+                                                    <span className="text-muted" style={{ fontSize: '10px' }}>Transactions:</span>
+                                                    <span className="fw-bold text-warning" style={{ fontSize: '11px' }}>{overallReportData.totalExpenseCount || 0}</span>
                                                 </div>
                                             </div>
                                         </Card.Body>
                                     </PremiumStatsCard>
                                 </Col>
-                                <Col style={{ minWidth: '200px', flex: '1' }}>
-                                    <PremiumStatsCard className="shadow-sm bg-white border border-primary p-2 px-3 rounded-4" style={{ borderWidth: '2px !important' }}>
+                                <Col style={{ minWidth: '175px', flex: '1' }}>
+                                    <PremiumStatsCard className="shadow-sm bg-white border border-primary p-2 px-2.5 rounded-3" style={{ borderWidth: '1.5px !important' }}>
                                         <Card.Body className="p-0">
-                                            <div className="d-flex align-items-center gap-3 mb-2">
-                                                <div className="icon-wrapper bg-primary bg-opacity-10 text-primary rounded-3 p-2 d-flex align-items-center justify-content-center">
-                                                    <FaBalanceScale size={24} />
-                                                </div>
-                                                <div>
-                                                    <span className="text-dark text-uppercase fw-bold tracking-wider" style={{ fontSize: '0.85rem' }}>Total Balance</span>
-                                                    <h2 className="fw-extrabold text-dark mb-0 mt-1" style={{ fontSize: '1.75rem' }}>৳ {(((overallReportData.totalPaymentAmount || 0) + (overallReportData.totalPremiumFeeAmount || 0) + (overallReportData.totalServiceChargeAmount || 0)) - (overallReportData.totalExpenseAmount || 0)).toLocaleString()}</h2>
+                                            <div className="d-flex align-items-center justify-content-between mb-1">
+                                                <div className="d-flex align-items-center gap-2">
+                                                    <div className="icon-wrapper bg-primary bg-opacity-10 text-primary rounded-2 p-1 px-1.5 d-flex align-items-center justify-content-center flex-shrink-0">
+                                                        <FaBalanceScale size={14} />
+                                                    </div>
+                                                    <div>
+                                                        <div className="text-muted text-uppercase fw-bold" style={{ fontSize: '10px', letterSpacing: '0.4px' }}>Total Balance</div>
+                                                        <h5 className="fw-extrabold text-primary mb-0" style={{ fontSize: '1.25rem', lineHeight: '1.2' }}>৳ {(((overallReportData.totalPaymentAmount || 0) + (overallReportData.totalPremiumFeeAmount || 0) + (overallReportData.totalServiceChargeAmount || 0)) - (overallReportData.totalExpenseAmount || 0)).toLocaleString()}</h5>
+                                                    </div>
                                                 </div>
                                             </div>
-                                            <div style={{ borderTop: '1px solid rgba(0, 0, 0, 0.1)', paddingTop: '6px', marginTop: '6px' }}>
+                                            <div style={{ borderTop: '1px solid rgba(0, 0, 0, 0.08)', paddingTop: '4px', marginTop: '4px' }}>
                                                 <div className="d-flex justify-content-between align-items-center">
-                                                    <div className="text-dark text-uppercase fw-bold" style={{ fontSize: '11px' }}>Total Income - Expense</div>
-                                                    <div className="fw-bold fs-6 text-primary">-</div>
+                                                    <span className="text-muted" style={{ fontSize: '10px' }}>Income - Expense:</span>
+                                                    <span className="fw-bold text-primary" style={{ fontSize: '11px' }}>Net</span>
                                                 </div>
                                             </div>
                                         </Card.Body>
@@ -1593,48 +1785,69 @@ const StatusHistoryReportPage = () => {
                                 </Col>
                             </Row>
 
-                            <Card className="shadow-sm border-0 mb-3 rounded-4 filter-card">
+                            {/* Compact Overall Filter Card */}
+                            <Card className="shadow-sm border-0 mb-2 rounded-3 filter-card">
                                 <Card.Body className="p-2 px-3">
-                                    <h6 className="fw-bold mb-2 d-flex align-items-center gap-2 text-dark">
-                                        <FaFilter className="text-primary" /> Overall Filters
-                                    </h6>
-                                    <Row className="g-3">
-                                        <Col md={3}>
-                                            <Form.Label className="fw-semibold text-secondary small">Start Date</Form.Label>
-                                            <Form.Control
-                                                type="date"
-                                                value={overallFilters.startDate}
-                                                onChange={(e) => handleOverallFilterChange('startDate', e.target.value)}
-                                                className="rounded-3"
-                                            />
+                                    <Row className="g-2 align-items-center">
+                                        <Col lg={4} sm={6}>
+                                            <div className="d-flex align-items-center gap-1">
+                                                <span className="text-secondary fw-semibold small" style={{ minWidth: '38px', fontSize: '11.5px' }}>From:</span>
+                                                <Form.Control
+                                                    type="date"
+                                                    size="sm"
+                                                    value={overallFilters.startDate}
+                                                    onChange={(e) => handleOverallFilterChange('startDate', e.target.value)}
+                                                    className="rounded-2"
+                                                    style={{ fontSize: '12px' }}
+                                                />
+                                            </div>
                                         </Col>
-                                        <Col md={3}>
-                                            <Form.Label className="fw-semibold text-secondary small">End Date</Form.Label>
-                                            <Form.Control
-                                                type="date"
-                                                value={overallFilters.endDate}
-                                                onChange={(e) => handleOverallFilterChange('endDate', e.target.value)}
-                                                className="rounded-3"
-                                            />
+                                        <Col lg={4} sm={6}>
+                                            <div className="d-flex align-items-center gap-1">
+                                                <span className="text-secondary fw-semibold small" style={{ minWidth: '24px', fontSize: '11.5px' }}>To:</span>
+                                                <Form.Control
+                                                    type="date"
+                                                    size="sm"
+                                                    value={overallFilters.endDate}
+                                                    onChange={(e) => handleOverallFilterChange('endDate', e.target.value)}
+                                                    className="rounded-2"
+                                                    style={{ fontSize: '12px' }}
+                                                />
+                                            </div>
                                         </Col>
-                                        <Col md={2} className="d-flex align-items-end gap-2">
-                                            <Button variant="success" className="w-100 rounded-3 shadow-sm d-flex align-items-center justify-content-center" style={{ height: '38px' }} onClick={handleApplyOverallFilters} title="Search">
-                                                <FaSearch />
+                                        <Col lg={4} sm={12} className="d-flex gap-1">
+                                            <Button
+                                                variant="success"
+                                                size="sm"
+                                                className="w-100 rounded-2 shadow-sm d-flex align-items-center justify-content-center gap-1 py-1"
+                                                onClick={handleApplyOverallFilters}
+                                                title="Search"
+                                                style={{ fontSize: '12px' }}
+                                            >
+                                                <FaSearch size={11} /> Filter
                                             </Button>
-                                            <Button variant="danger" className="w-100 rounded-3 shadow-sm d-flex align-items-center justify-content-center" style={{ height: '38px' }} onClick={handleResetOverallFilters} title="Reset">
-                                                <FaUndo />
+                                            <Button
+                                                variant="outline-secondary"
+                                                size="sm"
+                                                className="rounded-2 shadow-sm d-flex align-items-center justify-content-center px-2 py-1"
+                                                onClick={handleResetOverallFilters}
+                                                title="Reset"
+                                                style={{ fontSize: '12px' }}
+                                            >
+                                                <FaUndo size={11} />
                                             </Button>
                                         </Col>
                                     </Row>
-                                    <div className="d-flex align-items-center gap-2 mt-2 flex-wrap">
-                                        <span className="text-secondary fw-semibold small d-flex align-items-center gap-1" style={{ fontSize: '11.5px' }}>
-                                            <FaCalendarAlt className="text-primary" /> Quick Ranges:
+                                    <div className="d-flex align-items-center gap-1 mt-2 flex-wrap pt-1 border-top">
+                                        <span className="text-secondary fw-semibold small d-flex align-items-center gap-1 me-1" style={{ fontSize: '11px' }}>
+                                            <FaCalendarAlt className="text-primary" size={11} /> Quick:
                                         </span>
                                         {['today', 'yesterday', 'thisWeek', 'thisMonth', 'lastMonth', 'last7Days', 'last30Days', 'allTime'].map((preset) => (
                                             <button
                                                 key={preset}
                                                 type="button"
-                                                className="preset-btn"
+                                                className="preset-btn py-0 px-2 rounded-pill"
+                                                style={{ fontSize: '11px', height: '22px', lineHeight: '20px' }}
                                                 onClick={() => handleOverallPresetSelect(preset)}
                                             >
                                                 {preset === 'allTime' ? 'All Time' : preset.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}
@@ -1645,25 +1858,33 @@ const StatusHistoryReportPage = () => {
                             </Card>
 
                             {overallLoading ? (
-                                <div className="d-flex justify-content-center py-5">
-                                    <Spinner animation="border" variant="primary" />
+                                <div className="d-flex justify-content-center py-4">
+                                    <Spinner animation="border" variant="primary" size="sm" />
                                 </div>
                             ) : (
-                                <Card className="shadow-sm border-0 rounded-4 mb-3">
+                                <Card className="shadow-sm border-0 rounded-3 mb-2">
                                     <Card.Body className="p-2 px-3">
                                         <div className="d-flex justify-content-between align-items-center mb-2">
-                                            <h6 className="fw-bold mb-0 text-dark">Combined Breakdown</h6>
+                                            <div className="d-flex align-items-center gap-2">
+                                                <span className="fw-bold text-dark" style={{ fontSize: '13px' }}>
+                                                    Combined Breakdown
+                                                </span>
+                                                <span className="badge bg-secondary-subtle text-dark px-2" style={{ fontSize: '11px' }}>
+                                                    {(overallReportData.data || []).length} rows
+                                                </span>
+                                            </div>
                                             <Dropdown autoClose="outside" align="end">
-                                                <Dropdown.Toggle variant="outline-primary" size="sm" className="d-flex align-items-center gap-2 rounded-pill px-3 shadow-sm border-2 fw-semibold">
-                                                    <FaColumns size={14} /> Customize Columns
+                                                <Dropdown.Toggle variant="outline-primary" size="sm" className="d-flex align-items-center gap-1 rounded-pill px-2 py-0 shadow-sm fw-semibold" style={{ fontSize: '11.5px', height: '24px' }}>
+                                                    <FaColumns size={12} /> Columns
                                                 </Dropdown.Toggle>
-                                                <Dropdown.Menu className="shadow-lg p-3 border-0 rounded-4" style={{ minWidth: '280px', zIndex: 1050 }}>
-                                                    <div className="d-flex justify-content-between align-items-center pb-2 mb-2 border-bottom">
-                                                        <span className="fw-bold text-dark small">Display Columns</span>
+                                                <Dropdown.Menu className="shadow-lg p-2.5 border-0 rounded-3" style={{ minWidth: '260px', zIndex: 1050 }}>
+                                                    <div className="d-flex justify-content-between align-items-center pb-1 mb-1 border-bottom">
+                                                        <span className="fw-bold text-dark small" style={{ fontSize: '11.5px' }}>Display Columns</span>
                                                         <Button
                                                             variant="link"
                                                             size="sm"
                                                             className="p-0 text-decoration-none small text-primary fw-semibold"
+                                                            style={{ fontSize: '11px' }}
                                                             onClick={() => {
                                                                 const allTrue = overallColumnsConfig.reduce((acc, col) => ({ ...acc, [col.key]: true }), {});
                                                                 setVisibleOverallColumns(allTrue);
@@ -1673,12 +1894,12 @@ const StatusHistoryReportPage = () => {
                                                             Select All
                                                         </Button>
                                                     </div>
-                                                    <div className="d-flex flex-column gap-1" style={{ maxHeight: '300px', overflowY: 'auto' }}>
+                                                    <div className="d-flex flex-column gap-1" style={{ maxHeight: '260px', overflowY: 'auto' }}>
                                                         {overallColumnsConfig.map(col => (
                                                             <label
                                                                 key={col.key}
                                                                 htmlFor={`col-toggle-${col.key}`}
-                                                                className="d-flex align-items-center gap-2 px-2 py-1.5 rounded cursor-pointer hover-bg-light m-0"
+                                                                className="d-flex align-items-center gap-2 px-1.5 py-1 rounded cursor-pointer hover-bg-light m-0"
                                                                 style={{ userSelect: 'none' }}
                                                             >
                                                                 <input
@@ -1688,7 +1909,7 @@ const StatusHistoryReportPage = () => {
                                                                     checked={isColVisible(col.key)}
                                                                     onChange={() => toggleOverallColumn(col.key)}
                                                                 />
-                                                                <span className="small text-dark fw-medium" style={{ fontSize: '13px' }}>
+                                                                <span className="small text-dark fw-medium" style={{ fontSize: '12px' }}>
                                                                     {col.label}
                                                                 </span>
                                                             </label>
@@ -1697,53 +1918,51 @@ const StatusHistoryReportPage = () => {
                                                 </Dropdown.Menu>
                                             </Dropdown>
                                         </div>
-                                        <div className="table-responsive rounded-3 shadow-sm" style={{ maxHeight: "450px", overflowY: "auto" }}>
-                                            <Table hover striped bordered className="align-middle text-center mb-0 custom-reports-table">
+                                        <div className="table-responsive rounded-2 border shadow-sm" style={{ maxHeight: "500px", overflowY: "auto" }}>
+                                            <Table hover striped bordered className="align-middle text-center mb-0 custom-reports-table table-sm" style={{ fontSize: '12px' }}>
                                                 <thead className="table-dark sticky-top">
                                                     <tr>
-                                                        {isColVisible('sl') && <th>SL</th>}
-                                                        <th className="text-start">Date</th>
-                                                        {isColVisible('paymentAmount') && <th>Payment Amount (৳)</th>}
-                                                        {isColVisible('paymentCount') && <th>Payment Count</th>}
-                                                        {isColVisible('premiumFeeAmount') && <th className="text-info">Premium Teacher Fee (৳)</th>}
-                                                        {isColVisible('premiumFeeCount') && <th className="text-info">Fee Count</th>}
-                                                        {isColVisible('serviceChargeAmount') && <th className="text-info">Service Charge (৳)</th>}
-                                                        {isColVisible('serviceChargeCount') && <th className="text-info">Charge Count</th>}
-                                                        {isColVisible('totalIncome') && <th className="text-success">Total Income (৳)</th>}
-                                                        {isColVisible('refundAmount') && <th className="text-danger">Refund Amount (৳)</th>}
-                                                        {isColVisible('refundCount') && <th className="text-danger">Refund Count</th>}
-                                                        {isColVisible('expenseAmount') && <th className="text-warning">Expense Amount (৳)</th>}
-                                                        <th className="text-primary">Balance (৳)</th>
+                                                        {isColVisible('sl') && <th style={{ padding: '5px 4px', width: '45px' }}>SL</th>}
+                                                        <th className="text-start ps-3" style={{ padding: '5px 8px' }}>Date</th>
+                                                        {isColVisible('paymentAmount') && <th style={{ padding: '5px 6px' }}>Payment (৳)</th>}
+                                                        {isColVisible('paymentCount') && <th style={{ padding: '5px 6px' }}>Pay Count</th>}
+                                                        {isColVisible('premiumFeeAmount') && <th className="text-info" style={{ padding: '5px 6px' }}>Teacher Fee (৳)</th>}
+                                                        {isColVisible('premiumFeeCount') && <th className="text-info" style={{ padding: '5px 6px' }}>Fee Count</th>}
+                                                        {isColVisible('serviceChargeAmount') && <th className="text-info" style={{ padding: '5px 6px' }}>Service Charge (৳)</th>}
+                                                        {isColVisible('serviceChargeCount') && <th className="text-info" style={{ padding: '5px 6px' }}>Charge Count</th>}
+                                                        {isColVisible('totalIncome') && <th className="text-success" style={{ padding: '5px 6px' }}>Total Income (৳)</th>}
+                                                        {isColVisible('refundAmount') && <th className="text-danger" style={{ padding: '5px 6px' }}>Refund (৳)</th>}
+                                                        {isColVisible('refundCount') && <th className="text-danger" style={{ padding: '5px 6px' }}>Refund Count</th>}
+                                                        {isColVisible('expenseAmount') && <th className="text-warning" style={{ padding: '5px 6px' }}>Expense (৳)</th>}
+                                                        <th className="text-primary" style={{ padding: '5px 6px' }}>Balance (৳)</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
                                                     {overallReportData.data && overallReportData.data.length > 0 ? (
                                                         overallReportData.data.map((row, idx) => (
                                                             <tr key={idx}>
-                                                                {isColVisible('sl') && <td className="fw-bold text-dark">{idx + 1}</td>}
-                                                                <td className="text-start fw-bold">
-                                                                    <div className="d-flex align-items-center gap-2">
-                                                                        <a href="#" className="text-decoration-none text-primary" onClick={(e) => { e.preventDefault(); handleDateClick(row.date, 'payment'); }}>
-                                                                            {new Date(row.date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric', timeZone: 'UTC' })}
-                                                                        </a>
-                                                                    </div>
+                                                                {isColVisible('sl') && <td className="fw-bold text-muted" style={{ padding: '4px 4px' }}>{idx + 1}</td>}
+                                                                <td className="text-start ps-3 fw-bold" style={{ padding: '4px 8px' }}>
+                                                                    <a href="#" className="text-decoration-none text-primary" onClick={(e) => { e.preventDefault(); handleDateClick(row.date, 'payment'); }}>
+                                                                        {new Date(row.date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric', timeZone: 'UTC' })}
+                                                                    </a>
                                                                 </td>
-                                                                {isColVisible('paymentAmount') && <td className="fw-semibold text-success">৳ {row.paymentAmount.toLocaleString()}</td>}
-                                                                {isColVisible('paymentCount') && <td className="fw-semibold text-success">{row.paymentCount.toLocaleString()}</td>}
-                                                                {isColVisible('premiumFeeAmount') && <td className="fw-semibold text-info">৳ {row.premiumFeeAmount?.toLocaleString() || 0}</td>}
-                                                                {isColVisible('premiumFeeCount') && <td className="fw-semibold text-info">{row.premiumFeeCount?.toLocaleString() || 0}</td>}
-                                                                {isColVisible('serviceChargeAmount') && <td className="fw-semibold text-info">৳ {row.serviceChargeAmount?.toLocaleString() || 0}</td>}
-                                                                {isColVisible('serviceChargeCount') && <td className="fw-semibold text-info">{row.serviceChargeCount?.toLocaleString() || 0}</td>}
-                                                                {isColVisible('totalIncome') && <td className="fw-semibold text-success fw-bold">৳ {((row.paymentAmount || 0) + (row.premiumFeeAmount || 0) + (row.serviceChargeAmount || 0)).toLocaleString()}</td>}
-                                                                {isColVisible('refundAmount') && <td className="fw-semibold text-danger">৳ {row.refundAmount?.toLocaleString() || 0}</td>}
-                                                                {isColVisible('refundCount') && <td className="fw-semibold text-danger">{row.refundCount?.toLocaleString() || 0}</td>}
-                                                                {isColVisible('expenseAmount') && <td className="fw-semibold text-warning">৳ {row.expenseAmount?.toLocaleString() || 0}</td>}
-                                                                <td className="fw-semibold text-primary">৳ {(((row.paymentAmount || 0) + (row.premiumFeeAmount || 0) + (row.serviceChargeAmount || 0)) - (row.expenseAmount || 0)).toLocaleString()}</td>
+                                                                {isColVisible('paymentAmount') && <td className="fw-semibold text-success" style={{ padding: '4px 6px' }}>৳ {row.paymentAmount.toLocaleString()}</td>}
+                                                                {isColVisible('paymentCount') && <td className="fw-semibold text-success" style={{ padding: '4px 6px' }}>{row.paymentCount.toLocaleString()}</td>}
+                                                                {isColVisible('premiumFeeAmount') && <td className="fw-semibold text-info" style={{ padding: '4px 6px' }}>৳ {row.premiumFeeAmount?.toLocaleString() || 0}</td>}
+                                                                {isColVisible('premiumFeeCount') && <td className="fw-semibold text-info" style={{ padding: '4px 6px' }}>{row.premiumFeeCount?.toLocaleString() || 0}</td>}
+                                                                {isColVisible('serviceChargeAmount') && <td className="fw-semibold text-info" style={{ padding: '4px 6px' }}>৳ {row.serviceChargeAmount?.toLocaleString() || 0}</td>}
+                                                                {isColVisible('serviceChargeCount') && <td className="fw-semibold text-info" style={{ padding: '4px 6px' }}>{row.serviceChargeCount?.toLocaleString() || 0}</td>}
+                                                                {isColVisible('totalIncome') && <td className="fw-bold text-success" style={{ padding: '4px 6px' }}>৳ {((row.paymentAmount || 0) + (row.premiumFeeAmount || 0) + (row.serviceChargeAmount || 0)).toLocaleString()}</td>}
+                                                                {isColVisible('refundAmount') && <td className="fw-semibold text-danger" style={{ padding: '4px 6px' }}>৳ {row.refundAmount?.toLocaleString() || 0}</td>}
+                                                                {isColVisible('refundCount') && <td className="fw-semibold text-danger" style={{ padding: '4px 6px' }}>{row.refundCount?.toLocaleString() || 0}</td>}
+                                                                {isColVisible('expenseAmount') && <td className="fw-semibold text-warning" style={{ padding: '4px 6px' }}>৳ {row.expenseAmount?.toLocaleString() || 0}</td>}
+                                                                <td className="fw-bold text-primary" style={{ padding: '4px 6px' }}>৳ {(((row.paymentAmount || 0) + (row.premiumFeeAmount || 0) + (row.serviceChargeAmount || 0)) - (row.expenseAmount || 0)).toLocaleString()}</td>
                                                             </tr>
                                                         ))
                                                     ) : (
                                                         <tr>
-                                                            <td colSpan={(overallColumnsConfig.filter(col => isColVisible(col.key)).length + 2) || 2} className="py-4 text-muted fw-bold">No combined data found for the selected period.</td>
+                                                            <td colSpan={(overallColumnsConfig.filter(col => isColVisible(col.key)).length + 2) || 2} className="py-4 text-muted fw-bold" style={{ fontSize: '12px' }}>No combined data found for the selected period.</td>
                                                         </tr>
                                                     )}
                                                 </tbody>
@@ -2035,8 +2254,383 @@ const StatusHistoryReportPage = () => {
                                 </>
                             )}
                         </Tab.Pane>
+
+                        {/* Expense Report by Category Pane */}
+                        <Tab.Pane eventKey="expense">
+                            {/* Compact Expense KPI Ribbon */}
+                            <Row className="mb-2 g-2 mt-1">
+                                <Col md={4}>
+                                    <PremiumStatsCard className="shadow-sm bg-white border border-danger p-2 px-3 rounded-3" style={{ borderWidth: '1.5px !important' }}>
+                                        <Card.Body className="p-0">
+                                            <div className="d-flex align-items-center justify-content-between">
+                                                <div className="d-flex align-items-center gap-2">
+                                                    <div className="icon-wrapper bg-danger bg-opacity-10 text-danger rounded-2 p-1 px-2 d-flex align-items-center justify-content-center">
+                                                        <FaMinus size={15} />
+                                                    </div>
+                                                    <div>
+                                                        <div className="text-muted text-uppercase fw-bold" style={{ fontSize: '10.5px', letterSpacing: '0.4px' }}>Total Expense</div>
+                                                        <h4 className="fw-extrabold text-danger mb-0" style={{ fontSize: '1.35rem', lineHeight: '1.2' }}>
+                                                            {expenseLoading ? <Spinner animation="border" size="sm" /> : `৳ ${(expenseReportData.totalExpense || 0).toLocaleString()}`}
+                                                        </h4>
+                                                    </div>
+                                                </div>
+                                                <div className="text-end">
+                                                    <span className="badge bg-danger-subtle text-danger border border-danger-subtle px-2 py-1 rounded" style={{ fontSize: '10.5px' }}>
+                                                        {(expenseReportData.summary || []).length} Categories
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </Card.Body>
+                                    </PremiumStatsCard>
+                                </Col>
+                                <Col md={4}>
+                                    <PremiumStatsCard className="shadow-sm bg-white border border-primary p-2 px-3 rounded-3" style={{ borderWidth: '1.5px !important' }}>
+                                        <Card.Body className="p-0">
+                                            <div className="d-flex align-items-center justify-content-between">
+                                                <div className="d-flex align-items-center gap-2">
+                                                    <div className="icon-wrapper bg-primary bg-opacity-10 text-primary rounded-2 p-1 px-2 d-flex align-items-center justify-content-center">
+                                                        <FaListAlt size={15} />
+                                                    </div>
+                                                    <div>
+                                                        <div className="text-muted text-uppercase fw-bold" style={{ fontSize: '10.5px', letterSpacing: '0.4px' }}>Transactions Count</div>
+                                                        <h4 className="fw-extrabold text-primary mb-0" style={{ fontSize: '1.35rem', lineHeight: '1.2' }}>
+                                                            {expenseLoading ? <Spinner animation="border" size="sm" /> : (expenseReportData.totalCount || 0).toLocaleString()}
+                                                        </h4>
+                                                    </div>
+                                                </div>
+                                                <div className="text-end">
+                                                    <span className="badge bg-primary-subtle text-primary border border-primary-subtle px-2 py-1 rounded" style={{ fontSize: '10.5px' }}>
+                                                        Total Entries
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </Card.Body>
+                                    </PremiumStatsCard>
+                                </Col>
+                                <Col md={4}>
+                                    <PremiumStatsCard className="shadow-sm bg-white border border-warning p-2 px-3 rounded-3" style={{ borderWidth: '1.5px !important' }}>
+                                        <Card.Body className="p-0">
+                                            <div className="d-flex align-items-center justify-content-between">
+                                                <div className="d-flex align-items-center gap-2">
+                                                    <div className="icon-wrapper bg-warning bg-opacity-10 text-warning rounded-2 p-1 px-2 d-flex align-items-center justify-content-center flex-shrink-0">
+                                                        <FaReceipt size={15} />
+                                                    </div>
+                                                    <div>
+                                                        <div className="text-muted text-uppercase fw-bold" style={{ fontSize: '10.5px', letterSpacing: '0.4px' }}>Top Category</div>
+                                                        <h4 className="fw-extrabold text-dark mb-0" style={{ fontSize: '1.15rem', lineHeight: '1.2' }}>
+                                                            {expenseLoading ? <Spinner animation="border" size="sm" /> : (expenseReportData.topCategory || 'N/A')}
+                                                        </h4>
+                                                    </div>
+                                                </div>
+                                                <div className="text-end flex-shrink-0 ms-2">
+                                                    <span className="badge bg-warning-subtle text-dark border border-warning-subtle px-2 py-1 rounded fw-bold" style={{ fontSize: '10.5px' }}>
+                                                        {expenseReportData.summary && expenseReportData.summary.length > 0 ? `${expenseReportData.summary[0].percentage}%` : '-'}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </Card.Body>
+                                    </PremiumStatsCard>
+                                </Col>
+                            </Row>
+
+                            {/* Compact Expense Filter Card */}
+                            <Card className="shadow-sm border-0 mb-2 rounded-3 filter-card">
+                                <Card.Body className="p-2 px-3">
+                                    <Row className="g-2 align-items-center">
+                                        <Col lg={3} sm={6}>
+                                            <div className="d-flex align-items-center gap-1">
+                                                <span className="text-secondary fw-semibold small" style={{ minWidth: '38px', fontSize: '11.5px' }}>From:</span>
+                                                <Form.Control
+                                                    type="date"
+                                                    size="sm"
+                                                    value={expenseFilters.startDate}
+                                                    onChange={(e) => handleExpenseFilterChange('startDate', e.target.value)}
+                                                    className="rounded-2"
+                                                    style={{ fontSize: '12px' }}
+                                                />
+                                            </div>
+                                        </Col>
+                                        <Col lg={3} sm={6}>
+                                            <div className="d-flex align-items-center gap-1">
+                                                <span className="text-secondary fw-semibold small" style={{ minWidth: '24px', fontSize: '11.5px' }}>To:</span>
+                                                <Form.Control
+                                                    type="date"
+                                                    size="sm"
+                                                    value={expenseFilters.endDate}
+                                                    onChange={(e) => handleExpenseFilterChange('endDate', e.target.value)}
+                                                    className="rounded-2"
+                                                    style={{ fontSize: '12px' }}
+                                                />
+                                            </div>
+                                        </Col>
+                                        <Col lg={4} sm={8}>
+                                            <div className="d-flex align-items-center gap-1">
+                                                <span className="text-secondary fw-semibold small" style={{ minWidth: '58px', fontSize: '11.5px' }}>Category:</span>
+                                                <Form.Select
+                                                    size="sm"
+                                                    value={expenseFilters.category}
+                                                    onChange={(e) => handleExpenseFilterChange('category', e.target.value)}
+                                                    className="rounded-2"
+                                                    style={{ fontSize: '12px' }}
+                                                >
+                                                    <option value="all">All Categories</option>
+                                                    {(expenseReportData.distinctCategories || []).map((cat) => (
+                                                        <option key={cat} value={cat}>{cat}</option>
+                                                    ))}
+                                                </Form.Select>
+                                            </div>
+                                        </Col>
+                                        <Col lg={2} sm={4} className="d-flex gap-1">
+                                            <Button
+                                                variant="success"
+                                                size="sm"
+                                                className="w-100 rounded-2 shadow-sm d-flex align-items-center justify-content-center gap-1 py-1"
+                                                onClick={handleApplyExpenseFilters}
+                                                title="Apply Filters"
+                                                style={{ fontSize: '12px' }}
+                                            >
+                                                <FaSearch size={11} /> Filter
+                                            </Button>
+                                            <Button
+                                                variant="outline-secondary"
+                                                size="sm"
+                                                className="rounded-2 shadow-sm d-flex align-items-center justify-content-center px-2 py-1"
+                                                onClick={handleResetExpenseFilters}
+                                                title="Reset Filters"
+                                                style={{ fontSize: '12px' }}
+                                            >
+                                                <FaUndo size={11} />
+                                            </Button>
+                                        </Col>
+                                    </Row>
+                                    <div className="d-flex align-items-center gap-1 mt-2 flex-wrap pt-1 border-top">
+                                        <span className="text-secondary fw-semibold small d-flex align-items-center gap-1 me-1" style={{ fontSize: '11px' }}>
+                                            <FaCalendarAlt className="text-primary" size={11} /> Quick:
+                                        </span>
+                                        {['today', 'yesterday', 'thisWeek', 'thisMonth', 'lastMonth', 'last7Days', 'last30Days', 'allTime'].map((preset) => (
+                                            <button
+                                                key={preset}
+                                                type="button"
+                                                className="preset-btn py-0 px-2 rounded-pill"
+                                                style={{ fontSize: '11px', height: '22px', lineHeight: '20px' }}
+                                                onClick={() => handleExpensePresetSelect(preset)}
+                                            >
+                                                {preset === 'allTime' ? 'All Time' : preset.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </Card.Body>
+                            </Card>
+
+                            {/* Breakdown Table */}
+                            {expenseLoading ? (
+                                <div className="d-flex justify-content-center py-4">
+                                    <Spinner animation="border" variant="primary" size="sm" />
+                                </div>
+                            ) : (
+                                <Card className="shadow-sm border-0 rounded-3 mb-2 list-card">
+                                    <Card.Body className="p-2 px-3">
+                                        <div className="d-flex justify-content-between align-items-center mb-2">
+                                            <div className="d-flex align-items-center gap-2">
+                                                <span className="fw-bold text-dark" style={{ fontSize: '13px' }}>
+                                                    Category Spending Breakdown
+                                                </span>
+                                                <span className="badge bg-secondary-subtle text-dark px-2" style={{ fontSize: '11px' }}>
+                                                    {(expenseReportData.summary || []).length} categories
+                                                </span>
+                                            </div>
+                                        </div>
+
+                                        <div className="table-responsive rounded-2 border shadow-sm" style={{ maxHeight: "550px", overflowY: "auto" }}>
+                                            <Table hover striped bordered className="align-middle text-center mb-0 custom-reports-table table-sm" style={{ fontSize: '12.5px' }}>
+                                                <thead className="table-dark sticky-top">
+                                                    <tr>
+                                                        <th style={{ width: '50px', padding: '6px 4px' }}>SL</th>
+                                                        <th className="text-start ps-3" style={{ padding: '6px 8px' }}>CATEGORY NAME</th>
+                                                        <th style={{ width: '120px', padding: '6px 8px' }}>COUNT</th>
+                                                        <th style={{ width: '160px', padding: '6px 8px' }}>TOTAL SPENT (৳)</th>
+                                                        <th style={{ minWidth: '150px', width: '220px', padding: '6px 8px' }}>% OF TOTAL</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {!expenseReportData.summary || expenseReportData.summary.length === 0 ? (
+                                                        <tr>
+                                                            <td colSpan={5} className="text-center py-4 text-muted fw-bold" style={{ fontSize: '12px' }}>
+                                                                No expense records found for the selected date range & filters.
+                                                            </td>
+                                                        </tr>
+                                                    ) : (
+                                                        <>
+                                                            {expenseReportData.summary.map((item, index) => (
+                                                                <tr
+                                                                    key={item.category}
+                                                                    className="hover-bg-light transition-all"
+                                                                    style={{ cursor: 'pointer' }}
+                                                                    onClick={() => handleOpenExpenseCategoryModal(item.category)}
+                                                                    title="Click to view category entries"
+                                                                >
+                                                                    <td className="fw-bold text-muted" style={{ padding: '5px 4px' }}>{index + 1}</td>
+                                                                    <td className="text-start ps-3 fw-bold text-dark" style={{ padding: '5px 8px' }}>
+                                                                        <span className="badge bg-secondary-soft text-dark px-2 py-1 rounded me-1">
+                                                                            {item.category}
+                                                                        </span>
+                                                                    </td>
+                                                                    <td className="fw-bold text-primary" style={{ padding: '5px 8px' }}>
+                                                                        {item.count}
+                                                                    </td>
+                                                                    <td className="text-danger fw-bold" style={{ padding: '5px 8px', fontSize: '13px' }}>
+                                                                        ৳ {item.totalAmount.toLocaleString()}
+                                                                    </td>
+                                                                    <td style={{ padding: '5px 8px' }}>
+                                                                        <div className="d-flex align-items-center gap-2">
+                                                                            <div className="progress flex-grow-1" style={{ height: '6px', backgroundColor: '#e2e8f0' }}>
+                                                                                <div
+                                                                                    className="progress-bar bg-danger"
+                                                                                    role="progressbar"
+                                                                                    style={{ width: `${Math.min(item.percentage, 100)}%` }}
+                                                                                    aria-valuenow={item.percentage}
+                                                                                    aria-valuemin="0"
+                                                                                    aria-valuemax="100"
+                                                                                />
+                                                                            </div>
+                                                                            <span className="fw-bold text-muted" style={{ minWidth: '38px', fontSize: '11px' }}>
+                                                                                {item.percentage}%
+                                                                            </span>
+                                                                        </div>
+                                                                    </td>
+                                                                </tr>
+                                                            ))}
+                                                            <tr className="bg-light border-top border-2">
+                                                                <td colSpan={2} className="ps-3 fw-bold text-primary text-end" style={{ padding: '6px 8px' }}>TOTAL</td>
+                                                                <td className="fw-extrabold text-primary" style={{ padding: '6px 8px' }}>
+                                                                    {(expenseReportData.totalCount || 0).toLocaleString()}
+                                                                </td>
+                                                                <td className="fw-extrabold text-danger" style={{ padding: '6px 8px', fontSize: '13.5px' }}>
+                                                                    ৳ {(expenseReportData.totalExpense || 0).toLocaleString()}
+                                                                </td>
+                                                                <td className="fw-bold text-muted" style={{ padding: '6px 8px', fontSize: '11px' }}>100.0%</td>
+                                                            </tr>
+                                                        </>
+                                                    )}
+                                                </tbody>
+                                            </Table>
+                                        </div>
+                                    </Card.Body>
+                                </Card>
+                            )}
+                        </Tab.Pane>
                     </Tab.Content>
                 </Tab.Container>
+
+                {/* Expense Category Items Modal */}
+                <Modal
+                    show={showExpenseModal}
+                    onHide={() => setShowExpenseModal(false)}
+                    size="lg"
+                    centered
+                >
+                    <Modal.Header closeButton className="bg-light">
+                        <Modal.Title className="fw-bold text-primary d-flex align-items-center gap-2">
+                            <FaReceipt /> Category: <span className="text-dark">{selectedExpenseCategory}</span>
+                        </Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body className="p-4 bg-white">
+                        <div className="d-flex justify-content-between align-items-center mb-3 bg-light p-3 rounded-3 border">
+                            <div>
+                                <span className="text-muted small">Period: </span>
+                                <strong className="text-dark">
+                                    {appliedExpenseFilters.startDate || 'Start'} to {appliedExpenseFilters.endDate || 'End'}
+                                </strong>
+                            </div>
+                            <div className="d-flex gap-3">
+                                <div>
+                                    <span className="text-muted small">Total Entries: </span>
+                                    <strong className="text-primary">{expenseModalData.totalCount}</strong>
+                                </div>
+                                <div>
+                                    <span className="text-muted small">Total Spent: </span>
+                                    <strong className="text-danger">৳ {(expenseModalData.totalAmount || 0).toLocaleString()}</strong>
+                                </div>
+                            </div>
+                        </div>
+
+                        {expenseModalLoading ? (
+                            <div className="d-flex justify-content-center py-5">
+                                <Spinner animation="border" variant="primary" />
+                            </div>
+                        ) : expenseModalData.items && expenseModalData.items.length > 0 ? (
+                            <>
+                                <div className="table-responsive rounded-3 border shadow-sm mb-3">
+                                    <Table hover className="mb-0 text-center align-middle" size="sm">
+                                        <thead className="table-light">
+                                            <tr>
+                                                <th style={{ width: '50px' }}>SL</th>
+                                                <th>Date</th>
+                                                <th>Amount (৳)</th>
+                                                <th>Created By</th>
+                                                {selectedExpenseCategory === 'Salary' && <th>Salary User / Month</th>}
+                                                <th className="text-start ps-3">Note</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {expenseModalData.items.map((item, idx) => (
+                                                <tr key={item._id}>
+                                                    <td className="fw-bold text-muted">{((expenseModalPage - 1) * 15) + idx + 1}</td>
+                                                    <td className="text-dark small">
+                                                        {item.date ? new Date(item.date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : '-'}
+                                                    </td>
+                                                    <td className="fw-extrabold text-danger">
+                                                        ৳ {(item.amount || 0).toLocaleString()}
+                                                    </td>
+                                                    <td>
+                                                        <Badge bg="secondary" className="px-2">{item.createdBy || 'System'}</Badge>
+                                                    </td>
+                                                    {selectedExpenseCategory === 'Salary' && (
+                                                        <td className="small">
+                                                            <strong>{item.salaryUser || '-'}</strong>
+                                                            {item.salaryMonth && <span className="text-muted ms-1">({item.salaryMonth})</span>}
+                                                        </td>
+                                                    )}
+                                                    <td className="text-start ps-3 small text-muted">
+                                                        {item.note || '-'}
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </Table>
+                                </div>
+
+                                {expenseModalData.totalPages > 1 && (
+                                    <div className="d-flex justify-content-end">
+                                        <Pagination size="sm" className="mb-0">
+                                            <Pagination.Prev
+                                                onClick={() => handleExpenseModalPageChange(expenseModalPage - 1)}
+                                                disabled={expenseModalPage === 1}
+                                            />
+                                            {[...Array(expenseModalData.totalPages)].map((_, i) => (
+                                                <Pagination.Item
+                                                    key={i + 1}
+                                                    active={expenseModalPage === i + 1}
+                                                    onClick={() => handleExpenseModalPageChange(i + 1)}
+                                                >
+                                                    {i + 1}
+                                                </Pagination.Item>
+                                            ))}
+                                            <Pagination.Next
+                                                onClick={() => handleExpenseModalPageChange(expenseModalPage + 1)}
+                                                disabled={expenseModalPage === expenseModalData.totalPages}
+                                            />
+                                        </Pagination>
+                                    </div>
+                                )}
+                            </>
+                        ) : (
+                            <div className="text-center py-5 text-muted fw-bold">
+                                No expense records found for this category in the selected period.
+                            </div>
+                        )}
+                    </Modal.Body>
+                </Modal>
 
                 {/* Details Modal */}
                 <style>{`

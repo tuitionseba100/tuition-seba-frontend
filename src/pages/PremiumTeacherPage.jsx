@@ -1559,19 +1559,29 @@ const PremiumTeacherPage = () => {
                     </Button>
 
                 </Header>
-                <Card className="mt-4">
-                    <Card.Body>
-                        <div className="row text-center">
+                <Card className="mt-4 mb-3 border-0 shadow-sm" style={{ borderRadius: '14px', background: '#ffffff' }}>
+                    <Card.Body className="p-3">
+                        <div style={{
+                            display: 'grid',
+                            gridTemplateColumns: 'repeat(auto-fit, minmax(115px, 1fr))',
+                            gap: '0.75rem',
+                            alignItems: 'stretch'
+                        }}>
                             {summaryCardOptions.map(({ key, label, borderColor, textColor }) => (
-                                <div key={key} className="col-6 col-sm-4 col-md-3 mb-3">
-                                    <div className={`card p-3 shadow border-${borderColor}`}>
-                                        <div className="d-flex flex-column align-items-center">
-                                            <span className={`text-${textColor}`} style={{ fontWeight: 'bolder' }}>
-                                                {label}
-                                            </span>
-                                            <span>{summaryCounts[key] ?? 0}</span>
-                                        </div>
-                                    </div>
+                                <div 
+                                    key={key} 
+                                    className={`card p-2 shadow-sm border-${borderColor} h-100 d-flex flex-column justify-content-between align-items-center text-center`}
+                                    style={{ borderRadius: '10px', minHeight: '75px' }}
+                                >
+                                    <span 
+                                        className={`text-${textColor} fw-bold`} 
+                                        style={{ fontSize: '0.82rem', lineHeight: '1.2', minHeight: '2rem', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                                    >
+                                        {label}
+                                    </span>
+                                    <span className="fw-bolder fs-5 text-dark mt-1">
+                                        {summaryCounts[key] ?? 0}
+                                    </span>
                                 </div>
                             ))}
                         </div>

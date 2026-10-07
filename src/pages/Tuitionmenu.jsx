@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Button, Table, Modal, Form, Row, Col, Card, Tooltip, OverlayTrigger, Badge } from 'react-bootstrap';
-import { FaEdit, FaTrashAlt, FaWhatsapp, FaChevronLeft, FaChevronRight, FaGlobe, FaInfoCircle, FaBell, FaSearch, FaUndo, FaUserPlus, FaFileImage, FaHistory, FaComments, FaPaperPlane, FaClock } from 'react-icons/fa';
+import { FaEdit, FaTrashAlt, FaWhatsapp, FaChevronLeft, FaChevronRight, FaGlobe, FaInfoCircle, FaBell, FaSearch, FaUndo, FaUserPlus, FaFileImage, FaHistory, FaComments, FaPaperPlane, FaClock, FaMoneyBillWave } from 'react-icons/fa';
 import Select from 'react-select';
 import { axiosWithFallback as axios } from '../services/fetchWithFallback';
 import NavBarPage from './NavbarPage';
@@ -770,495 +770,481 @@ const TuitionPage = () => {
                         + Create Tuition
                     </Button>
                 </Header>
-                <Card className="mt-4">
-                    <Card.Body>
-                        <div className="row text-center" style={{ display: 'flex', flexWrap: 'wrap', margin: '0 -0.5rem' }}>
-                            <div className="col-6 col-sm-3 mb-3" style={{ flex: '0 0 11.11%', maxWidth: '11.11%', padding: '0 0.5rem' }}>
-                                <div className="card p-3 shadow border-primary" style={{ minHeight: '80px' }}>
-                                    <div className="d-flex flex-column align-items-center">
-                                        <span className="text-primary" style={{ fontWeight: 'bolder', fontSize: '0.9rem' }}>Published</span>
-                                        <span style={{ fontSize: '1.1rem', fontWeight: 'bold' }}>{publishCount}</span>
-                                    </div>
-                                </div>
+                <Card className="mt-4 mb-3 border-0 shadow-sm" style={{ borderRadius: '14px', background: '#ffffff' }}>
+                    <Card.Body className="p-3">
+                        <div style={{
+                            display: 'grid',
+                            gridTemplateColumns: 'repeat(auto-fit, minmax(115px, 1fr))',
+                            gap: '0.75rem',
+                            alignItems: 'stretch'
+                        }}>
+                            <div className="card p-2 shadow-sm border-primary h-100 d-flex flex-column justify-content-between align-items-center text-center" style={{ borderRadius: '10px', minHeight: '75px' }}>
+                                <span className="text-primary fw-bold" style={{ fontSize: '0.82rem', lineHeight: '1.2', minHeight: '2rem', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>Published</span>
+                                <span className="fw-bolder fs-5 text-dark mt-1">{publishCount}</span>
                             </div>
-                            <div className="col-6 col-sm-3 mb-3" style={{ flex: '0 0 11.11%', maxWidth: '11.11%', padding: '0 0.5rem' }}>
-                                <div className="card p-3 shadow border-primary" style={{ minHeight: '80px' }}>
-                                    <div className="d-flex flex-column align-items-center">
-                                        <span className="text-primary" style={{ fontWeight: 'bolder', fontSize: '0.9rem' }}>Total</span>
-                                        <span style={{ fontSize: '1.1rem', fontWeight: 'bold' }}>{statusCounts.total}</span>
-                                    </div>
-                                </div>
+
+                            <div className="card p-2 shadow-sm border-primary h-100 d-flex flex-column justify-content-between align-items-center text-center" style={{ borderRadius: '10px', minHeight: '75px' }}>
+                                <span className="text-primary fw-bold" style={{ fontSize: '0.82rem', lineHeight: '1.2', minHeight: '2rem', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>Total</span>
+                                <span className="fw-bolder fs-5 text-dark mt-1">{statusCounts.total}</span>
                             </div>
-                            <div className="col-6 col-sm-3 mb-3" style={{ flex: '0 0 11.11%', maxWidth: '11.11%', padding: '0 0.5rem' }}>
-                                <div className="card p-3 shadow border-primary" style={{ minHeight: '80px' }}>
-                                    <div className="d-flex flex-column align-items-center">
-                                        <span className="text-primary" style={{ fontWeight: 'bolder', fontSize: '0.9rem' }}>Available</span>
-                                        <span style={{ fontSize: '1.1rem', fontWeight: 'bold' }}>{statusCounts.available}</span>
-                                    </div>
-                                </div>
+
+                            <div className="card p-2 shadow-sm border-primary h-100 d-flex flex-column justify-content-between align-items-center text-center" style={{ borderRadius: '10px', minHeight: '75px' }}>
+                                <span className="text-primary fw-bold" style={{ fontSize: '0.82rem', lineHeight: '1.2', minHeight: '2rem', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>Available</span>
+                                <span className="fw-bolder fs-5 text-dark mt-1">{statusCounts.available}</span>
                             </div>
-                            <div className="col-6 col-sm-3 mb-3" style={{ flex: '0 0 11.11%', maxWidth: '11.11%', padding: '0 0.5rem' }}>
-                                <div className="card p-3 shadow border-primary" style={{ minHeight: '80px' }}>
-                                    <div className="d-flex flex-column align-items-center">
-                                        <span className="text-primary" style={{ fontWeight: 'bolder', fontSize: '0.9rem' }}>Given Number</span>
-                                        <span style={{ fontSize: '1.1rem', fontWeight: 'bold' }}>{statusCounts.givenNumber}</span>
-                                    </div>
-                                </div>
+
+                            <div className="card p-2 shadow-sm border-primary h-100 d-flex flex-column justify-content-between align-items-center text-center" style={{ borderRadius: '10px', minHeight: '75px' }}>
+                                <span className="text-primary fw-bold" style={{ fontSize: '0.82rem', lineHeight: '1.2', minHeight: '2rem', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>Given Number</span>
+                                <span className="fw-bolder fs-5 text-dark mt-1">{statusCounts.givenNumber}</span>
                             </div>
-                            <div className="col-6 col-sm-3 mb-3" style={{ flex: '0 0 11.11%', maxWidth: '11.11%', padding: '0 0.5rem' }}>
-                                <div className="card p-3 shadow border-primary" style={{ minHeight: '80px' }}>
-                                    <div className="d-flex flex-column align-items-center">
-                                        <span className="text-primary" style={{ fontWeight: 'bolder', fontSize: '0.9rem' }}>Guardian Meet</span>
-                                        <span style={{ fontSize: '1.1rem', fontWeight: 'bold' }}>{statusCounts.guardianMeet}</span>
-                                    </div>
-                                </div>
+
+                            <div className="card p-2 shadow-sm border-primary h-100 d-flex flex-column justify-content-between align-items-center text-center" style={{ borderRadius: '10px', minHeight: '75px' }}>
+                                <span className="text-primary fw-bold" style={{ fontSize: '0.82rem', lineHeight: '1.2', minHeight: '2rem', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>Guardian Meet</span>
+                                <span className="fw-bolder fs-5 text-dark mt-1">{statusCounts.guardianMeet}</span>
                             </div>
-                            <div className="col-6 col-sm-3 mb-3" style={{ flex: '0 0 11.11%', maxWidth: '11.11%', padding: '0 0.5rem' }}>
-                                <div className="card p-3 shadow border-primary" style={{ minHeight: '80px' }}>
-                                    <div className="d-flex flex-column align-items-center">
-                                        <span className="text-primary" style={{ fontWeight: 'bolder', fontSize: '0.9rem' }}>Demo Class Running</span>
-                                        <span style={{ fontSize: '1.1rem', fontWeight: 'bold' }}>{statusCounts.demoClassRunning}</span>
-                                    </div>
-                                </div>
+
+                            <div className="card p-2 shadow-sm border-primary h-100 d-flex flex-column justify-content-between align-items-center text-center" style={{ borderRadius: '10px', minHeight: '75px' }}>
+                                <span className="text-primary fw-bold" style={{ fontSize: '0.82rem', lineHeight: '1.2', minHeight: '2rem', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>Demo Class Running</span>
+                                <span className="fw-bolder fs-5 text-dark mt-1">{statusCounts.demoClassRunning}</span>
                             </div>
-                            <div className="col-6 col-sm-3 mb-3" style={{ flex: '0 0 11.11%', maxWidth: '11.11%', padding: '0 0.5rem' }}>
-                                <div className="card p-3 shadow border-primary" style={{ minHeight: '80px' }}>
-                                    <div className="d-flex flex-column align-items-center">
-                                        <span className="text-primary" style={{ fontWeight: 'bolder', fontSize: '0.9rem' }}>Confirm</span>
-                                        <span style={{ fontSize: '1.1rem', fontWeight: 'bold' }}>{statusCounts.confirm}</span>
-                                    </div>
-                                </div>
+
+                            <div className="card p-2 shadow-sm border-primary h-100 d-flex flex-column justify-content-between align-items-center text-center" style={{ borderRadius: '10px', minHeight: '75px' }}>
+                                <span className="text-primary fw-bold" style={{ fontSize: '0.82rem', lineHeight: '1.2', minHeight: '2rem', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>Confirm</span>
+                                <span className="fw-bolder fs-5 text-dark mt-1">{statusCounts.confirm}</span>
                             </div>
-                            <div className="col-6 col-sm-3 mb-3" style={{ flex: '0 0 11.11%', maxWidth: '11.11%', padding: '0 0.5rem' }}>
-                                <div className="card p-3 shadow border-danger" style={{ minHeight: '80px' }}>
-                                    <div className="d-flex flex-column align-items-center">
-                                        <span className="text-danger" style={{ fontWeight: 'bolder', fontSize: '0.85rem' }}>Pending Apply</span>
-                                        <span style={{ fontSize: '1.1rem', fontWeight: 'bold' }}>{statusCounts.pendingApplyCount}</span>
-                                    </div>
-                                </div>
+
+                            <div className="card p-2 shadow-sm border-danger h-100 d-flex flex-column justify-content-between align-items-center text-center" style={{ borderRadius: '10px', minHeight: '75px', backgroundColor: '#fff5f5' }}>
+                                <span className="text-danger fw-bold" style={{ fontSize: '0.82rem', lineHeight: '1.2', minHeight: '2rem', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>Pending Apply</span>
+                                <span className="fw-bolder fs-5 text-danger mt-1">{statusCounts.pendingApplyCount}</span>
                             </div>
-                            <div className="col-6 col-sm-3 mb-3" style={{ flex: '0 0 11.11%', maxWidth: '11.11%', padding: '0 0.5rem' }}>
-                                <div className="card p-3 shadow border-primary" style={{ minHeight: '80px' }}>
-                                    <div className="d-flex flex-column align-items-center">
-                                        <span className="text-primary" style={{ fontWeight: 'bolder', fontSize: '0.9rem' }}>Cancel</span>
-                                        <span style={{ fontSize: '1.1rem', fontWeight: 'bold' }}>{statusCounts.cancel}</span>
-                                    </div>
-                                </div>
+
+                            <div className="card p-2 shadow-sm border-primary h-100 d-flex flex-column justify-content-between align-items-center text-center" style={{ borderRadius: '10px', minHeight: '75px' }}>
+                                <span className="text-primary fw-bold" style={{ fontSize: '0.82rem', lineHeight: '1.2', minHeight: '2rem', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>Cancel</span>
+                                <span className="fw-bolder fs-5 text-dark mt-1">{statusCounts.cancel}</span>
                             </div>
                         </div>
                     </Card.Body>
                 </Card>
 
 
-                <Row className="mt-2 mb-3">
-                    <Col md={1}>
-                        <Form.Label className="fw-bold text-nowrap" style={getLabelStyle(searchInputs.tuitionCode)}>Code</Form.Label>
-                        <Form.Control
-                            type="text"
-                            placeholder="Code"
-                            value={searchInputs.tuitionCode}
-                            onChange={(e) => handleSearchInputChange('tuitionCode', e.target.value)}
-                            onKeyPress={handleKeyPress}
-                            style={getFilterStyle(searchInputs.tuitionCode)}
-                        />
-                    </Col>
+                {/* Search & Filter Section Card */}
+                <Card className="mb-3 border-0 shadow-sm" style={{ borderRadius: '12px', background: '#ffffff' }}>
+                    <Card.Body className="p-2 p-md-3">
+                        <Row className="g-2 align-items-end">
+                            <Col md={1}>
+                                <Form.Label className="fw-bold text-nowrap mb-1" style={{ fontSize: '0.82rem', ...getLabelStyle(searchInputs.tuitionCode) }}>Code</Form.Label>
+                                <Form.Control
+                                    type="text"
+                                    placeholder="Code"
+                                    value={searchInputs.tuitionCode}
+                                    onChange={(e) => handleSearchInputChange('tuitionCode', e.target.value)}
+                                    onKeyPress={handleKeyPress}
+                                    style={getFilterStyle(searchInputs.tuitionCode)}
+                                />
+                            </Col>
 
-                    <Col md={1}>
-                        <Form.Label className="fw-bold text-nowrap" style={getLabelStyle(searchInputs.guardianNumber)}>Guardian</Form.Label>
-                        <Form.Control
-                            type="text"
-                            placeholder="Num"
-                            value={searchInputs.guardianNumber}
-                            onChange={(e) => handleSearchInputChange('guardianNumber', e.target.value)}
-                            onKeyPress={handleKeyPress}
-                            style={getFilterStyle(searchInputs.guardianNumber)}
-                        />
-                    </Col>
+                            <Col md={1}>
+                                <Form.Label className="fw-bold text-nowrap mb-1" style={{ fontSize: '0.82rem', ...getLabelStyle(searchInputs.guardianNumber) }}>Guardian</Form.Label>
+                                <Form.Control
+                                    type="text"
+                                    placeholder="Num"
+                                    value={searchInputs.guardianNumber}
+                                    onChange={(e) => handleSearchInputChange('guardianNumber', e.target.value)}
+                                    onKeyPress={handleKeyPress}
+                                    style={getFilterStyle(searchInputs.guardianNumber)}
+                                />
+                            </Col>
 
-                    <Col md={1}>
-                        <Form.Label className="fw-bold text-nowrap" style={getLabelStyle(searchInputs.teacherNumber)}>Teacher</Form.Label>
-                        <Form.Control
-                            type="text"
-                            placeholder="Num"
-                            value={searchInputs.teacherNumber}
-                            onChange={(e) => handleSearchInputChange('teacherNumber', e.target.value)}
-                            onKeyPress={handleKeyPress}
-                            style={getFilterStyle(searchInputs.teacherNumber)}
-                        />
-                    </Col>
+                            <Col md={1}>
+                                <Form.Label className="fw-bold text-nowrap mb-1" style={{ fontSize: '0.82rem', ...getLabelStyle(searchInputs.teacherNumber) }}>Teacher</Form.Label>
+                                <Form.Control
+                                    type="text"
+                                    placeholder="Num"
+                                    value={searchInputs.teacherNumber}
+                                    onChange={(e) => handleSearchInputChange('teacherNumber', e.target.value)}
+                                    onKeyPress={handleKeyPress}
+                                    style={getFilterStyle(searchInputs.teacherNumber)}
+                                />
+                            </Col>
 
-                    <Col md={1}>
-                        <Form.Label className="fw-bold" style={getLabelStyle(searchInputs.publishFilter)}>Publish Status</Form.Label>
-                        <Form.Select
-                            value={searchInputs.publishFilter}
-                            onChange={(e) => handleSearchInputChange('publishFilter', e.target.value)}
-                            style={getFilterStyle(searchInputs.publishFilter)}
-                        >
-                            <option value="">All</option>
-                            <option value="Yes">Yes</option>
-                            <option value="No">No</option>
-                        </Form.Select>
-                    </Col>
+                            <Col md={1}>
+                                <Form.Label className="fw-bold mb-1" style={{ fontSize: '0.82rem', ...getLabelStyle(searchInputs.publishFilter) }}>Publish</Form.Label>
+                                <Form.Select
+                                    value={searchInputs.publishFilter}
+                                    onChange={(e) => handleSearchInputChange('publishFilter', e.target.value)}
+                                    style={getFilterStyle(searchInputs.publishFilter)}
+                                >
+                                    <option value="">All</option>
+                                    <option value="Yes">Yes</option>
+                                    <option value="No">No</option>
+                                </Form.Select>
+                            </Col>
 
-                    <Col md={1}>
-                        <Form.Label className="fw-bold" style={getLabelStyle(searchInputs.urgentFilter)}>Emergency</Form.Label>
-                        <Form.Select
-                            value={searchInputs.urgentFilter}
-                            onChange={(e) => handleSearchInputChange('urgentFilter', e.target.value)}
-                            style={getFilterStyle(searchInputs.urgentFilter)}
-                        >
-                            <option value="">All</option>
-                            <option value="Yes">Urgent</option>
-                            <option value="No">Not Urgent</option>
-                        </Form.Select>
-                    </Col>
+                            <Col md={1}>
+                                <Form.Label className="fw-bold mb-1" style={{ fontSize: '0.82rem', ...getLabelStyle(searchInputs.urgentFilter) }}>Emergency</Form.Label>
+                                <Form.Select
+                                    value={searchInputs.urgentFilter}
+                                    onChange={(e) => handleSearchInputChange('urgentFilter', e.target.value)}
+                                    style={getFilterStyle(searchInputs.urgentFilter)}
+                                >
+                                    <option value="">All</option>
+                                    <option value="Yes">Urgent</option>
+                                    <option value="No">Not Urgent</option>
+                                </Form.Select>
+                            </Col>
 
-                    <Col md={2}>
-                        <Form.Label className="fw-bold" style={getLabelStyle(searchInputs.statusFilter)}>Status</Form.Label>
-                        <Form.Select
-                            value={searchInputs.statusFilter}
-                            onChange={(e) => handleSearchInputChange('statusFilter', e.target.value)}
-                            style={getFilterStyle(searchInputs.statusFilter)}
-                        >
-                            <option value="">All</option>
-                            <option value="available">Available</option>
-                            <option value="given number">Given Number</option>
-                            <option value="guardian meet">Guardian Meet</option>
-                            <option value="demo class running">Demo Class Running</option>
-                            <option value="1st demo class">1st Demo Class</option>
-                            <option value="2nd demo class">2nd Demo Class</option>
-                            <option value="confirm">Confirm</option>
-                            <option value="cancel">Cancel</option>
-                            <option value="refer BM">Refer BM</option>
-                            <option value="suspended">Suspended</option>
-                            <option value="guardian no response">Guardian No response</option>
-                            <option value="request for payment">Request for payment</option>
-                        </Form.Select>
-                    </Col>
+                            <Col md={2}>
+                                <Form.Label className="fw-bold mb-1" style={{ fontSize: '0.82rem', ...getLabelStyle(searchInputs.statusFilter) }}>Status</Form.Label>
+                                <Form.Select
+                                    value={searchInputs.statusFilter}
+                                    onChange={(e) => handleSearchInputChange('statusFilter', e.target.value)}
+                                    style={getFilterStyle(searchInputs.statusFilter)}
+                                >
+                                    <option value="">All Statuses</option>
+                                    <option value="available">Available</option>
+                                    <option value="given number">Given Number</option>
+                                    <option value="guardian meet">Guardian Meet</option>
+                                    <option value="demo class running">Demo Class Running</option>
+                                    <option value="1st demo class">1st Demo Class</option>
+                                    <option value="2nd demo class">2nd Demo Class</option>
+                                    <option value="confirm">Confirm</option>
+                                    <option value="cancel">Cancel</option>
+                                    <option value="refer BM">Refer BM</option>
+                                    <option value="suspended">Suspended</option>
+                                    <option value="guardian no response">Guardian No response</option>
+                                    <option value="request for payment">Request for payment</option>
+                                </Form.Select>
+                            </Col>
 
-                    <Col md={2}>
-                        <Form.Label className="fw-bold" style={getLabelStyle(searchInputs.areaFilter)}>Area</Form.Label>
-                        <Form.Select
-                            value={searchInputs.areaFilter}
-                            onChange={(e) => handleSearchInputChange('areaFilter', e.target.value)}
-                            style={getFilterStyle(searchInputs.areaFilter)}
-                        >
-                            <option value="">All Areas</option>
-                            {locationData.areaOptions.chittagong.map((area, index) => (
-                                <option key={index} value={area}>{area}</option>
-                            ))}
-                        </Form.Select>
-                    </Col>
+                            <Col md={2}>
+                                <Form.Label className="fw-bold mb-1" style={{ fontSize: '0.82rem', ...getLabelStyle(searchInputs.areaFilter) }}>Area</Form.Label>
+                                <Form.Select
+                                    value={searchInputs.areaFilter}
+                                    onChange={(e) => handleSearchInputChange('areaFilter', e.target.value)}
+                                    style={getFilterStyle(searchInputs.areaFilter)}
+                                >
+                                    <option value="">All Areas</option>
+                                    {locationData.areaOptions.chittagong.map((area, index) => (
+                                        <option key={index} value={area}>{area}</option>
+                                    ))}
+                                </Form.Select>
+                            </Col>
 
-                    <Col md={2}>
-                        <Form.Label className="fw-bold" style={getLabelStyle(searchInputs.tuitionTypeFilter)}>Tuition Type</Form.Label>
-                        <Form.Select
-                            value={searchInputs.tuitionTypeFilter}
-                            onChange={(e) => handleSearchInputChange('tuitionTypeFilter', e.target.value)}
-                            style={getFilterStyle(searchInputs.tuitionTypeFilter)}
-                        >
-                            <option value="">All Types</option>
-                            <option value="High Salary - High Demand">High Salary - High Demand</option>
-                            <option value="High Salary - Medium Demand">High Salary - Medium Demand</option>
-                            <option value="High Salary - Low Demand">High Salary - Low Demand</option>
-                            <option value="Medium Salary - High Demand">Medium Salary - High Demand</option>
-                            <option value="Medium Salary - Medium Demand">Medium Salary - Medium Demand</option>
-                            <option value="Medium Salary - Low Demand">Medium Salary - Low Demand</option>
-                            <option value="Low Salary - High Demand">Low Salary - High Demand</option>
-                            <option value="Low Salary - Medium Demand">Low Salary - Medium Demand</option>
-                            <option value="Low Salary - Low Demand">Low Salary - Low Demand</option>
-                        </Form.Select>
-                    </Col>
+                            <Col md={2}>
+                                <Form.Label className="fw-bold mb-1" style={{ fontSize: '0.82rem', ...getLabelStyle(searchInputs.tuitionTypeFilter) }}>Tuition Type</Form.Label>
+                                <Form.Select
+                                    value={searchInputs.tuitionTypeFilter}
+                                    onChange={(e) => handleSearchInputChange('tuitionTypeFilter', e.target.value)}
+                                    style={getFilterStyle(searchInputs.tuitionTypeFilter)}
+                                >
+                                    <option value="">All Types</option>
+                                    <option value="High Salary - High Demand">High Salary - High Demand</option>
+                                    <option value="High Salary - Medium Demand">High Salary - Medium Demand</option>
+                                    <option value="High Salary - Low Demand">High Salary - Low Demand</option>
+                                    <option value="Medium Salary - High Demand">Medium Salary - High Demand</option>
+                                    <option value="Medium Salary - Medium Demand">Medium Salary - Medium Demand</option>
+                                    <option value="Medium Salary - Low Demand">Medium Salary - Low Demand</option>
+                                    <option value="Low Salary - High Demand">Low Salary - High Demand</option>
+                                    <option value="Low Salary - Medium Demand">Low Salary - Medium Demand</option>
+                                    <option value="Low Salary - Low Demand">Low Salary - Low Demand</option>
+                                </Form.Select>
+                            </Col>
 
-                    <Col md={1}>
-                        <Form.Label className="fw-bold text-nowrap" style={getLabelStyle(searchInputs.applyTypeFilter)}>Apply Type</Form.Label>
-                        <Form.Select
-                            value={searchInputs.applyTypeFilter}
-                            onChange={(e) => handleSearchInputChange('applyTypeFilter', e.target.value)}
-                            style={getFilterStyle(searchInputs.applyTypeFilter)}
-                        >
-                            <option value="">All</option>
-                            <option value="Server">Server</option>
-                            <option value="WhatsApp">WhatsApp</option>
-                            <option value="Chat">Chat</option>
-                        </Form.Select>
-                    </Col>
+                            <Col md={1}>
+                                <Form.Label className="fw-bold text-nowrap mb-1" style={{ fontSize: '0.82rem', ...getLabelStyle(searchInputs.applyTypeFilter) }}>Apply Type</Form.Label>
+                                <Form.Select
+                                    value={searchInputs.applyTypeFilter}
+                                    onChange={(e) => handleSearchInputChange('applyTypeFilter', e.target.value)}
+                                    style={getFilterStyle(searchInputs.applyTypeFilter)}
+                                >
+                                    <option value="">All</option>
+                                    <option value="Server">Server</option>
+                                    <option value="WhatsApp">WhatsApp</option>
+                                    <option value="Chat">Chat</option>
+                                </Form.Select>
+                            </Col>
 
-                    {(role === 'superadmin' || role === 'admin' || role === 'manager') && (
-                        <Col md={2}>
-                            <Form.Label className="fw-bold" style={getLabelStyle(searchInputs.assignedTo)}>Assigned To</Form.Label>
-                            <Select
-                                options={userOptions}
-                                value={userOptions.find(u => u.value === searchInputs.assignedTo) || null}
-                                onChange={(option) => handleSearchInputChange('assignedTo', option ? option.value : '')}
-                                isClearable
-                                placeholder="All"
-                                menuPortalTarget={document.body}
-                                styles={{
-                                    control: (base) => ({
-                                        ...base,
-                                        minHeight: '38px',
-                                        borderRadius: '0.375rem',
-                                        border: searchInputs.assignedTo ? '2px solid #0d6efd' : '1px solid #ccc',
-                                        backgroundColor: searchInputs.assignedTo ? '#f0f8ff' : '#fff',
-                                    }),
-                                    menuPortal: (base) => ({ ...base, zIndex: 9999 })
-                                }}
-                            />
-                        </Col>
-                    )}
+                            {(role === 'superadmin' || role === 'admin' || role === 'manager') && (
+                                <Col md={2}>
+                                    <Form.Label className="fw-bold mb-1" style={{ fontSize: '0.82rem', ...getLabelStyle(searchInputs.assignedTo) }}>Assigned To</Form.Label>
+                                    <Select
+                                        options={userOptions}
+                                        value={userOptions.find(u => u.value === searchInputs.assignedTo) || null}
+                                        onChange={(option) => handleSearchInputChange('assignedTo', option ? option.value : '')}
+                                        isClearable
+                                        placeholder="All"
+                                        menuPortalTarget={document.body}
+                                        styles={{
+                                            control: (base) => ({
+                                                ...base,
+                                                minHeight: '38px',
+                                                borderRadius: '0.375rem',
+                                                border: searchInputs.assignedTo ? '2px solid #0d6efd' : '1px solid #ccc',
+                                                backgroundColor: searchInputs.assignedTo ? '#f0f8ff' : '#fff',
+                                            }),
+                                            menuPortal: (base) => ({ ...base, zIndex: 9999 })
+                                        }}
+                                    />
+                                </Col>
+                            )}
 
-                    <Col md="auto">
-                        <Form.Label className="fw-bold d-block" style={getLabelStyle(searchInputs.type)}>Type Filter</Form.Label>
-                        <div className="d-flex flex-wrap align-items-center border rounded px-3 bg-white" style={{
-                            minHeight: '38px',
-                            border: searchInputs.type ? '2px solid #0d6efd' : '1px solid #ced4da',
-                            backgroundColor: searchInputs.type ? '#f0f8ff' : '#fff'
-                        }}>
-                            <Form.Check
-                                inline
-                                label="All"
-                                name="typeGroup"
-                                type="radio"
-                                id="type-all"
-                                checked={searchInputs.type === ''}
-                                onChange={() => handleSearchInputChange('type', '')}
-                                onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-                            />
-                            <Form.Check
-                                inline
-                                label={<span className="text-danger">Spam</span>}
-                                name="typeGroup"
-                                type="radio"
-                                id="type-spam"
-                                checked={searchInputs.type === 'spam'}
-                                onChange={() => handleSearchInputChange('type', 'spam')}
-                                onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-                            />
-                            <Form.Check
-                                inline
-                                label={<span className="text-info">Best Guardian</span>}
-                                name="typeGroup"
-                                type="radio"
-                                id="type-bestGuardian"
-                                checked={searchInputs.type === 'bestGuardian'}
-                                onChange={() => handleSearchInputChange('type', 'bestGuardian')}
-                                onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-                            />
+                            <Col md="auto">
+                                <Form.Label className="fw-bold d-block mb-1" style={{ fontSize: '0.82rem', ...getLabelStyle(searchInputs.type) }}>Type Filter</Form.Label>
+                                <div className="d-flex flex-wrap align-items-center border rounded px-2 bg-white" style={{
+                                    minHeight: '38px',
+                                    border: searchInputs.type ? '2px solid #0d6efd' : '1px solid #ced4da',
+                                    backgroundColor: searchInputs.type ? '#f0f8ff' : '#fff'
+                                }}>
+                                    <Form.Check
+                                        inline
+                                        label="All"
+                                        name="typeGroup"
+                                        type="radio"
+                                        id="type-all"
+                                        checked={searchInputs.type === ''}
+                                        onChange={() => handleSearchInputChange('type', '')}
+                                        onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+                                    />
+                                    <Form.Check
+                                        inline
+                                        label={<span className="text-danger">Spam</span>}
+                                        name="typeGroup"
+                                        type="radio"
+                                        id="type-spam"
+                                        checked={searchInputs.type === 'spam'}
+                                        onChange={() => handleSearchInputChange('type', 'spam')}
+                                        onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+                                    />
+                                    <Form.Check
+                                        inline
+                                        label={<span className="text-info">Best</span>}
+                                        name="typeGroup"
+                                        type="radio"
+                                        id="type-bestGuardian"
+                                        checked={searchInputs.type === 'bestGuardian'}
+                                        onChange={() => handleSearchInputChange('type', 'bestGuardian')}
+                                        onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+                                    />
+                                </div>
+                            </Col>
+
+                            <Col md="auto">
+                                <Form.Label className="fw-bold d-block mb-1" style={{ fontSize: '0.82rem', ...getLabelStyle(searchInputs.isReviewDone) }}>Review</Form.Label>
+                                <div className="d-flex flex-wrap align-items-center border rounded px-2 bg-white" style={{
+                                    minHeight: '38px',
+                                    border: searchInputs.isReviewDone ? '2px solid #0d6efd' : '1px solid #ced4da',
+                                    backgroundColor: searchInputs.isReviewDone ? '#f0f8ff' : '#fff'
+                                }}>
+                                    <Form.Check
+                                        inline
+                                        label="All"
+                                        name="reviewGroup"
+                                        type="radio"
+                                        id="review-all"
+                                        checked={searchInputs.isReviewDone === ''}
+                                        onChange={() => handleSearchInputChange('isReviewDone', '')}
+                                        onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+                                    />
+                                    <Form.Check
+                                        inline
+                                        label={<span className="text-success">Yes</span>}
+                                        name="reviewGroup"
+                                        type="radio"
+                                        id="review-yes"
+                                        checked={searchInputs.isReviewDone === 'Yes'}
+                                        onChange={() => handleSearchInputChange('isReviewDone', 'Yes')}
+                                        onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+                                    />
+                                    <Form.Check
+                                        inline
+                                        label={<span className="text-secondary">No</span>}
+                                        name="reviewGroup"
+                                        type="radio"
+                                        id="review-no"
+                                        checked={searchInputs.isReviewDone === 'No'}
+                                        onChange={() => handleSearchInputChange('isReviewDone', 'No')}
+                                        onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+                                    />
+                                </div>
+                            </Col>
+
+                            <Col md="auto">
+                                <Form.Label className="fw-bold d-block mb-1" style={{ fontSize: '0.82rem', ...getLabelStyle(searchInputs.isPaymentCreated) }}>Payment</Form.Label>
+                                <div className="d-flex flex-wrap align-items-center border rounded px-2 bg-white" style={{
+                                    minHeight: '38px',
+                                    border: searchInputs.isPaymentCreated ? '2px solid #0d6efd' : '1px solid #ced4da',
+                                    backgroundColor: searchInputs.isPaymentCreated ? '#f0f8ff' : '#fff'
+                                }}>
+                                    <Form.Check
+                                        inline
+                                        label="All"
+                                        name="paymentGroup"
+                                        type="radio"
+                                        id="payment-all"
+                                        checked={searchInputs.isPaymentCreated === ''}
+                                        onChange={() => handleSearchInputChange('isPaymentCreated', '')}
+                                        onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+                                    />
+                                    <Form.Check
+                                        inline
+                                        label={<span className="text-success">Created</span>}
+                                        name="paymentGroup"
+                                        type="radio"
+                                        id="payment-yes"
+                                        checked={searchInputs.isPaymentCreated === 'Yes'}
+                                        onChange={() => handleSearchInputChange('isPaymentCreated', 'Yes')}
+                                        onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+                                    />
+                                    <Form.Check
+                                        inline
+                                        label={<span className="text-secondary">Not Created</span>}
+                                        name="paymentGroup"
+                                        type="radio"
+                                        id="payment-no"
+                                        checked={searchInputs.isPaymentCreated === 'No'}
+                                        onChange={() => handleSearchInputChange('isPaymentCreated', 'No')}
+                                        onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+                                    />
+                                </div>
+                            </Col>
+
+                            <Col md="auto">
+                                <Form.Label className="fw-bold d-block mb-1" style={{ fontSize: '0.82rem', ...getLabelStyle(searchInputs.isProposalFilter) }}>Proposal</Form.Label>
+                                <div className="d-flex flex-wrap align-items-center border rounded px-2 bg-white" style={{
+                                    minHeight: '38px',
+                                    border: searchInputs.isProposalFilter ? '2px solid #0d6efd' : '1px solid #ced4da',
+                                    backgroundColor: searchInputs.isProposalFilter ? '#f0f8ff' : '#fff'
+                                }}>
+                                    <Form.Check
+                                        inline
+                                        label="All"
+                                        name="proposalGroup"
+                                        type="radio"
+                                        id="proposal-all"
+                                        checked={searchInputs.isProposalFilter === ''}
+                                        onChange={() => handleSearchInputChange('isProposalFilter', '')}
+                                        onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+                                    />
+                                    <Form.Check
+                                        inline
+                                        label={<span className="text-primary">Proposal</span>}
+                                        name="proposalGroup"
+                                        type="radio"
+                                        id="proposal-yes"
+                                        checked={searchInputs.isProposalFilter === 'Yes'}
+                                        onChange={() => handleSearchInputChange('isProposalFilter', 'Yes')}
+                                        onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+                                    />
+                                    <Form.Check
+                                        inline
+                                        label={<span className="text-secondary">Regular</span>}
+                                        name="proposalGroup"
+                                        type="radio"
+                                        id="proposal-no"
+                                        checked={searchInputs.isProposalFilter === 'No'}
+                                        onChange={() => handleSearchInputChange('isProposalFilter', 'No')}
+                                        onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+                                    />
+                                </div>
+                            </Col>
+
+                            <Col md="auto" className="d-flex align-items-end">
+                                <Button
+                                    variant="success"
+                                    onClick={handleSearch}
+                                    className="d-flex align-items-center justify-content-center"
+                                    disabled={loading}
+                                    title="Search"
+                                    style={{ width: "38px", height: "38px" }}
+                                >
+                                    {loading ? <Spinner animation="border" size="sm" /> : <FaSearch />}
+                                </Button>
+                            </Col>
+                            <Col md="auto" className="d-flex align-items-end">
+                                <Button
+                                    variant="danger"
+                                    onClick={handleResetFilters}
+                                    className="d-flex align-items-center justify-content-center ms-1"
+                                    title="Reset Filters"
+                                    style={{ width: "38px", height: "38px" }}
+                                >
+                                    <FaUndo />
+                                </Button>
+                            </Col>
+                        </Row>
+                    </Card.Body>
+                </Card>
+
+                {/* Alerts Section Card */}
+                <Card className="mb-3 border-0 shadow-sm" style={{ borderRadius: '12px', background: '#ffffff' }}>
+                    <Card.Body className="p-3">
+                        <div className="d-flex align-items-center justify-content-center flex-wrap gap-4">
+                            <h5 className="d-flex align-items-center gap-2 mb-0" style={{ fontSize: '0.98rem' }}>
+                                <FaBell className="text-primary" />
+                                <span>Tuitions needs update today: <strong>{tuitionNeedsUpdateList.length}</strong></span>
+                                <Button 
+                                    size="sm" 
+                                    variant={appliedFilters.needsUpdateToday ? "warning" : "outline-primary"} 
+                                    onClick={handleToggleNeedsUpdateToday} 
+                                    className="ms-1"
+                                >
+                                    <FaInfoCircle className="me-1" />
+                                    {appliedFilters.needsUpdateToday ? "Showing Today (Click to Reset)" : "Filter Today"}
+                                </Button>
+                                <OverlayTrigger
+                                    placement="top"
+                                    overlay={<Tooltip id="tooltip">Click to see list modal</Tooltip>}
+                                >
+                                    <Button size="sm" variant="outline-secondary" onClick={() => setShowUpdateListModal(true)} className="ms-1">
+                                        View Modal
+                                    </Button>
+                                </OverlayTrigger>
+                            </h5>
+                            <h5 className="d-flex align-items-center gap-2 mb-0" style={{ fontSize: '0.98rem' }}>
+                                <FaBell className="text-primary" />
+                                <span>Pending payment creation: <strong>{tuitionNeedsPaymentCreation.length}</strong></span>
+                                <Button 
+                                    size="sm" 
+                                    variant={appliedFilters.pendingPaymentCreation ? "warning" : "outline-primary"} 
+                                    onClick={handleTogglePendingPaymentCreation} 
+                                    className="ms-1"
+                                >
+                                    <FaInfoCircle className="me-1" />
+                                    {appliedFilters.pendingPaymentCreation ? "Showing Pending (Click to Reset)" : "Filter Pending"}
+                                </Button>
+                                <OverlayTrigger
+                                    placement="top"
+                                    overlay={<Tooltip id="tooltip">Click to see list modal</Tooltip>}
+                                >
+                                    <Button size="sm" variant="outline-secondary" onClick={() => setShowPaymentPendingModal(true)} className="ms-1">
+                                        View Modal
+                                    </Button>
+                                </OverlayTrigger>
+                            </h5>
+                            <h5 className="d-flex align-items-center gap-2 mb-0" style={{ fontSize: '0.98rem' }}>
+                                <FaBell className="text-primary" />
+                                <span>Guardian Follow Up Today: <strong>{guardianFollowUpList.length}</strong></span>
+                                <Button 
+                                    size="sm" 
+                                    variant={appliedFilters.guardianFollowUpToday ? "warning" : "outline-primary"} 
+                                    onClick={handleToggleGuardianFollowUpToday} 
+                                    className="ms-1"
+                                >
+                                    <FaInfoCircle className="me-1" />
+                                    {appliedFilters.guardianFollowUpToday ? "Showing Today (Click to Reset)" : "Filter Today"}
+                                </Button>
+                                <OverlayTrigger
+                                    placement="top"
+                                    overlay={<Tooltip id="tooltip">Click to see list modal</Tooltip>}
+                                >
+                                    <Button size="sm" variant="outline-secondary" onClick={() => setShowGuardianFollowUpModal(true)} className="ms-1">
+                                        View Modal
+                                    </Button>
+                                </OverlayTrigger>
+                            </h5>
                         </div>
-                    </Col>
-
-                    <Col md="auto">
-                        <Form.Label className="fw-bold d-block" style={getLabelStyle(searchInputs.isReviewDone)}>Review Filter</Form.Label>
-                        <div className="d-flex flex-wrap align-items-center border rounded px-3 bg-white" style={{
-                            minHeight: '38px',
-                            border: searchInputs.isReviewDone ? '2px solid #0d6efd' : '1px solid #ced4da',
-                            backgroundColor: searchInputs.isReviewDone ? '#f0f8ff' : '#fff'
-                        }}>
-                            <Form.Check
-                                inline
-                                label="All"
-                                name="reviewGroup"
-                                type="radio"
-                                id="review-all"
-                                checked={searchInputs.isReviewDone === ''}
-                                onChange={() => handleSearchInputChange('isReviewDone', '')}
-                                onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-                            />
-                            <Form.Check
-                                inline
-                                label={<span className="text-success">Yes</span>}
-                                name="reviewGroup"
-                                type="radio"
-                                id="review-yes"
-                                checked={searchInputs.isReviewDone === 'Yes'}
-                                onChange={() => handleSearchInputChange('isReviewDone', 'Yes')}
-                                onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-                            />
-                            <Form.Check
-                                inline
-                                label={<span className="text-secondary">No</span>}
-                                name="reviewGroup"
-                                type="radio"
-                                id="review-no"
-                                checked={searchInputs.isReviewDone === 'No'}
-                                onChange={() => handleSearchInputChange('isReviewDone', 'No')}
-                                onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-                            />
-                        </div>
-                    </Col>
-
-                    <Col md="auto">
-                        <Form.Label className="fw-bold d-block" style={getLabelStyle(searchInputs.isPaymentCreated)}>Payment Filter</Form.Label>
-                        <div className="d-flex flex-wrap align-items-center border rounded px-3 bg-white" style={{
-                            minHeight: '38px',
-                            border: searchInputs.isPaymentCreated ? '2px solid #0d6efd' : '1px solid #ced4da',
-                            backgroundColor: searchInputs.isPaymentCreated ? '#f0f8ff' : '#fff'
-                        }}>
-                            <Form.Check
-                                inline
-                                label="All"
-                                name="paymentGroup"
-                                type="radio"
-                                id="payment-all"
-                                checked={searchInputs.isPaymentCreated === ''}
-                                onChange={() => handleSearchInputChange('isPaymentCreated', '')}
-                                onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-                            />
-                            <Form.Check
-                                inline
-                                label={<span className="text-success">Created</span>}
-                                name="paymentGroup"
-                                type="radio"
-                                id="payment-yes"
-                                checked={searchInputs.isPaymentCreated === 'Yes'}
-                                onChange={() => handleSearchInputChange('isPaymentCreated', 'Yes')}
-                                onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-                            />
-                            <Form.Check
-                                inline
-                                label={<span className="text-secondary">Not Created</span>}
-                                name="paymentGroup"
-                                type="radio"
-                                id="payment-no"
-                                checked={searchInputs.isPaymentCreated === 'No'}
-                                onChange={() => handleSearchInputChange('isPaymentCreated', 'No')}
-                                onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-                            />
-                        </div>
-                    </Col>
-
-                    <Col md="auto">
-                        <Form.Label className="fw-bold d-block" style={getLabelStyle(searchInputs.isProposalFilter)}>Proposal Filter</Form.Label>
-                        <div className="d-flex flex-wrap align-items-center border rounded px-3 bg-white" style={{
-                            minHeight: '38px',
-                            border: searchInputs.isProposalFilter ? '2px solid #0d6efd' : '1px solid #ced4da',
-                            backgroundColor: searchInputs.isProposalFilter ? '#f0f8ff' : '#fff'
-                        }}>
-                            <Form.Check
-                                inline
-                                label="All"
-                                name="proposalGroup"
-                                type="radio"
-                                id="proposal-all"
-                                checked={searchInputs.isProposalFilter === ''}
-                                onChange={() => handleSearchInputChange('isProposalFilter', '')}
-                                onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-                            />
-                            <Form.Check
-                                inline
-                                label={<span className="text-primary">Proposal</span>}
-                                name="proposalGroup"
-                                type="radio"
-                                id="proposal-yes"
-                                checked={searchInputs.isProposalFilter === 'Yes'}
-                                onChange={() => handleSearchInputChange('isProposalFilter', 'Yes')}
-                                onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-                            />
-                            <Form.Check
-                                inline
-                                label={<span className="text-secondary">Regular</span>}
-                                name="proposalGroup"
-                                type="radio"
-                                id="proposal-no"
-                                checked={searchInputs.isProposalFilter === 'No'}
-                                onChange={() => handleSearchInputChange('isProposalFilter', 'No')}
-                                onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-                            />
-                        </div>
-                    </Col>
-
-                    <Col md="auto" className="d-flex align-items-end">
-                        <Button
-                            variant="success"
-                            onClick={handleSearch}
-                            className="d-flex align-items-center justify-content-center"
-                            disabled={loading}
-                            title="Search"
-                            style={{ width: "40px", height: "40px" }}
-                        >
-                            {loading ? <Spinner animation="border" size="sm" /> : <FaSearch />}
-                        </Button>
-                    </Col>
-                    <Col md="auto" className="d-flex align-items-end">
-                        <Button
-                            variant="danger"
-                            onClick={handleResetFilters}
-                            className="d-flex align-items-center justify-content-center ms-2"
-                            title="Reset Filters"
-                            style={{ width: "40px", height: "40px" }}
-                        >
-                            <FaUndo />
-                        </Button>
-                    </Col>
-
-                </Row>
-
-                <div className="d-flex align-items-center justify-content-center flex-wrap gap-2">
-                    <h5 className="me-3 d-flex align-items-center gap-2 mb-0">
-                        <FaBell className="text-primary" />
-                        <span>Tuitions needs update today: {tuitionNeedsUpdateList.length}</span>
-                        <Button 
-                            size="sm" 
-                            variant={appliedFilters.needsUpdateToday ? "warning" : "outline-primary"} 
-                            onClick={handleToggleNeedsUpdateToday} 
-                            className="ms-1"
-                        >
-                            <FaInfoCircle className="me-1" />
-                            {appliedFilters.needsUpdateToday ? "Showing Today (Click to Reset)" : "Filter Today"}
-                        </Button>
-                        <OverlayTrigger
-                            placement="top"
-                            overlay={<Tooltip id="tooltip">Click to see list modal</Tooltip>}
-                        >
-                            <Button size="sm" variant="outline-secondary" onClick={() => setShowUpdateListModal(true)} className="ms-1">
-                                View Modal
-                            </Button>
-                        </OverlayTrigger>
-                    </h5>
-                    <h5 className="me-3 d-flex align-items-center gap-2 mb-0">
-                        <FaBell className="text-primary" />
-                        <span>Pending payment creation: {tuitionNeedsPaymentCreation.length}</span>
-                        <Button 
-                            size="sm" 
-                            variant={appliedFilters.pendingPaymentCreation ? "warning" : "outline-primary"} 
-                            onClick={handleTogglePendingPaymentCreation} 
-                            className="ms-1"
-                        >
-                            <FaInfoCircle className="me-1" />
-                            {appliedFilters.pendingPaymentCreation ? "Showing Pending (Click to Reset)" : "Filter Pending"}
-                        </Button>
-                        <OverlayTrigger
-                            placement="top"
-                            overlay={<Tooltip id="tooltip">Click to see list modal</Tooltip>}
-                        >
-                            <Button size="sm" variant="outline-secondary" onClick={() => setShowPaymentPendingModal(true)} className="ms-1">
-                                View Modal
-                            </Button>
-                        </OverlayTrigger>
-                    </h5>
-                    <h5 className="me-3 d-flex align-items-center gap-2 mb-0">
-                        <FaBell className="text-primary" />
-                        <span>Guardian Follow Up Today: {guardianFollowUpList.length}</span>
-                        <Button 
-                            size="sm" 
-                            variant={appliedFilters.guardianFollowUpToday ? "warning" : "outline-primary"} 
-                            onClick={handleToggleGuardianFollowUpToday} 
-                            className="ms-1"
-                        >
-                            <FaInfoCircle className="me-1" />
-                            {appliedFilters.guardianFollowUpToday ? "Showing Today (Click to Reset)" : "Filter Today"}
-                        </Button>
-                        <OverlayTrigger
-                            placement="top"
-                            overlay={<Tooltip id="tooltip">Click to see list modal</Tooltip>}
-                        >
-                            <Button size="sm" variant="outline-secondary" onClick={() => setShowGuardianFollowUpModal(true)} className="ms-1">
-                                View Modal
-                            </Button>
-                        </OverlayTrigger>
-                    </h5>
-                </div>
+                    </Card.Body>
+                </Card>
 
                 {role === "superadmin" && (
                     <Button

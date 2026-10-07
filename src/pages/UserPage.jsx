@@ -1,256 +1,198 @@
-import React, { useState, useEffect } from 'react';
-import { Button, Table, Modal, Form, Spinner } from 'react-bootstrap';
-import { FaTrashAlt, FaEdit, FaSearch, FaUserShield, FaUserCog, FaUserTie, FaPlus, FaCheckCircle, FaTimesCircle, FaKey, FaInfoCircle, FaEye, FaEyeSlash, FaLock, FaUnlock, FaHistory, FaMoon } from 'react-icons/fa';
+import React, { useState, useEffect, useMemo } from 'react';
+import { Button, Table, Modal, Form, Spinner, Card, Row, Col, Badge, OverlayTrigger, Tooltip } from 'react-bootstrap';
+import { 
+    FaTrashAlt, 
+    FaEdit, 
+    FaSearch, 
+    FaUserShield, 
+    FaUserCog, 
+    FaUserTie, 
+    FaPlus, 
+    FaCheckCircle, 
+    FaKey, 
+    FaInfoCircle, 
+    FaEye, 
+    FaEyeSlash, 
+    FaLock, 
+    FaUnlock, 
+    FaHistory, 
+    FaMoon, 
+    FaUsers, 
+    FaUserCheck, 
+    FaUserLock, 
+    FaChevronLeft, 
+    FaChevronRight,
+    FaUndo
+} from 'react-icons/fa';
 import { axiosWithFallback as axios } from '../services/fetchWithFallback';
 import { useNavigate } from 'react-router-dom';
 import NavBarPage from './NavbarPage';
-import styled, { keyframes } from 'styled-components';
+import styled from 'styled-components';
 import { ToastContainer, toast } from 'react-toastify';
 import ConfirmationModal from '../components/modals/ConfirmationModal';
 
-const fadeIn = keyframes`
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
-`;
-
-const pulse = keyframes`
-  0% { opacity: 0.6; }
-  50% { opacity: 1; }
-  100% { opacity: 0.6; }
-`;
+// --- Styled Components ---
 
 const PageContainer = styled.div`
-  background: radial-gradient(at 0% 0%, rgba(66, 153, 225, 0.05) 0, transparent 50%), 
-              radial-gradient(at 50% 0%, rgba(128, 90, 213, 0.05) 0, transparent 50%), 
-              radial-gradient(at 100% 0%, rgba(246, 173, 85, 0.05) 0, transparent 50%);
-  background-color: #f8fafc;
+  background-color: #f8f9fa;
   min-height: 100vh;
-  padding-bottom: 5rem;
+  padding-bottom: 3rem;
   font-family: 'Poppins', sans-serif;
+  width: 100%;
 `;
 
-const ContentWrapper = styled.div`
+const ContentContainer = styled.div`
   width: 100%;
-  max-width: 100%;
-  margin: 0;
-  padding: 3rem 10px;
-  animation: ${fadeIn} 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  padding: 1.25rem 1.5rem;
 `;
 
 const HeaderSection = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 2rem;
+  margin-bottom: 1.25rem;
   flex-wrap: wrap;
   gap: 1rem;
 
-  @media (max-width: 768px) {
-    flex-direction: column;
-    align-items: stretch;
-  }
-`;
-
-const TitleArea = styled.div`
   h2 {
     font-weight: 700;
-    color: #1a202c;
-    margin-bottom: 0.25rem;
+    color: #0d6efd;
+    margin-bottom: 0.2rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
   }
+
   p {
-    color: #718096;
+    color: #6c757d;
+    font-size: 0.88rem;
     margin-bottom: 0;
   }
 `;
 
-const SearchContainer = styled.div`
-  position: relative;
-  width: 300px;
-  
-  @media (max-width: 768px) {
-    width: 100%;
+const StatsGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+`;
+
+const StatCard = styled.div`
+  background: white;
+  border-radius: 10px;
+  padding: 0.85rem 1rem;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+  border: 1px solid #dee2e6;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
   }
 
-  svg {
-    position: absolute;
-    left: 1rem;
-    top: 50%;
-    transform: translateY(-50%);
-    color: #a0aec0;
+  .icon-box {
+    width: 38px;
+    height: 38px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.15rem;
+    flex-shrink: 0;
+    
+    &.blue { background: #e0f2fe; color: #0284c7; }
+    &.purple { background: #ede9fe; color: #7c3aed; }
+    &.green { background: #dcfce7; color: #16a34a; }
+    &.emerald { background: #d1fae5; color: #059669; }
+    &.red { background: #fee2e2; color: #dc2626; }
+    &.indigo { background: #e0e7ff; color: #4338ca; }
   }
 
-  input {
-    padding: 0.6rem 1rem 0.6rem 2.8rem;
-    border-radius: 50px;
-    border: 1px solid #e2e8f0;
-    width: 100%;
-    transition: all 0.3s;
-    background: white;
-
-    &:focus {
-      outline: none;
-      border-color: #4299e1;
-      box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.15);
+  .content {
+    min-width: 0;
+    h4 { 
+      margin: 0; 
+      font-weight: 700; 
+      color: #1e293b; 
+      font-size: 1.2rem;
+      line-height: 1.2;
+    }
+    p { 
+      margin: 0; 
+      font-size: 0.75rem; 
+      font-weight: 600;
+      color: #64748b; 
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
   }
 `;
 
-const AddButton = styled(Button)`
-  border-radius: 50px;
-  padding: 0.6rem 1.5rem;
-  font-weight: 600;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  box-shadow: 0 4px 6px rgba(66, 153, 225, 0.2);
-  transition: all 0.3s;
-
-  &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 7px 14px rgba(66, 153, 225, 0.3);
-  }
+const FilterCard = styled(Card)`
+  border: 1px solid #dee2e6;
+  border-radius: 10px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+  margin-bottom: 1.25rem;
+  background: #ffffff;
 `;
 
-const StyledTableCard = styled.div`
-  background: white;
-  border-radius: 1rem;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+const TableCard = styled(Card)`
+  border: 1px solid #dee2e6;
+  border-radius: 10px;
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.04);
+  background: #ffffff;
   overflow: hidden;
-  border: 1px solid #edf2f7;
 `;
 
-const TableHeader = styled.div`
-  display: grid;
-  grid-template-columns: 2.2fr 1.5fr 1.2fr 1.5fr 1.5fr 140px;
-  gap: 1rem;
-  padding: 0 1.5rem 1rem 1.5rem;
-  border-bottom: 1px solid #e2e8f0;
-  margin-bottom: 1.5rem;
-  align-items: center;
-  
-  span {
-    font-size: 0.75rem;
-    font-weight: 700;
-    color: #94a3b8;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-  }
-
-  @media (max-width: 992px) {
-    display: none;
-  }
-`;
-
-const UserRowCard = styled.div`
-  background: ${props => props.isLocked ? '#fffafa' : 'white'};
-  border-radius: 16px;
-  padding: 1.25rem 1.5rem;
-  margin-bottom: 1rem;
-  display: grid;
-  grid-template-columns: 2.2fr 1.5fr 1.2fr 1.5fr 1.5fr 140px;
-  align-items: center;
-  gap: 1rem;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.02);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  border: 1px solid ${props => props.isLocked ? '#fee2e2' : 'rgba(226, 232, 240, 0.6)'};
-
-  &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 10px 25px rgba(0,0,0,0.05);
-    border-color: ${props => props.isLocked ? '#fecaca' : 'rgba(66, 153, 225, 0.4)'};
-  }
-
-  @media (max-width: 992px) {
-    grid-template-columns: 1fr 1fr;
-    gap: 1.5rem;
-  }
-`;
-
-const Avatar = styled.div`
-  width: 42px;
-  height: 42px;
-  border-radius: 12px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  font-weight: 600;
-  font-size: 1rem;
-  box-shadow: 0 4px 10px rgba(118, 75, 162, 0.2);
-`;
-
-const StatusDot = styled.span`
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: ${props => props.active ? '#10b981' : '#f59e0b'};
-  display: inline-block;
-  margin-right: 8px;
-  box-shadow: 0 0 0 3px ${props => props.active ? 'rgba(16, 185, 129, 0.1)' : 'rgba(245, 158, 11, 0.1)'};
-`;
-
-const RoleBadge = styled.span`
-  padding: 0.4rem 0.8rem;
-  border-radius: 50px;
-  font-size: 0.75rem;
-  font-weight: 600;
+const ActionIconButton = styled.button`
+  width: 30px;
+  height: 30px;
+  border-radius: 6px;
   display: inline-flex;
   align-items: center;
-  gap: 0.4rem;
-  
-  background: ${props => 
-    props.role === 'superadmin' ? 'rgba(235, 248, 255, 1)' : 
-    props.role === 'manager' ? '#ecfdf5' : 'rgba(247, 250, 252, 1)'};
-  color: ${props => 
-    props.role === 'superadmin' ? '#2b6cb0' : 
-    props.role === 'manager' ? '#047857' : '#4a5568'};
-  border: 1px solid ${props => 
-    props.role === 'superadmin' ? '#bee3f8' : 
-    props.role === 'manager' ? '#a7f3d0' : '#e2e8f0'};
-`;
-
-const ActionBtn = styled.button`
-  width: 38px;
-  height: 38px;
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
   justify-content: center;
-  border: 1px solid #f1f5f9;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 1px solid #ced4da;
+  transition: all 0.15s ease;
   background: white;
-  color: ${props => props.variant === 'danger' ? '#ef4444' : '#64748b'};
+  color: ${props => props.$variant === 'danger' ? '#dc3545' : props.$variant === 'primary' ? '#0d6efd' : props.$variant === 'purple' ? '#6f42c1' : '#495057'};
   
   &:hover {
-    background: ${props => props.variant === 'danger' ? '#fef2f2' : '#f8fafc'};
-    color: ${props => props.variant === 'danger' ? '#b91c1c' : '#334155'};
-    border-color: ${props => props.variant === 'danger' ? '#fee2e2' : '#e2e8f0'};
-    transform: translateY(-1px);
+    background: ${props => props.$variant === 'danger' ? '#f8d7da' : props.$variant === 'primary' ? '#cfe2ff' : props.$variant === 'purple' ? '#e2d9f3' : '#e9ecef'};
+    color: ${props => props.$variant === 'danger' ? '#842029' : props.$variant === 'primary' ? '#084298' : props.$variant === 'purple' ? '#432874' : '#212529'};
+    border-color: ${props => props.$variant === 'danger' ? '#f5c2c7' : props.$variant === 'primary' ? '#b6d4fe' : props.$variant === 'purple' ? '#c5b3e6' : '#adb5bd'};
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
   }
 `;
 
-const ToggleSwitch = styled.div`
-  width: 48px;
-  height: 24px;
-  background: ${props => props.$active ? '#ef4444' : '#22c55e'};
+const CompactToggleSwitch = styled.div`
+  width: 36px;
+  height: 18px;
+  background: ${props => props.$active ? '#dc3545' : '#198754'};
   border-radius: 50px;
-  padding: 3px;
+  padding: 2px;
   cursor: pointer;
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.2s ease;
   position: relative;
-  border: 1px solid ${props => props.$active ? '#dc2626' : '#16a34a'};
+  border: 1px solid ${props => props.$active ? '#b02a37' : '#146c43'};
   
   .knob {
-    width: 18px;
-    height: 18px;
+    width: 12px;
+    height: 12px;
     background: white;
     border-radius: 50%;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    transform: ${props => props.$active ? 'translateX(24px)' : 'translateX(0)'};
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    transition: all 0.2s ease;
+    transform: ${props => props.$active ? 'translateX(18px)' : 'translateX(0)'};
+    box-shadow: 0 1px 2px rgba(0,0,0,0.2);
   }
   
   &:hover {
@@ -258,46 +200,11 @@ const ToggleSwitch = styled.div`
   }
 `;
 
-const ModalHeaderStyled = styled(Modal.Header)`
-  background: #f8fafc;
-  border-bottom: 1px solid #edf2f7;
-  padding: 1.5rem;
-  
-  .modal-title {
-    font-weight: 700;
-    color: #1a202c;
-  }
-`;
-
-const FormGroup = styled(Form.Group)`
-  margin-bottom: 1rem;
-  
-  label {
-    font-weight: 600;
-    color: #4a5568;
-    margin-bottom: 0.35rem;
-    font-size: 0.85rem;
-  }
-  
-  input, select {
-    padding: 0.55rem 0.85rem;
-    border-radius: 8px;
-    border: 1px solid #e2e8f0;
-    font-size: 0.88rem;
-    transition: all 0.2s;
-    
-    &:focus {
-      border-color: #3b82f6;
-      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-    }
-  }
-`;
-
 const PermissionSection = styled.div`
   background: #f8fafc;
-  border-radius: 10px;
+  border-radius: 8px;
   padding: 0.75rem 0.85rem;
-  border: 1px solid #e2e8f0;
+  border: 1px solid #ced4da;
 
   .permission-grid {
     display: grid;
@@ -310,8 +217,8 @@ const PermissionItem = styled.label`
   background: white;
   padding: 0.42rem 0.65rem;
   border-radius: 6px;
-  border: 1px solid ${props => props.$checked ? '#93c5fd' : '#e2e8f0'};
-  background: ${props => props.$checked ? '#f0f7ff' : '#ffffff'};
+  border: 1px solid ${props => props.$checked ? '#86b7fe' : '#dee2e6'};
+  background: ${props => props.$checked ? '#e7f1ff' : '#ffffff'};
   transition: all 0.15s ease-in-out;
   display: flex;
   align-items: center;
@@ -322,8 +229,8 @@ const PermissionItem = styled.label`
   margin: 0;
 
   &:hover {
-    border-color: #60a5fa;
-    background: ${props => props.$checked ? '#eff6ff' : '#f8fafc'};
+    border-color: #0d6efd;
+    background: ${props => props.$checked ? '#cfe2ff' : '#f8f9fa'};
   }
 
   input[type="checkbox"] {
@@ -332,13 +239,13 @@ const PermissionItem = styled.label`
     width: 15px;
     height: 15px;
     flex-shrink: 0;
-    accent-color: #2563eb;
+    accent-color: #0d6efd;
   }
 
   .perm-text {
     font-weight: 500;
     font-size: 0.8rem;
-    color: ${props => props.$checked ? '#1e3a8a' : '#334155'};
+    color: ${props => props.$checked ? '#084298' : '#212529'};
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -353,7 +260,7 @@ const ProcessingOverlay = styled.div`
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(255, 255, 255, 0.8);
+  background: rgba(255, 255, 255, 0.85);
   backdrop-filter: blur(4px);
   display: flex;
   align-items: center;
@@ -362,20 +269,12 @@ const ProcessingOverlay = styled.div`
   
   .loader-content {
     background: white;
-    padding: 2.5rem;
-    border-radius: 24px;
-    box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+    padding: 2rem 2.5rem;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.15);
     text-align: center;
-    border: 1px solid #edf2f7;
-    animation: ${fadeIn} 0.3s ease-out;
+    border: 1px solid #dee2e6;
   }
-`;
-
-const SkeletonLine = styled.div`
-  height: 30px;
-  background: #f1f5f9;
-  border-radius: 4px;
-  animation: ${pulse} 1.5s infinite ease-in-out;
 `;
 
 const AVAILABLE_MODULES = [
@@ -399,68 +298,25 @@ const AVAILABLE_MODULES = [
     { key: 'settings', label: 'Settings' }
 ];
 
-const HistoryItem = styled.div`
-  padding: 1.25rem;
-  border-bottom: 1px solid #f1f5f9;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  transition: background 0.2s;
-  
-  &:hover {
-    background: #f8fafc;
-  }
-  
-  &:last-child {
-    border-bottom: none;
-  }
-  
-  .details {
-    display: flex;
-    flex-direction: column;
-    gap: 0.25rem;
-  }
-  
-  .timestamp {
-    font-weight: 600;
-    color: #1e293b;
-    font-size: 0.95rem;
-  }
-  
-  .device-info {
-    color: #64748b;
-    font-size: 0.8rem;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-  }
-  
-  .ip-badge {
-    background: #f1f5f9;
-    color: #475569;
-    padding: 0.25rem 0.6rem;
-    border-radius: 6px;
-    font-family: monospace;
-    font-size: 0.75rem;
-    font-weight: 600;
-  }
-`;
-
 const UserPage = () => {
     const navigate = useNavigate();
     const [userList, setUserList] = useState([]);
     const [loading, setLoading] = useState(false);
-    const [error, setError] = useState(null);
     const [showModal, setShowModal] = useState(false);
     const [newUser, setNewUser] = useState({ username: '', password: '', name: '', role: 'admin', permissions: [], autoLock: false, perHourTk: '' });
     const [editingUser, setEditingUser] = useState(null);
     const [showConfirmModal, setShowConfirmModal] = useState(false);
     const [userToDelete, setUserToDelete] = useState(null);
-    const [deleting, setDeleting] = useState(false);
     const [isProcessing, setIsProcessing] = useState(false);
     const [processMessage, setProcessMessage] = useState('');
+    
+    // Filters & Pagination
     const [searchTerm, setSearchTerm] = useState('');
-    const [showPasswords, setShowPasswords] = useState({});
+    const [roleFilter, setRoleFilter] = useState('ALL');
+    const [lockFilter, setLockFilter] = useState('ALL');
+    const [currentPage, setCurrentPage] = useState(1);
+    const [itemsPerPage, setItemsPerPage] = useState(15);
+
     const [lockingUserId, setLockingUserId] = useState(null);
     const [historyData, setHistoryData] = useState([]);
     const [showHistoryModal, setShowHistoryModal] = useState(false);
@@ -469,9 +325,102 @@ const UserPage = () => {
     const [passwordTargetUser, setPasswordTargetUser] = useState(null);
     const [newPasswordInput, setNewPasswordInput] = useState('');
     const [showNewPassword, setShowNewPassword] = useState(false);
+
     const token = localStorage.getItem('token');
     const currentUserRole = localStorage.getItem('role');
 
+    // Auth verification
+    useEffect(() => {
+        if (!token) {
+            navigate('/admin/login');
+        }
+    }, [token, navigate]);
+
+    useEffect(() => {
+        fetchUsers();
+    }, []);
+
+    const fetchUsers = async () => {
+        setLoading(true);
+        try {
+            const response = await axios.get('https://tuition-seba-backend-1.onrender.com/api/user/users', {
+                headers: { Authorization: token }
+            });
+            setUserList(response.data || []);
+        } catch (err) {
+            if (err.response && (err.response.status === 401 || err.response.status === 403)) {
+                localStorage.removeItem('token');
+                localStorage.removeItem('role');
+                navigate('/admin/login');
+                toast.error('Session expired. Please log in again.');
+            } else {
+                toast.error('Error fetching users');
+            }
+            console.error('Error fetching users:', err);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    // Summary Statistics
+    const stats = useMemo(() => {
+        const total = userList.length;
+        let superadmins = 0;
+        let managers = 0;
+        let admins = 0;
+        let locked = 0;
+        let nightLock = 0;
+
+        for (let i = 0; i < userList.length; i++) {
+            const u = userList[i];
+            if (u.role === 'superadmin') superadmins++;
+            else if (u.role === 'manager') managers++;
+            else admins++;
+
+            if (u.isLocked) locked++;
+            if (u.autoLock) nightLock++;
+        }
+
+        return { total, superadmins, managers, admins, locked, nightLock };
+    }, [userList]);
+
+    // Filter Logic
+    const filteredUsers = useMemo(() => {
+        return userList.filter(user => {
+            const matchesSearch = !searchTerm.trim() || 
+                (user.username && user.username.toLowerCase().includes(searchTerm.toLowerCase())) ||
+                (user.name && user.name.toLowerCase().includes(searchTerm.toLowerCase()));
+
+            const matchesRole = roleFilter === 'ALL' || user.role === roleFilter;
+
+            const matchesLock = 
+                lockFilter === 'ALL' ? true :
+                lockFilter === 'LOCKED' ? !!user.isLocked :
+                !user.isLocked;
+
+            return matchesSearch && matchesRole && matchesLock;
+        });
+    }, [userList, searchTerm, roleFilter, lockFilter]);
+
+    // Pagination Logic
+    const totalPages = Math.ceil(filteredUsers.length / itemsPerPage) || 1;
+    const paginatedUsers = useMemo(() => {
+        const start = (currentPage - 1) * itemsPerPage;
+        return filteredUsers.slice(start, start + itemsPerPage);
+    }, [filteredUsers, currentPage, itemsPerPage]);
+
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [searchTerm, roleFilter, lockFilter, itemsPerPage]);
+
+    const handleResetFilters = () => {
+        setSearchTerm('');
+        setRoleFilter('ALL');
+        setLockFilter('ALL');
+        setCurrentPage(1);
+    };
+
+    // Password Modal Handlers
     const handleOpenPasswordModal = (user) => {
         setPasswordTargetUser(user);
         setNewPasswordInput('');
@@ -514,13 +463,7 @@ const UserPage = () => {
         }
     };
 
-    const togglePasswordVisibility = (userId) => {
-        setShowPasswords(prev => ({
-            ...prev,
-            [userId]: !prev[userId]
-        }));
-    };
-
+    // Lock Toggle
     const handleToggleLock = async (userId) => {
         setLockingUserId(userId);
         try {
@@ -537,6 +480,7 @@ const UserPage = () => {
         }
     };
 
+    // History Modal Handlers
     const fetchHistory = async (user) => {
         setHistoryUser(user);
         setIsProcessing(true);
@@ -545,7 +489,7 @@ const UserPage = () => {
             const response = await axios.get(`https://tuition-seba-backend-1.onrender.com/api/user/history/${user._id}`, {
                 headers: { Authorization: token }
             });
-            setHistoryData(response.data);
+            setHistoryData(response.data || []);
             setShowHistoryModal(true);
         } catch (err) {
             toast.error('Error fetching login history');
@@ -556,42 +500,8 @@ const UserPage = () => {
         }
     };
 
-    // Check if user has valid token, otherwise redirect to login
-    useEffect(() => {
-        if (!token) {
-            navigate('/admin/login');
-        }
-    }, [token, navigate]);
-
-    useEffect(() => {
-        fetchUsers();
-    }, []);
-
-    const fetchUsers = async () => {
-        setLoading(true);
-        setError(null);
-        try {
-            const response = await axios.get('https://tuition-seba-backend-1.onrender.com/api/user/users', {
-                headers: { Authorization: token }
-            });
-            setUserList(response.data);
-        } catch (err) {
-            if (err.response && (err.response.status === 401 || err.response.status === 403)) {
-                localStorage.removeItem('token');
-                localStorage.removeItem('role');
-                navigate('/admin/login');
-                toast.error('Session expired. Please log in again.');
-            } else {
-                setError('Error fetching users');
-                toast.error('Error fetching users');
-            }
-            console.error('Error fetching users:', err);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const handleDeleteUser = async (id) => {
+    // Delete Handlers
+    const handleDeleteUser = (id) => {
         setUserToDelete(id);
         setShowConfirmModal(true);
     };
@@ -601,7 +511,6 @@ const UserPage = () => {
 
         setIsProcessing(true);
         setProcessMessage('Deleting user...');
-        setError(null);
         try {
             await axios.delete(`https://tuition-seba-backend-1.onrender.com/api/user/delete/${userToDelete}`, {
                 headers: { Authorization: token }
@@ -617,7 +526,6 @@ const UserPage = () => {
                 navigate('/admin/login');
                 toast.error('Session expired. Please log in again.');
             } else {
-                setError('Error deleting user');
                 toast.error('Error deleting user');
             }
             console.error('Error deleting user:', err);
@@ -633,6 +541,7 @@ const UserPage = () => {
         toast.info('Deletion cancelled');
     };
 
+    // Add / Edit Modal Handlers
     const handleOpenModal = (user = null) => {
         if (user) {
             setEditingUser(user);
@@ -660,35 +569,34 @@ const UserPage = () => {
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
-        setNewUser({ ...newUser, [name]: value });
+        setNewUser(prev => ({ ...prev, [name]: value }));
     };
 
     const handlePermissionChange = (moduleKey) => {
         const currentPermissions = [...newUser.permissions];
         if (currentPermissions.includes(moduleKey)) {
-            setNewUser({
-                ...newUser,
+            setNewUser(prev => ({
+                ...prev,
                 permissions: currentPermissions.filter(p => p !== moduleKey)
-            });
+            }));
         } else {
-            setNewUser({
-                ...newUser,
+            setNewUser(prev => ({
+                ...prev,
                 permissions: [...currentPermissions, moduleKey]
-            });
+            }));
         }
     };
 
     const handleCheckAll = () => {
         const allKeys = AVAILABLE_MODULES.map(m => m.key);
         if (newUser.permissions.length === allKeys.length) {
-            setNewUser({ ...newUser, permissions: [] });
+            setNewUser(prev => ({ ...prev, permissions: [] }));
         } else {
-            setNewUser({ ...newUser, permissions: allKeys });
+            setNewUser(prev => ({ ...prev, permissions: allKeys }));
         }
     };
 
     const handleSaveUser = async () => {
-        // Validation
         if (!newUser.username || !newUser.username.trim()) {
             toast.error('Username is required');
             return;
@@ -708,7 +616,6 @@ const UserPage = () => {
 
         setIsProcessing(true);
         setProcessMessage(editingUser ? 'Updating user...' : 'Creating user...');
-        setError(null);
         try {
             if (editingUser) {
                 await axios.put(`https://tuition-seba-backend-1.onrender.com/api/user/edit/${editingUser._id}`, newUser, {
@@ -731,7 +638,6 @@ const UserPage = () => {
                 toast.error('Session expired. Please log in again.');
             } else {
                 const errorMsg = err.response?.data?.message || err.response?.data?.error || 'Error saving user';
-                setError(errorMsg);
                 toast.error(errorMsg);
             }
             console.error('Error saving user:', err);
@@ -741,258 +647,460 @@ const UserPage = () => {
         }
     };
 
-    const filteredUsers = userList.filter(user =>
-        user.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        user.name.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-
     return (
         <PageContainer>
             <NavBarPage />
-            <ContentWrapper>
+            <ContentContainer>
+                {/* Header */}
                 <HeaderSection>
-                    <TitleArea>
-                        <h2>User Management</h2>
-                        <p>Manage administrator accounts and access permissions</p>
-                    </TitleArea>
-
-                    <div className="d-flex gap-3 flex-wrap">
-                        <SearchContainer>
-                            <FaSearch />
-                            <input
-                                type="text"
-                                placeholder="Search by name or username..."
-                                value={searchTerm}
-                                onChange={(e) => setSearchTerm(e.target.value)}
-                            />
-                        </SearchContainer>
-
-                        <AddButton variant="primary" onClick={() => handleOpenModal()}>
-                            <FaPlus /> Add New User
-                        </AddButton>
+                    <div>
+                        <h2><FaUserShield /> User Management</h2>
+                        <p>Manage administrator accounts, permissions, and security controls</p>
                     </div>
+
+                    <Button 
+                        variant="primary" 
+                        className="fw-bold d-flex align-items-center gap-2 shadow-sm rounded-pill px-4 py-2"
+                        onClick={() => handleOpenModal()}
+                    >
+                        <FaPlus /> Add New User
+                    </Button>
                 </HeaderSection>
 
-                {loading ? (
-                    <div className="d-flex flex-column gap-3">
-                        {[1, 2, 3, 4].map(i => <SkeletonLine key={i} />)}
+                {/* Quick Summary Stats */}
+                <StatsGrid>
+                    <StatCard>
+                        <div className="icon-box blue"><FaUsers /></div>
+                        <div className="content">
+                            <h4>{stats.total}</h4>
+                            <p>Total Users</p>
+                        </div>
+                    </StatCard>
+                    <StatCard>
+                        <div className="icon-box purple"><FaUserShield /></div>
+                        <div className="content">
+                            <h4>{stats.superadmins}</h4>
+                            <p>Super Admins</p>
+                        </div>
+                    </StatCard>
+                    <StatCard>
+                        <div className="icon-box emerald"><FaUserTie /></div>
+                        <div className="content">
+                            <h4>{stats.managers}</h4>
+                            <p>Managers</p>
+                        </div>
+                    </StatCard>
+                    <StatCard>
+                        <div className="icon-box green"><FaUserCheck /></div>
+                        <div className="content">
+                            <h4>{stats.admins}</h4>
+                            <p>Admins</p>
+                        </div>
+                    </StatCard>
+                    <StatCard>
+                        <div className="icon-box red"><FaUserLock /></div>
+                        <div className="content">
+                            <h4>{stats.locked}</h4>
+                            <p>Locked Accounts</p>
+                        </div>
+                    </StatCard>
+                    <StatCard>
+                        <div className="icon-box indigo"><FaMoon /></div>
+                        <div className="content">
+                            <h4>{stats.nightLock}</h4>
+                            <p>Night Lock</p>
+                        </div>
+                    </StatCard>
+                </StatsGrid>
+
+                {/* Filter & Search Bar */}
+                <FilterCard>
+                    <Card.Body className="p-3">
+                        <Row className="g-2 align-items-end">
+                            <Col xs={12} md={5}>
+                                <Form.Label className="fw-bold text-muted small mb-1">SEARCH USER</Form.Label>
+                                <div className="d-flex align-items-center bg-light rounded px-3 border" style={{ height: '38px', borderColor: '#ced4da' }}>
+                                    <FaSearch className="text-secondary me-2" />
+                                    <Form.Control
+                                        type="text"
+                                        placeholder="Search by name or username..."
+                                        value={searchTerm}
+                                        onChange={(e) => setSearchTerm(e.target.value)}
+                                        className="border-0 bg-transparent shadow-none p-0"
+                                        style={{ fontSize: '0.88rem' }}
+                                    />
+                                </div>
+                            </Col>
+
+                            <Col xs={6} md={3}>
+                                <Form.Label className="fw-bold text-muted small mb-1">ROLE</Form.Label>
+                                <Form.Select
+                                    value={roleFilter}
+                                    onChange={(e) => setRoleFilter(e.target.value)}
+                                    size="sm"
+                                    style={{ height: '38px', fontSize: '0.88rem', borderColor: '#ced4da' }}
+                                >
+                                    <option value="ALL">All Roles</option>
+                                    <option value="superadmin">Super Admin</option>
+                                    <option value="manager">Manager</option>
+                                    <option value="admin">Admin</option>
+                                </Form.Select>
+                            </Col>
+
+                            <Col xs={6} md={2}>
+                                <Form.Label className="fw-bold text-muted small mb-1">LOCK STATUS</Form.Label>
+                                <Form.Select
+                                    value={lockFilter}
+                                    onChange={(e) => setLockFilter(e.target.value)}
+                                    size="sm"
+                                    style={{ height: '38px', fontSize: '0.88rem', borderColor: '#ced4da' }}
+                                >
+                                    <option value="ALL">All Status</option>
+                                    <option value="ACTIVE">Active / Unlocked</option>
+                                    <option value="LOCKED">Locked</option>
+                                </Form.Select>
+                            </Col>
+
+                            <Col xs={12} md={2} className="d-flex gap-2">
+                                <Button 
+                                    variant="outline-secondary" 
+                                    size="sm" 
+                                    className="w-100 d-flex align-items-center justify-content-center gap-1"
+                                    onClick={handleResetFilters}
+                                    style={{ height: '38px', borderColor: '#ced4da' }}
+                                >
+                                    <FaUndo size={12} /> Reset
+                                </Button>
+                            </Col>
+                        </Row>
+                    </Card.Body>
+                </FilterCard>
+
+                {/* Users Table Card */}
+                <TableCard>
+                    <div className="d-flex justify-content-between align-items-center p-3 border-bottom bg-light">
+                        <div className="fw-bold text-dark d-flex align-items-center gap-2" style={{ fontSize: '0.95rem' }}>
+                            <span>User Accounts</span>
+                            <Badge bg="primary" pill style={{ fontSize: '0.75rem' }}>
+                                {filteredUsers.length}
+                            </Badge>
+                        </div>
+
+                        <div className="d-flex align-items-center gap-2">
+                            <span className="text-muted small">Show:</span>
+                            <Form.Select 
+                                size="sm" 
+                                value={itemsPerPage} 
+                                onChange={(e) => setItemsPerPage(Number(e.target.value))}
+                                style={{ width: '80px', height: '32px', fontSize: '0.82rem', borderColor: '#ced4da' }}
+                            >
+                                <option value={10}>10</option>
+                                <option value={15}>15</option>
+                                <option value={25}>25</option>
+                                <option value={50}>50</option>
+                                <option value={100}>100</option>
+                            </Form.Select>
+                        </div>
                     </div>
-                ) : (
-                    <div>
-                        <TableHeader>
-                            <span>Full Name</span>
-                            <span>Username</span>
-                            <span>Status</span>
-                            <span>Credentials</span>
-                            <span>Access Role</span>
-                            <span className="text-end">Actions</span>
-                        </TableHeader>
 
-                        {filteredUsers.length > 0 ? filteredUsers.map((user) => (
-                            <UserRowCard key={user._id} $isLocked={user.isLocked}>
-                                <div className="d-flex align-items-center gap-3">
-                                    <Avatar>{user.name.charAt(0).toUpperCase()}</Avatar>
-                                    <div>
-                                        <div className={`fw-bold ${user.isLocked ? 'text-danger' : 'text-dark'}`}>{user.name}</div>
-                                        <div className="text-muted small d-lg-none">{user.username}</div>
-                                        {user.perHourTk > 0 && (
-                                            <div className="text-muted" style={{ fontSize: '0.72rem', fontWeight: '600' }}>
-                                                ৳{user.perHourTk}/hr
-                                            </div>
+                    {loading ? (
+                        <div className="text-center py-5">
+                            <Spinner animation="border" variant="primary" />
+                            <p className="mt-2 text-muted small">Loading user accounts...</p>
+                        </div>
+                    ) : (
+                        <div className="table-responsive">
+                            <Table bordered hover className="align-middle text-center mb-0" style={{ fontSize: '0.88rem', borderColor: '#dee2e6' }}>
+                                <thead style={{ backgroundColor: '#f1f5f9', borderBottom: '2px solid #cbd5e1' }}>
+                                    <tr>
+                                        <th style={{ width: '50px', backgroundColor: '#f1f5f9' }} className="py-2.5 text-secondary fw-bold">#</th>
+                                        <th className="text-start py-2.5 text-secondary fw-bold" style={{ minWidth: '180px', backgroundColor: '#f1f5f9' }}>Full Name</th>
+                                        <th className="text-start py-2.5 text-secondary fw-bold" style={{ minWidth: '150px', backgroundColor: '#f1f5f9' }}>Username</th>
+                                        <th className="py-2.5 text-secondary fw-bold" style={{ minWidth: '120px', backgroundColor: '#f1f5f9' }}>Role</th>
+                                        <th className="py-2.5 text-secondary fw-bold" style={{ minWidth: '140px', backgroundColor: '#f1f5f9' }}>Status & Access</th>
+                                        <th className="py-2.5 text-secondary fw-bold" style={{ minWidth: '130px', backgroundColor: '#f1f5f9' }}>Permissions</th>
+                                        <th className="py-2.5 text-secondary fw-bold" style={{ minWidth: '120px', backgroundColor: '#f1f5f9' }}>Security</th>
+                                        {currentUserRole === 'superadmin' && (
+                                            <th className="py-2.5 text-secondary fw-bold" style={{ width: '85px', backgroundColor: '#f1f5f9' }}>Lock</th>
                                         )}
-                                    </div>
-                                </div>
+                                        <th className="py-2.5 text-secondary fw-bold" style={{ minWidth: '120px', backgroundColor: '#f1f5f9' }}>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {paginatedUsers.length > 0 ? (
+                                        paginatedUsers.map((user, index) => {
+                                            const serialNo = (currentPage - 1) * itemsPerPage + index + 1;
+                                            const roleBg = 
+                                                user.role === 'superadmin' ? 'primary' :
+                                                user.role === 'manager' ? 'success' : 'secondary';
 
-                                <div className="d-none d-lg-block">
-                                    <span className="text-secondary fw-medium">{user.username}</span>
-                                </div>
+                                            return (
+                                                <tr key={user._id} style={{ background: user.isLocked ? '#fff5f5' : '#ffffff' }}>
+                                                    <td className="text-muted fw-bold">{serialNo}</td>
+                                                    
+                                                    {/* Full Name */}
+                                                    <td className="text-start">
+                                                        <div className={`fw-bold ${user.isLocked ? 'text-danger' : 'text-dark'}`}>
+                                                            {user.name}
+                                                        </div>
+                                                        {user.perHourTk > 0 && (
+                                                            <div className="text-primary mt-0.5" style={{ fontSize: '0.72rem', fontWeight: '700' }}>
+                                                                ৳{user.perHourTk}/hr
+                                                            </div>
+                                                        )}
+                                                    </td>
 
-                                <div>
-                                    <div className="d-flex flex-column">
-                                        <span className={`fw-bold small ${user.role === 'superadmin' ? 'text-primary' : (user.isLocked ? 'text-danger' : 'text-success')}`} style={{ letterSpacing: '0.02em' }}>
-                                            {user.role === 'superadmin' ? 'SUPER' : (user.isLocked ? 'LOCKED' : 'UNLOCKED')}
-                                        </span>
-                                        <div className="d-flex align-items-center mt-1 flex-wrap gap-2">
-                                            {user.autoLock ? (
-                                                <div className="d-flex align-items-center gap-1 bg-dark text-white px-2 py-0.5 rounded" style={{ fontSize: '0.65rem', fontWeight: '700' }}>
-                                                    <FaMoon size={8} />
-                                                    <span>NIGHT LOCK</span>
+                                                    {/* Username */}
+                                                    <td className="text-start">
+                                                        <code className="text-dark bg-light px-2 py-0.5 rounded border" style={{ fontSize: '0.82rem', fontWeight: '600' }}>
+                                                            {user.username}
+                                                        </code>
+                                                    </td>
+
+                                                    {/* Role */}
+                                                    <td>
+                                                        <Badge bg={roleBg} className="text-uppercase px-2 py-1 fw-bold" style={{ fontSize: '0.72rem', letterSpacing: '0.03em' }}>
+                                                            {user.role === 'superadmin' && <FaUserShield className="me-1" />}
+                                                            {user.role === 'manager' && <FaUserTie className="me-1" />}
+                                                            {user.role === 'admin' && <FaUserCog className="me-1" />}
+                                                            {user.role}
+                                                        </Badge>
+                                                    </td>
+
+                                                    {/* Status & Access */}
+                                                    <td>
+                                                        <div className="d-flex flex-column align-items-center gap-1">
+                                                            <Badge 
+                                                                bg={user.role === 'superadmin' ? 'primary' : user.isLocked ? 'danger' : 'success'} 
+                                                                className="px-2 py-0.5"
+                                                                style={{ fontSize: '0.7rem', fontWeight: '700' }}
+                                                            >
+                                                                {user.role === 'superadmin' ? 'SUPER' : user.isLocked ? 'LOCKED' : 'ACTIVE'}
+                                                            </Badge>
+
+                                                            {user.autoLock ? (
+                                                                <div className="d-inline-flex align-items-center gap-1 bg-dark text-white px-2 py-0.5 rounded" style={{ fontSize: '0.64rem', fontWeight: '700' }}>
+                                                                    <FaMoon size={8} /> NIGHT LOCK
+                                                                </div>
+                                                            ) : (
+                                                                <div className="d-inline-flex align-items-center gap-1 bg-light text-secondary border px-2 py-0.5 rounded" style={{ fontSize: '0.64rem', fontWeight: '700' }}>
+                                                                    <FaCheckCircle size={8} className="text-success" /> 24/7 ACCESS
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                    </td>
+
+                                                    {/* Permissions */}
+                                                    <td>
+                                                        {user.role === 'superadmin' ? (
+                                                            <span className="badge bg-primary bg-opacity-10 text-primary border border-primary px-2 py-1" style={{ fontSize: '0.72rem', fontWeight: '600' }}>
+                                                                All Access (Super)
+                                                            </span>
+                                                        ) : (
+                                                            <OverlayTrigger
+                                                                placement="top"
+                                                                overlay={
+                                                                    <Tooltip id={`tooltip-perm-${user._id}`}>
+                                                                        {(user.permissions || []).map(p => {
+                                                                            const m = AVAILABLE_MODULES.find(mod => mod.key === p);
+                                                                            return m ? m.label : p;
+                                                                        }).join(', ') || 'No permissions assigned'}
+                                                                    </Tooltip>
+                                                                }
+                                                            >
+                                                                <span 
+                                                                    className="badge bg-light text-secondary border px-2 py-1" 
+                                                                    style={{ fontSize: '0.72rem', fontWeight: '600', cursor: 'pointer' }}
+                                                                >
+                                                                    {(user.permissions || []).length} / {AVAILABLE_MODULES.length} Modules
+                                                                </span>
+                                                            </OverlayTrigger>
+                                                        )}
+                                                    </td>
+
+                                                    {/* Security / Change Password */}
+                                                    <td>
+                                                        <Button
+                                                            size="sm"
+                                                            variant="outline-warning"
+                                                            className="text-dark fw-semibold d-inline-flex align-items-center gap-1 px-2 py-1 border-warning"
+                                                            style={{ fontSize: '0.74rem', borderRadius: '6px' }}
+                                                            onClick={() => handleOpenPasswordModal(user)}
+                                                            title="Change user password"
+                                                        >
+                                                            <FaKey size={10} className="text-warning" />
+                                                            <span>Change Pass</span>
+                                                        </Button>
+                                                    </td>
+
+                                                    {/* Lock Toggle (SuperAdmin only) */}
+                                                    {currentUserRole === 'superadmin' && (
+                                                        <td>
+                                                            {user.role !== 'superadmin' ? (
+                                                                <div className="d-flex justify-content-center align-items-center gap-1.5" title={user.isLocked ? 'Unlock User' : 'Lock User'}>
+                                                                    {lockingUserId === user._id ? (
+                                                                        <Spinner animation="border" size="sm" variant="primary" style={{ width: '1.1rem', height: '1.1rem' }} />
+                                                                    ) : (
+                                                                        <CompactToggleSwitch
+                                                                            $active={user.isLocked}
+                                                                            onClick={() => handleToggleLock(user._id)}
+                                                                        >
+                                                                            <div className="knob" />
+                                                                        </CompactToggleSwitch>
+                                                                    )}
+                                                                    {user.isLocked ? <FaLock size={11} color="#dc2626" /> : <FaUnlock size={11} color="#6c757d" />}
+                                                                </div>
+                                                            ) : (
+                                                                <span className="text-muted small">-</span>
+                                                            )}
+                                                        </td>
+                                                    )}
+
+                                                    {/* Actions */}
+                                                    <td>
+                                                        <div className="d-inline-flex gap-1.5 align-items-center justify-content-center">
+                                                            <ActionIconButton
+                                                                $variant="purple"
+                                                                onClick={() => fetchHistory(user)}
+                                                                title="Login History"
+                                                            >
+                                                                <FaHistory size={13} />
+                                                            </ActionIconButton>
+
+                                                            <ActionIconButton
+                                                                $variant="primary"
+                                                                onClick={() => handleOpenModal(user)}
+                                                                title="Edit User"
+                                                            >
+                                                                <FaEdit size={13} />
+                                                            </ActionIconButton>
+
+                                                            <ActionIconButton
+                                                                $variant="danger"
+                                                                onClick={() => handleDeleteUser(user._id)}
+                                                                title="Delete User"
+                                                            >
+                                                                <FaTrashAlt size={13} />
+                                                            </ActionIconButton>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            );
+                                        })
+                                    ) : (
+                                        <tr>
+                                            <td colSpan={currentUserRole === 'superadmin' ? 9 : 8} className="py-5 text-muted">
+                                                <div className="d-flex flex-column align-items-center justify-content-center">
+                                                    <FaInfoCircle size={28} className="text-secondary mb-2 opacity-50" />
+                                                    <span className="fw-semibold">No user records match your search or filter</span>
+                                                    <Button variant="link" size="sm" onClick={handleResetFilters} className="mt-1">
+                                                        Clear search & filters
+                                                    </Button>
                                                 </div>
-                                            ) : (
-                                                <div className="d-flex align-items-center gap-1 bg-light text-secondary border px-2 py-0.5 rounded" style={{ fontSize: '0.65rem', fontWeight: '700' }}>
-                                                    <FaCheckCircle size={8} className="text-success" />
-                                                    <span>24/7 ACCESS</span>
-                                                </div>
-                                            )}
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div>
-                                    <button
-                                        type="button"
-                                        className="d-flex align-items-center gap-2 border-0"
-                                        style={{
-                                            background: '#f8fafc',
-                                            padding: '6px 12px',
-                                            borderRadius: '8px',
-                                            border: '1px solid #e2e8f0',
-                                            cursor: 'pointer',
-                                            transition: 'all 0.2s ease',
-                                            color: '#475569',
-                                            fontSize: '0.8rem',
-                                            fontWeight: '600'
-                                        }}
-                                        onMouseEnter={(e) => {
-                                            e.currentTarget.style.background = '#fef3c7';
-                                            e.currentTarget.style.borderColor = '#fde68a';
-                                            e.currentTarget.style.color = '#b45309';
-                                        }}
-                                        onMouseLeave={(e) => {
-                                            e.currentTarget.style.background = '#f8fafc';
-                                            e.currentTarget.style.borderColor = '#e2e8f0';
-                                            e.currentTarget.style.color = '#475569';
-                                        }}
-                                        onClick={() => handleOpenPasswordModal(user)}
-                                        title="Click to change password"
-                                    >
-                                        <FaKey size={11} style={{ color: '#d97706' }} />
-                                        <span>Change Password</span>
-                                    </button>
-                                </div>
-
-                                <div>
-                                    <RoleBadge role={user.role}>
-                                        {user.role === 'superadmin' ? <FaUserShield /> : (user.role === 'manager' ? <FaUserTie /> : <FaUserCog />)}
-                                        {user.role === 'superadmin' ? 'Super Admin' : (user.role === 'manager' ? 'Manager' : 'Admin')}
-                                    </RoleBadge>
-                                    {user.role !== 'superadmin' && (
-                                        <div className="mt-1">
-                                            <span
-                                                className="badge bg-light text-secondary border"
-                                                style={{ fontSize: '0.68rem', fontWeight: '600', cursor: 'help' }}
-                                                title={(user.permissions || []).map(p => {
-                                                    const m = AVAILABLE_MODULES.find(mod => mod.key === p);
-                                                    return m ? m.label : p;
-                                                }).join(', ') || 'No permissions'}
-                                            >
-                                                {(user.permissions || []).length} / {AVAILABLE_MODULES.length} Modules
-                                            </span>
-                                        </div>
+                                            </td>
+                                        </tr>
                                     )}
-                                </div>
+                                </tbody>
+                            </Table>
+                        </div>
+                    )}
 
-                                <div>
-                                    <div className="d-flex gap-3 justify-content-end align-items-center">
-                                        {currentUserRole === 'superadmin' && user.role !== 'superadmin' && (
-                                            <div className="d-flex align-items-center gap-2" title={user.isLocked ? 'Unlock User' : 'Lock User'}>
-                                                {lockingUserId === user._id ? (
-                                                    <Spinner animation="border" size="sm" variant="primary" style={{ width: '1.25rem', height: '1.25rem' }} />
-                                                ) : (
-                                                    <ToggleSwitch
-                                                        $active={user.isLocked}
-                                                        onClick={() => handleToggleLock(user._id)}
-                                                    >
-                                                        <div className="knob" />
-                                                    </ToggleSwitch>
-                                                )}
-                                                {user.isLocked ? <FaLock size={12} color="#dc2626" /> : <FaUnlock size={12} color="#94a3b8" />}
-                                            </div>
-                                        )}
-                                        <div className="vr" style={{ height: '24px', opacity: 0.1 }}></div>
-                                        <ActionBtn
-                                            onClick={() => fetchHistory(user)}
-                                            title="Login History"
-                                            style={{ color: '#6366f1' }}
-                                        >
-                                            <FaHistory size={14} />
-                                        </ActionBtn>
-                                        <ActionBtn
-                                            onClick={() => handleOpenModal(user)}
-                                            title="Edit User"
-                                        >
-                                            <FaEdit size={14} />
-                                        </ActionBtn>
-                                        <ActionBtn
-                                            variant="danger"
-                                            onClick={() => handleDeleteUser(user._id)}
-                                            disabled={deleting}
-                                            title="Delete User"
-                                        >
-                                            {deleting && userToDelete === user._id ? (
-                                                <Spinner animation="border" size="sm" />
-                                            ) : (
-                                                <FaTrashAlt size={14} />
-                                            )}
-                                        </ActionBtn>
-                                    </div>
-                                </div>
-                            </UserRowCard>
-                        )) : (
-                            <div className="text-center py-5 bg-white rounded-4 border border-dashed">
-                                <div className="text-muted mb-2">No users found</div>
-                                <Button variant="link" onClick={() => setSearchTerm('')}>Clear search</Button>
+                    {/* Compact Pagination Bar */}
+                    {totalPages > 1 && (
+                        <div className="d-flex justify-content-between align-items-center p-3 border-top bg-light flex-wrap gap-2">
+                            <span className="text-muted small">
+                                Showing {paginatedUsers.length > 0 ? (currentPage - 1) * itemsPerPage + 1 : 0} to {Math.min(currentPage * itemsPerPage, filteredUsers.length)} of {filteredUsers.length} users
+                            </span>
+
+                            <div className="d-flex align-items-center gap-2">
+                                <Button
+                                    variant="outline-primary"
+                                    size="sm"
+                                    className="d-flex align-items-center gap-1 rounded-pill px-3"
+                                    disabled={currentPage === 1}
+                                    onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                                >
+                                    <FaChevronLeft size={10} /> Prev
+                                </Button>
+
+                                <span className="fw-bold text-primary small px-2">
+                                    {currentPage} / {totalPages}
+                                </span>
+
+                                <Button
+                                    variant="outline-primary"
+                                    size="sm"
+                                    className="d-flex align-items-center gap-1 rounded-pill px-3"
+                                    disabled={currentPage === totalPages}
+                                    onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                                >
+                                    Next <FaChevronRight size={10} />
+                                </Button>
                             </div>
-                        )}
-                    </div>
-                )}
+                        </div>
+                    )}
+                </TableCard>
 
+                {/* Create / Edit User Modal */}
                 <Modal
                     show={showModal}
                     onHide={handleCloseModal}
                     centered
                     size="lg"
-                    contentClassName="border-0 shadow-xl"
+                    contentClassName="border-0 shadow-lg"
                     style={{ borderRadius: '1rem' }}
                 >
-                    <ModalHeaderStyled closeButton className="py-3 px-4">
-                        <Modal.Title className="fs-5">{editingUser ? 'Update User Details' : 'Register New Account'}</Modal.Title>
-                    </ModalHeaderStyled>
+                    <Modal.Header closeButton className="py-3 px-4 bg-light border-bottom">
+                        <Modal.Title className="fs-5 fw-bold text-primary d-flex align-items-center gap-2">
+                            <FaUserCog />
+                            <span>{editingUser ? 'Update User Details' : 'Register New Account'}</span>
+                        </Modal.Title>
+                    </Modal.Header>
                     <Modal.Body className="p-4">
                         <Form>
-                            <div className="row">
-                                <div className="col-md-6">
-                                    <FormGroup controlId="formName">
-                                        <Form.Label>Full Name</Form.Label>
+                            <Row className="g-3">
+                                <Col md={6}>
+                                    <Form.Group controlId="formName">
+                                        <Form.Label className="fw-bold text-dark small">Full Name</Form.Label>
                                         <Form.Control
                                             type="text"
-                                            placeholder="John Doe"
+                                            placeholder="e.g. John Doe"
                                             name="name"
                                             value={newUser.name}
                                             onChange={handleInputChange}
                                         />
-                                    </FormGroup>
-                                </div>
-                                <div className="col-md-6">
-                                    <FormGroup controlId="formUsername">
-                                        <Form.Label>Username</Form.Label>
+                                    </Form.Group>
+                                </Col>
+                                <Col md={6}>
+                                    <Form.Group controlId="formUsername">
+                                        <Form.Label className="fw-bold text-dark small">Username</Form.Label>
                                         <Form.Control
                                             type="text"
-                                            placeholder="johndoe123"
+                                            placeholder="e.g. johndoe123"
                                             name="username"
                                             value={newUser.username}
                                             onChange={handleInputChange}
                                             disabled={!!editingUser}
                                         />
-                                    </FormGroup>
-                                </div>
+                                    </Form.Group>
+                                </Col>
                                 {!editingUser && (
-                                    <div className="col-md-6">
-                                        <FormGroup controlId="formPassword">
-                                            <Form.Label>Access Password</Form.Label>
+                                    <Col md={6}>
+                                        <Form.Group controlId="formPassword">
+                                            <Form.Label className="fw-bold text-dark small">Access Password</Form.Label>
                                             <Form.Control
                                                 type="password"
-                                                placeholder="Strong password"
+                                                placeholder="Enter secure password"
                                                 name="password"
                                                 value={newUser.password}
                                                 onChange={handleInputChange}
                                             />
-                                        </FormGroup>
-                                    </div>
+                                        </Form.Group>
+                                    </Col>
                                 )}
-                                <div className="col-md-6">
-                                    <FormGroup controlId="formRole">
-                                        <Form.Label>System Role</Form.Label>
+                                <Col md={editingUser ? 6 : 6}>
+                                    <Form.Group controlId="formRole">
+                                        <Form.Label className="fw-bold text-dark small">System Role</Form.Label>
                                         <Form.Select
                                             name="role"
                                             value={newUser.role}
@@ -1002,11 +1110,11 @@ const UserPage = () => {
                                             <option value="manager">Manager</option>
                                             <option value="superadmin">Super Admin</option>
                                         </Form.Select>
-                                    </FormGroup>
-                                </div>
-                                <div className="col-md-6">
-                                    <FormGroup controlId="formPerHourTk">
-                                        <Form.Label>Per Hour Rate (TK)</Form.Label>
+                                    </Form.Group>
+                                </Col>
+                                <Col md={6}>
+                                    <Form.Group controlId="formPerHourTk">
+                                        <Form.Label className="fw-bold text-dark small">Per Hour Rate (TK)</Form.Label>
                                         <Form.Control
                                             type="number"
                                             placeholder="e.g. 100"
@@ -1014,13 +1122,13 @@ const UserPage = () => {
                                             value={newUser.perHourTk}
                                             onChange={handleInputChange}
                                         />
-                                    </FormGroup>
-                                </div>
-                            </div>
+                                    </Form.Group>
+                                </Col>
+                            </Row>
 
                             {newUser.role !== 'superadmin' && (
                                 <>
-                                    <div className="mt-2 mb-3 p-2.5 px-3 bg-light rounded-3 border">
+                                    <div className="mt-3 mb-3 p-2.5 px-3 bg-light rounded-3 border">
                                         <div className="row align-items-center">
                                             <div className="col-md-7">
                                                 <div className="fw-bold text-dark" style={{ fontSize: '0.82rem' }}>
@@ -1034,12 +1142,12 @@ const UserPage = () => {
                                                 <span className={`fw-bold ${newUser.autoLock ? 'text-primary' : 'text-muted'}`} style={{ fontSize: '0.74rem' }}>
                                                     {newUser.autoLock ? 'ACTIVE' : 'DISABLED'}
                                                 </span>
-                                                <ToggleSwitch
+                                                <CompactToggleSwitch
                                                     $active={newUser.autoLock}
-                                                    onClick={() => setNewUser({ ...newUser, autoLock: !newUser.autoLock })}
+                                                    onClick={() => setNewUser(prev => ({ ...prev, autoLock: !prev.autoLock }))}
                                                 >
                                                     <div className="knob" />
-                                                </ToggleSwitch>
+                                                </CompactToggleSwitch>
                                             </div>
                                         </div>
                                     </div>
@@ -1056,7 +1164,7 @@ const UserPage = () => {
                                                 variant="outline-primary"
                                                 size="sm"
                                                 onClick={handleCheckAll}
-                                                className="rounded-pill px-3 py-1 fw-semibold text-decoration-none"
+                                                className="rounded-pill px-3 py-1 fw-semibold"
                                                 style={{ fontSize: '0.74rem' }}
                                             >
                                                 {newUser.permissions.length === AVAILABLE_MODULES.length ? 'Revoke All' : 'Grant All'}
@@ -1096,15 +1204,16 @@ const UserPage = () => {
                         </Form>
                     </Modal.Body>
                     <Modal.Footer className="bg-light border-0 p-3">
-                        <Button variant="link" onClick={handleCloseModal} className="text-decoration-none text-muted fw-semibold">
+                        <Button variant="secondary" onClick={handleCloseModal} className="fw-semibold px-4">
                             Cancel
                         </Button>
-                        <AddButton variant="primary" onClick={handleSaveUser}>
+                        <Button variant="primary" onClick={handleSaveUser} className="fw-semibold px-4">
                             {editingUser ? 'Save Changes' : 'Create Account'}
-                        </AddButton>
+                        </Button>
                     </Modal.Footer>
                 </Modal>
 
+                {/* Delete Confirmation Modal */}
                 <ConfirmationModal
                     show={showConfirmModal}
                     onHide={cancelDelete}
@@ -1116,37 +1225,38 @@ const UserPage = () => {
                     isLoading={isProcessing}
                 />
 
+                {/* Login History Modal */}
                 <Modal
                     show={showHistoryModal}
                     onHide={() => setShowHistoryModal(false)}
                     centered
                     size="xl"
-                    contentClassName="border-0 shadow-2xl"
-                    style={{ borderRadius: '1.5rem' }}
+                    contentClassName="border-0 shadow-lg"
+                    style={{ borderRadius: '1rem' }}
                 >
-                    <ModalHeaderStyled closeButton>
-                        <Modal.Title className="d-flex align-items-center gap-2">
-                            <FaHistory className="text-primary" />
+                    <Modal.Header closeButton className="py-3 px-4 bg-light border-bottom">
+                        <Modal.Title className="fs-5 fw-bold text-primary d-flex align-items-center gap-2">
+                            <FaHistory />
                             <span>Login Activity: {historyUser?.name}</span>
                         </Modal.Title>
-                    </ModalHeaderStyled>
-                    <Modal.Body className="p-0" style={{ maxHeight: '700px', overflowY: 'auto' }}>
+                    </Modal.Header>
+                    <Modal.Body className="p-0" style={{ maxHeight: '650px', overflowY: 'auto' }}>
                         {historyData.length > 0 ? (
                             <div className="table-responsive">
-                                <Table hover responsive className="mb-0 align-middle">
-                                    <thead className="bg-light sticky-top">
-                                        <tr style={{ borderBottom: '2px solid #e2e8f0' }}>
-                                            <th className="px-4 py-3 text-muted small text-uppercase fw-bold">Login Date</th>
-                                            <th className="px-4 py-3 text-muted small text-uppercase fw-bold">Time</th>
-                                            <th className="px-4 py-3 text-muted small text-uppercase fw-bold">Device & OS</th>
-                                            <th className="px-4 py-3 text-muted small text-uppercase fw-bold">Full User Agent</th>
-                                            <th className="px-4 py-3 text-muted small text-uppercase fw-bold text-end">IP Address</th>
+                                <Table bordered hover className="mb-0 align-middle text-center" style={{ fontSize: '0.85rem', borderColor: '#dee2e6' }}>
+                                    <thead className="bg-light sticky-top" style={{ borderBottom: '2px solid #cbd5e1' }}>
+                                        <tr>
+                                            <th className="px-3 py-2.5 text-secondary small text-uppercase fw-bold text-start">Login Date</th>
+                                            <th className="px-3 py-2.5 text-secondary small text-uppercase fw-bold">Time</th>
+                                            <th className="px-3 py-2.5 text-secondary small text-uppercase fw-bold text-start">Device & OS</th>
+                                            <th className="px-3 py-2.5 text-secondary small text-uppercase fw-bold text-start">User Agent</th>
+                                            <th className="px-3 py-2.5 text-secondary small text-uppercase fw-bold text-end pe-4">IP Address</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         {historyData.map((log, idx) => (
-                                            <tr key={idx} style={{ borderBottom: '1px solid #f1f5f9' }}>
-                                                <td className="px-4 py-3 fw-bold text-dark">
+                                            <tr key={idx}>
+                                                <td className="px-3 py-2.5 fw-bold text-dark text-start">
                                                     {new Date(log.timestamp).toLocaleDateString('en-US', {
                                                         weekday: 'short',
                                                         month: 'short',
@@ -1154,30 +1264,30 @@ const UserPage = () => {
                                                         year: 'numeric'
                                                     })}
                                                 </td>
-                                                <td className="px-4 py-3 text-secondary">
+                                                <td className="px-3 py-2.5 text-secondary">
                                                     {new Date(log.timestamp).toLocaleTimeString('en-US', {
                                                         hour: '2-digit',
                                                         minute: '2-digit',
                                                         second: '2-digit'
                                                     })}
                                                 </td>
-                                                <td className="px-4 py-3">
+                                                <td className="px-3 py-2.5 text-start">
                                                     <div className="d-flex align-items-center gap-2">
-                                                        <span className={`badge ${log.userAgent.includes('Mobile') ? 'bg-info' : 'bg-primary'} bg-opacity-10 text-${log.userAgent.includes('Mobile') ? 'info' : 'primary'} px-2 py-1`}>
-                                                            {log.userAgent.includes('Mobile') ? 'Mobile' : 'Desktop'}
-                                                        </span>
+                                                        <Badge bg={log.userAgent?.includes('Mobile') ? 'info' : 'primary'} className="bg-opacity-10 text-primary border border-primary px-2 py-0.5">
+                                                            {log.userAgent?.includes('Mobile') ? 'Mobile' : 'Desktop'}
+                                                        </Badge>
                                                         <span className="small text-muted">
-                                                            {log.userAgent.match(/\(([^)]+)\)/)?.[1]?.split(';')[0] || 'Unknown OS'}
+                                                            {log.userAgent?.match(/\(([^)]+)\)/)?.[1]?.split(';')[0] || 'Unknown OS'}
                                                         </span>
                                                     </div>
                                                 </td>
-                                                <td className="px-4 py-3">
-                                                    <div className="text-muted small text-truncate" style={{ maxWidth: '300px' }} title={log.userAgent}>
+                                                <td className="px-3 py-2.5 text-start">
+                                                    <div className="text-muted small text-truncate" style={{ maxWidth: '280px' }} title={log.userAgent}>
                                                         {log.userAgent}
                                                     </div>
                                                 </td>
-                                                <td className="px-4 py-3 text-end">
-                                                    <code className="bg-light px-2 py-1 rounded text-dark border small" style={{ letterSpacing: '0.05em' }}>
+                                                <td className="px-3 py-2.5 text-end pe-4">
+                                                    <code className="bg-light px-2 py-1 rounded text-dark border small">
                                                         {log.ip === '::1' ? '127.0.0.1' : log.ip}
                                                     </code>
                                                 </td>
@@ -1188,8 +1298,8 @@ const UserPage = () => {
                             </div>
                         ) : (
                             <div className="text-center py-5 text-muted">
-                                <FaInfoCircle size={24} className="mb-2 opacity-20" />
-                                <p>No login records found for this account.</p>
+                                <FaInfoCircle size={28} className="mb-2 opacity-50" />
+                                <p className="mb-0">No login records found for this account.</p>
                             </div>
                         )}
                     </Modal.Body>
@@ -1200,23 +1310,24 @@ const UserPage = () => {
                     </Modal.Footer>
                 </Modal>
 
+                {/* Change Password Modal */}
                 <Modal
                     show={showPasswordModal}
                     onHide={handleClosePasswordModal}
                     centered
-                    contentClassName="border-0 shadow-xl"
+                    contentClassName="border-0 shadow-lg"
                     style={{ borderRadius: '1rem' }}
                 >
-                    <ModalHeaderStyled closeButton className="py-3 px-4">
-                        <Modal.Title className="fs-5 d-flex align-items-center gap-2">
+                    <Modal.Header closeButton className="py-3 px-4 bg-light border-bottom">
+                        <Modal.Title className="fs-5 fw-bold text-dark d-flex align-items-center gap-2">
                             <FaKey className="text-warning" />
                             <span>Change Password: {passwordTargetUser?.name}</span>
                         </Modal.Title>
-                    </ModalHeaderStyled>
+                    </Modal.Header>
                     <Modal.Body className="p-4">
                         <Form onSubmit={(e) => { e.preventDefault(); handleSavePassword(); }}>
-                            <FormGroup controlId="formChangeNewPassword">
-                                <Form.Label>New Password</Form.Label>
+                            <Form.Group controlId="formChangeNewPassword">
+                                <Form.Label className="fw-bold text-dark small">New Password</Form.Label>
                                 <div className="position-relative">
                                     <Form.Control
                                         type={showNewPassword ? 'text' : 'password'}
@@ -1248,31 +1359,32 @@ const UserPage = () => {
                                 <Form.Text className="text-muted" style={{ fontSize: '0.78rem' }}>
                                     The new password will be securely hashed with bcrypt upon saving.
                                 </Form.Text>
-                            </FormGroup>
+                            </Form.Group>
                         </Form>
                     </Modal.Body>
                     <Modal.Footer className="bg-light border-0 p-3">
-                        <Button variant="link" onClick={handleClosePasswordModal} className="text-decoration-none text-muted fw-semibold">
+                        <Button variant="secondary" onClick={handleClosePasswordModal} className="fw-semibold px-3">
                             Cancel
                         </Button>
-                        <AddButton variant="primary" onClick={handleSavePassword}>
+                        <Button variant="primary" onClick={handleSavePassword} className="fw-semibold px-4">
                             Update Password
-                        </AddButton>
+                        </Button>
                     </Modal.Footer>
                 </Modal>
 
+                {/* Processing Overlay */}
                 {isProcessing && (
                     <ProcessingOverlay>
                         <div className="loader-content">
                             <Spinner animation="border" variant="primary" size="lg" />
-                            <h4 className="mt-3 fw-bold text-primary">{processMessage}</h4>
-                            <p className="text-muted mb-0">Please wait, performing action...</p>
+                            <h5 className="mt-3 fw-bold text-primary mb-1">{processMessage}</h5>
+                            <p className="text-muted small mb-0">Please wait, performing action...</p>
                         </div>
                     </ProcessingOverlay>
                 )}
 
                 <ToastContainer />
-            </ContentWrapper>
+            </ContentContainer>
         </PageContainer>
     );
 };

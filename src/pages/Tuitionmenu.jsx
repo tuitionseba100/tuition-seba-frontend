@@ -82,6 +82,7 @@ const TuitionPage = () => {
         assignedTo: '',
         type: '',
         isReviewDone: '',
+        isPaymentCreated: '',
         tuitionTypeFilter: '',
         applyTypeFilter: '',
         isProposalFilter: '',
@@ -101,6 +102,7 @@ const TuitionPage = () => {
         assignedTo: '',
         type: '',
         isReviewDone: '',
+        isPaymentCreated: '',
         tuitionTypeFilter: '',
         applyTypeFilter: '',
         isProposalFilter: '',
@@ -278,6 +280,7 @@ const TuitionPage = () => {
             assignedTo: '',
             type: '',
             isReviewDone: '',
+            isPaymentCreated: '',
             tuitionTypeFilter: '',
             applyTypeFilter: '',
             isProposalFilter: '',
@@ -515,6 +518,7 @@ const TuitionPage = () => {
                     assignedTo: appliedFilters.assignedTo,
                     type: appliedFilters.type,
                     isReviewDone: appliedFilters.isReviewDone === "Yes" ? 'true' : appliedFilters.isReviewDone === "No" ? 'false' : undefined,
+                    isPaymentCreated: appliedFilters.isPaymentCreated === "Yes" ? 'true' : appliedFilters.isPaymentCreated === "No" ? 'false' : undefined,
                     tuitionType: appliedFilters.tuitionTypeFilter || undefined,
                     applyType: appliedFilters.applyTypeFilter || undefined,
                     isProposal: appliedFilters.isProposalFilter === "Yes" ? 'true' : appliedFilters.isProposalFilter === "No" ? 'false' : undefined,
@@ -551,6 +555,7 @@ const TuitionPage = () => {
                 assignedTo: appliedFilters.assignedTo,
                 type: appliedFilters.type,
                 isReviewDone: appliedFilters.isReviewDone === "Yes" ? 'true' : appliedFilters.isReviewDone === "No" ? 'false' : undefined,
+                isPaymentCreated: appliedFilters.isPaymentCreated === "Yes" ? 'true' : appliedFilters.isPaymentCreated === "No" ? 'false' : undefined,
                 tuitionType: appliedFilters.tuitionTypeFilter || undefined,
                 applyType: appliedFilters.applyTypeFilter || undefined,
                 isProposal: appliedFilters.isProposalFilter === "Yes" ? 'true' : appliedFilters.isProposalFilter === "No" ? 'false' : undefined,
@@ -1078,6 +1083,46 @@ const TuitionPage = () => {
                                 id="review-no"
                                 checked={searchInputs.isReviewDone === 'No'}
                                 onChange={() => handleSearchInputChange('isReviewDone', 'No')}
+                                onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+                            />
+                        </div>
+                    </Col>
+
+                    <Col md="auto">
+                        <Form.Label className="fw-bold d-block" style={getLabelStyle(searchInputs.isPaymentCreated)}>Payment Filter</Form.Label>
+                        <div className="d-flex flex-wrap align-items-center border rounded px-3 bg-white" style={{
+                            minHeight: '38px',
+                            border: searchInputs.isPaymentCreated ? '2px solid #0d6efd' : '1px solid #ced4da',
+                            backgroundColor: searchInputs.isPaymentCreated ? '#f0f8ff' : '#fff'
+                        }}>
+                            <Form.Check
+                                inline
+                                label="All"
+                                name="paymentGroup"
+                                type="radio"
+                                id="payment-all"
+                                checked={searchInputs.isPaymentCreated === ''}
+                                onChange={() => handleSearchInputChange('isPaymentCreated', '')}
+                                onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+                            />
+                            <Form.Check
+                                inline
+                                label={<span className="text-success">Created</span>}
+                                name="paymentGroup"
+                                type="radio"
+                                id="payment-yes"
+                                checked={searchInputs.isPaymentCreated === 'Yes'}
+                                onChange={() => handleSearchInputChange('isPaymentCreated', 'Yes')}
+                                onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+                            />
+                            <Form.Check
+                                inline
+                                label={<span className="text-secondary">Not Created</span>}
+                                name="paymentGroup"
+                                type="radio"
+                                id="payment-no"
+                                checked={searchInputs.isPaymentCreated === 'No'}
+                                onChange={() => handleSearchInputChange('isPaymentCreated', 'No')}
                                 onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
                             />
                         </div>

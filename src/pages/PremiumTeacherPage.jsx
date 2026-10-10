@@ -304,7 +304,7 @@ const PremiumTeacherPage = () => {
         { key: 'name', label: 'Name', type: 'text', col: 2 },
         { key: 'phone', label: 'Phone / WP / Alt', type: 'text', col: 2 },
         { key: 'department', label: 'Department', type: 'text', col: 2 },
-        { key: 'uniCode', label: 'UniCode', type: 'select', options: ['CMC', 'CUET', 'CU Science', 'CU Arts', 'CU Commerce', 'CVASU', 'Private Science', 'Private Commerce', 'Private Arts', 'National Science', 'National Arts', 'National Commerce', 'Arabic', 'NC English', 'BC English', 'Special'], col: 2 },
+        { key: 'uniCode', label: 'UniCode', type: 'select', options: ['Not Assigned', 'CMC', 'CUET', 'CU Science', 'CU Arts', 'CU Commerce', 'CVASU', 'Private Science', 'Private Commerce', 'Private Arts', 'National Science', 'National Arts', 'National Commerce', 'Arabic', 'NC English', 'BC English', 'Special'], col: 2 },
         { key: 'currentArea', label: 'Area', type: 'text', col: 2 },
         { key: 'status', label: 'Status', type: 'select', options: ['pending', 'under review', 'pending payment', 'Must Advance', 'After Confirmation', 'After Salary', '30% Advance', 'rejected', 'Free - Must Advance', 'verified', 'suspended', 'Not interested', 'Premium', 'Elite'], col: 2 },
         { key: 'gender', label: 'Gender', type: 'select', options: ['male', 'female'], col: 2 },

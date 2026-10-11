@@ -2,7 +2,9 @@ import React, { useState, useEffect } from "react";
 import { Modal, Table, Button, Form, Row, Col, Spinner } from "react-bootstrap";
 import { axiosWithFallback as axios } from '../../services/fetchWithFallback';
 import { toast } from "react-toastify";
-import { FaEdit, FaTrashAlt, FaGlobe, FaGooglePlay } from "react-icons/fa";
+import { FaEdit, FaTrashAlt, FaGlobe, FaGooglePlay, FaCopy } from "react-icons/fa";
+import TeacherDetailsModal, { formatTeacherCvText } from "./TeacherDetailsModal";
+import { usePublicSettings } from "../../context/PublicSettingsContext";
 
 const inputStyle = {
     borderRadius: "5px",
@@ -34,6 +36,119 @@ function AppliedListModal({ tuitionId, tuitionCode, show, onHide }) {
     const [focusField, setFocusField] = useState(null);
     const [saving, setSaving] = useState(false);
     const [deletingId, setDeletingId] = useState(null);
+
+    // Teacher Details Modal State (from premiumCode click)
+    const [selectedTeacherForModal, setSelectedTeacherForModal] = useState(null);
+    const [showTeacherDetailsModal, setShowTeacherDetailsModal] = useState(false);
+    const [fetchingTeacherCode, setFetchingTeacherCode] = useState(null);
+
+    const handleOpenTeacherDetailsByPremiumCode = async (premiumCode) => {
+        if (!premiumCode || !String(premiumCode).trim()) {
+            toast.info("No premium code available for this applicant.");
+            return;
+        }
+        const cleanCode = String(premiumCode).trim();
+        setFetchingTeacherCode(cleanCode);
+        const token = localStorage.getItem('token');
+
+        try {
+            let teacher = null;
+            // 1. Try dedicated byPremiumCode endpoint
+            try {
+                const res = await axios.get(
+                    `https://tuition-seba-backend-1.onrender.com/api/regTeacher/byPremiumCode/${encodeURIComponent(cleanCode)}`,
+                    { headers: { Authorization: token } }
+                );
+                teacher = res.data;
+            } catch (e) {
+                // 2. Fallback to getTableData search
+                const res = await axios.get(
+                    `https://tuition-seba-backend-1.onrender.com/api/regTeacher/getTableData`,
+                    {
+                        params: { premiumCode: cleanCode },
+                        headers: { Authorization: token }
+                    }
+                );
+                const list = res.data?.data || [];
+                teacher = list.find(t => String(t.premiumCode).trim().toLowerCase() === cleanCode.toLowerCase()) || list[0];
+            }
+
+            if (teacher) {
+                setSelectedTeacherForModal(teacher);
+                setShowTeacherDetailsModal(true);
+            } else {
+                toast.error(`No teacher details found for Premium Code: ${cleanCode}`);
+            }
+        } catch (err) {
+            console.error("Error fetching teacher details:", err);
+            toast.error("Failed to load teacher details");
+        } finally {
+            setFetchingTeacherCode(null);
+        }
+    };
+
+    const { whatsappNumber } = usePublicSettings();
+    const [copyingCvId, setCopyingCvId] = useState(null);
+
+    const handleCopyCv = async (app) => {
+        if (!app.premiumCode || !String(app.premiumCode).trim()) {
+            toast.info("No premium code available for this applicant.");
+            return;
+        }
+
+        const cleanCode = String(app.premiumCode).trim();
+        setCopyingCvId(app._id);
+        const token = localStorage.getItem('token');
+
+        try {
+            let teacher = null;
+            try {
+                const res = await axios.get(
+                    `https://tuition-seba-backend-1.onrender.com/api/regTeacher/byPremiumCode/${encodeURIComponent(cleanCode)}`,
+                    { headers: { Authorization: token } }
+                );
+                teacher = res.data;
+            } catch (e) {
+                const res = await axios.get(
+                    `https://tuition-seba-backend-1.onrender.com/api/regTeacher/getTableData`,
+                    {
+                        params: { premiumCode: cleanCode },
+                        headers: { Authorization: token }
+                    }
+                );
+                const list = res.data?.data || [];
+                teacher = list.find(t => String(t.premiumCode).trim().toLowerCase() === cleanCode.toLowerCase()) || list[0];
+            }
+
+            if (!teacher) {
+                toast.error(`Teacher details not found for Premium Code: ${cleanCode}`);
+                return;
+            }
+
+            const text = formatTeacherCvText(teacher, whatsappNumber);
+            if (navigator.clipboard && window.isSecureContext) {
+                await navigator.clipboard.writeText(text);
+            } else {
+                const textArea = document.createElement("textarea");
+                textArea.value = text;
+                textArea.style.position = "fixed";
+                textArea.style.left = "-999999px";
+                textArea.style.top = "-999999px";
+                document.body.appendChild(textArea);
+                textArea.focus();
+                textArea.select();
+                document.execCommand('copy');
+                textArea.remove();
+            }
+
+            toast.success(`Teacher CV (${cleanCode}) copied to clipboard!`);
+        } catch (err) {
+            console.error("Error copying CV:", err);
+            toast.error("Failed to copy CV to clipboard");
+        } finally {
+            setCopyingCvId(null);
+        }
+    };
 
     useEffect(() => {
         if (!show || !tuitionId) return;
@@ -288,7 +403,23 @@ function AppliedListModal({ tuitionId, tuitionCode, show, onHide }) {
                                                 <td style={style}>{app.updatedBy || ""}</td>
                                                 <td style={style}>
                                                     <div>
-                                                        <div>{app.premiumCode}</div>
+                                                        <div>
+                                                            <span
+                                                                style={{
+                                                                    cursor: app.premiumCode ? 'pointer' : 'default',
+                                                                    color: (app.hasDue || app.hasScDue) ? '#000' : (app.isBanned || app.isSpam || app.isBest || app.isExpress) ? '#fff' : '#0d6efd',
+                                                                    textDecoration: app.premiumCode ? 'underline' : 'none',
+                                                                    fontWeight: '700'
+                                                                }}
+                                                                onClick={() => app.premiumCode && handleOpenTeacherDetailsByPremiumCode(app.premiumCode)}
+                                                                title={app.premiumCode ? `Click to view Teacher Details (${app.premiumCode})` : 'No premium code'}
+                                                            >
+                                                                {fetchingTeacherCode === app.premiumCode && (
+                                                                    <span className="spinner-border spinner-border-sm me-1" role="status" style={{ width: '11px', height: '11px' }} />
+                                                                )}
+                                                                {app.premiumCode || 'N/A'}
+                                                            </span>
+                                                        </div>
                                                         {app.regTeacherStatus && (
                                                             <div style={{ fontSize: '11px', color: (app.isBanned || app.isSpam || app.isBest || app.isExpress) ? 'rgba(255,255,255,0.7)' : '#6c757d', marginTop: '2px', textTransform: 'capitalize' }}>
                                                                 ({app.regTeacherStatus})
@@ -426,6 +557,33 @@ function AppliedListModal({ tuitionId, tuitionCode, show, onHide }) {
                                                             {app.isCvSent ? 'YES' : 'NO'}
                                                         </span>
                                                     </div>
+                                                    <Button
+                                                        variant={app.isBanned || app.isSpam ? 'light' : 'primary'}
+                                                        size="sm"
+                                                        className="d-inline-flex align-items-center gap-1 py-1 px-2"
+                                                        style={{ fontSize: '0.78rem', whiteSpace: 'nowrap' }}
+                                                        onClick={() => handleCopyCv(app)}
+                                                        disabled={copyingCvId === app._id}
+                                                        title={app.premiumCode ? `Copy Teacher CV (${app.premiumCode})` : 'No premium code'}
+                                                    >
+                                                        {copyingCvId === app._id ? (
+                                                            <>
+                                                                <Spinner
+                                                                    as="span"
+                                                                    animation="border"
+                                                                    size="sm"
+                                                                    role="status"
+                                                                    style={{ width: '12px', height: '12px', borderWidth: '1.5px' }}
+                                                                />
+                                                                <span>Copying...</span>
+                                                            </>
+                                                        ) : (
+                                                            <>
+                                                                <FaCopy size={11} />
+                                                                <span>Copy CV</span>
+                                                            </>
+                                                        )}
+                                                    </Button>
                                                     <Button
                                                         variant={getButtonVariant(app, 'warning')}
                                                         onClick={() => handleEditTuition(app)}
@@ -712,6 +870,11 @@ function AppliedListModal({ tuitionId, tuitionCode, show, onHide }) {
         }
       `}</style>
 
+            <TeacherDetailsModal
+                show={showTeacherDetailsModal}
+                onHide={() => setShowTeacherDetailsModal(false)}
+                teacher={selectedTeacherForModal}
+            />
         </>
     );
 }

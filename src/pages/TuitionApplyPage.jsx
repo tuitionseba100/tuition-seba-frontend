@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Button, Table, Modal, Form, Row, Col, Card } from 'react-bootstrap';
-import { FaEdit, FaTrashAlt, FaChevronLeft, FaChevronRight, FaSearch, FaGlobe, FaGooglePlay, FaUndo } from 'react-icons/fa'; // React Icons
+import { FaEdit, FaTrashAlt, FaChevronLeft, FaChevronRight, FaSearch, FaGlobe, FaGooglePlay, FaUndo, FaCopy } from 'react-icons/fa'; // React Icons
 import { axiosWithFallback as axios } from '../services/fetchWithFallback';
 import NavBarPage from './NavbarPage';
 import styled from 'styled-components';
@@ -11,6 +11,8 @@ import Select from 'react-select';
 import LoadingCard from '../components/modals/LoadingCard';
 import TuitionDetailsModal from '../components/modals/TuitionDetailsModal';
 import CustomErrorModal from '../components/modals/CustomErrorModal';
+import TeacherDetailsModal, { formatTeacherCvText } from '../components/modals/TeacherDetailsModal';
+import { usePublicSettings } from '../context/PublicSettingsContext';
 
 const TuitionPage = () => {
     const [tuitionList, setTuitionApplyList] = useState([]);
@@ -54,6 +56,121 @@ const TuitionPage = () => {
 
     const [detailsModalShow, setDetailsModalShow] = useState(false);
     const [tuitionDetails, setTuitionDetails] = useState(null);
+
+    // Teacher Details Modal State (from premiumCode click)
+    const [selectedTeacherForModal, setSelectedTeacherForModal] = useState(null);
+    const [showTeacherDetailsModal, setShowTeacherDetailsModal] = useState(false);
+    const [fetchingTeacherCode, setFetchingTeacherCode] = useState(null);
+
+    const handleOpenTeacherDetailsByPremiumCode = async (premiumCode) => {
+        if (!premiumCode || !String(premiumCode).trim()) {
+            toast.info("No premium code available for this applicant.");
+            return;
+        }
+        const cleanCode = String(premiumCode).trim();
+        setFetchingTeacherCode(cleanCode);
+        const token = localStorage.getItem('token');
+
+        try {
+            let teacher = null;
+            // 1. Try dedicated byPremiumCode endpoint
+            try {
+                const res = await axios.get(
+                    `https://tuition-seba-backend-1.onrender.com/api/regTeacher/byPremiumCode/${encodeURIComponent(cleanCode)}`,
+                    { headers: { Authorization: token } }
+                );
+                teacher = res.data;
+            } catch (e) {
+                // 2. Fallback to getTableData search
+                const res = await axios.get(
+                    `https://tuition-seba-backend-1.onrender.com/api/regTeacher/getTableData`,
+                    {
+                        params: { premiumCode: cleanCode },
+                        headers: { Authorization: token }
+                    }
+                );
+                const list = res.data?.data || [];
+                teacher = list.find(t => String(t.premiumCode).trim().toLowerCase() === cleanCode.toLowerCase()) || list[0];
+            }
+
+            if (teacher) {
+                setSelectedTeacherForModal(teacher);
+                setShowTeacherDetailsModal(true);
+            } else {
+                toast.error(`No teacher details found for Premium Code: ${cleanCode}`);
+            }
+        } catch (err) {
+            console.error("Error fetching teacher details:", err);
+            toast.error("Failed to load teacher details");
+        } finally {
+            setFetchingTeacherCode(null);
+        }
+    };
+
+    const { whatsappNumber } = usePublicSettings();
+    const [copyingCvId, setCopyingCvId] = useState(null);
+
+    const handleCopyCv = async (tuition) => {
+        if (!tuition.premiumCode || !String(tuition.premiumCode).trim()) {
+            toast.info("No premium code available for this applicant.");
+            return;
+        }
+
+        const cleanCode = String(tuition.premiumCode).trim();
+        setCopyingCvId(tuition._id);
+        const token = localStorage.getItem('token');
+
+        try {
+            let teacher = null;
+            // 1. Fetch teacher details by premiumCode
+            try {
+                const res = await axios.get(
+                    `https://tuition-seba-backend-1.onrender.com/api/regTeacher/byPremiumCode/${encodeURIComponent(cleanCode)}`,
+                    { headers: { Authorization: token } }
+                );
+                teacher = res.data;
+            } catch (e) {
+                // 2. Fallback to getTableData search
+                const res = await axios.get(
+                    `https://tuition-seba-backend-1.onrender.com/api/regTeacher/getTableData`,
+                    {
+                        params: { premiumCode: cleanCode },
+                        headers: { Authorization: token }
+                    }
+                );
+                const list = res.data?.data || [];
+                teacher = list.find(t => String(t.premiumCode).trim().toLowerCase() === cleanCode.toLowerCase()) || list[0];
+            }
+
+            if (!teacher) {
+                toast.error(`Teacher details not found for Premium Code: ${cleanCode}`);
+                return;
+            }
+
+            const text = formatTeacherCvText(teacher, whatsappNumber);
+            if (navigator.clipboard && window.isSecureContext) {
+                await navigator.clipboard.writeText(text);
+            } else {
+                const textArea = document.createElement("textarea");
+                textArea.value = text;
+                textArea.style.position = "fixed";
+                textArea.style.left = "-999999px";
+                textArea.style.top = "-999999px";
+                document.body.appendChild(textArea);
+                textArea.focus();
+                textArea.select();
+                document.execCommand('copy');
+                textArea.remove();
+            }
+
+            toast.success(`Teacher CV (${cleanCode}) copied to clipboard!`);
+        } catch (err) {
+            console.error("Error copying CV:", err);
+            toast.error("Failed to copy CV to clipboard");
+        } finally {
+            setCopyingCvId(null);
+        }
+    };
 
     // Status History Modal State
     const [showStatusHistoryModal, setShowStatusHistoryModal] = useState(false);
@@ -688,9 +805,25 @@ const TuitionPage = () => {
                                                 </td>
                                                 <td style={getRowStyle(tuition)}>
                                                     <div>
-                                                        <div>{tuition.premiumCode}</div>
+                                                        <div>
+                                                            <span
+                                                                style={{
+                                                                    cursor: tuition.premiumCode ? 'pointer' : 'default',
+                                                                    color: tuition.hasDue ? '#000' : (tuition.isBanned || tuition.isSpam || tuition.isBest || tuition.isExpress) ? '#fff' : '#0d6efd',
+                                                                    textDecoration: tuition.premiumCode ? 'underline' : 'none',
+                                                                    fontWeight: '700'
+                                                                }}
+                                                                onClick={() => tuition.premiumCode && handleOpenTeacherDetailsByPremiumCode(tuition.premiumCode)}
+                                                                title={tuition.premiumCode ? `Click to view Teacher Details (${tuition.premiumCode})` : 'No premium code'}
+                                                            >
+                                                                {fetchingTeacherCode === tuition.premiumCode && (
+                                                                    <span className="spinner-border spinner-border-sm me-1" role="status" style={{ width: '11px', height: '11px' }} />
+                                                                )}
+                                                                {tuition.premiumCode || 'N/A'}
+                                                            </span>
+                                                        </div>
                                                         {tuition.regTeacherStatus && (
-                                                            <div style={{ fontSize: '11px', color: (tuition.isBanned || tuition.isSpam || tuition.isBest || tuition.isExpress) ? 'rgba(255,255,255,0.7)' : '#6c757d', marginTop: '2px', textTransform: 'capitalize' }}>
+                                                             <div style={{ fontSize: '11px', color: (tuition.isBanned || tuition.isSpam || tuition.isBest || tuition.isExpress) ? 'rgba(255,255,255,0.7)' : '#6c757d', marginTop: '2px', textTransform: 'capitalize' }}>
                                                                 ({tuition.regTeacherStatus})
                                                             </div>
                                                         )}
@@ -787,6 +920,33 @@ const TuitionPage = () => {
                                                             {tuition.isCvSent ? 'YES' : 'NO'}
                                                         </span>
                                                     </div>
+                                                    <Button
+                                                        variant={tuition.isBanned || tuition.isSpam ? 'light' : 'primary'}
+                                                        size="sm"
+                                                        className="d-inline-flex align-items-center gap-1 py-1 px-2"
+                                                        style={{ fontSize: '0.78rem', whiteSpace: 'nowrap' }}
+                                                        onClick={() => handleCopyCv(tuition)}
+                                                        disabled={copyingCvId === tuition._id}
+                                                        title={tuition.premiumCode ? `Copy Teacher CV (${tuition.premiumCode})` : 'No premium code'}
+                                                    >
+                                                        {copyingCvId === tuition._id ? (
+                                                            <>
+                                                                <Spinner
+                                                                    as="span"
+                                                                    animation="border"
+                                                                    size="sm"
+                                                                    role="status"
+                                                                    style={{ width: '12px', height: '12px', borderWidth: '1.5px' }}
+                                                                />
+                                                                <span>Copying...</span>
+                                                            </>
+                                                        ) : (
+                                                            <>
+                                                                <FaCopy size={11} />
+                                                                <span>Copy CV</span>
+                                                            </>
+                                                        )}
+                                                    </Button>
                                                     <Button
                                                         variant={getButtonVariant(tuition, 'warning')}
                                                         onClick={() => handleEditTuition(tuition)}
@@ -1174,6 +1334,12 @@ const TuitionPage = () => {
                         detailsData={tuitionDetails}
                     />
                 )}
+
+                <TeacherDetailsModal
+                    show={showTeacherDetailsModal}
+                    onHide={() => setShowTeacherDetailsModal(false)}
+                    teacher={selectedTeacherForModal}
+                />
 
                 {/* Export Modal */}
                 <Modal show={showExportModal} onHide={() => {

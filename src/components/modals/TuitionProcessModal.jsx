@@ -67,6 +67,8 @@ export default function TuitionProcessModal({ show, onHide, tuition, onProcessUp
         setSelectedStatus(statusVal);
         if (statusVal === 'CV Sent') {
             setSelectedSubStatus('Call Guardian To check if liked any cv');
+        } else if (statusVal === 'given number') {
+            setSelectedSubStatus('given number');
         } else if (statusVal === 'demo class running') {
             setSelectedSubStatus('1st demo class');
         } else if (statusVal === 'available') {
@@ -203,8 +205,10 @@ export default function TuitionProcessModal({ show, onHide, tuition, onProcessUp
                 return currentStatus === 'cv sent' || processData?.computedSummary?.isCvSent;
             case 'call_guardian':
                 return currentSubStatus === 'call guardian to check if liked any cv' || currentStatus === 'cv sent';
-            case 'contact_share':
-                return currentStatus === 'given number' || currentStatus === 'demo class running' || currentStatus === 'confirm';
+            case 'given_number':
+                return currentStatus === 'given number';
+            case 'guardian_meet':
+                return currentStatus === 'guardian meet' || currentStatus === 'demo class running' || currentStatus === '1st demo class' || currentStatus === '2nd demo class' || currentStatus === 'confirm';
             case 'demo':
                 return currentStatus === 'demo class running' || currentStatus === '1st demo class' || currentStatus === '2nd demo class';
             case 'back_available':
@@ -230,6 +234,11 @@ export default function TuitionProcessModal({ show, onHide, tuition, onProcessUp
     };
 
     const cancelLog = historyLogs.find(h => h.newStatus?.toLowerCase() === 'cancel');
+    const hadCancel = !!cancelLog || Boolean(processData?.tuition?.tuitionCancelReason || tuition?.tuitionCancelReason);
+    const showCancel = isCancel || hadCancel;
+    const cancelReasonText = processData?.tuition?.tuitionCancelReason || tuition?.tuitionCancelReason || cancelLog?.comment || '';
+    const cancelUser = cancelLog?.changedBy || processData?.tuition?.updatedBy || tuition?.updatedBy;
+    const cancelTime = cancelLog?.timestamp || processData?.tuition?.updatedAt || tuition?.updatedAt;
 
     // Step Event Log Finders (Who & When for each node)
     const initialAvailLog = [...historyLogs].reverse().find(h => h.newStatus?.toLowerCase() === 'available');
@@ -247,7 +256,8 @@ export default function TuitionProcessModal({ show, onHide, tuition, onProcessUp
 
     const cvSentLog = historyLogs.find(h => h.newStatus?.toLowerCase() === 'cv sent');
     const cvLikedLog = historyLogs.find(h => h.newStatus?.toLowerCase() === 'cv sent - check if liked' || h.subStatus?.toLowerCase() === 'call guardian to check if liked any cv');
-    const contactShareLog = historyLogs.find(h => h.newStatus?.toLowerCase() === 'given number' || h.newStatus?.toLowerCase() === 'contact shared');
+    const givenNumberLog = historyLogs.find(h => h.newStatus?.toLowerCase() === 'given number' || h.newStatus?.toLowerCase() === 'contact shared' || h.subStatus?.toLowerCase()?.includes('given number'));
+    const guardianMeetLog = historyLogs.find(h => h.newStatus?.toLowerCase() === 'guardian meet' || h.subStatus?.toLowerCase()?.includes('guardian_meet') || h.subStatus?.toLowerCase()?.includes('guardian meet'));
     const demo1Log = historyLogs.find(h => h.newStatus?.toLowerCase() === '1st demo class' || h.newStatus?.toLowerCase() === 'demo class running');
     const demo2Log = historyLogs.find(h => h.newStatus?.toLowerCase() === '2nd demo class');
     const confirmLog = historyLogs.find(h => h.newStatus?.toLowerCase() === 'confirm');
@@ -267,8 +277,9 @@ export default function TuitionProcessModal({ show, onHide, tuition, onProcessUp
     const gap_post_apply = (applyMeta && postLog) ? getTimeDifference(applyMeta.timestamp, postLog.timestamp) : null;
     const gap_apply_cv = cvSentLog ? getTimeDifference(cvSentLog.timestamp, applyMeta?.timestamp || postLog?.timestamp) : null;
     const gap_cv_liked = cvLikedLog ? getTimeDifference(cvLikedLog.timestamp, cvSentLog?.timestamp) : null;
-    const gap_liked_share = contactShareLog ? getTimeDifference(contactShareLog.timestamp, cvLikedLog?.timestamp || cvSentLog?.timestamp) : null;
-    const gap_share_demo1 = demo1Log ? getTimeDifference(demo1Log.timestamp, contactShareLog?.timestamp) : null;
+    const gap_liked_given = givenNumberLog ? getTimeDifference(givenNumberLog.timestamp, cvLikedLog?.timestamp || cvSentLog?.timestamp) : null;
+    const gap_given_meet = guardianMeetLog ? getTimeDifference(guardianMeetLog.timestamp, givenNumberLog?.timestamp || cvLikedLog?.timestamp || cvSentLog?.timestamp) : null;
+    const gap_meet_demo1 = demo1Log ? getTimeDifference(demo1Log.timestamp, guardianMeetLog?.timestamp || givenNumberLog?.timestamp) : null;
     const gap_demo1_demo2 = demo2Log ? getTimeDifference(demo2Log.timestamp, demo1Log?.timestamp) : null;
     const gap_demo_confirm = confirmLog ? getTimeDifference(confirmLog.timestamp, demo2Log?.timestamp || demo1Log?.timestamp || contactShareLog?.timestamp) : null;
     const gap_confirm_reqpay = reqPayLog ? getTimeDifference(reqPayLog.timestamp, confirmLog?.timestamp) : null;
@@ -432,6 +443,60 @@ export default function TuitionProcessModal({ show, onHide, tuition, onProcessUp
         );
     };
 
+    // Determine which milestone step the tuition was at when it was cancelled
+    const cancelStepKey = (() => {
+        if (!showCancel) return null;
+
+        const old = (cancelLog?.oldStatus || '').toLowerCase();
+        const oldSub = (cancelLog?.subStatus || '').toLowerCase();
+
+        // 1. Check explicitly from cancelLog's previous status and sub-status
+        if (old.includes('confirm') || old.includes('payment') || old.includes('request for payment')) return 'confirmed';
+        if (old.includes('1st demo')) return 'demo1';
+        if (old.includes('demo')) return 'demo';
+        if (old.includes('guardian meet') || old.includes('guardian_meet') || old.includes('meet')) return 'guardian_meet';
+        if (old.includes('given number') || old.includes('contact')) return 'given_number';
+        if (old.includes('liked') || oldSub.includes('liked')) return 'cv_liked';
+        if (old.includes('cv')) return 'cv_sent';
+        if (old.includes('negotiation') || oldSub.includes('negotiation')) return 'negotiation';
+        if (old.includes('proposal') || oldSub.includes('proposal')) return 'proposal';
+        if (old.includes('apply')) return 'apply';
+
+        // 2. Fallback based on furthest milestone recorded in history or summary
+        if (confirmLog) return 'confirmed';
+        if (demo2Log) return 'demo';
+        if (demo1Log) return 'demo1';
+        if (guardianMeetLog) return 'guardian_meet';
+        if (givenNumberLog) return 'given_number';
+        if (cvLikedLog) return 'cv_liked';
+        if (cvSentLog) return 'cv_sent';
+        if (applicantsCount > 0) return 'apply';
+        if (isGuardianNegotiation || negotiationLog) return 'negotiation';
+        if (isProposalSent || proposalLog) return 'proposal';
+        if (applicantsCount === 0 && (tuition.isPublish || postLog)) return 'not_apply';
+        return 'post';
+    })();
+
+    const isTrack1Cancel = showCancel && ['not_apply', 'proposal', 'negotiation'].includes(cancelStepKey);
+    const isTrack2Cancel = showCancel && ['apply', 'cv_sent', 'cv_liked', 'given_number', 'guardian_meet', 'demo1', 'demo', 'confirmed'].includes(cancelStepKey);
+
+    const renderCancelNode = (gapTime = null) => (
+        <div className="d-flex align-items-center flex-shrink-0">
+            {renderFlowArrow(gapTime, 'Cancelled')}
+            {renderFlowNode({
+                title: 'Cancelled',
+                user: cancelUser,
+                time: cancelTime,
+                comment: cancelReasonText,
+                extraInfo: cancelReasonText ? `Reason: ${cancelReasonText}` : (cancelLog?.oldStatus ? `From: ${cancelLog.oldStatus}` : null),
+                isActive: isCancel,
+                isDone: !isCancel && hadCancel,
+                variant: 'danger',
+                onClick: () => handleStatusSelect('cancel')
+            })}
+        </div>
+    );
+
     return (
         <Modal 
             show={show} 
@@ -505,6 +570,8 @@ export default function TuitionProcessModal({ show, onHide, tuition, onProcessUp
                                                 comment: postLog?.comment,
                                                 isActive: isNodeActive('post')
                                             })}
+
+                                            {showCancel && cancelStepKey === 'post' && renderCancelNode(cancelLog ? getTimeDifference(cancelLog.timestamp, postLog?.timestamp || createMeta.timestamp) : null)}
                                         </div>
 
                                         {/* SVG TREE FORK CONNECTOR */}
@@ -514,7 +581,7 @@ export default function TuitionProcessModal({ show, onHide, tuition, onProcessUp
                                         <div className="d-flex flex-column flex-grow-1 position-relative" style={{ gap: '16px' }}>
                                             
                                             {/* TRACK 1: 0 APPLICANTS LANE */}
-                                            <div className={`flow-lane ${applicantsCount === 0 && !isCancel ? 'lane-active' : ''}`}>
+                                            <div className={`flow-lane ${isCancel && isTrack1Cancel ? 'lane-cancel-active' : (applicantsCount === 0 && !isCancel ? 'lane-active' : '')}`}>
                                                 <div className="d-flex align-items-center">
                                                     {renderFlowNode({
                                                         title: 'No Applicants (0)',
@@ -522,6 +589,8 @@ export default function TuitionProcessModal({ show, onHide, tuition, onProcessUp
                                                         isActive: isNodeActive('not_apply'),
                                                         variant: 'warning'
                                                     })}
+
+                                                    {showCancel && cancelStepKey === 'not_apply' && renderCancelNode(cancelLog ? getTimeDifference(cancelLog.timestamp, postLog?.timestamp) : null)}
 
                                                     {renderFlowArrow(gap_post_proposal)}
 
@@ -536,6 +605,8 @@ export default function TuitionProcessModal({ show, onHide, tuition, onProcessUp
                                                         variant: isProposalSent ? 'success' : 'default'
                                                     })}
 
+                                                    {showCancel && cancelStepKey === 'proposal' && renderCancelNode(cancelLog ? getTimeDifference(cancelLog.timestamp, proposalLog?.timestamp) : null)}
+
                                                     {renderFlowArrow(gap_proposal_negotiation)}
 
                                                     {renderFlowNode({
@@ -547,15 +618,17 @@ export default function TuitionProcessModal({ show, onHide, tuition, onProcessUp
                                                         onClick: () => handleStatusSelect('guardian negotiation')
                                                     })}
 
+                                                    {showCancel && cancelStepKey === 'negotiation' && renderCancelNode(cancelLog ? getTimeDifference(cancelLog.timestamp, negotiationLog?.timestamp) : null)}
+
                                                     {renderFlowArrow(null)}
 
                                                     <div 
                                                         className="flow-node-card p-1 text-center" 
                                                         style={{ 
-                                                            minWidth: '95px', 
-                                                            borderStyle: 'dashed',
-                                                            opacity: isGuardianNegotiation ? 1 : 0.6
-                                                        }}
+                                                             minWidth: '95px', 
+                                                             borderStyle: 'dashed',
+                                                             opacity: isGuardianNegotiation ? 1 : 0.6
+                                                         }}
                                                         title={isGuardianNegotiation ? "Create a clone/repost of this tuition" : "Repost is only available when current step is Guardian Negotiation"}
                                                     >
                                                         <Button 
@@ -582,7 +655,7 @@ export default function TuitionProcessModal({ show, onHide, tuition, onProcessUp
                                             </div>
 
                                             {/* TRACK 2: TUTORS APPLIED LANE */}
-                                            <div className={`flow-lane ${applicantsCount > 0 && !isCancel ? 'lane-active' : ''}`}>
+                                            <div className={`flow-lane ${isCancel && isTrack2Cancel ? 'lane-cancel-active' : (applicantsCount > 0 && !isCancel ? 'lane-active' : '')}`}>
                                                 <div className="d-flex align-items-center">
                                                     {renderFlowNode({
                                                         title: `Applications (${applicantsCount})`,
@@ -591,6 +664,8 @@ export default function TuitionProcessModal({ show, onHide, tuition, onProcessUp
                                                         comment: applyMeta?.comment,
                                                         isActive: isNodeActive('apply')
                                                     })}
+
+                                                    {showCancel && cancelStepKey === 'apply' && renderCancelNode(cancelLog ? getTimeDifference(cancelLog.timestamp, applyMeta?.timestamp) : null)}
 
                                                     {renderFlowArrow(gap_apply_cv)}
 
@@ -602,6 +677,8 @@ export default function TuitionProcessModal({ show, onHide, tuition, onProcessUp
                                                         isActive: currentStatus === 'cv sent'
                                                     })}
 
+                                                    {showCancel && cancelStepKey === 'cv_sent' && renderCancelNode(cancelLog ? getTimeDifference(cancelLog.timestamp, cvSentLog?.timestamp) : null)}
+
                                                     {renderFlowArrow(gap_cv_liked)}
 
                                                     {renderFlowNode({
@@ -612,17 +689,38 @@ export default function TuitionProcessModal({ show, onHide, tuition, onProcessUp
                                                         isActive: currentStatus === 'cv sent - check if liked'
                                                     })}
 
-                                                    {renderFlowArrow(gap_liked_share)}
+                                                    {showCancel && cancelStepKey === 'cv_liked' && renderCancelNode(cancelLog ? getTimeDifference(cancelLog.timestamp, cvLikedLog?.timestamp) : null)}
+
+                                                    {renderFlowArrow(gap_liked_given)}
 
                                                     {renderFlowNode({
-                                                        title: 'Contact Share',
-                                                        user: contactShareLog?.changedBy,
-                                                        time: contactShareLog?.timestamp,
-                                                        comment: contactShareLog?.comment,
-                                                        isActive: isNodeActive('contact_share')
+                                                        title: 'Given Number',
+                                                        user: givenNumberLog?.changedBy,
+                                                        time: givenNumberLog?.timestamp,
+                                                        comment: givenNumberLog?.comment,
+                                                        extraInfo: (processData?.tuition?.tutorNumber || tuition?.tutorNumber) ? `📞 ${processData?.tuition?.tutorNumber || tuition?.tutorNumber}` : null,
+                                                        isActive: isNodeActive('given_number'),
+                                                        isDone: !!givenNumberLog || isNodeActive('guardian_meet') || isNodeActive('demo'),
+                                                        onClick: () => handleStatusSelect('given number')
                                                     })}
 
-                                                    {renderFlowArrow(gap_share_demo1)}
+                                                    {showCancel && cancelStepKey === 'given_number' && renderCancelNode(cancelLog ? getTimeDifference(cancelLog.timestamp, givenNumberLog?.timestamp) : null)}
+
+                                                    {renderFlowArrow(gap_given_meet)}
+
+                                                    {renderFlowNode({
+                                                        title: 'Guardian Meet',
+                                                        user: guardianMeetLog?.changedBy,
+                                                        time: guardianMeetLog?.timestamp,
+                                                        comment: guardianMeetLog?.comment,
+                                                        isActive: isNodeActive('guardian_meet'),
+                                                        isDone: !!guardianMeetLog || isNodeActive('demo'),
+                                                        onClick: () => handleStatusSelect('guardian meet')
+                                                    })}
+
+                                                    {showCancel && cancelStepKey === 'guardian_meet' && renderCancelNode(cancelLog ? getTimeDifference(cancelLog.timestamp, guardianMeetLog?.timestamp) : null)}
+
+                                                    {renderFlowArrow(gap_meet_demo1)}
 
                                                     {renderFlowNode({
                                                         title: '1st Demo Class',
@@ -631,6 +729,8 @@ export default function TuitionProcessModal({ show, onHide, tuition, onProcessUp
                                                         comment: demo1Log?.comment,
                                                         isActive: currentStatus === '1st demo class' || currentStatus === 'demo class running'
                                                     })}
+
+                                                    {showCancel && cancelStepKey === 'demo1' && renderCancelNode(cancelLog ? getTimeDifference(cancelLog.timestamp, demo1Log?.timestamp) : null)}
 
                                                     {renderFlowArrow(gap_demo1_demo2)}
 
@@ -641,6 +741,8 @@ export default function TuitionProcessModal({ show, onHide, tuition, onProcessUp
                                                         comment: demo2Log?.comment,
                                                         isActive: currentStatus === '2nd demo class'
                                                     })}
+
+                                                    {showCancel && cancelStepKey === 'demo' && renderCancelNode(cancelLog ? getTimeDifference(cancelLog.timestamp, demo2Log?.timestamp || demo1Log?.timestamp) : null)}
 
                                                     {/* RESOLUTION OUTCOME FORK */}
                                                     {renderOutcomeFork(85)}
@@ -657,6 +759,8 @@ export default function TuitionProcessModal({ show, onHide, tuition, onProcessUp
                                                                 isActive: currentStatus === 'confirm',
                                                                 variant: 'success'
                                                             })}
+
+                                                            {showCancel && cancelStepKey === 'confirmed' && renderCancelNode(cancelLog ? getTimeDifference(cancelLog.timestamp, confirmLog?.timestamp) : null)}
 
                                                             {renderFlowArrow(gap_confirm_reqpay)}
 
@@ -739,7 +843,7 @@ export default function TuitionProcessModal({ show, onHide, tuition, onProcessUp
                                                     <option value="guardian negotiation">Guardian Negotiation</option>
                                                     <option value="CV Sent">CV Sent</option>
                                                     <option value="CV Sent - Check if liked">CV Sent - Check if liked</option>
-                                                    <option value="given number">Contact Share (Given Number)</option>
+                                                    <option value="given number">Given Number</option>
                                                     <option value="guardian meet">Guardian Meet</option>
                                                     <option value="demo class running">Demo Class Running</option>
                                                     <option value="1st demo class">1st Demo Class</option>
@@ -963,6 +1067,11 @@ export default function TuitionProcessModal({ show, onHide, tuition, onProcessUp
                     border-color: #3b82f6;
                     background: #f0f7ff;
                     box-shadow: 0 1px 6px rgba(59, 130, 246, 0.08);
+                }
+                .flow-lane.lane-cancel-active {
+                    border-color: #ef4444;
+                    background: #fff5f5;
+                    box-shadow: 0 1px 6px rgba(239, 68, 68, 0.12);
                 }
                 .flow-node-card {
                     min-width: 80px;

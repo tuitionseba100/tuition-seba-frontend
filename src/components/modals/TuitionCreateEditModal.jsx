@@ -1,9 +1,23 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Modal, Button, Form, Row, Col, Spinner } from 'react-bootstrap';
 import Select from 'react-select';
+import CreatableSelect from 'react-select/creatable';
 import { axiosWithFallback as axios } from '../../services/fetchWithFallback';
 import { toast } from 'react-toastify';
 import locationData from '../../data/locations.json';
+
+const CANCEL_REASONS = [
+    'Guardian Found Teacher',
+    'Guardian No Response',
+    'No Suitable Teacher Available',
+    'Salary Issue',
+    'Location Issue',
+    'Time/Day Issue',
+    'Guardian Cancelled',
+    'Student/Family Issue',
+    'Tuition Temporarily Not Required',
+    'Others'
+];
 
 const fieldConfig = [
     { name: 'tuitionCode', label: 'Tuition Code', group: 'details', col: 4, type: 'text' },
@@ -26,7 +40,7 @@ const fieldConfig = [
     { name: 'joining', label: 'Joining Date', group: 'details', col: 6, type: 'text' },
     { name: 'guardianNumber', label: 'Guardian Number', group: 'details', col: 4, type: 'text' },
     { name: 'mediaFee', label: 'Media Fee', group: 'details', col: 4, type: 'text' },
-    { name: 'status', label: 'Status', group: 'details', col: 4, type: 'select', options: ['available', 'given number', 'guardian meet', 'demo class running', '1st demo class', '2nd demo class', 'confirm', 'cancel', 'refer BM', 'suspended', 'guardian no response', 'request for payment'] },
+    { name: 'status', label: 'Status', group: 'details', col: 4, type: 'select', options: ['available', 'guardian negotiation', 'CV Sent', 'CV Sent - Check if liked', 'given number', 'guardian meet', 'demo class running', '1st demo class', '2nd demo class', 'demo class failed', 'confirm', 'cancel', 'refer BM', 'suspended', 'guardian no response', 'request for payment'] },
     { name: 'isPublish', label: 'Publish', group: 'details', col: 6, type: 'switch', defaultValue: false },
     { name: 'lastAvailableCheck', label: 'Last Available Check', group: 'details', col: 6, type: 'datetime-local' },
 
@@ -41,7 +55,7 @@ const fieldConfig = [
 
     // Update Section
     { name: 'tutorNumber', label: 'Current Teacher Number', group: 'update', col: 6, type: 'text' },
-    { name: 'tuitionCancelReason', label: 'Current teacher comment box', group: 'update', col: 6, type: 'text' },
+    { name: 'tuitionCancelReason', label: 'Cancellation Reason', group: 'update', col: 6, type: 'creatable_select' },
     { name: 'lastUpdate', label: 'last Update date', group: 'update', col: 6, type: 'datetime-local' },
     { name: 'lastUpdateComment', label: 'Last Update comment', group: 'update', col: 6, type: 'text' },
     { name: 'nextUpdateDate', label: 'Next Update date', group: 'update', col: 6, type: 'datetime-local' },
@@ -770,6 +784,144 @@ export default function TuitionModal({ show, onHide, editingData = null, editing
                                                                     />
                                                                 </Form.Group>
                                                             </Col>
+                                                        );
+                                                    }
+
+                                                    if (name === 'tuitionCancelReason' || type === 'creatable_select') {
+                                                        const cancelSelectOptions = CANCEL_REASONS.map(r => ({ value: r, label: r }));
+                                                        const currentValue = value ? { value, label: value } : null;
+                                                        return (
+                                                            <Col md={col} key={name}>
+                                                                <Form.Group controlId={name}>
+                                                                    <Form.Label className="fw-semibold text-danger">{label} (Select or Type)</Form.Label>
+                                                                    <CreatableSelect
+                                                                        isClearable
+                                                                        placeholder={`Select ${label} or type custom reason...`}
+                                                                        options={cancelSelectOptions}
+                                                                        value={currentValue}
+                                                                        onChange={(selected) => setFormData(prev => ({ ...prev, [name]: selected ? selected.value : '' }))}
+                                                                        isDisabled={saving}
+                                                                        menuPortalTarget={document.body}
+                                                                        styles={{
+                                                                            control: (base, state) => ({
+                                                                                ...base,
+                                                                                border: '1.5px solid rgba(220, 53, 69, 0.4)',
+                                                                                boxShadow: state.isFocused
+                                                                                    ? '0 0 6px rgba(220, 53, 69, 0.25)'
+                                                                                    : '0 0 4px rgba(220, 53, 69, 0.12)',
+                                                                                '&:hover': { borderColor: 'rgba(220, 53, 69, 0.6)' },
+                                                                                minHeight: '38px',
+                                                                                borderRadius: '0.375rem',
+                                                                                backgroundColor: 'white',
+                                                                            }),
+                                                                            menuPortal: (base) => ({ ...base, zIndex: 9999 })
+                                                                        }}
+                                                                    />
+                                                                </Form.Group>
+                                                            </Col>
+                                                        );
+                                                    }
+
+                                                    if (name === 'status') {
+                                                        const originalStatus = (editingData?.status || '').toLowerCase();
+                                                        const isStatusChanged = editingId && formData.status && originalStatus && formData.status.toLowerCase() !== originalStatus;
+
+                                                        return (
+                                                            <React.Fragment key={name}>
+                                                                <Col md={col}>
+                                                                    <Form.Group controlId={name}>
+                                                                        <Form.Label className="fw-semibold d-flex align-items-center justify-content-between">
+                                                                            <span>{label}</span>
+                                                                            {isStatusChanged && (
+                                                                                <span className="badge bg-primary-subtle text-primary border border-primary-subtle" style={{ fontSize: '0.72rem' }}>
+                                                                                    Status Changing
+                                                                                </span>
+                                                                            )}
+                                                                        </Form.Label>
+                                                                        <Form.Select
+                                                                            name={name}
+                                                                            value={value}
+                                                                            onChange={(e) => handleInputChange(e, field)}
+                                                                            required
+                                                                            disabled={saving}
+                                                                            style={{
+                                                                                ...inputBorderStyle,
+                                                                                borderColor: isStatusChanged ? '#0d6efd' : inputBorderStyle.border,
+                                                                                backgroundColor: isStatusChanged ? '#f0f7ff' : '#fff'
+                                                                            }}
+                                                                        >
+                                                                            <option value="">Select {label}</option>
+                                                                            {options?.map(opt => (
+                                                                                <option key={opt} value={opt}>{opt}</option>
+                                                                            ))}
+                                                                        </Form.Select>
+                                                                    </Form.Group>
+                                                                </Col>
+
+                                                                {/* When status is changed in Edit mode, show Comment / Note just like Process Modal */}
+                                                                {isStatusChanged && (
+                                                                    <Col md={12}>
+                                                                        <div 
+                                                                            className="p-3 rounded border border-primary-subtle shadow-sm my-1"
+                                                                            style={{ backgroundColor: '#f4f8ff' }}
+                                                                        >
+                                                                            <div className="d-flex align-items-center gap-2 mb-2 text-primary fw-bold" style={{ fontSize: '0.84rem' }}>
+                                                                                <span>🔄 Status Change:</span>
+                                                                                <span className="text-secondary fw-normal">{editingData?.status || 'None'}</span>
+                                                                                <span>➔</span>
+                                                                                <span className="text-primary">{formData.status}</span>
+                                                                            </div>
+                                                                            <Row className="g-2">
+                                                                                {formData.status?.toLowerCase() === 'cancel' && (
+                                                                                    <Col md={6}>
+                                                                                        <Form.Group>
+                                                                                            <Form.Label className="fw-semibold text-danger mb-1" style={{ fontSize: '0.8rem' }}>
+                                                                                                Cancellation Reason
+                                                                                            </Form.Label>
+                                                                                            <CreatableSelect
+                                                                                                isClearable
+                                                                                                placeholder="Select or type custom reason..."
+                                                                                                options={CANCEL_REASONS.map(r => ({ value: r, label: r }))}
+                                                                                                value={formData.tuitionCancelReason ? { value: formData.tuitionCancelReason, label: formData.tuitionCancelReason } : null}
+                                                                                                onChange={(selected) => setFormData(prev => ({ ...prev, tuitionCancelReason: selected ? selected.value : '' }))}
+                                                                                                isDisabled={saving}
+                                                                                                menuPortalTarget={document.body}
+                                                                                                styles={{
+                                                                                                    control: (base) => ({
+                                                                                                        ...base,
+                                                                                                        minHeight: '38px',
+                                                                                                        fontSize: '0.82rem',
+                                                                                                        borderRadius: '6px',
+                                                                                                        borderColor: '#dc3545',
+                                                                                                        boxShadow: 'none'
+                                                                                                    }),
+                                                                                                    menuPortal: (base) => ({ ...base, zIndex: 9999 })
+                                                                                                }}
+                                                                                            />
+                                                                                        </Form.Group>
+                                                                                    </Col>
+                                                                                )}
+                                                                                <Col md={formData.status?.toLowerCase() === 'cancel' ? 6 : 12}>
+                                                                                    <Form.Group>
+                                                                                        <Form.Label className="fw-semibold text-muted mb-1" style={{ fontSize: '0.8rem' }}>
+                                                                                            Comment / Note (Optional)
+                                                                                        </Form.Label>
+                                                                                        <Form.Control
+                                                                                            type="text"
+                                                                                            size="sm"
+                                                                                            placeholder="Type comment (e.g. guardian liked cv, demo scheduled)..."
+                                                                                            value={formData.lastUpdateComment || ''}
+                                                                                            onChange={(e) => setFormData(prev => ({ ...prev, lastUpdateComment: e.target.value }))}
+                                                                                            disabled={saving}
+                                                                                            style={{ minHeight: '38px', borderRadius: '6px', borderColor: 'rgba(13, 110, 253, 0.4)' }}
+                                                                                        />
+                                                                                    </Form.Group>
+                                                                                </Col>
+                                                                            </Row>
+                                                                        </div>
+                                                                    </Col>
+                                                                )}
+                                                            </React.Fragment>
                                                         );
                                                     }
 

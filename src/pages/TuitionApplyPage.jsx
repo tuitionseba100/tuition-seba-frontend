@@ -19,6 +19,8 @@ const TuitionPage = () => {
     const [showModal, setShowModal] = useState(false);
     const [isFullEditEnabled, setIsFullEditEnabled] = useState(false);
     const [editingId, setEditingId] = useState(null);
+    const [togglingCvId, setTogglingCvId] = useState(null);
+    const [cvConfirmModal, setCvConfirmModal] = useState({ show: false, tuition: null });
     const [tuitionData, setTuitionData] = useState({
         tuitionCode: '',
         tuitionId: '',
@@ -32,6 +34,7 @@ const TuitionPage = () => {
         comment: '',
         commentForTeacher: '',
         agentComment: '',
+        isCvSent: false,
     });
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
@@ -319,10 +322,39 @@ const TuitionPage = () => {
     };
 
     const handleEditTuition = (tuition) => {
-        setTuitionData(tuition);
+        setTuitionData({ ...tuition, isCvSent: !!tuition.isCvSent });
         setEditingId(tuition._id);
         setIsFullEditEnabled(false);
         setShowModal(true);
+    };
+
+    const handleRequestToggleCvSent = (tuition) => {
+        setCvConfirmModal({ show: true, tuition });
+    };
+
+    const handleConfirmToggleCvSent = async () => {
+        const targetTuition = cvConfirmModal.tuition;
+        if (!targetTuition || !targetTuition._id) return;
+
+        setTogglingCvId(targetTuition._id);
+        try {
+            const nextStatus = !targetTuition.isCvSent;
+            const res = await axios.put(`https://tuition-seba-backend-1.onrender.com/api/tuitionApply/toggle-cv-sent/${targetTuition._id}`, {
+                isCvSent: nextStatus
+            });
+            const actualStatus = res.data?.isCvSent !== undefined ? res.data.isCvSent : nextStatus;
+
+            setFilteredTuitionApplyList(prev => prev.map(item => item._id === targetTuition._id ? { ...item, isCvSent: actualStatus } : item));
+            setTuitionApplyList(prev => prev.map(item => item._id === targetTuition._id ? { ...item, isCvSent: actualStatus } : item));
+
+            toast.success(actualStatus ? `Marked CV as Sent for ${targetTuition.name || 'teacher'}!` : `Unmarked CV Sent for ${targetTuition.name || 'teacher'}`);
+            setCvConfirmModal({ show: false, tuition: null });
+        } catch (err) {
+            console.error('Error toggling CV Sent:', err);
+            toast.error(err.response?.data?.message || 'Failed to update CV Sent status');
+        } finally {
+            setTogglingCvId(null);
+        }
     };
 
     const handleDeleteTuition = async (id) => {
@@ -696,7 +728,65 @@ const TuitionPage = () => {
                                                 <td style={getRowStyle(tuition)}>{tuition.comment}</td>
                                                 <td style={getRowStyle(tuition)}>{tuition.commentForTeacher}</td>
                                                 <td style={getRowStyle(tuition)}>{tuition.agentComment}</td>
-                                                <td style={getRowStyle(tuition)} className="d-flex justify-content-start gap-2">
+                                                <td style={getRowStyle(tuition)} className="d-flex justify-content-start gap-2 align-items-center">
+                                                    {/* CV Sent ON/OFF Toggle Switch */}
+                                                    <div 
+                                                        className="d-inline-flex align-items-center gap-1 px-1 py-1"
+                                                        style={{
+                                                            cursor: togglingCvId === tuition._id ? 'wait' : 'pointer',
+                                                            userSelect: 'none',
+                                                            borderRadius: '16px',
+                                                            background: tuition.isCvSent ? '#f0fdf4' : '#f8fafc',
+                                                            border: tuition.isCvSent ? '1.5px solid #86efac' : '1.5px solid #cbd5e1',
+                                                            paddingRight: '6px'
+                                                        }}
+                                                        onClick={() => !togglingCvId && handleRequestToggleCvSent(tuition)}
+                                                        title={tuition.isCvSent ? "CV Sent: YES (Click to change to NO)" : "CV Sent: NO (Click to change to YES)"}
+                                                    >
+                                                        <div
+                                                            style={{
+                                                                width: '38px',
+                                                                height: '20px',
+                                                                backgroundColor: tuition.isCvSent ? '#16a34a' : '#94a3b8',
+                                                                borderRadius: '12px',
+                                                                position: 'relative',
+                                                                transition: 'all 0.25s ease',
+                                                                display: 'inline-flex',
+                                                                alignItems: 'center',
+                                                                padding: '2px',
+                                                                boxShadow: tuition.isCvSent ? '0 0 4px rgba(22, 163, 74, 0.4)' : 'none'
+                                                            }}
+                                                        >
+                                                            <div
+                                                                style={{
+                                                                    width: '16px',
+                                                                    height: '16px',
+                                                                    backgroundColor: '#ffffff',
+                                                                    borderRadius: '50%',
+                                                                    transform: tuition.isCvSent ? 'translateX(18px)' : 'translateX(0px)',
+                                                                    transition: 'transform 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
+                                                                    boxShadow: '0 1px 2px rgba(0,0,0,0.25)',
+                                                                    display: 'flex',
+                                                                    alignItems: 'center',
+                                                                    justifyContent: 'center'
+                                                                }}
+                                                            >
+                                                                {togglingCvId === tuition._id && (
+                                                                    <Spinner animation="border" size="sm" style={{ width: '10px', height: '10px', borderWidth: '1.5px' }} />
+                                                                )}
+                                                            </div>
+                                                        </div>
+                                                        <span 
+                                                            style={{ 
+                                                                fontSize: '0.68rem', 
+                                                                fontWeight: '800', 
+                                                                color: tuition.isCvSent ? '#15803d' : '#64748b',
+                                                                lineHeight: 1
+                                                            }}
+                                                        >
+                                                            {tuition.isCvSent ? 'YES' : 'NO'}
+                                                        </span>
+                                                    </div>
                                                     <Button
                                                         variant={getButtonVariant(tuition, 'warning')}
                                                         onClick={() => handleEditTuition(tuition)}
@@ -1001,6 +1091,17 @@ const TuitionPage = () => {
                                                     <option value="refer to bm">Refer to BM</option>
                                                 </Form.Select>
                                             </Form.Group>
+                                            <Form.Group controlId="isCvSent" className="mt-3 p-2 bg-white rounded border">
+                                                <Form.Label className="text-muted small fw-bold mb-1 text-uppercase d-block">CV Sent Action</Form.Label>
+                                                <Form.Check 
+                                                    type="switch"
+                                                    id="edit-modal-cv-sent-switch"
+                                                    label={tuitionData.isCvSent ? "✓ CV Sent to Guardian" : "CV Not Sent"}
+                                                    checked={!!tuitionData.isCvSent}
+                                                    onChange={(e) => setTuitionData({ ...tuitionData, isCvSent: e.target.checked })}
+                                                    className="fw-bold text-dark"
+                                                />
+                                            </Form.Group>
                                         </Col>
                                         <Col md={4}>
                                             <Form.Group controlId="commentForTeacher">
@@ -1225,6 +1326,58 @@ const TuitionPage = () => {
                     <Modal.Footer>
                         <Button variant="secondary" onClick={() => setShowStatusHistoryModal(false)}>
                             Close
+                        </Button>
+                    </Modal.Footer>
+                </Modal>
+
+                {/* CV Sent Confirmation Modal */}
+                <Modal
+                    show={cvConfirmModal.show}
+                    onHide={() => setCvConfirmModal({ show: false, tuition: null })}
+                    centered
+                    size="sm"
+                >
+                    <Modal.Header closeButton style={{ background: cvConfirmModal.tuition?.isCvSent ? '#fff3cd' : '#d1e7dd' }}>
+                        <Modal.Title className="fs-6 fw-bold">
+                            {cvConfirmModal.tuition?.isCvSent ? '⚠️ Unmark CV Sent?' : '📄 Confirm CV Sent'}
+                        </Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body className="py-3">
+                        <p className="mb-0" style={{ fontSize: '0.88rem' }}>
+                            {cvConfirmModal.tuition?.isCvSent ? (
+                                <>
+                                    Are you sure you want to mark CV as <strong>NOT SENT</strong> for{' '}
+                                    <strong>{cvConfirmModal.tuition?.name || 'this applicant'}</strong>?
+                                </>
+                            ) : (
+                                <>
+                                    Are you sure you want to mark CV as <strong>SENT</strong> for{' '}
+                                    <strong>{cvConfirmModal.tuition?.name || 'this applicant'}</strong> ({cvConfirmModal.tuition?.tuitionCode})?
+                                </>
+                            )}
+                        </p>
+                    </Modal.Body>
+                    <Modal.Footer className="py-2">
+                        <Button
+                            variant="secondary"
+                            size="sm"
+                            onClick={() => setCvConfirmModal({ show: false, tuition: null })}
+                            disabled={togglingCvId !== null}
+                        >
+                            Cancel
+                        </Button>
+                        <Button
+                            variant={cvConfirmModal.tuition?.isCvSent ? "warning" : "success"}
+                            size="sm"
+                            className="fw-bold"
+                            onClick={handleConfirmToggleCvSent}
+                            disabled={togglingCvId !== null}
+                        >
+                            {togglingCvId !== null ? (
+                                <Spinner animation="border" size="sm" />
+                            ) : (
+                                cvConfirmModal.tuition?.isCvSent ? "Yes, Unmark" : "Yes, Mark Sent"
+                            )}
                         </Button>
                     </Modal.Footer>
                 </Modal>

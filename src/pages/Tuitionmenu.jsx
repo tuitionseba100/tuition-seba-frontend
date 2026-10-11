@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Button, Table, Modal, Form, Row, Col, Card, Tooltip, OverlayTrigger, Badge } from 'react-bootstrap';
-import { FaEdit, FaTrashAlt, FaWhatsapp, FaChevronLeft, FaChevronRight, FaGlobe, FaInfoCircle, FaBell, FaSearch, FaUndo, FaUserPlus, FaFileImage, FaHistory, FaComments, FaPaperPlane, FaClock, FaMoneyBillWave } from 'react-icons/fa';
+import { FaEdit, FaTrashAlt, FaWhatsapp, FaChevronLeft, FaChevronRight, FaGlobe, FaInfoCircle, FaBell, FaSearch, FaUndo, FaUserPlus, FaFileImage, FaHistory, FaComments, FaPaperPlane, FaClock, FaMoneyBillWave, FaProjectDiagram } from 'react-icons/fa';
 import Select from 'react-select';
 import { axiosWithFallback as axios } from '../services/fetchWithFallback';
 import NavBarPage from './NavbarPage';
@@ -17,6 +17,7 @@ import SocialPostModal from '../components/modals/SocialPostModal';
 import TuitionPosterModal from '../components/modals/TuitionPosterModal';
 import ConfirmationFollowUpModal from '../components/modals/ConfirmationFollowUpModal';
 import TuitionProposalModal from '../components/modals/TuitionProposalModal';
+import TuitionProcessModal from '../components/modals/TuitionProcessModal';
 import { usePublicSettings } from '../context/PublicSettingsContext';
 import locationData from '../data/locations.json';
 
@@ -156,6 +157,14 @@ const TuitionPage = () => {
 
     const [showProposalModal, setShowProposalModal] = useState(false);
     const [selectedProposalTuition, setSelectedProposalTuition] = useState(null);
+
+    const [showProcessModal, setShowProcessModal] = useState(false);
+    const [selectedProcessTuition, setSelectedProcessTuition] = useState(null);
+
+    const handleOpenProcessModal = React.useCallback((tuition) => {
+        setSelectedProcessTuition(tuition);
+        setShowProcessModal(true);
+    }, []);
 
     const handleShowProposal = React.useCallback((tuition) => {
         setSelectedProposalTuition(tuition);
@@ -731,6 +740,8 @@ const TuitionPage = () => {
 
     const statusColors = {
         "available": { bg: "bg-success", text: "text-white" },
+        "CV Sent": { bg: "bg-primary", text: "text-white" },
+        "CV Sent - Check if liked": { bg: "bg-info", text: "text-dark" },
         "given number": { bg: "bg-primary", text: "text-white" },
         "guardian meet": { bg: "bg-secondary", text: "text-white" },
         "demo class running": { bg: "bg-warning", text: "text-dark" },
@@ -738,6 +749,7 @@ const TuitionPage = () => {
         "2nd Demo Class": { bg: "bg-warning", text: "text-dark" },
         "1st demo class": { bg: "bg-warning", text: "text-dark" },
         "2nd demo class": { bg: "bg-warning", text: "text-dark" },
+        "demo class failed": { bg: "bg-danger", text: "text-white" },
         "confirm": { bg: "bg-info", text: "text-dark" },
         "cancel": { bg: "bg-danger", text: "text-white" },
         "suspended": { bg: "bg-dark", text: "text-white" },
@@ -902,11 +914,15 @@ const TuitionPage = () => {
                                 >
                                     <option value="">All Statuses</option>
                                     <option value="available">Available</option>
+                                    <option value="guardian negotiation">Guardian Negotiation</option>
+                                    <option value="CV Sent">CV Sent</option>
+                                    <option value="CV Sent - Check if liked">CV Sent - Check if liked</option>
                                     <option value="given number">Given Number</option>
                                     <option value="guardian meet">Guardian Meet</option>
                                     <option value="demo class running">Demo Class Running</option>
                                     <option value="1st demo class">1st Demo Class</option>
                                     <option value="2nd demo class">2nd Demo Class</option>
+                                    <option value="demo class failed">Demo Class Failed</option>
                                     <option value="confirm">Confirm</option>
                                     <option value="cancel">Cancel</option>
                                     <option value="refer BM">Refer BM</option>
@@ -1278,6 +1294,7 @@ const TuitionPage = () => {
                                 handleShowStatusHistory={handleShowStatusHistory}
                                 handleShowFollowUp={handleShowFollowUp}
                                 handleShowProposal={handleShowProposal}
+                                handleOpenProcessModal={handleOpenProcessModal}
                             />
 
                         </div>
@@ -1668,6 +1685,19 @@ const TuitionPage = () => {
                     tuition={selectedProposalTuition}
                 />
 
+                <TuitionProcessModal
+                    show={showProcessModal}
+                    onHide={() => {
+                        setShowProcessModal(false);
+                        setSelectedProcessTuition(null);
+                    }}
+                    tuition={selectedProcessTuition}
+                    onProcessUpdated={() => {
+                        fetchTuitionRecords();
+                    }}
+                    onCopyTuition={handleCopyTuition}
+                />
+
                 <AppliedListModal
                     tuitionId={selectedTuitionId}
                     tuitionCode={selectedTuitionCode}
@@ -1961,7 +1991,8 @@ const MemoizedTuitionTable = React.memo(({
     bestStyle,
     handleShowStatusHistory,
     handleShowFollowUp,
-    handleShowProposal
+    handleShowProposal,
+    handleOpenProcessModal
 }) => {
     return (
         <Table striped bordered hover responsive="lg">
@@ -2157,6 +2188,15 @@ const MemoizedTuitionTable = React.memo(({
                             <td style={{ display: 'flex', justifyContent: 'flex-start', gap: '8px', position: 'sticky', right: 0, zIndex: 2, backgroundColor: 'inherit' }}>
                                 <Button variant="info" onClick={() => handleShowDetails(tuition)} title="View Details">
                                     <FaInfoCircle />
+                                </Button>
+
+                                <Button 
+                                    variant="primary" 
+                                    style={{ background: 'linear-gradient(135deg, #1e3a8a, #2563eb)', border: 'none', color: '#fff' }} 
+                                    onClick={() => handleOpenProcessModal(tuition)} 
+                                    title="Open Tuition Process Lifecycle Flow"
+                                >
+                                    <FaProjectDiagram />
                                 </Button>
 
                                 <Button variant="warning" onClick={() => handleEdit(tuition)} className="mr-2">

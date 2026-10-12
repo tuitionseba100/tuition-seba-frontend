@@ -722,11 +722,9 @@ const TuitionPage = () => {
     const formatDateTimeDisplay = (isoString) => {
         if (!isoString) return '-';
 
-        const localString = isoString.endsWith('Z') ? isoString.slice(0, -1) : isoString;
+        const dt = new Date(isoString);
 
-        const dt = new Date(localString);
-
-        if (isNaN(dt)) return isoString;
+        if (isNaN(dt.getTime())) return isoString;
 
         return dt.toLocaleString('en-GB', {
             year: 'numeric',
@@ -738,7 +736,29 @@ const TuitionPage = () => {
         });
     };
 
+    const OVERDUE_BLINK_STATUSES = new Set([
+        'available',
+        'guardian negotiation',
+        'cv sent',
+        'cv sent - check if liked',
+        'cv sent (check if liked)',
+        'given number',
+        'guardian no response',
+        'request for payment',
+        'refer bm'
+    ]);
 
+    const isStatusOverdue = (status, dateString) => {
+        if (!status || !dateString) return false;
+        const normalized = String(status).trim().toLowerCase();
+        if (!OVERDUE_BLINK_STATUSES.has(normalized)) return false;
+
+        const date = new Date(dateString);
+        if (isNaN(date.getTime())) return false;
+
+        const diffMs = Date.now() - date.getTime();
+        return diffMs >= 24 * 60 * 60 * 1000;
+    };
 
     const formatTimePassed = (dateString) => {
         if (!dateString) return '';
@@ -1315,6 +1335,7 @@ const TuitionPage = () => {
                                 formatDateTimeDisplay={formatDateTimeDisplay}
                                 statusColors={statusColors}
                                 formatTimePassed={formatTimePassed}
+                                isStatusOverdue={isStatusOverdue}
                                 handleShowDetails={handleShowDetails}
                                 handleEdit={handleEdit}
                                 handleDeleteTuition={handleDeleteTuition}
@@ -1473,16 +1494,56 @@ const TuitionPage = () => {
                                                     <span className={`badge ${statusColors[tuition.status]?.bg || "bg-light"} ${statusColors[tuition.status]?.text || "text-dark"}`}>
                                                         {tuition.status}
                                                     </span>
-                                                    {tuition.statusChangedAt && (
-                                                        <div className="d-flex flex-column align-items-center mt-1" style={{ fontSize: '0.72rem', lineHeight: '1.2' }}>
-                                                            <span className="text-secondary fw-bold" title={`Status set at: ${formatDateTimeDisplay(tuition.statusChangedAt)}`}>
-                                                                ⏱️ {formatTimePassed(tuition.statusChangedAt)}
-                                                            </span>
-                                                            <span className="text-muted" style={{ fontSize: '0.67rem' }}>
-                                                                {formatDateTimeDisplay(tuition.statusChangedAt)}
-                                                            </span>
-                                                        </div>
-                                                    )}
+                                                    {tuition.statusChangedAt && (() => {
+                                                        const isOverdue = isStatusOverdue(tuition.status, tuition.statusChangedAt);
+                                                        const isDarkRow = tuition.isBestGuardian || tuition.isSpamGuardian;
+                                                        return (
+                                                            <div
+                                                                className="d-flex flex-column align-items-center mt-1 px-2 py-1 rounded"
+                                                                style={{
+                                                                    fontSize: '0.72rem',
+                                                                    lineHeight: '1.25',
+                                                                    borderRadius: '6px',
+                                                                    border: isDarkRow 
+                                                                        ? (isOverdue ? '1px solid rgba(255, 235, 59, 0.7)' : '1px solid rgba(255, 255, 255, 0.25)')
+                                                                        : (isOverdue ? '1px solid #f5c2c7' : '1px solid #e2e8f0'),
+                                                                    backgroundColor: isDarkRow 
+                                                                        ? (isOverdue ? 'rgba(0, 0, 0, 0.35)' : 'rgba(0, 0, 0, 0.22)')
+                                                                        : (isOverdue ? '#fff5f5' : '#f8fafc'),
+                                                                    boxShadow: isOverdue ? '0 1px 4px rgba(220, 53, 69, 0.25)' : '0 1px 2px rgba(0,0,0,0.04)',
+                                                                    minWidth: '96px',
+                                                                    ...(isOverdue ? { animation: 'blinker 1.5s linear infinite' } : {})
+                                                                }}
+                                                            >
+                                                                <div
+                                                                    className="d-flex align-items-center gap-1"
+                                                                    style={{
+                                                                        fontWeight: '700',
+                                                                        fontSize: '0.74rem',
+                                                                        color: isOverdue 
+                                                                            ? (isDarkRow ? '#ffeb3b' : '#dc3545') 
+                                                                            : (isDarkRow ? '#ffffff' : '#334155')
+                                                                    }}
+                                                                    title={`Status set at: ${formatDateTimeDisplay(tuition.statusChangedAt)}${isOverdue ? ' (Overdue: > 1 day in this status)' : ''}`}
+                                                                >
+                                                                    <FaClock style={{ fontSize: '0.66rem', opacity: 0.85 }} />
+                                                                    <span>{formatTimePassed(tuition.statusChangedAt)}</span>
+                                                                </div>
+                                                                <div 
+                                                                    style={{ 
+                                                                        fontSize: '0.64rem',
+                                                                        marginTop: '1px',
+                                                                        whiteSpace: 'nowrap',
+                                                                        color: isOverdue 
+                                                                            ? (isDarkRow ? '#fff9c4' : '#e03131') 
+                                                                            : (isDarkRow ? 'rgba(255, 255, 255, 0.85)' : '#64748b')
+                                                                    }}
+                                                                >
+                                                                    {formatDateTimeDisplay(tuition.statusChangedAt)}
+                                                                </div>
+                                                            </div>
+                                                        );
+                                                    })()}
                                                 </td>
                                                 <td>
                                                     <div className="d-flex flex-column align-items-center">
@@ -2050,6 +2111,7 @@ const MemoizedTuitionTable = React.memo(({
     formatDateTimeDisplay,
     statusColors,
     formatTimePassed,
+    isStatusOverdue,
     handleShowDetails,
     handleEdit,
     handleDeleteTuition,
@@ -2212,16 +2274,56 @@ const MemoizedTuitionTable = React.memo(({
                                 >
                                     {tuition.status}
                                 </span>
-                                {tuition.statusChangedAt && (
-                                    <div className="d-flex flex-column align-items-center mt-1" style={{ fontSize: '0.72rem', lineHeight: '1.2' }}>
-                                        <span className="text-secondary fw-bold" title={`Status set at: ${formatDateTimeDisplay(tuition.statusChangedAt)}`}>
-                                            ⏱️ {formatTimePassed(tuition.statusChangedAt)}
-                                        </span>
-                                        <span className="text-muted" style={{ fontSize: '0.67rem' }}>
-                                            {formatDateTimeDisplay(tuition.statusChangedAt)}
-                                        </span>
-                                    </div>
-                                )}
+                                {tuition.statusChangedAt && (() => {
+                                    const isOverdue = isStatusOverdue(tuition.status, tuition.statusChangedAt);
+                                    const isDarkRow = tuition.isBestGuardian || tuition.isSpamGuardian;
+                                    return (
+                                        <div
+                                            className="d-flex flex-column align-items-center mt-1 px-2 py-1 rounded"
+                                            style={{
+                                                fontSize: '0.72rem',
+                                                lineHeight: '1.25',
+                                                borderRadius: '6px',
+                                                border: isDarkRow 
+                                                    ? (isOverdue ? '1px solid rgba(255, 235, 59, 0.7)' : '1px solid rgba(255, 255, 255, 0.25)')
+                                                    : (isOverdue ? '1px solid #f5c2c7' : '1px solid #e2e8f0'),
+                                                backgroundColor: isDarkRow 
+                                                    ? (isOverdue ? 'rgba(0, 0, 0, 0.35)' : 'rgba(0, 0, 0, 0.22)')
+                                                    : (isOverdue ? '#fff5f5' : '#f8fafc'),
+                                                boxShadow: isOverdue ? '0 1px 4px rgba(220, 53, 69, 0.25)' : '0 1px 2px rgba(0,0,0,0.04)',
+                                                minWidth: '96px',
+                                                ...(isOverdue ? { animation: 'blinker 1.5s linear infinite' } : {})
+                                            }}
+                                        >
+                                            <div
+                                                className="d-flex align-items-center gap-1"
+                                                style={{
+                                                    fontWeight: '700',
+                                                    fontSize: '0.74rem',
+                                                    color: isOverdue 
+                                                        ? (isDarkRow ? '#ffeb3b' : '#dc3545') 
+                                                        : (isDarkRow ? '#ffffff' : '#334155')
+                                                }}
+                                                title={`Status set at: ${formatDateTimeDisplay(tuition.statusChangedAt)}${isOverdue ? ' (Overdue: > 1 day in this status)' : ''}`}
+                                            >
+                                                <FaClock style={{ fontSize: '0.66rem', opacity: 0.85 }} />
+                                                <span>{formatTimePassed(tuition.statusChangedAt)}</span>
+                                            </div>
+                                            <div 
+                                                style={{ 
+                                                    fontSize: '0.64rem',
+                                                    marginTop: '1px',
+                                                    whiteSpace: 'nowrap',
+                                                    color: isOverdue 
+                                                        ? (isDarkRow ? '#fff9c4' : '#e03131') 
+                                                        : (isDarkRow ? 'rgba(255, 255, 255, 0.85)' : '#64748b')
+                                                }}
+                                            >
+                                                {formatDateTimeDisplay(tuition.statusChangedAt)}
+                                            </div>
+                                        </div>
+                                    );
+                                })()}
                             </td>
                             <td>
                                 {tuition.isReviewDone ? (

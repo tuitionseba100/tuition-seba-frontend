@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Button, Table, Modal, Form, Row, Col, Card, Tooltip, OverlayTrigger, Badge } from 'react-bootstrap';
-import { FaEdit, FaTrashAlt, FaWhatsapp, FaChevronLeft, FaChevronRight, FaGlobe, FaInfoCircle, FaBell, FaSearch, FaUndo, FaUserPlus, FaFileImage, FaHistory, FaComments, FaPaperPlane, FaClock, FaMoneyBillWave, FaProjectDiagram } from 'react-icons/fa';
+import { FaEdit, FaTrashAlt, FaWhatsapp, FaChevronLeft, FaChevronRight, FaGlobe, FaInfoCircle, FaBell, FaSearch, FaUndo, FaUserPlus, FaFileImage, FaHistory, FaComments, FaPaperPlane, FaClock, FaMoneyBillWave, FaProjectDiagram, FaCopy } from 'react-icons/fa';
 import Select from 'react-select';
 import { axiosWithFallback as axios } from '../services/fetchWithFallback';
 import NavBarPage from './NavbarPage';
@@ -697,10 +697,10 @@ const TuitionPage = () => {
         }
     };
 
-    const handleShare = React.useCallback((tuitionDetails) => {
+    const getTuitionShareMessage = React.useCallback((tuitionDetails) => {
         const phoneNumber = whatsappNumber || '01633920928';
         const area = tuitionDetails.area ? tuitionDetails.area : '';
-        const message = `Tuition Code: ${tuitionDetails.tuitionCode}\n` +
+        return `Tuition Code: ${tuitionDetails.tuitionCode}\n` +
             `Wanted Teacher: ${tuitionDetails.wantedTeacher}\n` +
             `Number of Students: ${tuitionDetails.student}\n` +
             `Class: ${tuitionDetails.class}\n` +
@@ -714,15 +714,57 @@ const TuitionPage = () => {
             `Joining: ${tuitionDetails.joining}\n\n` +
             `Visit our website: www.tuitionsebaforum.com\n\n` +
             `Whatsapp: ${phoneNumber}`;
-
-        const url = `https://api.whatsapp.com/send?text=${encodeURIComponent(message)}`;
-        window.open(url, '_blank');
     }, [whatsappNumber]);
 
-    const formatDateTimeDisplay = (isoString) => {
+    const handleShare = React.useCallback((tuitionDetails) => {
+        const message = getTuitionShareMessage(tuitionDetails);
+        const url = `https://api.whatsapp.com/send?text=${encodeURIComponent(message)}`;
+        window.open(url, '_blank');
+    }, [getTuitionShareMessage]);
+
+    const handleCopyShareText = React.useCallback(async (tuitionDetails) => {
+        const message = getTuitionShareMessage(tuitionDetails);
+        try {
+            if (navigator.clipboard && window.isSecureContext) {
+                await navigator.clipboard.writeText(message);
+            } else {
+                const textArea = document.createElement("textarea");
+                textArea.value = message;
+                textArea.style.position = "fixed";
+                textArea.style.left = "-999999px";
+                textArea.style.top = "-999999px";
+                document.body.appendChild(textArea);
+                textArea.focus();
+                textArea.select();
+                document.execCommand('copy');
+                textArea.remove();
+            }
+            toast.success("Tuition format copied to clipboard!");
+        } catch (err) {
+            console.error("Failed to copy tuition format:", err);
+            toast.error("Failed to copy to clipboard.");
+        }
+    }, [getTuitionShareMessage]);
+
+    const formatDateTimeDisplay = (isoString, isUtcTimestamp = false) => {
         if (!isoString) return '-';
 
-        const dt = new Date(isoString);
+        if (isUtcTimestamp) {
+            const dt = new Date(isoString);
+            if (isNaN(dt.getTime())) return isoString;
+            return dt.toLocaleString('en-GB', {
+                year: 'numeric',
+                month: 'short',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: true,
+                timeZone: 'Asia/Dhaka',
+            });
+        }
+
+        const localString = String(isoString).endsWith('Z') ? isoString.slice(0, -1) : isoString;
+        const dt = new Date(localString);
 
         if (isNaN(dt.getTime())) return isoString;
 
@@ -1340,6 +1382,7 @@ const TuitionPage = () => {
                                 handleEdit={handleEdit}
                                 handleDeleteTuition={handleDeleteTuition}
                                 handleShare={handleShare}
+                                handleCopyShareText={handleCopyShareText}
                                 handleOpenAssignModal={handleOpenAssignModal}
                                 openAppliedListModal={openAppliedListModal}
                                 handleGeneratePoster={handleGeneratePoster}
@@ -1524,7 +1567,7 @@ const TuitionPage = () => {
                                                                             ? (isDarkRow ? '#ffeb3b' : '#dc3545') 
                                                                             : (isDarkRow ? '#ffffff' : '#334155')
                                                                     }}
-                                                                    title={`Status set at: ${formatDateTimeDisplay(tuition.statusChangedAt)}${isOverdue ? ' (Overdue: > 1 day in this status)' : ''}`}
+                                                                    title={`Status set at: ${formatDateTimeDisplay(tuition.statusChangedAt, true)}${isOverdue ? ' (Overdue: > 1 day in this status)' : ''}`}
                                                                 >
                                                                     <FaClock style={{ fontSize: '0.66rem', opacity: 0.85 }} />
                                                                     <span>{formatTimePassed(tuition.statusChangedAt)}</span>
@@ -1539,7 +1582,7 @@ const TuitionPage = () => {
                                                                             : (isDarkRow ? 'rgba(255, 255, 255, 0.85)' : '#64748b')
                                                                     }}
                                                                 >
-                                                                    {formatDateTimeDisplay(tuition.statusChangedAt)}
+                                                                    {formatDateTimeDisplay(tuition.statusChangedAt, true)}
                                                                 </div>
                                                             </div>
                                                         );
@@ -2116,6 +2159,7 @@ const MemoizedTuitionTable = React.memo(({
     handleEdit,
     handleDeleteTuition,
     handleShare,
+    handleCopyShareText,
     handleOpenAssignModal,
     openAppliedListModal,
     handleGeneratePoster,
@@ -2304,7 +2348,7 @@ const MemoizedTuitionTable = React.memo(({
                                                         ? (isDarkRow ? '#ffeb3b' : '#dc3545') 
                                                         : (isDarkRow ? '#ffffff' : '#334155')
                                                 }}
-                                                title={`Status set at: ${formatDateTimeDisplay(tuition.statusChangedAt)}${isOverdue ? ' (Overdue: > 1 day in this status)' : ''}`}
+                                                title={`Status set at: ${formatDateTimeDisplay(tuition.statusChangedAt, true)}${isOverdue ? ' (Overdue: > 1 day in this status)' : ''}`}
                                             >
                                                 <FaClock style={{ fontSize: '0.66rem', opacity: 0.85 }} />
                                                 <span>{formatTimePassed(tuition.statusChangedAt)}</span>
@@ -2319,7 +2363,7 @@ const MemoizedTuitionTable = React.memo(({
                                                         : (isDarkRow ? 'rgba(255, 255, 255, 0.85)' : '#64748b')
                                                 }}
                                             >
-                                                {formatDateTimeDisplay(tuition.statusChangedAt)}
+                                                {formatDateTimeDisplay(tuition.statusChangedAt, true)}
                                             </div>
                                         </div>
                                     );
@@ -2390,17 +2434,23 @@ const MemoizedTuitionTable = React.memo(({
                                         <FaTrashAlt />
                                     </Button>
                                 )}
-                                <Button variant="success" onClick={() => handleShare(tuition)}>
-                                    <FaWhatsapp />
-                                </Button>
                                 {(role === 'superadmin' || role === 'manager') && (
                                     <Button variant="dark" onClick={() => handleOpenAssignModal(tuition)} title="Assign Employee">
                                         <FaUserPlus />
                                     </Button>
                                 )}
-                                <Button variant="secondary" style={{ background: 'linear-gradient(45deg, #4f46e5, #7c3aed)', border: 'none' }} onClick={() => handleGeneratePoster(tuition)} title="Generate Poster">
-                                    <FaFileImage />
+                                <Button 
+                                    variant="secondary" 
+                                    style={{ background: 'linear-gradient(45deg, #4f46e5, #7c3aed)', border: 'none' }} 
+                                    onClick={() => handleCopyShareText(tuition)} 
+                                    title="Copy Details (WhatsApp Format)"
+                                >
+                                    <FaCopy />
                                 </Button>
+                                {/* Hidden for now: Generate Poster */}
+                                {/* <Button variant="secondary" style={{ background: 'linear-gradient(45deg, #4f46e5, #7c3aed)', border: 'none' }} onClick={() => handleGeneratePoster(tuition)} title="Generate Poster">
+                                    <FaFileImage />
+                                </Button> */}
                                 {tuition.status?.toLowerCase() === 'confirm' && (
                                     <Button variant="primary" style={{ background: 'linear-gradient(45deg, #0284c7, #0369a1)', border: 'none' }} onClick={() => handleShowFollowUp(tuition)} title="Confirmation Follow-up History">
                                         <FaHistory />

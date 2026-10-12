@@ -13,7 +13,10 @@ import {
     FaAward,
     FaImages,
     FaExternalLinkAlt,
-    FaTimes
+    FaTimes,
+    FaUndo,
+    FaRedo,
+    FaSyncAlt
 } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 import { usePublicSettings } from '../../context/PublicSettingsContext';
@@ -181,11 +184,17 @@ const TeacherDetailsModal = ({
 }) => {
     const { whatsappNumber } = usePublicSettings();
     const [enlargedImage, setEnlargedImage] = useState(null);
+    const [imageRotation, setImageRotation] = useState(0);
+
+    useEffect(() => {
+        setImageRotation(0);
+    }, [enlargedImage]);
 
     useEffect(() => {
         const handleKeyDown = (e) => {
             if (e.key === 'Escape' && enlargedImage) {
                 setEnlargedImage(null);
+                setImageRotation(0);
             }
         };
         if (enlargedImage) {
@@ -705,7 +714,7 @@ const TeacherDetailsModal = ({
                 </Modal.Footer>
             </Modal>
 
-            {/* Lightbox for Enlarged Image inside Modal */}
+            {/* Lightbox for Enlarged Image inside Modal with Rotate Controls */}
             {enlargedImage && (
                 <div
                     style={{
@@ -714,29 +723,33 @@ const TeacherDetailsModal = ({
                         left: 0,
                         right: 0,
                         bottom: 0,
-                        backgroundColor: 'rgba(15, 23, 42, 0.95)',
-                        backdropFilter: 'blur(5px)',
+                        backgroundColor: 'rgba(10, 15, 29, 0.96)',
+                        backdropFilter: 'blur(8px)',
                         zIndex: 99999,
                         display: 'flex',
                         flexDirection: 'column',
                         alignItems: 'center',
-                        justifyContent: 'center',
+                        justifyContent: 'space-between',
                         padding: '16px'
                     }}
-                    onClick={() => setEnlargedImage(null)}
+                    onClick={() => {
+                        setEnlargedImage(null);
+                        setImageRotation(0);
+                    }}
                 >
                     {/* Top Bar */}
                     <div
                         style={{
-                            position: 'absolute',
-                            top: 0,
-                            left: 0,
-                            right: 0,
+                            width: '100%',
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'space-between',
-                            padding: '14px 24px',
-                            background: 'linear-gradient(to bottom, rgba(0,0,0,0.85), transparent)',
+                            flexWrap: 'wrap',
+                            gap: '12px',
+                            padding: '10px 16px',
+                            background: 'rgba(255, 255, 255, 0.06)',
+                            borderRadius: '12px',
+                            border: '1px solid rgba(255, 255, 255, 0.1)',
                             color: '#fff',
                             zIndex: 100000
                         }}
@@ -744,11 +757,46 @@ const TeacherDetailsModal = ({
                     >
                         <div className="d-flex align-items-center gap-2">
                             <FaImages className="text-info fs-5" />
-                            <span className="fw-bold fs-6 text-white text-truncate" style={{ maxWidth: '60vw' }}>
+                            <span className="fw-bold fs-6 text-white text-truncate" style={{ maxWidth: '40vw' }}>
                                 {enlargedImage.title || 'Document Preview'}
                             </span>
                         </div>
-                        <div className="d-flex align-items-center gap-2">
+
+                        {/* Action buttons (Rotate, Open Original, Close) */}
+                        <div className="d-flex align-items-center gap-2 flex-wrap">
+                            {/* Rotate Controls */}
+                            <div className="btn-group" role="group" aria-label="Rotate controls">
+                                <button
+                                    type="button"
+                                    className="btn btn-sm btn-outline-light d-flex align-items-center gap-1"
+                                    style={{ fontSize: '0.8rem', backgroundColor: 'rgba(255,255,255,0.08)' }}
+                                    onClick={() => setImageRotation((prev) => (prev - 90) % 360)}
+                                    title="Rotate Left 90° (Counter-Clockwise)"
+                                >
+                                    <FaUndo size={11} /> Rotate Left
+                                </button>
+                                <button
+                                    type="button"
+                                    className="btn btn-sm btn-outline-light d-flex align-items-center gap-1"
+                                    style={{ fontSize: '0.8rem', backgroundColor: 'rgba(255,255,255,0.08)' }}
+                                    onClick={() => setImageRotation((prev) => (prev + 90) % 360)}
+                                    title="Rotate Right 90° (Clockwise)"
+                                >
+                                    <FaRedo size={11} /> Rotate Right
+                                </button>
+                                {imageRotation !== 0 && (
+                                    <button
+                                        type="button"
+                                        className="btn btn-sm btn-warning d-flex align-items-center gap-1 text-dark fw-semibold"
+                                        style={{ fontSize: '0.8rem' }}
+                                        onClick={() => setImageRotation(0)}
+                                        title="Reset rotation to 0°"
+                                    >
+                                        <FaSyncAlt size={10} /> Reset ({imageRotation > 0 ? `+${imageRotation}` : imageRotation}°)
+                                    </button>
+                                )}
+                            </div>
+
                             <a
                                 href={enlargedImage.url}
                                 target="_blank"
@@ -759,12 +807,16 @@ const TeacherDetailsModal = ({
                             >
                                 <FaExternalLinkAlt size={11} /> New Tab
                             </a>
+
                             <button
                                 type="button"
-                                className="btn btn-sm btn-danger rounded-circle d-flex align-items-center justify-content-center"
-                                style={{ width: '34px', height: '34px', fontSize: '16px' }}
-                                onClick={() => setEnlargedImage(null)}
-                                title="Close (or press Esc to return to modal)"
+                                className="btn btn-sm btn-danger rounded-circle d-flex align-items-center justify-content-center shadow-sm"
+                                style={{ width: '34px', height: '34px', fontSize: '15px' }}
+                                onClick={() => {
+                                    setEnlargedImage(null);
+                                    setImageRotation(0);
+                                }}
+                                title="Close preview (Esc)"
                             >
                                 <FaTimes />
                             </button>
@@ -774,11 +826,13 @@ const TeacherDetailsModal = ({
                     {/* Image Canvas */}
                     <div
                         style={{
-                            maxWidth: '92vw',
-                            maxHeight: '84vh',
+                            flex: 1,
+                            width: '100%',
                             display: 'flex',
                             alignItems: 'center',
-                            justifyContent: 'center'
+                            justifyContent: 'center',
+                            overflow: 'hidden',
+                            padding: '16px'
                         }}
                         onClick={(e) => e.stopPropagation()}
                     >
@@ -786,23 +840,28 @@ const TeacherDetailsModal = ({
                             src={enlargedImage.url}
                             alt={enlargedImage.title || 'Enlarged Preview'}
                             style={{
-                                maxWidth: '100%',
-                                maxHeight: '84vh',
+                                maxWidth: (Math.abs(imageRotation) / 90) % 2 === 1 ? '75vh' : '90vw',
+                                maxHeight: (Math.abs(imageRotation) / 90) % 2 === 1 ? '85vw' : '78vh',
                                 width: 'auto',
                                 height: 'auto',
                                 objectFit: 'contain',
                                 borderRadius: '8px',
-                                boxShadow: '0 10px 40px rgba(0,0,0,0.8)'
+                                boxShadow: '0 16px 48px rgba(0,0,0,0.85)',
+                                transform: `rotate(${imageRotation}deg)`,
+                                transition: 'transform 0.25s cubic-bezier(0.4, 0, 0.2, 1)'
                             }}
                         />
                     </div>
 
+                    {/* Footer helper */}
                     <div
-                        className="text-white-50 small mt-2 d-flex align-items-center gap-1"
+                        className="text-white-50 small d-flex align-items-center gap-2"
                         style={{ fontSize: '0.78rem' }}
                         onClick={(e) => e.stopPropagation()}
                     >
-                        Click background or press <kbd className="bg-secondary text-white px-1 rounded">Esc</kbd> to return to modal
+                        <span>Rotation: <strong className="text-info">{imageRotation}°</strong></span>
+                        <span>•</span>
+                        <span>Click outside or press <kbd className="bg-secondary text-white px-1 rounded">Esc</kbd> to return to modal</span>
                     </div>
                 </div>
             )}

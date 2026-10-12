@@ -74,10 +74,27 @@ export default function ConfirmationFollowUpModal({ show, onHide, tuition, onUpd
         }
     };
 
-    const formatDateTimeDisplay = (isoString) => {
+    const formatDateTimeDisplay = (isoString, isUtcTimestamp = false) => {
         if (!isoString) return '-';
-        const dt = new Date(isoString);
-        if (isNaN(dt)) return isoString;
+
+        if (isUtcTimestamp) {
+            const dt = new Date(isoString);
+            if (isNaN(dt.getTime())) return isoString;
+            return dt.toLocaleString('en-GB', {
+                year: 'numeric',
+                month: 'short',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: true,
+                timeZone: 'Asia/Dhaka',
+            });
+        }
+
+        const localString = String(isoString).endsWith('Z') ? isoString.slice(0, -1) : isoString;
+        const dt = new Date(localString);
+        if (isNaN(dt.getTime())) return isoString;
+
         return dt.toLocaleString('en-GB', {
             year: 'numeric',
             month: 'short',
@@ -209,7 +226,7 @@ export default function ConfirmationFollowUpModal({ show, onHide, tuition, onUpd
                                                     <td>
                                                         <span className="badge bg-secondary">{log.createdBy || '-'}</span>
                                                         <div className="text-muted small mt-1" style={{ fontSize: '0.65rem' }}>
-                                                            {formatDateTimeDisplay(log.createdAt)}
+                                                            {formatDateTimeDisplay(log.createdAt, true)}
                                                         </div>
                                                     </td>
                                                 </tr>

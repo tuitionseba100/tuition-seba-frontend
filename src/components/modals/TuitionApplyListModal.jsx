@@ -4,6 +4,7 @@ import { axiosWithFallback as axios } from '../../services/fetchWithFallback';
 import { toast } from "react-toastify";
 import { FaEdit, FaTrashAlt, FaGlobe, FaGooglePlay, FaCopy } from "react-icons/fa";
 import TeacherDetailsModal, { formatTeacherCvText } from "./TeacherDetailsModal";
+import TeacherCreateEditModal from "./TeacherCreateEditModal";
 import { usePublicSettings } from "../../context/PublicSettingsContext";
 
 const inputStyle = {
@@ -44,6 +45,39 @@ function AppliedListModal({ tuitionId, tuitionCode, show, onHide }) {
     const [selectedTeacherForModal, setSelectedTeacherForModal] = useState(null);
     const [showTeacherDetailsModal, setShowTeacherDetailsModal] = useState(false);
     const [fetchingTeacherCode, setFetchingTeacherCode] = useState(null);
+
+    // Teacher Edit Modal State
+    const [selectedTeacherForEdit, setSelectedTeacherForEdit] = useState(null);
+    const [showTeacherEditModal, setShowTeacherEditModal] = useState(false);
+
+    const handleEditTeacher = (teacher) => {
+        setSelectedTeacherForEdit(teacher);
+        setShowTeacherEditModal(true);
+    };
+
+    const handleTeacherEditSuccess = (updatedTeacher) => {
+        if (selectedTeacherForModal && (selectedTeacherForModal._id === updatedTeacher?._id || selectedTeacherForModal.premiumCode === updatedTeacher?.premiumCode)) {
+            setSelectedTeacherForModal(prev => ({ ...prev, ...updatedTeacher }));
+        }
+        if (updatedTeacher?.premiumCode) {
+            const cleanPrem = String(updatedTeacher.premiumCode).trim().toLowerCase();
+            setAppliedList(prev => prev.map(app => {
+                if (app.premiumCode && String(app.premiumCode).trim().toLowerCase() === cleanPrem) {
+                    return {
+                        ...app,
+                        name: updatedTeacher.name || app.name,
+                        phone: updatedTeacher.phone || app.phone,
+                        regTeacherStatus: updatedTeacher.status || app.regTeacherStatus,
+                        department: updatedTeacher.honorsDept || updatedTeacher.department || app.department,
+                        institute: updatedTeacher.honorsUniversity || updatedTeacher.institute || app.institute,
+                        academicYear: updatedTeacher.academicYear || app.academicYear,
+                        address: updatedTeacher.currentArea || updatedTeacher.fullAddress || app.address
+                    };
+                }
+                return app;
+            }));
+        }
+    };
 
     const handleOpenTeacherDetailsByPremiumCode = async (premiumCode) => {
         if (!premiumCode || !String(premiumCode).trim()) {
@@ -914,6 +948,17 @@ function AppliedListModal({ tuitionId, tuitionCode, show, onHide }) {
                 show={showTeacherDetailsModal}
                 onHide={() => setShowTeacherDetailsModal(false)}
                 teacher={selectedTeacherForModal}
+                onEdit={handleEditTeacher}
+            />
+
+            <TeacherCreateEditModal
+                show={showTeacherEditModal}
+                onHide={() => {
+                    setShowTeacherEditModal(false);
+                    setSelectedTeacherForEdit(null);
+                }}
+                teacher={selectedTeacherForEdit}
+                onSuccess={handleTeacherEditSuccess}
             />
         </>
     );

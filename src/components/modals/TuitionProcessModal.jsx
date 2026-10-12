@@ -244,9 +244,9 @@ export default function TuitionProcessModal({ show, onHide, tuition, onProcessUp
     };
 
     const cancelLog = historyLogs.find(h => h.newStatus?.toLowerCase() === 'cancel');
-    const hadCancel = !!cancelLog || Boolean(processData?.tuition?.tuitionCancelReason || tuition?.tuitionCancelReason);
+    const hadCancel = !!cancelLog || Boolean(processData?.tuition?.cancellationReason || tuition?.cancellationReason);
     const showCancel = isCancel || hadCancel;
-    const cancelReasonText = processData?.tuition?.tuitionCancelReason || tuition?.tuitionCancelReason || cancelLog?.comment || '';
+    const cancelReasonText = processData?.tuition?.cancellationReason || tuition?.cancellationReason || cancelLog?.comment || '';
     const cancelUser = cancelLog?.changedBy || processData?.tuition?.updatedBy || tuition?.updatedBy;
     const cancelTime = cancelLog?.timestamp || processData?.tuition?.updatedAt || tuition?.updatedAt;
 

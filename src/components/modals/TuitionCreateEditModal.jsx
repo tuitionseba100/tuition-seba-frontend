@@ -1,9 +1,23 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Modal, Button, Form, Row, Col, Spinner } from 'react-bootstrap';
 import Select from 'react-select';
+import CreatableSelect from 'react-select/creatable';
 import { axiosWithFallback as axios } from '../../services/fetchWithFallback';
 import { toast } from 'react-toastify';
 import locationData from '../../data/locations.json';
+
+const CANCEL_REASONS = [
+    'Guardian Found Teacher',
+    'Guardian No Response',
+    'No Suitable Teacher Available',
+    'Salary Issue',
+    'Location Issue',
+    'Time/Day Issue',
+    'Guardian Cancelled',
+    'Student/Family Issue',
+    'Tuition Temporarily Not Required',
+    'Others'
+];
 
 const fieldConfig = [
     { name: 'tuitionCode', label: 'Tuition Code', group: 'details', col: 4, type: 'text' },
@@ -36,6 +50,7 @@ const fieldConfig = [
     { name: 'tuitionType', label: 'Tuition Type', group: 'admin', col: 6, type: 'select', options: ['High Salary - High Demand', 'High Salary - Medium Demand', 'High Salary - Low Demand', 'Medium Salary - High Demand', 'Medium Salary - Medium Demand', 'Medium Salary - Low Demand', 'Low Salary - High Demand', 'Low Salary - Medium Demand', 'Low Salary - Low Demand'] },
     { name: 'guardianDemandForPublic', label: 'Guardian Demand (Public)', group: 'admin', col: 6, type: 'textarea' },
     { name: 'tuitionCancelReasonPublic', label: 'Tuition Cancel Reason Public', group: 'admin', col: 6, type: 'text' },
+    { name: 'cancellationReason', label: 'Cancellation Reason', group: 'admin', col: 6, type: 'creatable_select', options: CANCEL_REASONS },
     { name: 'guardianBehavior', label: 'Guardian Behavior', group: 'admin', col: 6, type: 'text' },
     { name: 'agentComment', label: 'Agent Comment', group: 'admin', col: 12, type: 'textarea' },
 
@@ -773,6 +788,41 @@ export default function TuitionModal({ show, onHide, editingData = null, editing
                                                         );
                                                     }
 
+                                                    if (name === 'cancellationReason' || type === 'creatable_select') {
+                                                        const cancelSelectOptions = CANCEL_REASONS.map(r => ({ value: r, label: r }));
+                                                        const currentValue = value ? { value, label: value } : null;
+                                                        return (
+                                                            <Col md={col} key={name}>
+                                                                <Form.Group controlId={name}>
+                                                                    <Form.Label className="fw-semibold text-danger">{label} (Select or Type)</Form.Label>
+                                                                    <CreatableSelect
+                                                                        isClearable
+                                                                        placeholder={`Select ${label} or type custom reason...`}
+                                                                        options={cancelSelectOptions}
+                                                                        value={currentValue}
+                                                                        onChange={(selected) => setFormData(prev => ({ ...prev, [name]: selected ? selected.value : '' }))}
+                                                                        isDisabled={saving}
+                                                                        menuPortalTarget={document.body}
+                                                                        styles={{
+                                                                            control: (base, state) => ({
+                                                                                ...base,
+                                                                                border: '1.5px solid rgba(220, 53, 69, 0.4)',
+                                                                                boxShadow: state.isFocused
+                                                                                    ? '0 0 6px rgba(220, 53, 69, 0.25)'
+                                                                                    : '0 0 4px rgba(220, 53, 69, 0.12)',
+                                                                                '&:hover': { borderColor: 'rgba(220, 53, 69, 0.6)' },
+                                                                                minHeight: '38px',
+                                                                                borderRadius: '0.375rem',
+                                                                                backgroundColor: 'white',
+                                                                            }),
+                                                                            menuPortal: (base) => ({ ...base, zIndex: 9999 })
+                                                                        }}
+                                                                    />
+                                                                </Form.Group>
+                                                            </Col>
+                                                        );
+                                                    }
+
                                                     if (name === 'status') {
                                                         const originalStatus = (editingData?.status || '').toLowerCase();
                                                         const isStatusChanged = editingId && formData.status && originalStatus && formData.status.toLowerCase() !== originalStatus;
@@ -823,7 +873,36 @@ export default function TuitionModal({ show, onHide, editingData = null, editing
                                                                                 <span className="text-primary">{formData.status}</span>
                                                                             </div>
                                                                             <Row className="g-2">
-                                                                                <Col md={12}>
+                                                                                {formData.status?.toLowerCase() === 'cancel' && (
+                                                                                    <Col md={6}>
+                                                                                        <Form.Group>
+                                                                                            <Form.Label className="fw-semibold text-danger mb-1" style={{ fontSize: '0.8rem' }}>
+                                                                                                Cancellation Reason
+                                                                                            </Form.Label>
+                                                                                            <CreatableSelect
+                                                                                                isClearable
+                                                                                                placeholder="Select or type custom reason..."
+                                                                                                options={CANCEL_REASONS.map(r => ({ value: r, label: r }))}
+                                                                                                value={formData.cancellationReason ? { value: formData.cancellationReason, label: formData.cancellationReason } : null}
+                                                                                                onChange={(selected) => setFormData(prev => ({ ...prev, cancellationReason: selected ? selected.value : '' }))}
+                                                                                                isDisabled={saving}
+                                                                                                menuPortalTarget={document.body}
+                                                                                                styles={{
+                                                                                                    control: (base) => ({
+                                                                                                        ...base,
+                                                                                                        minHeight: '38px',
+                                                                                                        fontSize: '0.82rem',
+                                                                                                        borderRadius: '6px',
+                                                                                                        borderColor: '#dc3545',
+                                                                                                        boxShadow: 'none'
+                                                                                                    }),
+                                                                                                    menuPortal: (base) => ({ ...base, zIndex: 9999 })
+                                                                                                }}
+                                                                                            />
+                                                                                        </Form.Group>
+                                                                                    </Col>
+                                                                                )}
+                                                                                <Col md={formData.status?.toLowerCase() === 'cancel' ? 6 : 12}>
                                                                                     <Form.Group>
                                                                                         <Form.Label className="fw-semibold text-muted mb-1" style={{ fontSize: '0.8rem' }}>
                                                                                             Comment / Note (Optional)

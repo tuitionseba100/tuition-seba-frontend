@@ -584,7 +584,7 @@ function AppliedListModal({ tuitionId, tuitionCode, show, onHide }) {
                 >
                     <Form>
                         <Row>
-                            <Col md={6}>
+                            <Col md={12}>
                                 <Form.Group controlId="status" className="mb-3">
                                     <Form.Label className="fw-bold">Status</Form.Label>
                                     <Form.Control
@@ -618,19 +618,6 @@ function AppliedListModal({ tuitionId, tuitionCode, show, onHide }) {
                                         <option value="confirmed">Confirmed</option>
                                         <option value="refer to bm">Refer to BM</option>
                                     </Form.Control>
-                                </Form.Group>
-                            </Col>
-                            <Col md={6}>
-                                <Form.Group controlId="isCvSent" className="mb-3 p-2 bg-light rounded border">
-                                    <Form.Label className="fw-bold mb-1 d-block">CV Sent Action</Form.Label>
-                                    <Form.Check 
-                                        type="switch"
-                                        id="applied-list-cv-sent-switch"
-                                        label={tuitionData.isCvSent ? "✓ CV Sent to Guardian" : "CV Not Sent"}
-                                        checked={!!tuitionData.isCvSent}
-                                        onChange={(e) => setTuitionData({ ...tuitionData, isCvSent: e.target.checked })}
-                                        className="fw-bold text-dark mt-1"
-                                    />
                                 </Form.Group>
                             </Col>
                         </Row>

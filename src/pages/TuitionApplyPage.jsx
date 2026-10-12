@@ -1196,17 +1196,6 @@ const TuitionPage = () => {
                                                     <option value="refer to bm">Refer to BM</option>
                                                 </Form.Select>
                                             </Form.Group>
-                                            <Form.Group controlId="isCvSent" className="mt-3 p-2 bg-white rounded border">
-                                                <Form.Label className="text-muted small fw-bold mb-1 text-uppercase d-block">CV Sent Action</Form.Label>
-                                                <Form.Check 
-                                                    type="switch"
-                                                    id="edit-modal-cv-sent-switch"
-                                                    label={tuitionData.isCvSent ? "✓ CV Sent to Guardian" : "CV Not Sent"}
-                                                    checked={!!tuitionData.isCvSent}
-                                                    onChange={(e) => setTuitionData({ ...tuitionData, isCvSent: e.target.checked })}
-                                                    className="fw-bold text-dark"
-                                                />
-                                            </Form.Group>
                                         </Col>
                                         <Col md={4}>
                                             <Form.Group controlId="commentForTeacher">

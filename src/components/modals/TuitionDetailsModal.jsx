@@ -34,6 +34,7 @@ const fieldConfig = [
     { name: 'tuitionType', label: 'Tuition Type', group: 'admin', col: 6, type: 'text' },
     { name: 'guardianDemandForPublic', label: 'Guardian Demand (Public)', group: 'admin', col: 6, type: 'text' },
     { name: 'tuitionCancelReasonPublic', label: 'Tuition Cancel Reason Public', group: 'admin', col: 6, type: 'text' },
+    { name: 'cancellationReason', label: 'Cancellation Reason', group: 'admin', col: 6, type: 'text' },
     { name: 'guardianBehavior', label: 'Guardian Behavior', group: 'admin', col: 6, type: 'text' },
     { name: 'agentComment', label: 'Agent Comment', group: 'admin', col: 12, type: 'text' },
 

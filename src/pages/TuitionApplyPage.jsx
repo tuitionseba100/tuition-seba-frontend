@@ -616,6 +616,7 @@ const TuitionPage = () => {
                             <option value="called (no response)">Called (No Response)</option>
                             <option value="called (guardian no response)">Called Guardian(No Response)</option>
                             <option value="CV Sent">CV Sent</option>
+                            <option value="CV Sent - Liked">CV Sent - Liked</option>
                             <option value="cancel">Cancelled</option>
                             <option value="cancelled by guardian">Cancelled By Guardian</option>
                             <option value="cancelled by teacher">Cancelled By Teacher</option>
@@ -751,7 +752,8 @@ const TuitionPage = () => {
                                                                         tuition.status === "called (guardian no response)" ? "bg-info" :
                                                                             tuition.status === "called (interested)" ? "bg-info" :
                                                                                 (tuition.status === "CV Sent" || tuition.status?.toLowerCase() === "cv sent") ? "bg-primary" :
-                                                                                    tuition.status === "cancel" ? "bg-danger" :
+                                                                                    (tuition.status === "CV Sent - Liked" || tuition.status?.toLowerCase() === "cv sent - liked") ? "bg-success" :
+                                                                                        tuition.status === "cancel" ? "bg-danger" :
                                                                                     tuition.status === "shortlisted" ? "bg-secondary" :
                                                                                         tuition.status === "requested for payment" ? "bg-warning text-dark" :
                                                                                             tuition.status === "meet to office" ? "bg-dark" :
@@ -1185,6 +1187,7 @@ const TuitionPage = () => {
                                                     <option value="called (no response)">Called (No Response)</option>
                                                     <option value="called (guardian no response)">Called Guardian(No Response)</option>
                                                     <option value="CV Sent">CV Sent</option>
+                                                    <option value="CV Sent - Liked">CV Sent - Liked</option>
                                                     <option value="cancel">Cancelled</option>
                                                     <option value="cancelled by guardian">Cancelled By Guardian</option>
                                                     <option value="cancelled by teacher">Cancelled By Teacher</option>
@@ -1300,6 +1303,7 @@ const TuitionPage = () => {
                                 <option value="called (no response)">Called (No Response)</option>
                                 <option value="called (guardian no response)">Called Guardian(No Response)</option>
                                 <option value="CV Sent">CV Sent</option>
+                                <option value="CV Sent - Liked">CV Sent - Liked</option>
                                 <option value="cancel">Cancelled</option>
                                 <option value="cancelled by guardian">Cancelled By Guardian</option>
                                 <option value="cancelled by teacher">Cancelled By Teacher</option>

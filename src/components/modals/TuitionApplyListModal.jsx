@@ -391,6 +391,7 @@ function AppliedListModal({ tuitionId, tuitionCode, show, onHide }) {
                                     <option value="called (no response)">Called (No Response)</option>
                                     <option value="called (guardian no response)">Called Guardian(No Response)</option>
                                     <option value="CV Sent">CV Sent</option>
+                                    <option value="CV Sent - Liked">CV Sent - Liked</option>
                                     <option value="cancel">Cancelled</option>
                                     <option value="cancelled by guardian">Cancelled By Guardian</option>
                                     <option value="cancelled by teacher">Cancelled By Teacher</option>
@@ -537,7 +538,8 @@ function AppliedListModal({ tuitionId, tuitionCode, show, onHide }) {
                                                                     app.status === "called (guardian no response)" ? "bg-info" :
                                                                         app.status === "called (interested)" ? "bg-info" :
                                                                             (app.status === "CV Sent" || app.status?.toLowerCase() === "cv sent") ? "bg-primary" :
-                                                                            app.status === "cancel" ? "bg-danger" :
+                                                                                (app.status === "CV Sent - Liked" || app.status?.toLowerCase() === "cv sent - liked") ? "bg-success" :
+                                                                                app.status === "cancel" ? "bg-danger" :
                                                                                 app.status === "shortlisted" ? "bg-secondary" :
                                                                                     app.status === "requested for payment" ? "bg-warning text-dark" :
                                                                                         app.status === "meet to office" ? "bg-dark" :
@@ -707,6 +709,7 @@ function AppliedListModal({ tuitionId, tuitionCode, show, onHide }) {
                                             Called Guardian(No Response)
                                         </option>
                                         <option value="CV Sent">CV Sent</option>
+                                        <option value="CV Sent - Liked">CV Sent - Liked</option>
                                         <option value="cancel">Cancelled</option>
                                         <option value="cancelled by guardian">Cancelled By Guardian</option>
                                         <option value="cancelled by teacher">Cancelled By Teacher</option>

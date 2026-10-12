@@ -77,6 +77,8 @@ export default function TuitionProcessModal({ show, onHide, tuition, onProcessUp
             setSelectedSubStatus('confirmed');
         } else if (statusVal === 'request for payment') {
             setSelectedSubStatus('payment_requested');
+        } else if (statusVal === 'payment completed') {
+            setSelectedSubStatus('payment_complete');
         } else if (statusVal === 'guardian meet') {
             setSelectedSubStatus('guardian_meet');
         } else if (statusVal === 'refer BM') {
@@ -216,9 +218,9 @@ export default function TuitionProcessModal({ show, onHide, tuition, onProcessUp
             case 'confirmed':
                 return currentStatus === 'confirm';
             case 'payment_pending':
-                return isPaymentPending || currentStatus === 'request for payment';
+                return isPaymentPending || currentStatus === 'request for payment' || currentStatus === 'payment pending';
             case 'payment_complete':
-                return isPaymentCompleted;
+                return isPaymentCompleted || currentStatus === 'payment completed' || currentStatus === 'payment complete';
             case 'cancel':
                 return isCancel;
             default:
@@ -851,6 +853,7 @@ export default function TuitionProcessModal({ show, onHide, tuition, onProcessUp
                                                     <option value="demo class failed">Demo Class Failed</option>
                                                     <option value="confirm">Confirm</option>
                                                     <option value="request for payment">Request for Payment</option>
+                                                    <option value="payment completed">Payment Completed</option>
                                                     <option value="refer BM">Refer BM</option>
                                                     <option value="suspended">Suspended</option>
                                                     <option value="guardian no response">Guardian No Response</option>

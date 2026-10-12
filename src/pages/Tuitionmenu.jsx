@@ -756,6 +756,9 @@ const TuitionPage = () => {
         "refer BM": { bg: "bg-info", text: "text-dark" },
         "guardian no response": { bg: "bg-secondary", text: "text-white" },
         "request for payment": { bg: "bg-warning", text: "text-dark" },
+        "payment pending": { bg: "bg-warning", text: "text-dark" },
+        "payment completed": { bg: "bg-success", text: "text-white" },
+        "payment complete": { bg: "bg-success", text: "text-white" },
     };
 
     return (
@@ -929,6 +932,7 @@ const TuitionPage = () => {
                                     <option value="suspended">Suspended</option>
                                     <option value="guardian no response">Guardian No response</option>
                                     <option value="request for payment">Request for payment</option>
+                                    <option value="payment completed">Payment Completed</option>
                                 </Form.Select>
                             </Col>
 
@@ -1746,6 +1750,7 @@ const TuitionPage = () => {
                                 <option value="suspended">Suspended</option>
                                 <option value="guardian no response">Guardian No response</option>
                                 <option value="request for payment">Request for payment</option>
+                                <option value="payment completed">Payment Completed</option>
                             </Form.Select>
                         </Form.Group>
                     </Modal.Body>

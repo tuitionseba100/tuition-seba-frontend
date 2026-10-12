@@ -256,17 +256,22 @@ const SocialPostModal = ({ show, onHide }) => {
 
     const statusOptions = [
         { value: 'available', label: 'Available' },
+        { value: 'guardian negotiation', label: 'Guardian Negotiation' },
+        { value: 'CV Sent', label: 'CV Sent' },
+        { value: 'CV Sent - Check if liked', label: 'CV Sent - Check if liked' },
         { value: 'given number', label: 'Given Number' },
         { value: 'guardian meet', label: 'Guardian Meet' },
         { value: 'demo class running', label: 'Demo Class Running' },
         { value: '1st demo class', label: '1st Demo Class' },
         { value: '2nd demo class', label: '2nd Demo Class' },
+        { value: 'demo class failed', label: 'Demo Class Failed' },
         { value: 'confirm', label: 'Confirm' },
         { value: 'cancel', label: 'Cancel' },
         { value: 'refer BM', label: 'Refer BM' },
         { value: 'suspended', label: 'Suspended' },
         { value: 'guardian no response', label: 'Guardian No response' },
-        { value: 'request for payment', label: 'Request for payment' }
+        { value: 'request for payment', label: 'Request for payment' },
+        { value: 'payment completed', label: 'Payment Completed' }
     ];
 
     const areaOptions = useMemo(() =>

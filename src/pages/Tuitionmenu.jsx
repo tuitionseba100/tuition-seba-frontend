@@ -738,6 +738,31 @@ const TuitionPage = () => {
         });
     };
 
+
+
+    const formatTimePassed = (dateString) => {
+        if (!dateString) return '';
+        const date = new Date(dateString);
+        if (isNaN(date.getTime())) return '';
+
+        const now = new Date();
+        const diffMs = now.getTime() - date.getTime();
+        if (diffMs < 0) return 'just now';
+
+        const diffMins = Math.floor(diffMs / (1000 * 60));
+        const diffHours = Math.floor(diffMins / 60);
+        const diffDays = Math.floor(diffHours / 24);
+
+        if (diffMins < 1) return '< 1m ago';
+        if (diffMins < 60) return `${diffMins}m ago`;
+        if (diffHours < 24) {
+            const remMins = diffMins % 60;
+            return remMins > 0 ? `${diffHours}h ${remMins}m ago` : `${diffHours}h ago`;
+        }
+        const remHours = diffHours % 24;
+        return remHours > 0 ? `${diffDays}d ${remHours}h ago` : `${diffDays}d ago`;
+    };
+
     const statusColors = {
         "available": { bg: "bg-success", text: "text-white" },
         "CV Sent": { bg: "bg-primary", text: "text-white" },
@@ -1289,6 +1314,7 @@ const TuitionPage = () => {
                                 role={role}
                                 formatDateTimeDisplay={formatDateTimeDisplay}
                                 statusColors={statusColors}
+                                formatTimePassed={formatTimePassed}
                                 handleShowDetails={handleShowDetails}
                                 handleEdit={handleEdit}
                                 handleDeleteTuition={handleDeleteTuition}
@@ -1443,7 +1469,21 @@ const TuitionPage = () => {
                                                 <td>{tuition.guardianBehavior || '-'}</td>
                                                 <td>{tuition.lastUpdateComment || '-'}</td>
                                                 <td>{tuition.nextUpdateComment || '-'}</td>
-                                                <td>{tuition.status}</td>
+                                                <td>
+                                                    <span className={`badge ${statusColors[tuition.status]?.bg || "bg-light"} ${statusColors[tuition.status]?.text || "text-dark"}`}>
+                                                        {tuition.status}
+                                                    </span>
+                                                    {tuition.statusChangedAt && (
+                                                        <div className="d-flex flex-column align-items-center mt-1" style={{ fontSize: '0.72rem', lineHeight: '1.2' }}>
+                                                            <span className="text-secondary fw-bold" title={`Status set at: ${formatDateTimeDisplay(tuition.statusChangedAt)}`}>
+                                                                ⏱️ {formatTimePassed(tuition.statusChangedAt)}
+                                                            </span>
+                                                            <span className="text-muted" style={{ fontSize: '0.67rem' }}>
+                                                                {formatDateTimeDisplay(tuition.statusChangedAt)}
+                                                            </span>
+                                                        </div>
+                                                    )}
+                                                </td>
                                                 <td>
                                                     <div className="d-flex flex-column align-items-center">
                                                         <span className={`badge ${tuition.isSpamGuardian || tuition.isBestGuardian ? 'bg-light text-dark' : 'bg-secondary'}`}>
@@ -2009,6 +2049,7 @@ const MemoizedTuitionTable = React.memo(({
     role,
     formatDateTimeDisplay,
     statusColors,
+    formatTimePassed,
     handleShowDetails,
     handleEdit,
     handleDeleteTuition,
@@ -2171,6 +2212,16 @@ const MemoizedTuitionTable = React.memo(({
                                 >
                                     {tuition.status}
                                 </span>
+                                {tuition.statusChangedAt && (
+                                    <div className="d-flex flex-column align-items-center mt-1" style={{ fontSize: '0.72rem', lineHeight: '1.2' }}>
+                                        <span className="text-secondary fw-bold" title={`Status set at: ${formatDateTimeDisplay(tuition.statusChangedAt)}`}>
+                                            ⏱️ {formatTimePassed(tuition.statusChangedAt)}
+                                        </span>
+                                        <span className="text-muted" style={{ fontSize: '0.67rem' }}>
+                                            {formatDateTimeDisplay(tuition.statusChangedAt)}
+                                        </span>
+                                    </div>
+                                )}
                             </td>
                             <td>
                                 {tuition.isReviewDone ? (

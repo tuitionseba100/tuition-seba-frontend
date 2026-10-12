@@ -21,6 +21,9 @@ const inputFocusStyle = {
 
 function AppliedListModal({ tuitionId, tuitionCode, show, onHide }) {
     const [appliedList, setAppliedList] = useState([]);
+    const [teacherCodeFilter, setTeacherCodeFilter] = useState("");
+    const [phoneFilter, setPhoneFilter] = useState("");
+    const [statusFilter, setStatusFilter] = useState("");
     const [loading, setLoading] = useState(false);
     const [showEditModal, setShowEditModal] = useState(false);
     const [editingId, setEditingId] = useState(null);
@@ -152,6 +155,9 @@ function AppliedListModal({ tuitionId, tuitionCode, show, onHide }) {
 
     useEffect(() => {
         if (!show || !tuitionId) return;
+        setTeacherCodeFilter("");
+        setPhoneFilter("");
+        setStatusFilter("");
         setLoading(true);
         axios
             .get(
@@ -310,6 +316,23 @@ function AppliedListModal({ tuitionId, tuitionCode, show, onHide }) {
         return defaultVariant;
     };
 
+    const filteredList = appliedList.filter((app) => {
+        if (teacherCodeFilter.trim()) {
+            const code = String(app.premiumCode || "").toLowerCase();
+            if (!code.includes(teacherCodeFilter.trim().toLowerCase())) return false;
+        }
+        if (phoneFilter.trim()) {
+            const phone = String(app.phone || "").toLowerCase();
+            if (!phone.includes(phoneFilter.trim().toLowerCase())) return false;
+        }
+        if (statusFilter) {
+            const appStatus = String(app.status || "").toLowerCase();
+            const targetStatus = statusFilter.toLowerCase();
+            if (appStatus !== targetStatus) return false;
+        }
+        return true;
+    });
+
     return (
         <>
             <Modal
@@ -324,12 +347,84 @@ function AppliedListModal({ tuitionId, tuitionCode, show, onHide }) {
                         Applied List for Tuition Code:{" "}
                         <span className="text-warning">{tuitionCode || "N/A"}</span> — Total:{" "}
                         {appliedList.length}
+                        {(teacherCodeFilter || phoneFilter || statusFilter) && (
+                            <span className="ms-2 fs-6 text-light opacity-75">
+                                (Filtered: {filteredList.length})
+                            </span>
+                        )}
                     </Modal.Title>
                 </Modal.Header>
                 <Modal.Body className="p-4 bg-light position-relative">
+                    {/* Top Filters */}
+                    <div className="bg-white p-3 rounded shadow-sm border mb-3">
+                        <Row className="g-2 align-items-end">
+                            <Col md={4} sm={12}>
+                                <Form.Label className="fw-bold small mb-1">Teacher Code</Form.Label>
+                                <Form.Control
+                                    type="text"
+                                    placeholder="Search Teacher Code (e.g. 102)"
+                                    value={teacherCodeFilter}
+                                    onChange={(e) => setTeacherCodeFilter(e.target.value)}
+                                    size="sm"
+                                />
+                            </Col>
+                            <Col md={4} sm={12}>
+                                <Form.Label className="fw-bold small mb-1">Phone</Form.Label>
+                                <Form.Control
+                                    type="text"
+                                    placeholder="Search Phone (e.g. 017...)"
+                                    value={phoneFilter}
+                                    onChange={(e) => setPhoneFilter(e.target.value)}
+                                    size="sm"
+                                />
+                            </Col>
+                            <Col md={3} sm={10}>
+                                <Form.Label className="fw-bold small mb-1">Status Filter</Form.Label>
+                                <Form.Select
+                                    value={statusFilter}
+                                    onChange={(e) => setStatusFilter(e.target.value)}
+                                    size="sm"
+                                >
+                                    <option value="">All</option>
+                                    <option value="pending">Pending</option>
+                                    <option value="called (interested)">Called (Interested)</option>
+                                    <option value="called (no response)">Called (No Response)</option>
+                                    <option value="called (guardian no response)">Called Guardian(No Response)</option>
+                                    <option value="CV Sent">CV Sent</option>
+                                    <option value="cancel">Cancelled</option>
+                                    <option value="cancelled by guardian">Cancelled By Guardian</option>
+                                    <option value="cancelled by teacher">Cancelled By Teacher</option>
+                                    <option value="shortlisted">Shortlisted</option>
+                                    <option value="requested for payment">Requested for Payment</option>
+                                    <option value="meet to office">Meet to office</option>
+                                    <option value="selected">Selected</option>
+                                    <option value="confirmed">Confirmed</option>
+                                    <option value="refer to bm">Refer to BM</option>
+                                </Form.Select>
+                            </Col>
+                            {(teacherCodeFilter || phoneFilter || statusFilter) && (
+                                <Col md={1} sm={2} className="d-flex">
+                                    <Button
+                                        variant="outline-secondary"
+                                        size="sm"
+                                        className="w-100"
+                                        onClick={() => {
+                                            setTeacherCodeFilter("");
+                                            setPhoneFilter("");
+                                            setStatusFilter("");
+                                        }}
+                                        title="Clear filters"
+                                    >
+                                        Reset
+                                    </Button>
+                                </Col>
+                            )}
+                        </Row>
+                    </div>
+
                     {loading ? (
                         <div className="text-center py-4">Loading...</div>
-                    ) : appliedList.length > 0 ? (
+                    ) : filteredList.length > 0 ? (
                         <div
                             style={{
                                 maxHeight: "80vh",
@@ -366,7 +461,7 @@ function AppliedListModal({ tuitionId, tuitionCode, show, onHide }) {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {appliedList.map((app, index) => {
+                                    {filteredList.map((app, index) => {
                                         const style = getRowStyle(app);
                                         return (
                                             <tr key={app._id}>
@@ -551,9 +646,13 @@ function AppliedListModal({ tuitionId, tuitionCode, show, onHide }) {
 
                             </Table>
                         </div>
-                    ) : (
+                    ) : appliedList.length === 0 ? (
                         <div className="text-center text-muted py-4">
                             <h5>No applications found for this tuition.</h5>
+                        </div>
+                    ) : (
+                        <div className="text-center text-muted py-4">
+                            <h5>No applications match the filter criteria.</h5>
                         </div>
                     )}
 

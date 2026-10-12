@@ -691,9 +691,16 @@ function AppliedListModal({ tuitionId, tuitionCode, show, onHide }) {
                                     <Form.Control
                                         as="select"
                                         value={tuitionData.status}
-                                        onChange={(e) =>
-                                            setTuitionData({ ...tuitionData, status: e.target.value })
-                                        }
+                                        onChange={(e) => {
+                                            const val = e.target.value;
+                                            const updates = { status: val };
+                                            if (val === 'CV Sent') {
+                                                updates.commentForTeacher = 'আপনার সিভি অভিভাবক এর কাছে পাঠানো হয়েছে। অভিভাবক সিভি পছন্দ করলে আমরা দ্রুত সময়ের মধ্যে যোগাযোগ করবো। আমাদের অন্যান্য এভেইলেবল টিউশনগুলো দেখুন পছন্দ হলে এপ্লাই করুন।';
+                                            } else if (val === 'CV Sent - Liked') {
+                                                updates.commentForTeacher = 'অভিভাবক আপনার সিভি পছন্দ করেছেন, দ্রুত যোগাযোগ করুন Whatsapp +8801577665717';
+                                            }
+                                            setTuitionData({ ...tuitionData, ...updates });
+                                        }}
                                         onFocus={() => handleFocus("status")}
                                         onBlur={handleBlur}
                                         style={{

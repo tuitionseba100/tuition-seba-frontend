@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Container, Row, Col, Card, Form, Button, Spinner, Badge, Modal } from 'react-bootstrap';
 import { ToastContainer, toast } from 'react-toastify';
 import { FiPhone, FiSearch, FiRefreshCw, FiClock, FiCheckCircle, FiXCircle, FiInfo, FiMessageSquare, FiAlertCircle } from 'react-icons/fi';
+import { FaWhatsapp } from 'react-icons/fa';
 import NavBar from '../../components/NavBar';
 import Footer from '../../components/Footer';
 import { fetchWithFallback } from '../../services/fetchWithFallback';
@@ -492,9 +493,24 @@ const ApplyUpdates = () => {
                                                             </td>
                                                             <td style={{ padding: '14px 20px', backgroundColor: rowBg }}>
                                                                 {item.commentForTeacher ? (
-                                                                    <div style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', color: statusColor, fontWeight: '600' }}>
-                                                                        <FiMessageSquare size={16} style={{ marginTop: '2px', flexShrink: 0 }} />
-                                                                        <span>{item.commentForTeacher}</span>
+                                                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                                                                        <div style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', color: statusColor, fontWeight: '600' }}>
+                                                                            <FiMessageSquare size={16} style={{ marginTop: '2px', flexShrink: 0 }} />
+                                                                            <span>{item.commentForTeacher}</span>
+                                                                        </div>
+                                                                        {/01577665717/.test(item.commentForTeacher) && (
+                                                                            <div style={{ paddingLeft: '24px' }}>
+                                                                                <a
+                                                                                    href="https://wa.me/8801577665717"
+                                                                                    target="_blank"
+                                                                                    rel="noopener noreferrer"
+                                                                                    className="btn btn-sm btn-success d-inline-flex align-items-center gap-2 shadow-sm px-3 py-1"
+                                                                                    style={{ fontSize: '0.82rem', fontWeight: 'bold', borderRadius: '6px', textDecoration: 'none', backgroundColor: '#25D366', borderColor: '#25D366' }}
+                                                                                >
+                                                                                    <FaWhatsapp size={15} /> WhatsApp এ মেসেজ দিন
+                                                                                </a>
+                                                                            </div>
+                                                                        )}
                                                                     </div>
                                                                 ) : item.status.toLowerCase() === 'pending' ? (
                                                                     <div style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', color: '#475569', fontStyle: 'italic' }}>

@@ -67,6 +67,10 @@ export default function TuitionProcessModal({ show, onHide, tuition, onProcessUp
         setSelectedStatus(statusVal);
         if (statusVal === 'CV Sent') {
             setSelectedSubStatus('Call Guardian To check if liked any cv');
+        } else if (statusVal === 'CV Sent - Check if liked') {
+            setSelectedSubStatus('call guardian to check if liked any cv');
+        } else if (statusVal === 'CV Sent - Liked') {
+            setSelectedSubStatus('cv sent - liked');
         } else if (statusVal === 'given number') {
             setSelectedSubStatus('given number');
         } else if (statusVal === 'demo class running') {
@@ -206,7 +210,11 @@ export default function TuitionProcessModal({ show, onHide, tuition, onProcessUp
             case 'cv_sent':
                 return currentStatus === 'cv sent' || processData?.computedSummary?.isCvSent;
             case 'call_guardian':
-                return currentSubStatus === 'call guardian to check if liked any cv' || currentStatus === 'cv sent';
+                return currentSubStatus === 'call guardian to check if liked any cv' || currentStatus === 'cv sent' || currentStatus === 'cv sent - check if liked';
+            case 'cv_check_liked':
+                return currentStatus === 'cv sent - check if liked';
+            case 'cv_liked':
+                return currentStatus === 'cv sent - liked';
             case 'given_number':
                 return currentStatus === 'given number';
             case 'guardian_meet':
@@ -257,7 +265,8 @@ export default function TuitionProcessModal({ show, onHide, tuition, onProcessUp
     const applyMeta = firstApp ? { user: firstApp.name || 'Tutor', timestamp: firstApp.createdAt, comment: firstApp.coverLetter || firstApp.comment || null } : null;
 
     const cvSentLog = historyLogs.find(h => h.newStatus?.toLowerCase() === 'cv sent');
-    const cvLikedLog = historyLogs.find(h => h.newStatus?.toLowerCase() === 'cv sent - check if liked' || h.subStatus?.toLowerCase() === 'call guardian to check if liked any cv');
+    const cvCheckLikedLog = historyLogs.find(h => h.newStatus?.toLowerCase() === 'cv sent - check if liked' || h.subStatus?.toLowerCase() === 'call guardian to check if liked any cv');
+    const cvLikedLog = historyLogs.find(h => h.newStatus?.toLowerCase() === 'cv sent - liked' || h.subStatus?.toLowerCase() === 'cv sent - liked' || h.subStatus?.toLowerCase() === 'guardian_liked_cv');
     const givenNumberLog = historyLogs.find(h => h.newStatus?.toLowerCase() === 'given number' || h.newStatus?.toLowerCase() === 'contact shared' || h.subStatus?.toLowerCase()?.includes('given number'));
     const guardianMeetLog = historyLogs.find(h => h.newStatus?.toLowerCase() === 'guardian meet' || h.subStatus?.toLowerCase()?.includes('guardian_meet') || h.subStatus?.toLowerCase()?.includes('guardian meet'));
     const demo1Log = historyLogs.find(h => h.newStatus?.toLowerCase() === '1st demo class' || h.newStatus?.toLowerCase() === 'demo class running');
@@ -278,8 +287,9 @@ export default function TuitionProcessModal({ show, onHide, tuition, onProcessUp
     const gap_post_notapply = (applicantsCount === 0 && postLog) ? getTimeDifference(new Date(), postLog.timestamp) : null;
     const gap_post_apply = (applyMeta && postLog) ? getTimeDifference(applyMeta.timestamp, postLog.timestamp) : null;
     const gap_apply_cv = cvSentLog ? getTimeDifference(cvSentLog.timestamp, applyMeta?.timestamp || postLog?.timestamp) : null;
-    const gap_cv_liked = cvLikedLog ? getTimeDifference(cvLikedLog.timestamp, cvSentLog?.timestamp) : null;
-    const gap_liked_given = givenNumberLog ? getTimeDifference(givenNumberLog.timestamp, cvLikedLog?.timestamp || cvSentLog?.timestamp) : null;
+    const gap_cv_checkliked = cvCheckLikedLog ? getTimeDifference(cvCheckLikedLog.timestamp, cvSentLog?.timestamp) : null;
+    const gap_checkliked_liked = cvLikedLog ? getTimeDifference(cvLikedLog.timestamp, cvCheckLikedLog?.timestamp || cvSentLog?.timestamp) : null;
+    const gap_liked_given = givenNumberLog ? getTimeDifference(givenNumberLog.timestamp, cvLikedLog?.timestamp || cvCheckLikedLog?.timestamp || cvSentLog?.timestamp) : null;
     const gap_given_meet = guardianMeetLog ? getTimeDifference(guardianMeetLog.timestamp, givenNumberLog?.timestamp || cvLikedLog?.timestamp || cvSentLog?.timestamp) : null;
     const gap_meet_demo1 = demo1Log ? getTimeDifference(demo1Log.timestamp, guardianMeetLog?.timestamp || givenNumberLog?.timestamp) : null;
     const gap_demo1_demo2 = demo2Log ? getTimeDifference(demo2Log.timestamp, demo1Log?.timestamp) : null;
@@ -458,6 +468,7 @@ export default function TuitionProcessModal({ show, onHide, tuition, onProcessUp
         if (old.includes('demo')) return 'demo';
         if (old.includes('guardian meet') || old.includes('guardian_meet') || old.includes('meet')) return 'guardian_meet';
         if (old.includes('given number') || old.includes('contact')) return 'given_number';
+        if (old.includes('check if liked') || oldSub.includes('check if liked')) return 'cv_check_liked';
         if (old.includes('liked') || oldSub.includes('liked')) return 'cv_liked';
         if (old.includes('cv')) return 'cv_sent';
         if (old.includes('negotiation') || oldSub.includes('negotiation')) return 'negotiation';
@@ -681,14 +692,28 @@ export default function TuitionProcessModal({ show, onHide, tuition, onProcessUp
 
                                                     {showCancel && cancelStepKey === 'cv_sent' && renderCancelNode(cancelLog ? getTimeDifference(cancelLog.timestamp, cvSentLog?.timestamp) : null)}
 
-                                                    {renderFlowArrow(gap_cv_liked)}
+                                                    {renderFlowArrow(gap_cv_checkliked)}
 
                                                     {renderFlowNode({
                                                         title: 'Check if Liked',
+                                                        user: cvCheckLikedLog?.changedBy,
+                                                        time: cvCheckLikedLog?.timestamp,
+                                                        comment: cvCheckLikedLog?.comment,
+                                                        isActive: currentStatus === 'cv sent - check if liked',
+                                                        onClick: () => handleStatusSelect('CV Sent - Check if liked')
+                                                    })}
+
+                                                    {showCancel && cancelStepKey === 'cv_check_liked' && renderCancelNode(cancelLog ? getTimeDifference(cancelLog.timestamp, cvCheckLikedLog?.timestamp) : null)}
+
+                                                    {renderFlowArrow(gap_checkliked_liked)}
+
+                                                    {renderFlowNode({
+                                                        title: 'CV Sent - Liked',
                                                         user: cvLikedLog?.changedBy,
                                                         time: cvLikedLog?.timestamp,
                                                         comment: cvLikedLog?.comment,
-                                                        isActive: currentStatus === 'cv sent - check if liked'
+                                                        isActive: currentStatus === 'cv sent - liked',
+                                                        onClick: () => handleStatusSelect('CV Sent - Liked')
                                                     })}
 
                                                     {showCancel && cancelStepKey === 'cv_liked' && renderCancelNode(cancelLog ? getTimeDifference(cancelLog.timestamp, cvLikedLog?.timestamp) : null)}
@@ -845,6 +870,7 @@ export default function TuitionProcessModal({ show, onHide, tuition, onProcessUp
                                                     <option value="guardian negotiation">Guardian Negotiation</option>
                                                     <option value="CV Sent">CV Sent</option>
                                                     <option value="CV Sent - Check if liked">CV Sent - Check if liked</option>
+                                                    <option value="CV Sent - Liked">CV Sent - Liked</option>
                                                     <option value="given number">Given Number</option>
                                                     <option value="guardian meet">Guardian Meet</option>
                                                     <option value="demo class running">Demo Class Running</option>

@@ -615,6 +615,7 @@ const TuitionPage = () => {
                             <option value="called (interested)">Called (Interested)</option>
                             <option value="called (no response)">Called (No Response)</option>
                             <option value="called (guardian no response)">Called Guardian(No Response)</option>
+                            <option value="CV Sent">CV Sent</option>
                             <option value="cancel">Cancelled</option>
                             <option value="cancelled by guardian">Cancelled By Guardian</option>
                             <option value="cancelled by teacher">Cancelled By Teacher</option>
@@ -749,7 +750,8 @@ const TuitionPage = () => {
                                                                     tuition.status === "called (no response)" ? "bg-primary" :
                                                                         tuition.status === "called (guardian no response)" ? "bg-info" :
                                                                             tuition.status === "called (interested)" ? "bg-info" :
-                                                                                tuition.status === "cancel" ? "bg-danger" :
+                                                                                (tuition.status === "CV Sent" || tuition.status?.toLowerCase() === "cv sent") ? "bg-primary" :
+                                                                                    tuition.status === "cancel" ? "bg-danger" :
                                                                                     tuition.status === "shortlisted" ? "bg-secondary" :
                                                                                         tuition.status === "requested for payment" ? "bg-warning text-dark" :
                                                                                             tuition.status === "meet to office" ? "bg-dark" :
@@ -862,64 +864,6 @@ const TuitionPage = () => {
                                                 <td style={getRowStyle(tuition)}>{tuition.commentForTeacher}</td>
                                                 <td style={getRowStyle(tuition)}>{tuition.agentComment}</td>
                                                 <td style={getRowStyle(tuition)} className="d-flex justify-content-start gap-2 align-items-center">
-                                                    {/* CV Sent ON/OFF Toggle Switch */}
-                                                    <div 
-                                                        className="d-inline-flex align-items-center gap-1 px-1 py-1"
-                                                        style={{
-                                                            cursor: togglingCvId === tuition._id ? 'wait' : 'pointer',
-                                                            userSelect: 'none',
-                                                            borderRadius: '16px',
-                                                            background: tuition.isCvSent ? '#f0fdf4' : '#f8fafc',
-                                                            border: tuition.isCvSent ? '1.5px solid #86efac' : '1.5px solid #cbd5e1',
-                                                            paddingRight: '6px'
-                                                        }}
-                                                        onClick={() => !togglingCvId && handleRequestToggleCvSent(tuition)}
-                                                        title={tuition.isCvSent ? "CV Sent: YES (Click to change to NO)" : "CV Sent: NO (Click to change to YES)"}
-                                                    >
-                                                        <div
-                                                            style={{
-                                                                width: '38px',
-                                                                height: '20px',
-                                                                backgroundColor: tuition.isCvSent ? '#16a34a' : '#94a3b8',
-                                                                borderRadius: '12px',
-                                                                position: 'relative',
-                                                                transition: 'all 0.25s ease',
-                                                                display: 'inline-flex',
-                                                                alignItems: 'center',
-                                                                padding: '2px',
-                                                                boxShadow: tuition.isCvSent ? '0 0 4px rgba(22, 163, 74, 0.4)' : 'none'
-                                                            }}
-                                                        >
-                                                            <div
-                                                                style={{
-                                                                    width: '16px',
-                                                                    height: '16px',
-                                                                    backgroundColor: '#ffffff',
-                                                                    borderRadius: '50%',
-                                                                    transform: tuition.isCvSent ? 'translateX(18px)' : 'translateX(0px)',
-                                                                    transition: 'transform 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
-                                                                    boxShadow: '0 1px 2px rgba(0,0,0,0.25)',
-                                                                    display: 'flex',
-                                                                    alignItems: 'center',
-                                                                    justifyContent: 'center'
-                                                                }}
-                                                            >
-                                                                {togglingCvId === tuition._id && (
-                                                                    <Spinner animation="border" size="sm" style={{ width: '10px', height: '10px', borderWidth: '1.5px' }} />
-                                                                )}
-                                                            </div>
-                                                        </div>
-                                                        <span 
-                                                            style={{ 
-                                                                fontSize: '0.68rem', 
-                                                                fontWeight: '800', 
-                                                                color: tuition.isCvSent ? '#15803d' : '#64748b',
-                                                                lineHeight: 1
-                                                            }}
-                                                        >
-                                                            {tuition.isCvSent ? 'YES' : 'NO'}
-                                                        </span>
-                                                    </div>
                                                     <Button
                                                         variant={tuition.isBanned || tuition.isSpam ? 'light' : 'primary'}
                                                         size="sm"
@@ -1240,6 +1184,7 @@ const TuitionPage = () => {
                                                     <option value="called (interested)">Called (Interested)</option>
                                                     <option value="called (no response)">Called (No Response)</option>
                                                     <option value="called (guardian no response)">Called Guardian(No Response)</option>
+                                                    <option value="CV Sent">CV Sent</option>
                                                     <option value="cancel">Cancelled</option>
                                                     <option value="cancelled by guardian">Cancelled By Guardian</option>
                                                     <option value="cancelled by teacher">Cancelled By Teacher</option>
@@ -1365,6 +1310,7 @@ const TuitionPage = () => {
                                 <option value="called (interested)">Called (Interested)</option>
                                 <option value="called (no response)">Called (No Response)</option>
                                 <option value="called (guardian no response)">Called Guardian(No Response)</option>
+                                <option value="CV Sent">CV Sent</option>
                                 <option value="cancel">Cancelled</option>
                                 <option value="cancelled by guardian">Cancelled By Guardian</option>
                                 <option value="cancelled by teacher">Cancelled By Teacher</option>

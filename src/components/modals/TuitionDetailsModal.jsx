@@ -24,7 +24,7 @@ const fieldConfig = [
     { name: 'joining', label: 'Joining Date', group: 'details', col: 6, type: 'text' },
     { name: 'guardianNumber', label: 'Guardian Number', group: 'details', col: 4, type: 'text' },
     { name: 'mediaFee', label: 'Media Fee', group: 'details', col: 4, type: 'text' },
-    { name: 'status', label: 'Status', group: 'details', col: 4, type: 'select', options: ['available', 'guardian negotiation', 'CV Sent', 'CV Sent - Check if liked', 'given number', 'guardian meet', 'demo class running', '1st demo class', '2nd demo class', 'demo class failed', 'confirm', 'cancel', 'refer BM', 'suspended', 'guardian no response', 'request for payment', 'payment completed'] },
+    { name: 'status', label: 'Status', group: 'details', col: 4, type: 'select', options: ['available', 'guardian negotiation', 'CV Sent', 'CV Sent - Check if liked', 'CV Sent - Liked', 'given number', 'guardian meet', 'demo class running', '1st demo class', '2nd demo class', 'demo class failed', 'confirm', 'cancel', 'refer BM', 'suspended', 'guardian no response', 'request for payment', 'payment completed'] },
     { name: 'isPublish', label: 'Publish', group: 'details', col: 6, type: 'switch', defaultValue: false },
     { name: 'lastAvailableCheck', label: 'Last Available Check', group: 'details', col: 6, type: 'datetime-local' },
 

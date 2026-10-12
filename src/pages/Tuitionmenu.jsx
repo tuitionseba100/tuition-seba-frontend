@@ -742,6 +742,8 @@ const TuitionPage = () => {
         "available": { bg: "bg-success", text: "text-white" },
         "CV Sent": { bg: "bg-primary", text: "text-white" },
         "CV Sent - Check if liked": { bg: "bg-info", text: "text-dark" },
+        "CV Sent - Liked": { bg: "bg-success", text: "text-white" },
+        "cv sent - liked": { bg: "bg-success", text: "text-white" },
         "given number": { bg: "bg-primary", text: "text-white" },
         "guardian meet": { bg: "bg-secondary", text: "text-white" },
         "demo class running": { bg: "bg-warning", text: "text-dark" },
@@ -920,6 +922,7 @@ const TuitionPage = () => {
                                     <option value="guardian negotiation">Guardian Negotiation</option>
                                     <option value="CV Sent">CV Sent</option>
                                     <option value="CV Sent - Check if liked">CV Sent - Check if liked</option>
+                                    <option value="CV Sent - Liked">CV Sent - Liked</option>
                                     <option value="given number">Given Number</option>
                                     <option value="guardian meet">Guardian Meet</option>
                                     <option value="demo class running">Demo Class Running</option>
@@ -1468,6 +1471,14 @@ const TuitionPage = () => {
                                                     <Button variant="info" onClick={() => handleShowDetails(tuition)} title="View Details">
                                                         <FaInfoCircle />
                                                     </Button>
+                                                    <Button 
+                                                        variant="primary" 
+                                                        style={{ background: 'linear-gradient(135deg, #1e3a8a, #2563eb)', border: 'none', color: '#fff' }} 
+                                                        onClick={() => handleOpenProcessModal(tuition)} 
+                                                        title="Open Tuition Process Lifecycle Flow"
+                                                    >
+                                                        <FaProjectDiagram />
+                                                    </Button>
                                                     <Button variant="warning" onClick={() => handleEdit(tuition)} className="mr-2">
                                                         <FaEdit />
                                                     </Button>
@@ -1558,6 +1569,14 @@ const TuitionPage = () => {
                                                 <td style={{ display: 'flex', justifyContent: 'flex-start', gap: '8px' }}>
                                                     <Button variant="info" onClick={() => handleShowDetails(tuition)} title="View Details">
                                                         <FaInfoCircle />
+                                                    </Button>
+                                                    <Button 
+                                                        variant="primary" 
+                                                        style={{ background: 'linear-gradient(135deg, #1e3a8a, #2563eb)', border: 'none', color: '#fff' }} 
+                                                        onClick={() => handleOpenProcessModal(tuition)} 
+                                                        title="Open Tuition Process Lifecycle Flow"
+                                                    >
+                                                        <FaProjectDiagram />
                                                     </Button>
                                                     <Button variant="warning" onClick={() => handleEdit(tuition)}>
                                                         <FaEdit />
@@ -1698,6 +1717,8 @@ const TuitionPage = () => {
                     tuition={selectedProcessTuition}
                     onProcessUpdated={() => {
                         fetchTuitionRecords();
+                        fetchAlertData();
+                        fetchSummaryCounts();
                     }}
                     onCopyTuition={handleCopyTuition}
                 />
@@ -1739,6 +1760,9 @@ const TuitionPage = () => {
                                 <option value="">-- Select Status --</option>
                                 <option value="all">All</option>
                                 <option value="available">Available</option>
+                                <option value="CV Sent">CV Sent</option>
+                                <option value="CV Sent - Check if liked">CV Sent - Check if liked</option>
+                                <option value="CV Sent - Liked">CV Sent - Liked</option>
                                 <option value="given number">Given Number</option>
                                 <option value="guardian meet">Guardian Meet</option>
                                 <option value="demo class running">Demo Class Running</option>

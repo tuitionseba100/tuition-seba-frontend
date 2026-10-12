@@ -259,6 +259,7 @@ const SocialPostModal = ({ show, onHide }) => {
         { value: 'guardian negotiation', label: 'Guardian Negotiation' },
         { value: 'CV Sent', label: 'CV Sent' },
         { value: 'CV Sent - Check if liked', label: 'CV Sent - Check if liked' },
+        { value: 'CV Sent - Liked', label: 'CV Sent - Liked' },
         { value: 'given number', label: 'Given Number' },
         { value: 'guardian meet', label: 'Guardian Meet' },
         { value: 'demo class running', label: 'Demo Class Running' },

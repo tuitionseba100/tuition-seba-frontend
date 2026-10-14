@@ -246,7 +246,16 @@ const SocialPostModal = ({ show, onHide }) => {
     const [filters, setFilters] = useState({
         count: '10',
         area: [],
-        status: [{ value: 'available', label: 'Available' }, { value: 'guardian no response', label: 'Guardian No response' }],
+        status: [
+            { value: 'available', label: 'Available' },
+            { value: 'guardian negotiation', label: 'Guardian Negotiation' },
+            { value: 'CV Sent', label: 'CV Sent' },
+            { value: 'CV Sent - Check if liked', label: 'CV Sent - Check if liked' },
+            { value: 'CV Sent - Liked', label: 'CV Sent - Liked' },
+            { value: 'guardian no response', label: 'Guardian No response' },
+            { value: 'refer BM', label: 'Refer BM' },
+            { value: 'demo class failed', label: 'Demo Class Failed' }
+        ],
         startCode: '',
         endCode: '',
         specificCodes: [],

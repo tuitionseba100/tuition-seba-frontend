@@ -93,7 +93,10 @@ const Navbar = () => {
     };
 
     const renderNavItem = (to, label, permissionKey = null) => {
-        const isActive = location.pathname === to;
+        const isActive = location.pathname === to ||
+            (to !== '/admin' && location.pathname.startsWith(to + '/')) ||
+            (to === '/admin/tuitionApply' && location.pathname.startsWith('/admin/tuitionApplyCancelled')) ||
+            (to === '/admin/service-charge' && (location.pathname === '/admin/serviceCharge' || location.pathname.startsWith('/admin/serviceCharge/')));
 
         // Visibility logic
         if (role !== "superadmin") {

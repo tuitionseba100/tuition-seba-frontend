@@ -98,6 +98,7 @@ const ServiceChargePage = lazy(() => import('./pages/ServiceChargePage'));
 const GuardianApplyPage = lazy(() => import('./pages/guardianApplyPage'));
 const TaskPage = lazy(() => import('./pages/TaskPage'));
 const TuitionApply = lazy(() => import('./pages/TuitionApplyPage'));
+const TuitionApplyCancelledPage = lazy(() => import('./pages/TuitionApplyCancelledPage'));
 const PremiumTeacherPage = lazy(() => import('./pages/PremiumTeacherPage'));
 const SpamBestPage = lazy(() => import('./pages/SpamBestPage'));
 const LeadPage = lazy(() => import('./pages/LeadPage'));
@@ -167,6 +168,8 @@ const App = () => {
                 <Route path="guardianApply" element={<GuardianApplyPage />} />
                 <Route path="task" element={<TaskPage />} />
                 <Route path="tuitionApply" element={<TuitionApply />} />
+                <Route path="tuitionApplyCancelled" element={<TuitionApplyCancelledPage />} />
+                <Route path="tuitionApply/teacher-cancelled" element={<TuitionApplyCancelledPage />} />
                 <Route path="premiumTeacher" element={<PremiumTeacherPage />} />
                 <Route path="spamBest" element={<SpamBestPage />} />
                 <Route path="lead" element={<LeadPage />} />

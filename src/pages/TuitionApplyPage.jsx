@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Button, Table, Modal, Form, Row, Col, Card } from 'react-bootstrap';
-import { FaEdit, FaTrashAlt, FaChevronLeft, FaChevronRight, FaSearch, FaGlobe, FaGooglePlay, FaUndo, FaCopy } from 'react-icons/fa'; // React Icons
+import { Link } from 'react-router-dom';
+import { FaEdit, FaTrashAlt, FaChevronLeft, FaChevronRight, FaSearch, FaGlobe, FaGooglePlay, FaUndo, FaCopy, FaClipboardList, FaUserTimes } from 'react-icons/fa'; // React Icons
 import { axiosWithFallback as axios } from '../services/fetchWithFallback';
 import NavBarPage from './NavbarPage';
 import styled from 'styled-components';
@@ -439,7 +440,7 @@ const TuitionPage = () => {
     };
 
     const handleEditTuition = (tuition) => {
-        setTuitionData({ ...tuition, isCvSent: !!tuition.isCvSent });
+        setTuitionData({ ...tuition, isCvSent: !!tuition.isCvSent, cancelCategory: tuition.cancelCategory || '' });
         setEditingId(tuition._id);
         setIsFullEditEnabled(false);
         setShowModal(true);
@@ -498,6 +499,24 @@ const TuitionPage = () => {
         <>
             <NavBarPage />
             <Container>
+
+                {/* Navigation Tabs */}
+                <div className="mb-3 mt-0">
+                    <div className="custom-pills">
+                        <Link
+                            to="/admin/tuitionApply"
+                            className="nav-link active"
+                        >
+                            <FaClipboardList /> All Applications
+                        </Link>
+                        <Link
+                            to="/admin/tuitionApplyCancelled"
+                            className="nav-link"
+                        >
+                            <FaUserTimes /> Teacher Cancelled Follow-up
+                        </Link>
+                    </div>
+                </div>
 
                 <Header>
                     <h2 className='text-primary fw-bold'>Tuition Applications</h2>
@@ -1207,6 +1226,29 @@ const TuitionPage = () => {
                                                     <option value="refer to bm">Refer to BM</option>
                                                 </Form.Select>
                                             </Form.Group>
+                                            {tuitionData.status === 'cancelled by teacher' && (
+                                                <Form.Group controlId="cancelCategory" className="mt-3">
+                                                    <Form.Label className="text-danger small fw-bold mb-1 text-uppercase">Cancel Category</Form.Label>
+                                                    <Form.Select
+                                                        className="border shadow-sm p-2 px-3 border-danger"
+                                                        value={tuitionData.cancelCategory || ''}
+                                                        onChange={(e) => setTuitionData({ ...tuitionData, cancelCategory: e.target.value })}
+                                                    >
+                                                        <option value="">-- Select Cancel Category --</option>
+                                                        <option value="Salary Issue">Salary Issue</option>
+                                                        <option value="Location/Distance Issue">Location/Distance Issue</option>
+                                                        <option value="Time/Day Schedule Mismatch">Time/Day Schedule Mismatch</option>
+                                                        <option value="Subject Issue">Subject Issue</option>
+                                                        <option value="Teacher Personal/Family Issue">Teacher Personal/Family Issue</option>
+                                                        <option value="Teacher Exams/Busy">Teacher Exams/Busy</option>
+                                                        <option value="Guardian No Response">Guardian No Response</option>
+                                                        <option value="Guardian Behavior Issue">Guardian Behavior Issue</option>
+                                                        <option value="Teacher Not Interested">Teacher Not Interested</option>
+                                                        <option value="Teacher Demand Not Met">Teacher Demand Not Met</option>
+                                                        <option value="Others">Others</option>
+                                                    </Form.Select>
+                                                </Form.Group>
+                                            )}
                                         </Col>
                                         <Col md={4}>
                                             <Form.Group controlId="commentForTeacher">
@@ -1503,7 +1545,7 @@ export default TuitionPage;
 
 // Styled Components
 const Container = styled.div`
-  padding: 30px;
+  padding: 10px 25px 30px 25px;
   background: #f4f4f9;
 
   @keyframes blink-animation {
@@ -1517,6 +1559,39 @@ const Container = styled.div`
     background-color: #198754 !important;
     color: white !important;
     font-weight: bold;
+  }
+
+  .custom-pills {
+    background-color: #e2e8f0;
+    padding: 4px;
+    border-radius: 10px;
+    display: inline-flex;
+    gap: 4px;
+    flex-wrap: wrap;
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.04);
+  }
+  .custom-pills .nav-link {
+    color: #475569;
+    font-weight: 600;
+    border-radius: 8px;
+    padding: 8px 20px;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    border: none;
+    font-size: 14.5px;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .custom-pills .nav-link:hover {
+    color: #0f172a;
+    background-color: rgba(255, 255, 255, 0.5);
+  }
+  .custom-pills .nav-link.active {
+    background-color: #ffffff !important;
+    color: #1d4ed8 !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.08) !important;
+    font-weight: 700;
   }
 `;
 

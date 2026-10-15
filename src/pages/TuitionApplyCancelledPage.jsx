@@ -1237,9 +1237,19 @@ const TuitionApplyCancelledPage = () => {
                                     <Form.Select
                                         size="sm"
                                         value={tuitionData.status}
-                                        onChange={(e) => setTuitionData({ ...tuitionData, status: e.target.value })}
+                                        onChange={(e) => {
+                                            const val = e.target.value;
+                                            const updates = { status: val };
+                                            if (val === 'cancelled by teacher') {
+                                                updates.commentForTeacher = 'আপনি এই টিউশনটি নিতে পারবেন না বলে জানিয়েছেন। ভবিষ্যতে কোনো টিউশনে আবেদন করার আগে বেতন, সময়, লোকেশনসহ অন্যান্য বিষয় ভালোভাবে যাচাই করে নিশ্চিত হয়ে আবেদন করার অনুরোধ রইল। কোনো বিষয়ে পরিবর্তন বা আলোচনা প্রয়োজন হলে অনুগ্রহ করে কমেন্টস-এ উল্লেখ করবেন। অভিভাবক আপনার সিভি পছন্দ করার পর যেন আপনার পক্ষ থেকে টিউশনটি বাতিল করার প্রয়োজন না হয়, সেদিকে বিশেষভাবে খেয়াল রাখবেন। আপনার সহযোগিতা কামনা করছি। ধন্যবাদ।';
+                                            } else if (val === 'cancelled by guardian') {
+                                                updates.commentForTeacher = 'দুঃখিত, অভিভাবক আপনার সিভি পছন্দ করেনি। আমাদের অন্য এভেইলেবল টিউশনগুলোতে এপ্লাই করুন।';
+                                            }
+                                            setTuitionData({ ...tuitionData, ...updates });
+                                        }}
                                     >
                                         <option value="cancelled by teacher">Cancelled By Teacher</option>
+                                        <option value="cancelled by guardian">Cancelled By Guardian</option>
                                         <option value="pending">Pending</option>
                                         <option value="called (interested)">Called (Interested)</option>
                                         <option value="called (no response)">Called (No Response)</option>

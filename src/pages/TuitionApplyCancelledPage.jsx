@@ -116,9 +116,11 @@ const TuitionApplyCancelledPage = () => {
     const [statusHistoryLoading, setStatusHistoryLoading] = useState(false);
     const [statusHistoryTarget, setStatusHistoryTarget] = useState({ id: null, name: '' });
 
-    // Comment For Teacher Conversation Modal
+    // Comment Conversation Modal (Teacher or Agent)
     const [commentModalData, setCommentModalData] = useState({
         show: false,
+        title: 'Comment For Teacher',
+        label: 'Message for Teacher:',
         comment: '',
         name: '',
         phone: '',
@@ -126,10 +128,13 @@ const TuitionApplyCancelledPage = () => {
         premiumCode: ''
     });
 
-    const handleOpenCommentForTeacherModal = (item) => {
+    const handleOpenCommentModal = (item, type = 'teacher') => {
+        const isAgent = type === 'agent';
         setCommentModalData({
             show: true,
-            comment: item.commentForTeacher || '',
+            title: isAgent ? 'Agent Comment' : 'Comment For Teacher',
+            label: isAgent ? 'Agent Internal Comment / Notes:' : 'Message for Teacher:',
+            comment: isAgent ? (item.agentComment || '') : (item.commentForTeacher || ''),
             name: item.name || '',
             phone: item.phone || '',
             tuitionCode: item.tuitionCode || '',
@@ -849,21 +854,21 @@ const TuitionApplyCancelledPage = () => {
                             <Table bordered hover responsive="lg">
                                 <thead className="table-primary" style={{ position: 'sticky', top: 0, zIndex: 2 }}>
                                     <tr>
-                                        <th style={{ width: '45px' }} className="text-center">SL</th>
-                                        <th style={{ minWidth: '120px' }}>Cancelled At</th>
-                                        <th style={{ minWidth: '130px' }}>Follow-up Date</th>
-                                        <th style={{ width: '90px' }} className="text-center">Done?</th>
-                                        <th>Cancel Category</th>
-                                        <th>Updated By</th>
-                                        <th>Teacher Code</th>
-                                        <th>Tuition Code</th>
-                                        <th>Name & Phone</th>
-                                        <th>Institute / Dept</th>
-                                        <th>Comment</th>
-                                        <th>Comment For Teacher</th>
-                                        <th>Agent Comment</th>
-                                        <th>Follow-up Comment</th>
-                                        <th style={{ width: '90px' }} className="text-center">Actions</th>
+                                        <th style={{ width: '40px', minWidth: '40px' }} className="text-center">SL</th>
+                                        <th style={{ width: '105px', minWidth: '105px' }}>Cancelled At</th>
+                                        <th style={{ width: '95px', minWidth: '95px' }}>Follow-up Date</th>
+                                        <th style={{ width: '50px', minWidth: '50px' }} className="text-center">Done?</th>
+                                        <th style={{ width: '90px', minWidth: '85px', maxWidth: '95px' }}>Cancel Category</th>
+                                        <th style={{ width: '70px', minWidth: '65px' }}>Updated By</th>
+                                        <th style={{ minWidth: '90px' }}>Teacher Code</th>
+                                        <th style={{ minWidth: '80px' }}>Tuition Code</th>
+                                        <th style={{ minWidth: '105px' }}>Name & Phone</th>
+                                        <th style={{ minWidth: '100px', maxWidth: '125px' }}>Institute / Dept</th>
+                                        <th style={{ minWidth: '65px', maxWidth: '85px' }}>Comment</th>
+                                        <th style={{ minWidth: '110px', maxWidth: '140px' }}>Comment For Teacher</th>
+                                        <th style={{ minWidth: '110px', maxWidth: '140px' }}>Agent Comment</th>
+                                        <th style={{ minWidth: '90px', maxWidth: '120px' }}>Follow-up Comment</th>
+                                        <th style={{ width: '85px', minWidth: '85px', position: 'sticky', right: 0, zIndex: 3, backgroundColor: '#cfe2ff' }} className="text-center sticky-action-col">Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -898,7 +903,7 @@ const TuitionApplyCancelledPage = () => {
 
                                         return (
                                             <tr key={item._id} className={(!isDarkBg && !isDueBg && item.isFollowUpDone) ? 'table-light' : ''}>
-                                                <td style={{ ...rowStyle, minWidth: '80px', color: textColor }} className="text-center fw-bold">
+                                                <td style={{ ...rowStyle, width: '40px', minWidth: '40px', color: textColor, padding: '4px 2px' }} className="text-center fw-bold">
                                                     {(currentPage - 1) * 50 + index + 1} {item.isBanned && <span title="Banned">🚫</span>} {item.isBest && <span title="Best">⭐</span>}
                                                     <div>
                                                         {item.isAppApply ? (
@@ -913,26 +918,26 @@ const TuitionApplyCancelledPage = () => {
                                                     </div>
                                                 </td>
 
-                                                <td style={{ ...rowStyle, color: textColor, whiteSpace: 'nowrap' }}>
-                                                    {item.cancelledAt ? (
-                                                        <div style={{ lineHeight: '1.25' }}>
-                                                            <div className="fw-bold" style={{ fontSize: '0.78rem' }}>
-                                                                {formatCancelledAt(item.cancelledAt)}
+                                                <td style={{ ...rowStyle, color: textColor, whiteSpace: 'nowrap', width: '105px', minWidth: '105px', padding: '4px 4px' }}>
+                                                    <div style={{ lineHeight: '1.2' }}>
+                                                        {item.cancelledAt && (
+                                                            <div style={{ fontSize: '0.73rem' }}>
+                                                                <span style={{ fontWeight: '700', color: isDarkBg ? '#ff8585' : '#dc3545' }}>Cancelled: </span>
+                                                                <span className="fw-bold">{formatCancelledAt(item.cancelledAt)}</span>
                                                             </div>
-                                                            {item.appliedAt && (
-                                                                <div style={{ fontSize: '0.70rem', marginTop: '2px' }}>
-                                                                    <span style={{ fontWeight: '700', color: isDarkBg ? '#ffeb3b' : '#0d6efd' }}>Applied: </span>
-                                                                    <span style={{ fontWeight: '500', color: isDarkBg ? 'rgba(255,255,255,0.95)' : '#495057' }}>
-                                                                        {formatAppliedAt(item.appliedAt)}
-                                                                    </span>
-                                                                </div>
-                                                            )}
-                                                        </div>
-                                                    ) : (
-                                                        <div style={{ fontSize: '0.78rem' }}>
-                                                            <span style={{ fontWeight: '600' }}>{formatAppliedAt(item.appliedAt)}</span>
-                                                        </div>
-                                                    )}
+                                                        )}
+                                                        {item.appliedAt && (
+                                                            <div style={{ fontSize: '0.68rem', marginTop: '1px' }}>
+                                                                <span style={{ fontWeight: '700', color: isDarkBg ? '#ffeb3b' : '#0d6efd' }}>Applied: </span>
+                                                                <span style={{ fontWeight: '500', color: isDarkBg ? 'rgba(255,255,255,0.95)' : '#495057' }}>
+                                                                    {formatAppliedAt(item.appliedAt)}
+                                                                </span>
+                                                            </div>
+                                                        )}
+                                                        {!item.cancelledAt && !item.appliedAt && (
+                                                            <span className="text-muted small">-</span>
+                                                        )}
+                                                    </div>
                                                 </td>
 
                                                 {/* Follow Up Date */}
@@ -990,7 +995,7 @@ const TuitionApplyCancelledPage = () => {
                                                 </td>
 
                                                 {/* Follow Up Done (Read-only text: Yes / No, and Taken By if present) */}
-                                                <td style={rowStyle} className="text-center">
+                                                <td style={{ ...rowStyle, width: '50px', minWidth: '50px', padding: '4px 2px' }} className="text-center">
                                                     <div>
                                                         <span className={`fw-bold ${item.isFollowUpDone ? (isDarkBg ? 'text-white' : 'text-success') : (isDarkBg ? 'text-warning' : (isDueBg ? 'text-danger fw-bolder' : 'text-danger'))}`}>
                                                             {item.isFollowUpDone ? 'Yes' : 'No'}
@@ -1004,15 +1009,19 @@ const TuitionApplyCancelledPage = () => {
                                                 </td>
 
                                                 {/* Cancel Category */}
-                                                <td style={rowStyle}>
+                                                <td style={{ ...rowStyle, width: '90px', maxWidth: '95px', padding: '4px 4px' }}>
                                                     {item.cancelCategory ? (
-                                                        <Badge bg={item.isSpam ? 'dark' : 'danger'} className="text-wrap text-start fw-semibold" style={{ fontSize: '0.75rem' }}>
+                                                        <Badge 
+                                                            bg={item.isSpam ? 'dark' : 'danger'} 
+                                                            className="text-wrap text-start fw-semibold" 
+                                                            style={{ fontSize: '0.68rem', padding: '3px 5px', lineHeight: '1.2' }}
+                                                        >
                                                             {item.cancelCategory}
                                                         </Badge>
                                                     ) : ''}
                                                 </td>
 
-                                                <td style={{ ...rowStyle, color: textColor }}>{item.updatedBy || ''}</td>
+                                                <td style={{ ...rowStyle, width: '70px', minWidth: '65px', color: textColor, padding: '4px 4px' }}>{item.updatedBy || ''}</td>
 
                                                 {/* Premium Code (Teacher Code) & Teacher Status */}
                                                 <td style={rowStyle}>
@@ -1133,7 +1142,7 @@ const TuitionApplyCancelledPage = () => {
                                                     )}
                                                 </td>
 
-                                                <td style={{ ...rowStyle, color: textColor }}>
+                                                <td style={{ ...rowStyle, color: textColor, maxWidth: '125px', padding: '4px 4px' }}>
                                                     <div className="fw-semibold small">{item.institute || ''}</div>
                                                     <div style={{ fontSize: '0.72rem', color: subTextColor }}>
                                                         {item.department || ''} {item.academicYear ? `(${item.academicYear})` : ''}
@@ -1141,16 +1150,16 @@ const TuitionApplyCancelledPage = () => {
                                                 </td>
 
                                                 {/* Comment */}
-                                                <td style={{ ...rowStyle, color: textColor }}>
+                                                <td style={{ ...rowStyle, color: textColor, maxWidth: '85px', padding: '4px 4px' }}>
                                                     <span className="small">{item.comment || ''}</span>
                                                 </td>
 
                                                 {/* Comment For Teacher */}
-                                                <td style={{ ...rowStyle, color: textColor, minWidth: '160px', maxWidth: '240px' }}>
+                                                <td style={{ ...rowStyle, color: textColor, minWidth: '110px', maxWidth: '140px', padding: '4px 4px' }}>
                                                     {item.commentForTeacher ? (
-                                                        item.commentForTeacher.length > 55 ? (
+                                                        item.commentForTeacher.length > 45 ? (
                                                             <div className="small">
-                                                                <span>{item.commentForTeacher.substring(0, 55)}...</span>
+                                                                <span>{item.commentForTeacher.substring(0, 45)}...</span>
                                                                 <Button
                                                                     variant="link"
                                                                     size="sm"
@@ -1162,8 +1171,8 @@ const TuitionApplyCancelledPage = () => {
                                                                         verticalAlign: 'baseline',
                                                                         cursor: 'pointer'
                                                                     }}
-                                                                    onClick={() => handleOpenCommentForTeacherModal(item)}
-                                                                    title="Click to view full conversation comment"
+                                                                    onClick={() => handleOpenCommentModal(item, 'teacher')}
+                                                                    title="Click to view full teacher comment"
                                                                 >
                                                                     <FaInfoCircle className="me-1" size={12} />
                                                                     Info
@@ -1178,12 +1187,39 @@ const TuitionApplyCancelledPage = () => {
                                                 </td>
 
                                                 {/* Agent Comment */}
-                                                <td style={{ ...rowStyle, color: textColor }}>
-                                                    <span className="small">{item.agentComment || ''}</span>
+                                                <td style={{ ...rowStyle, color: textColor, minWidth: '110px', maxWidth: '140px', padding: '4px 4px' }}>
+                                                    {item.agentComment ? (
+                                                        item.agentComment.length > 45 ? (
+                                                            <div className="small">
+                                                                <span>{item.agentComment.substring(0, 45)}...</span>
+                                                                <Button
+                                                                    variant="link"
+                                                                    size="sm"
+                                                                    className="p-0 ms-1 text-decoration-none d-inline-flex align-items-center"
+                                                                    style={{
+                                                                        fontSize: '0.72rem',
+                                                                        fontWeight: '700',
+                                                                        color: isDarkBg ? '#ffeb3b' : '#0d6efd',
+                                                                        verticalAlign: 'baseline',
+                                                                        cursor: 'pointer'
+                                                                    }}
+                                                                    onClick={() => handleOpenCommentModal(item, 'agent')}
+                                                                    title="Click to view full agent comment"
+                                                                >
+                                                                    <FaInfoCircle className="me-1" size={12} />
+                                                                    Info
+                                                                </Button>
+                                                            </div>
+                                                        ) : (
+                                                            <span className="small">{item.agentComment}</span>
+                                                        )
+                                                    ) : (
+                                                        <span className="text-muted small">-</span>
+                                                    )}
                                                 </td>
 
                                                 {/* Follow Up Comment */}
-                                                <td style={{ ...rowStyle, minWidth: '150px' }}>
+                                                <td style={{ ...rowStyle, maxWidth: '120px', padding: '4px 4px' }}>
                                                     {item.followUpComment ? (
                                                         <div className="small fw-semibold" style={{ color: textColor }}>
                                                             <FaComments className="me-1" style={{ color: isDarkBg ? '#fff' : (isDueBg ? '#000' : '#0d6efd') }} />
@@ -1192,8 +1228,21 @@ const TuitionApplyCancelledPage = () => {
                                                     ) : ''}
                                                 </td>
 
-                                                {/* Actions: Follow Up and Delete (Icon Only) */}
-                                                <td style={{ ...rowStyle, whiteSpace: 'nowrap' }} className="text-center">
+                                                {/* Actions: Follow Up and Delete (Icon Only, Sticky Right) */}
+                                                <td 
+                                                    style={{ 
+                                                        ...rowStyle, 
+                                                        whiteSpace: 'nowrap',
+                                                        width: '85px',
+                                                        minWidth: '85px',
+                                                        position: 'sticky',
+                                                        right: 0,
+                                                        zIndex: 1,
+                                                        backgroundColor: rowStyle.backgroundColor || '#ffffff',
+                                                        padding: '4px 2px'
+                                                    }} 
+                                                    className="text-center sticky-action-col"
+                                                >
                                                     <div className="d-flex align-items-center justify-content-center gap-1">
                                                         {/* Follow Up action button */}
                                                         <Button
@@ -1574,7 +1623,7 @@ const TuitionApplyCancelledPage = () => {
                     </Modal.Body>
                 </Modal>
 
-                {/* Conversation Modal for Comment for Teacher */}
+                {/* Conversation Modal for Comment for Teacher or Agent */}
                 <Modal 
                     show={commentModalData.show} 
                     onHide={() => setCommentModalData(prev => ({ ...prev, show: false }))} 
@@ -1583,7 +1632,7 @@ const TuitionApplyCancelledPage = () => {
                     <Modal.Header closeButton className="bg-primary text-white">
                         <Modal.Title className="fs-6 fw-bold d-flex align-items-center gap-2">
                             <FaComments />
-                            <span>Comment For Teacher</span>
+                            <span>{commentModalData.title}</span>
                         </Modal.Title>
                     </Modal.Header>
                     <Modal.Body className="p-3 bg-light">
@@ -1613,7 +1662,7 @@ const TuitionApplyCancelledPage = () => {
                         <div className="p-3 bg-white rounded-3 shadow-sm border position-relative">
                             <div className="d-flex align-items-center gap-2 mb-2 text-primary fw-bold small border-bottom pb-2">
                                 <FaComments />
-                                <span>Message for Teacher:</span>
+                                <span>{commentModalData.label}</span>
                             </div>
                             <div 
                                 style={{ 
@@ -1961,6 +2010,13 @@ const Container = styled.div`
     border-right: 1px solid #dee2e6 !important;
     border-bottom: 1px solid #dee2e6 !important;
     vertical-align: middle;
+    padding: 5px 5px !important;
+  }
+
+  .sticky-action-col {
+    position: sticky !important;
+    right: 0 !important;
+    box-shadow: -2px 0 5px rgba(0, 0, 0, 0.08) !important;
   }
 
   table.table thead th {

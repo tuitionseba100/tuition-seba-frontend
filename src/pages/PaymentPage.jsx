@@ -1097,7 +1097,7 @@ const PaymentPage = () => {
                                     <thead className="text-center">
                                         <tr>
                                             <th>SL</th>
-                                            <th>Payment Received Date</th>
+                                            <th>Created At</th>
                                             <th>Tuition Code</th>
                                             <th>Teacher Code</th>
                                             <th>Due Tk</th>
@@ -1116,7 +1116,7 @@ const PaymentPage = () => {
                                         {dueTodayList.map((payment, index) => (
                                             <tr key={index} className={`align-middle text-center ${!payment.isVerified ? 'unverified-row' : ''}`}>
                                                 <td>{index + 1}</td>
-                                                <td>{payment.paymentReceivedDate ? formatDate(payment.paymentReceivedDate) : '-'}</td>
+                                                <td>{payment.createdAt ? formatDate(payment.createdAt) : '-'}</td>
                                                 <td>
                                                     <div className="d-flex flex-column align-items-center gap-1">
                                                         <span className="fw-bold">{payment.tuitionCode}</span>

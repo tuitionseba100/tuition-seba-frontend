@@ -116,6 +116,27 @@ const TuitionApplyCancelledPage = () => {
     const [statusHistoryLoading, setStatusHistoryLoading] = useState(false);
     const [statusHistoryTarget, setStatusHistoryTarget] = useState({ id: null, name: '' });
 
+    // Comment For Teacher Conversation Modal
+    const [commentModalData, setCommentModalData] = useState({
+        show: false,
+        comment: '',
+        name: '',
+        phone: '',
+        tuitionCode: '',
+        premiumCode: ''
+    });
+
+    const handleOpenCommentForTeacherModal = (item) => {
+        setCommentModalData({
+            show: true,
+            comment: item.commentForTeacher || '',
+            name: item.name || '',
+            phone: item.phone || '',
+            tuitionCode: item.tuitionCode || '',
+            premiumCode: item.premiumCode || ''
+        });
+    };
+
     const { whatsappNumber } = usePublicSettings();
 
     const bannedStyle = { backgroundColor: '#000000', color: '#ffffff' };
@@ -138,10 +159,12 @@ const TuitionApplyCancelledPage = () => {
         try {
             const d = new Date(dateStr);
             if (isNaN(d.getTime())) return '';
-            const y = d.getFullYear();
-            const m = String(d.getMonth() + 1).padStart(2, '0');
-            const day = String(d.getDate()).padStart(2, '0');
-            return `${y}-${m}-${day}`;
+            return new Intl.DateTimeFormat('en-CA', {
+                timeZone: 'Asia/Dhaka',
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit'
+            }).format(d);
         } catch {
             return '';
         }
@@ -155,13 +178,15 @@ const TuitionApplyCancelledPage = () => {
             return d.toLocaleDateString('en-GB', {
                 day: '2-digit',
                 month: 'short',
-                year: 'numeric'
+                year: 'numeric',
+                timeZone: 'Asia/Dhaka'
             });
         } catch {
             return String(dateStr);
         }
     };
 
+    // appliedAt is stored with Bangladesh time in its UTC component (matching TuitionApplyPage)
     const formatAppliedAt = (dateStr) => {
         if (!dateStr) return '-';
         try {
@@ -173,10 +198,93 @@ const TuitionApplyCancelledPage = () => {
                 year: 'numeric',
                 hour: '2-digit',
                 minute: '2-digit',
-                hour12: true
+                hour12: true,
+                timeZone: 'UTC'
             });
         } catch {
             return String(dateStr);
+        }
+    };
+
+    // Standard UTC timestamps (like StatusHistory Date.now) formatted in Bangladesh time
+    const formatLogTimestamp = (dateStr) => {
+        if (!dateStr) return '-';
+        try {
+            const d = new Date(dateStr);
+            if (isNaN(d.getTime())) return String(dateStr);
+            return d.toLocaleString('en-GB', {
+                day: '2-digit',
+                month: 'short',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: true,
+                timeZone: 'Asia/Dhaka'
+            });
+        } catch {
+            return String(dateStr);
+        }
+    };
+
+    const formatCancelledAt = (dateStr) => {
+        if (!dateStr) return '-';
+        try {
+            const d = new Date(dateStr);
+            if (isNaN(d.getTime())) return String(dateStr);
+            return d.toLocaleString('en-GB', {
+                day: '2-digit',
+                month: 'short',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: true,
+                timeZone: 'Asia/Dhaka'
+            });
+        } catch {
+            return String(dateStr);
+        }
+    };
+
+    const getFollowUpStatusInfo = (followUpDateStr, isFollowUpDone) => {
+        if (!followUpDateStr) return null;
+        if (isFollowUpDone) {
+            return { type: 'done', label: 'Done', diffDays: 0 };
+        }
+
+        const targetDateStr = formatDateInput(followUpDateStr); // YYYY-MM-DD in Asia/Dhaka
+        if (!targetDateStr) return null;
+
+        const todayDateStr = new Intl.DateTimeFormat('en-CA', {
+            timeZone: 'Asia/Dhaka',
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit'
+        }).format(new Date());
+
+        const dTarget = new Date(`${targetDateStr}T00:00:00+06:00`);
+        const dToday = new Date(`${todayDateStr}T00:00:00+06:00`);
+        const diffTime = dToday.getTime() - dTarget.getTime();
+        const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
+
+        if (diffDays === 0) {
+            return {
+                type: 'due_today',
+                label: 'Due Today',
+                diffDays: 0
+            };
+        } else if (diffDays > 0) {
+            return {
+                type: 'overdue',
+                label: diffDays === 1 ? 'Overdue by 1 day' : `Overdue by ${diffDays} days`,
+                diffDays
+            };
+        } else {
+            const upcomingDays = Math.abs(diffDays);
+            return {
+                type: 'upcoming',
+                label: upcomingDays === 1 ? 'Due Tomorrow' : `Due in ${upcomingDays} days`,
+                diffDays
+            };
         }
     };
 
@@ -553,10 +661,19 @@ const TuitionApplyCancelledPage = () => {
 
     const isDateTodayOrPast = (dateStr) => {
         if (!dateStr) return false;
-        const d = new Date(dateStr);
-        const today = new Date();
-        today.setHours(23, 59, 59, 999);
-        return d <= today;
+        try {
+            const inputDateBD = formatDateInput(dateStr);
+            if (!inputDateBD) return false;
+            const todayBD = new Intl.DateTimeFormat('en-CA', {
+                timeZone: 'Asia/Dhaka',
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit'
+            }).format(new Date());
+            return inputDateBD <= todayBD;
+        } catch {
+            return false;
+        }
     };
 
     return (
@@ -733,7 +850,7 @@ const TuitionApplyCancelledPage = () => {
                                 <thead className="table-primary" style={{ position: 'sticky', top: 0, zIndex: 2 }}>
                                     <tr>
                                         <th style={{ width: '45px' }} className="text-center">SL</th>
-                                        <th>Applied At</th>
+                                        <th style={{ minWidth: '120px' }}>Cancelled At</th>
                                         <th style={{ minWidth: '130px' }}>Follow-up Date</th>
                                         <th style={{ width: '90px' }} className="text-center">Done?</th>
                                         <th>Cancel Category</th>
@@ -796,27 +913,80 @@ const TuitionApplyCancelledPage = () => {
                                                     </div>
                                                 </td>
 
-                                                <td style={{ ...rowStyle, color: textColor }}>{formatAppliedAt(item.appliedAt)}</td>
-
-                                                {/* Follow Up Date */}
-                                                <td style={rowStyle}>
-                                                    {item.followUpDate ? (
-                                                        <div className="d-flex flex-column gap-1">
-                                                            <Badge 
-                                                                bg={item.isFollowUpDone ? 'secondary' : (isDue ? 'danger' : 'warning')} 
-                                                                className="px-2 py-1 fw-bold text-dark text-wrap"
-                                                                style={{ fontSize: '0.75rem' }}
-                                                            >
-                                                                <FaCalendarAlt className="me-1" />
-                                                                {formatDateDisplay(item.followUpDate)}
-                                                            </Badge>
-                                                            {!item.isFollowUpDone && isDue && (
-                                                                <span className="badge bg-danger text-white extra-small" style={{ fontSize: '0.65rem' }}>
-                                                                    Due / Overdue
-                                                                </span>
+                                                <td style={{ ...rowStyle, color: textColor, whiteSpace: 'nowrap' }}>
+                                                    {item.cancelledAt ? (
+                                                        <div style={{ lineHeight: '1.25' }}>
+                                                            <div className="fw-bold" style={{ fontSize: '0.78rem' }}>
+                                                                {formatCancelledAt(item.cancelledAt)}
+                                                            </div>
+                                                            {item.appliedAt && (
+                                                                <div style={{ fontSize: '0.70rem', marginTop: '2px' }}>
+                                                                    <span style={{ fontWeight: '700', color: isDarkBg ? '#ffeb3b' : '#0d6efd' }}>Applied: </span>
+                                                                    <span style={{ fontWeight: '500', color: isDarkBg ? 'rgba(255,255,255,0.95)' : '#495057' }}>
+                                                                        {formatAppliedAt(item.appliedAt)}
+                                                                    </span>
+                                                                </div>
                                                             )}
                                                         </div>
-                                                    ) : ''}
+                                                    ) : (
+                                                        <div style={{ fontSize: '0.78rem' }}>
+                                                            <span style={{ fontWeight: '600' }}>{formatAppliedAt(item.appliedAt)}</span>
+                                                        </div>
+                                                    )}
+                                                </td>
+
+                                                {/* Follow Up Date */}
+                                                <td style={{ ...rowStyle, whiteSpace: 'nowrap' }}>
+                                                    {item.followUpDate ? (() => {
+                                                        const statusInfo = getFollowUpStatusInfo(item.followUpDate, item.isFollowUpDone);
+                                                        if (!statusInfo) return formatDateDisplay(item.followUpDate);
+
+                                                        return (
+                                                            <div className="d-flex flex-column align-items-center gap-1">
+                                                                {/* Scheduled Date Display */}
+                                                                <span className="fw-bold" style={{ fontSize: '0.8rem', color: isDarkBg ? '#fff' : '#212529' }}>
+                                                                    <FaCalendarAlt className="me-1 opacity-75" />
+                                                                    {formatDateDisplay(item.followUpDate)}
+                                                                </span>
+
+                                                                {/* Urgency Badge */}
+                                                                {statusInfo.type === 'due_today' && (
+                                                                    <span 
+                                                                        className="badge bg-warning text-dark px-2 py-1 shadow-sm d-flex align-items-center gap-1"
+                                                                        style={{ fontSize: '0.7rem', fontWeight: '700' }}
+                                                                    >
+                                                                        <FaBell className="text-danger" /> Due Today
+                                                                    </span>
+                                                                )}
+                                                                {statusInfo.type === 'overdue' && (
+                                                                    <span 
+                                                                        className="badge bg-danger text-white px-2 py-1 shadow-sm d-flex align-items-center gap-1"
+                                                                        style={{ fontSize: '0.7rem', fontWeight: '700' }}
+                                                                    >
+                                                                        <FaExclamationCircle /> Overdue by {statusInfo.diffDays}d
+                                                                    </span>
+                                                                )}
+                                                                {statusInfo.type === 'upcoming' && (
+                                                                    <span 
+                                                                        className="badge bg-info-subtle text-primary border border-info-subtle px-2 py-1 d-flex align-items-center gap-1"
+                                                                        style={{ fontSize: '0.68rem', fontWeight: '600' }}
+                                                                    >
+                                                                        <FaClock /> {statusInfo.label}
+                                                                    </span>
+                                                                )}
+                                                                {statusInfo.type === 'done' && (
+                                                                    <span 
+                                                                        className="badge bg-secondary text-white px-2 py-1 d-flex align-items-center gap-1"
+                                                                        style={{ fontSize: '0.68rem' }}
+                                                                    >
+                                                                        <FaCheckCircle /> Done
+                                                                    </span>
+                                                                )}
+                                                            </div>
+                                                        );
+                                                    })() : (
+                                                        <span className="text-muted">-</span>
+                                                    )}
                                                 </td>
 
                                                 {/* Follow Up Done (Read-only text: Yes / No, and Taken By if present) */}
@@ -934,12 +1104,12 @@ const TuitionApplyCancelledPage = () => {
                                                         ) : ''}
                                                         {item.tuitionStatus && (
                                                             <span
-                                                                className={`badge text-wrap ${item.tuitionStatus.toLowerCase() === 'available' ? 'blink-available' : 'bg-secondary'}`}
+                                                                className={`badge text-wrap ${item.tuitionStatus.toLowerCase() === 'available' ? 'bg-success blink-available' : 'bg-secondary'}`}
                                                                 style={{
                                                                     fontSize: '0.7rem',
                                                                     maxWidth: 'fit-content',
-                                                                    backgroundColor: item.tuitionStatus.toLowerCase() === 'available' ? undefined : (item.hasDue ? '#6c757d' : isDarkBg ? 'rgba(255,255,255,0.25)' : undefined),
-                                                                    color: isDarkBg ? '#fff' : undefined
+                                                                    backgroundColor: item.tuitionStatus.toLowerCase() === 'available' ? '#198754' : (item.hasDue ? '#6c757d' : isDarkBg ? 'rgba(255,255,255,0.25)' : undefined),
+                                                                    color: '#fff'
                                                                 }}
                                                             >
                                                                 {item.tuitionStatus}
@@ -976,8 +1146,35 @@ const TuitionApplyCancelledPage = () => {
                                                 </td>
 
                                                 {/* Comment For Teacher */}
-                                                <td style={{ ...rowStyle, color: textColor }}>
-                                                    <span className="small">{item.commentForTeacher || ''}</span>
+                                                <td style={{ ...rowStyle, color: textColor, minWidth: '160px', maxWidth: '240px' }}>
+                                                    {item.commentForTeacher ? (
+                                                        item.commentForTeacher.length > 55 ? (
+                                                            <div className="small">
+                                                                <span>{item.commentForTeacher.substring(0, 55)}...</span>
+                                                                <Button
+                                                                    variant="link"
+                                                                    size="sm"
+                                                                    className="p-0 ms-1 text-decoration-none d-inline-flex align-items-center"
+                                                                    style={{
+                                                                        fontSize: '0.72rem',
+                                                                        fontWeight: '700',
+                                                                        color: isDarkBg ? '#ffeb3b' : '#0d6efd',
+                                                                        verticalAlign: 'baseline',
+                                                                        cursor: 'pointer'
+                                                                    }}
+                                                                    onClick={() => handleOpenCommentForTeacherModal(item)}
+                                                                    title="Click to view full conversation comment"
+                                                                >
+                                                                    <FaInfoCircle className="me-1" size={12} />
+                                                                    Info
+                                                                </Button>
+                                                            </div>
+                                                        ) : (
+                                                            <span className="small">{item.commentForTeacher}</span>
+                                                        )
+                                                    ) : (
+                                                        <span className="text-muted small">-</span>
+                                                    )}
                                                 </td>
 
                                                 {/* Agent Comment */}
@@ -1368,13 +1565,89 @@ const TuitionApplyCancelledPage = () => {
                                             {log.oldStatus || 'Creation'} &rarr; <span className="text-primary">{log.newStatus}</span>
                                         </div>
                                         <div className="text-secondary extra-small">
-                                            By: <span className="badge bg-secondary">{log.changedBy}</span> | {formatAppliedAt(log.timestamp)}
+                                            By: <span className="badge bg-secondary">{log.changedBy}</span> | {formatLogTimestamp(log.timestamp)}
                                         </div>
                                     </div>
                                 ))}
                             </div>
                         )}
                     </Modal.Body>
+                </Modal>
+
+                {/* Conversation Modal for Comment for Teacher */}
+                <Modal 
+                    show={commentModalData.show} 
+                    onHide={() => setCommentModalData(prev => ({ ...prev, show: false }))} 
+                    centered
+                >
+                    <Modal.Header closeButton className="bg-primary text-white">
+                        <Modal.Title className="fs-6 fw-bold d-flex align-items-center gap-2">
+                            <FaComments />
+                            <span>Comment For Teacher</span>
+                        </Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body className="p-3 bg-light">
+                        {/* Conversation Header Card */}
+                        <div className="bg-white p-2 px-3 rounded shadow-sm border mb-3">
+                            <div className="d-flex justify-content-between align-items-center flex-wrap gap-1">
+                                <div>
+                                    <span className="fw-bold text-dark">{commentModalData.name || 'Teacher'}</span>
+                                    {commentModalData.premiumCode && (
+                                        <span className="badge bg-secondary ms-2" style={{ fontSize: '0.7rem' }}>
+                                            {commentModalData.premiumCode}
+                                        </span>
+                                    )}
+                                </div>
+                                <span className="badge bg-primary" style={{ fontSize: '0.72rem' }}>
+                                    Tuition: {commentModalData.tuitionCode || '-'}
+                                </span>
+                            </div>
+                            {commentModalData.phone && (
+                                <div className="text-muted small mt-1">
+                                    Phone: <span className="fw-semibold text-dark">{commentModalData.phone}</span>
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Conversation Bubble */}
+                        <div className="p-3 bg-white rounded-3 shadow-sm border position-relative">
+                            <div className="d-flex align-items-center gap-2 mb-2 text-primary fw-bold small border-bottom pb-2">
+                                <FaComments />
+                                <span>Message for Teacher:</span>
+                            </div>
+                            <div 
+                                style={{ 
+                                    whiteSpace: 'pre-wrap', 
+                                    fontSize: '0.88rem', 
+                                    lineHeight: '1.6', 
+                                    color: '#212529',
+                                    maxHeight: '300px',
+                                    overflowY: 'auto'
+                                }}
+                            >
+                                {commentModalData.comment}
+                            </div>
+                        </div>
+                    </Modal.Body>
+                    <Modal.Footer className="d-flex justify-content-between">
+                        <Button 
+                            variant="outline-secondary" 
+                            size="sm" 
+                            onClick={() => {
+                                navigator.clipboard.writeText(commentModalData.comment);
+                                toast.success("Comment copied to clipboard!");
+                            }}
+                        >
+                            <FaCopy className="me-1" /> Copy Message
+                        </Button>
+                        <Button 
+                            variant="secondary" 
+                            size="sm" 
+                            onClick={() => setCommentModalData(prev => ({ ...prev, show: false }))}
+                        >
+                            Close
+                        </Button>
+                    </Modal.Footer>
                 </Modal>
 
                 {/* Due Today Modal (matching PaymentPage style) */}
@@ -1393,6 +1666,7 @@ const TuitionApplyCancelledPage = () => {
                                         <tr className="text-center align-middle">
                                             <th style={{ width: '45px' }}>SL</th>
                                             <th style={{ minWidth: '120px' }}>Follow-up Date</th>
+                                            <th style={{ minWidth: '120px' }}>Cancelled At</th>
                                             <th>Teacher Code</th>
                                             <th>Tuition Code</th>
                                             <th>Name & Phone</th>
@@ -1423,9 +1697,31 @@ const TuitionApplyCancelledPage = () => {
                                                         {index + 1} {item.isBanned && <span title="Banned">🚫</span>} {item.isBest && <span title="Best">⭐</span>}
                                                     </td>
                                                     <td style={{ ...rowStyle, whiteSpace: 'nowrap' }}>
-                                                        {item.followUpDate ? (
-                                                            <span className="badge bg-warning text-dark fw-bold">
-                                                                {formatDateDisplay(item.followUpDate)}
+                                                        {item.followUpDate ? (() => {
+                                                            const statusInfo = getFollowUpStatusInfo(item.followUpDate, item.isFollowUpDone);
+                                                            return (
+                                                                <div className="d-flex flex-column align-items-center gap-1">
+                                                                    <span className="fw-bold" style={{ fontSize: '0.8rem' }}>
+                                                                        {formatDateDisplay(item.followUpDate)}
+                                                                    </span>
+                                                                    {statusInfo?.type === 'due_today' && (
+                                                                        <span className="badge bg-warning text-dark px-2 py-0" style={{ fontSize: '0.68rem', fontWeight: '700' }}>
+                                                                            Due Today
+                                                                        </span>
+                                                                    )}
+                                                                    {statusInfo?.type === 'overdue' && (
+                                                                        <span className="badge bg-danger text-white px-2 py-0" style={{ fontSize: '0.68rem', fontWeight: '700' }}>
+                                                                            Overdue ({statusInfo.diffDays}d)
+                                                                        </span>
+                                                                    )}
+                                                                </div>
+                                                            );
+                                                        })() : '-'}
+                                                    </td>
+                                                    <td style={{ ...rowStyle, whiteSpace: 'nowrap' }}>
+                                                        {item.cancelledAt ? (
+                                                            <span className="badge bg-danger-subtle text-danger border border-danger-subtle" style={{ fontSize: '0.75rem' }}>
+                                                                {formatCancelledAt(item.cancelledAt)}
                                                             </span>
                                                         ) : '-'}
                                                     </td>
@@ -1499,22 +1795,37 @@ const TuitionApplyCancelledPage = () => {
                                                         </div>
                                                     </td>
                                                     <td style={rowStyle}>
-                                                        {item.tuitionCode ? (
-                                                            <span 
-                                                                className="fw-bold"
-                                                                style={{ 
-                                                                    cursor: 'pointer', 
-                                                                    textDecoration: 'underline',
-                                                                    color: linkColor
-                                                                }}
-                                                                onClick={() => {
-                                                                    setShowDueModal(false);
-                                                                    handleShowDetails(item.tuitionId, item.tuitionCode);
-                                                                }}
-                                                            >
-                                                                {item.tuitionCode}
-                                                            </span>
-                                                        ) : '-'}
+                                                        <div className="d-flex flex-column gap-1 align-items-center">
+                                                            {item.tuitionCode ? (
+                                                                <span
+                                                                    className="fw-bold"
+                                                                    style={{ 
+                                                                        cursor: 'pointer', 
+                                                                        textDecoration: 'underline',
+                                                                        color: linkColor
+                                                                    }}
+                                                                    onClick={() => {
+                                                                        setShowDueModal(false);
+                                                                        handleShowDetails(item.tuitionId, item.tuitionCode);
+                                                                    }}
+                                                                >
+                                                                    {item.tuitionCode}
+                                                                </span>
+                                                            ) : '-'}
+                                                            {item.tuitionStatus && (
+                                                                <span
+                                                                    className={`badge text-wrap ${item.tuitionStatus.toLowerCase() === 'available' ? 'bg-success blink-available' : 'bg-secondary'}`}
+                                                                    style={{
+                                                                        fontSize: '0.7rem',
+                                                                        maxWidth: 'fit-content',
+                                                                        backgroundColor: item.tuitionStatus.toLowerCase() === 'available' ? '#198754' : (item.hasDue ? '#6c757d' : isDarkBg ? 'rgba(255,255,255,0.25)' : undefined),
+                                                                        color: '#fff'
+                                                                    }}
+                                                                >
+                                                                    {item.tuitionStatus}
+                                                                </span>
+                                                            )}
+                                                        </div>
                                                     </td>
                                                     <td style={rowStyle} className="text-start">
                                                         <div className="fw-semibold" style={{ fontSize: '0.86rem', color: isDarkBg ? '#fff' : (isDueBg ? '#000' : '#0d6efd') }}>
@@ -1590,6 +1901,19 @@ const Container = styled.div`
   padding: 10px 25px 25px 25px;
   background: #f4f4f9;
   min-height: 90vh;
+
+  @keyframes blink-animation {
+    0% { opacity: 1; }
+    50% { opacity: 0.15; }
+    100% { opacity: 1; }
+  }
+
+  .blink-available {
+    animation: blink-animation 1.2s infinite;
+    background-color: #198754 !important;
+    color: #ffffff !important;
+    font-weight: bold;
+  }
 
   .custom-pills {
     background-color: #e2e8f0;

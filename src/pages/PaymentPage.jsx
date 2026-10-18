@@ -6,6 +6,9 @@ import GeneralPaymentViewModal from '../components/modals/GeneralPaymentViewModa
 import WhatsAppPaymentMessageModal from '../components/modals/WhatsAppPaymentMessageModal';
 import PaymentAssignModal from '../components/modals/PaymentAssignModal';
 import MainPaymentInvoiceModal from '../components/modals/MainPaymentInvoiceModal';
+import TuitionDetailsModal from '../components/modals/TuitionDetailsModal';
+import TeacherDetailsModal from '../components/modals/TeacherDetailsModal';
+import LoadingCard from '../components/modals/LoadingCard';
 import { axiosWithFallback as axios } from '../services/fetchWithFallback';
 import NavBarPage from './NavbarPage';
 import styled from 'styled-components';
@@ -179,6 +182,12 @@ const PaymentPage = () => {
     const [selectedExportStatus, setSelectedExportStatus] = useState('');
     const [showDetailsModal, setShowDetailsModal] = useState(false);
     const [detailsData, setDetailsData] = useState(null);
+    const [tuitionDetailsModalShow, setTuitionDetailsModalShow] = useState(false);
+    const [tuitionDetailsData, setTuitionDetailsData] = useState(null);
+    const [fetchingTuitionDetails, setFetchingTuitionDetails] = useState(false);
+    const [selectedTeacherForModal, setSelectedTeacherForModal] = useState(null);
+    const [showTeacherDetailsModal, setShowTeacherDetailsModal] = useState(false);
+    const [fetchingTeacherCode, setFetchingTeacherCode] = useState(null);
     const [userOptions, setUserOptions] = useState([]);
     const [showAssignModal, setShowAssignModal] = useState(false);
     const [selectedPaymentForAssign, setSelectedPaymentForAssign] = useState(null);
@@ -255,6 +264,88 @@ const PaymentPage = () => {
         } catch (err) {
             console.error(err);
             toast.error('Failed to verify payment');
+        }
+    };
+
+    const handleShowTuitionDetails = async (tuitionId, tuitionCode) => {
+        if ((!tuitionId || tuitionId === 'admin_created') && !tuitionCode) {
+            toast.info("No tuition information available for this payment.");
+            return;
+        }
+        setFetchingTuitionDetails(true);
+        const token = localStorage.getItem('token');
+        try {
+            let foundData = null;
+            if (tuitionId && tuitionId !== 'admin_created') {
+                try {
+                    const res = await axios.get(`https://tuition-seba-backend-1.onrender.com/api/tuition/${tuitionId}`, {
+                        headers: token ? { Authorization: token } : {}
+                    });
+                    if (res.data) foundData = res.data;
+                } catch (e) {
+                    console.warn('Failed to fetch by tuitionId, trying by tuitionCode:', e);
+                }
+            }
+            if (!foundData && tuitionCode) {
+                const cleanCode = encodeURIComponent(String(tuitionCode).trim());
+                try {
+                    const res = await axios.get(`https://tuition-seba-backend-1.onrender.com/api/tuition/byCode/${cleanCode}`, {
+                        headers: token ? { Authorization: token } : {}
+                    });
+                    if (res.data) foundData = res.data;
+                } catch (e) {
+                    const res = await axios.get(`https://tuition-seba-backend-1.onrender.com/api/tuition/byCodePublic?tuitionCode=${cleanCode}`);
+                    if (res.data) foundData = res.data;
+                }
+            }
+            if (foundData) {
+                setTuitionDetailsData(foundData);
+                setTuitionDetailsModalShow(true);
+            } else {
+                toast.error("Tuition details not found.");
+            }
+        } catch (err) {
+            console.error('Error fetching tuition details:', err);
+            toast.error("Failed to fetch tuition details.");
+        } finally {
+            setFetchingTuitionDetails(false);
+        }
+    };
+
+    const handleOpenTeacherDetails = async (premiumCode) => {
+        if (!premiumCode || premiumCode === '-') {
+            toast.info('No premium code available for this payment.');
+            return;
+        }
+        const clean = String(premiumCode).trim();
+        setFetchingTeacherCode(clean);
+        const token = localStorage.getItem('token');
+        try {
+            let teacher = null;
+            try {
+                const res = await axios.get(`https://tuition-seba-backend-1.onrender.com/api/regTeacher/byPremiumCode/${encodeURIComponent(clean)}`, {
+                    headers: token ? { Authorization: token } : {}
+                });
+                teacher = res.data;
+            } catch {
+                const res = await axios.get(`https://tuition-seba-backend-1.onrender.com/api/regTeacher/getTableData`, {
+                    params: { premiumCode: clean },
+                    headers: token ? { Authorization: token } : {}
+                });
+                const list = res.data?.data || [];
+                teacher = list.find(t => String(t.premiumCode).trim().toLowerCase() === clean.toLowerCase()) || list[0];
+            }
+            if (teacher) {
+                setSelectedTeacherForModal(teacher);
+                setShowTeacherDetailsModal(true);
+            } else {
+                toast.error(`No teacher details found for Code: ${clean}`);
+            }
+        } catch (e) {
+            console.error('Error fetching teacher:', e);
+            toast.error('Failed to load teacher details.');
+        } finally {
+            setFetchingTeacherCode(null);
         }
     };
 
@@ -904,7 +995,22 @@ const PaymentPage = () => {
                                                 <td>{formatDate(payment.createdAt)}</td>
                                                 <td>
                                                     <div className="d-flex flex-column align-items-center gap-1">
-                                                        <span className="fw-bold">{payment.tuitionCode}</span>
+                                                        {payment.tuitionCode ? (
+                                                            <span
+                                                                className="fw-bold"
+                                                                style={{
+                                                                    cursor: 'pointer',
+                                                                    textDecoration: 'underline',
+                                                                    color: '#0d6efd'
+                                                                }}
+                                                                onClick={() => handleShowTuitionDetails(payment.tuitionId, payment.tuitionCode)}
+                                                                title="Click to view tuition details"
+                                                            >
+                                                                {payment.tuitionCode}
+                                                            </span>
+                                                        ) : (
+                                                            <span className="fw-bold">-</span>
+                                                        )}
                                                         {payment.isVerified ? (
                                                             <span className="text-success" style={{ fontSize: '0.65rem' }}>
                                                                 <FaCheckCircle /> Verified by <span className="text-primary fw-bold ms-1" style={{ fontSize: '0.75rem' }}>{payment.verifiedBy}</span>
@@ -923,9 +1029,25 @@ const PaymentPage = () => {
                                                     </div>
                                                 </td>
                                                 <td>
-                                                    <span className="fw-bold font-monospace text-primary">
-                                                        {payment.premiumCode || '-'}
-                                                    </span>
+                                                    {payment.premiumCode ? (
+                                                        <span
+                                                            className="fw-bold font-monospace text-primary"
+                                                            style={{
+                                                                cursor: 'pointer',
+                                                                textDecoration: 'underline'
+                                                            }}
+                                                            onClick={() => handleOpenTeacherDetails(payment.premiumCode)}
+                                                            title={`Click to view Teacher Details (${payment.premiumCode})`}
+                                                        >
+                                                            {fetchingTeacherCode === String(payment.premiumCode).trim() ? (
+                                                                <Spinner animation="border" size="sm" style={{ width: '12px', height: '12px' }} />
+                                                            ) : (
+                                                                payment.premiumCode
+                                                            )}
+                                                        </span>
+                                                    ) : (
+                                                        <span className="fw-bold font-monospace text-muted">-</span>
+                                                    )}
                                                 </td>
                                                 <td>{payment.createdBy}</td>
                                                 <td>{payment.updatedBy}</td>
@@ -1080,7 +1202,33 @@ const PaymentPage = () => {
                     formatDate={formatDate}
                     onEdit={handleEditPayment}
                     onDelete={handleDeletePayment}
+                    onShowTuitionDetails={handleShowTuitionDetails}
+                    onShowTeacherDetails={handleOpenTeacherDetails}
                 />
+
+                <LoadingCard show={fetchingTuitionDetails} message="Fetching tuition details..." />
+
+                {tuitionDetailsModalShow && tuitionDetailsData && !fetchingTuitionDetails && (
+                    <TuitionDetailsModal
+                        show={tuitionDetailsModalShow}
+                        onHide={() => {
+                            setTuitionDetailsModalShow(false);
+                            setTuitionDetailsData(null);
+                        }}
+                        detailsData={tuitionDetailsData}
+                    />
+                )}
+
+                {selectedTeacherForModal && (
+                    <TeacherDetailsModal
+                        show={showTeacherDetailsModal}
+                        onHide={() => {
+                            setShowTeacherDetailsModal(false);
+                            setSelectedTeacherForModal(null);
+                        }}
+                        teacher={selectedTeacherForModal}
+                    />
+                )}
 
                 {/* Other Modals */}
                 <StyledModal show={showDueModal} onHide={() => setShowDueModal(false)} centered>
@@ -1119,7 +1267,22 @@ const PaymentPage = () => {
                                                 <td>{payment.createdAt ? formatDate(payment.createdAt) : '-'}</td>
                                                 <td>
                                                     <div className="d-flex flex-column align-items-center gap-1">
-                                                        <span className="fw-bold">{payment.tuitionCode}</span>
+                                                        {payment.tuitionCode ? (
+                                                            <span
+                                                                className="fw-bold"
+                                                                style={{
+                                                                    cursor: 'pointer',
+                                                                    textDecoration: 'underline',
+                                                                    color: '#0d6efd'
+                                                                }}
+                                                                onClick={() => handleShowTuitionDetails(payment.tuitionId, payment.tuitionCode)}
+                                                                title="Click to view tuition details"
+                                                            >
+                                                                {payment.tuitionCode}
+                                                            </span>
+                                                        ) : (
+                                                            <span className="fw-bold">-</span>
+                                                        )}
                                                         {payment.isVerified ? (
                                                             <span className="text-success" style={{ fontSize: '0.65rem' }}>
                                                                 <FaCheckCircle /> Verified by <span className="text-primary fw-bold ms-1" style={{ fontSize: '0.75rem' }}>{payment.verifiedBy}</span>
@@ -1138,9 +1301,25 @@ const PaymentPage = () => {
                                                     </div>
                                                 </td>
                                                 <td>
-                                                    <span className="fw-bold font-monospace text-primary">
-                                                        {payment.premiumCode || '-'}
-                                                    </span>
+                                                    {payment.premiumCode ? (
+                                                        <span
+                                                            className="fw-bold font-monospace text-primary"
+                                                            style={{
+                                                                cursor: 'pointer',
+                                                                textDecoration: 'underline'
+                                                            }}
+                                                            onClick={() => handleOpenTeacherDetails(payment.premiumCode)}
+                                                            title={`Click to view Teacher Details (${payment.premiumCode})`}
+                                                        >
+                                                            {fetchingTeacherCode === String(payment.premiumCode).trim() ? (
+                                                                <Spinner animation="border" size="sm" style={{ width: '12px', height: '12px' }} />
+                                                            ) : (
+                                                                payment.premiumCode
+                                                            )}
+                                                        </span>
+                                                    ) : (
+                                                        <span className="fw-bold font-monospace text-muted">-</span>
+                                                    )}
                                                 </td>
                                                 <td className="fw-bold text-danger">{payment.duePayment}</td>
                                                 <td>{payment.tutorName}</td>
@@ -1308,7 +1487,24 @@ const PaymentPage = () => {
                                                     onChange={() => toggleMigrationSelection(p._id)}
                                                 />
                                             </td>
-                                            <td>{p.tuitionCode}</td>
+                                            <td>
+                                                {p.tuitionCode ? (
+                                                    <span
+                                                        className="fw-bold"
+                                                        style={{
+                                                            cursor: 'pointer',
+                                                            textDecoration: 'underline',
+                                                            color: '#0d6efd'
+                                                        }}
+                                                        onClick={() => handleShowTuitionDetails(p.tuitionId, p.tuitionCode)}
+                                                        title="Click to view tuition details"
+                                                    >
+                                                        {p.tuitionCode}
+                                                    </span>
+                                                ) : (
+                                                    '-'
+                                                )}
+                                            </td>
                                             <td>
                                                 <span className={`badge ${p.paymentStatus === 'fully paid' ? 'bg-success' : 'bg-warning text-dark'}`}>
                                                     {p.paymentStatus}

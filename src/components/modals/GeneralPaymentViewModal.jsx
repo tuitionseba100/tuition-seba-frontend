@@ -1,7 +1,7 @@
 import React from 'react';
 import { Modal, Button, Row, Col, Table } from 'react-bootstrap';
 
-const GeneralPaymentViewModal = ({ show, onHide, detailsData, formatDate, onEdit, onDelete }) => {
+const GeneralPaymentViewModal = ({ show, onHide, detailsData, formatDate, onEdit, onDelete, onShowTuitionDetails, onShowTeacherDetails }) => {
     const role = localStorage.getItem('role');
     return (
         <Modal show={show} onHide={onHide} size="xl" dialogClassName="modal-95w" centered contentClassName="shadow-lg">
@@ -15,8 +15,44 @@ const GeneralPaymentViewModal = ({ show, onHide, detailsData, formatDate, onEdit
                             <Col md={6}>
                                 <h6 className="text-muted text-uppercase small fw-bold">Tuition Information</h6>
                                 <div className="bg-light p-3 rounded">
-                                    <p className="mb-1"><strong>Tuition Code:</strong> {detailsData.tuitionCode}</p>
-                                    <p className="mb-1"><strong>Teacher Code:</strong> {detailsData.premiumCode || '-'}</p>
+                                    <p className="mb-1">
+                                        <strong>Tuition Code:</strong>{' '}
+                                        {onShowTuitionDetails && detailsData.tuitionCode ? (
+                                            <span
+                                                style={{
+                                                    cursor: 'pointer',
+                                                    textDecoration: 'underline',
+                                                    color: '#0d6efd',
+                                                    fontWeight: 'bold'
+                                                }}
+                                                onClick={() => onShowTuitionDetails(detailsData.tuitionId, detailsData.tuitionCode)}
+                                                title="Click to view tuition details"
+                                            >
+                                                {detailsData.tuitionCode}
+                                            </span>
+                                        ) : (
+                                            detailsData.tuitionCode || '-'
+                                        )}
+                                    </p>
+                                    <p className="mb-1">
+                                        <strong>Teacher Code:</strong>{' '}
+                                        {onShowTeacherDetails && detailsData.premiumCode ? (
+                                            <span
+                                                style={{
+                                                    cursor: 'pointer',
+                                                    textDecoration: 'underline',
+                                                    color: '#0d6efd',
+                                                    fontWeight: 'bold'
+                                                }}
+                                                onClick={() => onShowTeacherDetails(detailsData.premiumCode)}
+                                                title={`Click to view Teacher Details (${detailsData.premiumCode})`}
+                                            >
+                                                {detailsData.premiumCode}
+                                            </span>
+                                        ) : (
+                                            detailsData.premiumCode || '-'
+                                        )}
+                                    </p>
                                     <p className="mb-1"><strong>Salary:</strong> TK. {detailsData.tuitionSalary || 0}</p>
                                     <p className="mb-1"><strong>Total Payment:</strong> TK. {detailsData.totalPaymentTk || 0}</p>
                                     <p className="mb-1"><strong>Tutor Name:</strong> {detailsData.tutorName}</p>

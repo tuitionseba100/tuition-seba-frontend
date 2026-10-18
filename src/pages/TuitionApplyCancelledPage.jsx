@@ -967,8 +967,8 @@ const TuitionApplyCancelledPage = () => {
                                         <th style={{ width: '105px', minWidth: '105px' }}>Cancelled At</th>
                                         <th style={{ width: '95px', minWidth: '95px' }}>Follow-up Date</th>
                                         <th style={{ width: '50px', minWidth: '50px' }} className="text-center">Done?</th>
-                                        <th style={{ width: '90px', minWidth: '85px', maxWidth: '95px' }}>Cancel Category</th>
-                                        <th style={{ width: '70px', minWidth: '65px' }}>Updated By</th>
+                                        <th style={{ width: '130px', minWidth: '125px' }}>Cancel Category</th>
+                                        <th style={{ width: '85px', minWidth: '80px' }}>Updated By</th>
                                         <th style={{ minWidth: '90px' }}>Teacher Code</th>
                                         <th style={{ minWidth: '80px' }}>Tuition Code</th>
                                         <th style={{ minWidth: '105px' }}>Name & Phone</th>
@@ -1133,19 +1133,29 @@ const TuitionApplyCancelledPage = () => {
                                                 </td>
 
                                                 {/* Cancel Category */}
-                                                <td style={{ ...rowStyle, width: '90px', maxWidth: '95px', padding: '4px 4px' }}>
+                                                <td style={{ ...rowStyle, width: '130px', minWidth: '125px', padding: '4px 6px' }}>
                                                     {item.cancelCategory ? (
                                                         <Badge 
                                                             bg={item.isSpam ? 'dark' : 'danger'} 
                                                             className="text-wrap text-start fw-semibold" 
-                                                            style={{ fontSize: '0.68rem', padding: '3px 5px', lineHeight: '1.2' }}
+                                                            style={{ 
+                                                                fontSize: '0.72rem', 
+                                                                padding: '3px 6px', 
+                                                                lineHeight: '1.25',
+                                                                whiteSpace: 'normal',
+                                                                wordBreak: 'break-word',
+                                                                display: 'inline-block',
+                                                                maxWidth: '100%'
+                                                            }}
                                                         >
                                                             {item.cancelCategory}
                                                         </Badge>
                                                     ) : ''}
                                                 </td>
 
-                                                <td style={{ ...rowStyle, width: '70px', minWidth: '65px', color: textColor, padding: '4px 4px' }}>{item.updatedBy || ''}</td>
+                                                <td style={{ ...rowStyle, width: '85px', minWidth: '80px', whiteSpace: 'nowrap', color: textColor, padding: '4px 6px' }}>
+                                                    {item.updatedBy || ''}
+                                                </td>
 
                                                 {/* Premium Code (Teacher Code) & Teacher Status */}
                                                 <td style={rowStyle}>
@@ -2025,9 +2035,21 @@ const TuitionApplyCancelledPage = () => {
                                                             </div>
                                                         )}
                                                     </td>
-                                                    <td style={rowStyle}>
+                                                    <td style={{ ...rowStyle, minWidth: '125px', maxWidth: '140px', padding: '4px 6px' }}>
                                                         {item.cancelCategory ? (
-                                                            <Badge bg={item.isSpam ? 'dark' : 'danger'} className="text-wrap text-start fw-semibold" style={{ fontSize: '0.75rem' }}>
+                                                            <Badge 
+                                                                bg={item.isSpam ? 'dark' : 'danger'} 
+                                                                className="text-wrap text-start fw-semibold" 
+                                                                style={{ 
+                                                                    fontSize: '0.72rem', 
+                                                                    padding: '3px 6px', 
+                                                                    lineHeight: '1.25',
+                                                                    whiteSpace: 'normal',
+                                                                    wordBreak: 'break-word',
+                                                                    display: 'inline-block',
+                                                                    maxWidth: '100%'
+                                                                }}
+                                                            >
                                                                 {item.cancelCategory}
                                                             </Badge>
                                                         ) : '-'}

@@ -37,8 +37,9 @@ const AboutUs = () => {
                                 </Button>
                                 <Button
                                     variant="primary"
-                                    href="https://facebook.com"
+                                    href="https://www.facebook.com/md.mahedi.hasan.513119/"
                                     target="_blank"
+                                    rel="noreferrer"
                                     className="px-3"
                                 >
                                     <FaFacebookF className="me-2" />

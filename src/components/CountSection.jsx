@@ -3,9 +3,9 @@ import { FaChalkboardTeacher, FaBookOpen, FaUsers } from 'react-icons/fa';
 
 const StatsSection = () => {
     const stats = [
-        { title: "Registered Tutors", count: 12000, suffix: "+", icon: FaChalkboardTeacher, color: '#61dafb' },
+        { title: "Registered Tutors", count: 30000, suffix: "+", icon: FaChalkboardTeacher, color: '#61dafb' },
         { title: "Available Tuitions", count: 500, suffix: "+", icon: FaBookOpen, color: '#ffd700' },
-        { title: "Registered Guardians", count: 10000, suffix: "+", icon: FaUsers, color: '#4ade80' }
+        { title: "Registered Guardians", count: 40000, suffix: "+", icon: FaUsers, color: '#4ade80' }
     ];
 
     const AnimatedNumber = ({ number, duration = 2000, suffix = '', start }) => {

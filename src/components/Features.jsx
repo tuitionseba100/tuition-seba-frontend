@@ -62,7 +62,7 @@ const Features = () => {
                 </div>
                 <div>
                     <h6 style={{ fontWeight: 'bold' }}>
-                        প্রিমিয়াম <span style={{ color: '#2f6bf0' }}>ভেরিফায়েড</span> শিক্ষক হিসেবে যুক্ত হন
+                        <span style={{ color: '#2f6bf0' }}>ভেরিফায়েড</span> শিক্ষক হিসেবে যুক্ত হন
                     </h6>
                     <p style={{ marginBottom: '4px', fontSize: '14px', color: '#555' }}>
                         বিশেষ সুযোগ-সুবিধা পেতে আজই রেজিস্ট্রেশন করুন।

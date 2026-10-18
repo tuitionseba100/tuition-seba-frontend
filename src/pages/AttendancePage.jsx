@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { axiosWithFallback as axios } from '../services/fetchWithFallback';
-import { Button, Modal, Form, Row, Col, Table } from 'react-bootstrap';
+import { Button, Modal, Form, Row, Col, Table, Card, Spinner } from 'react-bootstrap';
 import Select from 'react-select';
 import { ToastContainer, toast } from 'react-toastify';
 import NavBarPage from './NavbarPage';
@@ -8,173 +8,72 @@ import DateTimePicker from 'react-datetime-picker';
 import 'react-datetime-picker/dist/DateTimePicker.css';
 import styled from 'styled-components';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FaUserClock, FaSignInAlt, FaSignOutAlt, FaCalendarAlt, FaSearch, FaTrash, FaEdit, FaSpinner, FaCheckCircle, FaChartPie, FaChartBar, FaPrint, FaFileInvoiceDollar, FaHistory, FaTimes, FaMoneyBillWave } from 'react-icons/fa';
+import { 
+    FaUserClock, FaSignInAlt, FaSignOutAlt, FaCalendarAlt, 
+    FaSearch, FaTrash, FaEdit, FaSpinner, FaCheckCircle, 
+    FaChartPie, FaChartBar, FaPrint, FaFileInvoiceDollar, 
+    FaHistory, FaTimes, FaMoneyBillWave, FaStopCircle, FaUndo 
+} from 'react-icons/fa';
 import { checkDayStarted } from '../utilities/checkDayStarted';
 
-// --- Styled Components ---
+// --- Styled Components matching other pages ---
 
-const PageContainer = styled.div`
-  background-color: #f8f9fa;
-  min-height: 100vh;
-  padding-bottom: 2rem;
-  font-family: 'Poppins', sans-serif;
+const Container = styled.div`
+  padding: 15px 25px 35px 25px;
+  background: #f4f4f9;
+  min-height: 92vh;
 `;
 
-const ContentWrapper = styled(motion.div)`
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: 0 1.5rem;
-`;
-
-const HeaderSection = styled.div`
+const Header = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin: 2rem 0;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  gap: 15px;
   
   h2 {
+    font-family: 'Arial', sans-serif;
+    color: #333;
     font-weight: 700;
-    color: #2c3e50;
-    margin: 0;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-
-  @media (max-width: 768px) {
-    flex-direction: column;
-    gap: 1rem;
-    align-items: flex-start;
   }
 `;
 
-const StatsGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: 1.5rem;
-  margin-bottom: 2rem;
-`;
-
-const StatCard = styled(motion.div)`
-  background: white;
-  border-radius: 16px;
-  padding: 1.5rem;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  transition: transform 0.2s;
-
-  &:hover {
-    transform: translateY(-5px);
-  }
-
-  .icon-box {
-    width: 50px;
-    height: 50px;
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.5rem;
-    
-    &.blue { background: #e3f2fd; color: #1976d2; }
-    &.green { background: #e8f5e9; color: #2e7d32; }
-    &.orange { background: #fff3e0; color: #ef6c00; }
-    &.purple { background: #f3e5f5; color: #7b1fa2; }
-    &.teal { background: #e0f2f1; color: #00897b; }
-  }
-
-  .content {
-    h4 { margin: 0; font-weight: 700; color: #333; }
-    p { margin: 0; font-size: 0.9rem; color: #666; }
-  }
-`;
-
-const ControlsCard = styled.div`
-  background: white;
-  border-radius: 16px;
-  padding: 1.5rem;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
-  margin-bottom: 2rem;
-`;
-
-const StyledTable = styled.div`
-  background: white;
-  border-radius: 16px;
-  overflow: hidden;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
-  margin-bottom: 2rem;
-
-  h5 {
-    padding: 1rem 1.5rem;
-    margin: 0;
-    background: #f8f9fa;
-    border-bottom: 1px solid #e9ecef;
+const CustomTable = styled(Table)`
+  border-collapse: collapse;
+  width: 100%;
+  margin-bottom: 0;
+  
+  thead th {
+    background-color: #0d6efd !important;
+    color: white !important;
     font-weight: 600;
-    color: #495057;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
+    text-transform: uppercase;
+    font-size: 0.8rem;
+    letter-spacing: 0.05em;
+    padding: 12px 10px;
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    white-space: nowrap;
+    vertical-align: middle;
   }
 
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    
-    thead {
-      background: #f8f9fa;
-      th {
-        padding: 1rem;
-        font-weight: 600;
-        color: #495057;
-        border-bottom: 2px solid #e9ecef;
-      }
+  tbody td {
+    padding: 10px;
+    vertical-align: middle;
+    border: 1px solid #dee2e6 !important;
+    font-size: 0.92rem;
+    color: #000000 !important;
+    font-weight: 500;
+  }
+
+  tbody tr {
+    transition: background-color 0.15s ease;
+    &:hover {
+      background-color: #f1f5f9 !important;
     }
-
-    tbody {
-      tr {
-        border-bottom: 1px solid #e9ecef;
-        transition: background 0.2s;
-        
-        &:hover {
-          background: #f1f3f5;
-        }
-
-        td {
-          padding: 1rem;
-          color: #333;
-          vertical-align: middle;
-        }
-      }
-    }
-  }
-`;
-
-const PaginationContainer = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-top: 1.5rem;
-  margin-bottom: 3rem;
-  flex-wrap: wrap;
-  gap: 1rem;
-  
-  @media (max-width: 768px) {
-    flex-direction: column;
-    justify-content: center;
-    text-align: center;
-  }
-  
-  .page-info {
-    color: #6c757d;
-  }
-
-  .pagination-buttons {
-    display: flex;
-    gap: 0.5rem;
-    flex-wrap: wrap;
-    justify-content: center;
   }
 `;
 
@@ -628,6 +527,49 @@ const AttendancePage = () => {
         }
     };
 
+    const handleStopSession = async (entry) => {
+        const targetName = entry.name || entry.userName || 'this user';
+        if (!window.confirm(`Are you sure you want to stop the active session for ${targetName}?`)) {
+            return;
+        }
+
+        setIsActionLoading(true);
+        setLoadingMessage(`Stopping session for ${targetName}...`);
+
+        try {
+            const nowIso = new Date().toISOString();
+            try {
+                await axios.put(`https://tuition-seba-backend-1.onrender.com/api/attendance/stop/${entry._id}`, {}, {
+                    headers: { Authorization: token }
+                });
+            } catch (stopErr) {
+                // Fallback to edit endpoint if /stop endpoint returns 404 (e.g. backend deploy lag)
+                if (stopErr.response?.status === 404) {
+                    await axios.put(`https://tuition-seba-backend-1.onrender.com/api/attendance/edit/${entry._id}`, {
+                        endTime: nowIso
+                    }, {
+                        headers: { Authorization: token }
+                    });
+                } else {
+                    throw stopErr;
+                }
+            }
+
+            toast.success(`Active session stopped for ${targetName}`);
+
+            const currentUsername = localStorage.getItem('username');
+            if (entry.userName === currentUsername) {
+                setIsDayStarted(false);
+            }
+
+            fetchAttendance();
+        } catch (error) {
+            toast.error(error.response?.data?.message || 'Error stopping session');
+        } finally {
+            setIsActionLoading(false);
+        }
+    };
+
     const deleteAttendance = async (id) => {
         if (!window.confirm('Are you sure you want to delete this record?')) return;
         try {
@@ -694,8 +636,9 @@ const AttendancePage = () => {
     const userOptions = users.map(user => ({ value: user._id, label: user.name }));
 
     return (
-        <PageContainer>
+        <>
             <NavBarPage />
+            <Container>
 
             <AnimatePresence>
                 {isActionLoading && (
@@ -716,85 +659,85 @@ const AttendancePage = () => {
                 )}
             </AnimatePresence>
 
-            <ContentWrapper initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-                <HeaderSection>
-                    <h2><FaUserClock style={{ color: '#4caf50' }} /> Attendance Dashboard</h2>
-                    <div>
-                        <Button
-                            variant="outline-primary"
-                            size="lg"
-                            className="me-3 shadow-sm fw-semibold"
-                            onClick={() => fetchSummary('runningMonth')}
-                        >
-                            <FaChartBar className="me-2" />
-                            Employee Summary
-                        </Button>
-                        <Button
-                            variant={isDayStarted ? "secondary" : "success"}
-                            size="lg"
-                            className="me-3 shadow-sm"
-                            onClick={() => !isDayStarted && handleAction('start')}
-                            disabled={isDayStarted}
-                        >
-                            <FaSignInAlt className="me-2" />
-                            {isDayStarted ? (
-                                <span>Day Already Started</span>
-                            ) : (
-                                <span>Start Day</span>
-                            )}
-                        </Button>
-                        <Button
-                            variant={isDayStarted ? "danger" : "secondary"}
-                            size="lg"
-                            className="shadow-sm"
-                            onClick={() => isDayStarted && handleAction('end')}
-                            disabled={!isDayStarted}
-                        >
-                            <FaSignOutAlt className="me-2" />
-                            {isDayStarted ? (
-                                <span>End Day</span>
-                            ) : (
-                                <span>Day Not Started Yet</span>
-                            )}
-                        </Button>
+            <Header>
+                <h2 className="text-primary fw-bold d-flex align-items-center gap-2 mb-0">
+                    <FaUserClock /> Attendance Dashboard
+                </h2>
+                <div className="d-flex align-items-center gap-2 flex-wrap">
+                    <Button
+                        variant="outline-primary"
+                        className="fw-semibold d-flex align-items-center gap-2"
+                        onClick={() => fetchSummary('runningMonth')}
+                    >
+                        <FaChartBar /> Employee Summary
+                    </Button>
+                    <Button
+                        variant={isDayStarted ? "secondary" : "success"}
+                        className="fw-semibold d-flex align-items-center gap-2"
+                        onClick={() => !isDayStarted && handleAction('start')}
+                        disabled={isDayStarted}
+                    >
+                        <FaSignInAlt />
+                        {isDayStarted ? "Day Already Started" : "Start Day"}
+                    </Button>
+                    <Button
+                        variant={isDayStarted ? "danger" : "secondary"}
+                        className="fw-semibold d-flex align-items-center gap-2"
+                        onClick={() => isDayStarted && handleAction('end')}
+                        disabled={!isDayStarted}
+                    >
+                        <FaSignOutAlt />
+                        {isDayStarted ? "End Day" : "Day Not Started Yet"}
+                    </Button>
+                </div>
+            </Header>
+
+            {/* Statistics Cards */}
+            <Card className="mt-2 mb-3 shadow-sm border-0">
+                <Card.Body>
+                    <div className="row text-center g-3">
+                        <div className="col-6 col-sm-6 col-md-3">
+                            <div className="card p-3 shadow border-success h-100">
+                                <div className="d-flex flex-column align-items-center justify-content-center">
+                                    <span className="text-success fw-bold">People Present Today</span>
+                                    <span className="fs-4 fw-bold mt-1 text-dark">{stats.totalPresentToday}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="col-6 col-sm-6 col-md-3">
+                            <div className="card p-3 shadow border-primary h-100">
+                                <div className="d-flex flex-column align-items-center justify-content-center">
+                                    <span className="text-primary fw-bold">Active Sessions Now</span>
+                                    <span className="fs-4 fw-bold mt-1 text-dark">{stats.activeSessions}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="col-6 col-sm-6 col-md-3">
+                            <div className="card p-3 shadow border-info h-100">
+                                <div className="d-flex flex-column align-items-center justify-content-center">
+                                    <span className="text-info fw-bold">Total Records (Filtered)</span>
+                                    <span className="fs-4 fw-bold mt-1 text-dark">{stats.filteredCount}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="col-6 col-sm-6 col-md-3">
+                            <div className="card p-3 shadow border-warning h-100">
+                                <div className="d-flex flex-column align-items-center justify-content-center">
+                                    <span className="text-warning fw-bold">Avg Hours (Filtered)</span>
+                                    <span className="fs-4 fw-bold mt-1 text-dark">{stats.avgHoursFiltered} hrs</span>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                </HeaderSection>
+                </Card.Body>
+            </Card>
 
-                <StatsGrid>
-                    <StatCard>
-                        <div className="icon-box green"><FaUserClock /></div>
-                        <div className="content">
-                            <h4>{stats.totalPresentToday}</h4>
-                            <p>People Present Today</p>
-                        </div>
-                    </StatCard>
-                    <StatCard>
-                        <div className="icon-box blue"><FaSpinner /></div>
-                        <div className="content">
-                            <h4>{stats.activeSessions}</h4>
-                            <p>Active Sessions Now</p>
-                        </div>
-                    </StatCard>
-                    <StatCard>
-                        <div className="icon-box purple"><FaCheckCircle /></div>
-                        <div className="content">
-                            <h4>{stats.filteredCount}</h4>
-                            <p>Total Records (Filtered)</p>
-                        </div>
-                    </StatCard>
-                    <StatCard>
-                        <div className="icon-box orange"><FaChartPie /></div>
-                        <div className="content">
-                            <h4>{stats.avgHoursFiltered} hrs</h4>
-                            <p>Avg Hours (Filtered)</p>
-                        </div>
-                    </StatCard>
-                </StatsGrid>
-
-                <ControlsCard>
-                    <Row className="g-3">
+            {/* Filter Controls Card */}
+            <Card className="mb-3 shadow-sm border-0">
+                <Card.Body>
+                    <Row className="g-2 align-items-end">
                         <Col md={3}>
-                            <Form.Label className="fw-bold text-muted small">FILTER BY DATE</Form.Label>
+                            <Form.Label className="fw-bold small mb-1" style={{ whiteSpace: 'nowrap' }}>Filter By Date</Form.Label>
                             <Select
                                 value={filterOptions.find(option => option.value === filter)}
                                 onChange={(selectedOption) => setFilter(selectedOption.value)}
@@ -803,192 +746,237 @@ const AttendancePage = () => {
                                 classNamePrefix="react-select"
                             />
                         </Col>
-                        <Col md={3}>
-                            <Form.Label className="fw-bold text-muted small">SEARCH USER</Form.Label>
-                            <div className="d-flex align-items-center bg-light rounded px-2 border">
-                                <FaSearch className="text-secondary" />
+                        <Col md={userRole === 'superadmin' ? 3 : 5}>
+                            <Form.Label className="fw-bold small mb-1" style={{ whiteSpace: 'nowrap' }}>Search User</Form.Label>
+                            <div className="d-flex align-items-center bg-white rounded px-2 border" style={{ height: '38px' }}>
+                                <FaSearch className="text-secondary me-2" />
                                 <Form.Control
                                     type="text"
-                                    placeholder="Search by name..."
+                                    placeholder="Search by name or username..."
                                     value={searchTerm}
                                     onChange={(e) => setSearchTerm(e.target.value)}
-                                    className="border-0 bg-transparent shadow-none"
+                                    className="border-0 bg-transparent shadow-none p-0"
                                 />
                             </div>
                         </Col>
                         {userRole === 'superadmin' && (
                             <Col md={3}>
-                                <Form.Label className="fw-bold text-muted small">FILTER BY USER</Form.Label>
+                                <Form.Label className="fw-bold small mb-1" style={{ whiteSpace: 'nowrap' }}>Filter By User</Form.Label>
                                 <Select
                                     value={userFilter}
                                     onChange={setUserFilter}
                                     options={userOptions}
                                     isClearable
+                                    placeholder="All Users"
                                     className="react-select-container"
                                     classNamePrefix="react-select"
                                 />
                             </Col>
                         )}
-                        <Col md={userRole === 'superadmin' ? 3 : 6} className="d-flex align-items-end justify-content-end">
-                            <Button variant="outline-dark" onClick={resetFilters}>
-                                Reset Filters
+                        <Col md={userRole === 'superadmin' ? 3 : 4} className="d-flex align-items-end justify-content-end gap-2">
+                            <Button
+                                variant="outline-secondary"
+                                onClick={resetFilters}
+                                className="d-flex align-items-center justify-content-center gap-1"
+                                style={{ height: '38px' }}
+                            >
+                                <FaUndo /> Reset Filters
                             </Button>
                         </Col>
                     </Row>
-                </ControlsCard>
+                </Card.Body>
+            </Card>
 
-                {/* Detailed Log moved above Summary */}
-                <StyledTable>
-                    <h5><FaCalendarAlt className="text-primary" /> Detailed Log</h5>
-                    {isLoadingData && (
-                        <div className="text-center py-4">
-                            <FaSpinner className="spinner" />
-                            <p className="mt-2 text-muted">Loading attendance data...</p>
-                        </div>
-                    )}
-                    <table className="table mb-0">
-                        <thead>
-                            <tr>
-                                <th>SL</th>
-                                <th>Name</th>
-                                <th>Username</th>
-                                <th>Start Time</th>
-                                <th>End Time</th>
-                                <th>Duration</th>
-                                {userRole === 'superadmin' && <th>Actions</th>}
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {!isLoadingData && paginatedAttendance.length === 0 ? (
+            {/* Detailed Attendance Log */}
+            <Card className="shadow-sm border-0 mb-4">
+                <Card.Body>
+                    <Card.Title className="d-flex justify-content-between align-items-center mb-3">
+                        <span className="fw-bold fs-5 text-dark">
+                            <FaCalendarAlt className="text-primary me-2" /> Attendance Log
+                        </span>
+                        <span className="badge bg-primary bg-opacity-10 text-primary border border-primary px-3 py-1.5 fw-semibold">
+                            {filteredAttendance.length} Records
+                        </span>
+                    </Card.Title>
+
+                    <div style={{ maxHeight: "650px", overflowY: "auto" }}>
+                        <CustomTable striped hover responsive className="mb-0">
+                            <thead className="table-primary" style={{ position: "sticky", top: 0, zIndex: 2 }}>
                                 <tr>
-                                    <td colSpan={userRole === 'superadmin' ? 10 : 9} className="text-center py-5 text-muted">
-                                        <div className="d-flex flex-column align-items-center">
-                                            <FaCalendarAlt size={40} className="mb-3 opacity-25" />
-                                            <h5>No attendance records found</h5>
-                                            <p className="mb-0">Try adjusting your filters or start a new day.</p>
-                                        </div>
-                                    </td>
+                                    <th style={{ width: '50px' }}>SL</th>
+                                    <th>Name</th>
+                                    <th>Username</th>
+                                    <th>Start Time</th>
+                                    <th>End Time</th>
+                                    <th>Duration</th>
+                                    {userRole === 'superadmin' && <th style={{ minWidth: '150px' }} className="text-center">Actions</th>}
                                 </tr>
-                            ) : !isLoadingData ? (
-                                paginatedAttendance.map((entry, idx) => (
-                                    <tr key={entry._id}>
-                                        <td className="text-muted fw-bold">
-                                            {((currentPage - 1) * itemsPerPage) + idx + 1}
+                            </thead>
+                            <tbody>
+                                {isLoadingData ? (
+                                    <tr>
+                                        <td colSpan={userRole === 'superadmin' ? 7 : 6} className="text-center py-5">
+                                            <Spinner animation="border" variant="primary" />
+                                            <div className="mt-2 text-muted fw-semibold">Loading attendance data...</div>
                                         </td>
-                                        <td className="fw-bold">{entry.name}</td>
-                                        <td className="text-muted">{entry.userName}</td>
-                                        <td>
-                                            <TimeDisplay>
-                                                <span className="time">
-                                                    {entry.formattedStartTime || (entry.startTime ? new Date(entry.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '-')}
-                                                </span>
-                                                <span className="date">
-                                                    {entry.formattedStartDate || (entry.startTime ? new Date(entry.startTime).toLocaleDateString('en-GB') : '-')}
-                                                </span>
-                                            </TimeDisplay>
+                                    </tr>
+                                ) : paginatedAttendance.length === 0 ? (
+                                    <tr>
+                                        <td colSpan={userRole === 'superadmin' ? 7 : 6} className="text-center py-5 text-muted">
+                                            <div className="d-flex flex-column align-items-center">
+                                                <FaCalendarAlt size={40} className="mb-3 opacity-25" />
+                                                <h5 className="fw-bold">No attendance records found</h5>
+                                                <p className="mb-0">Try adjusting your filters or start a new day.</p>
+                                            </div>
                                         </td>
-                                        <td>
-                                            {entry.endTime ? (
+                                    </tr>
+                                ) : (
+                                    paginatedAttendance.map((entry, idx) => (
+                                        <tr key={entry._id}>
+                                            <td className="text-muted fw-bold">
+                                                {((currentPage - 1) * itemsPerPage) + idx + 1}
+                                            </td>
+                                            <td className="fw-bold text-dark">{entry.name}</td>
+                                            <td className="text-muted">{entry.userName}</td>
+                                            <td>
                                                 <TimeDisplay>
                                                     <span className="time">
-                                                        {entry.formattedEndTime || new Date(entry.endTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                                        {entry.formattedStartTime || (entry.startTime ? new Date(entry.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '-')}
                                                     </span>
                                                     <span className="date">
-                                                        {entry.formattedEndDate || new Date(entry.endTime).toLocaleDateString('en-GB')}
+                                                        {entry.formattedStartDate || (entry.startTime ? new Date(entry.startTime).toLocaleDateString('en-GB') : '-')}
                                                     </span>
                                                 </TimeDisplay>
-                                            ) : (
-                                                <span className="badge bg-success bg-opacity-10 text-success border border-success px-2 py-1">
-                                                    Running...
-                                                </span>
-                                            )}
-                                        </td>
-                                        <td>{entry.duration || '-'}</td>
-                                        {userRole === 'superadmin' && (
-                                            <td>
-                                                <Button variant="link" className="p-0 me-3 text-primary" onClick={() => openEditModal(entry)}>
-                                                    <FaEdit size={18} />
-                                                </Button>
-                                                <Button variant="link" className="p-0 text-danger" onClick={() => deleteAttendance(entry._id)}>
-                                                    <FaTrash size={16} />
-                                                </Button>
                                             </td>
-                                        )}
-                                    </tr>
-                                ))
-                            ) : null}
-                        </tbody>
-                    </table>
-                </StyledTable>
+                                            <td>
+                                                {entry.endTime ? (
+                                                    <TimeDisplay>
+                                                        <span className="time">
+                                                            {entry.formattedEndTime || new Date(entry.endTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                                        </span>
+                                                        <span className="date">
+                                                            {entry.formattedEndDate || new Date(entry.endTime).toLocaleDateString('en-GB')}
+                                                        </span>
+                                                    </TimeDisplay>
+                                                ) : (
+                                                    <span className="badge bg-success bg-opacity-10 text-success border border-success px-2 py-1">
+                                                        Running...
+                                                    </span>
+                                                )}
+                                            </td>
+                                            <td>{entry.duration || '-'}</td>
+                                            {userRole === 'superadmin' && (
+                                                <td className="text-center">
+                                                    <div className="d-flex align-items-center justify-content-center gap-1">
+                                                        {!entry.endTime && (
+                                                            <Button
+                                                                variant="danger"
+                                                                size="sm"
+                                                                className="d-inline-flex align-items-center gap-1 px-2 py-1 fw-semibold shadow-none"
+                                                                style={{ fontSize: '0.78rem' }}
+                                                                onClick={() => handleStopSession(entry)}
+                                                                title={`Stop active session for ${entry.name || entry.userName}`}
+                                                            >
+                                                                <FaStopCircle size={13} />
+                                                                <span>Stop</span>
+                                                            </Button>
+                                                        )}
+                                                        <Button
+                                                            variant="link"
+                                                            className="p-1 text-primary shadow-none"
+                                                            onClick={() => openEditModal(entry)}
+                                                            title="Edit Attendance Record"
+                                                        >
+                                                            <FaEdit size={17} />
+                                                        </Button>
+                                                        <Button
+                                                            variant="link"
+                                                            className="p-1 text-danger shadow-none"
+                                                            onClick={() => deleteAttendance(entry._id)}
+                                                            title="Delete Attendance Record"
+                                                        >
+                                                            <FaTrash size={15} />
+                                                        </Button>
+                                                    </div>
+                                                </td>
+                                            )}
+                                        </tr>
+                                    ))
+                                )}
+                            </tbody>
+                        </CustomTable>
+                    </div>
 
-                {/* Pagination Controls */}
-                {totalPages > 1 && (
-                    <PaginationContainer>
-                        <div className="page-info">
-                            Showing {((currentPage - 1) * itemsPerPage) + 1} to {Math.min(currentPage * itemsPerPage, filteredAttendance.length)} of {filteredAttendance.length} entries
-                        </div>
-                        <div className="pagination-buttons">
-                            <Button
-                                variant="outline-primary"
-                                disabled={currentPage === 1}
-                                onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-                            >
-                                Previous
-                            </Button>
-                            {(() => {
-                                const pages = [];
-                                const maxButtons = 5;
-                                let start = Math.max(1, currentPage - 2);
-                                let end = Math.min(totalPages, start + maxButtons - 1);
-                                if (end - start < maxButtons - 1) {
-                                    start = Math.max(1, end - maxButtons + 1);
-                                }
-
-                                if (start > 1) {
-                                    pages.push(
-                                        <Button key={1} variant={currentPage === 1 ? "primary" : "outline-primary"} onClick={() => setCurrentPage(1)}>1</Button>
-                                    );
-                                    if (start > 2) {
-                                        pages.push(<span key="dots-start" className="px-2 py-1 text-muted align-self-center">...</span>);
+                    {/* Pagination Controls */}
+                    {totalPages > 1 && (
+                        <div className="d-flex justify-content-between align-items-center mt-3 pt-3 border-top flex-wrap gap-2">
+                            <div className="text-muted small">
+                                Showing {((currentPage - 1) * itemsPerPage) + 1} to {Math.min(currentPage * itemsPerPage, filteredAttendance.length)} of {filteredAttendance.length} entries
+                            </div>
+                            <div className="d-flex gap-1 align-items-center flex-wrap">
+                                <Button
+                                    variant="outline-primary"
+                                    size="sm"
+                                    disabled={currentPage === 1}
+                                    onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                                >
+                                    Previous
+                                </Button>
+                                {(() => {
+                                    const pages = [];
+                                    const maxButtons = 5;
+                                    let start = Math.max(1, currentPage - 2);
+                                    let end = Math.min(totalPages, start + maxButtons - 1);
+                                    if (end - start < maxButtons - 1) {
+                                        start = Math.max(1, end - maxButtons + 1);
                                     }
-                                }
 
-                                for (let i = start; i <= end; i++) {
-                                    pages.push(
-                                        <Button
-                                            key={i}
-                                            variant={currentPage === i ? "primary" : "outline-primary"}
-                                            onClick={() => setCurrentPage(i)}
-                                        >
-                                            {i}
-                                        </Button>
-                                    );
-                                }
-
-                                if (end < totalPages) {
-                                    if (end < totalPages - 1) {
-                                        pages.push(<span key="dots-end" className="px-2 py-1 text-muted align-self-center">...</span>);
+                                    if (start > 1) {
+                                        pages.push(
+                                            <Button key={1} size="sm" variant={currentPage === 1 ? "primary" : "outline-primary"} onClick={() => setCurrentPage(1)}>1</Button>
+                                        );
+                                        if (start > 2) {
+                                            pages.push(<span key="dots-start" className="px-1 text-muted align-self-center">...</span>);
+                                        }
                                     }
-                                    pages.push(
-                                        <Button key={totalPages} variant={currentPage === totalPages ? "primary" : "outline-primary"} onClick={() => setCurrentPage(totalPages)}>{totalPages}</Button>
-                                    );
-                                }
 
-                                return pages;
-                            })()}
-                            <Button
-                                variant="outline-primary"
-                                disabled={currentPage === totalPages}
-                                onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-                            >
-                                Next
-                            </Button>
+                                    for (let i = start; i <= end; i++) {
+                                        pages.push(
+                                            <Button
+                                                key={i}
+                                                size="sm"
+                                                variant={currentPage === i ? "primary" : "outline-primary"}
+                                                onClick={() => setCurrentPage(i)}
+                                            >
+                                                {i}
+                                            </Button>
+                                        );
+                                    }
+
+                                    if (end < totalPages) {
+                                        if (end < totalPages - 1) {
+                                            pages.push(<span key="dots-end" className="px-1 text-muted align-self-center">...</span>);
+                                        }
+                                        pages.push(
+                                            <Button key={totalPages} size="sm" variant={currentPage === totalPages ? "primary" : "outline-primary"} onClick={() => setCurrentPage(totalPages)}>{totalPages}</Button>
+                                        );
+                                    }
+
+                                    return pages;
+                                })()}
+                                <Button
+                                    variant="outline-primary"
+                                    size="sm"
+                                    disabled={currentPage === totalPages}
+                                    onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                                >
+                                    Next
+                                </Button>
+                            </div>
                         </div>
-                    </PaginationContainer>
-                )}
-
-                {/* End of ContentWrapper */}
-            </ContentWrapper>
+                    )}
+                </Card.Body>
+            </Card>
 
             {/* Employee Summary Modal */}
             <Modal show={showSummaryModal} onHide={() => setShowSummaryModal(false)} size="xl" dialogClassName="modal-extra-large" centered>
@@ -1686,7 +1674,8 @@ const AttendancePage = () => {
             </Modal>
 
             <ToastContainer position="bottom-right" theme="colored" />
-        </PageContainer>
+            </Container>
+        </>
     );
 };
 

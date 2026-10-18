@@ -529,21 +529,31 @@ const PaymentPage = () => {
         fetchTuitionAlertToday();
     }, []);
 
-    useEffect(() => {
-        const checkTime = () => {
-            const now = new Date();
-            const hours = now.getHours();
+    const getDueStatusInfo = (duePayDate) => {
+        if (!duePayDate) return null;
 
-            // Only show between 10:00 PM and 11:59 PM
-            const isNightTime = hours === 22 || hours === 23;
-            const hasData = dueTodayList.length > 0;
-            setShowAutoMigrate(isNightTime && hasData);
-        };
+        try {
+            const cleanStr = String(duePayDate).replace('Z', '');
+            const targetMoment = moment(cleanStr).startOf('day');
+            const todayMoment = moment().startOf('day');
+            const diffDays = todayMoment.diff(targetMoment, 'days');
 
-        checkTime();
-        const interval = setInterval(checkTime, 60000); // Check every minute
-        return () => clearInterval(interval);
-    }, [dueTodayList]);
+            if (diffDays === 0) {
+                return { type: 'due_today', label: 'Due Today', bg: '#ffc107', text: '#000' };
+            } else if (diffDays === 1) {
+                return { type: 'due_yesterday', label: 'Due from Yesterday', bg: '#dc3545', text: '#fff' };
+            } else if (diffDays > 1) {
+                return { type: 'overdue', label: `Overdue (${diffDays}d)`, bg: '#b02a37', text: '#fff' };
+            } else if (diffDays === -1) {
+                return { type: 'due_tomorrow', label: 'Due Tomorrow', bg: '#0dcaf0', text: '#000' };
+            } else {
+                const daysAhead = Math.abs(diffDays);
+                return { type: 'upcoming', label: `Due in ${daysAhead}d`, bg: '#6c757d', text: '#fff' };
+            }
+        } catch {
+            return null;
+        }
+    };
 
     const handleAutoMigrate = async () => {
         if (selectedMigrationIds.length === 0) {
@@ -713,16 +723,6 @@ const PaymentPage = () => {
                 <Header>
                     <h2 className='text-primary fw-bold'>Payment Dashboard</h2>
                     <div className="d-flex gap-2">
-                        {showAutoMigrate && (
-                            <Button
-                                variant="warning"
-                                className="fw-bold"
-                                onClick={openMigrateModal}
-                                style={{ borderRadius: '30px', padding: '8px 24px' }}
-                            >
-                                Auto Migrate Update Today
-                            </Button>
-                        )}
                         <Button variant="primary" onClick={() => { setEditingId(null); setSelectedPaymentForEdit(null); setShowModal(true); }}>
                             Create Payment Record
                         </Button>
@@ -920,7 +920,7 @@ const PaymentPage = () => {
                 <div className="d-flex align-items-center justify-content-center">
                     <h5 className="me-3 d-flex align-items-center gap-2 mb-0">
                         <FaBell className="text-primary" />
-                        <span>Due to be paid today: {dueTodayList.length}</span>
+                        <span>Due to be paid: {dueTodayList.length}</span>
                         <Button 
                             size="sm" 
                             variant={appliedFilters.dueToday ? "warning" : "outline-primary"} 
@@ -928,7 +928,7 @@ const PaymentPage = () => {
                             className="ms-2"
                         >
                             <FaInfoCircle className="me-1" />
-                            {appliedFilters.dueToday ? "Showing Today (Click to Reset)" : "Filter Today"}
+                            {appliedFilters.dueToday ? "Showing Due (Click to Reset)" : "Filter Due"}
                         </Button>
                         <OverlayTrigger
                             placement="top"
@@ -1122,7 +1122,25 @@ const PaymentPage = () => {
                                                 <td>{payment.totalReceivedTk}</td>
                                                 <td>{payment.discount || 0}</td>
                                                 <td>{payment.duePayment}</td>
-                                                <td>{payment.duePayDate ? formatDate(payment.duePayDate) : ''}</td>
+                                                <td>
+                                                    {payment.duePayDate ? (
+                                                        <div className="d-flex flex-column align-items-center gap-1">
+                                                            <span style={{ fontSize: '0.8rem', whiteSpace: 'nowrap' }}>{formatDate(payment.duePayDate)}</span>
+                                                            {(() => {
+                                                                const statusInfo = getDueStatusInfo(payment.duePayDate);
+                                                                if (!statusInfo) return null;
+                                                                return (
+                                                                    <span 
+                                                                        className="badge px-2 py-0 shadow-sm fw-bold" 
+                                                                        style={{ backgroundColor: statusInfo.bg, color: statusInfo.text, fontSize: '0.68rem' }}
+                                                                    >
+                                                                        {statusInfo.label}
+                                                                    </span>
+                                                                );
+                                                            })()}
+                                                        </div>
+                                                    ) : ''}
+                                                </td>
                                                 <td>{payment.comment}</td>
                                                 <td style={{ display: 'flex', justifyContent: 'flex-start', gap: '8px' }}>
                                                     <Button variant="outline-primary" onClick={() => handlePrintInvoice(payment)} title="Print Invoice" className="mr-2" style={{ borderColor: '#0d6efd', color: '#0d6efd' }}>
@@ -1235,7 +1253,7 @@ const PaymentPage = () => {
                     <Modal.Header closeButton className="bg-primary text-white border-0 py-3">
                         <Modal.Title className="w-100 text-center fw-bold d-flex align-items-center justify-content-center gap-2">
                             <FaBell className="text-warning" />
-                            <span>Due Payments Today: {dueTodayList.length}</span>
+                            <span>Due / Pending Payments: {dueTodayList.length}</span>
                         </Modal.Title>
                     </Modal.Header>
                     <Modal.Body className="p-0 bg-white d-flex flex-column">
@@ -1336,7 +1354,23 @@ const PaymentPage = () => {
                                                     {payment.followUpComment || '-'}
                                                 </td>
                                                 <td style={{ whiteSpace: 'nowrap' }}>
-                                                    {payment.duePayDate ? formatDate(payment.duePayDate) : '-'}
+                                                    {payment.duePayDate ? (
+                                                        <div className="d-flex flex-column align-items-center gap-1">
+                                                            <span>{formatDate(payment.duePayDate)}</span>
+                                                            {(() => {
+                                                                const statusInfo = getDueStatusInfo(payment.duePayDate);
+                                                                if (!statusInfo) return null;
+                                                                return (
+                                                                    <span 
+                                                                        className="badge px-2 py-0 shadow-sm fw-bold" 
+                                                                        style={{ backgroundColor: statusInfo.bg, color: statusInfo.text, fontSize: '0.68rem' }}
+                                                                    >
+                                                                        {statusInfo.label}
+                                                                    </span>
+                                                                );
+                                                            })()}
+                                                        </div>
+                                                    ) : '-'}
                                                 </td>
                                                 <td>
                                                     {payment.duePayDateComment || '-'}

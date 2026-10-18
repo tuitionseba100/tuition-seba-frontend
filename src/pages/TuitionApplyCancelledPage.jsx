@@ -65,6 +65,8 @@ const TuitionApplyCancelledPage = () => {
     // Due Today Alert State
     const [dueTodayList, setDueTodayList] = useState([]);
     const [showDueModal, setShowDueModal] = useState(false);
+    const [openedFromDueModal, setOpenedFromDueModal] = useState(false);
+    const [openedFromDueModalForEdit, setOpenedFromDueModalForEdit] = useState(false);
 
     // Follow Up Modal State
     const [showFollowUpModal, setShowFollowUpModal] = useState(false);
@@ -293,6 +295,23 @@ const TuitionApplyCancelledPage = () => {
         }
     };
 
+    const isDateTodayOrPast = (dateStr) => {
+        if (!dateStr) return false;
+        try {
+            const inputDateBD = formatDateInput(dateStr);
+            if (!inputDateBD) return false;
+            const todayBD = new Intl.DateTimeFormat('en-CA', {
+                timeZone: 'Asia/Dhaka',
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit'
+            }).format(new Date());
+            return inputDateBD <= todayBD;
+        } catch {
+            return false;
+        }
+    };
+
     const fetchRecords = async (page = 1, filtersOverride = null) => {
         const filters = filtersOverride || appliedFilters;
         setLoading(true);
@@ -394,15 +413,42 @@ const TuitionApplyCancelledPage = () => {
 
     // Quick toggle for isFollowUpDone directly in table row
     const handleQuickToggleFollowUpDone = async (item) => {
-        setTogglingDoneId(item._id);
+        const targetId = item._id;
+        setTogglingDoneId(targetId);
         const nextVal = !item.isFollowUpDone;
+        const currentUsername = localStorage.getItem('username') || '';
+        const payload = {
+            isFollowUpDone: nextVal,
+            followUpTakenBy: nextVal 
+                ? (item.followUpTakenBy || currentUsername) 
+                : (item.followUpTakenBy || '')
+        };
+
         try {
-            await axios.put(`https://tuition-seba-backend-1.onrender.com/api/tuitionApply/edit/${item._id}`, {
-                isFollowUpDone: nextVal
+            const res = await axios.put(`https://tuition-seba-backend-1.onrender.com/api/tuitionApply/edit/${targetId}`, payload);
+            const updated = res.data;
+
+            // 1. Optimistic update in table lists
+            setFilteredList(prev => prev.map(t => String(t._id) === String(targetId) ? { ...t, ...payload, ...updated } : t));
+            setTuitionList(prev => prev.map(t => String(t._id) === String(targetId) ? { ...t, ...payload, ...updated } : t));
+
+            // 2. Optimistic update in Due Today list
+            setDueTodayList(prev => {
+                if (nextVal) {
+                    return prev.filter(t => String(t._id) !== String(targetId));
+                } else if (isDateTodayOrPast(item.followUpDate)) {
+                    return prev.map(t => String(t._id) === String(targetId) ? { ...t, ...payload, ...updated } : t);
+                }
+                return prev;
             });
-            setFilteredList(prev => prev.map(t => t._id === item._id ? { ...t, isFollowUpDone: nextVal } : t));
-            setTuitionList(prev => prev.map(t => t._id === item._id ? { ...t, isFollowUpDone: nextVal } : t));
+
             toast.success(nextVal ? 'Marked follow-up as DONE!' : 'Unmarked follow-up as pending.');
+
+            // 3. Re-fetch both table records and alert list in parallel
+            await Promise.all([
+                fetchRecords(currentPage, appliedFilters),
+                fetchDueTodayAlert()
+            ]);
         } catch (err) {
             console.error('Error toggling follow-up done:', err);
             toast.error('Failed to update follow-up status.');
@@ -412,7 +458,7 @@ const TuitionApplyCancelledPage = () => {
     };
 
     // Open dedicated Follow Up modal
-    const handleOpenFollowUpModal = (item) => {
+    const handleOpenFollowUpModal = (item, fromDueModal = false) => {
         setSelectedApplyForFollowUp(item);
         setFollowUpFormData({
             followUpDate: formatDateInput(item.followUpDate),
@@ -421,13 +467,26 @@ const TuitionApplyCancelledPage = () => {
             isFollowUpDone: !!item.isFollowUpDone,
             followUpTakenBy: item.followUpTakenBy || ''
         });
+        setOpenedFromDueModal(fromDueModal);
+        if (fromDueModal) {
+            setShowDueModal(false);
+        }
         setShowFollowUpModal(true);
+    };
+
+    const handleCloseFollowUpModal = () => {
+        setShowFollowUpModal(false);
+        if (openedFromDueModal) {
+            setShowDueModal(true);
+            setOpenedFromDueModal(false);
+        }
     };
 
     // Save Follow Up changes from modal
     const handleSaveFollowUp = async () => {
         if (!selectedApplyForFollowUp) return;
         setSavingFollowUp(true);
+        const targetId = selectedApplyForFollowUp._id;
         try {
             const currentUsername = localStorage.getItem('username') || '';
             const payload = {
@@ -440,15 +499,36 @@ const TuitionApplyCancelledPage = () => {
                     : (followUpFormData.followUpTakenBy || '')
             };
 
-            const res = await axios.put(`https://tuition-seba-backend-1.onrender.com/api/tuitionApply/edit/${selectedApplyForFollowUp._id}`, payload);
+            const res = await axios.put(`https://tuition-seba-backend-1.onrender.com/api/tuitionApply/edit/${targetId}`, payload);
             const updated = res.data;
 
-            setFilteredList(prev => prev.map(t => t._id === selectedApplyForFollowUp._id ? { ...t, ...payload, ...updated } : t));
-            setTuitionList(prev => prev.map(t => t._id === selectedApplyForFollowUp._id ? { ...t, ...payload, ...updated } : t));
+            // 1. Optimistic update in table lists
+            setFilteredList(prev => prev.map(t => String(t._id) === String(targetId) ? { ...t, ...payload, ...updated } : t));
+            setTuitionList(prev => prev.map(t => String(t._id) === String(targetId) ? { ...t, ...payload, ...updated } : t));
+
+            // 2. Optimistic update in Due Today list
+            const isStillDue = !payload.isFollowUpDone && isDateTodayOrPast(payload.followUpDate);
+            setDueTodayList(prev => {
+                if (!isStillDue) {
+                    return prev.filter(t => String(t._id) !== String(targetId));
+                }
+                return prev.map(t => String(t._id) === String(targetId) ? { ...t, ...payload, ...updated } : t);
+            });
 
             toast.success('Follow-up details saved successfully!');
             setShowFollowUpModal(false);
-            fetchDueTodayAlert();
+
+            // Re-open due modal if follow-up was initiated from it
+            if (openedFromDueModal) {
+                setShowDueModal(true);
+                setOpenedFromDueModal(false);
+            }
+
+            // 3. Re-fetch both table records and alert list in parallel
+            await Promise.all([
+                fetchRecords(currentPage, appliedFilters),
+                fetchDueTodayAlert()
+            ]);
         } catch (err) {
             console.error('Error saving follow-up:', err);
             toast.error(err.response?.data?.message || 'Failed to save follow-up details.');
@@ -458,7 +538,7 @@ const TuitionApplyCancelledPage = () => {
     };
 
     // Full Edit record
-    const handleEditTuition = (item) => {
+    const handleEditTuition = (item, fromDueModal = false) => {
         setTuitionData({
             ...item,
             followUpDate: formatDateInput(item.followUpDate),
@@ -469,12 +549,25 @@ const TuitionApplyCancelledPage = () => {
         });
         setEditingId(item._id);
         setIsFullEditEnabled(false);
+        setOpenedFromDueModalForEdit(fromDueModal);
+        if (fromDueModal) {
+            setShowDueModal(false);
+        }
         setShowEditModal(true);
+    };
+
+    const handleCloseEditModal = () => {
+        setShowEditModal(false);
+        if (openedFromDueModalForEdit) {
+            setShowDueModal(true);
+            setOpenedFromDueModalForEdit(false);
+        }
     };
 
     const handleSaveFullEdit = async (e) => {
         e.preventDefault();
         setSaving(true);
+        const targetId = editingId;
         try {
             const token = localStorage.getItem('token');
             const payload = {
@@ -482,14 +575,37 @@ const TuitionApplyCancelledPage = () => {
                 followUpDate: tuitionData.followUpDate || null
             };
 
-            await axios.put(`https://tuition-seba-backend-1.onrender.com/api/tuitionApply/edit/${editingId}`, payload, {
+            const res = await axios.put(`https://tuition-seba-backend-1.onrender.com/api/tuitionApply/edit/${targetId}`, payload, {
                 headers: { Authorization: token }
+            });
+            const updated = res.data;
+
+            // 1. Optimistic update in table lists
+            setFilteredList(prev => prev.map(t => String(t._id) === String(targetId) ? { ...t, ...payload, ...updated } : t));
+            setTuitionList(prev => prev.map(t => String(t._id) === String(targetId) ? { ...t, ...payload, ...updated } : t));
+
+            // 2. Optimistic update in Due Today list
+            const isStillDue = !payload.isFollowUpDone && isDateTodayOrPast(payload.followUpDate);
+            setDueTodayList(prev => {
+                if (!isStillDue) {
+                    return prev.filter(t => String(t._id) !== String(targetId));
+                }
+                return prev.map(t => String(t._id) === String(targetId) ? { ...t, ...payload, ...updated } : t);
             });
 
             toast.success('Tuition application updated successfully!');
             setShowEditModal(false);
-            fetchRecords(currentPage, appliedFilters);
-            fetchDueTodayAlert();
+
+            if (openedFromDueModalForEdit) {
+                setShowDueModal(true);
+                setOpenedFromDueModalForEdit(false);
+            }
+
+            // 3. Re-fetch both table records and alert list in parallel
+            await Promise.all([
+                fetchRecords(currentPage, appliedFilters),
+                fetchDueTodayAlert()
+            ]);
         } catch (err) {
             console.error('Error updating tuition apply:', err);
             toast.error(err.response?.data?.message || 'Error updating record.');
@@ -504,9 +620,19 @@ const TuitionApplyCancelledPage = () => {
         setDeleting(true);
         try {
             await axios.delete(`https://tuition-seba-backend-1.onrender.com/api/tuitionApply/delete/${id}`);
+
+            // 1. Optimistic deletion in table lists and due list
+            setFilteredList(prev => prev.filter(t => String(t._id) !== String(id)));
+            setTuitionList(prev => prev.filter(t => String(t._id) !== String(id)));
+            setDueTodayList(prev => prev.filter(t => String(t._id) !== String(id)));
+
             toast.success('Record deleted successfully!');
-            fetchRecords(currentPage, appliedFilters);
-            fetchDueTodayAlert();
+
+            // 2. Re-fetch both table records and alert list in parallel
+            await Promise.all([
+                fetchRecords(currentPage, appliedFilters),
+                fetchDueTodayAlert()
+            ]);
         } catch (err) {
             console.error('Error deleting record:', err);
             toast.error('Failed to delete record.');
@@ -661,23 +787,6 @@ const TuitionApplyCancelledPage = () => {
             toast.error('Failed to load status history.');
         } finally {
             setStatusHistoryLoading(false);
-        }
-    };
-
-    const isDateTodayOrPast = (dateStr) => {
-        if (!dateStr) return false;
-        try {
-            const inputDateBD = formatDateInput(dateStr);
-            if (!inputDateBD) return false;
-            const todayBD = new Intl.DateTimeFormat('en-CA', {
-                timeZone: 'Asia/Dhaka',
-                year: 'numeric',
-                month: '2-digit',
-                day: '2-digit'
-            }).format(new Date());
-            return inputDateBD <= todayBD;
-        } catch {
-            return false;
         }
     };
 
@@ -868,7 +977,7 @@ const TuitionApplyCancelledPage = () => {
                                         <th style={{ minWidth: '110px', maxWidth: '140px' }}>Comment For Teacher</th>
                                         <th style={{ minWidth: '110px', maxWidth: '140px' }}>Agent Comment</th>
                                         <th style={{ minWidth: '90px', maxWidth: '120px' }}>Follow-up Comment</th>
-                                        <th style={{ width: '85px', minWidth: '85px', position: 'sticky', right: 0, zIndex: 3, backgroundColor: '#cfe2ff' }} className="text-center sticky-action-col">Actions</th>
+                                        <th style={{ width: '115px', minWidth: '115px', position: 'sticky', right: 0, zIndex: 3, backgroundColor: '#cfe2ff' }} className="text-center sticky-action-col">Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -994,12 +1103,27 @@ const TuitionApplyCancelledPage = () => {
                                                     )}
                                                 </td>
 
-                                                {/* Follow Up Done (Read-only text: Yes / No, and Taken By if present) */}
-                                                <td style={{ ...rowStyle, width: '50px', minWidth: '50px', padding: '4px 2px' }} className="text-center">
+                                                {/* Follow Up Done (Quick Toggle: Yes / No, and Taken By if present) */}
+                                                <td style={{ ...rowStyle, width: '55px', minWidth: '55px', padding: '4px 2px' }} className="text-center">
                                                     <div>
-                                                        <span className={`fw-bold ${item.isFollowUpDone ? (isDarkBg ? 'text-white' : 'text-success') : (isDarkBg ? 'text-warning' : (isDueBg ? 'text-danger fw-bolder' : 'text-danger'))}`}>
-                                                            {item.isFollowUpDone ? 'Yes' : 'No'}
-                                                        </span>
+                                                        <button
+                                                            type="button"
+                                                            className={`btn btn-sm py-0 px-2 fw-bold border-0 ${
+                                                                item.isFollowUpDone 
+                                                                    ? 'btn-success text-white' 
+                                                                    : 'btn-outline-danger'
+                                                            }`}
+                                                            style={{ fontSize: '0.72rem', borderRadius: '12px', minWidth: '38px' }}
+                                                            onClick={() => handleQuickToggleFollowUpDone(item)}
+                                                            disabled={togglingDoneId === item._id}
+                                                            title={item.isFollowUpDone ? 'Click to unmark (set Pending)' : 'Click to mark Follow-up as Completed'}
+                                                        >
+                                                            {togglingDoneId === item._id ? (
+                                                                <Spinner animation="border" size="sm" style={{ width: '10px', height: '10px' }} />
+                                                            ) : (
+                                                                item.isFollowUpDone ? 'Yes' : 'No'
+                                                            )}
+                                                        </button>
                                                     </div>
                                                     {item.followUpTakenBy ? (
                                                         <div style={{ fontSize: '0.72rem', marginTop: '2px', color: subTextColor }} title={`Follow-up taken by: ${item.followUpTakenBy}`}>
@@ -1228,13 +1352,13 @@ const TuitionApplyCancelledPage = () => {
                                                     ) : ''}
                                                 </td>
 
-                                                {/* Actions: Follow Up and Delete (Icon Only, Sticky Right) */}
+                                                {/* Actions: Edit, Follow Up and Delete (Icon Only, Sticky Right) */}
                                                 <td 
                                                     style={{ 
                                                         ...rowStyle, 
                                                         whiteSpace: 'nowrap',
-                                                        width: '85px',
-                                                        minWidth: '85px',
+                                                        width: '115px',
+                                                        minWidth: '115px',
                                                         position: 'sticky',
                                                         right: 0,
                                                         zIndex: 1,
@@ -1244,6 +1368,18 @@ const TuitionApplyCancelledPage = () => {
                                                     className="text-center sticky-action-col"
                                                 >
                                                     <div className="d-flex align-items-center justify-content-center gap-1">
+                                                        {/* Edit action button */}
+                                                        <Button
+                                                            variant="primary"
+                                                            size="sm"
+                                                            className="d-inline-flex align-items-center justify-content-center p-0"
+                                                            style={{ width: '31px', height: '31px' }}
+                                                            onClick={() => handleEditTuition(item)}
+                                                            title="Edit Record"
+                                                        >
+                                                            <FaEdit size={13} />
+                                                        </Button>
+
                                                         {/* Follow Up action button */}
                                                         <Button
                                                             variant="warning"
@@ -1330,7 +1466,7 @@ const TuitionApplyCancelledPage = () => {
                 {/* Dedicated Follow-Up Modal */}
                 <Modal 
                     show={showFollowUpModal} 
-                    onHide={() => setShowFollowUpModal(false)}
+                    onHide={handleCloseFollowUpModal}
                     centered
                 >
                     <Modal.Header closeButton className="bg-warning text-dark">
@@ -1415,7 +1551,7 @@ const TuitionApplyCancelledPage = () => {
                         </Form>
                     </Modal.Body>
                     <Modal.Footer>
-                        <Button variant="secondary" size="sm" onClick={() => setShowFollowUpModal(false)}>
+                        <Button variant="secondary" size="sm" onClick={handleCloseFollowUpModal}>
                             Cancel
                         </Button>
                         <Button 
@@ -1431,7 +1567,7 @@ const TuitionApplyCancelledPage = () => {
                 </Modal>
 
                 {/* Full Edit Modal */}
-                <Modal show={showEditModal} onHide={() => setShowEditModal(false)} size="lg" centered>
+                <Modal show={showEditModal} onHide={handleCloseEditModal} size="lg" centered>
                     <Modal.Header closeButton className="bg-primary text-white">
                         <Modal.Title className="fs-6 fw-bold">Edit Tuition Application</Modal.Title>
                     </Modal.Header>
@@ -1558,7 +1694,7 @@ const TuitionApplyCancelledPage = () => {
                                 </Col>
                             </Row>
                             <div className="d-flex justify-content-end gap-2 mt-3 pt-2 border-top">
-                                <Button variant="secondary" size="sm" onClick={() => setShowEditModal(false)}>
+                                <Button variant="secondary" size="sm" onClick={handleCloseEditModal}>
                                     Cancel
                                 </Button>
                                 <Button variant="primary" size="sm" type="submit" disabled={saving}>
@@ -1722,7 +1858,7 @@ const TuitionApplyCancelledPage = () => {
                                             <th>Cancel Category</th>
                                             <th>Follow-up Comment</th>
                                             <th>Comment</th>
-                                            <th style={{ width: '80px' }}>Action</th>
+                                            <th style={{ width: '90px', minWidth: '90px' }}>Action</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -1905,19 +2041,28 @@ const TuitionApplyCancelledPage = () => {
                                                         {item.comment || '-'}
                                                     </td>
                                                     <td style={rowStyle}>
-                                                        <Button
-                                                            variant="warning"
-                                                            size="sm"
-                                                            className="d-inline-flex align-items-center justify-content-center p-0"
-                                                            style={{ width: '31px', height: '31px' }}
-                                                            onClick={() => {
-                                                                setShowDueModal(false);
-                                                                handleOpenFollowUpModal(item);
-                                                            }}
-                                                            title="Follow Up"
-                                                        >
-                                                            <FaCalendarAlt size={13} />
-                                                        </Button>
+                                                        <div className="d-flex align-items-center justify-content-center gap-1">
+                                                            <Button
+                                                                variant="primary"
+                                                                size="sm"
+                                                                className="d-inline-flex align-items-center justify-content-center p-0"
+                                                                style={{ width: '31px', height: '31px' }}
+                                                                onClick={() => handleEditTuition(item, true)}
+                                                                title="Edit Record"
+                                                            >
+                                                                <FaEdit size={13} />
+                                                            </Button>
+                                                            <Button
+                                                                variant="warning"
+                                                                size="sm"
+                                                                className="d-inline-flex align-items-center justify-content-center p-0"
+                                                                style={{ width: '31px', height: '31px' }}
+                                                                onClick={() => handleOpenFollowUpModal(item, true)}
+                                                                title="Follow Up"
+                                                            >
+                                                                <FaCalendarAlt size={13} />
+                                                            </Button>
+                                                        </div>
                                                     </td>
                                                 </tr>
                                             );

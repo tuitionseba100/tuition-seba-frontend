@@ -2176,8 +2176,8 @@ const MemoizedTuitionTable = React.memo(({
                 <tr>
                     <th>SL</th>
                     <th>Created By / Updated By</th>
+                    <th>Created At / Updated At</th>
                     <th>Tuition Code</th>
-                    <th>Apply Type</th>
                     <th>Published?</th>
                     <th>Assigned To</th>
                     <th>Status</th>
@@ -2188,7 +2188,6 @@ const MemoizedTuitionTable = React.memo(({
                     <th>Last Update Comment</th>
                     <th>Next Update</th>
                     <th>Next Update Comment</th>
-                    <th>Joining Date</th>
                     <th>Teacher</th>
                     <th>Student</th>
                     <th>Class</th>
@@ -2213,7 +2212,7 @@ const MemoizedTuitionTable = React.memo(({
             <tbody>
                 {loading ? (
                     <tr>
-                        <td colSpan="32" className="text-center">
+                        <td colSpan="33" className="text-center">
                             <div className="d-flex justify-content-center align-items-center" style={{ minHeight: '200px' }}>
                                 <Spinner animation="border" variant="primary" size="lg" />
                             </div>
@@ -2221,7 +2220,7 @@ const MemoizedTuitionTable = React.memo(({
                     </tr>
                 ) : tuitionList.length === 0 ? (
                     <tr>
-                        <td colSpan="32" className="text-center py-4 text-muted">No records found matching your filters.</td>
+                        <td colSpan="33" className="text-center py-4 text-muted">No records found matching your filters.</td>
                     </tr>
                 ) : (
                     tuitionList.map((tuition, index) => (
@@ -2234,6 +2233,16 @@ const MemoizedTuitionTable = React.memo(({
                                 <div className="d-flex flex-column">
                                     <span className="badge rounded-pill fw-bold text-start mb-1" style={{ backgroundColor: '#e8f5e9', color: '#2e7d32', border: '1px solid #c8e6c9', padding: '0.4em 0.8em' }} title="Created By">CB: {tuition.createdBy || '-'}</span>
                                     <span className="badge rounded-pill fw-bold text-start" style={{ backgroundColor: '#e3f2fd', color: '#1565c0', border: '1px solid #bbdefb', padding: '0.4em 0.8em' }} title="Updated By">UB: {tuition.updatedBy || '-'}</span>
+                                </div>
+                            </td>
+                            <td>
+                                <div className="d-flex flex-column">
+                                    <span className="badge rounded-pill fw-bold text-start mb-1" style={{ backgroundColor: '#e8f5e9', color: '#2e7d32', border: '1px solid #c8e6c9', padding: '0.4em 0.8em', whiteSpace: 'nowrap' }} title="Created At">
+                                        CA: {tuition.createdAt ? formatDateTimeDisplay(tuition.createdAt, true) : '-'}
+                                    </span>
+                                    <span className="badge rounded-pill fw-bold text-start" style={{ backgroundColor: '#e3f2fd', color: '#1565c0', border: '1px solid #bbdefb', padding: '0.4em 0.8em', whiteSpace: 'nowrap' }} title="Updated At">
+                                        UA: {tuition.updatedAt ? formatDateTimeDisplay(tuition.updatedAt, true) : '-'}
+                                    </span>
                                 </div>
                             </td>
                             <td
@@ -2256,21 +2265,6 @@ const MemoizedTuitionTable = React.memo(({
                                         </span>
                                     )}
                                 </div>
-                            </td>
-                            <td>
-                                {tuition.applyType === 'WhatsApp' ? (
-                                    <span style={{ color: 'green', fontWeight: 'bold' }}>
-                                        <FaWhatsapp /> WhatsApp
-                                    </span>
-                                ) : tuition.applyType === 'Chat' ? (
-                                    <span style={{ color: 'info', fontWeight: 'bold' }}>
-                                        <FaComments /> Chat
-                                    </span>
-                                ) : (
-                                    <span style={{ color: 'blue', fontWeight: 'bold' }}>
-                                        <FaGlobe /> Server
-                                    </span>
-                                )}
                             </td>
 
                             <td
@@ -2384,7 +2378,6 @@ const MemoizedTuitionTable = React.memo(({
                             <td>{tuition.lastUpdateComment || '-'}</td>
                             <td>{formatDateTimeDisplay(tuition.nextUpdateDate)}</td>
                             <td>{tuition.nextUpdateComment || '-'}</td>
-                            <td>{tuition.joining}</td>
                             <td>{tuition.wantedTeacher}</td>
                             <td>{tuition.student}</td>
                             <td>{tuition.class}</td>

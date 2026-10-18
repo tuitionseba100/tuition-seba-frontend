@@ -9,6 +9,8 @@ import { ToastContainer, toast } from 'react-toastify';
 import * as XLSX from 'xlsx';
 import Select from 'react-select';
 import WhatsAppRefundModal from '../components/modals/WhatsAppRefundModal';
+import TuitionDetailsModal from '../components/modals/TuitionDetailsModal';
+import LoadingCard from '../components/modals/LoadingCard';
 
 const RefundPage = () => {
     const navigate = useNavigate();
@@ -40,6 +42,9 @@ const RefundPage = () => {
 
     const [refundsDueToday, setRefundsDueToday] = useState([]);
     const [showDueTodayModal, setShowDueTodayModal] = useState(false);
+    const [tuitionDetailsModalShow, setTuitionDetailsModalShow] = useState(false);
+    const [tuitionDetailsData, setTuitionDetailsData] = useState(null);
+    const [fetchingTuitionDetails, setFetchingTuitionDetails] = useState(false);
 
     // Pagination & Search States
     const [currentPage, setCurrentPage] = useState(1);
@@ -366,6 +371,40 @@ const RefundPage = () => {
         }
     };
 
+    const handleShowTuitionDetails = async (tuitionCode) => {
+        if (!tuitionCode) {
+            toast.info("No tuition code available for this refund.");
+            return;
+        }
+        setFetchingTuitionDetails(true);
+        const token = localStorage.getItem('token');
+        const cleanCode = encodeURIComponent(String(tuitionCode).trim());
+        try {
+            let foundData = null;
+            try {
+                const res = await axios.get(`https://tuition-seba-backend-1.onrender.com/api/tuition/byCode/${cleanCode}`, {
+                    headers: token ? { Authorization: token } : {}
+                });
+                if (res.data) foundData = res.data;
+            } catch (e) {
+                const res = await axios.get(`https://tuition-seba-backend-1.onrender.com/api/tuition/byCodePublic?tuitionCode=${cleanCode}`);
+                if (res.data) foundData = res.data;
+            }
+
+            if (foundData) {
+                setTuitionDetailsData(foundData);
+                setTuitionDetailsModalShow(true);
+            } else {
+                toast.error("Tuition details not found.");
+            }
+        } catch (err) {
+            console.error('Error fetching tuition details:', err);
+            toast.error("Failed to fetch tuition details.");
+        } finally {
+            setFetchingTuitionDetails(false);
+        }
+    };
+
     return (
         <>
             <NavBarPage />
@@ -531,7 +570,24 @@ const RefundPage = () => {
                                                         {item.status}
                                                     </span>
                                                 </td>
-                                                <td>{item.tuitionCode}</td>
+                                                <td>
+                                                    {item.tuitionCode ? (
+                                                        <span
+                                                            className="fw-bold"
+                                                            style={{
+                                                                cursor: 'pointer',
+                                                                textDecoration: 'underline',
+                                                                color: '#0d6efd'
+                                                            }}
+                                                            onClick={() => handleShowTuitionDetails(item.tuitionCode)}
+                                                            title="Click to view tuition details"
+                                                        >
+                                                            {item.tuitionCode}
+                                                        </span>
+                                                    ) : (
+                                                        '-'
+                                                    )}
+                                                </td>
                                                 <td>{item.createdBy || '-'}</td>
                                                 <td>{item.updatedBy || '-'}</td>
                                                 <td>{item.paymentType}</td>
@@ -660,7 +716,18 @@ const RefundPage = () => {
                                     <Row className="g-4">
                                         <Col md={4}>
                                             <Form.Group>
-                                                <Form.Label className="text-muted small fw-bold mb-2">TUITION CODE</Form.Label>
+                                                <div className="d-flex justify-content-between align-items-center mb-2">
+                                                    <Form.Label className="text-muted small fw-bold mb-0">TUITION CODE</Form.Label>
+                                                    {refundData.tuitionCode && (
+                                                        <span
+                                                            style={{ cursor: 'pointer', fontSize: '0.75rem', color: '#0d6efd', textDecoration: 'underline', fontWeight: 'bold' }}
+                                                            onClick={() => handleShowTuitionDetails(refundData.tuitionCode)}
+                                                            title="View tuition details"
+                                                        >
+                                                            View Details
+                                                        </span>
+                                                    )}
+                                                </div>
                                                 <Form.Control
                                                     type="text"
                                                     placeholder="Enter Code"
@@ -948,7 +1015,24 @@ const RefundPage = () => {
                                         {refundsDueToday.map((refund, index) => (
                                             <tr key={refund._id} className="text-center border-bottom">
                                                 <td className="fw-bold text-muted">{index + 1}</td>
-                                                <td className="fw-bold text-primary">{refund.tuitionCode}</td>
+                                                <td>
+                                                    {refund.tuitionCode ? (
+                                                        <span
+                                                            className="fw-bold"
+                                                            style={{
+                                                                cursor: 'pointer',
+                                                                textDecoration: 'underline',
+                                                                color: '#0d6efd'
+                                                            }}
+                                                            onClick={() => handleShowTuitionDetails(refund.tuitionCode)}
+                                                            title="Click to view tuition details"
+                                                        >
+                                                            {refund.tuitionCode}
+                                                        </span>
+                                                    ) : (
+                                                        '-'
+                                                    )}
+                                                </td>
                                                 <td>{refund.name}</td>
                                                 <td>{refund.personalPhone}</td>
                                                 <td className="fw-bold text-success">{refund.amount} TK</td>
@@ -1010,6 +1094,19 @@ const RefundPage = () => {
                         </Button>
                     </Modal.Footer>
                 </Modal>
+
+                <LoadingCard show={fetchingTuitionDetails} message="Fetching tuition details..." />
+
+                {tuitionDetailsModalShow && tuitionDetailsData && !fetchingTuitionDetails && (
+                    <TuitionDetailsModal
+                        show={tuitionDetailsModalShow}
+                        onHide={() => {
+                            setTuitionDetailsModalShow(false);
+                            setTuitionDetailsData(null);
+                        }}
+                        detailsData={tuitionDetailsData}
+                    />
+                )}
 
                 <ToastContainer />
             </Container>

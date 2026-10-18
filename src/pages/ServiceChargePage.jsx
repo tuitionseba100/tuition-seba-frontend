@@ -19,6 +19,9 @@ import { ToastContainer, toast } from 'react-toastify';
 import styled from 'styled-components';
 import NavBarPage from './NavbarPage';
 import WhatsAppServiceChargeModal from '../components/modals/WhatsAppServiceChargeModal';
+import TuitionDetailsModal from '../components/modals/TuitionDetailsModal';
+import TeacherDetailsModal from '../components/modals/TeacherDetailsModal';
+import LoadingCard from '../components/modals/LoadingCard';
 
 const ServiceChargePage = () => {
     // List & pagination state
@@ -79,6 +82,14 @@ const ServiceChargePage = () => {
     const [isMigrating, setIsMigrating] = useState(false);
     const [showMigrateModal, setShowMigrateModal] = useState(false);
     const [selectedMigrationIds, setSelectedMigrationIds] = useState([]);
+
+    // Tuition & Teacher Details Modals
+    const [tuitionDetailsModalShow, setTuitionDetailsModalShow] = useState(false);
+    const [tuitionDetailsData, setTuitionDetailsData] = useState(null);
+    const [fetchingTuitionDetails, setFetchingTuitionDetails] = useState(false);
+    const [selectedTeacherForModal, setSelectedTeacherForModal] = useState(null);
+    const [showTeacherDetailsModal, setShowTeacherDetailsModal] = useState(false);
+    const [fetchingTeacherCode, setFetchingTeacherCode] = useState(null);
 
     const formatTeacherPhones = (t) => {
         if (!t) return 'No Phone';
@@ -447,6 +458,77 @@ const ServiceChargePage = () => {
         }
     };
 
+    const handleShowTuitionDetails = async (tuitionCode) => {
+        if (!tuitionCode) {
+            toast.info("No tuition code available for this service charge.");
+            return;
+        }
+        setFetchingTuitionDetails(true);
+        const token = localStorage.getItem('token');
+        const cleanCode = encodeURIComponent(String(tuitionCode).trim());
+        try {
+            let foundData = null;
+            try {
+                const res = await axios.get(`https://tuition-seba-backend-1.onrender.com/api/tuition/byCode/${cleanCode}`, {
+                    headers: token ? { Authorization: token } : {}
+                });
+                if (res.data) foundData = res.data;
+            } catch (e) {
+                const res = await axios.get(`https://tuition-seba-backend-1.onrender.com/api/tuition/byCodePublic?tuitionCode=${cleanCode}`);
+                if (res.data) foundData = res.data;
+            }
+
+            if (foundData) {
+                setTuitionDetailsData(foundData);
+                setTuitionDetailsModalShow(true);
+            } else {
+                toast.error("Tuition details not found.");
+            }
+        } catch (err) {
+            console.error('Error fetching tuition details:', err);
+            toast.error("Failed to fetch tuition details.");
+        } finally {
+            setFetchingTuitionDetails(false);
+        }
+    };
+
+    const handleOpenTeacherDetails = async (premiumCode) => {
+        if (!premiumCode || premiumCode === '-') {
+            toast.info('No teacher code available for this service charge.');
+            return;
+        }
+        const clean = String(premiumCode).trim();
+        setFetchingTeacherCode(clean);
+        const token = localStorage.getItem('token');
+        try {
+            let teacher = null;
+            try {
+                const res = await axios.get(`https://tuition-seba-backend-1.onrender.com/api/regTeacher/byPremiumCode/${encodeURIComponent(clean)}`, {
+                    headers: token ? { Authorization: token } : {}
+                });
+                teacher = res.data;
+            } catch {
+                const res = await axios.get(`https://tuition-seba-backend-1.onrender.com/api/regTeacher/getTableData`, {
+                    params: { premiumCode: clean },
+                    headers: token ? { Authorization: token } : {}
+                });
+                const list = res.data?.data || [];
+                teacher = list.find(t => String(t.premiumCode).trim().toLowerCase() === clean.toLowerCase()) || list[0];
+            }
+            if (teacher) {
+                setSelectedTeacherForModal(teacher);
+                setShowTeacherDetailsModal(true);
+            } else {
+                toast.error(`No teacher details found for Code: ${clean}`);
+            }
+        } catch (e) {
+            console.error('Error fetching teacher:', e);
+            toast.error('Failed to load teacher details.');
+        } finally {
+            setFetchingTeacherCode(null);
+        }
+    };
+
     // Toggle "To Be Paid Today" filter
     const handleToggleToBePaidToday = () => {
         const nextVal = !scSearch.toBePaidToday;
@@ -642,8 +724,38 @@ const ServiceChargePage = () => {
                                                 <td className="fw-bold text-nowrap" style={{ color: sc.status === 'completed' ? '#155724' : '#0d6efd' }}>
                                                     {formatDateOnly(sc.nextPaymentDate)}
                                                 </td>
-                                                <td><span className="fw-bold text-primary">{sc.tuitionCode || '-'}</span></td>
-                                                <td><span className="fw-bold font-monospace text-primary">{sc.teacherCode || '-'}</span></td>
+                                                 <td>
+                                                    {sc.tuitionCode ? (
+                                                        <span
+                                                            className="fw-bold"
+                                                            style={{ cursor: 'pointer', textDecoration: 'underline', color: '#0d6efd' }}
+                                                            onClick={() => handleShowTuitionDetails(sc.tuitionCode)}
+                                                            title="Click to view tuition details"
+                                                        >
+                                                            {sc.tuitionCode}
+                                                        </span>
+                                                    ) : (
+                                                        '-'
+                                                    )}
+                                                </td>
+                                                <td>
+                                                    {sc.teacherCode ? (
+                                                        <span
+                                                            className="fw-bold font-monospace text-primary"
+                                                            style={{ cursor: 'pointer', textDecoration: 'underline' }}
+                                                            onClick={() => handleOpenTeacherDetails(sc.teacherCode)}
+                                                            title={`Click to view Teacher Details (${sc.teacherCode})`}
+                                                        >
+                                                            {fetchingTeacherCode === String(sc.teacherCode).trim() ? (
+                                                                <Spinner animation="border" size="sm" style={{ width: '12px', height: '12px' }} />
+                                                            ) : (
+                                                                sc.teacherCode
+                                                            )}
+                                                        </span>
+                                                    ) : (
+                                                        <span className="fw-bold font-monospace text-muted">-</span>
+                                                    )}
+                                                </td>
                                                 <td>{sc.name || '-'}</td>
                                                 <td>{sc.personalPhone || sc.paymentNumber || '-'}</td>
                                                 <td className="fw-bold text-dark">৳{sc.amount}</td>
@@ -745,7 +857,18 @@ const ServiceChargePage = () => {
                             <Row className="g-3">
                                 <Col md={6}>
                                     <Form.Group>
-                                        <Form.Label className="fw-bold small">Tuition Code *</Form.Label>
+                                        <div className="d-flex justify-content-between align-items-center mb-1">
+                                            <Form.Label className="fw-bold small mb-0">Tuition Code *</Form.Label>
+                                            {scFormData.tuitionCode && (
+                                                <span
+                                                    style={{ cursor: 'pointer', fontSize: '0.75rem', color: '#0d6efd', textDecoration: 'underline', fontWeight: 'bold' }}
+                                                    onClick={() => handleShowTuitionDetails(scFormData.tuitionCode)}
+                                                    title="View tuition details"
+                                                >
+                                                    View Details
+                                                </span>
+                                            )}
+                                        </div>
                                         <Form.Control
                                             type="text"
                                             required
@@ -757,14 +880,25 @@ const ServiceChargePage = () => {
                                 </Col>
                                 <Col md={6}>
                                     <Form.Group>
-                                        <Form.Label className="fw-bold small d-flex align-items-center justify-content-between">
+                                        <Form.Label className="fw-bold small d-flex align-items-center justify-content-between mb-1">
                                             <span>Teacher Code <span className="text-danger">*</span></span>
-                                            {isTeacherSearching && (
-                                                <span className="text-primary small fw-normal d-flex align-items-center">
-                                                    <Spinner animation="border" size="sm" className="me-1" style={{ width: '12px', height: '12px' }} />
-                                                    <span style={{ fontSize: '0.72rem' }}>Loading...</span>
-                                                </span>
-                                            )}
+                                            <span className="d-flex align-items-center gap-2">
+                                                {scFormData.teacherCode && (
+                                                    <span
+                                                        style={{ cursor: 'pointer', fontSize: '0.75rem', color: '#0d6efd', textDecoration: 'underline', fontWeight: 'bold' }}
+                                                        onClick={() => handleOpenTeacherDetails(scFormData.teacherCode)}
+                                                        title="View teacher details"
+                                                    >
+                                                        View Details
+                                                    </span>
+                                                )}
+                                                {isTeacherSearching && (
+                                                    <span className="text-primary small fw-normal d-flex align-items-center">
+                                                        <Spinner animation="border" size="sm" className="me-1" style={{ width: '12px', height: '12px' }} />
+                                                        <span style={{ fontSize: '0.72rem' }}>Loading...</span>
+                                                    </span>
+                                                )}
+                                            </span>
                                         </Form.Label>
                                         <AsyncSelect
                                             cacheOptions
@@ -956,6 +1090,7 @@ const ServiceChargePage = () => {
                                     <tr>
                                         <th className="text-center">Select</th>
                                         <th>Tuition Code</th>
+                                        <th>Teacher Code</th>
                                         <th>Teacher Name</th>
                                         <th>Phone</th>
                                         <th>Amount</th>
@@ -973,7 +1108,38 @@ const ServiceChargePage = () => {
                                                     onChange={() => toggleMigrationSelection(sc._id)}
                                                 />
                                             </td>
-                                            <td className="fw-bold text-primary">{sc.tuitionCode || '-'}</td>
+                                            <td>
+                                                {sc.tuitionCode ? (
+                                                    <span
+                                                        className="fw-bold"
+                                                        style={{ cursor: 'pointer', textDecoration: 'underline', color: '#0d6efd' }}
+                                                        onClick={() => handleShowTuitionDetails(sc.tuitionCode)}
+                                                        title="Click to view tuition details"
+                                                    >
+                                                        {sc.tuitionCode}
+                                                    </span>
+                                                ) : (
+                                                    '-'
+                                                )}
+                                            </td>
+                                            <td>
+                                                {sc.teacherCode ? (
+                                                    <span
+                                                        className="fw-bold font-monospace text-primary"
+                                                        style={{ cursor: 'pointer', textDecoration: 'underline' }}
+                                                        onClick={() => handleOpenTeacherDetails(sc.teacherCode)}
+                                                        title={`Click to view Teacher Details (${sc.teacherCode})`}
+                                                    >
+                                                        {fetchingTeacherCode === String(sc.teacherCode).trim() ? (
+                                                            <Spinner animation="border" size="sm" style={{ width: '12px', height: '12px' }} />
+                                                        ) : (
+                                                            sc.teacherCode
+                                                        )}
+                                                    </span>
+                                                ) : (
+                                                    '-'
+                                                )}
+                                            </td>
                                             <td>{sc.name || '-'}</td>
                                             <td>{sc.personalPhone || sc.paymentNumber || '-'}</td>
                                             <td className="fw-bold">৳{sc.amount}</td>
@@ -1014,6 +1180,30 @@ const ServiceChargePage = () => {
                         </Button>
                     </Modal.Footer>
                 </Modal>
+
+                <LoadingCard show={fetchingTuitionDetails} message="Fetching tuition details..." />
+
+                {tuitionDetailsModalShow && tuitionDetailsData && !fetchingTuitionDetails && (
+                    <TuitionDetailsModal
+                        show={tuitionDetailsModalShow}
+                        onHide={() => {
+                            setTuitionDetailsModalShow(false);
+                            setTuitionDetailsData(null);
+                        }}
+                        detailsData={tuitionDetailsData}
+                    />
+                )}
+
+                {selectedTeacherForModal && (
+                    <TeacherDetailsModal
+                        show={showTeacherDetailsModal}
+                        onHide={() => {
+                            setShowTeacherDetailsModal(false);
+                            setSelectedTeacherForModal(null);
+                        }}
+                        teacher={selectedTeacherForModal}
+                    />
+                )}
 
                 <ToastContainer />
             </Container>

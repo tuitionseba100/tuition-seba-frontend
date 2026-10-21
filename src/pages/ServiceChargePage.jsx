@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
+import moment from 'moment';
 import { Table, Button, Form, Row, Col, Spinner, Badge, Modal, Card, Pagination } from 'react-bootstrap';
 import AsyncSelect from 'react-select/async';
 import { 
@@ -544,6 +545,32 @@ const ServiceChargePage = () => {
         return new Intl.DateTimeFormat('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }).format(date);
     };
 
+    const getDueStatusInfo = (nextPaymentDate) => {
+        if (!nextPaymentDate) return null;
+
+        try {
+            const cleanStr = String(nextPaymentDate).replace('Z', '');
+            const targetMoment = moment(cleanStr).startOf('day');
+            const todayMoment = moment().startOf('day');
+            const diffDays = todayMoment.diff(targetMoment, 'days');
+
+            if (diffDays === 0) {
+                return { type: 'due_today', label: 'Due Today', bg: '#ffc107', text: '#000' };
+            } else if (diffDays === 1) {
+                return { type: 'due_yesterday', label: 'Overdue (1d)', bg: '#dc3545', text: '#fff' };
+            } else if (diffDays > 1) {
+                return { type: 'overdue', label: `Overdue (${diffDays}d)`, bg: '#b02a37', text: '#fff' };
+            } else if (diffDays === -1) {
+                return { type: 'due_tomorrow', label: 'Due Tomorrow', bg: '#0dcaf0', text: '#000' };
+            } else {
+                const daysAhead = Math.abs(diffDays);
+                return { type: 'upcoming', label: `Due in ${daysAhead}d`, bg: '#6c757d', text: '#fff' };
+            }
+        } catch {
+            return null;
+        }
+    };
+
     return (
         <>
             <NavBarPage />
@@ -721,8 +748,26 @@ const ServiceChargePage = () => {
                                             <tr key={sc._id} className={sc.status === 'completed' ? 'table-success' : ''}>
                                                 <td>{(scCurrentPage - 1) * limit + index + 1}</td>
                                                 <td className="small text-nowrap">{formatDateOnly(sc.date)}</td>
-                                                <td className="fw-bold text-nowrap" style={{ color: sc.status === 'completed' ? '#155724' : '#0d6efd' }}>
-                                                    {formatDateOnly(sc.nextPaymentDate)}
+                                                <td style={{ whiteSpace: 'nowrap' }}>
+                                                    {sc.nextPaymentDate ? (
+                                                        <div className="d-flex flex-column align-items-center gap-1">
+                                                            <span style={{ fontSize: '0.8rem', color: sc.status === 'completed' ? '#155724' : '#0d6efd', fontWeight: 'bold' }}>
+                                                                {formatDateOnly(sc.nextPaymentDate)}
+                                                            </span>
+                                                            {(() => {
+                                                                const statusInfo = getDueStatusInfo(sc.nextPaymentDate);
+                                                                if (!statusInfo) return null;
+                                                                return (
+                                                                    <span 
+                                                                        className="badge px-2 py-0 shadow-sm fw-bold" 
+                                                                        style={{ backgroundColor: statusInfo.bg, color: statusInfo.text, fontSize: '0.68rem' }}
+                                                                    >
+                                                                        {statusInfo.label}
+                                                                    </span>
+                                                                );
+                                                            })()}
+                                                        </div>
+                                                    ) : '-'}
                                                 </td>
                                                  <td>
                                                     {sc.tuitionCode ? (
@@ -1157,7 +1202,25 @@ const ServiceChargePage = () => {
                                                     <span className="text-muted">-</span>
                                                 )}
                                             </td>
-                                            <td>{formatDateOnly(sc.nextPaymentDate)}</td>
+                                            <td style={{ whiteSpace: 'nowrap' }}>
+                                                {sc.nextPaymentDate ? (
+                                                    <div className="d-flex flex-column align-items-center gap-1">
+                                                        <span style={{ fontSize: '0.8rem' }}>{formatDateOnly(sc.nextPaymentDate)}</span>
+                                                        {(() => {
+                                                            const statusInfo = getDueStatusInfo(sc.nextPaymentDate);
+                                                            if (!statusInfo) return null;
+                                                            return (
+                                                                <span 
+                                                                    className="badge px-2 py-0 shadow-sm fw-bold" 
+                                                                    style={{ backgroundColor: statusInfo.bg, color: statusInfo.text, fontSize: '0.68rem' }}
+                                                                >
+                                                                    {statusInfo.label}
+                                                                </span>
+                                                            );
+                                                        })()}
+                                                    </div>
+                                                ) : '-'}
+                                            </td>
                                         </tr>
                                     ))}
                                 </tbody>

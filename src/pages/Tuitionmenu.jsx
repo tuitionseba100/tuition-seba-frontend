@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import moment from 'moment';
 import { Button, Table, Modal, Form, Row, Col, Card, Tooltip, OverlayTrigger, Badge } from 'react-bootstrap';
 import { FaEdit, FaTrashAlt, FaWhatsapp, FaChevronLeft, FaChevronRight, FaGlobe, FaInfoCircle, FaBell, FaSearch, FaUndo, FaUserPlus, FaFileImage, FaHistory, FaComments, FaPaperPlane, FaClock, FaMoneyBillWave, FaProjectDiagram, FaCopy } from 'react-icons/fa';
 import Select from 'react-select';
@@ -778,6 +779,32 @@ const TuitionPage = () => {
         });
     };
 
+    const getDueStatusInfo = (nextUpdateDate) => {
+        if (!nextUpdateDate) return null;
+
+        try {
+            const cleanStr = String(nextUpdateDate).replace('Z', '');
+            const targetMoment = moment(cleanStr).startOf('day');
+            const todayMoment = moment().startOf('day');
+            const diffDays = todayMoment.diff(targetMoment, 'days');
+
+            if (diffDays === 0) {
+                return { type: 'due_today', label: 'Due Today', bg: '#ffc107', text: '#000' };
+            } else if (diffDays === 1) {
+                return { type: 'due_yesterday', label: 'Overdue (1d)', bg: '#dc3545', text: '#fff' };
+            } else if (diffDays > 1) {
+                return { type: 'overdue', label: `Overdue (${diffDays}d)`, bg: '#b02a37', text: '#fff' };
+            } else if (diffDays === -1) {
+                return { type: 'due_tomorrow', label: 'Due Tomorrow', bg: '#0dcaf0', text: '#000' };
+            } else {
+                const daysAhead = Math.abs(diffDays);
+                return { type: 'upcoming', label: `Due in ${daysAhead}d`, bg: '#6c757d', text: '#fff' };
+            }
+        } catch {
+            return null;
+        }
+    };
+
     const OVERDUE_BLINK_STATUSES = new Set([
         'available',
         'guardian negotiation',
@@ -1392,6 +1419,7 @@ const TuitionPage = () => {
                                 handleShowFollowUp={handleShowFollowUp}
                                 handleShowProposal={handleShowProposal}
                                 handleOpenProcessModal={handleOpenProcessModal}
+                                getDueStatusInfo={getDueStatusInfo}
                             />
 
                         </div>
@@ -1480,6 +1508,7 @@ const TuitionPage = () => {
                                         <tr>
                                             <th>SL</th>
                                             <th>Tuition Code</th>
+                                            <th>Next Update Date</th>
                                             <th>Created By/Updated By</th>
                                             <th>Guardian Demand</th>
                                             <th>Cancel Teacher 1</th>
@@ -1522,6 +1551,25 @@ const TuitionPage = () => {
                                                             </span>
                                                         )}
                                                     </div>
+                                                </td>
+                                                <td style={{ whiteSpace: 'nowrap' }}>
+                                                    {tuition.nextUpdateDate ? (
+                                                        <div className="d-flex flex-column align-items-center gap-1">
+                                                            <span style={{ fontSize: '0.8rem' }}>{formatDateTimeDisplay(tuition.nextUpdateDate)}</span>
+                                                            {(() => {
+                                                                const statusInfo = getDueStatusInfo(tuition.nextUpdateDate);
+                                                                if (!statusInfo) return null;
+                                                                return (
+                                                                    <span 
+                                                                        className="badge px-2 py-0 shadow-sm fw-bold" 
+                                                                        style={{ backgroundColor: statusInfo.bg, color: statusInfo.text, fontSize: '0.68rem' }}
+                                                                    >
+                                                                        {statusInfo.label}
+                                                                    </span>
+                                                                );
+                                                            })()}
+                                                        </div>
+                                                    ) : '-'}
                                                 </td>
                                                 <td className="text-start">
                                                     <span className="badge rounded-pill fw-bold me-2 mb-1" style={{ backgroundColor: '#e8f5e9', color: '#2e7d32', border: '1px solid #c8e6c9', padding: '0.4em 0.8em' }} title="Created By">CB: {tuition.createdBy || '-'}</span>
@@ -1787,7 +1835,25 @@ const TuitionPage = () => {
                                                     {t.status}
                                                 </Badge>
                                             </td>
-                                            <td>{formatDateTimeDisplay(t.nextUpdateDate)}</td>
+                                            <td style={{ whiteSpace: 'nowrap' }}>
+                                                {t.nextUpdateDate ? (
+                                                    <div className="d-flex flex-column align-items-center gap-1">
+                                                        <span style={{ fontSize: '0.8rem' }}>{formatDateTimeDisplay(t.nextUpdateDate)}</span>
+                                                        {(() => {
+                                                            const statusInfo = getDueStatusInfo(t.nextUpdateDate);
+                                                            if (!statusInfo) return null;
+                                                            return (
+                                                                <span 
+                                                                    className="badge px-2 py-0 shadow-sm fw-bold" 
+                                                                    style={{ backgroundColor: statusInfo.bg, color: statusInfo.text, fontSize: '0.68rem' }}
+                                                                >
+                                                                    {statusInfo.label}
+                                                                </span>
+                                                            );
+                                                        })()}
+                                                    </div>
+                                                ) : '-'}
+                                            </td>
                                         </tr>
                                     ))}
                                 </tbody>
@@ -2168,7 +2234,8 @@ const MemoizedTuitionTable = React.memo(({
     handleShowStatusHistory,
     handleShowFollowUp,
     handleShowProposal,
-    handleOpenProcessModal
+    handleOpenProcessModal,
+    getDueStatusInfo
 }) => {
     return (
         <Table striped bordered hover responsive="lg">
@@ -2376,7 +2443,25 @@ const MemoizedTuitionTable = React.memo(({
                             <td>{formatDateTimeDisplay(tuition.lastAvailableCheck)}</td>
                             <td>{formatDateTimeDisplay(tuition.lastUpdate)}</td>
                             <td>{tuition.lastUpdateComment || '-'}</td>
-                            <td>{formatDateTimeDisplay(tuition.nextUpdateDate)}</td>
+                            <td style={{ whiteSpace: 'nowrap' }}>
+                                {tuition.nextUpdateDate ? (
+                                    <div className="d-flex flex-column align-items-center gap-1">
+                                        <span style={{ fontSize: '0.8rem' }}>{formatDateTimeDisplay(tuition.nextUpdateDate)}</span>
+                                        {(() => {
+                                            const statusInfo = getDueStatusInfo && getDueStatusInfo(tuition.nextUpdateDate);
+                                            if (!statusInfo) return null;
+                                            return (
+                                                <span 
+                                                    className="badge px-2 py-0 shadow-sm fw-bold" 
+                                                    style={{ backgroundColor: statusInfo.bg, color: statusInfo.text, fontSize: '0.68rem' }}
+                                                >
+                                                    {statusInfo.label}
+                                                </span>
+                                            );
+                                        })()}
+                                    </div>
+                                ) : '-'}
+                            </td>
                             <td>{tuition.nextUpdateComment || '-'}</td>
                             <td>{tuition.wantedTeacher}</td>
                             <td>{tuition.student}</td>
